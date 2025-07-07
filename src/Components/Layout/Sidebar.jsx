@@ -5,11 +5,12 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 const menuItems = [
     { title: 'Dashboard', icon: '/SidebarLogos/Dashboard.png', iconHover: '/SidebarLogos/DashboardH.png', link: '/' },
     { title: 'Weekly Classes', icon: '/SidebarLogos/WeeklyClasses.png', iconHover: '/SidebarLogos/WeeklyClassesH.png', subItems: ['Camp 1', 'Camp 2'] },
-    { title: 'One to One', icon: '/SidebarLogos/OneTOOne.png', iconHover: '/SidebarLogos/OneTOOneH.png', link: '/admin-forgotpassword' },
+    { title: 'One to One', icon: '/SidebarLogos/OneTOOne.png', iconHover: '/SidebarLogos/OneTOOneH.png', link: '/admin-ForgotPassword' },
     { title: 'Holiday Camps', icon: '/SidebarLogos/Holiday.png', iconHover: '/SidebarLogos/HolidayH.png', subItems: ['Camp 1', 'Camp 2'] },
     { title: 'Birthday parties', icon: '/SidebarLogos/Birthday.png', iconHover: '/SidebarLogos/BirthdayH.png', subItems: ['Party 1', 'Party 2'] },
     {
@@ -32,7 +33,7 @@ const menuItems = [
     { title: 'Recruitment reports', icon: '/SidebarLogos/ReqReports.png', iconHover: '/SidebarLogos/ReqReportsH.png', link: '#' },
     { title: 'Synco Chat', icon: '/SidebarLogos/bubble-chat.png', iconHover: '/SidebarLogos/bubble-chatH.png', link: '#' },
     { title: 'Templates', icon: '/SidebarLogos/Template.png', iconHover: '/SidebarLogos/TemplateH.png', link: '#' },
-    { title: 'Administration', icon: '/SidebarLogos/Admistration.png', iconHover: '/SidebarLogos/AdmistrationH.png', link: '#' }
+    { title: 'Administration', icon: '/SidebarLogos/Admistration.png', iconHover: '/SidebarLogos/AdmistrationH.png', link: '/members' }
 ];
 
 
@@ -48,52 +49,66 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         setIsMobileMenuOpen((prev) => !prev);
     };
 
-    const renderMenuItems = (items, level = 0) => (
+const renderMenuItems = (items, level = 0) => {
+    const location = useLocation(); // current route
+
+    return (
         <ul className={`${level === 0 ? 'px-4' : 'pl-10'} ${level === 2 ? 'list-disc' : 'list-none'} space-y-1`}>
             {items.map((item) => {
                 const hasSubItems = Array.isArray(item.subItems);
                 const hasInnerSubItems = Array.isArray(item.innerSubItems);
                 const itemTitle = typeof item === 'string' ? item : item.title;
 
+                const isActive = item.link && location.pathname === item.link;
+
+                const content = (
+                    <motion.div
+                        initial={false}
+                        onClick={() => {
+                            if (hasSubItems || hasInnerSubItems) {
+                                toggleDropdown(itemTitle);
+                            } else if (window.innerWidth < 1024) {
+                                setIsMobileMenuOpen(false);
+                            }
+                        }}
+                        onMouseEnter={() => setHoveredItem(itemTitle)}
+                        onMouseLeave={() => setHoveredItem(null)}
+                        className={`
+                            flex items-center justify-between font-semibold cursor-pointer px-4 py-2 rounded-lg 
+                            transition-all duration-100
+                            ${
+                                level === 0
+                                    ? isActive
+                                        ? 'bg-blue-500 text-white'
+                                        : 'bg-transparent hover:bg-blue-500 hover:text-white text-black'
+                                    : isActive
+                                    ? 'text-blue-600 font-bold'
+                                    : 'hover:text-blue-600'
+                            }
+                        `}
+                    >
+                        <span className="flex items-center gap-3 transition-all duration-100">
+                            {item.icon && level === 0 && (
+                                <motion.img
+                                    src={hoveredItem === itemTitle || isActive ? item.iconHover : item.icon}
+                                    alt={itemTitle}
+                                    className="w-6 h-6"
+                                    initial={{ opacity: 0.8 }}
+                                    animate={{ opacity: 1 }}
+                                />
+                            )}
+                            <span>{itemTitle}</span>
+                        </span>
+                        {level === 0 && hasSubItems && (
+                            openDropdowns[itemTitle] ? <ChevronUp size={20} /> : <ChevronDown size={20} />
+                        )}
+                        {level === 1 && hasInnerSubItems && <span className="ml-2 text-sm">-</span>}
+                    </motion.div>
+                );
+
                 return (
                     <li className="mb-2 text-lg" key={itemTitle}>
-                        
-                        <motion.div
-                            initial={false}
-                            onClick={() => {
-                                if (hasSubItems || hasInnerSubItems) {
-                                    toggleDropdown(itemTitle);
-                                } else if (window.innerWidth < 1024) {
-                                    setIsMobileMenuOpen(false); // Close sidebar on mobile
-                                }
-                            }}
-                            onMouseEnter={() => setHoveredItem(itemTitle)}
-                            onMouseLeave={() => setHoveredItem(null)}
-                            className={`
-                                flex items-center justify-between font-semibold cursor-pointer px-4 py-2 rounded-lg 
-                                transition-all duration-100
-                                ${level === 0
-                                                                ? 'bg-gradient-to-r from-transparent to-transparent hover:bg-blue-500 hover:text-white text-black'
-                                                                : 'hover:text-blue-600'}
-                            `}
-                        >
-                            <span className="flex items-center gap-3 transition-all duration-100">
-                                {item.icon && level === 0 && (
-                                    <motion.img
-                                        src={hoveredItem === itemTitle ? item.iconHover : item.icon}
-                                        alt={itemTitle}
-                                        className="w-6 h-6"
-                                        initial={{ opacity: 0.8 }}
-                                        animate={{ opacity: 1 }}
-                                    />
-                                )}
-                                <span>{itemTitle}</span>
-                            </span>
-                            {level === 0 && hasSubItems && (
-                                openDropdowns[itemTitle] ? <ChevronUp size={20} /> : <ChevronDown size={20} />
-                            )}
-                            {level === 1 && hasInnerSubItems && <span className="ml-2 text-sm">-</span>}
-                        </motion.div>
+                        {item.link ? <Link to={item.link}>{content}</Link> : content}
 
                         <AnimatePresence initial={false}>
                             {(hasSubItems || hasInnerSubItems) && openDropdowns[itemTitle] && (
@@ -113,6 +128,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             })}
         </ul>
     );
+};
 
     return (
         <>

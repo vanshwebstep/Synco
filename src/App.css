@@ -100,7 +100,7 @@ html, body, #root {
     position: relative;
     justify-content: center;
     align-items: center;
-    background: url(http://localhost:5173/src/assets/images/adminlogoimg.png?t=1751629104288);
+    background: url(images/adminlogoimg.png?t=1751629104288);
     background-repeat: no-repeat;
     background-size: contain;
 }
@@ -110,7 +110,7 @@ html, body, #root {
     position: relative;
     justify-content: center;
     align-items: center;
-    background: url(http://localhost:5173/src/assets/images/forgetpassBanner.png) !important;
+    background: url(/images/forgetpassBanner.png) !important;
     background-repeat: no-repeat !important;
     background-size: contain !important;
 }
