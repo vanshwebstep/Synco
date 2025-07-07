@@ -1,0 +1,130 @@
+import React from 'react';
+import { Menu, X, Search, Bell, ChevronUp, ChevronDown } from 'lucide-react';
+
+const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpen }) => {
+  return (
+<>
+{/* HEADER */}
+{/* HEADER */}
+<header className="flex flex-col lg:flex-row justify-between items-start lg:items-center py-4  bg-gray-50  gap-4 lg:gap-0">
+
+  {/* Desktop LEFT: Greeting + Welcome */}
+  <div className="hidden lg:block">
+    <span className="font-semibold text-[22px] sm:text-[24px] lg:text-[26px]">Hi Nillo!</span>
+    <h2 className="text-[28px] sm:text-[32px] lg:text-[36px] font-semibold flex gap-2 items-center whitespace-nowrap">
+      Welcome Back
+      <img src='public/images/Welcomeback.png' alt="Welcome" className="w-8 h-8 sm:w-10 sm:h-10" />
+    </h2>
+  </div>
+
+  {/* Mobile: Top Row (Menu - WelcomeImg - Profile) */}
+  <div className="flex w-full justify-between items-center lg:hidden">
+    {/* Mobile Menu Toggle */}
+    <button onClick={toggleMobileMenu}>
+      {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
+    </button>
+
+    {/* Welcome Image Centered */}
+    <img src='public/images/synco-text.png' alt="Welcome" className="w-25 h-10" />
+
+    {/* Profile Image */}
+    <div className="relative">
+      <div
+        className="flex items-center gap-2 cursor-pointer"
+        onClick={() => setProfileOpen(!profileOpen)}
+      >
+        <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
+          <img src='public/images/demoprofile.png' alt="Profile" className="w-full h-full object-cover" />
+        </div>
+      </div>
+
+      {/* Profile Dropdown */}
+      {profileOpen && (
+        <div className="absolute right-0 mt-2 w-44 bg-white shadow-md rounded-md border z-20">
+          <ul className="text-sm text-gray-700 divide-y divide-gray-100">
+            <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">My Profile</li>
+            <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">Settings</li>
+            <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">Logout</li>
+          </ul>
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Desktop RIGHT Side Items */}
+  <div className="hidden lg:flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 w-full lg:w-auto">
+    
+    {/* Search Bar */}
+    <div className="relative w-full sm:w-[280px] lg:w-[200px] xl:w-[250px] 2xl:w-[400px]">
+      <input
+        type="search"
+        className="w-full px-4 py-3 pl-8 border border-[#E2E1E5] rounded-lg bg-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+        placeholder="Search"
+      />
+      <Search className="absolute right-3 top-1/2 left-2 transform -translate-y-1/2 text-black" size={20} />
+    </div>
+
+    {/* Notification Bell */}
+    <div className="w-11 h-11 sm:w-12 sm:h-12 bg-white border border-[#E2E1E5] rounded-full flex items-center justify-center text-black">
+      <Bell size={20} />
+    </div>
+
+    {/* Date + Profile */}
+    <div className="flex items-start sm:items-center justify-between w-full sm:w-auto">
+      {/* Date */}
+      <div className="hidden sm:block text-sm text-gray-600 border-r border-gray-300 pr-4 mr-4">
+        <span className="block text-base text-gray-800 font-semibold">January</span>
+        <span className="font-semibold text-gray-600">8 Monday 2024</span>
+      </div>
+
+      {/* Profile Info + Dropdown */}
+      <div className="relative">
+        <div
+          className="profile mt-1 sm:mt-2 flex items-center gap-3 cursor-pointer"
+          onClick={() => setProfileOpen(!profileOpen)}
+        >
+          <div className="profileimg w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
+            <img src='public/images/demoprofile.png' alt="profile" className="object-cover w-full h-full" />
+          </div>
+          <div className="block text-start">
+            <div className="flex items-center gap-1">
+              <span className="text-base font-semibold leading-[1px]">Nilo V Bagga</span>
+              {profileOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </div>
+            <span className="text-sm text-gray-600 font-semibold">Super Admin</span>
+          </div>
+        </div>
+
+        {profileOpen && (
+          <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md border z-10">
+            <ul className="text-sm text-gray-700 divide-y divide-gray-100">
+              <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">My Profile</li>
+              <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">Settings</li>
+              <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">Logout</li>
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+</header>
+
+{/* SEARCH BAR: Only for mobile (below header) */}
+<div className="block lg:hidden px-4 sm:px-6 py-3 bg-gray-50 border-b">
+  <div className="relative w-full">
+    <input
+      type="search"
+      className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      placeholder="Search"
+    />
+    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+  </div>
+</div>
+
+</>
+
+
+  );
+};
+
+export default Header;
