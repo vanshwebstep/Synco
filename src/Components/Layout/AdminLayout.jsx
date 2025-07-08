@@ -11,7 +11,10 @@ import HeaderBanner from '../Pages/AdminPages/HeaderBanner';
   '/recruitment-reports': 'Recruitment Reports',
   '/templates': 'Templates',
   '/synco-chat': 'Synco Chat',
-  '/members':'Admin Panel'
+  '/members':'Admin Panel',
+  '/holiday-camps/payment-planManager':'Payment Plann',
+  '/holiday-camps/add-payment-plan-group':'Payment Plansn'
+
   // Add more as needed
 };
 const AdminLayout = ({ children }) => {
@@ -25,7 +28,7 @@ console.log('routeTitleMap',routeTitleMap)
   return (
     <div className="flex ">
       <Sidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
-      <div className="flex-1 flex flex-col px-6 bg-gray-50">
+      <div className="flex-1 w-full flex flex-col px-6 bg-gray-50">
         <Header
           profileOpen={profileOpen}
           setProfileOpen={setProfileOpen}

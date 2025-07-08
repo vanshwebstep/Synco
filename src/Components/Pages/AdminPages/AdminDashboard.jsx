@@ -98,7 +98,7 @@ const AdminDashboard = () => {
    className="bg-yellow-300 rounded-3xl p-6 py-12 pb-5 flex justify-between items-center text-white relative overflow-hidden"
   style={{
  
-      backgroundImage: `url(public/images/welcomeToDashboard.png)`,
+      backgroundImage: `url(/images/welcomeToDashboard.png)`,
       backgroundRepeat: 'no-repeat',
       backgroundPosition: 'left',
       backgroundSize: 'contain',
@@ -136,25 +136,25 @@ const AdminDashboard = () => {
 
                     {(metric.title === "Cancellations" || metric.title === "Growth") && (
                       <div className="flex justify-end gap-2 items-start">
-                        <img className="w-6 h-6" src='public/DashboardIcons/Show.png' alt="" />
-                        <img className="w-5 h-5" src='public/DashboardIcons/button.png' alt="" />
+                        <img className="w-6 h-6" src='/DashboardIcons/Show.png' alt="" />
+                        <img className="w-5 h-5" src='/DashboardIcons/button.png' alt="" />
                       </div>
                     )}
                   </div>
 
                   <div className="flex justify-start gap-5 items-end">
                     <div className="text-xs text-gray-400 mt-2 block">
-                      <span className="font-semibold  text-black flex items-center gap-2"> <img src='public/DashboardIcons/orangedot.png' alt="" /> Last Month</span>
+                      <span className="font-semibold  text-black flex items-center gap-2"> <img src='/DashboardIcons/orangedot.png' alt="" /> Last Month</span>
                       <br />
                       <span className="text-red-500  font-semibold bg-red-100 p-1 rounded-lg flex justify-center mt-2">
-                        -0.56% <img src='public/images/ArrowFall.png' alt="" />
+                        -0.56% <img src='/images/ArrowFall.png' alt="" />
                       </span>
                     </div>
                     <div className="text-xs text-gray-400 block">
-                      <span className="font-semibold text-black flex items-center gap-2"><img src='public/DashboardIcons/greendot.png' alt="" />  This Week</span>
+                      <span className="font-semibold text-black flex items-center gap-2"><img src='/DashboardIcons/greendot.png' alt="" />  This Week</span>
                       <br />
                       <span className="text-green-500 font-semibold bg-gray-100 p-1 rounded-lg flex justify-center mt-2">
-                        +5.27% <img src='public/images/Arrowtop.png' alt="" />
+                        +5.27% <img src='/images/Arrowtop.png' alt="" />
                       </span>
                     </div>
                   </div>
@@ -172,7 +172,7 @@ const AdminDashboard = () => {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <h3 className="font-semibold text-[24px]">Filter by date</h3>
                 <button className="flex gap-2 items-center bg-blue-500 text-white p-2 rounded-lg text-[16px]">
-                  <img src='public/DashboardIcons/filtericon.png' className='w-5 h-5' alt="" />  Apply filter
+                  <img src='/DashboardIcons/filtericon.png' className='w-5 h-5' alt="" />  Apply filter
                 </button>
               </div>
 
@@ -279,7 +279,7 @@ const AdminDashboard = () => {
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold text-[24px]">My Tasks</h3>
                 <button className="bg-blue-600 text-white px-2 py-2 rounded-lg font-semibold  text-[16px] flex items-center space-x-1">
-                  <Plus size={14} /> <span> <span className='highlight'>Add</span>  New Task</span>
+                  <Plus size={14} /> <span>Add  New Task</span>
                 </button>
               </div>
               <ul className="text-sm text-gray-600">
@@ -289,7 +289,7 @@ const AdminDashboard = () => {
                   {
                     label: (
                       <span>
-                        <span className="highlight">Add</span> new services
+                        Add new services
                       </span>
                     ),
                     date: "24 Nov 2022",

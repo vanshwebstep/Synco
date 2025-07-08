@@ -18,11 +18,11 @@ const Create = () => {
 
   return (
     <div className="max-w-md mx-auto">
-      <h2 className="text-xl font-semibold mb-4 border-[#E2E1E5] border-b p-6">
+      <h2 className="text-[23px] pb-4 font-semibold mb-4 border-[#E2E1E5] border-b p-5">
         Add New Member
       </h2>
 
-      <form className="space-y-4 p-5">
+      <form className="space-y-4 pt-0 p-5">
         <div>
           <label className="block text-sm font-semibold text-[#282829]">Full Name</label>
           <input type="text" className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -63,13 +63,13 @@ const Create = () => {
 
         <div>
           <label className="block text-sm font-semibold text-[#282829] mb-1">Profile Picture</label>
-          <div className="w-full border border-[#E2E1E5] rounded-lg bg-[#F5F5F5] h-32 flex items-center justify-center cursor-pointer relative overflow-hidden">
+          <div className="w-full  rounded-lg bg-[#F5F5F5] h-32 flex items-center flex-col gap-3 justify-center cursor-pointer relative overflow-hidden">
             {photo ? (
               <img src={photo} alt="Uploaded" className="h-full object-cover" />
             ) : (
               <>
-                <span className="text-2xl font-light">+</span>
-                <span className="text-sm ml-2">Add Photo</span>
+                <img src="/members/addblack.png" className='w-4 block' alt="" />
+                <span className="text-sm ml-2 font-semibold block">Add Photo</span>
               </>
             )}
             <input

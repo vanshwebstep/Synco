@@ -11,8 +11,17 @@ const menuItems = [
     { title: 'Dashboard', icon: '/SidebarLogos/Dashboard.png', iconHover: '/SidebarLogos/DashboardH.png', link: '/' },
     { title: 'Weekly Classes', icon: '/SidebarLogos/WeeklyClasses.png', iconHover: '/SidebarLogos/WeeklyClassesH.png', subItems: ['Camp 1', 'Camp 2'] },
     { title: 'One to One', icon: '/SidebarLogos/OneTOOne.png', iconHover: '/SidebarLogos/OneTOOneH.png', link: '/admin-ForgotPassword' },
-    { title: 'Holiday Camps', icon: '/SidebarLogos/Holiday.png', iconHover: '/SidebarLogos/HolidayH.png', subItems: ['Camp 1', 'Camp 2'] },
-    { title: 'Birthday parties', icon: '/SidebarLogos/Birthday.png', iconHover: '/SidebarLogos/BirthdayH.png', subItems: ['Party 1', 'Party 2'] },
+    {
+        title: 'Holiday Camps',
+        icon: '/SidebarLogos/Holiday.png',
+        iconHover: '/SidebarLogos/HolidayH.png',
+        subItems: [
+            { title: 'Venues', link: '/holiday-camps/venues' },
+            { title: 'Session Plan Library', link: '/holiday-camps/session-plans' },
+            { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager' }
+       ]
+    },
+      { title: 'Birthday parties', icon: '/SidebarLogos/Birthday.png', iconHover: '/SidebarLogos/BirthdayH.png', subItems: ['Party 1', 'Party 2'] },
     {
         title: 'Club',
         icon: '/SidebarLogos/Club.png',
@@ -135,29 +144,33 @@ const renderMenuItems = (items, level = 0) => {
 
 
             {/* Mobile Drawer */}
-            <AnimatePresence>
-                {isMobileMenuOpen && (
-                    <motion.aside
-                        initial={{ x: '-100%' }}
-                        animate={{ x: 0 }}
-                        exit={{ x: '-100%' }}
-                        transition={{ type: 'tween' }}
-                        className="fixed top-0 left-0 w-72 h-full bg-white z-50 shadow-lg border-r lg:hidden"
-                    >
-                        <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
-                            <img src='public/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
-                        </div>
-                        <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400">
-                            {renderMenuItems(menuItems)}
-                        </nav>
-                    </motion.aside>
-                )}
-            </AnimatePresence>
+         {/* Mobile Drawer */}
+<AnimatePresence>
+  {isMobileMenuOpen && (
+    <motion.aside
+      initial={{ x: '-100%' }}
+      animate={{ x: 0 }}
+      exit={{ x: '-100%' }}
+      transition={{ type: 'tween' }}
+      className="fixed top-0 left-0 w-72 h-full bg-white z-50 shadow-lg border-r lg:hidden flex flex-col"
+    >
+      <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
+        <img src='/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
+      </div>
+
+      {/* Make this section scrollable */}
+      <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 px-2 pb-6">
+        {renderMenuItems(menuItems)}
+      </nav>
+    </motion.aside>
+  )}
+</AnimatePresence>
+
 
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex w-72 h-screen bg-white border-r border-gray-100 flex-col shadow-lg">
                 <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
-                    <img src='public/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
+                    <img src='/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
                 </div>
                 <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500">
                     {renderMenuItems(menuItems)}

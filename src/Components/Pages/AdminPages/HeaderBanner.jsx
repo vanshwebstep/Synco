@@ -4,7 +4,7 @@ const HeaderBanner = ({ title }) => {
 console.log('titi',title)
     return (
      <section
-      className="headerbanner mt-8 py-7 bg-no-repeat bg-cover bg-center rounded-xl flex items-center p-10"
+      className="headerbanner mt-8 py-7 bg-no-repeat bg-cover bg-center rounded-4xl flex items-center p-10"
       style={{
         backgroundImage: "url('/members/headerbanner.png')",
       }}

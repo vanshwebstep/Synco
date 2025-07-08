@@ -13,7 +13,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     <span className="font-semibold text-[22px] sm:text-[24px] lg:text-[26px]">Hi Nillo!</span>
     <h2 className="text-[28px] sm:text-[32px] lg:text-[36px] font-semibold flex gap-2 items-center whitespace-nowrap">
       Welcome Back
-      <img src='public/images/Welcomeback.png' alt="Welcome" className="w-8 h-8 sm:w-10 sm:h-10" />
+      <img src='/images/Welcomeback.png' alt="Welcome" className="w-8 h-8 sm:w-10 sm:h-10" />
     </h2>
   </div>
 
@@ -25,7 +25,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     </button>
 
     {/* Welcome Image Centered */}
-    <img src='public/images/synco-text.png' alt="Welcome" className="w-25 h-10" />
+    <img src='/images/synco-text.png' alt="Welcome" className="w-25 h-10" />
 
     {/* Profile Image */}
     <div className="relative">
@@ -34,7 +34,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
         onClick={() => setProfileOpen(!profileOpen)}
       >
         <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
-          <img src='public/images/demoprofile.png' alt="Profile" className="w-full h-full object-cover" />
+          <img src='/images/demoprofile.png' alt="Profile" className="w-full h-full object-cover" />
         </div>
       </div>
 
@@ -84,7 +84,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
           onClick={() => setProfileOpen(!profileOpen)}
         >
           <div className="profileimg w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
-            <img src='public/images/demoprofile.png' alt="profile" className="object-cover w-full h-full" />
+            <img src='/images/demoprofile.png' alt="profile" className="object-cover w-full h-full" />
           </div>
           <div className="block text-start">
             <div className="flex items-center gap-1">
