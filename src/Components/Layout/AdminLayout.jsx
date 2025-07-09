@@ -41,7 +41,7 @@ const AdminLayout = ({ children }) => {
           isMobileMenuOpen={isMobileMenuOpen}
         />
 
-        {location.pathname !== '/' && (
+  {!['/', '/discounts/create'].includes(location.pathname) && (
           <HeaderBanner title={title} icon={Icon} />
         )}
 

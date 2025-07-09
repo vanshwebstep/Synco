@@ -26,7 +26,7 @@ const DiscountsList = () => {
       <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 ${openForm ? 'md:w-3/4' : 'w-full md:w-[full]'}`}>
         <h2 className="text-2xl font-semibold">Discounts Table</h2>
         <button
-           onClick={() => navigate(`/holiday-camps/add-payment-plan-group`)}
+           onClick={() => navigate(`/discounts/create`)}
           // onClick={() => setOpenForm(true)}
           className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
         >
@@ -43,7 +43,7 @@ const DiscountsList = () => {
                   <th className="p-4 text-[14px] text-[#717073] md:pl-14">Title</th>
                   <th className="p-4 text-[#717073]">Method</th>
                   <th className="p-4 text-[#717073]">Type</th>
-                  <th className="p-4 text-[#717073]">Used</th>
+                  <th className="p-4 text-[#717073] text-center">Used</th>
                   <th className="p-4 text-[#717073] text-center">Status</th>
                 </tr>
               </thead>
@@ -67,7 +67,7 @@ const DiscountsList = () => {
                     </td>
                     <td className="p-4 ">{user.Method}</td>
                     <td className="p-4">{user.type}</td>
-                    <td className="p-4">{user.used}</td>
+                    <td className="p-4 text-center">{user.used}</td>
                     <td className="p-4">
                       <div className='flex gap-2 items-center justify-center'>
                         <button className='text-green-400 bg-green-100 px-7 rounded-lg py-1 text-[14px]'>{user.status}</button>

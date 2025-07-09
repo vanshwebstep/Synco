@@ -11,6 +11,7 @@ import AddPaymentPlanGroup from './Components/Pages/AdminPages/Holiday Camps/Add
 import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberContext.jsx';
 
 import DiscountsList from './Components/Pages/AdminPages/Discounts/List.jsx';
+import DiscountCreate from './Components/Pages/AdminPages/Discounts/Create.jsx';
 
 import './App.css';
 import Notification from './Components/Pages/AdminPages/notification/Notification.jsx';
@@ -55,6 +56,7 @@ const AppRoutes = () => {
       <Route path="/notification" element={protectedElement(<Notification />)} />
       <Route path="/notification-list" element={protectedElement(<NotificationList />)} />
       <Route path="/discounts/list" element={protectedElement(<DiscountsList />)} />
+      <Route path="/discounts/create" element={protectedElement(<DiscountCreate />)} />
 
     </Routes>
   );
