@@ -1,0 +1,2 @@
+npm install date-fns --save --legacy-peer-deps
+npm install react-spinners --legacy-peer-deps

@@ -4,12 +4,32 @@ import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
 import { useMembers } from '../contexts/MemberContext';
 import Loader from '../contexts/Loader';
+import { formatDistanceToNow } from 'date-fns';
 
 
 const List = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const { members, fetchMembers, loading } = useMembers();
-  const [checked, setChecked] = useState(false);
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const toggleCheckbox = (userId) => {
+    setSelectedUserIds((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId]
+    );
+  };
+  const isAllSelected = members.length > 0 && selectedUserIds.length === members.length;
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedUserIds([]);
+    } else {
+      const allIds = members.map((user) => user.id);
+      setSelectedUserIds(allIds);
+    }
+  };
+
+
   const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
   useEffect(() => {
@@ -47,16 +67,18 @@ const List = () => {
 
                 <table className="min-w-full bg-white text-sm">
                   <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
-                    <tr className='font-semibold'>
+                    <tr className="font-semibold">
                       <th className="p-4 text-[#717073]">
-                        <div className="flex gap-2">
-                        <button
-                          onClick={() => setChecked(!checked)}
-                          className={`w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-500 transition-colors focus:outline-none`}
-                        >
-                          {checked && <Check size={16} strokeWidth={3} className="text-gray-500" />}
-                        </button>
-                        User</div></th>
+                        <div className="flex gap-2 items-center">
+                          <button
+                            onClick={toggleSelectAll}
+                            className="w-5 h-5 flex items-center justify-center rounded-md border-2 border-gray-500 focus:outline-none"
+                          >
+                            {isAllSelected && <Check size={16} strokeWidth={3} className="text-gray-500" />}
+                          </button>
+                          User
+                        </div>
+                      </th>
                       <th className="p-4 text-[#717073]">Role</th>
                       <th className="p-4 text-[#717073]">Phone</th>
                       <th className="p-4 text-[#717073]">Email</th>
@@ -64,35 +86,46 @@ const List = () => {
                       <th className="p-4 text-[#717073]">Activity</th>
                     </tr>
                   </thead>
+
                   <tbody>
-                    {members.map((user, idx) => (
-                      <tr key={idx} className="border-t  font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
-                        <td className="p-4 cursor-pointer">
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => setChecked(!checked)}
-                              className={`w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-500 transition-colors focus:outline-none`}
-                            >
-                              {checked && <Check size={16} strokeWidth={3} className="text-gray-500" />}
-                            </button>
+                    {members.map((user, idx) => {
+                      const isChecked = selectedUserIds.includes(user.id);
 
-                            <img
-                              src={`${API_BASE_URL}/${user.profile}`}
-                              alt={user.firstName}
-                              onClick={() => navigate(`/members/update?id=${user.id}`)}
-                              className="w-10 h-10 rounded-full  object-cover"
-                            />
-                            <span>{user.firstName || "-"}</span>
-                          </div>
-                        </td>
-                        <td className="p-4">{user.role?.role || "-"}</td>
-                        <td className="p-4">{user.phoneNumber || "-"}</td>
-                        <td className="p-4">{user.email || "-"}</td>
-                        <td className="p-4">{user.position || "-"}</td>
-                        <td className="p-4">{new Date(user.createdAt).toLocaleDateString() || "-"}</td>
+                      return (
+                        <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
+                          <td className="p-4 cursor-pointer">
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => toggleCheckbox(user.id)}
+                                className={`w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-700' : 'border-gray-300'
+                                  } transition-colors focus:outline-none`}
+                              >
+                                {isChecked && <Check size={16} strokeWidth={3} className="text-gray-700" />}
+                              </button>
 
-                      </tr>
-                    ))}
+                              <img
+                                src={`${API_BASE_URL}/${user.profile}`}
+                                alt={user.firstName}
+                                onClick={() => navigate(`/members/update?id=${user.id}`)}
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                              <span>{user.firstName || "-"}</span>
+                            </div>
+                          </td>
+                          <td className="p-4">{user.role?.role || "-"}</td>
+                          <td className="p-4">{user.phoneNumber || "-"}</td>
+                          <td className="p-4">{user.email || "-"}</td>
+                          <td className="p-4">{user.position || "-"}</td>
+                          <td className="p-4">
+                            {user.createdAt
+                              ? formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })
+                              : "-"}
+                          </td>
+
+                        </tr>
+                      );
+                    })}
+
                   </tbody>
                 </table>
               </div>

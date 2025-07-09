@@ -1,4 +1,6 @@
 import CreatableSelect from "react-select/creatable";
+import Select from 'react-select';
+
 import React, { useEffect, useState, useCallback } from "react";
 import Swal from "sweetalert2";
 import { useMembers } from "../contexts/MemberContext";
@@ -14,9 +16,9 @@ const Update = () => {
   const [error, setError] = useState("");
 
   const [editPersonal, setEditPersonal] = useState(false);
-  const [editProfile, setEditProfile] = useState(false);
   const [editAddress, setEditAddress] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [country, setCountry] = useState([]);
   const [photoPreview, setPhotoPreview] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -38,7 +40,6 @@ const Update = () => {
   const {
     roleOptions,
     fetchRoles,
-    fetchMembers,
     showRoleModal,
     setShowRoleModal,
     setRoleName,
@@ -86,12 +87,28 @@ const Update = () => {
       setLoading(false);
     }
   }, [id]);
+  const fetchCountry = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/location/country`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const result = await response.json();
+
+      const formatted = result.data;
+      setCountry(formatted);
+    } catch (error) {
+      console.error("Failed to fetch roles:", error);
+    }
+  }
 
 
 
   useEffect(() => {
     fetchMembersById();
     fetchRoles();
+    fetchCountry();
   }, [fetchMembersById]);
 
   const token = localStorage.getItem("adminToken");
@@ -249,55 +266,58 @@ const Update = () => {
   };
 
   const handleSuspend = async () => {
-  const confirm = await Swal.fire({
-    title: 'Are you sure?',
-    text: 'You are about to suspend this member.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, suspend it!',
-  });
+    const confirm = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'You are about to suspend this member.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, suspend it!',
+    });
 
-  if (!confirm.isConfirmed) return;
+    if (!confirm.isConfirmed) return;
 
-  const token = localStorage.getItem("adminToken");
-  if (!token) {
-    Swal.fire("Error", "No token found. Please login again.", "error");
-    return;
-  }
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      Swal.fire("Error", "No token found. Please login again.", "error");
+      return;
+    }
 
-  Swal.fire({
-    title: 'Suspending...',
-    allowOutsideClick: false,
-    didOpen: () => {
-      Swal.showLoading();
-    },
-  });
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/admin/member/${id}/status?status=suspend`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
+    Swal.fire({
+      title: 'Suspending...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
       },
     });
 
-    const result = await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/member/${id}/status?status=suspend`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (response.ok) {
-      Swal.fire("Suspended!", "Member has been suspended successfully.", "success");
-      navigate('/members');
-    } else {
-      Swal.fire("Error", result.message || "Failed to suspend the member.", "error");
+      const result = await response.json();
+
+      if (response.ok) {
+        Swal.fire("Suspended!", "Member has been suspended successfully.", "success");
+        navigate('/members');
+      } else {
+        Swal.fire("Error", result.message || "Failed to suspend the member.", "error");
+      }
+    } catch (error) {
+      Swal.fire("Error", "Network or server error occurred.", "error");
+      console.error("Suspend error:", error);
     }
-  } catch (error) {
-    Swal.fire("Error", "Network or server error occurred.", "error");
-    console.error("Suspend error:", error);
-  }
-};
+  };
 
-
+  const countryOptions = country.map(item => ({
+    value: item.id,
+    label: item.name
+  }));
   if (loading) return <Loader />;
   if (!id) return null;
   if (error) return <p className="text-red-500 text-center mt-5">{error}</p>;
@@ -422,12 +442,22 @@ const Update = () => {
         <div className="md:grid grid-cols-1 sm:grid-cols-2 gap-4">
           {editAddress ? (
             <>
-              <input
+
+              <Select
                 name="country"
-                value={formData.country}
-                onChange={handleChange}
-                placeholder="Country"
-                className="w-full border border-gray-300 rounded-lg mt-2 md:mt-0 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={countryOptions.find(option => option.value === formData.country) || null}
+                onChange={selectedOption =>
+                  handleChange({
+                    target: {
+                      name: 'country',
+                      value: selectedOption ? selectedOption.value : ''
+                    }
+                  })
+                }
+                options={countryOptions}
+                placeholder="Select Country"
+                className="mt-2 md:mt-0"
+                classNamePrefix="react-select"
               />
               <input
                 name="city"
