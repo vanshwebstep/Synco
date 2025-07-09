@@ -13,7 +13,8 @@ import HeaderBanner from '../Pages/AdminPages/HeaderBanner';
   '/synco-chat': 'Synco Chat',
   '/members':'Admin Panel',
   '/holiday-camps/payment-planManager':'Payment Plann',
-  '/holiday-camps/add-payment-plan-group':'Payment Plansn'
+  '/holiday-camps/add-payment-plan-group':'Payment Plansn',
+  '/discounts/list':'Discounts',
 
   // Add more as needed
 };

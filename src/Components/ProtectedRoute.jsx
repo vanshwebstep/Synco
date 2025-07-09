@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
   const [authStatus, setAuthStatus] = useState('checking'); // 'checking' | 'allowed' | 'denied'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -17,7 +18,7 @@ const ProtectedRoute = ({ children }) => {
 
       try {
         const response = await fetch(
-          'https://synco-i0a7.onrender.com/api/admin/auth/login/verify',
+          `${API_BASE_URL}/api/admin/auth/login/verify`,
           {
             method: 'GET',
             headers: {

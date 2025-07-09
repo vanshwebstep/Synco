@@ -1,144 +1,313 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check } from "lucide-react";
-import { Trash2, Eye } from 'lucide-react';
-
-const users = new Array(9).fill({
-  id: 1,
-  name: "2023/24 Standard Pricing",
-  NoOfPlans: "2",
-  CreatedDate: "Sat 7 Sep",
-  email: "sarah@gmail.com",
-  position: "Team Lead",
-  activity: "2 Days Ago",
-  avatar: "/members/dummyuser.png"
-});
+import { Trash2, Eye, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AddPaymentPlanGroup = () => {
-  const navigate = useNavigate();
-  const [openForm, setOpenForm] = useState(false);
-  const [checked, setChecked] = useState(false);
-  const [paymentPlans, setPaymentPlans] = useState([
-    'Holiday Camp: 1 Student',
-    'Holiday Camp: 2 Student'
-  ]);
+    const [groupName, setGroupName] = useState('');
+    const [previewShowModal, setPreviewShowModal] = useState(false);
 
-  const removePlan = (index) => {
-    const updated = [...paymentPlans];
-    updated.splice(index, 1);
-    setPaymentPlans(updated);
-  };
-  return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
+    const [description, setDescription] = useState('');
+    const [packageDetails, setPackageDetails] = useState('');
+    const [terms, setTerms] = useState('');
+    const [plans, setPlans] = useState([]);
+    const [formData, setFormData] = useState({
+        title: '',
+        price: '',
+        interval: '',
+        duration: '',
+        students: '',
+        joiningFee: ''
+    });
+    const previewPlans = [
+        { students: '1 Student', price: '£99.99' },
+        { students: '2 Student', price: '£99.99' },
+        { students: '3 Student', price: '£99.99' },
+    ];
 
-      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 ${openForm ? 'md:w-3/4' : 'w-full md:w-1/2'}`}>
-        <h2 className="text-2xl font-semibold">Add Payment Plan Group</h2>
-        {/* <button
-         onClick={() => navigate(`/holiday-camps/add-payment-plan-group`)}
-        //   onClick={() => setOpenForm(true)}
-          className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
-        >
-          <img src="/members/add.png" className='w-5' alt="" /> Add Pasyment Plan Group
-        </button> */}
-      </div>
+    const [openForm, setOpenForm] = useState(false);
+    const navigate = useNavigate();
 
-      <div className="flex flex-col md:flex-row gap-6">
-        <div className={`transition-all duration-300 w-full ${openForm ? 'md:w-3/4' : 'md:w-1/2'}`}>
-          <div className="rounded-2xl ">
-          <form className="mx-auto space-y-4">
-      {/* Group Name */}
-      <div>
-        <label className="block text-base font-semibold text-gray-700 mb-1">
-          Payment Plan Group Name
-        </label>
-        <input
-          type="text"
-          placeholder="Enter Group Name"
-          className="w-full px-4 font-semibold text-base py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+    const handleAddPlan = () => {
+        setOpenForm(true);
+    };
 
-      {/* Description */}
-      <div>
-        <label className="block text-base font-semibold text-gray-700 mb-1">
-          Description
-        </label>
-        <input
-          type="text"
-          placeholder="Add Internal  reference"
-          className="w-full px-4 font-semibold py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+    const handleSavePlan = () => {
+        const newPlan = {
+            title: formData.title,
+            price: formData.price,
+            interval: formData.interval,
+            duration: formData.duration,
+            students: formData.students,
+            joiningFee: formData.joiningFee,
+        };
+        setPlans([...plans, newPlan]);
+        setFormData({
+            title: '',
+            price: '',
+            interval: '',
+            duration: '',
+            students: '',
+            joiningFee: ''
+        });
+        setPackageDetails('');
+        setTerms('');
+        setOpenForm(false);
 
-      {/* Payment Plans */}
-      <div>
-        <label className="block text-base font-semibold text-gray-700 mb-1">
-          Payment Plans
-        </label>
-        <div className="space-y-2">
-          {paymentPlans.map((plan, idx) => (
-            <div
-              key={idx}
-              className="flex items-center font-semibold justify-between px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
-            >
-              <span>{plan}</span>
-              <button
-                type="button"
-                onClick={() => removePlan(idx)}
-                className="text-gray-500 hover:text-red-500"
-              >
-                <Trash2 size={18} />
-              </button>
+    };
+
+    const handleRemovePlan = (index) => {
+        const updated = [...plans];
+        updated.splice(index, 1);
+        setPlans(updated);
+    };
+
+    const handleCreateGroup = () => {
+        const payload = {
+            groupName,
+            description,
+            plans,
+            packageDetails,
+            terms
+        };
+        console.log("Final Group Payload:", payload);
+        alert("Group Created Successfully!");
+        // navigate("/admin-dashboard"); // or your target route
+    };
+    console.log('plans', plans)
+    return (
+        <div className=" md:p-6 bg-gray-50 min-h-screen">
+
+            <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2`}>
+                <h2
+                    onClick={() => {
+                        if (previewShowModal) {
+                            setPreviewShowModal(false);
+                        } else {
+                            navigate('/holiday-camps/payment-planManager');
+                        }
+                    }}
+                    className="text-2xl font-semibold flex items-center gap-2 cursor-pointer hover:opacity-80"
+                >
+                    <img src="/icons/arrow-left.png" alt="Back" />
+                    {previewShowModal ? '2023/24 Standard Pricing preview' : 'Add Payment Plan Group'}
+                </h2>
+
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Add Payment Plan Button */}
+            <div className={`flex flex-col md:flex-row bg-white  rounded-3xl ${previewShowModal ? 'md:w-3/4  md:p-10' : 'w-full  md:p-12 p-4'}`}>
+                {previewShowModal && (
+                 <div className="flex items-center justify-center w-full px-4 py-6 sm:px-6 md:py-10">
+  <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+    
+    {/* Header */}
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
+      <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
       <button
-        type="button"
-        className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700"
+        onClick={() => setPreviewShowModal(false)}
+        className="text-gray-400 hover:text-black text-xl font-bold"
       >
-        Add Payment Plan
+        <img src="/icons/cross.png" alt="close" className="w-5 h-5" />
       </button>
-
-      {/* Footer Buttons */}
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          className="flex items-center gap-1 border border-blue-500 text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
-        >
-          <Eye size={16} />
-          Preview Payment Plans
-        </button>
-
-        <button
-          type="submit"
-          className="bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-blue-700"
-        >
-          Create Group
-        </button>
-      </div>
-    </form>
-          </div>
-        </div>
-
-        {openForm && (
-          <div className="w-full md:w-1/4 bg-white rounded-2xl p-4 relative shadow-md">
-            <button
-              onClick={() => setOpenForm(false)}
-              className="absolute top-2 right-3 text-gray-400 hover:text-gray-700 text-xl"
-              title="Close"
-            >
-              &times;
-            </button>
-            {/* Add your form content here */}
-            <div className="text-gray-500 text-base">Form Section (coming soon)</div>
-          </div>
-        )}
-      </div>
     </div>
-  );
+
+    {/* Plans Grid */}
+    <div className="grid pt-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {previewPlans.map((plan, idx) => (
+        <div
+          key={idx}
+          className="border border-[#E2E1E5] rounded-xl p-4 sm:p-5 flex flex-col justify-between transition"
+        >
+          <h3 className="text-[18px] sm:text-[20px] font-semibold mb-2">{plan.students}</h3>
+          <p className="text-[24px] sm:text-[32px] font-semibold mb-4">{plan.price}</p>
+          <hr className="mb-4 text-[#E2E1E5]" />
+          <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold">
+            <li className="flex items-center py-2 gap-2">
+              <img src="/icons/tick-circle.png" alt="" className="w-5 h-5" />
+              4 day camp
+            </li>
+            <li className="flex items-center py-2 pb-2 sm:pb-4 gap-2">
+              <img src="/icons/tick-circle.png" alt="" className="w-5 h-5" />
+              Free Holiday Camp Bag
+            </li>
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+                ) ||
+                    <>
+                        <div className={`transition-all duration-300 md:w-1/2`}>
+                            <div className="rounded-2xl  md:p-12 ">
+                                <form className="mx-auto space-y-4">
+                                    {/* Group Name */}
+                                    <div>
+                                        <label className="block text-base  font-semibold text-gray-700 mb-2">
+                                            Payment Plan Group Name
+                                        </label>
+                                        <input
+                                            value={groupName}
+                                            onChange={(e) => setGroupName(e.target.value)}
+                                            type="text"
+                                            placeholder="Enter Group Name"
+                                            className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    {/* Description */}
+                                    <div>
+                                        <label className="block text-base  font-semibold text-gray-700 mb-2">
+                                            Description
+                                        </label>
+                                        <input
+
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            type="text"
+                                            placeholder="Add Internal  reference"
+                                            className="w-full px-4 font-semibold py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    {/* Payment Plans */}
+                                    <div>
+                                        <label className="block text-base  font-semibold text-gray-700 mb-2">
+                                            Payment Plans
+                                        </label>
+                                        <div className="space-y-2  border border-gray-200 rounded-lg px-4 py-3 ">
+                                            {plans.map((plan, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="flex items-center font-semibold justify-between "
+                                                >
+                                                    <span>{`${plan.title}: ${plan.price}`}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemovePlan(idx)}
+                                                        className="text-gray-500 hover:text-red-500"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Add Payment Plan Button */}
+                                    <button
+                                        type="button"
+                                        onClick={handleAddPlan}
+                                        className="w-full bg-[#237FEA] mb-8 text-white text-[16px] font-semibold py-2 rounded-lg hover:bg-blue-700"
+                                    >
+                                        Add Payment Plan
+                                    </button>
+
+                                    {/* Footer Buttons */}
+                                    <div className="flex flex-wrap flex-col-reverse gap-4 md:flex-row md:items-center md:justify-end md:gap-4">
+
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setPreviewShowModal(true)}
+                                            className="flex items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 w-full md:w-auto"
+                                        >
+                                            Preview Payment Plans
+                                            <Eye size={16} />
+                                        </button>
+                                        <button
+                                            onClick={handleCreateGroup}
+                                            type="submit"
+                                            className="bg-[#237FEA] text-white min-w-50 font-semibold px-6 py-2 rounded-lg hover:bg-blue-700 w-full md:w-auto"
+                                        >
+                                            Create Group
+                                        </button>
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+
+                        <AnimatePresence>
+                            {openForm && (
+                                <motion.div
+                                    initial={{ x: '100%', opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    exit={{ x: '100%', opacity: 0 }}
+                                    transition={{ duration: 0.4 }}
+                                    className="w-full md:w-1/2 bg-white rounded-3xl p-6 shadow-2xl relative"
+                                >
+                                    <button
+                                        onClick={() => setOpenForm(false)}
+                                        className="absolute top-2 right-3  hover:text-gray-700 text-5xl"
+                                        title="Close"
+                                    >
+                                        &times;
+                                    </button>
+                                    {/* Add your form content here */}
+                                    <div className="text-[24px] font-semibold mb-4">Payment Plan</div>
+
+                                    {[
+                                        { label: "Title", name: "title" },
+                                        { label: "Price (€)", name: "price" },
+                                        { label: "Interval", name: "interval" },
+                                        { label: "Duration", name: "duration" },
+                                        { label: "Number of Students", name: "students" },
+                                        { label: "Joining Fee (€)", name: "joiningFee" }
+                                    ].map((field) => (
+                                        <div key={field.name} className="mb-4">
+                                            <label className="block text-base  font-semibold text-gray-700 mb-2">{field.label}</label>
+                                            <input
+                                                type="text"
+                                                value={formData[field.name]}
+                                                onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
+                                                className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                    ))}
+
+                                    <div className="mb-4">
+                                        <label className="block text-base  font-semibold text-gray-700 mb-2">Holiday Camp Package Details</label>
+                                        <textarea
+                                            value={packageDetails}
+                                            onChange={(e) => setPackageDetails(e.target.value)}
+                                            rows={4}
+                                            className="w-full border border-gray-300 bg-gray-100 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-semibold"
+                                        />
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <label className="block text-base  font-semibold text-gray-700 mb-2">Terms & Conditions</label>
+                                        <textarea
+                                            value={terms}
+                                            onChange={(e) => setTerms(e.target.value)}
+                                            rows={4}
+                                            className="w-full border border-gray-300 bg-gray-100 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-semibold"
+                                        />
+                                    </div>
+
+                                    <div className="text-right">
+                                        <button
+                                            onClick={handleSavePlan}
+                                            className="bg-[#237FEA] text-white mt-5 min-w-50 font-semibold px-6 py-2 rounded-lg hover:bg-blue-700"
+                                        >
+                                            Save Plan
+                                        </button>
+                                    </div>
+
+
+
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                    </>}
+            </div>
+
+
+        </div>
+    );
 };
 
 export default AddPaymentPlanGroup;

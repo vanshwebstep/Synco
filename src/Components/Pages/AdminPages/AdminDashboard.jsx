@@ -94,17 +94,17 @@ const AdminDashboard = () => {
           {/* Main Content */}
           <div className="w-full lg:w-8/12">
             {/* Welcome Banner */}
-           <div
-   className="bg-yellow-300 rounded-3xl p-6 py-12 pb-5 flex justify-between items-center text-white relative overflow-hidden"
-  style={{
- 
-      backgroundImage: `url(/images/welcomeToDashboard.png)`,
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'left',
-      backgroundSize: 'contain',
+            <div
+              className="bg-yellow-300 rounded-3xl p-6 py-12 pb-5 flex justify-between items-center text-white relative overflow-hidden"
+              style={{
 
-  }}
->
+                backgroundImage: `url(/images/welcomeToDashboard.png)`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'left',
+                backgroundSize: 'contain',
+
+              }}
+            >
               <div className="md:text-end w-full">
                 <h2 className="md:text-[24px] font-semibold text-black z-10">Monday 3rd June 2025</h2>
                 <h5 className="md:text-[28px] font-bold z-10 text-black">Welcome to your dashboard, Nilio</h5>

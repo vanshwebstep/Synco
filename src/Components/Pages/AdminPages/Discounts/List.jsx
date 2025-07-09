@@ -4,16 +4,18 @@ import { Check } from "lucide-react";
 
 const users = new Array(9).fill({
   id: 1,
-  name: "2023/24 Standard Pricing",
+ title: "SAMBA10",
+  subTitle: "2023/24 Standard Pricing",
   NoOfPlans: "2",
-  CreatedDate: "Sat 7 Sep",
-  email: "sarah@gmail.com",
-  position: "Team Lead",
+  Method: "Code",
+  type: "Amount Of Products",
+  used: "15",
+  status: "Active",
   activity: "2 Days Ago",
   avatar: "/members/dummyuser.png"
 });
 
-const PaymentPlanManagerList = () => {
+const DiscountsList = () => {
   const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -21,27 +23,28 @@ const PaymentPlanManagerList = () => {
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
 
-      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 ${openForm ? 'md:w-3/4' : 'w-full md:w-[55%]'}`}>
-        <h2 className="text-2xl font-semibold">Payment Plan Manager</h2>
+      <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 ${openForm ? 'md:w-3/4' : 'w-full md:w-[full]'}`}>
+        <h2 className="text-2xl font-semibold">Discounts Table</h2>
         <button
            onClick={() => navigate(`/holiday-camps/add-payment-plan-group`)}
           // onClick={() => setOpenForm(true)}
           className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
         >
-          <img src="/members/add.png" className='w-5' alt="" /> Add Payment Plan Group
+          <img src="/members/add.png" className='w-5' alt="" /> Add new discount
         </button>
       </div>
 
       <div className="flex flex-col md:flex-row gap-6">
-        <div className={`transition-all duration-300 w-full ${openForm ? 'md:w-3/4' : 'md:w-[55%]'}`}>
+        <div className={`transition-all duration-300 w-full ${openForm ? 'md:w-3/4' : 'md:w-full'}`}>
           <div className="overflow-x-auto w-full rounded-2xl border border-gray-200">
             <table className="w-full bg-white text-sm">
               <thead className="bg-[#F5F5F5] text-left">
                 <tr className='font-semibold'>
-                  <th className="p-4 text-[14px] text-[#717073]">Name</th>
-                  <th className="p-4 text-[#717073]">No. of Plans</th>
-                  <th className="p-4 text-[#717073]">Date Created</th>
-                  <th className="p-4 text-[#717073] text-center">Actions</th>
+                  <th className="p-4 text-[14px] text-[#717073] md:pl-14">Title</th>
+                  <th className="p-4 text-[#717073]">Method</th>
+                  <th className="p-4 text-[#717073]">Type</th>
+                  <th className="p-4 text-[#717073]">Used</th>
+                  <th className="p-4 text-[#717073] text-center">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -55,16 +58,21 @@ const PaymentPlanManagerList = () => {
                         >
                           {checked && <Check size={16} strokeWidth={3} className="text-gray-500" />}
                         </button>
-                        <span>{user.name}</span>
+                        <div>
+                        <span>{user.title}</span>
+                        <br/>
+                        <span className='text-[12px] text-gray-400'>{user.subTitle}</span>
+                      </div>
                       </div>
                     </td>
-                    <td className="p-4 text-center">{user.NoOfPlans}</td>
-                    <td className="p-4">{user.CreatedDate}</td>
+                    <td className="p-4 ">{user.Method}</td>
+                    <td className="p-4">{user.type}</td>
+                    <td className="p-4">{user.used}</td>
                     <td className="p-4">
                       <div className='flex gap-2 items-center justify-center'>
-                        <img src="/icons/Show.png" alt="" />
-                        <img src="/icons/edit.png" alt="" />
-                        <img src="/icons/deleteIcon.png" alt="" />
+                        <button className='text-green-400 bg-green-100 px-7 rounded-lg py-1 text-[14px]'>{user.status}</button>
+                        <button className='text-orange-400 bg-orange-100 px-7 rounded-lg py-1 text-[14px]'>Paused</button>
+                      
                       </div>
                     </td>
                   </tr>
@@ -92,4 +100,4 @@ const PaymentPlanManagerList = () => {
   );
 };
 
-export default PaymentPlanManagerList;
+export default DiscountsList;

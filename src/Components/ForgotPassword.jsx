@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const StepModal = ({ isOpen, onClose, email }) => {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const [step, setStep] = useState(1);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,7 +24,7 @@ const StepModal = ({ isOpen, onClose, email }) => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const res = await fetch('https://synco-i0a7.onrender.com/api/admin/auth/password/reset', {
+      const res = await fetch(`${API_BASE_URL}/api/admin/auth/password/reset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, otp, newPassword }),
@@ -160,7 +162,7 @@ const ForgotPassword = () => {
     }
     setLoading(true);
     try {
-      const res = await fetch('https://synco-i0a7.onrender.com/api/admin/auth/password/forget', {
+      const res = await fetch(`${API_BASE_URL}/api/admin/auth/password/forget`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
