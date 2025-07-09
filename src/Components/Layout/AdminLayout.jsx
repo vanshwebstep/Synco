@@ -3,32 +3,35 @@ import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import HeaderBanner from '../Pages/AdminPages/HeaderBanner';
-const routeTitleMap = {
-  '/': 'Dashboard',
-  '/admin-forgotpassword': 'One to One',
-  '/merchandise': 'Merchandise',
-  '/email-management': 'Email Management',
-  '/recruitment-reports': 'Recruitment Reports',
-  '/templates': 'Templates',
-  '/synco-chat': 'Synco Chat',
-  '/members': 'Admin Panel',
-  '/holiday-camps/payment-planManager': 'Payment Plann',
-  '/holiday-camps/add-payment-plan-group': 'Payment Plansn',
-  '/discounts/list': 'Discounts',
-  '/notification': 'Notifications',
 
-  // Add more as needed
+const routeTitleMap = {
+  '/': { title: 'Dashboard', icon: "/members/Category.png" },
+  '/admin-forgotpassword': { title: 'One to One', icon: "/members/Category.png" },
+  '/merchandise': { title: 'Merchandise', icon: "/members/Category.png" },
+  '/email-management': { title: 'Email Management', icon: "/members/Category.png" },
+  '/recruitment-reports': { title: 'Recruitment Reports', icon: "/members/Category.png" },
+  '/templates': { title: 'Templates', icon: "/members/Category.png" },
+  '/synco-chat': { title: 'Synco Chat', icon: "/members/Category.png" },
+  '/members': { title: 'Admin Panel', icon: "/members/Category.png" },
+  '/holiday-camps/payment-planManager': { title: 'Payment Plan Manager', icon: "/members/Category.png" },
+  '/holiday-camps/add-payment-plan-group': { title: 'Add Payment Plan Group', icon: "/members/Category.png" },
+  '/discounts/list': { title: 'Discounts', icon: "/members/Category.png" },
+  '/notification': { title: 'Notifications', icon: '/members/Notification.png' },
+
 };
+
 const AdminLayout = ({ children }) => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
 
   const [profileOpen, setProfileOpen] = useState(false);
-  const pageTitle = routeTitleMap[location.pathname] || 'Admin Panel';
-  console.log('routeTitleMap', routeTitleMap)
+
+  const routeInfo = routeTitleMap[location.pathname] || { title: 'Admin Panel' };
+  const { title, icon: Icon } = routeInfo;
+
   return (
-    <div className="flex ">
+    <div className="flex">
       <Sidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
       <div className="flex-1 w-full flex flex-col px-6 bg-gray-50">
         <Header
@@ -38,10 +41,10 @@ const AdminLayout = ({ children }) => {
           isMobileMenuOpen={isMobileMenuOpen}
         />
 
-        {/* ✅ Only show HeaderBanner if NOT on "/" */}
         {location.pathname !== '/' && (
-          <HeaderBanner title={routeTitleMap[location.pathname] || 'Admin Panel'} />
+          <HeaderBanner title={title} icon={Icon} />
         )}
+
         <main className="flex-1 overflow-y-auto py-4">
           {children}
         </main>
