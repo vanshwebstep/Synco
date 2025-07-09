@@ -1,123 +1,190 @@
 import { createContext, useContext, useState, useCallback } from "react";
 
-const PackageContext = createContext();
+const PaymentPlanContext = createContext();
 
 export const PaymentPlanContextProvider = ({ children }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("adminToken");
 
   const [packages, setPackages] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [groups, setGroups] = useState([]);
   const [selectedPackage, setSelectedPackage] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // Fetch all packages
   const fetchPackages = useCallback(async () => {
     if (!token) return;
-
     setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/payment-plan`, {
-        method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const result = await response.json();
       setPackages(result.data || []);
-    } catch (error) {
-      console.error("Failed to fetch packages:", error);
+    } catch (err) {
+      console.error("Failed to fetch packages:", err);
     } finally {
       setLoading(false);
     }
   }, [token]);
 
-  // Fetch single package by ID
+  // Fetch single package
   const fetchPackageById = useCallback(async (id) => {
     if (!token) return;
-
     setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/payment-plan/${id}`, {
-        method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const result = await response.json();
       setSelectedPackage(result.data || null);
-    } catch (error) {
-      console.error("Failed to fetch package:", error);
+    } catch (err) {
+      console.error("Failed to fetch package:", err);
     } finally {
       setLoading(false);
     }
   }, [token]);
 
-  // Create new package
-  const createPackage = useCallback(
-    async (data) => {
-      if (!token) return;
+  // Create package
+  const createPackage = useCallback(async (data) => {
+    if (!token) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/payment-plan`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      await fetchPackages();
+    } catch (err) {
+      console.error("Failed to create package:", err);
+    }
+  }, [token, fetchPackages]);
 
-      try {
-        await fetch(`${API_BASE_URL}/api/admin/payment-plan`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(data),
-        });
+  // Update package
+  const updatePackage = useCallback(async (id, data) => {
+    if (!token) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/payment-plan/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      await fetchPackages();
+    } catch (err) {
+      console.error("Failed to update package:", err);
+    }
+  }, [token, fetchPackages]);
 
-        await fetchPackages();
-      } catch (error) {
-        console.error("Failed to create package:", error);
-      }
-    },
-    [token, fetchPackages]
-  );
+  // Delete package
+  const deletePackage = useCallback(async (id) => {
+    if (!token) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/payment-plan/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await fetchPackages();
+    } catch (err) {
+      console.error("Failed to delete package:", err);
+    }
+  }, [token, fetchPackages]);
 
-  // Update package by ID
-  const updatePackage = useCallback(
-    async (id, data) => {
-      if (!token) return;
+  // === GROUPS ===
 
-      try {
-        await fetch(`${API_BASE_URL}/api/admin/payment-plan/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(data),
-        });
+  // Fetch all groups
+  const fetchGroups = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/payment-group`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await res.json();
+      setGroups(result.data || []);
+    } catch (err) {
+      console.error("Failed to fetch groups:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
-        await fetchPackages();
-      } catch (error) {
-        console.error("Failed to update package:", error);
-      }
-    },
-    [token, fetchPackages]
-  );
+  // Fetch group by ID
+  const fetchGroupById = useCallback(async (id) => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/payment-group/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await res.json();
+      setSelectedGroup(result.data || null);
+    } catch (err) {
+      console.error("Failed to fetch group:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
-  // Delete package by ID
-  const deletePackage = useCallback(
-    async (id) => {
-      if (!token) return;
+  // Create group
+  const createGroup = useCallback(async (data) => {
+    if (!token) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/payment-group`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      await fetchGroups();
+    } catch (err) {
+      console.error("Failed to create group:", err);
+    }
+  }, [token, fetchGroups]);
 
-      try {
-        await fetch(`${API_BASE_URL}/api/admin/payment-plan/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+  // Assign plans to group
+  const assignPlansToGroup = useCallback(async (groupId, planIds) => {
+    if (!token) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/payment-group/${groupId}/assign-plans`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ planIds: planIds.join(",") }),
+      });
+    } catch (err) {
+      console.error("Failed to assign plans to group:", err);
+    }
+  }, [token]);
 
-        await fetchPackages();
-      } catch (error) {
-        console.error("Failed to delete package:", error);
-      }
-    },
-    [token, fetchPackages]
-  );
+  // Delete group
+  const deleteGroup = useCallback(async (id) => {
+    if (!token) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/payment-group/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await fetchGroups();
+    } catch (err) {
+      console.error("Failed to delete group:", err);
+    }
+  }, [token, fetchGroups]);
 
   return (
-    <PackageContext.Provider
+    <PaymentPlanContext.Provider
       value={{
+        // Packages
         packages,
         loading,
         selectedPackage,
@@ -126,11 +193,20 @@ export const PaymentPlanContextProvider = ({ children }) => {
         createPackage,
         updatePackage,
         deletePackage,
+
+        // Groups
+        groups,
+        selectedGroup,
+        fetchGroups,
+        fetchGroupById,
+        createGroup,
+        deleteGroup,
+        assignPlansToGroup,
       }}
     >
       {children}
-    </PackageContext.Provider>
+    </PaymentPlanContext.Provider>
   );
 };
 
-export const usePackages = () => useContext(PackageContext);
+export const usePayments = () => useContext(PaymentPlanContext);

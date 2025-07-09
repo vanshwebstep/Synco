@@ -54,7 +54,7 @@ const AppRoutes = () => {
       <Route path="/members" element={protectedElement(<MemberList />)} />
       <Route path="/members/update" element={protectedElement(<Update />)} />
       <Route path="/holiday-camps/payment-planManager" element={protectedElement(<PaymentPlanManagerList />)} />
-      <Route path="/holiday-camps/payment-planManager" element={protectedElement(<PaymentPlanManagerList />)} />
+      <Route path="/holiday-camps/add-payment-plan-group" element={protectedElement(<AddPaymentPlanGroup />)} />
       <Route path="/notification" element={protectedElement(<Notification />)} />
       <Route path="/notification-list" element={protectedElement(<NotificationList />)} />
       <Route path="/discounts/list" element={protectedElement(<DiscountsList />)} />

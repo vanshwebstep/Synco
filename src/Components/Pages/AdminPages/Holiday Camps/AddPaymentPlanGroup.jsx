@@ -1,12 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, Eye, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePayments } from '../contexts/PaymentPlanContext';
 
 const AddPaymentPlanGroup = () => {
     const [groupName, setGroupName] = useState('');
     const [previewShowModal, setPreviewShowModal] = useState(false);
-
+  const { createPackage , createGroup } = usePayments();
+   
     const [description, setDescription] = useState('');
     const [packageDetails, setPackageDetails] = useState('');
     const [terms, setTerms] = useState('');
@@ -32,29 +34,35 @@ const AddPaymentPlanGroup = () => {
         setOpenForm(true);
     };
 
-    const handleSavePlan = () => {
-        const newPlan = {
-            title: formData.title,
-            price: formData.price,
-            interval: formData.interval,
-            duration: formData.duration,
-            students: formData.students,
-            joiningFee: formData.joiningFee,
-        };
-        setPlans([...plans, newPlan]);
-        setFormData({
-            title: '',
-            price: '',
-            interval: '',
-            duration: '',
-            students: '',
-            joiningFee: ''
-        });
-        setPackageDetails('');
-        setTerms('');
-        setOpenForm(false);
+   const handleSavePlan = async () => {
+  const newPlan = {
+    title: formData.title,
+    price: formData.price,
+    interval: formData.interval,
+    duration: formData.duration,
+    students: formData.students,
+    joiningFee: formData.joiningFee,
+  };
 
-    };
+  try {
+    await createPackage(newPlan); // Save to backend
+    setPlans([...plans, newPlan]); // Optionally save locally for grouping
+    setFormData({
+      title: '',
+      price: '',
+      interval: '',
+      duration: '',
+      students: '',
+      joiningFee: '',
+    });
+    setPackageDetails('');
+    setTerms('');
+    setOpenForm(false);
+  } catch (err) {
+    console.error('Error saving plan:', err);
+  }
+};
+
 
     const handleRemovePlan = (index) => {
         const updated = [...plans];
@@ -62,18 +70,30 @@ const AddPaymentPlanGroup = () => {
         setPlans(updated);
     };
 
-    const handleCreateGroup = () => {
-        const payload = {
-            groupName,
-            description,
-            plans,
-            packageDetails,
-            terms
-        };
-        console.log("Final Group Payload:", payload);
-        alert("Group Created Successfully!");
-        // navigate("/admin-dashboard"); // or your target route
-    };
+const handleCreateGroup = async () => {
+  const payload = {
+    name: groupName,
+    description: description,
+  };
+
+  try {
+    await createGroup(payload); // Send group to API
+
+    console.log("Final Group Payload (Local Usage):", {
+      name: groupName,
+      description,
+      plans,         // local UI only
+      packageDetails,
+      terms,
+    });
+
+    alert("Group Created Successfully!");
+    // navigate("/admin-dashboard"); // Enable if routing
+  } catch (err) {
+    console.error('Error creating group:', err);
+  }
+};
+
     console.log('plans', plans)
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">

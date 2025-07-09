@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
-
+import { usePayments } from '../contexts/PaymentPlanContext';
 const users = new Array(9).fill({
   id: 1,
   name: "2023/24 Standard Pricing",
@@ -14,10 +14,23 @@ const users = new Array(9).fill({
 });
 
 const PaymentPlanManagerList = () => {
+  const { fetchGroups } = usePayments();
   const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
   const [checked, setChecked] = useState(false);
+ useEffect(() => {
+    const getPackages = async () => {
+      try {
+        const response = await fetchGroups();
+        console.log("Fetched packages:", response);
+        // do something with response (set state, display, etc.)
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+      }
+    };
 
+    getPackages();
+  }, [fetchGroups]);
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
 
