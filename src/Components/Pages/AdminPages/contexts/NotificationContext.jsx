@@ -22,7 +22,7 @@ export const NotificationProvider = ({ children }) => {
 
             const resultRaw = await response.json();
             const result = resultRaw.data || [];
-            setNotification(result?.notifications);
+            setNotification(result);
         } catch (error) {
             console.error("Failed to fetch notification:", error);
         } finally {

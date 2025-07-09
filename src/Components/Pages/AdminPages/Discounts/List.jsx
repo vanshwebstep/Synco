@@ -37,48 +37,65 @@ const DiscountsList = () => {
       <div className="flex flex-col md:flex-row gap-6">
         <div className={`transition-all duration-300 w-full ${openForm ? 'md:w-3/4' : 'md:w-full'}`}>
           <div className="overflow-x-auto w-full rounded-2xl border border-gray-200">
-            <table className="w-full bg-white text-sm">
-              <thead className="bg-[#F5F5F5] text-left">
-                <tr className='font-semibold'>
-                  <th className="p-4 text-[14px] text-[#717073] md:pl-14">Title</th>
-                  <th className="p-4 text-[#717073]">Method</th>
-                  <th className="p-4 text-[#717073]">Type</th>
-                  <th className="p-4 text-[#717073] text-center">Used</th>
-                  <th className="p-4 text-[#717073] text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user, idx) => (
-                  <tr key={idx} className="border-t font-semibold text-[#282829] border-gray-200 hover:bg-gray-50">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => setChecked(!checked)}
-                          className={`w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-500 transition-colors focus:outline-none`}
-                        >
-                          {checked && <Check size={16} strokeWidth={3} className="text-gray-500" />}
-                        </button>
-                        <div>
-                        <span>{user.title}</span>
-                        <br/>
-                        <span className='text-[12px] text-gray-400'>{user.subTitle}</span>
-                      </div>
-                      </div>
-                    </td>
-                    <td className="p-4 ">{user.Method}</td>
-                    <td className="p-4">{user.type}</td>
-                    <td className="p-4 text-center">{user.used}</td>
-                    <td className="p-4">
-                      <div className='flex gap-2 items-center justify-center'>
-                        <button className='text-green-400 bg-green-100 px-7 rounded-lg py-1 text-[14px]'>{user.status}</button>
-                        <button className='text-orange-400 bg-orange-100 px-7 rounded-lg py-1 text-[14px]'>Paused</button>
-                      
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="overflow-x-auto w-full">
+  <table className="min-w-[700px] w-full bg-white text-sm">
+    <thead className="bg-[#F5F5F5] text-left">
+      <tr className="font-semibold">
+        <th className="p-4 text-[14px] text-[#717073] md:pl-14">Title</th>
+        <th className="p-4 text-[#717073]">Method</th>
+        <th className="p-4 text-[#717073]">Type</th>
+        <th className="p-4 text-[#717073] text-center">Used</th>
+        <th className="p-4 text-[#717073] text-center">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {users.map((user, idx) => (
+        <tr
+          key={idx}
+          className="border-t font-semibold text-[#282829] border-gray-200 hover:bg-gray-50"
+        >
+          <td className="p-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setChecked(!checked)}
+                className={`w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-500 transition-colors focus:outline-none`}
+              >
+                {checked && (
+                  <Check
+                    size={16}
+                    strokeWidth={3}
+                    className="text-gray-500"
+                  />
+                )}
+              </button>
+              <div>
+                <span>{user.title}</span>
+                <br />
+                <span className="text-[12px] text-gray-400">
+                  {user.subTitle}
+                </span>
+              </div>
+            </div>
+          </td>
+          <td className="p-4">{user.Method}</td>
+          <td className="p-4">{user.type}</td>
+          <td className="p-4 text-center">{user.used}</td>
+          <td className="p-4">
+            <div className="flex gap-2 items-center justify-center">
+              <button className="text-green-400 bg-green-100 px-7 rounded-lg py-1 text-[14px]">
+                {user.status}
+              </button>
+              <button className="text-orange-400 bg-orange-100 px-7 rounded-lg py-1 text-[14px]">
+                Paused
+              </button>
+            </div>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
           </div>
         </div>
 

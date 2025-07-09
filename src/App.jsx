@@ -9,6 +9,8 @@ import Update from './Components/Pages/AdminPages/members/Update.jsx';
 import PaymentPlanManagerList from './Components/Pages/AdminPages/Holiday Camps/PaymentPlanManager.jsx';
 import AddPaymentPlanGroup from './Components/Pages/AdminPages/Holiday Camps/AddPaymentPlanGroup.jsx';
 import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberContext.jsx';
+import { PaymentPlanContextProvider } from './Components/Pages/AdminPages/contexts/PaymentPlanContext.jsx';
+
 
 import DiscountsList from './Components/Pages/AdminPages/Discounts/List.jsx';
 import DiscountCreate from './Components/Pages/AdminPages/Discounts/Create.jsx';
@@ -68,7 +70,9 @@ function App() {
     <Router>
       <NotificationProvider>
         <MemberProvider>
-          <AppRoutes />
+          <PaymentPlanContextProvider>
+            <AppRoutes />
+            </ PaymentPlanContextProvider>
         </MemberProvider>
       </NotificationProvider>
     </Router>

@@ -39,7 +39,8 @@ const menuItems = [
         subItems: [
             { title: 'Venues', link: '/holiday-camps/venues' },
             { title: 'Session Plan Library', link: '/holiday-camps/session-plans' },
-            { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager' }
+            { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager' },
+            { title: 'Discounts', link: '/discounts/list' }
         ]
     },
     { title: 'Birthday parties', icon: '/SidebarLogos/Birthday.png', iconHover: '/SidebarLogos/BirthdayH.png', subItems: ['Party 1', 'Party 2'] },
