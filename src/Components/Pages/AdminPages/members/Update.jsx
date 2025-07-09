@@ -266,54 +266,55 @@ const Update = () => {
     }
   };
 
-  const handleSuspend = async () => {
-    const confirm = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'You are about to suspend this member.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, suspend it!',
-    });
+const handleSuspend = async () => {
+  const confirm = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'You are about to suspend this member.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, suspend it!',
+  });
 
-    if (!confirm.isConfirmed) return;
+  if (!confirm.isConfirmed) return;
 
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      Swal.fire("Error", "No token found. Please login again.", "error");
-      return;
-    }
+  const token = localStorage.getItem("adminToken");
+  if (!token) {
+    return Swal.fire("Error", "No token found. Please login again.", "error");
+  }
 
-    Swal.fire({
-      title: 'Suspending...',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
+  Swal.fire({
+    title: 'Suspending...',
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    },
+  });
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/member/${id}/status?status=suspend`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
     });
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/admin/member/${id}/status?status=suspend`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const result = await response.json();
 
-      const result = await response.json();
-
-      if (response.ok) {
-        Swal.fire("Suspended!", "Member has been suspended successfully.", "success");
-        navigate('/members');
-      } else {
-        Swal.fire("Error", result.message || "Failed to suspend the member.", "error");
-      }
-    } catch (error) {
-      Swal.fire("Error", "Network or server error occurred.", "error");
-      console.error("Suspend error:", error);
+    if (response.ok) {
+      Swal.fire("Suspended!", "Member has been suspended successfully.", "success");
+      navigate('/members');
+    } else {
+      Swal.fire("Error", result.message || "Failed to suspend the member.", "error");
     }
-  };
+  } catch (err) {
+    console.error("Suspend error:", err);
+    Swal.fire("Error", "Network or server error occurred.", "error");
+  }
+};
+
+
 
   const countryOptions = country.map(item => ({
     value: item.id,

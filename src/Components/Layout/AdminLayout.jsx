@@ -27,8 +27,12 @@ const AdminLayout = ({ children }) => {
 
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const routeInfo = routeTitleMap[location.pathname] || { title: 'Admin Panel' };
-  const { title, icon: Icon } = routeInfo;
+  const routeInfo =
+    Object.entries(routeTitleMap)
+      .sort((a, b) => b[0].length - a[0].length)
+      .find(([route]) => location.pathname.startsWith(route))?.[1]
+    || { title: 'Admin Panel', icon: '/members/Category.png' };
+      const { title, icon: Icon } = routeInfo;
 
   return (
     <div className="flex">
