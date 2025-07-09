@@ -48,7 +48,8 @@ const List = () => {
                 <table className="min-w-full bg-white text-sm">
                   <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
                     <tr className='font-semibold'>
-                      <th className="p-4 text-[#717073]"><div className="flex gap-2">
+                      <th className="p-4 text-[#717073]">
+                        <div className="flex gap-2">
                         <button
                           onClick={() => setChecked(!checked)}
                           className={`w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-500 transition-colors focus:outline-none`}

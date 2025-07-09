@@ -10,7 +10,28 @@ import { useLocation } from 'react-router-dom';
 const menuItems = [
     { title: 'Dashboard', icon: '/SidebarLogos/Dashboard.png', iconHover: '/SidebarLogos/DashboardH.png', link: '/' },
     { title: 'Weekly Classes', icon: '/SidebarLogos/WeeklyClasses.png', iconHover: '/SidebarLogos/WeeklyClassesH.png', subItems: ['Camp 1', 'Camp 2'] },
-    { title: 'One to One', icon: '/SidebarLogos/OneTOOne.png', iconHover: '/SidebarLogos/OneTOOneH.png', link: '/discounts/list' },
+    {
+        title: 'One to One',
+        icon: '/SidebarLogos/OneTOOne.png',
+        iconHover: '/SidebarLogos/OneTOOneH.png',
+        subItems: [
+            {
+                title: 'Leads',
+                subItems: [
+                    { title: 'Leads Database', link: '/notification-list' },
+                    { title: 'Add New Lead', link: '/one-to-one/leads/b' }
+                ]
+            },
+            {
+                title: 'Sales',
+                subItems: [
+                    { title: 'Sale X', link: '/one-to-one/sales/x' },
+                    { title: 'Sale Y', link: '/one-to-one/sales/y' }
+                ]
+            }
+        ]
+    },
+
     {
         title: 'Holiday Camps',
         icon: '/SidebarLogos/Holiday.png',

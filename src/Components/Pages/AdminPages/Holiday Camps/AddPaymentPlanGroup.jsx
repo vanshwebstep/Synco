@@ -97,45 +97,45 @@ const AddPaymentPlanGroup = () => {
 
             <div className={`flex flex-col md:flex-row bg-white  rounded-3xl ${previewShowModal ? 'md:w-3/4  md:p-10' : 'w-full  md:p-12 p-4'}`}>
                 {previewShowModal && (
-                 <div className="flex items-center justify-center w-full px-4 py-6 sm:px-6 md:py-10">
-  <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
-    
-    {/* Header */}
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-      <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
-      <button
-        onClick={() => setPreviewShowModal(false)}
-        className="text-gray-400 hover:text-black text-xl font-bold"
-      >
-        <img src="/icons/cross.png" alt="close" className="w-5 h-5" />
-      </button>
-    </div>
+                    <div className="flex items-center justify-center w-full px-4 py-6 sm:px-6 md:py-10">
+                        <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
 
-    {/* Plans Grid */}
-    <div className="grid pt-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {previewPlans.map((plan, idx) => (
-        <div
-          key={idx}
-          className="border border-[#E2E1E5] rounded-xl p-4 sm:p-5 flex flex-col justify-between transition"
-        >
-          <h3 className="text-[18px] sm:text-[20px] font-semibold mb-2">{plan.students}</h3>
-          <p className="text-[24px] sm:text-[32px] font-semibold mb-4">{plan.price}</p>
-          <hr className="mb-4 text-[#E2E1E5]" />
-          <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold">
-            <li className="flex items-center py-2 gap-2">
-              <img src="/icons/tick-circle.png" alt="" className="w-5 h-5" />
-              4 day camp
-            </li>
-            <li className="flex items-center py-2 pb-2 sm:pb-4 gap-2">
-              <img src="/icons/tick-circle.png" alt="" className="w-5 h-5" />
-              Free Holiday Camp Bag
-            </li>
-          </ul>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
+                            {/* Header */}
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
+                                <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
+                                <button
+                                    onClick={() => setPreviewShowModal(false)}
+                                    className="text-gray-400 hover:text-black text-xl font-bold"
+                                >
+                                    <img src="/icons/cross.png" alt="close" className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Plans Grid */}
+                            <div className="grid pt-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                {previewPlans.map((plan, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="border border-[#E2E1E5] rounded-xl p-4 sm:p-5 flex flex-col justify-between transition"
+                                    >
+                                        <h3 className="text-[18px] sm:text-[20px] font-semibold mb-2">{plan.students}</h3>
+                                        <p className="text-[24px] sm:text-[32px] font-semibold mb-4">{plan.price}</p>
+                                        <hr className="mb-4 text-[#E2E1E5]" />
+                                        <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold">
+                                            <li className="flex items-center py-2 gap-2">
+                                                <img src="/icons/tick-circle.png" alt="" className="w-5 h-5" />
+                                                4 day camp
+                                            </li>
+                                            <li className="flex items-center py-2 pb-2 sm:pb-4 gap-2">
+                                                <img src="/icons/tick-circle.png" alt="" className="w-5 h-5" />
+                                                Free Holiday Camp Bag
+                                            </li>
+                                        </ul>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
 
                 ) ||
                     <>

@@ -11,6 +11,7 @@ export const MemberProvider = ({ children }) => {
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [roleName, setRoleName] = useState("");
     const [permissions, setPermissions] = useState([]);
+    const [activeTab, setActiveTab] = useState("All");
 
     const token = localStorage.getItem("adminToken");
 
@@ -74,7 +75,7 @@ export const MemberProvider = ({ children }) => {
     }, []);
 
     return (
-        <MemberContext.Provider value={{ members, setMembers, fetchMembers, loading ,roleOptions,
+        <MemberContext.Provider value={{ members,activeTab, setActiveTab, setMembers, fetchMembers, loading ,roleOptions,
         fetchRoles,
         showRoleModal,
         setShowRoleModal,

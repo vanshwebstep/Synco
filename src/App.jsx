@@ -13,6 +13,9 @@ import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberCon
 import DiscountsList from './Components/Pages/AdminPages/Discounts/List.jsx';
 
 import './App.css';
+import Notification from './Components/Pages/AdminPages/notification/Notification.jsx';
+import NotificationList from './Components/Pages/AdminPages/notification/NotificationList.jsx';
+import { NotificationProvider } from './Components/Pages/AdminPages/contexts/NotificationContext.jsx';
 
 const AuthRoutes = () => {
   const location = useLocation();
@@ -48,9 +51,11 @@ const AppRoutes = () => {
       <Route path="/members" element={protectedElement(<MemberList />)} />
       <Route path="/members/update" element={protectedElement(<Update />)} />
       <Route path="/holiday-camps/payment-planManager" element={protectedElement(<PaymentPlanManagerList />)} />
-      <Route path="/holiday-camps/add-payment-plan-group" element={protectedElement(<AddPaymentPlanGroup />)} />
+      <Route path="/holiday-camps/payment-planManager" element={protectedElement(<PaymentPlanManagerList />)} />
+      <Route path="/notification" element={protectedElement(<Notification />)} />
+      <Route path="/notification-list" element={protectedElement(<NotificationList />)} />
       <Route path="/discounts/list" element={protectedElement(<DiscountsList />)} />
-    
+
     </Routes>
   );
 };
@@ -59,9 +64,11 @@ const AppRoutes = () => {
 function App() {
   return (
     <Router>
-      <MemberProvider>
-        <AppRoutes />
-      </MemberProvider>
+      <NotificationProvider>
+        <MemberProvider>
+          <AppRoutes />
+        </MemberProvider>
+      </NotificationProvider>
     </Router>
   );
 }

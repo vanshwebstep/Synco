@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import HeaderBanner from '../Pages/AdminPages/HeaderBanner';
-    const routeTitleMap = {
+const routeTitleMap = {
   '/': 'Dashboard',
   '/admin-forgotpassword': 'One to One',
   '/merchandise': 'Merchandise',
@@ -11,10 +11,11 @@ import HeaderBanner from '../Pages/AdminPages/HeaderBanner';
   '/recruitment-reports': 'Recruitment Reports',
   '/templates': 'Templates',
   '/synco-chat': 'Synco Chat',
-  '/members':'Admin Panel',
-  '/holiday-camps/payment-planManager':'Payment Plann',
-  '/holiday-camps/add-payment-plan-group':'Payment Plansn',
-  '/discounts/list':'Discounts',
+  '/members': 'Admin Panel',
+  '/holiday-camps/payment-planManager': 'Payment Plann',
+  '/holiday-camps/add-payment-plan-group': 'Payment Plansn',
+  '/discounts/list': 'Discounts',
+  '/notification': 'Notifications',
 
   // Add more as needed
 };
@@ -24,8 +25,8 @@ const AdminLayout = ({ children }) => {
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
 
   const [profileOpen, setProfileOpen] = useState(false);
-const pageTitle = routeTitleMap[location.pathname] || 'Admin Panel';
-console.log('routeTitleMap',routeTitleMap)
+  const pageTitle = routeTitleMap[location.pathname] || 'Admin Panel';
+  console.log('routeTitleMap', routeTitleMap)
   return (
     <div className="flex ">
       <Sidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
@@ -38,9 +39,9 @@ console.log('routeTitleMap',routeTitleMap)
         />
 
         {/* ✅ Only show HeaderBanner if NOT on "/" */}
-{location.pathname !== '/' && (
-  <HeaderBanner title={routeTitleMap[location.pathname] || 'Admin Panel'} />
-)}
+        {location.pathname !== '/' && (
+          <HeaderBanner title={routeTitleMap[location.pathname] || 'Admin Panel'} />
+        )}
         <main className="flex-1 overflow-y-auto py-4">
           {children}
         </main>
