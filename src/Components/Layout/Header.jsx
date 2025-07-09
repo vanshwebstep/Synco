@@ -5,7 +5,7 @@ import { useNotification } from '../Pages/AdminPages/contexts/NotificationContex
 const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpen }) => {
   const [showNotificationPopup, setShowNotificationPopup] = useState(null);
   const { notification, loadingNotification, fetchNotification } = useNotification();
-  const notificationCount = notification.length || 0;
+  const notificationCount = notification?.length || 0;
 
 
   useEffect(() => {
@@ -87,11 +87,11 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
               </span>
             )}
           </div>
-          {showNotificationPopup &&
+          {showNotificationPopup && notificationCount > 0 &&
             <div className="md:max-w-[450px] absolute top-14 right-0 bg-white rounded-2xl shadow-sm p-6">
-              <h3 className="text-red-500 font-semibold text-[18px] mb-1">Payment Failed</h3>
+              <h3 className="text-red-500 font-semibold text-[18px] mb-1">{notification[0]?.title}</h3>
               <p className="text-[16px] font-semibold  text-black">
-                Unsuccessful payment of John Smith's subscription for the month of May.
+                {notification[0]?.description}
               </p>
               <a
                 href="/notification"

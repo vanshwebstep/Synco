@@ -28,12 +28,13 @@ const Update = () => {
     phoneNumber: "",
     bio: "",
     position: "",
-    password: "",
+    passwordHint: "",
     country: "",
     city: "",
     postalCode: "",
     role: null,
     profile: null,
+    countryId:"",
   });
   console.log('formData', formData)
 
@@ -154,7 +155,7 @@ const Update = () => {
     const data = new FormData();
     data.append("firstName", formData.firstName);
     data.append("lastName", formData.lastName);
-    data.append("country", formData.country);
+    data.append("country", formData?.countryId || formData.country);
     data.append("city", formData.city);
     data.append("postalCode", formData.postalCode);
     data.append("position", formData.position);
@@ -316,8 +317,9 @@ const Update = () => {
 
   const countryOptions = country.map(item => ({
     value: item.id,
-    label: item.name
+    label: item.name // <-- make sure this is a string!
   }));
+
   if (loading) return <Loader />;
   if (!id) return null;
   if (error) return <p className="text-red-500 text-center mt-5">{error}</p>;
@@ -352,7 +354,7 @@ const Update = () => {
             </p>
           </div>
         </div>
-        <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full flex items-center gap-1 hover:bg-blue-50"
+        <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
           onClick={() => setEditPersonal(!editPersonal)}
         >
           {editPersonal ? "Cancel" : "Edit Profile"} <img src="/members/editPencil.png" className="w-5" alt="" />
@@ -362,7 +364,7 @@ const Update = () => {
       <div className="bg-white p-6 rounded-2xl border border-[#E2E1E5]">
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-semibold text-[24px]">Personal Information</h3>
-          <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full flex items-center gap-1 hover:bg-blue-50"
+          <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
             onClick={() => setEditPersonal(!editPersonal)}
           >
             {editPersonal ? "Cancel" : "Edit"} <img src="/members/editPencil.png" className="w-5" alt="" />
@@ -407,12 +409,12 @@ const Update = () => {
                 className="input col-span-2 w-full mt-2 md:mt-0 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input
-                name="password"
+                name="passwordHint"
                 readOnly
-                value={formData.password}
+                value={formData.passwordHint}
                 onChange={handleChange}
                 placeholder="Password"
-                type="password"
+                type="passwordHint"
                 className="input col-span-2 w-full mt-2 md:mt-0 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </>
@@ -423,7 +425,7 @@ const Update = () => {
               <div><span className="block text-[#717073] font-medium text-18px]">Email:</span> <span className="font-medium text-[#282829] text-[20px]">  {formData.email || 'Enter Your Email'} </span></div>
               <div><span className="block text-[#717073] font-medium text-18px]">Phone:</span> <span className="font-medium text-[#282829] text-[20px]">{formData.phoneNumber || 'Enter Your Mobile Number'} </span></div>
               <div><span className="block text-[#717073] font-medium text-18px]">Bio:</span> <span className="font-medium text-[#282829] text-[20px]">{formData.role?.role || '-'} <br />{formData.position || 'Enter Your Bio'} </span></div>
-              <div><span className="block text-[#717073] font-medium text-18px]">Password:</span> <span className="font-medium text-[#282829] text-[20px]">  {formData.password} </span></div>
+              <div><span className="block text-[#717073] font-medium text-18px]">Password:</span> <span className="font-medium text-[#282829] text-[20px]">  {formData.passwordHint} </span></div>
             </>
           )}
         </div>
@@ -433,7 +435,7 @@ const Update = () => {
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-semibold text-[24px]">Address</h3>
           <button
-            className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full flex items-center gap-1 hover:bg-blue-50"
+            className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full hover:bg-blue-50"
             onClick={() => setEditAddress(!editAddress)}
           >
             {editAddress ? "Cancel" : "Edit"} <img src="/members/editPencil.png" className="w-5" alt="" />
@@ -443,14 +445,15 @@ const Update = () => {
           {editAddress ? (
             <>
 
+
               <Select
                 name="country"
-                value={countryOptions.find(option => option.value === formData.country) || null}
-                onChange={selectedOption =>
+                value={countryOptions.find(option => option.value === formData.countryId) || null}
+                onChange={(selectedOption) =>
                   handleChange({
                     target: {
-                      name: 'country',
-                      value: selectedOption ? selectedOption.value : ''
+                      name: 'countryId',
+                      value: selectedOption ? selectedOption.value : null
                     }
                   })
                 }
@@ -459,6 +462,7 @@ const Update = () => {
                 className="mt-2 md:mt-0"
                 classNamePrefix="react-select"
               />
+
               <input
                 name="city"
                 value={formData.city}
@@ -476,7 +480,7 @@ const Update = () => {
             </>
           ) : (
             <>
-              <div><span className="block text-[#717073] font-medium text-18px]">Country:</span><span className="font-medium text-[#282829] text-[20px]">  {formData.country || 'Enter Country Name'}</span></div>
+              <div><span className="block text-[#717073] font-medium text-18px]">Country:</span><span className="font-medium text-[#282829] text-[20px]">  {formData.country?.name || 'Enter Country Name'}</span></div>
               <div><span className="block text-[#717073] font-medium text-18px]">City:</span><span className="font-medium text-[#282829] text-[20px]">  {formData.city || 'Enter City Name'}</span></div>
               <div><span className="block text-[#717073] font-medium text-18px]">Postal Code:</span><span className="font-medium text-[#282829] text-[20px]">  {formData.postalCode || 'Enter Postal Code'}</span></div>
             </>
