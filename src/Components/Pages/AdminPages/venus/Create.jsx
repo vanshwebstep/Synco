@@ -1,7 +1,7 @@
 import { useVenue } from "../contexts/VenueContext";
 
 const Create = () => {
-const {formData, setFormData} = useVenue();
+const {formData, setFormData } = useVenue();
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;

@@ -9,7 +9,11 @@ import { useLocation } from 'react-router-dom';
 
 const menuItems = [
     { title: 'Dashboard', icon: '/SidebarLogos/Dashboard.png', iconHover: '/SidebarLogos/DashboardH.png', link: '/' },
-    { title: 'Weekly Classes', icon: '/SidebarLogos/WeeklyClasses.png', iconHover: '/SidebarLogos/WeeklyClassesH.png', subItems: ['Venus', 'Camp 2'] },
+    { title: 'Weekly Classes', icon: '/SidebarLogos/WeeklyClasses.png', iconHover: '/SidebarLogos/WeeklyClassesH.png', 
+        subItems: [
+                    { title: 'Venues', link: '/weekly-classes/venues' },
+                    { title: 'Camp', link: '#' }
+                ]},
     {
         title: 'One to One',
         icon: '/SidebarLogos/OneTOOne.png',

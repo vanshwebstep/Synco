@@ -5,12 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from "framer-motion";
 import { useDiscounts } from "../contexts/DiscountContext";
 import DatePicker from "react-datepicker";
+import Loader from '../contexts/Loader';
+
 import "react-datepicker/dist/react-datepicker.css";
 const Create = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
 
-    const { fetchDiscounts, createDiscount } = useDiscounts();
+    const { fetchDiscounts, createDiscount,loading } = useDiscounts();
 
     const [showEndDate, setShowEndDate] = useState(false); // only controls visibility
     const [showEnd, setShowEnd] = useState(false);
@@ -25,7 +27,7 @@ const Create = () => {
         limitTotalUses: "",
         limitPerCustomer: "",
         startDatetime: "",
-        endDatetime: "",
+        endDatetime: "null",
         appliesTo: []
     });
 
@@ -178,7 +180,13 @@ const Create = () => {
 
         setFormData({ ...formData, endTime: time });
     };
-
+ if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    )
+  }
     return (
         <div className="bg-gray-50 min-h-screen p-6">
             {/* Top Navigation */}
@@ -202,6 +210,7 @@ const Create = () => {
                         <div className="text-[16px] mb-2 flex gap-2 items-center">
                             <input
                                 type="checkbox"
+                                
                                 className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
                                 checked={formData.type === "code"}
                                 onChange={() => handleTypeSelect("code")}
@@ -224,6 +233,7 @@ const Create = () => {
                             <div className="flex flex-col md:flex-row gap-4 w-full">
                                 <input
                                     type="text"
+                                    required
                                     value={formData.code}
                                     onChange={(e) =>
                                         setFormData((prev) => ({ ...prev, code: e.target.value }))

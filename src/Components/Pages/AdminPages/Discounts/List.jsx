@@ -2,6 +2,7 @@ import React, { useEffect,useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
 import { useDiscounts } from "../contexts/DiscountContext";
+import Loader from '../contexts/Loader';
 
 const users = new Array(9).fill({
   id: 1,
@@ -20,7 +21,7 @@ const users = new Array(9).fill({
 
 
 const DiscountsList = () => {
-      const {fetchDiscounts,discounts } = useDiscounts();
+      const {fetchDiscounts,discounts,loading } = useDiscounts();
    useEffect(() => {
     const getPackages = async () => {
       try {
@@ -36,7 +37,13 @@ const DiscountsList = () => {
   const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
   const [checked, setChecked] = useState(false);
-
+ if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    )
+  }
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
 
