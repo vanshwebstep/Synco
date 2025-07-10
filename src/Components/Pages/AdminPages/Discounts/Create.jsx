@@ -4,14 +4,16 @@ import Swal from "sweetalert2";
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from "framer-motion";
 import { useDiscounts } from "../contexts/DiscountContext";
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 const Create = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
 
-      const {fetchDiscounts,createDiscount } = useDiscounts();
+    const { fetchDiscounts, createDiscount } = useDiscounts();
 
     const [showEndDate, setShowEndDate] = useState(false); // only controls visibility
+    const [showEnd, setShowEnd] = useState(false);
 
     const [photoPreview, setPhotoPreview] = useState(null);
     const [formData, setFormData] = useState({
@@ -79,10 +81,29 @@ const Create = () => {
 
     const handleEndChange = (field, value) => {
         const updated = { ...formData, [field]: value };
+
+        const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
+        const endDateTime = new Date(`${updated.endDate}T${updated.endTime}`);
+
+        if (
+            formData.startDate &&
+            formData.startTime &&
+            updated.endDate &&
+            updated.endTime &&
+            endDateTime < startDateTime
+        ) {
+            // Optional: show SweetAlert2 or toast instead
+            alert("End date/time cannot be earlier than start date/time.");
+
+            // ❌ Don't update the field if invalid
+            return;
+        }
+
         const endDatetime = toISOString(updated.endDate, updated.endTime);
         updated.endDatetime = showEndDate && endDatetime ? endDatetime : null;
         setFormData(updated);
     };
+
 
     const toggleEndInputs = (checked) => {
         setShowEndDate(checked);
@@ -102,29 +123,61 @@ const Create = () => {
             type,
         }));
     };
-const handleSubmit = async (e) => {
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-    const payload = {
-        ...formData,
-        startDatetime: formData.startDatetime || null,
-        endDatetime: formData.endDatetime || null,
-        limitTotalUses: formData.limitTotalUses || "",
-        limitPerCustomer: formData.limitPerCustomer || "",
-        code: formData.code?.trim() || "",
-        // any other cleanup/formatting logic
+        const payload = {
+            ...formData,
+            startDatetime: formData.startDatetime || null,
+            endDatetime: formData.endDatetime || null,
+            limitTotalUses: formData.limitTotalUses || "",
+            limitPerCustomer: formData.limitPerCustomer || "",
+            code: formData.code?.trim() || "",
+            // any other cleanup/formatting logic
+        };
+
+        try {
+            await createDiscount(payload); // ✅ send to server
+            console.log("Submitted:", payload);
+            // Optionally show a success toast/modal here
+        } catch (err) {
+            console.error("Submit error:", err);
+            // Optionally show an error message here
+        }
+    };
+    const combineDateTime = (date, time) => {
+        if (!date || !time) return null;
+        const d = new Date(date);
+        d.setHours(time.getHours());
+        d.setMinutes(time.getMinutes());
+        d.setSeconds(0);
+        d.setMilliseconds(0);
+        return d;
     };
 
-    try {
-        await createDiscount(payload); // ✅ send to server
-        console.log("Submitted:", payload);
-        // Optionally show a success toast/modal here
-    } catch (err) {
-        console.error("Submit error:", err);
-        // Optionally show an error message here
-    }
-};
+    // Update ISO datetimes whenever inputs change
+    useEffect(() => {
+        const start = combineDateTime(formData.startDate, formData.startTime);
+        const end = combineDateTime(formData.endDate, formData.endTime);
 
+        setFormData((prev) => ({
+            ...prev,
+            startDatetime: start ? start.toISOString() : null,
+            endDatetime: end ? end.toISOString() : null,
+        }));
+    }, [formData.startDate, formData.startTime, formData.endDate, formData.endTime]);
+
+    const handleEndTimeChange = (time) => {
+        const newEnd = combineDateTime(formData.endDate, time);
+        const start = combineDateTime(formData.startDate, formData.startTime);
+
+        if (start && newEnd && newEnd < start) {
+            alert("End time cannot be before start time");
+            return;
+        }
+
+        setFormData({ ...formData, endTime: time });
+    };
 
     return (
         <div className="bg-gray-50 min-h-screen p-6">
@@ -188,7 +241,7 @@ const handleSubmit = async (e) => {
                             </div>
                         </div>
 
-                  
+
                     </div>
 
                     {/* Value Section */}
@@ -390,74 +443,88 @@ const handleSubmit = async (e) => {
                         </label>
                     </div>
 
-                    {/* Active Dates */}
                     <div className="bg-white rounded-3xl p-6 shadow space-y-4">
-                        <h4 className="text-base font-semibold">Active dates</h4>
+                        <h4 className="text-base font-semibold">Active Dates</h4>
 
                         {/* Start Date & Time */}
                         <div className="flex flex-col md:flex-row gap-4 w-full">
                             <div className="flex flex-col w-full md:w-3/12">
-                                <label className="text-sm font-medium mb-1">Start date</label>
-                                <input
-                                    type="date"
-                                    className="border border-gray-300 rounded-xl px-3 py-2 appearance-none"
-                                    value={formData.startDate}
-                                    onChange={(e) => handleStartChange("startDate", e.target.value)}
+                                <label className="text-sm font-medium mb-1">Start Date</label>
+                                <DatePicker
+                                    selected={formData.startDate}
+                                    onChange={(date) => setFormData({ ...formData, startDate: date })}
+                                    dateFormat="P"
+                                    minDate={new Date()}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl"
                                 />
                             </div>
                             <div className="flex flex-col w-full md:w-3/12">
-                                <label className="text-sm font-medium mb-1">Start time</label>
-                                <input
-                                    type="time"
-                                    className="border border-gray-300 rounded-xl px-3 py-2 appearance-none"
-                                    value={formData.startTime}
-                                    onChange={(e) => handleStartChange("startTime", e.target.value)}
+                                <label className="text-sm font-medium mb-1">Start Time</label>
+                                <DatePicker
+                                    selected={formData.startTime}
+                                    onChange={(time) => setFormData({ ...formData, startTime: time })}
+                                    showTimeSelect
+                                    showTimeSelectOnly
+                                    timeIntervals={15}
+                                    dateFormat="h:mm aa"
+                                    timeCaption="Time"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl"
                                 />
                             </div>
                         </div>
 
-                        {/* End Date Checkbox */}
+                        {/* End Date Toggle */}
                         <div className="flex items-center gap-2 mt-2">
                             <input
                                 type="checkbox"
                                 className="w-4 h-4"
-                                checked={showEndDate}
-                                onChange={(e) => toggleEndInputs(e.target.checked)}
+                                checked={showEnd}
+                                onChange={(e) => setShowEnd(e.target.checked)}
                             />
-                            <label>Set end date</label>
+                            <label className="text-sm font-medium">Set end date</label>
                         </div>
 
-                        {/* End Date & Time (Animated) */}
-                        <AnimatePresence>
-                            {showEndDate && (
+                        <AnimatePresence initial={false}>
+                            {showEnd && (
                                 <motion.div
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: "auto", opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
                                     transition={{ duration: 0.3 }}
-                                    className="flex flex-col md:flex-row gap-4 w-full"
+                                    className=""
                                 >
-                                    <div className="flex flex-col w-full md:w-3/12">
-                                        <label className="text-sm font-medium mb-1">End date</label>
-                                        <input
-                                            type="date"
-                                            className="border border-gray-300 rounded-xl px-3 py-2"
-                                            value={formData.endDate}
-                                            onChange={(e) => handleEndChange("endDate", e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="flex flex-col w-full md:w-3/12">
-                                        <label className="text-sm font-medium mb-1">End time</label>
-                                        <input
-                                            type="time"
-                                            className="border border-gray-300 rounded-xl px-3 py-2"
-                                            value={formData.endTime}
-                                            onChange={(e) => handleEndChange("endTime", e.target.value)}
-                                        />
-                                    </div>
-                                </motion.div>
+                            <div className="flex flex-col md:flex-row gap-4 w-full">
+                                <div className="flex flex-col w-full md:w-3/12">
+                                    <label className="text-sm font-medium mb-1">End Date</label>
+                                    <DatePicker
+                                        selected={formData.endDate}
+                                        onChange={(date) => setFormData({ ...formData, endDate: date })}
+                                        dateFormat="P"
+                                        minDate={formData.startDate || new Date()}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                        disabled={!formData.startDate}
+                                    />
+                                </div>
+                                <div className="flex flex-col w-full md:w-3/12">
+                                    <label className="text-sm font-medium mb-1">End Time</label>
+                                    <DatePicker
+                                        selected={formData.endTime}
+                                        onChange={handleEndTimeChange}
+                                        showTimeSelect
+                                        showTimeSelectOnly
+                                        timeIntervals={15}
+                                        dateFormat="h:mm aa"
+                                        timeCaption="Time"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                        x disabled={!formData.endDate}
+                                    />
+                                </div>
+                            </div>
+                         </motion.div>
                             )}
                         </AnimatePresence>
+
+                        {/* Debug Output */}
 
                     </div>
 
