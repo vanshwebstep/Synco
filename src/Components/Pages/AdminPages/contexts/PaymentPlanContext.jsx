@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
+import Swal from "sweetalert2"; // make sure it's installed
+import { useNavigate } from 'react-router-dom';
 
 const PaymentPlanContext = createContext();
 
@@ -11,6 +13,7 @@ export const PaymentPlanContextProvider = ({ children }) => {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
   // Fetch all packages
   const fetchPackages = useCallback(async () => {
@@ -133,23 +136,55 @@ export const PaymentPlanContextProvider = ({ children }) => {
   }, [token]);
 
   // Create group
-  const createGroup = useCallback(async (data) => {
+const createGroup = useCallback(async (data) => {
+  if (!token) return;
+
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  myHeaders.append("Authorization", `Bearer ${token}`);
+
+  const raw = JSON.stringify({
+    name: data.name,
+    description: data.description, 
+    plans:data.plans
+    // or use price: data.price, depending on your backend
+  });
+
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: raw,
+    redirect: "follow",
+  };
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/payment-group`, requestOptions);
+    const result = await response.text();
+    console.log(result);
+    await fetchGroups();
+    navigate('/holiday-camps/payment-planManager');
+  } catch (error) {
+    console.error("Failed to create group:", error);
+  }
+}, [token, fetchGroups]);
+
+  const updateGroup = useCallback(async (id, data) => {
     if (!token) return;
+    console.log('if',id)
     try {
-      await fetch(`${API_BASE_URL}/api/admin/payment-group`, {
-        method: "POST",
+      await fetch(`${API_BASE_URL}/api/admin/payment-group/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(data),
       });
-      await fetchGroups();
+       navigate('/holiday-camps/payment-planManager');
     } catch (err) {
-      console.error("Failed to create group:", err);
+      console.error("Failed to update package:", err);
     }
   }, [token, fetchGroups]);
-
   // Assign plans to group
   const assignPlansToGroup = useCallback(async (groupId, planIds) => {
     if (!token) return;
@@ -186,6 +221,7 @@ export const PaymentPlanContextProvider = ({ children }) => {
       value={{
         // Packages
         packages,
+        setPackages,
         loading,
         selectedPackage,
         fetchPackages,
@@ -200,6 +236,7 @@ export const PaymentPlanContextProvider = ({ children }) => {
         fetchGroups,
         fetchGroupById,
         createGroup,
+        updateGroup,
         deleteGroup,
         assignPlansToGroup,
       }}
