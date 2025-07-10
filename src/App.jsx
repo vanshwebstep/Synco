@@ -10,6 +10,7 @@ import PaymentPlanManagerList from './Components/Pages/AdminPages/Holiday Camps/
 import AddPaymentPlanGroup from './Components/Pages/AdminPages/Holiday Camps/AddPaymentPlanGroup.jsx';
 import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberContext.jsx';
 import { PaymentPlanContextProvider } from './Components/Pages/AdminPages/contexts/PaymentPlanContext.jsx';
+import { DiscountContextProvider } from './Components/Pages/AdminPages/contexts/DiscountContext.jsx';
 
 
 import DiscountsList from './Components/Pages/AdminPages/Discounts/List.jsx';
@@ -75,7 +76,9 @@ function App() {
         <VenueProvider>
           <MemberProvider>
             <PaymentPlanContextProvider>
-              <AppRoutes />
+              <DiscountContextProvider>
+                <AppRoutes />
+              </ DiscountContextProvider>
             </ PaymentPlanContextProvider>
           </MemberProvider>
         </VenueProvider>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
+import { useDiscounts } from "../contexts/DiscountContext";
 
 const users = new Array(9).fill({
   id: 1,
@@ -15,7 +16,23 @@ const users = new Array(9).fill({
   avatar: "/members/dummyuser.png"
 });
 
+
+
+
 const DiscountsList = () => {
+      const {fetchDiscounts,discounts } = useDiscounts();
+   useEffect(() => {
+    const getPackages = async () => {
+      try {
+        const response = await fetchDiscounts();
+        console.log("Fetched packages:", response);
+        // do something with response (set state, display, etc.)
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+      }
+    };
+    getPackages();
+  }, [fetchDiscounts]);
   const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -49,7 +66,7 @@ const DiscountsList = () => {
       </tr>
     </thead>
     <tbody>
-      {users.map((user, idx) => (
+      {discounts.map((user, idx) => (
         <tr
           key={idx}
           className="border-t font-semibold text-[#282829] border-gray-200 hover:bg-gray-50"
@@ -69,24 +86,21 @@ const DiscountsList = () => {
                 )}
               </button>
               <div>
-                <span>{user.title}</span>
+                <span>{user.code}</span>
                 <br />
                 <span className="text-[12px] text-gray-400">
-                  {user.subTitle}
+                 {`${user.value} %off in holiday Camps`}
                 </span>
               </div>
             </div>
           </td>
-          <td className="p-4">{user.Method}</td>
           <td className="p-4">{user.type}</td>
-          <td className="p-4 text-center">{user.used}</td>
+          <td className="p-4">{'Amount off products'}</td>
+          <td className="p-4 text-center">{user.used || 0}</td>
           <td className="p-4">
             <div className="flex gap-2 items-center justify-center">
-              <button className="text-green-400 bg-green-100 px-7 rounded-lg py-1 text-[14px]">
-                {user.status}
-              </button>
-              <button className="text-orange-400 bg-orange-100 px-7 rounded-lg py-1 text-[14px]">
-                Paused
+              <button className={`${user.status == 'active' ?'text-green-400 bg-green-100 ': 'text-orange-400 bg-orange-100'}  px-7 rounded-lg py-1 text-[14px]`}>
+                {user.status || 'Paused'}
               </button>
             </div>
           </td>

@@ -4,29 +4,12 @@ import { Check } from "lucide-react";
 import { usePayments } from '../contexts/PaymentPlanContext';
 import Swal from "sweetalert2"; // make sure it's installed
 import Loader from '../contexts/Loader';
-
-const users = new Array(9).fill({
-  id: 1,
-  name: "2023/24 Standard Pricing",
-  NoOfPlans: "2",
-  CreatedDate: "Sat 7 Sep",
-  email: "sarah@gmail.com",
-  position: "Team Lead",
-  activity: "2 Days Ago",
-  avatar: "/members/dummyuser.png"
-});
-
 const PaymentPlanManagerList = () => {
   const { fetchGroups, groups, deleteGroup, fetchGroupById, selectedGroup, loading } = usePayments();
   const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
-  const [checked, setChecked] = useState(false);
-  const [users, setUsers] = useState([]);
-  const [selectedPlans, setSelectedPlans] = useState([]);
   const [checkedIds, setCheckedIds] = useState([]);
-
   const [previewShowModal, setPreviewShowModal] = useState(false);
-
   useEffect(() => {
     const getPackages = async () => {
       try {
