@@ -5,30 +5,11 @@ import Loader from "../contexts/Loader";
 import Select from 'react-select';
 import { useNotification } from "../contexts/NotificationContext";
 import Swal from "sweetalert2";
-const notification = new Array(8).fill({
-    title: "Class canceled",
-    createdBy: "Ella Marsh",
-    date: "Sat 13th May",
-    sentTo: [
-        "/members/user1.png",
-        "/members/user2.png",
-        "/members/user3.png",
-        "/members/user4.png",
-        "/members/user1.png",
-        "/members/user1.png",
-        "/members/user1.png",
-    ],
-    category: "Cancel",
-});
-const categoryColors = {
-    "Cancellation": "bg-orange-100 text-orange-600",
-    "False Payment": "bg-yellow-100 text-yellow-600",
-    "Cancel": "bg-gray-100 text-gray-600",
-};
+
 
 export default function NotificationList() {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const { loadingNotification, fetchNotification } = useNotification();
+    const { loadingCustomNotification, customNotification, fetchCustomNotification } = useNotification();
     const { members, fetchMembers, loading } = useMembers();
     const [openForm, setOpenForm] = useState(null);
 
@@ -57,14 +38,30 @@ export default function NotificationList() {
             return;
         }
 
-        const data = new FormData();
-        data.append("title", form.title);
-        data.append("category", form.category);
-        data.append("description", form.description);
-        data.append(
-            "recipients",
-            JSON.stringify(form.recipients.map((r) => r.value))
-        );
+
+
+
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Authorization", `Bearer ${token}`);
+
+
+        const raw = JSON.stringify({
+            "title": form.title,
+            "description": form.description,
+            "category": form.category,
+            "recipients": form.recipients
+                .map((r) => r.value)
+                .filter((v) => v !== undefined && v !== null && v !== "")
+                .join(",")
+        });
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow"
+        };
 
         try {
             Swal.fire({
@@ -73,21 +70,18 @@ export default function NotificationList() {
                 didOpen: () => Swal.showLoading(),
             });
 
-            const response = await fetch(`${API_BASE_URL}/api/admin/notification`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                body: data,
-            });
+            const response = await fetch(`${API_BASE_URL}/api/admin/custom-notification`, requestOptions);
 
             const result = await response.json();
+
+
+
 
             if (!response.ok) {
                 Swal.fire({
                     icon: "error",
                     title: "Failed to Add Notification",
-                    text: result.description || "Something went wrong.",
+                    text: result.message || result.error || "Something went wrong.",
                 });
                 return;
             }
@@ -95,7 +89,7 @@ export default function NotificationList() {
             Swal.fire({
                 icon: "success",
                 title: "Notification Created",
-                text: result.description || "New notification was added successfully!",
+                text: result.message || result.error || "New notification was added successfully!",
                 timer: 2000,
                 showConfirmButton: false,
             });
@@ -107,14 +101,14 @@ export default function NotificationList() {
                 description: "",
             });
             setOpenForm(null);
-            fetchNotification();
+            fetchCustomNotification();
 
         } catch (error) {
             console.error("Error creating notification:", error);
             Swal.fire({
                 icon: "error",
                 title: "Network Error",
-                text: error.description || "An error occurred while submitting the form.",
+                text: error.message || error.error || "An error occurred while submitting the form.",
             });
         }
     };
@@ -128,10 +122,31 @@ export default function NotificationList() {
     ];
     useEffect(() => {
         fetchMembers();
-        fetchNotification();
+        fetchCustomNotification();
     }, []);
+    function formatFullDateWithSuffix(dateStr) {
+        const date = new Date(dateStr);
 
-    if (loading && loadingNotification) {
+        const day = date.getDate();
+        const dayOfWeek = date.toLocaleString('default', { weekday: 'long' });
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+
+        const getDaySuffix = (d) => {
+            if (d > 3 && d < 21) return 'th';
+            switch (d % 10) {
+                case 1: return 'st';
+                case 2: return 'nd';
+                case 3: return 'rd';
+                default: return 'th';
+            }
+        };
+
+        return `${dayOfWeek}, ${day}${getDaySuffix(day)} ${month} ${year}`;
+    }
+
+
+    if (loading && loadingCustomNotification) {
         return (
             <>
                 <Loader />
@@ -158,7 +173,7 @@ export default function NotificationList() {
                         </button>
                     </div>
                 </div>
-                {notification.length > 0 ? (
+                {customNotification.length > 0 ? (
                     <div className="bg-white rounded-3xl overflow-x-auto">
                         <table className="min-w-full bg-white text-sm">
                             <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
@@ -172,52 +187,48 @@ export default function NotificationList() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {notification.map((item, idx) => (
-                                    <tr key={idx} className="border-t  font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
+                                {customNotification.map((item, idx) => (
+                                    <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
                                         <td className="p-4 cursor-pointer">{item.title}</td>
-                                        <td className="p-4">{item.createdBy}</td>
-                                        <td className="p-4">{item.date}</td>
+                                        <td className="p-4">{item.admin?.name}</td>
+                                        <td className="p-4">{formatFullDateWithSuffix(item.createdAt)}</td>
+
                                         <td className="p-4 whitespace-nowrap">
                                             <div className="flex w-full -space-x-2 overflow-auto">
-                                                {item.sentTo.slice(0, 4).map((avatar, i) => (
+                                                {item.reads.slice(0, 4).map((read, i) => (
                                                     <img
                                                         key={i}
-                                                        src={avatar}
-                                                        alt="avatar"
+                                                        src={`${API_BASE_URL}/${read.member.profile}`}
+                                                        alt={read.member.firstName}
+                                                        title={read.member.firstName}
                                                         className="md:w-10 md:h-10 rounded-full border-2 border-white"
                                                     />
                                                 ))}
-                                                {item.sentTo.length > 4 && (
+                                                {item.reads.length > 4 && (
                                                     <div
-                                                        className={`
-    w-8 h-8 rounded-full text-xs flex items-center justify-center text-white bg-cover bg-center relative
-  `}
+                                                        className="w-8 h-8 rounded-full text-xs flex items-center justify-center text-white bg-cover bg-center relative"
                                                         style={{
                                                             backgroundImage: `url('/members/more.png')`,
                                                         }}
                                                     >
-                                                        +{item.sentTo.length - 4}
                                                         <div className="absolute inset-0 text-black rounded-full flex items-center justify-center text-xs">
-                                                            +{item.sentTo.length - 4}
+                                                            +{item.reads.length - 4}
                                                         </div>
                                                     </div>
-
                                                 )}
                                             </div>
                                         </td>
                                         <td className="p-4">
                                             <div className="flex justify-between">
-                                                <span
-                                                    className={`px-3 py-1  rounded-xl  ${categoryColors[item.category] || "bg-[#717073] text-[#717073]"}`}
-                                                >
+                                                <span className={`px-3 py-1 rounded-xl bg-[#717073] text-white`}>
                                                     {item.category}
                                                 </span>
                                                 <EllipsisVertical />
                                             </div>
                                         </td>
-
                                     </tr>
                                 ))}
+
                             </tbody>
                         </table>
                     </div>

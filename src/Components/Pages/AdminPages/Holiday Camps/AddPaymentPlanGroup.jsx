@@ -1,14 +1,17 @@
-import React, { useState, useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, Eye, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePayments } from '../contexts/PaymentPlanContext';
 
+import Select from 'react-select';
+import { Editor } from '@tinymce/tinymce-react';
+
 const AddPaymentPlanGroup = () => {
     const [groupName, setGroupName] = useState('');
     const [previewShowModal, setPreviewShowModal] = useState(false);
-  const { createPackage , createGroup } = usePayments();
-   
+    const { createPackage, createGroup } = usePayments();
+
     const [description, setDescription] = useState('');
     const [packageDetails, setPackageDetails] = useState('');
     const [terms, setTerms] = useState('');
@@ -34,34 +37,34 @@ const AddPaymentPlanGroup = () => {
         setOpenForm(true);
     };
 
-   const handleSavePlan = async () => {
-  const newPlan = {
-    title: formData.title,
-    price: formData.price,
-    interval: formData.interval,
-    duration: formData.duration,
-    students: formData.students,
-    joiningFee: formData.joiningFee,
-  };
+    const handleSavePlan = async () => {
+        const newPlan = {
+            title: formData.title,
+            price: formData.price,
+            interval: formData.interval,
+            duration: formData.duration,
+            students: formData.students,
+            joiningFee: formData.joiningFee,
+        };
 
-  try {
-    await createPackage(newPlan); // Save to backend
-    setPlans([...plans, newPlan]); // Optionally save locally for grouping
-    setFormData({
-      title: '',
-      price: '',
-      interval: '',
-      duration: '',
-      students: '',
-      joiningFee: '',
-    });
-    setPackageDetails('');
-    setTerms('');
-    setOpenForm(false);
-  } catch (err) {
-    console.error('Error saving plan:', err);
-  }
-};
+        try {
+            await createPackage(newPlan); // Save to backend
+            setPlans([...plans, newPlan]); // Optionally save locally for grouping
+            setFormData({
+                title: '',
+                price: '',
+                interval: '',
+                duration: '',
+                students: '',
+                joiningFee: '',
+            });
+            setPackageDetails('');
+            setTerms('');
+            setOpenForm(false);
+        } catch (err) {
+            console.error('Error saving plan:', err);
+        }
+    };
 
 
     const handleRemovePlan = (index) => {
@@ -70,29 +73,29 @@ const AddPaymentPlanGroup = () => {
         setPlans(updated);
     };
 
-const handleCreateGroup = async () => {
-  const payload = {
-    name: groupName,
-    description: description,
-  };
+    const handleCreateGroup = async () => {
+        const payload = {
+            name: groupName,
+            description: description,
+        };
 
-  try {
-    await createGroup(payload); // Send group to API
+        try {
+            await createGroup(payload); // Send group to API
 
-    console.log("Final Group Payload (Local Usage):", {
-      name: groupName,
-      description,
-      plans,         // local UI only
-      packageDetails,
-      terms,
-    });
+            console.log("Final Group Payload (Local Usage):", {
+                name: groupName,
+                description,
+                plans,         // local UI only
+                packageDetails,
+                terms,
+            });
 
-    alert("Group Created Successfully!");
-    // navigate("/admin-dashboard"); // Enable if routing
-  } catch (err) {
-    console.error('Error creating group:', err);
-  }
-};
+            alert("Group Created Successfully!");
+            // navigate("/admin-dashboard"); // Enable if routing
+        } catch (err) {
+            console.error('Error creating group:', err);
+        }
+    };
 
     console.log('plans', plans)
     return (
@@ -289,21 +292,65 @@ const handleCreateGroup = async () => {
 
                                     <div className="mb-4">
                                         <label className="block text-base  font-semibold text-gray-700 mb-2">Holiday Camp Package Details</label>
-                                        <textarea
-                                            value={packageDetails}
-                                            onChange={(e) => setPackageDetails(e.target.value)}
-                                            rows={4}
-                                            className="w-full border border-gray-300 bg-gray-100 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-semibold"
+                                      
+                                        <Editor
+                                            apiKey="frnlhul2sjabyse5v4xtgnphkcgjxm316p0r37ojfop0ux83"
+                                             value={packageDetails}
+                                            onEditorChange={(content) => setPackageDetails(content)}
+                                            init={{
+                                                height: 300,
+                                                menubar: false,
+                                                plugins: [
+                                                    'anchor', 'autolink', 'charmap', 'codesample', 'emoticons',
+                                                    'image', 'link', 'lists', 'media', 'searchreplace', 'table',
+                                                    'visualblocks', 'wordcount'
+                                                ],
+                                                toolbar:
+                                                    'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | ' +
+                                                    'link image media table mergetags | addcomment showcomments | ' +
+                                                    'spellcheckdialog a11ycheck typography | align lineheight | ' +
+                                                    'checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                                                tinycomments_mode: 'embedded',
+                                                tinycomments_author: 'Author name',
+                                                mergetags_list: [
+                                                    { value: 'First.Name', title: 'First Name' },
+                                                    { value: 'Email', title: 'Email' },
+                                                ],
+                                                ai_request: (request, respondWith) =>
+                                                    respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+                                            }}
                                         />
                                     </div>
 
                                     <div className="mb-4">
                                         <label className="block text-base  font-semibold text-gray-700 mb-2">Terms & Conditions</label>
-                                        <textarea
+
+                                        <Editor
+                                            apiKey="frnlhul2sjabyse5v4xtgnphkcgjxm316p0r37ojfop0ux83"
                                             value={terms}
-                                            onChange={(e) => setTerms(e.target.value)}
-                                            rows={4}
-                                            className="w-full border border-gray-300 bg-gray-100 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-semibold"
+                                            onEditorChange={(content) => setTerms(content)}
+                                            init={{
+                                                height: 300,
+                                                menubar: false,
+                                                plugins: [
+                                                    'anchor', 'autolink', 'charmap', 'codesample', 'emoticons',
+                                                    'image', 'link', 'lists', 'media', 'searchreplace', 'table',
+                                                    'visualblocks', 'wordcount'
+                                                ],
+                                                toolbar:
+                                                    'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | ' +
+                                                    'link image media table mergetags | addcomment showcomments | ' +
+                                                    'spellcheckdialog a11ycheck typography | align lineheight | ' +
+                                                    'checklist numlist bullist indent outdent | emoticons charmap | removeformat',
+                                                tinycomments_mode: 'embedded',
+                                                tinycomments_author: 'Author name',
+                                                mergetags_list: [
+                                                    { value: 'First.Name', title: 'First Name' },
+                                                    { value: 'Email', title: 'Email' },
+                                                ],
+                                                ai_request: (request, respondWith) =>
+                                                    respondWith.string(() => Promise.reject('See docs to implement AI Assistant')),
+                                            }}
                                         />
                                     </div>
 

@@ -1,20 +1,43 @@
 import { useEffect } from "react";
 import { useMembers } from "../contexts/MemberContext";
 import { useNotification } from "../contexts/NotificationContext";
+import { Loader } from "lucide-react";
 
 
 export default function List() {
     const { activeTab } = useMembers();
-    const { notification, loadingNotification, fetchNotification } = useNotification();
+    const { notification, fetchMarkAsRead, loadingNotification, fetchNotification } = useNotification();
 
     const filtered =
         activeTab === "All"
             ? notification
             : notification.filter((n) => n.category === activeTab);
 
-useEffect(()=>{
-    fetchNotification();
-},[fetchNotification])
+    useEffect(() => {
+        fetchNotification();
+        fetchMarkAsRead();
+    }, [fetchNotification]);
+    function formatDateTime(dateStr) {
+        const date = new Date(dateStr);
+
+        const year = date.getFullYear();
+        const month = `${date.getMonth() + 1}`.padStart(2, '0');
+        const day = `${date.getDate()}`.padStart(2, '0');
+
+        let hours = date.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12 || 12;
+
+        return `${year}/${month}/${day} - ${hours} ${ampm}`;
+    }
+
+    if (loadingNotification) {
+        return (
+            <>
+                <Loader />
+            </>
+        )
+    }
     return (
         <div className="space-y-5 bg-white p-10 rounded-2xl">
             {filtered.map((item, idx) => (
@@ -25,13 +48,16 @@ useEffect(()=>{
                 >
                     <div key={idx} className=" flex gap-4">
                         <img
-                            src={item.avatar}
+                            src={item.avatar || '/members/dummyuser.png'}
                             alt={item.name}
                             className="w-12 h-12 rounded-full object-cover"
                         />
                         <div className="">
-                            <p className="font-semibold">{item.name}</p>
-                            <span className="text-[16px] text-[#717073]">{item.createdAt}</span>
+                            <p className="font-semibold">{item.name || 'N/A'}</p>
+                            <span className="text-[16px] text-[#717073]">
+                                {formatDateTime(item.createdAt)}
+                            </span>
+
                         </div>
 
                     </div>

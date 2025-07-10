@@ -4,13 +4,15 @@ import { useNotification } from '../Pages/AdminPages/contexts/NotificationContex
 
 const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpen }) => {
   const [showNotificationPopup, setShowNotificationPopup] = useState(null);
-  const { notification, loadingNotification, fetchNotification } = useNotification();
-  const notificationCount = notification?.length || 0;
+  const { notification, setNotification, fetchNotification } = useNotification();
+  const unreadNotifications = notification.filter(n => !n.isRead);
+  const notificationCount = unreadNotifications.length;
+  const latestUnread = unreadNotifications[0]; // Show the most recent unread
 
 
   useEffect(() => {
     fetchNotification();
-  }, [fetchNotification])
+  }, [setNotification])
   return (
     <>
       {/* HEADER */}
@@ -76,7 +78,8 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
           {/* Notification Bell */}
           <div
             onClick={() => setShowNotificationPopup((prev) => !prev)}
-            className={`relative w-11 h-11 sm:w-12 sm:h-12  rounded-full flex items-center justify-center  cursor-pointer ${notificationCount > 0 ? "bg-[#FF5A3C] text-white" : "bg-white border border-[#E2E1E5]"}`}
+            className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center cursor-pointer
+        ${notificationCount > 0 ? "bg-[#FF5A3C] text-white" : "bg-white border border-[#E2E1E5]"}`}
           >
             <Bell size={20} />
 
@@ -87,20 +90,24 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
               </span>
             )}
           </div>
-          {showNotificationPopup && notificationCount > 0 &&
-            <div className="md:max-w-[450px] absolute top-14 right-0 bg-white rounded-2xl shadow-sm p-6">
-              <h3 className="text-red-500 font-semibold text-[18px] mb-1">{notification[0]?.title}</h3>
-              <p className="text-[16px] font-semibold  text-black">
-                {notification[0]?.description}
+
+          {/* Notification Popup */}
+          {showNotificationPopup && notificationCount > 0 && latestUnread && (
+            <div className="md:max-w-[450px] absolute top-14 right-0 bg-white rounded-2xl shadow-sm p-6 z-10">
+              <h3 className="text-red-500 font-semibold text-[18px] mb-1">
+                {latestUnread.title}
+              </h3>
+              <p className="text-[16px] font-semibold text-black">
+                {latestUnread.description}
               </p>
               <a
                 href="/notification"
-                className="text-[#237FEA] text-[16px] font-semibold mt-2 inline-block underline "
+                className="text-[#237FEA] text-[16px] font-semibold mt-2 inline-block underline"
               >
                 See more
               </a>
             </div>
-          }
+          )}
 
           {/* Date + Profile */}
           <div className="flex items-start sm:items-center justify-between w-full sm:w-auto">
