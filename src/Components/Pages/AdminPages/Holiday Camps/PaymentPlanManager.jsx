@@ -23,6 +23,7 @@ const PaymentPlanManagerList = () => {
   const [checked, setChecked] = useState(false);
   const [users, setUsers] = useState([]);
   const [selectedPlans, setSelectedPlans] = useState([]);
+  const [checkedIds, setCheckedIds] = useState([]);
 
   const [previewShowModal, setPreviewShowModal] = useState(false);
 
@@ -138,11 +139,11 @@ const PaymentPlanManagerList = () => {
           <div className="flex flex-col md:flex-row gap-6">
             <div className={`transition-all duration-300 w-full ${openForm ? 'md:w-3/4' : 'md:w-[55%]'}`}>
               <div className="overflow-x-auto w-full rounded-2xl border border-gray-200">
-                <table className="w-full bg-white text-sm">
+                <table className="hidden md:table w-full bg-white text-sm">
                   <thead className="bg-[#F5F5F5] text-left">
                     <tr className='font-semibold'>
                       <th className="p-4 text-[14px] text-[#717073]">Name</th>
-                      <th className="p-4 text-[#717073]">No. of Plans</th>
+                      <th className="p-4 text-[#717073] text-center">No. of Plans</th>
                       <th className="p-4 text-[#717073]">Date Created</th>
                       <th className="p-4 text-[#717073] text-center">Actions</th>
                     </tr>
@@ -153,36 +154,41 @@ const PaymentPlanManagerList = () => {
                         <td className="p-4">
                           <div className="flex items-center gap-3">
                             <button
-                              onClick={() => setChecked(!checked)}
+                              onClick={() => {
+                                const updated = checkedIds.includes(user.id)
+                                  ? checkedIds.filter((id) => id !== user.id)
+                                  : [...checkedIds, user.id];
+                                setCheckedIds(updated);
+                              }}
                               className={`w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-500 transition-colors focus:outline-none`}
                             >
-                              {checked && <Check size={16} strokeWidth={3} className="text-gray-500" />}
+                              {checkedIds.includes(user.id) && <Check size={16} strokeWidth={3} className="text-gray-500" />}
                             </button>
                             <span>{user.name}</span>
                           </div>
                         </td>
                         <td className="p-4 text-center">{user.plans?.length || 'null'}</td>
-                        <td className="p-4">{new Date(user.createdAt).toLocaleDateString("en-GB", {
-                          weekday: "short",  // "Sat"
-                          day: "numeric",    // "7"
-                          month: "short",    // "Sep"
-                        })}</td>
+                        <td className="p-4">
+                          {new Date(user.createdAt).toLocaleDateString("en-GB", {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                          })}
+                        </td>
                         <td className="p-4">
                           <div className="flex gap-4 items-center justify-center">
                             <button
                               onClick={() => handleShow(user.id)}
                               disabled={!user.plans?.length}
-                              className={`group ${!user.plans?.length ? "opacity-50 cursor-not-allowed" : ""
-                                }`}
+                              className={`group ${!user.plans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
                               <img
                                 src="/icons/Show.png"
                                 alt="Show"
-                                className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
+                                className="w-5 h-4 transition-transform duration-200 group-hover:scale-110"
                               />
                             </button>
 
-                            {/* Edit Button */}
                             <button onClick={() => handleEdit(user.id)} className="group">
                               <img
                                 src="/icons/edit.png"
@@ -191,21 +197,84 @@ const PaymentPlanManagerList = () => {
                               />
                             </button>
 
-                            {/* Delete Button */}
-                            <button onClick={() => handleDelete(user.id)} className="group flex items-center space-x-1 text-red-600 hover:underline">
+                            <button onClick={() => handleDelete(user.id)} className="group flex items-center text-red-600 hover:underline">
                               <img
                                 src="/icons/deleteIcon.png"
                                 alt="Delete"
                                 className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
                               />
                             </button>
-
                           </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+
+                {/* Mobile Version */}
+                <div className="md:hidden space-y-4">
+                  {groups.map((user, idx) => (
+                    <div key={idx} className="border rounded-lg p-4 shadow-sm bg-white">
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="font-semibold text-[#282829]">{user.name}</div>
+                        <button
+                          onClick={() => {
+                            const updated = checkedIds.includes(user.id)
+                              ? checkedIds.filter((id) => id !== user.id)
+                              : [...checkedIds, user.id];
+                            setCheckedIds(updated);
+                          }}
+                          className={`w-5 h-5 flex items-center justify-center rounded-md border-2 border-gray-500`}
+                        >
+                          {checkedIds.includes(user.id) && <Check size={16} strokeWidth={3} className="text-gray-500" />}
+                        </button>
+                      </div>
+
+                      <div className="text-sm text-gray-600 mb-1">
+                        <strong>No. of Plans:</strong> {user.plans?.length || 'null'}
+                      </div>
+                      <div className="text-sm text-gray-600 mb-2">
+                        <strong>Date:</strong> {new Date(user.createdAt).toLocaleDateString("en-GB", {
+                          weekday: "short",
+                          day: "numeric",
+                          month: "short",
+                        })}
+                      </div>
+
+                      <div className="flex gap-4 items-center">
+                        <button
+                          onClick={() => handleShow(user.id)}
+                          disabled={!user.plans?.length}
+                          className={`group ${!user.plans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
+                        >
+                          <img
+                            src="/icons/Show.png"
+                            alt="Show"
+                            className="w-5 h-4 transition-transform duration-200 group-hover:scale-110"
+                          />
+                        </button>
+
+                        <button onClick={() => handleEdit(user.id)} className="group">
+                          <img
+                            src="/icons/edit.png"
+                            alt="Edit"
+                            className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
+                          />
+                        </button>
+
+                        <button onClick={() => handleDelete(user.id)} className="group flex items-center text-red-600 hover:underline">
+                          <img
+                            src="/icons/deleteIcon.png"
+                            alt="Delete"
+                            className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+
               </div>
             </div>
 

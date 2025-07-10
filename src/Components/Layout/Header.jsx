@@ -9,6 +9,27 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const notificationCount = unreadNotifications.length;
   const latestUnread = unreadNotifications[0]; // Show the most recent unread
 
+  const routeTitleMap = {
+    '/': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/admin-forgotpassword': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/merchandise': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/email-management': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/recruitment-reports': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/templates': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/synco-chat': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/members': { title: 'Admin Panel', icon: "/members/Category.png" },
+    '/holiday-camps/payment-planManager': { title: 'Configuration' },
+    '/holiday-camps/add-payment-plan-group': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/discounts/list': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/notification': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+  };
+  const routeInfo =
+    Object.entries(routeTitleMap)
+      .sort((a, b) => b[0].length - a[0].length)
+      .find(([route]) => location.pathname.startsWith(route))?.[1]
+    || { title: 'Welcome Back', icon: '/images/Welcomeback.png' };
+  const { title, icon: Icon } = routeInfo;
+
 
   useEffect(() => {
     fetchNotification();
@@ -23,9 +44,10 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
         <div className="hidden lg:block">
           <span className="font-semibold text-[22px] sm:text-[24px] lg:text-[26px]">Hi Nillo!</span>
           <h2 className="text-[28px] sm:text-[32px] lg:text-[36px] font-semibold flex gap-2 items-center whitespace-nowrap">
-            Welcome Back
-            <img src='/images/Welcomeback.png' alt="Welcome" className="w-8 h-8 sm:w-10 sm:h-10" />
+            {title || 'Configuration'}
+            {Icon && <img src={Icon} alt="Welcome" className="w-8 h-8 sm:w-10 sm:h-10" />}
           </h2>
+
         </div>
 
         {/* Mobile: Top Row (Menu - WelcomeImg - Profile) */}

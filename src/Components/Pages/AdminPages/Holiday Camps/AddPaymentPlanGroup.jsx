@@ -206,19 +206,26 @@ const AddPaymentPlanGroup = () => {
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
             <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2`}>
-                <h2
-                    onClick={() => {
-                        if (previewShowModal) {
-                            setPreviewShowModal(false);
-                        } else {
-                            navigate('/holiday-camps/payment-planManager');
-                        }
-                    }}
-                    className="text-2xl font-semibold flex items-center gap-2 cursor-pointer hover:opacity-80"
-                >
-                    <img src="/icons/arrow-left.png" alt="Back" />
-                    {previewShowModal ? '2023/24 Standard Pricing preview' : 'Add Payment Plan Group'}
-                </h2>
+              <h2
+  onClick={() => {
+    if (previewShowModal) {
+      setPreviewShowModal(false);
+    } else {
+      navigate('/holiday-camps/payment-planManager');
+    }
+  }}
+  className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
+>
+  <img
+    src="/icons/arrow-left.png"
+    alt="Back"
+    className="w-5 h-5 md:w-6 md:h-6"
+  />
+  <span className="truncate">
+    {previewShowModal ? '2023/24 Standard Pricing preview' : 'Add Payment Plan Group'}
+  </span>
+</h2>
+
 
             </div>
 

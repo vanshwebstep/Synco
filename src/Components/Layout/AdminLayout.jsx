@@ -17,7 +17,6 @@ const routeTitleMap = {
   '/holiday-camps/add-payment-plan-group': { title: 'Add Payment Plan Group', icon: "/members/Category.png" },
   '/discounts/list': { title: 'Discounts', icon: "/members/Category.png" },
   '/notification': { title: 'Notifications', icon: '/members/Notification.png' },
-
 };
 
 const AdminLayout = ({ children }) => {
