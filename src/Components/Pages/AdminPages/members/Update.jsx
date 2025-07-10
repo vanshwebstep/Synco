@@ -155,7 +155,7 @@ const Update = () => {
     const data = new FormData();
     data.append("firstName", formData.firstName);
     data.append("lastName", formData.lastName);
-    data.append("country", formData?.countryId || formData.country);
+    data.append("country", formData?.countryId || formData.country );
     data.append("city", formData.city);
     data.append("postalCode", formData.postalCode);
     data.append("position", formData.position);

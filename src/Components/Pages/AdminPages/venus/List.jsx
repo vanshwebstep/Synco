@@ -2,14 +2,21 @@ import React, { useEffect, useState } from 'react';
 import Create from './Create';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
-import { useMembers } from '../contexts/MemberContext';
 import Loader from '../contexts/Loader';
-import { formatDistanceToNow } from 'date-fns';
+import { useVenue } from '../contexts/VenueContext';
 
 
 const List = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [clickedIcon, setClickedIcon] = useState(null);
+  const handleIconClick = (icon) => {
+    setClickedIcon(icon);
+    setShowModal(true);
+  };
+
+
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { members, fetchMembers, loading } = useMembers();
+  const { venues, formData, setFormData, isEditVenue, setIsEditVenue, fetchVenues, loading } = useVenue()
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
@@ -18,23 +25,22 @@ const List = () => {
         : [...prev, userId]
     );
   };
-  const isAllSelected = members.length > 0 && selectedUserIds.length === members.length;
+  const isAllSelected = venues.length > 0 && selectedUserIds.length === venues.length;
 
   const toggleSelectAll = () => {
     if (isAllSelected) {
       setSelectedUserIds([]);
     } else {
-      const allIds = members.map((user) => user.id);
+      const allIds = venues.map((user) => user.id);
       setSelectedUserIds(allIds);
     }
   };
 
 
-  const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
   useEffect(() => {
-    fetchMembers();
-  }, [fetchMembers]);
+    fetchVenues();
+  }, [fetchVenues]);
 
   if (loading) {
     return (
@@ -46,14 +52,13 @@ const List = () => {
 
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
-
       <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
-        <h2 className="text-[28px] font-semibold">Admin panel</h2>
+        <h2 className="text-[28px] font-semibold">Venues</h2>
         <button
           onClick={() => setOpenForm(true)}
           className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
         >
-          <img src="/members/add.png" className='w-5' alt="" /> Add Member
+          <img src="/venues/add.png" className='w-5' alt="" /> Add New Venues
         </button>
       </div>
 
@@ -61,13 +66,13 @@ const List = () => {
         <div
           className={`transition-all duration-300 ${openForm ? 'md:w-3/4' : 'w-full'} `}>
           {
-            members.length > 0 ? (
+            venues.length > 0 ? (
 
               <div className={`overflow-auto rounded-4xl w-full`}>
 
-                <table className="min-w-full bg-white text-sm">
+                <table className="min-w-full rounded-4xl  bg-white text-sm border border-[#E2E1E5]">
                   <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
-                    <tr className="font-semibold">
+                    <tr className="font-semibold ">
                       <th className="p-4 text-[#717073]">
                         <div className="flex gap-2 items-center">
                           <button
@@ -76,19 +81,19 @@ const List = () => {
                           >
                             {isAllSelected && <Check size={16} strokeWidth={3} className="text-gray-500" />}
                           </button>
-                          User
+                          Area
                         </div>
                       </th>
-                      <th className="p-4 text-[#717073]">Role</th>
-                      <th className="p-4 text-[#717073]">Phone</th>
-                      <th className="p-4 text-[#717073]">Email</th>
-                      <th className="p-4 text-[#717073]">Position</th>
-                      <th className="p-4 text-[#717073]">Activity</th>
+                      <th className="p-4 text-[#717073]">Name of the venue</th>
+                      <th className="p-4 text-[#717073]">Address</th>
+                      <th className="p-4 text-[#717073]">Facility</th>
+                      <th className="p-4 text-[#717073]"></th>
+                      <th className="p-4 text-[#717073]"></th>
                     </tr>
                   </thead>
 
                   <tbody>
-                    {members.map((user, idx) => {
+                    {venues.map((user, idx) => {
                       const isChecked = selectedUserIds.includes(user.id);
 
                       return (
@@ -102,24 +107,40 @@ const List = () => {
                               >
                                 {isChecked && <Check size={16} strokeWidth={3} className="text-gray-700" />}
                               </button>
-
-                              <img
-                                src={`${API_BASE_URL}/${user.profile}`}
-                                alt={user.firstName}
-                                onClick={() => navigate(`/members/update?id=${user.id}`)}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
                               <span>{user.firstName || "-"}</span>
                             </div>
                           </td>
                           <td className="p-4">{user.role?.role || "-"}</td>
                           <td className="p-4">{user.phoneNumber || "-"}</td>
                           <td className="p-4">{user.email || "-"}</td>
-                          <td className="p-4">{user.position || "-"}</td>
                           <td className="p-4">
-                            {user.createdAt
-                              ? formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })
-                              : "-"}
+                            <div className="flex gap-2">
+                              <div onClick={() => handleIconClick("calendar")} className="cursor-pointer">
+                                <img src="/members/calendar-circle.png" className="w-6 h-6" alt="calendar" />
+                              </div>
+                              <div onClick={() => handleIconClick("currency")} className="cursor-pointer">
+                                <img src="/members/Currency Icon.png" className="w-6 h-6" alt="currency" />
+                              </div>
+                              <div onClick={() => handleIconClick("group")} className="cursor-pointer">
+                                <img src="/members/Group-c.png" className="w-6 h-6" alt="group" />
+                              </div>
+                              <div onClick={() => handleIconClick("p")} className="cursor-pointer">
+                                <img src="/members/p.png" className="w-6 h-6" alt="p icon" />
+                              </div>
+                            </div>
+
+                          </td>
+                          <td className="p-4">
+                            <div className="flex gap-2">
+                              <div><img onClick={() => {
+                                setIsEditVenue(true);
+                                setFormData(user);
+                                setOpenForm(true)
+                              }} src="/members/edit.png" className='w-6 h-6' alt="" /></div>
+                              <div><img src="/members/delete-02.png" className='w-6 h-6' alt="" /></div>
+                              <div><img src="/members/Time-Circle.png" className='w-6 h-6' alt="" /></div>
+                            </div>
+
                           </td>
 
                         </tr>
@@ -139,7 +160,22 @@ const List = () => {
           <div className="md:w-1/4 bg-white  rounded-4xl relative">
 
             <button
-              onClick={() => setOpenForm(false)}
+              onClick={() => {
+                setOpenForm(false);
+                setIsEditVenue(null);
+                setFormData({
+                  area: "",
+                  name: "",
+                  address: "",
+                  facility: "",
+                  parking: false,
+                  congestion: false,
+                  parkingNote: "",
+                  entryNote: "",
+                  termDateLinkage: "",
+                  subscriptionLinkage: ""
+                });
+              }}
               className="absolute top-4 right-6 text-gray-400 hover:text-gray-700 text-xl"
               title="Close"
             >
@@ -148,7 +184,26 @@ const List = () => {
             <Create />
           </div>
         )}
+
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-[#0000007a] bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-[350px]">
+            <h2 className="text-lg font-semibold mb-2">Clicked Icon</h2>
+            <p className="text-[#717073] mb-4">You clicked: <strong>{clickedIcon}</strong></p>
+            <div className="text-right">
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

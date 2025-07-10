@@ -19,6 +19,8 @@ import './App.css';
 import Notification from './Components/Pages/AdminPages/notification/Notification.jsx';
 import NotificationList from './Components/Pages/AdminPages/notification/NotificationList.jsx';
 import { NotificationProvider } from './Components/Pages/AdminPages/contexts/NotificationContext.jsx';
+import List from './Components/Pages/AdminPages/venus/List.jsx';
+import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueContext.jsx';
 
 const AuthRoutes = () => {
   const location = useLocation();
@@ -59,6 +61,7 @@ const AppRoutes = () => {
       <Route path="/notification-list" element={protectedElement(<NotificationList />)} />
       <Route path="/discounts/list" element={protectedElement(<DiscountsList />)} />
       <Route path="/discounts/create" element={protectedElement(<DiscountCreate />)} />
+      <Route path="/weekly-classes/venues" element={protectedElement(<List />)} />
 
     </Routes>
   );
@@ -69,11 +72,13 @@ function App() {
   return (
     <Router>
       <NotificationProvider>
-        <MemberProvider>
-          <PaymentPlanContextProvider>
-            <AppRoutes />
+        <VenueProvider>
+          <MemberProvider>
+            <PaymentPlanContextProvider>
+              <AppRoutes />
             </ PaymentPlanContextProvider>
-        </MemberProvider>
+          </MemberProvider>
+        </VenueProvider>
       </NotificationProvider>
     </Router>
   );
