@@ -12,6 +12,11 @@ export default function NotificationList() {
     const { loadingCustomNotification, customNotification, fetchCustomNotification } = useNotification();
     const { members, fetchMembers, loading } = useMembers();
     const [openForm, setOpenForm] = useState(null);
+    const [showTimePeriodPopup, setShowTimePeriodPopup] = useState(false);
+    const [showCategoryPopup, setShowCategoryPopup] = useState(false);
+
+    const [dateRange, setDateRange] = useState({ start: '', end: '' });
+    const [selectedCategory, setSelectedCategory] = useState('');
 
     const [form, setForm] = useState({
         title: "",
@@ -153,27 +158,50 @@ export default function NotificationList() {
             </>
         )
     }
+
+    const filteredNotifications = customNotification.filter(item => {
+        const createdDate = new Date(item.createdAt);
+        const createdDateOnly = createdDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+        const startMatch = dateRange.start ? createdDateOnly >= dateRange.start : true;
+        const endMatch = dateRange.end ? createdDateOnly <= dateRange.end : true;
+
+        const matchCategory = selectedCategory ? item.category === selectedCategory : true;
+
+        return startMatch && endMatch && matchCategory;
+    });
+
+
+
     return (
         <>
             <div className="md:p-6 bg-gray-50 ">
                 <div className="md:flex justify-between items-center mb-6">
                     <h1 className="text-[24px] font-semibold">Notification List</h1>
                     <div className="flex mt-3 md:mt-0 flex-wrap items-center gap-4">
-                        <button className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white  border border-[#E2E1E5] text-[#717073] text-[16px] hover:bg-gray-100">
-                            <img src="/members/calendar.png" className="w-5" alt="" />
-
+                        <button
+                            onClick={() => setShowTimePeriodPopup(true)}
+                            className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-[#E2E1E5] text-[#717073] text-[16px] hover:bg-gray-100"
+                        >
+                            <img src="/members/calendar.png" className="w-5" alt="calendar" />
                             Time Period
                         </button>
-                        <button className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white  border border-[#E2E1E5] text-[#717073] text-[16px] hover:bg-gray-100">
-                            <img src="/members/filter-vertical.png" className="w-5" alt="" />
+
+                        <button
+                            onClick={() => setShowCategoryPopup(true)}
+                            className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-[#E2E1E5] text-[#717073] text-[16px] hover:bg-gray-100"
+                        >
+                            <img src="/members/filter-vertical.png" className="w-5" alt="filter" />
                             Filter
                         </button>
+
+
                         <button onClick={() => setOpenForm(true)} className="cursor-pointer bg-[#237FEA] text-white px-4 py-2 rounded-xl font-semibold hover:bg-blue-700">
                             Create Notification
                         </button>
                     </div>
                 </div>
-                {customNotification.length > 0 ? (
+                {filteredNotifications.length > 0 ? (
                     <div className="bg-white rounded-3xl overflow-x-auto">
                         <table className="min-w-full bg-white text-sm">
                             <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
@@ -187,7 +215,7 @@ export default function NotificationList() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {customNotification.map((item, idx) => (
+                                {filteredNotifications.map((item, idx) => (
                                     <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
                                         <td className="p-4 cursor-pointer">{item.title}</td>
                                         <td className="p-4">{item.admin?.name}</td>
@@ -198,11 +226,16 @@ export default function NotificationList() {
                                                 {item.reads.slice(0, 4).map((read, i) => (
                                                     <img
                                                         key={i}
-                                                        src={`${API_BASE_URL}/${read?.member?.profile}`}
-                                                        alt={read?.member?.firstName}
-                                                        title={read?.member?.firstName}
+                                                        src={
+                                                            read?.member?.profile
+                                                                ? `${API_BASE_URL}/${read.member.profile}`
+                                                                : "/SidebarLogos/OneTOOne.png"
+                                                        }
+                                                        alt={read?.member?.firstName || "User"}
+                                                        title={read?.member?.firstName || "User"}
                                                         className="md:w-10 md:h-10 rounded-full border-2 border-white"
                                                     />
+
                                                 ))}
                                                 {item.reads.length > 4 && (
                                                     <div
@@ -220,7 +253,7 @@ export default function NotificationList() {
                                         </td>
                                         <td className="p-4">
                                             <div className="flex justify-between">
-                                                <span className={`px-3 py-1 rounded-xl bg-[#717073] text-white`}>
+                                                <span className={`px-3 py-1 rounded-lg text-[#717073] bg-gray-100`}>
                                                     {item.category}
                                                 </span>
                                                 <EllipsisVertical />
@@ -343,6 +376,83 @@ export default function NotificationList() {
                     </div>
                 </div>
             )}
+            {showTimePeriodPopup && (
+                <div className="fixed inset-0 bg-black/10 z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-xl">
+                        <h2 className="text-lg font-semibold mb-4">Select Time Period</h2>
+                        <div className="flex items-center gap-2 mb-6">
+                            <input
+                                type="date"
+                                value={dateRange.start}
+                                onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                                className="w-full border border-[#E2E1E5] px-3 py-2 rounded-lg"
+                            />
+                            <span className="text-[#717073]">to</span>
+                            <input
+                                type="date"
+                                value={dateRange.end}
+                                onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                                className="w-full border border-[#E2E1E5] px-3 py-2 rounded-lg"
+                            />
+                        </div>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setDateRange({ start: '', end: '' });
+                                    setShowTimePeriodPopup(false);
+                                }}
+                                className="text-sm text-gray-600 hover:underline"
+                            >
+                                Clear
+                            </button>
+                            <button
+                                onClick={() => setShowTimePeriodPopup(false)}
+                                className="bg-[#237FEA] text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium"
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showCategoryPopup && (
+                <div className="fixed inset-0 bg-black/10 z-50 flex items-center justify-center">
+                    <div className="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-xl">
+                        <h2 className="text-lg font-semibold mb-4">Filter by Category</h2>
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="w-full border border-[#E2E1E5] px-3 py-2 rounded-lg text-[#717073] mb-6"
+                        >
+                            <option value="">All Categories</option>
+                            <option value="Complaints">Complaints</option>
+                            <option value="Payments">Payments</option>
+                            <option value="Cancelled Memberships">Cancellations</option>
+                            <option value="Lesson Quality">Lesson Quality</option>
+                            <option value="New Courses">New Courses</option>
+                            <option value="System Updates">System Updates</option>
+                        </select>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setSelectedCategory('');
+                                    setShowCategoryPopup(false);
+                                }}
+                                className="text-sm text-gray-600 hover:underline"
+                            >
+                                Clear
+                            </button>
+                            <button
+                                onClick={() => setShowCategoryPopup(false)}
+                                className="bg-[#237FEA] text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium"
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </>
     );
 }

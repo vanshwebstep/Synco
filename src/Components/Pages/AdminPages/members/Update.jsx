@@ -34,7 +34,7 @@ const Update = () => {
     postalCode: "",
     role: null,
     profile: null,
-    countryId:"",
+    countryId: "",
   });
   console.log('formData', formData)
 
@@ -155,7 +155,7 @@ const Update = () => {
     const data = new FormData();
     data.append("firstName", formData.firstName);
     data.append("lastName", formData.lastName);
-    data.append("country", formData?.countryId || formData.country );
+    data.append("country", formData?.countryId || formData.country);
     data.append("city", formData.city);
     data.append("postalCode", formData.postalCode);
     data.append("position", formData.position);
@@ -165,6 +165,10 @@ const Update = () => {
 
     if (formData.image) {
       data.append("profile", formData.image);
+    }
+    if (!formData.countryId) {
+      alert("Please select a country and other feilds in Address");
+      return;
     }
 
     try {
@@ -266,53 +270,53 @@ const Update = () => {
     }
   };
 
-const handleSuspend = async () => {
-  const confirm = await Swal.fire({
-    title: 'Are you sure?',
-    text: 'You are about to suspend this member.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, suspend it!',
-  });
+  const handleSuspend = async () => {
+    const confirm = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'You are about to suspend this member.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, suspend it!',
+    });
 
-  if (!confirm.isConfirmed) return;
+    if (!confirm.isConfirmed) return;
 
-  const token = localStorage.getItem("adminToken");
-  if (!token) {
-    return Swal.fire("Error", "No token found. Please login again.", "error");
-  }
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      return Swal.fire("Error", "No token found. Please login again.", "error");
+    }
 
-  Swal.fire({
-    title: 'Suspending...',
-    allowOutsideClick: false,
-    didOpen: () => {
-      Swal.showLoading();
-    },
-  });
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/admin/member/${id}/status?status=suspend`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
+    Swal.fire({
+      title: 'Suspending...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
       },
     });
 
-    const result = await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/member/${id}/status?status=suspend`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (response.ok) {
-      Swal.fire("Suspended!", "Member has been suspended successfully.", "success");
-      navigate('/members');
-    } else {
-      Swal.fire("Error", result.message || "Failed to suspend the member.", "error");
+      const result = await response.json();
+
+      if (response.ok) {
+        Swal.fire("Suspended!", "Member has been suspended successfully.", "success");
+        navigate('/members');
+      } else {
+        Swal.fire("Error", result.message || "Failed to suspend the member.", "error");
+      }
+    } catch (err) {
+      console.error("Suspend error:", err);
+      Swal.fire("Error", "Network or server error occurred.", "error");
     }
-  } catch (err) {
-    console.error("Suspend error:", err);
-    Swal.fire("Error", "Network or server error occurred.", "error");
-  }
-};
+  };
 
 
 
@@ -333,10 +337,17 @@ const handleSuspend = async () => {
         <div className="flex items-center gap-4">
           <div className="relative group cursor-pointer">
             <img
-              src={`${API_BASE_URL}/${formData.profile}` || photoPreview || "/members/dummyuser.png"}
+              src={
+                formData.profile
+                  ? `${API_BASE_URL}/${formData.profile}`
+                  : '/SidebarLogos/OneTOOne.png'
+                    ? '/SidebarLogos/OneTOOne.png'
+                    : "/SidebarLogos/OneTOOne.png"
+              }
               alt="avatar"
               className="md:w-[113px] md:h-[113px] w-20 h-20 rounded-full object-cover border"
             />
+
             <input
               type="file"
               accept="image/*"
@@ -374,61 +385,111 @@ const handleSuspend = async () => {
         <div className="md:grid grid-cols-1 sm:grid-cols-2 gap-4">
           {editPersonal ? (
             <>
-              <input
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                placeholder="First Name"
-                className="w-full mt-2 md:mt-0 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                placeholder="Last Name"
-                className="w-full mt-2 md:mt-0 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email"
-                className="w-full mt-2 md:mt-0 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                placeholder="Phone"
-                className="w-full mt-2 md:mt-0 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                name="poistion"
-                value={formData.position}
-                onChange={handleChange}
-                placeholder="Position"
-                className="input col-span-2 w-full mt-2 md:mt-0 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                name="passwordHint"
-                readOnly
-                value={formData.passwordHint}
-                onChange={handleChange}
-                placeholder="Password"
-                type="passwordHint"
-                className="input col-span-2 w-full mt-2 md:mt-0 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div>
+                <label className="block text-sm font-semibold text-[#282829]">First Name</label>
+                <input
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  placeholder="First Name"
+                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#282829]">Last Name</label>
+                <input
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Last Name"
+                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#282829]">Email</label>
+                <input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Email"
+                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#282829]">Phone Number</label>
+                <input
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={(e) => {
+                    const onlyNums = e.target.value.replace(/\D/g, ''); // Remove all non-digits
+                    setFormData((prev) => ({ ...prev, phoneNumber: onlyNums }));
+                  }}
+                  placeholder="Phone"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+
+              <div>
+                <label className="block text-sm font-semibold text-[#282829]">Position</label>
+                <input
+                  name="position"
+                  value={formData.position}
+                  onChange={handleChange}
+                  placeholder="Position"
+                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-[#282829]">Password Hint</label>
+                <input
+                  name="passwordHint"
+                  readOnly
+                  value={formData.passwordHint}
+                  placeholder="Password"
+                  type="text"
+                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </>
           ) : (
             <>
-              <div><span className="block text-[#717073] font-medium text-18px]">First Name:</span> <span className="font-medium text-[#282829] text-[20px]">  {formData.firstName || 'Enter First Name'} </span></div>
-              <div><span className="block text-[#717073] font-medium text-18px]">Last Name:</span> <span className="font-medium text-[#282829] text-[20px]">  {formData.lastName || 'Enter Last Name'} </span></div>
-              <div><span className="block text-[#717073] font-medium text-18px]">Email:</span> <span className="font-medium text-[#282829] text-[20px]">  {formData.email || 'Enter Your Email'} </span></div>
-              <div><span className="block text-[#717073] font-medium text-18px]">Phone:</span> <span className="font-medium text-[#282829] text-[20px]">{formData.phoneNumber || 'Enter Your Mobile Number'} </span></div>
-              <div><span className="block text-[#717073] font-medium text-18px]">Bio:</span> <span className="font-medium text-[#282829] text-[20px]">{formData.role?.role || '-'} <br />{formData.position || 'Enter Your Bio'} </span></div>
-              <div><span className="block text-[#717073] font-medium text-18px]">Password:</span> <span className="font-medium text-[#282829] text-[20px]">  {formData.passwordHint} </span></div>
+              <div>
+                <span className="block text-[#717073] font-medium text-sm">First Name:</span>
+                <span className="font-medium text-[#282829] text-[20px]">{formData.firstName || 'Enter First Name'}</span>
+              </div>
+              <div>
+                <span className="block text-[#717073] font-medium text-sm">Last Name:</span>
+                <span className="font-medium text-[#282829] text-[20px]">{formData.lastName || 'Enter Last Name'}</span>
+              </div>
+              <div>
+                <span className="block text-[#717073] font-medium text-sm">Email:</span>
+                <span className="font-medium text-[#282829] text-[20px]">{formData.email || 'Enter Your Email'}</span>
+              </div>
+              <div>
+                <span className="block text-[#717073] font-medium text-sm">Phone:</span>
+                <span className="font-medium text-[#282829] text-[20px]">{formData.phoneNumber || 'Enter Your Mobile Number'}</span>
+              </div>
+              <div>
+                <span className="block text-[#717073] font-medium text-sm">Bio:</span>
+                <span className="font-medium text-[#282829] text-[20px]">
+                  {formData.role?.role || '-'} <br />
+                  {formData.position || 'Enter Your Bio'}
+                </span>
+              </div>
+              <div>
+                <span className="block text-[#717073] font-medium text-sm">Password:</span>
+                <span className="font-medium text-[#282829] text-[20px]">{formData.passwordHint}</span>
+              </div>
             </>
           )}
+
         </div>
       </div>
 
@@ -445,48 +506,76 @@ const handleSuspend = async () => {
         <div className="md:grid grid-cols-1 sm:grid-cols-2 gap-4">
           {editAddress ? (
             <>
+              <div>
+                <label className="block text-sm font-semibold text-[#282829] mb-1">Country</label>
+                <Select
+                  name="country"
+                  value={countryOptions.find(option => option.value === formData.countryId) || null}
+                  onChange={(selectedOption) =>
+                    handleChange({
+                      target: {
+                        name: 'countryId',
+                        value: selectedOption ? selectedOption.value : null
+                      }
+                    })
+                  }
+                  options={countryOptions}
+                  placeholder="Select Country"
+                  className="mt-0"
+                  classNamePrefix="react-select"
+                />
+              </div>
 
+              <div>
+                <label className="block text-sm font-semibold text-[#282829] mb-1">City</label>
+                <input
+                  name="city"
+                  value={formData.city}
+                  required
+                  onChange={handleChange}
+                  placeholder="City"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-              <Select
-                name="country"
-                value={countryOptions.find(option => option.value === formData.countryId) || null}
-                onChange={(selectedOption) =>
-                  handleChange({
-                    target: {
-                      name: 'countryId',
-                      value: selectedOption ? selectedOption.value : null
-                    }
-                  })
-                }
-                options={countryOptions}
-                placeholder="Select Country"
-                className="mt-2 md:mt-0"
-                classNamePrefix="react-select"
-              />
-
-              <input
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                placeholder="City"
-                className="w-full border border-gray-300 rounded-lg mt-2 md:mt-0 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <input
-                name="postalCode"
-                value={formData.postalCode}
-                onChange={handleChange}
-                placeholder="Postal Code"
-                className="md:col-span-2 w-full border border-gray-300 rounded-lg mt-2 md:mt-0 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-semibold text-[#282829] mb-1">Postal Code</label>
+                <input
+                  name="postalCode"
+                  required
+                  value={formData.postalCode}
+                  onChange={handleChange}
+                  placeholder="Postal Code"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </>
           ) : (
             <>
-              <div><span className="block text-[#717073] font-medium text-18px]">Country:</span><span className="font-medium text-[#282829] text-[20px]">  {formData.country?.name || 'Enter Country Name'}</span></div>
-              <div><span className="block text-[#717073] font-medium text-18px]">City:</span><span className="font-medium text-[#282829] text-[20px]">  {formData.city || 'Enter City Name'}</span></div>
-              <div><span className="block text-[#717073] font-medium text-18px]">Postal Code:</span><span className="font-medium text-[#282829] text-[20px]">  {formData.postalCode || 'Enter Postal Code'}</span></div>
+              <div>
+                <span className="block text-[#717073] font-medium text-sm">Country:</span>
+                <span className="font-medium text-[#282829] text-[20px]">
+                  {formData.country?.name || 'Enter Country Name'}
+                </span>
+              </div>
+
+              <div>
+                <span className="block text-[#717073] font-medium text-sm">City:</span>
+                <span className="font-medium text-[#282829] text-[20px]">
+                  {formData.city || 'Enter City Name'}
+                </span>
+              </div>
+
+              <div className="sm:col-span-2">
+                <span className="block text-[#717073] font-medium text-sm">Postal Code:</span>
+                <span className="font-medium text-[#282829] text-[20px]">
+                  {formData.postalCode || 'Enter Postal Code'}
+                </span>
+              </div>
             </>
           )}
         </div>
+
       </div>
 
 

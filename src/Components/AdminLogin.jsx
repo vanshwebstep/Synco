@@ -61,6 +61,8 @@ const AdminLogin = () => {
       if (response.ok && result?.data?.token) {
         localStorage.setItem('adminToken', result.data.token);
         localStorage.setItem('adminId', result.data.adminId);
+        localStorage.setItem('role', result.data.admin.role);
+
 
         Swal.fire({
           icon: 'success',

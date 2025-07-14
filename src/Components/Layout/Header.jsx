@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Menu, X, Search, Bell, ChevronUp, ChevronDown } from 'lucide-react';
 import { useNotification } from '../Pages/AdminPages/contexts/NotificationContext';
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpen }) => {
   const [showNotificationPopup, setShowNotificationPopup] = useState(null);
@@ -8,6 +9,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const unreadNotifications = notification.filter(n => !n.isRead);
   const notificationCount = unreadNotifications.length;
   const latestUnread = unreadNotifications[0]; // Show the most recent unread
+  const navigate = useNavigate();
 
   const routeTitleMap = {
     '/': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
@@ -44,6 +46,13 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     return () => clearInterval(interval);
   }, []); // empty deps = run once on mount
 
+    const handleNotificationClick = () => {
+    if (notificationCount > 0) {
+      setShowNotificationPopup((prev) => !prev);
+    } else {
+      navigate('/notification');
+    }
+  };
   return (
     <>
       {/* HEADER */}
@@ -108,20 +117,20 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
           </div>
 
           {/* Notification Bell */}
-          <div
-            onClick={() => setShowNotificationPopup((prev) => !prev)}
-            className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center cursor-pointer
-        ${notificationCount > 0 ? "bg-[#FF5A3C] text-white" : "bg-white border border-[#E2E1E5]"}`}
-          >
-            <Bell size={20} />
+        <div
+      onClick={handleNotificationClick}
+      className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center cursor-pointer
+      ${notificationCount > 0 ? "bg-[#FF5A3C] text-white" : "bg-white border border-[#E2E1E5]"}`}
+    >
+      <Bell size={20} />
 
-            {/* Notification Badge */}
-            {notificationCount > 0 && (
-              <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white text-black text-sm font-semibold flex items-center justify-center shadow-md">
-                {notificationCount}
-              </span>
-            )}
-          </div>
+      {/* Notification Badge */}
+      {notificationCount > 0 && (
+        <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white text-black text-sm font-semibold flex items-center justify-center shadow-md">
+          {notificationCount}
+        </span>
+      )}
+    </div>
 
           {/* Notification Popup */}
           {showNotificationPopup && notificationCount > 0 && latestUnread && (

@@ -6,6 +6,8 @@ import RoleModal from "./RoleModal";
 
 const Create = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const [errors, setErrors] = useState({});
+  const [phoneError, setPhoneError] = useState('');
 
   const { roleOptions,
     fetchRoles,
@@ -33,10 +35,35 @@ const Create = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+
+    let newValue = value;
+
+    // Phone number specific logic
+    if (name === 'phoneNumber') {
+      // Allow only digits
+      newValue = value.replace(/\D/g, '');
+
+      // Limit to 10 digits
+      if (newValue.length > 10) {
+        newValue = newValue.slice(0, 10);
+      }
+
+      // Live validation
+      if (newValue.length !== 10) {
+        setErrors((prev) => ({
+          ...prev,
+          [name]: 'Phone number must be exactly 10 digits',
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, [name]: '' }));
+      }
+    } else {
+      // Clear error for other fields
+      setErrors((prev) => ({ ...prev, [name]: '' }));
+    }
+
+    // Update form data
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
   };
 
 
@@ -47,7 +74,23 @@ const Create = () => {
       setPhotoPreview(URL.createObjectURL(file));
     }
   };
+  const validate = () => {
+    const newErrors = {};
+    const password = formData.password;
 
+    if (!password) {
+      newErrors.password = 'Password is required.';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters.';
+    } else if (!/[A-Z]/.test(password)) {
+      newErrors.password = 'Password must contain at least one uppercase letter.';
+    } else if (!/\d/.test(password)) {
+      newErrors.password = 'Password must contain at least one number.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleRoleChange = (selected) => {
     if (selected?.isCreate) {
@@ -59,91 +102,92 @@ const Create = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (
-      !formData.name ||
-      !formData.position ||
-      !formData.phoneNumber ||
-      !formData.email ||
-      !formData.password ||
-      !formData.role?.value
-    ) {
-      Swal.fire({
-        icon: "warning",
-        title: "Missing Information",
-        text: "Please fill out all required fields before submitting.",
-      });
-      return;
-    }
-
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("position", formData.position);
-    data.append("phoneNumber", formData.phoneNumber);
-    data.append("email", formData.email);
-    data.append("password", formData.password);
-    data.append("role", formData.role?.value);
-
-    if (formData.photo) {
-      data.append("profile", formData.photo);
-    }
-
-    try {
-      Swal.fire({
-        title: "Creating Member...",
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-
-      const response = await fetch(`${API_BASE_URL}/api/admin/member`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: data,
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
+    if (validate()) {
+      if (
+        !formData.name ||
+        !formData.position ||
+        !formData.phoneNumber ||
+        !formData.email ||
+        !formData.password ||
+        !formData.role?.value
+      ) {
         Swal.fire({
-          icon: "error",
-          title: "Failed to Add Member",
-          text: result.message || "Something went wrong.",
+          icon: "warning",
+          title: "Missing Information",
+          text: "Please fill out all required fields before submitting.",
         });
         return;
       }
 
-      Swal.fire({
-        icon: "success",
-        title: "Member Created",
-        text: result.message || "New member was added successfully!",
-        timer: 2000,
-        showConfirmButton: false,
-      });
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("position", formData.position);
+      data.append("phoneNumber", formData.phoneNumber);
+      data.append("email", formData.email);
+      data.append("password", formData.password);
+      data.append("role", formData.role?.value);
 
-      fetchMembers();
+      if (formData.photo) {
+        data.append("profile", formData.photo);
+      }
 
-      setFormData({
-        name: "",
-        position: "",
-        phoneNumber: "",
-        email: "",
-        password: "",
-        role: null,
-        photo: null,
-      });
-      setPhotoPreview(null);
+      try {
+        Swal.fire({
+          title: "Creating Member...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
 
-    } catch (error) {
-      console.error("Error creating member:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Network Error",
-        text: error.message || "An error occurred while submitting the form.",
-      });
+        const response = await fetch(`${API_BASE_URL}/api/admin/member`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: data,
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          Swal.fire({
+            icon: "error",
+            title: "Failed to Add Member",
+            text: result.message || "Something went wrong.",
+          });
+          return;
+        }
+
+        Swal.fire({
+          icon: "success",
+          title: "Member Created",
+          text: result.message || "New member was added successfully!",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+        fetchMembers();
+
+        setFormData({
+          name: "",
+          position: "",
+          phoneNumber: "",
+          email: "",
+          password: "",
+          role: null,
+          photo: null,
+        });
+        setPhotoPreview(null);
+
+      } catch (error) {
+        console.error("Error creating member:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Network Error",
+          text: error.message || "An error occurred while submitting the form.",
+        });
+      }
     }
   };
 
@@ -190,8 +234,13 @@ const Create = () => {
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleInputChange}
-            className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`w-full border ${errors.phoneNumber ? 'border-red-500' : 'border-[#E2E1E5]'
+              } rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 ${errors.phoneNumber ? 'focus:ring-red-500' : 'focus:ring-blue-500'
+              }`}
           />
+          {errors.phoneNumber && (
+            <p className="text-sm text-red-500 mt-1">{errors.phoneNumber}</p>
+          )}
         </div>
 
         <div>
@@ -227,9 +276,13 @@ const Create = () => {
             type="password"
             name="password"
             value={formData.password}
+
             onChange={handleInputChange}
             className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+          )}
         </div>
 
         <div>

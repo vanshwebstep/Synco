@@ -142,10 +142,10 @@ const Create = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
                 <h2
-                onClick={() => {
-      navigate('/weekly-classes/term-dates/list');
-  }}
-                className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
+                    onClick={() => {
+                        navigate('/weekly-classes/term-dates/list');
+                    }}
+                    className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
                     <img
                         src="/icons/arrow-left.png"
                         alt="Back"

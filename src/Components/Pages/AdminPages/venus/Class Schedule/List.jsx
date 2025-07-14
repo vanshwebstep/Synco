@@ -1,14 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import Create from '../Create';
-import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
 import Loader from '../../contexts/Loader';
 import { useVenue } from '../../contexts/VenueContext';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
+import { motion, AnimatePresence } from "framer-motion";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const List = () => {
+    const terms = [
+        {
+            id: "autumn1",
+            name: "Autumn Term",
+            date: "Sat Jul 26",
+            sessions: [
+                {
+                    id: 1,
+                    title: "Session 1: Pele",
+                    date: "Saturday, 09/09/2025",
+                    status: "Completed",
+                },
+                {
+                    id: 2,
+                    title: "Session 2: Maradona",
+                    date: "Saturday, 09/16/2025",
+                    status: "Completed",
+                },
+                // Add more sessions as needed...
+            ],
+        },
+        {
+            id: "autumn2",
+            name: "Autumn Term 2",
+            date: "Sat Jul 26",
+            sessions: [
+                {
+                    id: 1,
+                    title: "Session 1: Messi",
+                    date: "Saturday, 09/09/2025",
+                    status: "Completed",
+                },
+                {
+                    id: 2,
+                    title: "Session 2: Ronaldo",
+                    date: "Saturday, 09/16/2025",
+                    status: "Completed",
+                },
+            ],
+        },
+    ];
+    const navigate = useNavigate();
+
+    const [openTerms, setOpenTerms] = useState({});
+
     const [showModal, setShowModal] = useState(false);
     const [clickedIcon, setClickedIcon] = useState(null);
     const handleIconClick = (icon) => {
@@ -20,7 +65,18 @@ const List = () => {
         setIsEditing(true);
         setOpenForm(true);
     };
+    const toggleTerm = (termId) => {
+        setOpenTerms((prev) => ({
+            ...prev,
+            [termId]: !prev[termId],
+        }));
+    };
 
+    const [openClassIndex, setOpenClassIndex] = useState(null);
+
+    const toggleSessions = (index) => {
+        setOpenClassIndex(openClassIndex === index ? null : index);
+    };
     // Reset for new form
     const handleAddNew = () => {
         setIsEditing(false);
@@ -139,57 +195,130 @@ const List = () => {
                                 <p className="text-[14px]   mb-4 border-b pb-4 border-gray-200">Lots Road, London, SW10 0AB</p>
 
                                 {classes.map((item, index) => (
-                                    <div
-                                        key={index}
-                                        className={`flex flex-col md:flex-row justify-between items-center border ${item.highlight ? "border-red-400" : "border-gray-200"
-                                            } rounded-xl px-4  pr-16 py-4 mb-3 hover:shadow transition`}
-                                    >
-                                        {/* Class info block */}
-                                        <div className="grid grid-cols-2 md:grid-cols-9 gap-4 w-full text-sm">
-                                            <div>
-                                                <p className="font-semibold">{item.name}</p>
-                                                <p className="text-xs ">{item.ageGroup}</p>
+                                    <>
+                                        <div
+                                            key={index}
+                                            className={`flex flex-col md:flex-row justify-between items-center border ${item.highlight ? "border-red-400" : "border-gray-200"
+                                                } rounded-xl px-4  pr-16 py-4 mb-3 hover:shadow transition`}
+                                        >
+                                            {/* Class info block */}
+                                            <div className="grid grid-cols-2 md:grid-cols-9 gap-4 w-full text-sm">
+                                                <div>
+                                                    <p className="font-semibold text-[16px]">{item.name}</p>
+                                                    <p className="text-xs font-semibold text-[16px]">{item.ageGroup}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[#717073] font-semibold text-[16px]">Capacity</p>
+                                                    <p className="font-semibold text-[#717073]  text-[16px]">{item.capacity}</p>
+                                                </div>
+                                                <div className='text-[#717073] font-semibold text-[16px]'>
+                                                    <p className="text-[#717073]">Day</p>
+                                                    <p className="font-semibold">{item.day}</p>
+                                                </div>
+                                                <div className='text-[#717073] font-semibold text-[16px]'>
+                                                    <p className="text-[#717073]">Start time</p>
+                                                    <p className="font-semibold">{item.startTime}</p>
+                                                </div>
+                                                <div className='text-[#717073]  font-semibold text-[16px]'>
+                                                    <p className="text-[#717073]">End time</p>
+                                                    <p className="font-semibold">{item.endTime}</p>
+                                                </div>
+                                                <div className='text-[#717073]  font-semibold text-[16px]'>
+                                                    <p className="text-[#717073]">Free Trials?</p>
+                                                    <p className="font-semibold">{item.freeTrial}</p>
+                                                </div>
+                                                <div className='text-[#717073] font-semibold  text-[16px]'>
+                                                    <p className="text-[#717073]">Facility</p>
+                                                    <p className="font-semibold">{item.facility}</p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <p className="text-[#717073]">Capacity</p>
-                                                <p className="font-medium text-[#717073]">{item.capacity}</p>
-                                            </div>
-                                            <div className='text-[#717073]'>
-                                                <p className="text-[#717073]">Day</p>
-                                                <p className="font-medium">{item.day}</p>
-                                            </div>
-                                            <div className='text-[#717073]'>
-                                                <p className="text-[#717073]">Start time</p>
-                                                <p className="font-medium">{item.startTime}</p>
-                                            </div>
-                                            <div className='text-[#717073]'>
-                                                <p className="text-[#717073]">End time</p>
-                                                <p className="font-medium">{item.endTime}</p>
-                                            </div>
-                                            <div className='text-[#717073]'>
-                                                <p className="text-[#717073]">Free Trials?</p>
-                                                <p className="font-medium">{item.freeTrial}</p>
-                                            </div>
-                                            <div className='text-[#717073]'>
-                                                <p className="text-[#717073]">Facility</p>
-                                                <p className="font-medium">{item.facility}</p>
-                                            </div>
-                                        </div>
 
-                                        {/* Icons + Button */}
-                                        <div className="flex items-center mt-4 md:mt-0 gap-4">
-                                            <img
-                                                src="/icons/edit.png"
-                                                alt="Edit"
-                                                className="w-4 h-4 cursor-pointer"
-                                                onClick={() => handleEditClick(item)}
-                                            />                                            <img src="/icons/deleteIcon.png" alt="" />
-                                            <button className="ml-4 flex font-semibold items-center gap-2 whitespace-nowrap px-4 pr-6 py-2 border rounded-xl text-sm font-medium text-blue-600 border-blue-500 hover:bg-blue-50">
-                                                View sessions  <img src="/icons/bluearrowup.png" className='rotate-180' alt="" />
-                                            </button>
-                                        </div>
-                                    </div>
+                                            {/* Icons + Button */}
+                                            <div className="flex items-center mt-4 md:mt-0 gap-4">
+                                                <img
+                                                    src="/icons/edit.png"
+                                                    alt="Edit"
+                                                    className="w-6 h-6 cursor-pointer"
+                                                    onClick={() => handleEditClick(item)}
+                                                />                                            <img src="/icons/deleteIcon.png" alt="" />
+                                                <button onClick={() => toggleSessions(index)} className="ml-4 flex font-semibold items-center gap-2 whitespace-nowrap px-4 pr-6 py-2 border rounded-xl text-[16px] font-medium text-blue-600 border-blue-500 hover:bg-blue-50">
+                                                    {openClassIndex === index ? 'Hide sessions' : 'View sessions'}  <img src="/icons/bluearrowup.png" className={`${openClassIndex === index ? '' : 'rotate-180'} transition-transform`} alt="" />
+                                                </button>
+                                            </div>
 
+                                        </div>
+                                        <AnimatePresence>
+                                            {openClassIndex === index && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: "auto", opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="overflow-hidden mt-4  rounded-xl"
+                                                >
+                                                    <div className="space-y-4">
+                                                        {terms.map((term) => (
+                                                            <div key={term.id} className=" rounded-xl w-full">
+                                                                <div
+                                                                    onClick={() => toggleTerm(term.id)}
+                                                                    className="mb-4 mt-2 border-b border-gray-300 flex justify-between items-center cursor-pointer"
+                                                                >
+
+                                                                    <div className='flex mb-4 items-center gap-4 justify-start'>
+                                                                        <div><img src="/icons/blackarrowup.png" className={`${openTerms[term.id] ? "" : "rotate-180"} transition-transform`} alt="" /></div>
+                                                                        <div> <p className="font-semibold text-[16px] ">{term.name}</p>
+                                                                            <p className="text-[14px] ">{term.date}</p>
+                                                                        </div>
+                                                                    </div>
+
+
+                                                                </div>
+
+                                                                <div
+                                                                    className={`transition-all duration-300 overflow-hidden ${openTerms[term.id] ? "max-h-[1000px]" : "max-h-0"
+                                                                        }`}
+                                                                >
+                                                                    {term.sessions.map((session) => (
+                                                                        <div
+                                                                            key={session.id}
+                                                                            className="flex flex-wrap gap-4 justify-between items-center border-b border-gray-300 mb-3 px-8 py-2"
+                                                                        >
+                                                                            <div className="flex items-center gap-2 text-sm mb-2 md:mb-0">
+                                                                                <span className="text-[16px]  md:min-w-[200px] font-semibold">{session.title}</span>
+                                                                                <span className="text-[16px] min-w-[200px] ">{session.date}</span>
+                                                                            </div>
+
+                                                                            <div className="flex items-center min-w-[100px] gap-2 text-xs">
+                                                                                <span className="rounded-full flex gap-2 text-[16px] items-center font-medium">
+                                                                                    <img src="/icons/complete.png " className='w-4 h-4' alt="" /> {session.status}
+                                                                                </span>
+                                                                            </div>
+
+                                                                            <div className="flex gap-2 mt-2 md:mt-0">
+                                                                                <button
+                                                                                    onClick={() => navigate('/weekly-classes/venues/class-schedule/view-session-plans')}
+                                                                                    className="bg-blue-500 font-semibold hover:bg-white hover:text-blue-500 border-2 border-transparent hover:border-blue-500 text-[16px] text-white px-3 py-2 rounded-xl"
+                                                                                >
+                                                                                    View Session Plans
+                                                                                </button>
+
+                                                                                <button className="hover:bg-blue-500 font-semibold  bg-white text-blue-500 border-3 hover:border-transparent border-blue-500 text-[16px] hover:text-white px-3 py-2 rounded-xl">
+                                                                                    View Class Register
+                                                                                </button>
+                                                                                <button className="bg-[#FE7058] font-semibold hover:bg-white hover:text-[#FE7058] border-3 border-transparent hover:border-[#FE7058] text-[16px] text-white px-3 py-2 rounded-xl">
+                                                                                    Cancel Session
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </>
                                 ))}
                             </div>
 

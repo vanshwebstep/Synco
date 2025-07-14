@@ -92,30 +92,35 @@ const List = () => {
                       const isChecked = selectedUserIds.includes(user.id);
 
                       return (
-                        <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
+                        <tr key={idx}  className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
                           <td className="p-4 cursor-pointer">
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={() => toggleCheckbox(user.id)}
-                                className={`lg:w-5 lg:h-5 w-full p-2 me-2 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-700' : 'border-gray-300'
-                                  } transition-colors focus:outline-none`}
+                                className={`lg:w-5 lg:h-5 w-full me-2 flex items-center justify-center rounded-md border-2 transition-colors focus:outline-none ${isChecked ? '' : 'border-gray-300'
+                                  }`}
                               >
-                                {isChecked && <Check size={16} strokeWidth={3} className="text-gray-700" />}
+                                {isChecked && <Check size={16} strokeWidth={3} className="text-gray-500" />}
                               </button>
 
+
                               <img
-                                src={`${API_BASE_URL}/${user.profile}`}
-                                alt={user.firstName}
-                                onClick={() => navigate(`/members/update?id=${user.id}`)}
-                                className="w-10 h-10 rounded-full object-cover"
+                                src={
+                                  user.profile
+                                    ? `${API_BASE_URL}/${user.profile}`
+                                    : '/SidebarLogos/OneTOOne.png'
+                                }
+                                alt={user.firstName || 'Profile Image'}
+                                className="w-10 h-10 rounded-full object-contain"
                               />
+
                               <span>{user.firstName || "-"}</span>
                             </div>
                           </td>
-                          <td className="p-4">{user.role?.role || "-"}</td>
-                          <td className="p-4">{user.phoneNumber || "-"}</td>
-                          <td className="p-4">{user.email || "-"}</td>
-                          <td className="p-4">{user.position || "-"}</td>
+                          <td className="p-4" onClick={() => navigate(`/members/update?id=${user.id}`)}>{user.role?.role || "-"}</td>
+                          <td className="p-4" onClick={() => navigate(`/members/update?id=${user.id}`)}>{user.phoneNumber || "-"}</td>
+                          <td className="p-4" onClick={() => navigate(`/members/update?id=${user.id}`)}>{user.email || "-"}</td>
+                          <td className="p-4" onClick={() => navigate(`/members/update?id=${user.id}`)}>{user.position || "-"}</td>
                           <td className="p-4">
                             {user.createdAt
                               ? formatDistanceToNow(new Date(user.createdAt), { addSuffix: true })

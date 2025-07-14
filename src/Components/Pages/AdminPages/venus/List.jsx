@@ -102,7 +102,7 @@ const List = () => {
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={() => toggleCheckbox(user.id)}
-                                className={`lg:w-5 lg:h-5 w-full p-2 me-2 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-700' : 'border-gray-300'
+                                className={`lg:w-5 lg:h-5 w-full  me-2 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-700' : 'border-gray-300'
                                   } transition-colors focus:outline-none`}
                               >
                                 {isChecked && <Check size={16} strokeWidth={3} className="text-gray-700" />}

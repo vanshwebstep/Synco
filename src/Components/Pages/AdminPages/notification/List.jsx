@@ -31,13 +31,7 @@ export default function List() {
         return `${year}/${month}/${day} - ${hours} ${ampm}`;
     }
 
-    if (loadingNotification) {
-        return (
-            <>
-                <Loader />
-            </>
-        )
-    }
+
     return (
         <div className="space-y-5 bg-white p-10 rounded-2xl">
             {filtered.map((item, idx) => (

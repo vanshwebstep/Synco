@@ -3,7 +3,7 @@ import AdminLogin from './Components/AdminLogin.jsx';
 import ForgotPassword from './Components/ForgotPassword.jsx';
 import AdminLayout from './Components/Layout/AdminLayout.jsx';
 import ProtectedRoute from './Components/ProtectedRoute.jsx';
-import AdminDashboard from './Components/Pages/AdminPages/AdminDashboard.jsx';
+import Dashboard from './Components/Pages/Dashboard.jsx';
 import MemberList from './Components/Pages/AdminPages/members/List.jsx';
 import Update from './Components/Pages/AdminPages/members/Update.jsx';
 import PaymentPlanManagerList from './Components/Pages/AdminPages/Holiday Camps/PaymentPlanManager.jsx';
@@ -23,6 +23,7 @@ import { NotificationProvider } from './Components/Pages/AdminPages/contexts/Not
 import List from './Components/Pages/AdminPages/venus/List.jsx';
 import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueContext.jsx';
 import ClassSchedule from './Components/Pages/AdminPages/venus/Class Schedule/List.jsx';
+import ViewSessions from './Components/Pages/AdminPages/venus/Class Schedule/ViewSessions.jsx';
 
 import TermDateList from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/List.jsx';
 import TermDateCreate from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/Create.jsx';
@@ -59,7 +60,8 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={protectedElement(<AdminDashboard />)} />
+      <Route path="/" element={protectedElement(<Dashboard />)} />
+      <Route path="/dashboard" element={protectedElement(<userDashboard />)} />
       <Route path="/members" element={protectedElement(<MemberList />)} />
       <Route path="/members/update" element={protectedElement(<Update />)} />
       <Route path="/holiday-camps/payment-planManager" element={protectedElement(<PaymentPlanManagerList />)} />
@@ -70,6 +72,7 @@ const AppRoutes = () => {
       <Route path="/discounts/create" element={protectedElement(<DiscountCreate />)} />
       <Route path="/weekly-classes/venues" element={protectedElement(<List />)} />
       <Route path="/weekly-classes/venues/class-schedule" element={protectedElement(<ClassSchedule />)} />
+      <Route path="/weekly-classes/venues/class-schedule/view-session-plans" element={protectedElement(<ViewSessions />)} />
       <Route path="/weekly-classes/term-dates/list" element={protectedElement(<TermDateList />)} />
       <Route path="/weekly-classes/term-dates/create" element={protectedElement(<TermDateCreate />)} />
 
