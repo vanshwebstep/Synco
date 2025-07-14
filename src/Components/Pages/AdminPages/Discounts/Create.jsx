@@ -12,7 +12,7 @@ const Create = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
 
-    const { fetchDiscounts, createDiscount,loading } = useDiscounts();
+    const { fetchDiscounts, createDiscount, loading } = useDiscounts();
 
     const [showEndDate, setShowEndDate] = useState(false); // only controls visibility
     const [showEnd, setShowEnd] = useState(false);
@@ -180,13 +180,13 @@ const Create = () => {
 
         setFormData({ ...formData, endTime: time });
     };
- if (loading) {
-    return (
-      <>
-        <Loader />
-      </>
-    )
-  }
+    if (loading) {
+        return (
+            <>
+                <Loader />
+            </>
+        )
+    }
     return (
         <div className="bg-gray-50 min-h-screen p-6">
             {/* Top Navigation */}
@@ -210,7 +210,7 @@ const Create = () => {
                         <div className="text-[16px] mb-2 flex gap-2 items-center">
                             <input
                                 type="checkbox"
-                                
+
                                 className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
                                 checked={formData.type === "code"}
                                 onChange={() => handleTypeSelect("code")}
@@ -503,34 +503,34 @@ const Create = () => {
                                     transition={{ duration: 0.3 }}
                                     className=""
                                 >
-                            <div className="flex flex-col md:flex-row gap-4 w-full">
-                                <div className="flex flex-col w-full md:w-3/12">
-                                    <label className="text-sm font-medium mb-1">End Date</label>
-                                    <DatePicker
-                                        selected={formData.endDate}
-                                        onChange={(date) => setFormData({ ...formData, endDate: date })}
-                                        dateFormat="P"
-                                        minDate={formData.startDate || new Date()}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-                                        disabled={!formData.startDate}
-                                    />
-                                </div>
-                                <div className="flex flex-col w-full md:w-3/12">
-                                    <label className="text-sm font-medium mb-1">End Time</label>
-                                    <DatePicker
-                                        selected={formData.endTime}
-                                        onChange={handleEndTimeChange}
-                                        showTimeSelect
-                                        showTimeSelectOnly
-                                        timeIntervals={15}
-                                        dateFormat="h:mm aa"
-                                        timeCaption="Time"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-                                        x disabled={!formData.endDate}
-                                    />
-                                </div>
-                            </div>
-                         </motion.div>
+                                    <div className="flex flex-col md:flex-row gap-4 w-full">
+                                        <div className="flex flex-col w-full md:w-3/12">
+                                            <label className="text-sm font-medium mb-1">End Date</label>
+                                            <DatePicker
+                                                selected={formData.endDate}
+                                                onChange={(date) => setFormData({ ...formData, endDate: date })}
+                                                dateFormat="P"
+                                                minDate={formData.startDate || new Date()}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                                disabled={!formData.startDate}
+                                            />
+                                        </div>
+                                        <div className="flex flex-col w-full md:w-3/12">
+                                            <label className="text-sm font-medium mb-1">End Time</label>
+                                            <DatePicker
+                                                selected={formData.endTime}
+                                                onChange={handleEndTimeChange}
+                                                showTimeSelect
+                                                showTimeSelectOnly
+                                                timeIntervals={15}
+                                                dateFormat="h:mm aa"
+                                                timeCaption="Time"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                                x disabled={!formData.endDate}
+                                            />
+                                        </div>
+                                    </div>
+                                </motion.div>
                             )}
                         </AnimatePresence>
 

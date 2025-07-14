@@ -198,9 +198,9 @@ export default function NotificationList() {
                                                 {item.reads.slice(0, 4).map((read, i) => (
                                                     <img
                                                         key={i}
-                                                        src={`${API_BASE_URL}/${read.member.profile}`}
-                                                        alt={read.member.firstName}
-                                                        title={read.member.firstName}
+                                                        src={`${API_BASE_URL}/${read?.member?.profile}`}
+                                                        alt={read?.member?.firstName}
+                                                        title={read?.member?.firstName}
                                                         className="md:w-10 md:h-10 rounded-full border-2 border-white"
                                                     />
                                                 ))}

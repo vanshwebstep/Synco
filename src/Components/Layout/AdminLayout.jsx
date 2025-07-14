@@ -17,6 +17,10 @@ const routeTitleMap = {
   '/holiday-camps/add-payment-plan-group': { title: 'Add Payment Plan Group', icon: "/members/Category.png" },
   '/discounts/list': { title: 'Discounts', icon: "/members/Category.png" },
   '/notification': { title: 'Notifications', icon: '/members/Notification.png' },
+  '/weekly-classes/term-dates/list': { title: 'Term Dates & Session Plan Mapping', icon: '/members/Category.png' },
+  '/weekly-classes/term-dates/create': { title: 'Term Dates & Session Plan Mapping', icon: '/members/Category.png' },
+  '/weekly-classes/venues/class-schedule': { title: 'Class Schedule ', icon: '/members/Category.png' },
+
 };
 
 const AdminLayout = ({ children }) => {

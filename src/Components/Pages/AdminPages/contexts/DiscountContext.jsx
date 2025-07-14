@@ -50,22 +50,49 @@ export const DiscountContextProvider = ({ children }) => {
   }, [token]);
 
   // Create discount
-  const createDiscount = useCallback(async (data) => {
-    if (!token) return;
-    try {
-      await fetch(`${API_BASE_URL}/api/admin/discount`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-      await fetchDiscounts();
-    } catch (err) {
-      console.error("Failed to create discount:", err);
+const createDiscount = useCallback(async (data) => {
+  if (!token) return;
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/discount`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.status) {
+      throw new Error(result.message || "Something went wrong");
     }
-  }, [token, fetchDiscounts]);
+
+    await fetchDiscounts();
+
+    // ✅ Show dynamic success message from API response
+    await Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: result.message || 'Discount created successfully.',
+      confirmButtonColor: '#237FEA'
+    });
+
+    navigate(`/discounts/list`);
+  } catch (err) {
+    // ❌ Show error message from API or fallback
+    Swal.fire({
+      icon: 'error',
+      title: 'Failed to Create Discount',
+      text: err.message || 'An unexpected error occurred.',
+      confirmButtonColor: '#d33'
+    });
+
+    console.error("Failed to create discount:", err);
+  }
+}, [token, fetchDiscounts, navigate]);
+
 
   // Update discount
   const updateDiscount = useCallback(async (id, data) => {

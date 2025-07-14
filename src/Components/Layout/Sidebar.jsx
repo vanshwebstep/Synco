@@ -12,7 +12,8 @@ const menuItems = [
     { title: 'Weekly Classes', icon: '/SidebarLogos/WeeklyClasses.png', iconHover: '/SidebarLogos/WeeklyClassesH.png', 
         subItems: [
                     { title: 'Venues', link: '/weekly-classes/venues' },
-                    { title: 'Camp', link: '#' }
+                    { title: 'Class Schedule ', link: '/weekly-classes/venues/class-schedule' },
+                    { title: 'Term Dates & Session Plan mapping ', link: '/weekly-classes/term-dates/list' }
                 ]},
     {
         title: 'One to One',

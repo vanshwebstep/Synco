@@ -22,6 +22,12 @@ import NotificationList from './Components/Pages/AdminPages/notification/Notific
 import { NotificationProvider } from './Components/Pages/AdminPages/contexts/NotificationContext.jsx';
 import List from './Components/Pages/AdminPages/venus/List.jsx';
 import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueContext.jsx';
+import ClassSchedule from './Components/Pages/AdminPages/venus/Class Schedule/List.jsx';
+
+import TermDateList from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/List.jsx';
+import TermDateCreate from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/Create.jsx';
+
+
 
 const AuthRoutes = () => {
   const location = useLocation();
@@ -63,6 +69,11 @@ const AppRoutes = () => {
       <Route path="/discounts/list" element={protectedElement(<DiscountsList />)} />
       <Route path="/discounts/create" element={protectedElement(<DiscountCreate />)} />
       <Route path="/weekly-classes/venues" element={protectedElement(<List />)} />
+      <Route path="/weekly-classes/venues/class-schedule" element={protectedElement(<ClassSchedule />)} />
+      <Route path="/weekly-classes/term-dates/list" element={protectedElement(<TermDateList />)} />
+      <Route path="/weekly-classes/term-dates/create" element={protectedElement(<TermDateCreate />)} />
+
+
 
     </Routes>
   );

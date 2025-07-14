@@ -32,8 +32,18 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
 
 
   useEffect(() => {
+    // Run once immediately
     fetchNotification();
-  }, [setNotification])
+
+    // Set up interval
+    const interval = setInterval(() => {
+      fetchNotification();
+    }, 5000); // 5000 ms = 5 seconds
+    
+    // Clear the interval on component unmount
+    return () => clearInterval(interval);
+  }, []); // empty deps = run once on mount
+
   return (
     <>
       {/* HEADER */}

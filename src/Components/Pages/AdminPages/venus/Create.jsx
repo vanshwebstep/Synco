@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { useVenue } from "../contexts/VenueContext";
-
+import { motion, AnimatePresence } from "framer-motion";
 const Create = () => {
-const {formData, setFormData } = useVenue();
+  const { formData, setFormData } = useVenue();
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -10,12 +11,58 @@ const {formData, setFormData } = useVenue();
       [name]: type === "checkbox" ? checked : value,
     }));
   };
-
+  const [showTermDropdown, setShowTermDropdown] = useState(false);
+  const [showSubDropdown, setShowSubDropdown] = useState(false);
+  const [selectedTerms, setSelectedTerms] = useState([]);
+  const [selectedSubs, setSelectedSubs] = useState([]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Venue Submitted:", formData);
 
+  };
+  const toggleValue = (list, setList, value) => {
+    setList((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
+    );
+  };
+
+  const handleSaveTerm = () => {
+    setFormData((prev) => ({
+      ...prev,
+      termDateLinkage: selectedTerms.join(", "),
+    }));
+    setShowTermDropdown(false);
+  };
+
+  const handleSaveSub = () => {
+    setFormData((prev) => ({
+      ...prev,
+      subscriptionLinkage: selectedSubs.join(", "),
+    }));
+    setShowSubDropdown(false);
+  };
+
+  const termOptions = [
+    "Saturdays 2025/2026",
+    "Sundays 2025/2026",
+    "Sundays 2025/2026 KX",
+    "Tuesday 2025/2026 Chelsea",
+  ];
+
+  const subOptions = [
+    "12 Month (1 Student) £47.99",
+    "12 Month (2 Student) £47.99",
+    "12 Month (3 Student) £47.99",
+    "6 Month (1 Student) £47.99",
+    "6 Month (2 Student) £47.99",
+    "6Month (3 Student) £47.99",
+  ];
+
+  const dropdownVariants = {
+    hidden: { opacity: 0, scale: 0.95, y: -10 },
+    visible: { opacity: 1, scale: 1, y: 0 },
+    exit: { opacity: 0, scale: 0.95, y: -10 },
   };
 
   return (
@@ -81,7 +128,10 @@ const {formData, setFormData } = useVenue();
               onChange={handleInputChange}
               className="sr-only"
             />
-            <div className={`w-10 h-6 flex items-center bg-[#5372FF] rounded-full p-1 transition-all duration-300 ${formData.parking ? 'justify-end' : 'justify-start'}`}>
+            <div
+              className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
+        ${formData.parking ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
+            >
               <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
             </div>
           </label>
@@ -96,11 +146,15 @@ const {formData, setFormData } = useVenue();
               onChange={handleInputChange}
               className="sr-only"
             />
-            <div className={`w-10 h-6 flex items-center bg-[#5372FF] rounded-full p-1 transition-all duration-300 ${formData.congestion ? 'justify-end' : 'justify-start'}`}>
+            <div
+              className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
+        ${formData.congestion ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
+            >
               <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
             </div>
           </label>
         </div>
+
 
 
         <div>
@@ -126,32 +180,107 @@ const {formData, setFormData } = useVenue();
           />
         </div>
 
-        <div>
-          <label className="block font-semibold text-[16px] pb-2">Term Date Linkage</label>
-          <select
-            name="termDateLinkage"
-            value={formData.termDateLinkage}
-            onChange={handleInputChange}
-            className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073]"
-          >
-            <option value="">Select Term Date Group</option>
-            <option value="Term A">Term A</option>
-            <option value="Term B">Term B</option>
-          </select>
-        </div>
+        <div className="space-y-6 max-w-md">
 
-        <div>
-          <label className="block font-semibold text-[16px] pb-2">Subscription Plan Linkage</label>
-          <select
-            name="subscriptionLinkage"
-            value={formData.subscriptionLinkage}
-            onChange={handleInputChange}
-            className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073]"
-          >
-            <option value="">Subscription Plan Linkage</option>
-            <option value="Plan A">Plan A</option>
-            <option value="Plan B">Plan B</option>
-          </select>
+          {/* TERM DATE */}
+          <div className="relative">
+            <label className="block font-semibold text-[16px] pb-2">
+              Term Date Linkage
+            </label>
+            <div
+              onClick={() => setShowTermDropdown(!showTermDropdown)}
+              className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white cursor-pointer"
+            >
+              {selectedTerms.length > 0
+                ? selectedTerms.join(", ")
+                : "Select Term Date Group"}
+            </div>
+
+            <AnimatePresence>
+              {showTermDropdown && (
+                <motion.div
+                  className="absolute z-10 mt-2 w-full bg-white rounded-2xl shadow p-4 space-y-2"
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={dropdownVariants}
+                  transition={{ duration: 0.2 }}
+                >
+                  <p className="font-semibold text-[17px]">Select Term Date Group</p>
+                  {termOptions.map((group) => (
+                    <label key={group} className="flex items-center gap-2 text-[15px]">
+                      <input
+                        type="checkbox"
+                        checked={selectedTerms.includes(group)}
+                        onChange={() =>
+                          toggleValue(selectedTerms, setSelectedTerms, group)
+                        }
+                        className="accent-blue-600"
+                      />
+                      {group}
+                    </label>
+                  ))}
+                  <button
+                    onClick={handleSaveTerm}
+                    className="w-full bg-[#237FEA] hover:bg-blue-700 text-white font-semibold py-2 rounded-lg mt-2"
+                  >
+                    Save
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* SUBSCRIPTION PLAN */}
+          <div className="relative">
+            <label className="block font-semibold text-[16px] pb-2">
+              Subscription Plan Linkage
+            </label>
+            <div
+              onClick={() => setShowSubDropdown(!showSubDropdown)}
+              className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white cursor-pointer"
+            >
+              {selectedSubs.length > 0
+                ? selectedSubs.join(", ")
+                : "Select Subscription Plan"}
+            </div>
+
+            <AnimatePresence>
+              {showSubDropdown && (
+                <motion.div
+                  className="absolute z-10 mt-2 w-full bg-white rounded-2xl shadow p-4 space-y-2"
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={dropdownVariants}
+                  transition={{ duration: 0.2 }}
+                >
+                  <p className="font-semibold text-[17px]">
+                    Select Available Subscription Plans
+                  </p>
+                  {subOptions.map((plan) => (
+                    <label key={plan} className="flex items-center gap-2 text-[15px]">
+                      <input
+                        type="checkbox"
+                        checked={selectedSubs.includes(plan)}
+                        onChange={() =>
+                          toggleValue(selectedSubs, setSelectedSubs, plan)
+                        }
+                        className="accent-blue-600"
+                      />
+                      {plan}
+                    </label>
+                  ))}
+                  <button
+                    onClick={handleSaveSub}
+                    className="w-full bg-[#237FEA] hover:bg-blue-700 text-white font-semibold py-2 rounded-lg mt-2"
+                  >
+                    Save
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
         <div className="flex justify-between mt-6">
           <button
