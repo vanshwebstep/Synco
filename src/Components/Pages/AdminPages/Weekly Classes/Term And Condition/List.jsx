@@ -78,7 +78,7 @@ const navigate = useNavigate();
           onClick={() => navigate('/weekly-classes/term-dates/create')}
           className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
         >
-          <img src="/members/add.png" className='w-5' alt="Add" /> Add New Term Group
+          <img src="members/add.png" className='w-5' alt="Add" /> Add New Term Group
         </button>
       </div>
 

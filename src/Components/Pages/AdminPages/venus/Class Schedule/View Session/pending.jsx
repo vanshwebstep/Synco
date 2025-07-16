@@ -68,7 +68,7 @@ const ViewSessions = ({ item, sessionData }) => {
           }}
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
-            src="/icons/arrow-left.png"
+            src="icons/arrow-left.png"
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
@@ -79,7 +79,7 @@ const ViewSessions = ({ item, sessionData }) => {
         {/* Left Sidebar */}
         <div className="w-full md:w-2/12 bg-[#F4F2EC] py-6  rounded-2xl  text-center">
           <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
-            <img src="/icons/pendingBig.png" alt="" />
+            <img src="icons/pendingBig.png" alt="" />
           </div>
           <p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4">Pending</p>
           <div className="text-sm  p-6 text-gray-700 space-y-3 text-left">
@@ -117,7 +117,7 @@ const ViewSessions = ({ item, sessionData }) => {
               {/* Left - Video and Info */}
               <div className="w-full lg:w-1/2 space-y-2">
                 <img
-                  src="/images/playLikePele.png"
+                  src="images/playLikePele.png"
                   alt="Play like Pele"
                   className="rounded-xl mb-2"
                 />
@@ -125,7 +125,7 @@ const ViewSessions = ({ item, sessionData }) => {
                   {currentContent.title}
                 </h2>
                 <p className="text-[20px] flex items-center gap-2 font-semibold">
-                  {currentContent.heading} <img src="/icons/Volumeblue.png" alt="" />
+                  {currentContent.heading} <img src="icons/Volumeblue.png" alt="" />
                 </p>
                 <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
                   {currentContent.description}
@@ -139,17 +139,17 @@ const ViewSessions = ({ item, sessionData }) => {
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
                   </h2>
-                  <img src="/icons/downloadicon.png" alt="" />
+                  <img src="icons/downloadicon.png" alt="" />
                 </div>
                 <div>
                   <p className="text-sm flex items-center gap-2  text-gray-500 border-b border-gray-300 pb-3 ">
-                    <img src="/members/Time-Circle.png" className='w-4 h-4' alt="" />  4 hours ago
+                    <img src="members/Time-Circle.png" className='w-4 h-4' alt="" />  4 hours ago
                   </p>
                 </div>
 
                 <div className='flex items-center mb-5 gap-4 '>
                   <div>
-                    <img className='min-h-[116px] min-w-[181px]' src="/images/cardimgSmall.png" alt="" />
+                    <img className='min-h-[116px] min-w-[181px]' src="images/cardimgSmall.png" alt="" />
                   </div>
                   <div>
                     <h6 className='text-[18px] font-semibold'>Small Side Games</h6>
@@ -160,7 +160,7 @@ const ViewSessions = ({ item, sessionData }) => {
 
                 <div className='flex items-center gap-4 '>
                   <div>
-                    <img className='min-h-[116px] min-w-[181px]' src="/images/cardimgSmall.png" alt="" />
+                    <img className='min-h-[116px] min-w-[181px]' src="images/cardimgSmall.png" alt="" />
                   </div>
                   <div>
                     <h6 className='text-[18px] font-semibold'>Small Side Games</h6>
@@ -176,7 +176,7 @@ const ViewSessions = ({ item, sessionData }) => {
                   Small-sided games
                 </h2>
                 <img
-                  src="/images/cardimgSmall.png"
+                  src="images/cardimgSmall.png"
                   alt="Small-sided games"
                   className="rounded-xl min-w-90 my-6"
                 />

@@ -11,14 +11,14 @@ import { AlertOctagon } from 'lucide-react';
 
 const userDashboard = () => {
   const metrics = [
-    { icon: <img src="/DashboardIcons/user-group.png" alt="Total Students" className="w-6 h-6" />, title: "Total Students", value: 2504, bg: "bg-gray-100" },
-    { icon: <img src="/DashboardIcons/calendar-03.png" alt="Trials Booked" className="w-6 h-6" />, title: "Trials Booked", value: 1892, bg: "bg-pink-100" },
-    { icon: <img src="/DashboardIcons/cancel-02.png" alt="Cancellations" className="w-6 h-6" />, title: "Cancellations", value: 453, bg: "bg-red-100", showIcons: true },
-    { icon: <img src="/DashboardIcons/dollar-circle.png" alt="Revenue" className="w-6 h-6" />, title: "Revenue", value: "£98,283", bg: "bg-rose-100" },
-    { icon: <img src="/DashboardIcons/chart.png" alt="Capacity" className="w-6 h-6" />, title: "Capacity", value: 345, bg: "bg-yellow-100" },
-    { icon: <img src="/DashboardIcons/user-add--01.png" alt="Growth" className="w-6 h-6" />, title: "Growth", value: 343, bg: "bg-orange-100", showIcons: true },
-    { icon: <img src="/DashboardIcons/customer-support.png" alt="Customer Satisfaction" className="w-6 h-6" />, title: "Customer Satisfaction", value: 4.3, bg: "bg-green-100" },
-    { icon: <img src="/DashboardIcons/shopping-cart.png" alt="Merchandise Sales" className="w-6 h-6" />, title: "Merchandise Sales", value: "£37,812", bg: "bg-cyan-100" },
+    { icon: <img src="DashboardIcons/user-group.png" alt="Total Students" className="w-6 h-6" />, title: "Total Students", value: 2504, bg: "bg-gray-100" },
+    { icon: <img src="DashboardIcons/calendar-03.png" alt="Trials Booked" className="w-6 h-6" />, title: "Trials Booked", value: 1892, bg: "bg-pink-100" },
+    { icon: <img src="DashboardIcons/cancel-02.png" alt="Cancellations" className="w-6 h-6" />, title: "Cancellations", value: 453, bg: "bg-red-100", showIcons: true },
+    { icon: <img src="DashboardIcons/dollar-circle.png" alt="Revenue" className="w-6 h-6" />, title: "Revenue", value: "£98,283", bg: "bg-rose-100" },
+    { icon: <img src="DashboardIcons/chart.png" alt="Capacity" className="w-6 h-6" />, title: "Capacity", value: 345, bg: "bg-yellow-100" },
+    { icon: <img src="DashboardIcons/user-add--01.png" alt="Growth" className="w-6 h-6" />, title: "Growth", value: 343, bg: "bg-orange-100", showIcons: true },
+    { icon: <img src="DashboardIcons/customer-support.png" alt="Customer Satisfaction" className="w-6 h-6" />, title: "Customer Satisfaction", value: 4.3, bg: "bg-green-100" },
+    { icon: <img src="DashboardIcons/shopping-cart.png" alt="Merchandise Sales" className="w-6 h-6" />, title: "Merchandise Sales", value: "£37,812", bg: "bg-cyan-100" },
   ];
 
 
@@ -98,7 +98,7 @@ const userDashboard = () => {
               className="bg-yellow-300 rounded-3xl p-6 py-12 pb-5 flex justify-between items-center text-white relative overflow-hidden"
               style={{
 
-                backgroundImage: `url(/images/welcomeToDashboard.png)`,
+                backgroundImage: `url(images/welcomeToDashboard.png)`,
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'left',
                 backgroundSize: 'contain',
@@ -136,25 +136,25 @@ const userDashboard = () => {
 
                     {(metric.title === "Cancellations" || metric.title === "Growth") && (
                       <div className="flex justify-end gap-2 items-start">
-                        <img className="w-6 h-6" src='/DashboardIcons/Show.png' alt="" />
-                        <img className="w-5 h-5" src='/DashboardIcons/button.png' alt="" />
+                        <img className="w-6 h-6" src='DashboardIcons/Show.png' alt="" />
+                        <img className="w-5 h-5" src='DashboardIcons/button.png' alt="" />
                       </div>
                     )}
                   </div>
 
                   <div className="flex justify-start gap-5 items-end">
                     <div className="text-xs text-gray-400 mt-2 block">
-                      <span className="font-semibold  text-black flex items-center gap-2"> <img src='/DashboardIcons/orangedot.png' alt="" /> Last Month</span>
+                      <span className="font-semibold  text-black flex items-center gap-2"> <img src='DashboardIcons/orangedot.png' alt="" /> Last Month</span>
                       <br />
                       <span className="text-red-500  font-semibold bg-red-100 p-1 rounded-lg flex justify-center mt-2">
-                        -0.56% <img src='/images/ArrowFall.png' alt="" />
+                        -0.56% <img src='images/ArrowFall.png' alt="" />
                       </span>
                     </div>
                     <div className="text-xs text-gray-400 block">
-                      <span className="font-semibold text-black flex items-center gap-2"><img src='/DashboardIcons/greendot.png' alt="" />  This Week</span>
+                      <span className="font-semibold text-black flex items-center gap-2"><img src='DashboardIcons/greendot.png' alt="" />  This Week</span>
                       <br />
                       <span className="text-green-500 font-semibold bg-gray-100 p-1 rounded-lg flex justify-center mt-2">
-                        +5.27% <img src='/images/Arrowtop.png' alt="" />
+                        +5.27% <img src='images/Arrowtop.png' alt="" />
                       </span>
                     </div>
                   </div>
@@ -172,7 +172,7 @@ const userDashboard = () => {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <h3 className="font-semibold text-[24px]">Filter by date</h3>
                 <button className="flex gap-2 items-center bg-blue-500 text-white p-2 rounded-lg text-[16px]">
-                  <img src='/DashboardIcons/filtericon.png' className='w-5 h-5' alt="" />  Apply filter
+                  <img src='DashboardIcons/filtericon.png' className='w-5 h-5' alt="" />  Apply filter
                 </button>
               </div>
 

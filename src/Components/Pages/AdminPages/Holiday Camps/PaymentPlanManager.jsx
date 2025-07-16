@@ -77,7 +77,7 @@ const PaymentPlanManagerList = () => {
                 onClick={() => setPreviewShowModal(false)}
                 className="text-gray-400 hover:text-black text-xl font-bold"
               >
-                <img src="/icons/cross.png" alt="close" className="w-5 h-5" />
+                <img src="icons/cross.png" alt="close" className="w-5 h-5" />
               </button>
             </div>
 
@@ -93,11 +93,11 @@ const PaymentPlanManagerList = () => {
                   <hr className="mb-4 text-[#E2E1E5]" />
                   <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold">
                     <li className="flex items-center py-2 gap-2">
-                      <img src="/icons/tick-circle.png" alt="" className="w-5 h-5" />
+                      <img src="icons/tick-circle.png" alt="" className="w-5 h-5" />
                       {plan.duration}
                     </li>
                     <li className="flex items-center py-2 pb-2 sm:pb-4 gap-2">
-                      <img src="/icons/tick-circle.png" alt="" className="w-5 h-5" />
+                      <img src="icons/tick-circle.png" alt="" className="w-5 h-5" />
                       Free Holiday Camp Bag
                     </li>
                   </ul>
@@ -116,7 +116,7 @@ const PaymentPlanManagerList = () => {
               // onClick={() => setOpenForm(true)}
               className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
             >
-              <img src="/members/add.png" className='w-5' alt="" /> Add Payment Plan Group
+              <img src="members/add.png" className='w-5' alt="" /> Add Payment Plan Group
             </button>
           </div>
           <div className="flex flex-col md:flex-row gap-6">
@@ -166,7 +166,7 @@ const PaymentPlanManagerList = () => {
                               className={`group ${!user.paymentPlans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
                               <img
-                                src="/icons/Show.png"
+                                src="icons/Show.png"
                                 alt="Show"
                                 className="w-5 h-4 transition-transform duration-200 group-hover:scale-110"
                               />
@@ -174,7 +174,7 @@ const PaymentPlanManagerList = () => {
 
                             <button onClick={() => handleEdit(user.id)} className="group">
                               <img
-                                src="/icons/edit.png"
+                                src="icons/edit.png"
                                 alt="Edit"
                                 className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
                               />
@@ -182,7 +182,7 @@ const PaymentPlanManagerList = () => {
 
                             <button onClick={() => handleDelete(user.id)} className="group flex items-center text-red-600 hover:underline">
                               <img
-                                src="/icons/deleteIcon.png"
+                                src="icons/deleteIcon.png"
                                 alt="Delete"
                                 className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
                               />
@@ -231,7 +231,7 @@ const PaymentPlanManagerList = () => {
                           className={`group ${!user.paymentPlans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
                           <img
-                            src="/icons/Show.png"
+                            src="icons/Show.png"
                             alt="Show"
                             className="w-5 h-4 transition-transform duration-200 group-hover:scale-110"
                           />
@@ -239,7 +239,7 @@ const PaymentPlanManagerList = () => {
 
                         <button onClick={() => handleEdit(user.id)} className="group">
                           <img
-                            src="/icons/edit.png"
+                            src="icons/edit.png"
                             alt="Edit"
                             className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
                           />
@@ -247,7 +247,7 @@ const PaymentPlanManagerList = () => {
 
                         <button onClick={() => handleDelete(user.id)} className="group flex items-center text-red-600 hover:underline">
                           <img
-                            src="/icons/deleteIcon.png"
+                            src="icons/deleteIcon.png"
                             alt="Delete"
                             className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
                           />

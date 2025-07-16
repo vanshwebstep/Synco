@@ -68,7 +68,7 @@ const list = ({ item, sessionData }) => {
           }}
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
-            src="/icons/arrow-left.png"
+            src="icons/arrow-left.png"
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
@@ -105,7 +105,7 @@ const list = ({ item, sessionData }) => {
               {/* Left - Video and Info */}
               <div className="w-full lg:w-1/2 space-y-2">
                 <img
-                  src="/images/playLikePele.png"
+                  src="images/playLikePele.png"
                   alt="Play like Pele"
                   className="rounded-xl mb-2"
                 />
@@ -113,7 +113,7 @@ const list = ({ item, sessionData }) => {
                   {currentContent.title}
                 </h2>
                 <p className="text-[20px] flex items-center gap-2 font-semibold">
-                  {currentContent.heading} <img src="/icons/Volumeblue.png" alt="" />
+                  {currentContent.heading} <img src="icons/Volumeblue.png" alt="" />
                 </p>
                 <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
                   {currentContent.description}
@@ -127,17 +127,17 @@ const list = ({ item, sessionData }) => {
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
                   </h2>
-                  <img src="/icons/downloadicon.png" alt="" />
+                  <img src="icons/downloadicon.png" alt="" />
                 </div>
                 <div>
                   <p className="text-sm flex items-center gap-2  text-gray-500 border-b border-gray-300 pb-3 ">
-                    <img src="/members/Time-Circle.png" className='w-4 h-4' alt="" />  4 hours ago
+                    <img src="members/Time-Circle.png" className='w-4 h-4' alt="" />  4 hours ago
                   </p>
                 </div>
 
                 <div className='flex items-center mb-5 gap-4 '>
                   <div>
-                    <img className='min-h-[116px] min-w-[181px]' src="/images/cardimgSmall.png" alt="" />
+                    <img className='min-h-[116px] min-w-[181px]' src="images/cardimgSmall.png" alt="" />
                   </div>
                   <div>
                     <h6 className='text-[18px] font-semibold'>Small Side Games</h6>
@@ -148,7 +148,7 @@ const list = ({ item, sessionData }) => {
 
                 <div className='flex items-center gap-4 '>
                   <div>
-                    <img className='min-h-[116px] min-w-[181px]' src="/images/cardimgSmall.png" alt="" />
+                    <img className='min-h-[116px] min-w-[181px]' src="images/cardimgSmall.png" alt="" />
                   </div>
                   <div>
                     <h6 className='text-[18px] font-semibold'>Small Side Games</h6>
@@ -164,7 +164,7 @@ const list = ({ item, sessionData }) => {
                   Small-sided games
                 </h2>
                 <img
-                  src="/images/cardimgSmall.png"
+                  src="images/cardimgSmall.png"
                   alt="Small-sided games"
                   className="rounded-xl min-w-90 my-6"
                 />

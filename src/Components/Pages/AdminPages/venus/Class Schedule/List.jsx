@@ -181,7 +181,7 @@ const List = () => {
                     onClick={() => handleAddNew()}
                     className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
                 >
-                    <img src="/members/add.png" className='w-5' alt="" /> Add a Class
+                    <img src="members/add.png" className='w-5' alt="" /> Add a Class
                 </button>
             </div>
 
@@ -237,13 +237,13 @@ const List = () => {
                                             {/* Icons + Button */}
                                             <div className="flex items-center mt-4 md:mt-0 gap-4">
                                                 <img
-                                                    src="/icons/edit.png"
+                                                    src="icons/edit.png"
                                                     alt="Edit"
                                                     className="w-6 h-6 cursor-pointer"
                                                     onClick={() => handleEditClick(item)}
-                                                />                                            <img src="/icons/deleteIcon.png" alt="" />
+                                                />                                            <img src="icons/deleteIcon.png" alt="" />
                                                 <button onClick={() => toggleSessions(index)} className="ml-4 flex font-semibold items-center gap-2 whitespace-nowrap px-4 pr-6 py-2 border rounded-xl text-[16px] font-medium text-blue-600 border-blue-500 hover:bg-blue-50">
-                                                    {openClassIndex === index ? 'Hide sessions' : 'View sessions'}  <img src="/icons/bluearrowup.png" className={`${openClassIndex === index ? '' : 'rotate-180'} transition-transform`} alt="" />
+                                                    {openClassIndex === index ? 'Hide sessions' : 'View sessions'}  <img src="icons/bluearrowup.png" className={`${openClassIndex === index ? '' : 'rotate-180'} transition-transform`} alt="" />
                                                 </button>
                                             </div>
 
@@ -266,7 +266,7 @@ const List = () => {
                                                                 >
 
                                                                     <div className='flex mb-4 items-center gap-4 justify-start'>
-                                                                        <div><img src="/icons/blackarrowup.png" className={`${openTerms[term.id] ? "" : "rotate-180"} transition-transform`} alt="" /></div>
+                                                                        <div><img src="icons/blackarrowup.png" className={`${openTerms[term.id] ? "" : "rotate-180"} transition-transform`} alt="" /></div>
                                                                         <div> <p className="font-semibold text-[16px] ">{term.name}</p>
                                                                             <p className="text-[14px] ">{term.date}</p>
                                                                         </div>
@@ -291,7 +291,7 @@ const List = () => {
 
                                                                             <div className="flex items-center min-w-[100px] gap-2 text-xs">
                                                                                 <span className="rounded-full flex gap-2 text-[16px] items-center font-medium">
-                                                                                    <img src="/icons/complete.png " className='w-4 h-4' alt="" /> {session.status}
+                                                                                    <img src="icons/complete.png " className='w-4 h-4' alt="" /> {session.status}
                                                                                 </span>
                                                                             </div>
 
@@ -347,7 +347,7 @@ const List = () => {
                                 onClick={() => setOpenForm(false)}
                                 className="text-gray-500 hover:text-gray-800 text-xl"
                             >
-                                <img src="/icons/cross.png" alt="" />
+                                <img src="icons/cross.png" alt="" />
                             </button>
                         </div>
 

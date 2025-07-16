@@ -53,7 +53,7 @@ const AdminLogin = () => {
       };
 
       const response = await fetch(
-        'https://synco-i0a7.onrender.com/api/admin/auth/login',
+        'https://synconode.onrender.com/api/admin/auth/login',
         requestOptions
       );
       const result = await response.json();
@@ -110,7 +110,7 @@ const AdminLogin = () => {
           <div>
             <div className="mb-6">
               <img
-                src='/images/mainlogo.png'
+                src='images/mainlogo.png'
                 alt="Logo"
                 className=" mx-auto rounded-full"
               />

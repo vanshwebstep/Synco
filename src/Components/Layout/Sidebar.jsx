@@ -39,7 +39,7 @@ const menuItems = [
         title: 'Leads',
         subItems: [
           { title: 'Leads Database', link: '/notification-list', role: commonRole },
-          { title: 'Add New Lead', link: '/one-to-one/leads/b', role: commonRole }
+          { title: 'Add New Lead', link: '#', role: commonRole }
         ]
       },
       {
@@ -68,8 +68,8 @@ const menuItems = [
     iconHover: '/SidebarLogos/BirthdayH.png',
     role: commonRole,
     subItems: [
-      { title: 'Party 1', link: '/birthday/party-1', role: commonRole },
-      { title: 'Party 2', link: '/birthday/party-2', role: commonRole }
+      { title: 'Party 1', link: '#', role: commonRole },
+      { title: 'Party 2', link: '#', role: commonRole }
     ]
   },
   {
@@ -81,30 +81,30 @@ const menuItems = [
       {
         title: 'Session A',
         subItems: [
-          { title: 'Slot 1', link: '/club/session-a/slot-1', role: commonRole },
-          { title: 'Slot 2', link: '/club/session-a/slot-2', role: commonRole }
+          { title: 'Slot 1', link: '#', role: commonRole },
+          { title: 'Slot 2', link: '#', role: commonRole }
         ]
       },
       {
         title: 'Session B',
         subItems: [
-          { title: 'Slot 3', link: '/club/session-b/slot-3', role: commonRole },
-          { title: 'Slot 4', link: '/club/session-b/slot-4', role: commonRole }
+          { title: 'Slot 3', link: '#', role: commonRole },
+          { title: 'Slot 4', link: '#', role: commonRole }
         ]
       },
-      { title: 'Session C', link: '/club/session-c', role: commonRole }
+      { title: 'Session C', link: '#', role: commonRole }
     ]
   },
-  { title: 'Merchandise', icon: '/SidebarLogos/Merchandise.png', iconHover: '/SidebarLogos/MerchandiseH.png', link: '/merchandise', role: commonRole },
-  { title: 'Email management', icon: '/SidebarLogos/Management.png', iconHover: '/SidebarLogos/ManagementH.png', link: '/email-management', role: commonRole },
+  { title: 'Merchandise', icon: '/SidebarLogos/Merchandise.png', iconHover: '/SidebarLogos/MerchandiseH.png', link: '#', role: commonRole },
+  { title: 'Email management', icon: '/SidebarLogos/Management.png', iconHover: '/SidebarLogos/ManagementH.png', link: '#', role: commonRole },
   {
     title: 'Surveys',
     icon: '/SidebarLogos/Survey.png',
     iconHover: '/SidebarLogos/SurveyH.png',
     role: commonRole,
     subItems: [
-      { title: 'Survey 1', link: '/surveys/1', role: commonRole },
-      { title: 'Survey 2', link: '/surveys/2', role: commonRole }
+      { title: 'Survey 1', link: '#', role: commonRole },
+      { title: 'Survey 2', link: '#', role: commonRole }
     ]
   },
   {
@@ -113,8 +113,8 @@ const menuItems = [
     iconHover: '/SidebarLogos/MarketingH.png',
     role: commonRole,
     subItems: [
-      { title: 'Campaign 1', link: '/marketing/campaign-1', role: commonRole },
-      { title: 'Campaign 2', link: '/marketing/campaign-2', role: commonRole }
+      { title: 'Campaign 1', link: '#', role: commonRole },
+      { title: 'Campaign 2', link: '#', role: commonRole }
     ]
   },
   {
@@ -123,8 +123,8 @@ const menuItems = [
     iconHover: '/SidebarLogos/RecruitmentH.png',
     role: commonRole,
     subItems: [
-      { title: 'Job 1', link: '/recruitment/job-1', role: commonRole },
-      { title: 'Job 2', link: '/recruitment/job-2', role: commonRole }
+      { title: 'Job 1', link: '#', role: commonRole },
+      { title: 'Job 2', link: '#', role: commonRole }
     ]
   },
   {
@@ -133,8 +133,8 @@ const menuItems = [
     iconHover: '/SidebarLogos/ReportsH.png',
     role: commonRole,
     subItems: [
-      { title: 'Report 1', link: '/reports/1', role: commonRole },
-      { title: 'Report 2', link: '/reports/2', role: commonRole }
+      { title: 'Report 1', link: '#', role: commonRole },
+      { title: 'Report 2', link: '#', role: commonRole }
     ]
   },
   {
@@ -143,29 +143,29 @@ const menuItems = [
     iconHover: '/SidebarLogos/MarketingReportsH.png',
     role: commonRole,
     subItems: [
-      { title: 'Report A', link: '/marketing-reports/a', role: commonRole },
-      { title: 'Report B', link: '/marketing-reports/b', role: commonRole }
+      { title: 'Report A', link: '#', role: commonRole },
+      { title: 'Report B', link: '#', role: commonRole }
     ]
   },
   {
     title: 'Recruitment reports',
     icon: '/SidebarLogos/ReqReports.png',
     iconHover: '/SidebarLogos/ReqReportsH.png',
-    link: '/recruitment-reports',
+    link: '#',
     role: commonRole
   },
   {
     title: 'Synco Chat',
     icon: '/SidebarLogos/bubble-chat.png',
     iconHover: '/SidebarLogos/bubble-chatH.png',
-    link: '/chat',
+    link: '#',
     role: commonRole
   },
   {
     title: 'Templates',
     icon: '/SidebarLogos/Template.png',
     iconHover: '/SidebarLogos/TemplateH.png',
-    link: '/templates',
+    link: '#',
     role: commonRole
   },
   {
@@ -294,7 +294,7 @@ console.log('localStorage',localStorage)
                         className="fixed top-0 left-0 w-72 h-full bg-white z-50 shadow-lg border-r lg:hidden flex flex-col"
                     >
                         <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
-                            <img src='/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
+                            <img src='images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
                         </div>
 
                         {/* Make this section scrollable */}
@@ -309,7 +309,7 @@ console.log('localStorage',localStorage)
             {/* Desktop Sidebar */}
             <aside className="hidden lg:flex w-72 h-screen bg-white border-r border-gray-100 flex-col shadow-lg">
                 <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
-                    <img src='/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
+                    <img src='images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
                 </div>
                 <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500">
                     {renderMenuItems(menuItems)}

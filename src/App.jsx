@@ -67,6 +67,28 @@ const menuItems = [
       { title: 'Term Dates & Session Plan mapping', link: '/weekly-classes/term-dates/list' }
     ]
   },
+    {
+    title: 'One to One',
+    icon: '/SidebarLogos/OneTOOne.png',
+    iconHover: '/SidebarLogos/OneTOOneH.png',
+    role: commonRole,
+    subItems: [
+      {
+        title: 'Leads',
+        subItems: [
+          { title: 'Leads Database', link: '/notification-list', role: commonRole },
+          { title: 'Add New Lead', link: '#', role: commonRole }
+        ]
+      },
+      {
+        title: 'Sales',
+        subItems: [
+          { title: 'Sale X', link: '/one-to-one/sales/x', role: commonRole },
+          { title: 'Sale Y', link: '/one-to-one/sales/y', role: commonRole }
+        ]
+      }
+    ]
+  },
   {
     title: 'Holiday Camps',
     icon: '/SidebarLogos/Holiday.png',
@@ -84,7 +106,7 @@ const menuItems = [
     title: 'Notification',
     icon: '/SidebarLogos/Notification.png',
     iconHover: '/SidebarLogos/NotificationH.png',
-    link: '/notification',
+    link: '/notification-list',
     role: commonRole
   },
   {
@@ -124,48 +146,46 @@ const AuthRoutes = () => {
 // ----------------- MAIN ROUTES -----------------
 const AppRoutes = () => {
   const location = useLocation();
-  const role = localStorage.getItem('role') || 'user';
-  const allowedBasePaths = getAllowedBasePathsFromMenu(menuItems, role);
   const isAuth = ['/admin-login', '/admin-ForgotPassword'].includes(location.pathname);
-
-  const isAllowed = (path) =>
-    allowedBasePaths.some(base => path === base || path.startsWith(base + '/'));
-
-  const protect = (element, path) =>
-    isAllowed(path)
-      ? <AdminLayout><ProtectedRoute>{element}</ProtectedRoute></AdminLayout>
-      : <Navigate to="/" />;
 
   if (isAuth) return <AuthRoutes />;
 
   return (
     <Routes>
-      <Route path="/" element={protect(<Dashboard />, '/')} />
-      <Route path="/dashboard" element={protect(<Dashboard />, '/dashboard')} />
-      <Route path="/members" element={protect(<MemberList />, '/members')} />
-      <Route path="/members/update" element={protect(<Update />, '/members/update')} />
-      <Route path="/holiday-camps/payment-planManager" element={protect(<PaymentPlanManagerList />, '/holiday-camps/payment-planManager')} />
-      <Route path="/holiday-camps/add-payment-plan-group" element={protect(<AddPaymentPlanGroup />, '/holiday-camps/add-payment-plan-group')} />
-      <Route path="/notification" element={protect(<Notification />, '/notification')} />
-      <Route path="/notification-list" element={protect(<NotificationList />, '/notification-list')} />
-      <Route path="/holiday-camps/discounts/list" element={protect(<DiscountsList />, '/holiday-camps/discounts/list')} />
-      <Route path="/holiday-camps/discounts/create" element={protect(<DiscountCreate />, '/holiday-camps/discounts/create')} />
-      <Route path="/weekly-classes/venues" element={protect(<List />, '/weekly-classes/venues')} />
-      <Route path="/weekly-classes/find-a-class" element={protect(<FindAClass />, '/weekly-classes/find-a-class')} />
-      <Route path="/weekly-classes/venues/class-schedule" element={protect(<ClassSchedule />, '/weekly-classes/venues/class-schedule')} />
-      <Route path="/weekly-classes/venues/class-schedule/Sessions/pending" element={protect(<Pending />, '/weekly-classes/venues/class-schedule/Sessions/pending')} />
-      <Route path="/weekly-classes/venues/class-schedule/Sessions/completed" element={protect(<Completed />, '/weekly-classes/venues/class-schedule/Sessions/completed')} />
-      <Route path="/weekly-classes/venues/class-schedule/Sessions/cancel" element={protect(<Cancel />, '/weekly-classes/venues/class-schedule/Sessions/cancel')} />
-      <Route path="/weekly-classes/term-dates/list" element={protect(<TermDateList />, '/weekly-classes/term-dates/list')} />
-      <Route path="/weekly-classes/term-dates/create" element={protect(<TermDateCreate />, '/weekly-classes/term-dates/create')} />
-      <Route path="/holiday-camps/session-plan-list" element={protect(<SessionPlanList />, '/holiday-camps/session-plan-list')} />
-      <Route path="/holiday-camps/session-plan-create" element={protect(<SessionPlanCreate />, '/holiday-camps/session-plan-create')} />
-      <Route path="/holiday-camps/session-plan-preview" element={protect(<SessionPlanPreview />, '/holiday-camps/session-plan-preview')} />
-    
+      <Route path="/" element={<AdminLayout><ProtectedRoute><Dashboard /></ProtectedRoute></AdminLayout>} />
+      <Route path="/dashboard" element={<AdminLayout><ProtectedRoute><Dashboard /></ProtectedRoute></AdminLayout>} />
+      <Route path="/members" element={<AdminLayout><ProtectedRoute><MemberList /></ProtectedRoute></AdminLayout>} />
+      <Route path="/members/update" element={<AdminLayout><ProtectedRoute><Update /></ProtectedRoute></AdminLayout>} />
+
+      <Route path="/holiday-camps/payment-planManager" element={<AdminLayout><ProtectedRoute><PaymentPlanManagerList /></ProtectedRoute></AdminLayout>} />
+      <Route path="/holiday-camps/add-payment-plan-group" element={<AdminLayout><ProtectedRoute><AddPaymentPlanGroup /></ProtectedRoute></AdminLayout>} />
+
+      <Route path="/notification" element={<AdminLayout><ProtectedRoute><Notification /></ProtectedRoute></AdminLayout>} />
+      <Route path="/notification-list" element={<AdminLayout><ProtectedRoute><NotificationList /></ProtectedRoute></AdminLayout>} />
+
+      <Route path="/holiday-camps/discounts/list" element={<AdminLayout><ProtectedRoute><DiscountsList /></ProtectedRoute></AdminLayout>} />
+      <Route path="/holiday-camps/discounts/create" element={<AdminLayout><ProtectedRoute><DiscountCreate /></ProtectedRoute></AdminLayout>} />
+
+      <Route path="/weekly-classes/venues" element={<AdminLayout><ProtectedRoute><List /></ProtectedRoute></AdminLayout>} />
+      <Route path="/weekly-classes/find-a-class" element={<AdminLayout><ProtectedRoute><FindAClass /></ProtectedRoute></AdminLayout>} />
+
+      <Route path="/weekly-classes/venues/class-schedule" element={<AdminLayout><ProtectedRoute><ClassSchedule /></ProtectedRoute></AdminLayout>} />
+      <Route path="/weekly-classes/venues/class-schedule/Sessions/pending" element={<AdminLayout><ProtectedRoute><Pending /></ProtectedRoute></AdminLayout>} />
+      <Route path="/weekly-classes/venues/class-schedule/Sessions/completed" element={<AdminLayout><ProtectedRoute><Completed /></ProtectedRoute></AdminLayout>} />
+      <Route path="/weekly-classes/venues/class-schedule/Sessions/cancel" element={<AdminLayout><ProtectedRoute><Cancel /></ProtectedRoute></AdminLayout>} />
+
+      <Route path="/weekly-classes/term-dates/list" element={<AdminLayout><ProtectedRoute><TermDateList /></ProtectedRoute></AdminLayout>} />
+      <Route path="/weekly-classes/term-dates/create" element={<AdminLayout><ProtectedRoute><TermDateCreate /></ProtectedRoute></AdminLayout>} />
+
+      <Route path="/holiday-camps/session-plan-list" element={<AdminLayout><ProtectedRoute><SessionPlanList /></ProtectedRoute></AdminLayout>} />
+      <Route path="/holiday-camps/session-plan-create" element={<AdminLayout><ProtectedRoute><SessionPlanCreate /></ProtectedRoute></AdminLayout>} />
+      <Route path="/holiday-camps/session-plan-preview" element={<AdminLayout><ProtectedRoute><SessionPlanPreview /></ProtectedRoute></AdminLayout>} />
+
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 };
+
 
 // ----------------- APP WRAPPER -----------------
 function App() {

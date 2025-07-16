@@ -370,7 +370,7 @@ const Update = () => {
         <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
           onClick={() => setEditPersonal(!editPersonal)}
         >
-          {editPersonal ? "Cancel" : "Edit Profile"} <img src="/members/editPencil.png" className="w-5" alt="" />
+          {editPersonal ? "Cancel" : "Edit Profile"} <img src="members/editPencil.png" className="w-5" alt="" />
         </button>
       </div>
 
@@ -380,7 +380,7 @@ const Update = () => {
           <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
             onClick={() => setEditPersonal(!editPersonal)}
           >
-            {editPersonal ? "Cancel" : "Edit"} <img src="/members/editPencil.png" className="w-5" alt="" />
+            {editPersonal ? "Cancel" : "Edit"} <img src="members/editPencil.png" className="w-5" alt="" />
           </button>
         </div>
         <div className="md:grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -501,7 +501,7 @@ const Update = () => {
             className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full hover:bg-blue-50"
             onClick={() => setEditAddress(!editAddress)}
           >
-            {editAddress ? "Cancel" : "Edit"} <img src="/members/editPencil.png" className="w-5" alt="" />
+            {editAddress ? "Cancel" : "Edit"} <img src="members/editPencil.png" className="w-5" alt="" />
           </button>
         </div>
         <div className="md:grid grid-cols-1 sm:grid-cols-2 gap-4">

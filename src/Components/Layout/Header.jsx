@@ -12,39 +12,37 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const navigate = useNavigate();
 
   const routeTitleMap = {
-    '/': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
-    '/admin-forgotpassword': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
-    '/merchandise': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
-    '/email-management': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
-    '/recruitment-reports': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
-    '/templates': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
-    '/synco-chat': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/': { title: 'Welcome Back', icon: "images/Welcomeback.png" },
+    '/admin-forgotpassword': { title: 'Welcome Back', icon: "images/Welcomeback.png" },
+    '/merchandise': { title: 'Welcome Back', icon: "images/Welcomeback.png" },
+    '/email-management': { title: 'Welcome Back', icon: "images/Welcomeback.png" },
+    '/recruitment-reports': { title: 'Welcome Back', icon: "images/Welcomeback.png" },
+    '/templates': { title: 'Welcome Back', icon: "images/Welcomeback.png" },
+    '/synco-chat': { title: 'Welcome Back', icon: "images/Welcomeback.png" },
     '/members': { title: 'Admin Panel', icon: "/members/Category.png" },
     '/holiday-camps/payment-planManager': { title: 'Configuration' },
-    '/holiday-camps/add-payment-plan-group': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
-    '/holiday-camps/discounts/list': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
-    '/notification': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/holiday-camps/add-payment-plan-group': { title: 'Welcome Back', icon: "images/Welcomeback.png" },
+    '/holiday-camps/discounts/list': { title: 'Welcome Back', icon: "images/Welcomeback.png" },
+    '/notification': { title: 'Welcome Back', icon: "images/Welcomeback.png" },
   };
   const routeInfo =
     Object.entries(routeTitleMap)
       .sort((a, b) => b[0].length - a[0].length)
       .find(([route]) => location.pathname.startsWith(route))?.[1]
-    || { title: 'Welcome Back', icon: '/images/Welcomeback.png' };
+    || { title: 'Welcome Back', icon: 'images/Welcomeback.png' };
   const { title, icon: Icon } = routeInfo;
 
 
-  // useEffect(() => {
-  //   // Run once immediately
-  //   fetchNotification();
+  useEffect(() => {
+    fetchNotification();
 
-  //   // Set up interval
-  //   const interval = setInterval(() => {
-  //     fetchNotification();
-  //   }, 5000); // 5000 ms = 5 seconds
+    const interval = setInterval(() => {
+      fetchNotification();
+    }, 7000); 
     
-  //   // Clear the interval on component unmount
-  //   return () => clearInterval(interval);
-  // }, []); // empty deps = run once on mount
+    // Clear the interval on component unmount
+    return () => clearInterval(interval);
+  }, []); // empty deps = run once on mount
 
     const handleNotificationClick = () => {
     if (notificationCount > 0) {
@@ -77,7 +75,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
           </button>
 
           {/* Welcome Image Centered */}
-          <img src='/images/synco-text.png' alt="Welcome" className="w-25 h-10" />
+          <img src='images/synco-text.png' alt="Welcome" className="w-25 h-10" />
 
           {/* Profile Image */}
           <div className="relative">
@@ -86,7 +84,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
               onClick={() => setProfileOpen(!profileOpen)}
             >
               <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
-                <img src='/images/demoprofile.png' alt="Profile" className="w-full h-full object-cover" />
+                <img src='images/demoprofile.png' alt="Profile" className="w-full h-full object-cover" />
               </div>
             </div>
 
@@ -165,7 +163,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
                 onClick={() => setProfileOpen(!profileOpen)}
               >
                 <div className="profileimg w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
-                  <img src='/images/demoprofile.png' alt="profile" className="object-cover w-full h-full" />
+                  <img src='images/demoprofile.png' alt="profile" className="object-cover w-full h-full" />
                 </div>
                 <div className="block text-start">
                   <div className="flex items-center gap-1">

@@ -186,7 +186,7 @@ const ForgotPassword = () => {
       <div className="w-full md:w-1/2 flex flex-col justify-center px-6 md:px-12 py-10 md:py-0">
         <div>
           <div className="mb-6">
-            <img src="/images/mainlogo.png" alt="Logo" className="mx-auto rounded-full" />
+            <img src="images/mainlogo.png" alt="Logo" className="mx-auto rounded-full" />
           </div>
           <h2 className="text-[37px] font-semibold text-center mb-2">Forgot your password?</h2>
           <p className="text-center text-[24px] mb-8 font-semibold">Enter your email to receive a reset link</p>

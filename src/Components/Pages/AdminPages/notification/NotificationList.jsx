@@ -183,7 +183,7 @@ export default function NotificationList() {
                             onClick={() => setShowTimePeriodPopup(true)}
                             className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-[#E2E1E5] text-[#717073] text-[16px] hover:bg-gray-100"
                         >
-                            <img src="/members/calendar.png" className="w-5" alt="calendar" />
+                            <img src="members/calendar.png" className="w-5" alt="calendar" />
                             Time Period
                         </button>
 
@@ -191,7 +191,7 @@ export default function NotificationList() {
                             onClick={() => setShowCategoryPopup(true)}
                             className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-[#E2E1E5] text-[#717073] text-[16px] hover:bg-gray-100"
                         >
-                            <img src="/members/filter-vertical.png" className="w-5" alt="filter" />
+                            <img src="members/filter-vertical.png" className="w-5" alt="filter" />
                             Filter
                         </button>
 

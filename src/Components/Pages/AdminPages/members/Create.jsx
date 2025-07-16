@@ -3,11 +3,13 @@ import CreatableSelect from "react-select/creatable";
 import Swal from "sweetalert2";
 import { useMembers } from "../contexts/MemberContext";
 import RoleModal from "./RoleModal";
+import { Eye, EyeOff } from "lucide-react"; // or use any icon library
 
 const Create = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [errors, setErrors] = useState({});
   const [phoneError, setPhoneError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const { roleOptions,
     fetchRoles,
@@ -257,20 +259,30 @@ const Create = () => {
 
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold text-[#282829]">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
+        <div className="relative">
+      <label className="block text-sm font-semibold text-[#282829]">
+        Password
+      </label>
+      <input
+        type={showPassword ? "text" : "password"}
+        name="password"
+        value={formData.password}
+        onChange={handleInputChange}
+        className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute right-3 top-11 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+      >
+        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
 
-            onChange={handleInputChange}
-            className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {errors.password && (
-            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-          )}
-        </div>
+      {errors.password && (
+        <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+      )}
+    </div>
+
 
         <div>
           <label className="block text-sm font-semibold text-[#282829] mb-1">Profile Picture</label>
@@ -279,7 +291,7 @@ const Create = () => {
               <img src={photoPreview} alt="Uploaded" className="h-full object-cover" />
             ) : (
               <>
-                <img src="/members/addblack.png" className="w-4 block" alt="" />
+                <img src="members/addblack.png" className="w-4 block" alt="" />
                 <span className="text-sm ml-2 font-semibold block">Add Photo</span>
               </>
             )}
