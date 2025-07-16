@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation, useNavigate } from "react-router-dom";
 
 const ViewSessions = ({ item, sessionData }) => {
   const tabs = ['Beginners', 'Intermediate', 'Advanced', 'Pro'];
@@ -52,6 +53,7 @@ const ViewSessions = ({ item, sessionData }) => {
       },
     ],
   };
+    const navigate = useNavigate();
 
   const pages = contentMap[activeTab] || [];
   const totalPages = pages.length;
@@ -62,7 +64,7 @@ const ViewSessions = ({ item, sessionData }) => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
         <h2
           onClick={() => {
-            navigate('/weekly-classes/term-dates/list');
+            navigate('/weekly-classes/venues/class-schedule');
           }}
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
@@ -70,7 +72,7 @@ const ViewSessions = ({ item, sessionData }) => {
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
-          <span className="truncate">Add Term Dates</span>
+          <span className="truncate">View Session Plans</span>
         </h2>
       </div>
       <div className="bg-white rounded-3xl shadow p-6 flex flex-col md:flex-row gap-6">
@@ -134,23 +136,34 @@ const ViewSessions = ({ item, sessionData }) => {
                   className="w-full  pt-3 rounded-4xl"
                 />
                 <div className='flex items-center  mb-0 justify-between' >
-                  <h2 className="font-semibold text-[28px] mb-0">
+                  <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
                   </h2>
                   <img src="/icons/downloadicon.png" alt="" />
                 </div>
                 <div>
                   <p className="text-sm flex items-center gap-2  text-gray-500 border-b border-gray-300 pb-3 ">
-                    <img src="/members/Time-Circle.png" className='w-4 w-5' alt="" />  4 hours ago
+                    <img src="/members/Time-Circle.png" className='w-4 h-4' alt="" />  4 hours ago
                   </p>
+                </div>
+
+                <div className='flex items-center mb-5 gap-4 '>
+                  <div>
+                    <img className='min-h-[116px] min-w-[181px]' src="/images/cardimgSmall.png" alt="" />
+                  </div>
+                  <div>
+                    <h6 className='text-[18px] font-semibold'>Small Side Games</h6>
+                    <p className='text-[16px]'>This skills tutorial will help you understand how to perform the Penguim.</p>
+                    <span className='text-[14px]'>10 mins</span>
+                  </div>
                 </div>
 
                 <div className='flex items-center gap-4 '>
                   <div>
-                    <img className='min-h-[116px] min-w-[191px]' src="/images/cardimgSmall.png" alt="" />
+                    <img className='min-h-[116px] min-w-[181px]' src="/images/cardimgSmall.png" alt="" />
                   </div>
                   <div>
-                    <h6 className='text-[18px]'>Small Side Games</h6>
+                    <h6 className='text-[18px] font-semibold'>Small Side Games</h6>
                     <p className='text-[16px]'>This skills tutorial will help you understand how to perform the Penguim.</p>
                     <span className='text-[14px]'>10 mins</span>
                   </div>
@@ -158,18 +171,22 @@ const ViewSessions = ({ item, sessionData }) => {
               </div>
 
               {/* Right - Placeholder Drill Info */}
-              <div className="w-full lg:w-1/2 bg-white">
+              <div className="w-full  border-l pl-6 border-gray-300 lg:w-1/2 bg-white">
+                <h2 className="font-semibold text-[24px] mb-0">
+                  Small-sided games
+                </h2>
                 <img
-                  src="https://via.placeholder.com/200x140?text=Small-Sided+Games"
+                  src="/images/cardimgSmall.png"
                   alt="Small-sided games"
-                  className="rounded-xl mb-4"
+                  className="rounded-xl min-w-90 my-6"
                 />
-                <p className="text-blue-500 text-sm font-medium">Time Duration: 10 mins</p>
+                <p className="text-blue-500 text-[14px] font-semibold">Time Duration: 10 mins</p>
 
-                <div className="text-sm text-gray-700 space-y-3">
+                <div className="text-sm  space-y-3">
                   <div>
-                    <p className="font-semibold">Organisation</p>
-                    <ul className="list-disc pl-5 text-sm">
+                    <p className="font-semibold text-[18px]">Organisation</p>
+                    <p className="font-semibold text-gray-500  text-[14px]">Set up two small-sided games. You will need the following:</p>
+                    <ul className="list-disc text-gray-500 font-semibold  pl-5 text-sm">
                       <li>4 pop-up goals</li>
                       <li>Bibs to divide teams</li>
                       <li>4 blue cones</li>
@@ -178,16 +195,33 @@ const ViewSessions = ({ item, sessionData }) => {
                   </div>
 
                   <div>
-                    <p className="font-semibold">Description</p>
-                    <p>Start with two small-sided games. Adjust for student count.</p>
+                    <p className="font-semibold text-[18px]">Description</p>
+                    <p className='font-semibold text-gray-500  text-[14px]'>Begin the lessons with two small-sided games</p>
+                    <p className='font-semibold text-gray-500  text-[14px]'>Organise palyers based on abiltiy into four teams. if you do not have many students, use one pitch only. Keep an eye on both games, unless you have a support coach working with you </p>
                   </div>
 
                   <div>
-                    <p className="font-semibold">Rules</p>
-                    <ol className="list-decimal pl-5">
+                    <p className="font-semibold text-[18px]">Rules</p>
+                    <p className='font-semibold text-gray-500  text-[14px]'>Befor ou start the game, quickly reiterate the rules of the game: </p>
+                    <br />
+                    <ol className="list-decimal   font-semibold text-gray-500  text-[14px] pl-5">
                       <li>No slide tackles</li>
-                      <li>Ball out → restart with new ball</li>
+                      <li>if the ball roll out of play, students should all freeze and wait for a new ball to be rollled in (have 5 football nearby ready )</li>
                     </ol>
+                  </div> 
+                   <div>
+                    <p className="font-semibold text-[18px]">Conditions </p>
+                    <p className='font-semibold text-gray-500  text-[14px]'>You can select a condition from below to stop students from all chasing the ball and/or playing as solo players. Keep classes fun by variating the conditions each week.</p>
+                    <br />
+                    <ol className="list-decimal   font-semibold text-gray-500  text-[14px] pl-5">
+                      <li> Players can only shoot once every member of the team has touched the ball.</li>
+                      <li>Only can only shoot once they have built 3–5 passes.</li>
+                      <li>Only one member of each team is selected as the goalscorer.</li>
+                    </ol>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-[18px]">How to maintain the tone & intensity </p>
+                   
                   </div>
                 </div>
               </div>

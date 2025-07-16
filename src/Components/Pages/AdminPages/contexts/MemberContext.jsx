@@ -17,7 +17,7 @@ export const MemberProvider = ({ children }) => {
 
     const fetchRoles = useCallback(async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/member/role`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/role`, {
                 method: "GET",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -36,7 +36,7 @@ export const MemberProvider = ({ children }) => {
 
     const handleRoleCreate = useCallback(async (name, perms) => {
         try {
-            await fetch(`${API_BASE_URL}/api/admin/member/role`, {
+            await fetch(`${API_BASE_URL}/api/admin/role`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -57,7 +57,7 @@ export const MemberProvider = ({ children }) => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/member`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,

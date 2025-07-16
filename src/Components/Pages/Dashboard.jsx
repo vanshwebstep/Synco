@@ -22,11 +22,11 @@ const Dashboard = () => {
   ];
   const MyRole = localStorage.getItem("role");
 
-  if (MyRole !== null) {
-    console.log('MyRole exists:', MyRole); // Will log: "user"
-  } else {
-    console.log('MyRole does NOT exist');
-  }
+  // if (MyRole !== null) {
+  //   console.log('MyRole exists:', MyRole); // Will log: "user"
+  // } else {
+  //   console.log('MyRole does NOT exist');
+  // }
 
 
   const today = new Date();
@@ -94,8 +94,206 @@ const Dashboard = () => {
 
   return (
     <>
-      {MyRole === 'user' ? (
-              <div className="bg-gray-100 min-h-screen p-6 font-sans">
+      {(MyRole === 'Super Admin' || MyRole === 'franchisee' || MyRole === 'Admin') ? (
+        <div className="bg-gray-100 min-h-screen p-4 sm:p-6 font-sans">
+          <div className="flex flex-col lg:flex-row mt-6 gap-6">
+            {/* Main Content */}
+            <div className="w-full lg:w-8/12">
+              {/* Welcome Banner */}
+              <div
+                className="bg-yellow-300 rounded-3xl p-4 sm:p-6 py-10 sm:py-12 flex flex-col sm:flex-row justify-between items-center text-white relative overflow-hidden"
+                style={{
+                  backgroundImage: `url(/images/welcomeToDashboard.png)`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'left',
+                  backgroundSize: 'contain',
+                }}
+              >
+                <div className="text-center sm:text-end w-full">
+                  <h2 className="text-[18px] sm:text-[24px] font-semibold text-black z-10">Monday 3rd June 2025</h2>
+                  <h5 className="text-[22px] sm:text-[28px] font-bold text-black z-10">Welcome to your dashboard, Nilio</h5>
+                </div>
+                <div className="absolute inset-0 opacity-80 rounded-xl" />
+              </div>
+
+              {/* Scorecard Header */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center my-6 gap-3">
+                <h2 className="text-[22px] sm:text-[28px] font-semibold">Weekly Classes Scorecards</h2>
+                <button className="text-sm sm:text-base px-4 py-2 rounded-lg text-white font-semibold bg-blue">
+                  Reorder Your Widgets
+                </button>
+              </div>
+
+              {/* Metrics Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {metrics.map((metric, i) => (
+                  <div key={i} className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex mb-5 justify-between flex-wrap gap-3">
+                      <div className="flex items-center space-x-3">
+                        <div className={`text-3xl p-3 rounded-full ${metric.bg}`}>{metric.icon}</div>
+                        <div>
+                          <h3 className="text-[16px] text-gray-700">{metric.title}</h3>
+                          <p className="text-[24px] sm:text-[28px] font-semibold text-gray-900">{metric.value}</p>
+                        </div>
+                      </div>
+
+                      {(metric.title === "Cancellations" || metric.title === "Growth") && (
+                        <div className="flex justify-end gap-2 items-start">
+                          <img className="w-6 h-6" src='/DashboardIcons/Show.png' alt="" />
+                          <img className="w-5 h-5" src='/DashboardIcons/button.png' alt="" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap justify-start gap-4 items-end">
+                      <div className="text-xs text-gray-400 mt-2 block">
+                        <span className="font-semibold text-black flex items-center gap-2">
+                          <img src='/DashboardIcons/orangedot.png' alt="" /> Last Month
+                        </span>
+                        <span className="text-red-500 font-semibold bg-red-100 p-1 rounded-lg flex justify-center mt-2">
+                          -0.56% <img src='/images/ArrowFall.png' alt="" />
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-400 block">
+                        <span className="font-semibold text-black flex items-center gap-2">
+                          <img src='/DashboardIcons/greendot.png' alt="" /> This Week
+                        </span>
+                        <span className="text-green-500 font-semibold bg-gray-100 p-1 rounded-lg flex justify-center mt-2">
+                          +5.27% <img src='/images/Arrowtop.png' alt="" />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <h2 className="text-[28px]  font-bold mt-12 pt-8 border-t  border-gray-200">Other Services Scorecards</h2>
+            </div>
+
+            {/* Sidebar */}
+            <div className="w-full lg:w-4/12 space-y-6">
+              {/* Filter Panel */}
+              <div className="bg-white rounded-xl p-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter by date</h3>
+                  <button className="flex gap-2 items-center bg-blue-500 text-white px-3 py-2 rounded-lg text-sm sm:text-[16px]">
+                    <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                    Apply filter
+                  </button>
+                </div>
+
+                <div className="gap-2 text-sm bg-gray-100 p-4 my-6 rounded">
+                  <label className="font-semibold text-[16px] sm:text-[18px] block mb-3">Choose type</label>
+                  <div className="flex flex-wrap gap-3">
+                    {["This Year", "This Month", "This Week", "Last Year", "Last Month", "Last Week"].map((label, i) => (
+                      <label
+                        key={i}
+                        className="flex items-center w-full sm:w-[45%] text-[16px] font-semibold gap-3 cursor-pointer"
+                      >
+                        <input type="checkbox" className="peer hidden" id={`checkbox-${i}`} />
+                        <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-gray-400 rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
+                          <Check className="w-4 h-4 transition-all" strokeWidth={3} />
+                        </span>
+                        <span className="text-sm text-gray-800">{label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Calendar */}
+                <div className="rounded p-4 text-center text-sm w-full max-w-md mx-auto">
+                  <div className="flex justify-around items-center mb-3">
+                    <button onClick={goToPreviousMonth} className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center">
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <p className="font-semibold text-lg">
+                      {currentDate.toLocaleString("default", { month: "long" })} {year}
+                    </p>
+                    <button onClick={goToNextMonth} className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center">
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-7 text-xs gap-1 text-gray-500 mb-1">
+                    {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
+                      <div key={day} className="font-medium text-center">{day}</div>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
+                      const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
+                      const highlightRow = week.some((date) => isInRange(date));
+
+                      return (
+                        <div
+                          key={weekIndex}
+                          className={`grid grid-cols-7 gap-1 py-1 rounded ${highlightRow ? "bg-sky-100" : ""}`}
+                        >
+                          {week.map((date, i) => {
+                            const isFrom = isSameDate(date, fromDate);
+                            const isTo = isSameDate(date, toDate);
+
+                            return (
+                              <div
+                                key={i}
+                                onClick={() => date && handleDateClick(date)}
+                                className={`w-8 h-8 flex items-center justify-center mx-auto text-sm rounded-full cursor-pointer
+                          ${isFrom || isTo ? "bg-blue-600 text-white font-bold" : "text-gray-800"}
+                        `}
+                              >
+                                {date ? date.getDate() : ""}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Task List */}
+              <div className="bg-white rounded-xl p-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
+                  <h3 className="font-semibold text-[20px] sm:text-[24px]">My Tasks</h3>
+                  <button className="bg-blue-600 text-white px-3 py-2 rounded-lg font-semibold text-[16px] flex items-center space-x-1">
+                    <Plus size={14} />
+                    <span>Add New Task</span>
+                  </button>
+                </div>
+
+                <ul className="text-sm text-gray-600">
+                  {[
+                    { label: "Meeting", date: "30 Nov 2021", alert: true },
+                    { label: "Weekly meeting", date: "24 Nov 2022" },
+                    { label: "Add new services", date: "24 Nov 2022" },
+                  ].map((task, i) => (
+                    <li key={i} className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-[16px] sm:text-[18px] font-semibold border-t py-3 sm:py-4">
+                      <div className="block flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <p className="flex items-center gap-2">
+                          {task.label}
+                          {task.alert && (
+                            <div className="w-4 h-4 bg-red-500 clip-hexagon flex items-center justify-center text-white font-bold text-xs shrink-0">!</div>
+                          )}
+                        </p>
+                        <p className="text-[14px] text-gray-400">{task.date}</p>
+                      </div>
+                      <span className="text-[14px] bg-gray-100 mt-2 sm:mt-0 p-2 rounded-lg font-semibold">6:15 PM</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button className="mt-2 text-[16px] font-semibold text-blue-600 flex items-center">
+                  View All <ChevronRight className="w-5 h-5 text-blue-600" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      ) : (
+        <div className="bg-gray-100 min-h-screen p-6 font-sans">
 
           <div className="flex flex-col lg:flex-row mt-6 gap-6">
             {/* Main Content */}
@@ -238,243 +436,12 @@ const Dashboard = () => {
 
               </div>
 
-           
+
             </div>
           </div>
 
         </div>
-      ) : (
-        <div className="bg-gray-100 min-h-screen p-6 font-sans">
 
-          <div className="flex flex-col lg:flex-row mt-6 gap-6">
-            {/* Main Content */}
-            <div className="w-full lg:w-8/12">
-              {/* Welcome Banner */}
-              <div
-                className="bg-yellow-300 rounded-3xl p-6 py-12 pb-5 flex justify-between items-center text-white relative overflow-hidden"
-                style={{
-
-                  backgroundImage: `url(/images/welcomeToDashboard.png)`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'left',
-                  backgroundSize: 'contain',
-
-                }}
-              >
-                <div className="md:text-end w-full">
-                  <h2 className="md:text-[24px] font-semibold text-black z-10">Monday 3rd June 2025</h2>
-                  <h5 className="md:text-[28px] font-bold z-10 text-black">Welcome to your dashboard, Nilio</h5>
-                </div>
-                <div className="absolute inset-0 opacity-80 rounded-xl" />
-              </div>
-
-
-              {/* Scorecard Header */}
-              <div className="flex justify-between items-center my-6 flex-wrap gap-2">
-                <h2 className="text-[28px] font-semibold Gilroy">Weekly Classes Scorecards</h2>
-                <button className="text-sm p-2 rounded-lg text-white font-semibold  bg-blue">
-                  Reorder Your Widgets
-                </button>
-              </div>
-
-              {/* Metrics Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {metrics.map((metric, i) => (
-                  <div key={i} className="bg-white rounded-xl p-4 shadow-sm">
-                    <div className="flex mb-5 justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className={`text-3xl p-3 rounded-full ${metric.bg}`}>{metric.icon}</div>
-                        <div>
-                          <h3 className="text-[16px] text-gray-700">{metric.title}</h3>
-                          <p className="text-[28px] font-semibold text-gray-900">{metric.value}</p>
-                        </div>
-                      </div>
-
-                      {(metric.title === "Cancellations" || metric.title === "Growth") && (
-                        <div className="flex justify-end gap-2 items-start">
-                          <img className="w-6 h-6" src='/DashboardIcons/Show.png' alt="" />
-                          <img className="w-5 h-5" src='/DashboardIcons/button.png' alt="" />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex justify-start gap-5 items-end">
-                      <div className="text-xs text-gray-400 mt-2 block">
-                        <span className="font-semibold  text-black flex items-center gap-2"> <img src='/DashboardIcons/orangedot.png' alt="" /> Last Month</span>
-                        <br />
-                        <span className="text-red-500  font-semibold bg-red-100 p-1 rounded-lg flex justify-center mt-2">
-                          -0.56% <img src='/images/ArrowFall.png' alt="" />
-                        </span>
-                      </div>
-                      <div className="text-xs text-gray-400 block">
-                        <span className="font-semibold text-black flex items-center gap-2"><img src='/DashboardIcons/greendot.png' alt="" />  This Week</span>
-                        <br />
-                        <span className="text-green-500 font-semibold bg-gray-100 p-1 rounded-lg flex justify-center mt-2">
-                          +5.27% <img src='/images/Arrowtop.png' alt="" />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <h2 className="text-xl font-bold mt-8">Other Services Scorecards</h2>
-            </div>
-
-            {/* Sidebar */}
-            <div className="w-full lg:w-4/12 space-y-6">
-              {/* Filter Panel */}
-              <div className="bg-white rounded-xl p-4 ">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <h3 className="font-semibold text-[24px]">Filter by date</h3>
-                  <button className="flex gap-2 items-center bg-blue-500 text-white p-2 rounded-lg text-[16px]">
-                    <img src='/DashboardIcons/filtericon.png' className='w-5 h-5' alt="" />  Apply filter
-                  </button>
-                </div>
-
-
-                <div className="gap-2 text-sm bg-gray-100 p-4 my-6 rounded">
-                  <label className="font-semibold text-[18px] block mb-3">Choose type</label>
-                  <div className="flex flex-wrap gap-3">
-                    {["This Year", "This Month", "This Week", "Last Year", "Last Month", "Last Week"].map((label, i) => (
-                      <label
-                        key={i}
-                        className="flex items-center w-[45%] text-[16px] font-semibold gap-3 cursor-pointer"
-                      >
-                        <input
-                          type="checkbox"
-                          className="peer hidden"
-                          id={`checkbox-${i}`}
-                        />
-                        <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-gray-400 rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
-                          <Check
-                            className="w-4 h-4   transition-all"
-                            strokeWidth={3}
-                          />
-                        </span>
-                        <span className="text-sm text-gray-800">{label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-
-                <div className="rounded p-4 text-center text-sm w-full max-w-md mx-auto">
-                  {/* Header */}
-                  <div className="flex justify-around items-center mb-3">
-                    <button
-                      onClick={goToPreviousMonth}
-                      className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <p className="font-semibold text-lg">
-                      {currentDate.toLocaleString("default", { month: "long" })} {year}
-                    </p>
-                    <button
-                      onClick={goToNextMonth}
-                      className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
-
-                  {/* Day Labels */}
-                  <div className="grid grid-cols-7 text-xs gap-1 text-gray-500 mb-1">
-                    {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
-                      <div key={day} className="font-medium text-center">
-                        {day}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Calendar Weeks */}
-                  <div className="flex flex-col gap-1">
-                    {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
-                      const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
-
-                      // Check if any date in this week is in range
-                      const highlightRow = week.some((date) => isInRange(date));
-
-                      return (
-                        <div
-                          key={weekIndex}
-                          className={`grid grid-cols-7 gap-1 py-1 rounded ${highlightRow ? "bg-sky-100" : ""
-                            }`}
-                        >
-                          {week.map((date, i) => {
-                            const isFrom = isSameDate(date, fromDate);
-                            const isTo = isSameDate(date, toDate);
-
-                            return (
-                              <div
-                                key={i}
-                                onClick={() => date && handleDateClick(date)}
-                                className={`w-8 h-8 flex items-center justify-center mx-auto text-sm rounded-full cursor-pointer
-                      ${isFrom || isTo
-                                    ? "bg-blue-600 text-white font-bold"
-                                    : "text-gray-800"
-                                  }
-                    `}
-                              >
-                                {date ? date.getDate() : ""}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-
-              </div>
-
-              {/* Task List */}
-              <div className="bg-white rounded-xl p-4 ">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold text-[24px]">My Tasks</h3>
-                  <button className="bg-blue-600 text-white px-2 py-2 rounded-lg font-semibold  text-[16px] flex items-center space-x-1">
-                    <Plus size={14} /> <span>Add  New Task</span>
-                  </button>
-                </div>
-                <ul className="text-sm text-gray-600">
-                  {[
-                    { label: "Meeting", date: "30 Nov 2021", alert: true },
-                    { label: "Weekly meeting", date: "24 Nov 2022" },
-                    {
-                      label: (
-                        <span>
-                          Add new services
-                        </span>
-                      ),
-                      date: "24 Nov 2022",
-                    },].map((task, i) => (
-                      <li key={i} className="flex justify-between items-center text-[18px] font-semibold border-t py-4">
-                        <div className="block items-center gap-2">
-                          <p className="flex items-center gap-2">
-                            {task.label}
-                            {task.alert && (
-                              <div className="w-4 h-4 bg-red-500 clip-hexagon flex items-center justify-center text-white font-bold text-xs shrink-0">
-                                !
-                              </div>
-                            )}
-                          </p>
-                          <p className="text-[14px] text-gray-400">{task.date}</p>
-                        </div>
-                        <span className="text-[14px] bg-gray-100 p-2 rounded-lg font-semibold">6:15 PM</span>
-                      </li>
-                    ))}
-                </ul>
-
-                <button className="mt-2 text-[16px] font-semibold text-blue-600 flex items-center">
-                  View All <ChevronRight className="w-5 h-5 text-blue-600" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-        </div>
       )}
 
     </>

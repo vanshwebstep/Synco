@@ -191,7 +191,7 @@ const Create = () => {
         <div className="bg-gray-50 min-h-screen p-6">
             {/* Top Navigation */}
             <h2
-                onClick={() => navigate('/discounts/list')}
+                onClick={() => navigate('/holiday-camps/discounts/list')}
                 className="text-2xl font-semibold flex items-center gap-2 cursor-pointer hover:opacity-80 mb-6"
             >
                 <img src="/icons/arrow-left2.png" alt="Back" />

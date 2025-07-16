@@ -189,7 +189,7 @@ const AddPaymentPlanGroup = () => {
         if (id && selectedGroup) {
             setGroupName(selectedGroup.name || "");
             setDescription(selectedGroup.description || "");
-            setSelectedPlans(selectedGroup.plans || []);
+            setSelectedPlans(selectedGroup.paymentPlans || []);
         }
     }, [selectedGroup]);
 
@@ -206,25 +206,25 @@ const AddPaymentPlanGroup = () => {
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
             <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2`}>
-              <h2
-  onClick={() => {
-    if (previewShowModal) {
-      setPreviewShowModal(false);
-    } else {
-      navigate('/holiday-camps/payment-planManager');
-    }
-  }}
-  className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
->
-  <img
-    src="/icons/arrow-left.png"
-    alt="Back"
-    className="w-5 h-5 md:w-6 md:h-6"
-  />
-  <span className="truncate">
-    {previewShowModal ? '2023/24 Standard Pricing preview' : 'Add Payment Plan Group'}
-  </span>
-</h2>
+                <h2
+                    onClick={() => {
+                        if (previewShowModal) {
+                            setPreviewShowModal(false);
+                        } else {
+                            navigate('/holiday-camps/payment-planManager');
+                        }
+                    }}
+                    className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                >
+                    <img
+                        src="/icons/arrow-left.png"
+                        alt="Back"
+                        className="w-5 h-5 md:w-6 md:h-6"
+                    />
+                    <span className="truncate">
+                        {previewShowModal ? '2023/24 Standard Pricing preview' : 'Add Payment Plan Group'}
+                    </span>
+                </h2>
 
 
             </div>
@@ -444,25 +444,31 @@ const AddPaymentPlanGroup = () => {
                                     </button>
                                     {/* Add your form content here */}
                                     <div className="text-[24px] font-semibold mb-4">Payment Plan</div>
-
                                     {[
-                                        { label: "Title", name: "title" },
-                                        { label: "Price (€)", name: "price" },
-                                        { label: "Interval", name: "interval" },
-                                        { label: "Duration", name: "duration" },
-                                        { label: "Number of Students", name: "students" },
-                                        { label: "Joining Fee (€)", name: "joiningFee" }
+                                        { label: "Title", name: "title", type: "text" },
+                                        { label: "Price (€)", name: "price", type: "number" },
+                                        { label: "Interval", name: "interval", type: "text" },
+                                        { label: "Duration", name: "duration", type: "text" },
+                                        { label: "Number of Students", name: "students", type: "number" },
+                                        { label: "Joining Fee (€)", name: "joiningFee", type: "number" }
                                     ].map((field) => (
                                         <div key={field.name} className="mb-4">
-                                            <label className="block text-base  font-semibold text-gray-700 mb-2">{field.label}</label>
+                                            <label className="block text-base font-semibold text-gray-700 mb-2">
+                                                {field.label}
+                                            </label>
                                             <input
-                                                type="text"
+                                                type={field.type}
                                                 value={formData[field.name]}
-                                                onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
-                                                className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                onChange={(e) =>
+                                                    setFormData({ ...formData, [field.name]: e.target.value })
+                                                }
+                                                className={`w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 
+                ${field.name === "price" ? "appearance-none bg-transparent" : ""}`}
+                                                step={field.type === "number" ? "0.01" : undefined}
                                             />
                                         </div>
                                     ))}
+
 
                                     <div className="mb-4">
                                         <label className="block text-base font-semibold text-gray-700 mb-2">
@@ -470,7 +476,7 @@ const AddPaymentPlanGroup = () => {
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             <Editor
-                                                                                        apiKey="frnlhul2sjabyse5v4xtgnphkcgjxm316p0r37ojfop0ux83"
+                                                apiKey="frnlhul2sjabyse5v4xtgnphkcgjxm316p0r37ojfop0ux83"
 
                                                 value={formData.HolidayCampPackage}
                                                 onEditorChange={(content) =>
@@ -501,7 +507,7 @@ const AddPaymentPlanGroup = () => {
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             <Editor
-                                                                                        apiKey="frnlhul2sjabyse5v4xtgnphkcgjxm316p0r37ojfop0ux83"
+                                                apiKey="frnlhul2sjabyse5v4xtgnphkcgjxm316p0r37ojfop0ux83"
 
                                                 value={formData.termsAndCondition}
                                                 onEditorChange={(content) =>

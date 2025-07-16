@@ -7,155 +7,176 @@ import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
+const commonRole = ['Admin', 'user','Member','Agent','Super Admin'];
+
 const menuItems = [
-    {
-        title: 'Dashboard',
-        icon: '/SidebarLogos/Dashboard.png',
-        iconHover: '/SidebarLogos/DashboardH.png',
-        link: '/',
-        role: ['admin', 'user']
-    },
-    {
-        title: 'Weekly Classes',
-        icon: '/SidebarLogos/WeeklyClasses.png',
-        iconHover: '/SidebarLogos/WeeklyClassesH.png',
-        role: ['admin', 'user'],
+  {
+    title: 'Dashboard',
+    icon: '/SidebarLogos/Dashboard.png',
+    iconHover: '/SidebarLogos/DashboardH.png',
+    link: '/',
+    role: commonRole
+  },
+  {
+    title: 'Weekly Classes',
+    icon: '/SidebarLogos/WeeklyClasses.png',
+    iconHover: '/SidebarLogos/WeeklyClassesH.png',
+    role: commonRole,
+    subItems: [
+      { title: 'Find a class', link: '/weekly-classes/find-a-class', role: commonRole },
+      { title: 'Venues', link: '/weekly-classes/venues', role: commonRole },
+      { title: 'Class Schedule', link: '/weekly-classes/venues/class-schedule', role: commonRole },
+      { title: 'Term Dates & Session Plan mapping', link: '/weekly-classes/term-dates/list', role: commonRole },
+    ]
+  },
+  {
+    title: 'One to One',
+    icon: '/SidebarLogos/OneTOOne.png',
+    iconHover: '/SidebarLogos/OneTOOneH.png',
+    role: commonRole,
+    subItems: [
+      {
+        title: 'Leads',
         subItems: [
-            { title: 'Venues', link: '/weekly-classes/venues' },
-            { title: 'Class Schedule ', link: '/weekly-classes/venues/class-schedule' },
-            { title: 'Term Dates & Session Plan mapping ', link: '/weekly-classes/term-dates/list' }
+          { title: 'Leads Database', link: '/notification-list', role: commonRole },
+          { title: 'Add New Lead', link: '/one-to-one/leads/b', role: commonRole }
         ]
-    },
-    {
-        title: 'One to One',
-        icon: '/SidebarLogos/OneTOOne.png',
-        iconHover: '/SidebarLogos/OneTOOneH.png',
-        role: ['admin', 'user'],
+      },
+      {
+        title: 'Sales',
         subItems: [
-            {
-                title: 'Leads',
-                subItems: [
-                    { title: 'Leads Database', link: '/notification-list' },
-                    { title: 'Add New Lead', link: '/one-to-one/leads/b' }
-                ]
-            },
-            {
-                title: 'Sales',
-                subItems: [
-                    { title: 'Sale X', link: '/one-to-one/sales/x' },
-                    { title: 'Sale Y', link: '/one-to-one/sales/y' }
-                ]
-            }
+          { title: 'Sale X', link: '/one-to-one/sales/x', role: commonRole },
+          { title: 'Sale Y', link: '/one-to-one/sales/y', role: commonRole }
         ]
-    },
-    {
-        title: 'Holiday Camps',
-        icon: '/SidebarLogos/Holiday.png',
-        iconHover: '/SidebarLogos/HolidayH.png',
-        role: ['admin', 'user'],
+      }
+    ]
+  },
+  {
+    title: 'Holiday Camps',
+    icon: '/SidebarLogos/Holiday.png',
+    iconHover: '/SidebarLogos/HolidayH.png',
+    role: commonRole,
+    subItems: [
+      { title: 'Session Plan Library', link: '/holiday-camps/session-plan-list', role: commonRole },
+      { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager', role: commonRole },
+      { title: 'Discounts', link: '/holiday-camps/discounts/list', role: commonRole }
+    ]
+  },
+  {
+    title: 'Birthday parties',
+    icon: '/SidebarLogos/Birthday.png',
+    iconHover: '/SidebarLogos/BirthdayH.png',
+    role: commonRole,
+    subItems: [
+      { title: 'Party 1', link: '/birthday/party-1', role: commonRole },
+      { title: 'Party 2', link: '/birthday/party-2', role: commonRole }
+    ]
+  },
+  {
+    title: 'Club',
+    icon: '/SidebarLogos/Club.png',
+    iconHover: '/SidebarLogos/ClubH.png',
+    role: commonRole,
+    subItems: [
+      {
+        title: 'Session A',
         subItems: [
-            { title: 'Venues', link: '/holiday-camps/venues' },
-            { title: 'Session Plan Library', link: '/holiday-camps/session-plans' },
-            { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager' },
-            { title: 'Discounts', link: '/discounts/list' }
+          { title: 'Slot 1', link: '/club/session-a/slot-1', role: commonRole },
+          { title: 'Slot 2', link: '/club/session-a/slot-2', role: commonRole }
         ]
-    },
-    {
-        title: 'Birthday parties',
-        icon: '/SidebarLogos/Birthday.png',
-        iconHover: '/SidebarLogos/BirthdayH.png',
-        role: ['admin', 'user'],
-        subItems: ['Party 1', 'Party 2']
-    },
-    {
-        title: 'Club',
-        icon: '/SidebarLogos/Club.png',
-        iconHover: '/SidebarLogos/ClubH.png',
-        role: ['admin', 'user'],
+      },
+      {
+        title: 'Session B',
         subItems: [
-            { title: 'Session A', innerSubItems: ['Slot 1', 'Slot 2'] },
-            { title: 'Session B', innerSubItems: ['Slot 3', 'Slot 4'] },
-            { title: 'Session C' }
+          { title: 'Slot 3', link: '/club/session-b/slot-3', role: commonRole },
+          { title: 'Slot 4', link: '/club/session-b/slot-4', role: commonRole }
         ]
-    },
-    {
-        title: 'Merchandise',
-        icon: '/SidebarLogos/Merchandise.png',
-        iconHover: '/SidebarLogos/MerchandiseH.png',
-        link: '#',
-        role: ['admin', 'user']
-    },
-    {
-        title: 'Email management',
-        icon: '/SidebarLogos/Management.png',
-        iconHover: '/SidebarLogos/ManagementH.png',
-        link: '#',
-        role: ['admin', 'user']
-    },
-    {
-        title: 'Surveys',
-        icon: '/SidebarLogos/Survey.png',
-        iconHover: '/SidebarLogos/SurveyH.png',
-        role: ['admin', 'user'],
-        subItems: ['Survey 1', 'Survey 2']
-    },
-    {
-        title: 'Email marketing',
-        icon: '/SidebarLogos/Marketing.png',
-        iconHover: '/SidebarLogos/MarketingH.png',
-        role: ['admin', 'user'],
-        subItems: ['Campaign 1', 'Campaign 2']
-    },
-    {
-        title: 'Recruitment',
-        icon: '/SidebarLogos/Recruitment.png',
-        iconHover: '/SidebarLogos/RecruitmentH.png',
-        role: ['admin', 'user'],
-        subItems: ['Job 1', 'Job 2']
-    },
-    {
-        title: 'Reports',
-        icon: '/SidebarLogos/Reports.png',
-        iconHover: '/SidebarLogos/ReportsH.png',
-        role: ['admin', 'user'],
-        subItems: ['Report 1', 'Report 2']
-    },
-    {
-        title: 'Marketing reports',
-        icon: '/SidebarLogos/MarketingReports.png',
-        iconHover: '/SidebarLogos/MarketingReportsH.png',
-        role: ['admin', 'user'],
-        subItems: ['Report A', 'Report B']
-    },
-    {
-        title: 'Recruitment reports',
-        icon: '/SidebarLogos/ReqReports.png',
-        iconHover: '/SidebarLogos/ReqReportsH.png',
-        link: '#',
-        role: ['admin', 'user']
-    },
-    {
-        title: 'Synco Chat',
-        icon: '/SidebarLogos/bubble-chat.png',
-        iconHover: '/SidebarLogos/bubble-chatH.png',
-        link: '#',
-        role: ['admin', 'user']
-    },
-    {
-        title: 'Templates',
-        icon: '/SidebarLogos/Template.png',
-        iconHover: '/SidebarLogos/TemplateH.png',
-        link: '#',
-        role: ['admin', 'user']
-    },
-    {
-        title: 'Administration',
-        icon: '/SidebarLogos/Admistration.png',
-        iconHover: '/SidebarLogos/AdmistrationH.png',
-        link: '/members',
-        role: ['admin', 'user']
-    }
+      },
+      { title: 'Session C', link: '/club/session-c', role: commonRole }
+    ]
+  },
+  { title: 'Merchandise', icon: '/SidebarLogos/Merchandise.png', iconHover: '/SidebarLogos/MerchandiseH.png', link: '/merchandise', role: commonRole },
+  { title: 'Email management', icon: '/SidebarLogos/Management.png', iconHover: '/SidebarLogos/ManagementH.png', link: '/email-management', role: commonRole },
+  {
+    title: 'Surveys',
+    icon: '/SidebarLogos/Survey.png',
+    iconHover: '/SidebarLogos/SurveyH.png',
+    role: commonRole,
+    subItems: [
+      { title: 'Survey 1', link: '/surveys/1', role: commonRole },
+      { title: 'Survey 2', link: '/surveys/2', role: commonRole }
+    ]
+  },
+  {
+    title: 'Email marketing',
+    icon: '/SidebarLogos/Marketing.png',
+    iconHover: '/SidebarLogos/MarketingH.png',
+    role: commonRole,
+    subItems: [
+      { title: 'Campaign 1', link: '/marketing/campaign-1', role: commonRole },
+      { title: 'Campaign 2', link: '/marketing/campaign-2', role: commonRole }
+    ]
+  },
+  {
+    title: 'Recruitment',
+    icon: '/SidebarLogos/Recruitment.png',
+    iconHover: '/SidebarLogos/RecruitmentH.png',
+    role: commonRole,
+    subItems: [
+      { title: 'Job 1', link: '/recruitment/job-1', role: commonRole },
+      { title: 'Job 2', link: '/recruitment/job-2', role: commonRole }
+    ]
+  },
+  {
+    title: 'Reports',
+    icon: '/SidebarLogos/Reports.png',
+    iconHover: '/SidebarLogos/ReportsH.png',
+    role: commonRole,
+    subItems: [
+      { title: 'Report 1', link: '/reports/1', role: commonRole },
+      { title: 'Report 2', link: '/reports/2', role: commonRole }
+    ]
+  },
+  {
+    title: 'Marketing reports',
+    icon: '/SidebarLogos/MarketingReports.png',
+    iconHover: '/SidebarLogos/MarketingReportsH.png',
+    role: commonRole,
+    subItems: [
+      { title: 'Report A', link: '/marketing-reports/a', role: commonRole },
+      { title: 'Report B', link: '/marketing-reports/b', role: commonRole }
+    ]
+  },
+  {
+    title: 'Recruitment reports',
+    icon: '/SidebarLogos/ReqReports.png',
+    iconHover: '/SidebarLogos/ReqReportsH.png',
+    link: '/recruitment-reports',
+    role: commonRole
+  },
+  {
+    title: 'Synco Chat',
+    icon: '/SidebarLogos/bubble-chat.png',
+    iconHover: '/SidebarLogos/bubble-chatH.png',
+    link: '/chat',
+    role: commonRole
+  },
+  {
+    title: 'Templates',
+    icon: '/SidebarLogos/Template.png',
+    iconHover: '/SidebarLogos/TemplateH.png',
+    link: '/templates',
+    role: commonRole
+  },
+  {
+    title: 'Administration',
+    icon: '/SidebarLogos/Admistration.png',
+    iconHover: '/SidebarLogos/AdmistrationH.png',
+    link: '/members',
+    role: ['Admin','Super Admin']
+  }
 ];
+
 
 
 

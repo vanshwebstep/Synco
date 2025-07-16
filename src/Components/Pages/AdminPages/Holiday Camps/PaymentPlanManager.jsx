@@ -83,7 +83,7 @@ const PaymentPlanManagerList = () => {
 
             {/* Plans Grid */}
             <div className="grid pt-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {selectedGroup.plans.map((plan, idx) => (
+              {selectedGroup.paymentPlans.map((plan, idx) => (
                 <div
                   key={idx}
                   className="border border-[#E2E1E5] rounded-xl p-4 sm:p-5 flex flex-col justify-between transition"
@@ -150,7 +150,7 @@ const PaymentPlanManagerList = () => {
                             <span>{user.name}</span>
                           </div>
                         </td>
-                        <td className="p-4 text-center">{user.plans?.length || 'null'}</td>
+                        <td className="p-4 text-center">{user.paymentPlans?.length || 'null'}</td>
                         <td className="p-4">
                           {new Date(user.createdAt).toLocaleDateString("en-GB", {
                             weekday: "short",
@@ -162,8 +162,8 @@ const PaymentPlanManagerList = () => {
                           <div className="flex gap-4 items-center justify-center">
                             <button
                               onClick={() => handleShow(user.id)}
-                              disabled={!user.plans?.length}
-                              className={`group ${!user.plans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
+                              disabled={!user.paymentPlans?.length}
+                              className={`group ${!user.paymentPlans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
                             >
                               <img
                                 src="/icons/Show.png"
@@ -214,7 +214,7 @@ const PaymentPlanManagerList = () => {
                       </div>
 
                       <div className="text-sm text-gray-600 mb-1">
-                        <strong>No. of Plans:</strong> {user.plans?.length || 'null'}
+                        <strong>No. of Plans:</strong> {user.paymentPlans?.length || 'null'}
                       </div>
                       <div className="text-sm text-gray-600 mb-2">
                         <strong>Date:</strong> {new Date(user.createdAt).toLocaleDateString("en-GB", {
@@ -227,8 +227,8 @@ const PaymentPlanManagerList = () => {
                       <div className="flex gap-4 items-center">
                         <button
                           onClick={() => handleShow(user.id)}
-                          disabled={!user.plans?.length}
-                          className={`group ${!user.plans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
+                          disabled={!user.paymentPlans?.length}
+                          className={`group ${!user.paymentPlans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
                           <img
                             src="/icons/Show.png"

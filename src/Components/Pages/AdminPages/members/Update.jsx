@@ -14,6 +14,7 @@ const Update = () => {
   const query = useQuery();
   const id = query.get("id");
   const [error, setError] = useState("");
+  const MyRole = localStorage.getItem("role");
 
   const [editPersonal, setEditPersonal] = useState(false);
   const [editAddress, setEditAddress] = useState(false);
@@ -54,7 +55,7 @@ const Update = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/admin/member/${id}`,
+        `${API_BASE_URL}/api/admin/${id}`,
         {
           method: "GET",
           headers: {
@@ -180,7 +181,7 @@ const Update = () => {
         },
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/member/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/${id}`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -249,7 +250,7 @@ const Update = () => {
     });
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/member/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -297,7 +298,7 @@ const Update = () => {
     });
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/member/${id}/status?status=suspend`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/${id}/status?status=suspend`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -587,35 +588,62 @@ const Update = () => {
         <div className="mb-4 md:w-4/12">
           <label className="block text-[14px] font-semibold mb-2">Role Name</label>
 
-          <CreatableSelect
-            options={roleOptions}
-            value={
-              formData.role
-                ? {
-                  label: formData.role.label || formData.role.role,
-                  value: formData.role.value || formData.role.id,
-                }
-                : null
-            }
-            onChange={handleRoleChange}
-            onCreateOption={handleRoleCreateModal}
-            formatCreateLabel={(inputValue) => (
-              <span className="text-blue-600">
-                Create role: <strong>{inputValue}</strong>
-              </span>
-            )}
-            placeholder="Select or create role"
-            classNamePrefix="react-select"
-          />
-
-
-
+          {MyRole === 'Super Admin' ? (
+            <CreatableSelect
+              options={roleOptions}
+              value={
+                formData.role
+                  ? {
+                    label: formData.role.label || formData.role.role,
+                    value: formData.role.value || formData.role.id,
+                  }
+                  : null
+              }
+              onChange={handleRoleChange}
+              onCreateOption={handleRoleCreateModal}
+              formatCreateLabel={(inputValue) => (
+                <span className="text-blue-600">
+                  Create role: <strong>{inputValue}</strong>
+                </span>
+              )}
+              placeholder="Select or create role"
+              classNamePrefix="react-select"
+            />
+          ) : (
+            <input
+              type="text"
+              value={
+                formData.role?.label ||
+                formData.role?.role ||
+                formData.role?.value ||
+                formData.role?.id || ''
+              }
+              readOnly
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+            />
+          )}
         </div>
+
       </div>
 
       <div className="flex justify-center  gap-2">
-        <button onClick={handleSuspend} className="btn border cursor-pointer border-[#E2E1E5] text-[#717073]  px-8 py-2 font-semibold rounded-lg text-[14px]">Suspend</button>
-        <button onClick={handleDelete} className="btn cursor-pointer border border-[#E2E1E5]  text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]">Delete</button>
+        {MyRole === 'Super Admin' && (
+          <div className="flex gap-2">
+            <button
+              onClick={handleSuspend}
+              className="btn border cursor-pointer border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
+            >
+              Suspend
+            </button>
+            <button
+              onClick={handleDelete}
+              className="btn cursor-pointer border border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
+            >
+              Delete
+            </button>
+          </div>
+        )}
+
         <button className="btn bg-[#237FEA] text-white cursor-pointer px-8 py-2 font-semibold rounded-lg text-[14px]" onClick={handleSubmit}>Save</button>
       </div>
       {showRoleModal && (

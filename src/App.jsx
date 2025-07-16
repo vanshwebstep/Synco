@@ -1,35 +1,110 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+} from 'react-router-dom';
+
 import AdminLogin from './Components/AdminLogin.jsx';
 import ForgotPassword from './Components/ForgotPassword.jsx';
 import AdminLayout from './Components/Layout/AdminLayout.jsx';
 import ProtectedRoute from './Components/ProtectedRoute.jsx';
+
 import Dashboard from './Components/Pages/Dashboard.jsx';
 import MemberList from './Components/Pages/AdminPages/members/List.jsx';
 import Update from './Components/Pages/AdminPages/members/Update.jsx';
 import PaymentPlanManagerList from './Components/Pages/AdminPages/Holiday Camps/PaymentPlanManager.jsx';
 import AddPaymentPlanGroup from './Components/Pages/AdminPages/Holiday Camps/AddPaymentPlanGroup.jsx';
-import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberContext.jsx';
-import { PaymentPlanContextProvider } from './Components/Pages/AdminPages/contexts/PaymentPlanContext.jsx';
-import { DiscountContextProvider } from './Components/Pages/AdminPages/contexts/DiscountContext.jsx';
-
-
-import DiscountsList from './Components/Pages/AdminPages/Discounts/List.jsx';
-import DiscountCreate from './Components/Pages/AdminPages/Discounts/Create.jsx';
-
-import './App.css';
+import DiscountsList from './Components/Pages/AdminPages/discounts/list.jsx';
+import DiscountCreate from './Components/Pages/AdminPages/discounts/create.jsx';
 import Notification from './Components/Pages/AdminPages/notification/Notification.jsx';
 import NotificationList from './Components/Pages/AdminPages/notification/NotificationList.jsx';
-import { NotificationProvider } from './Components/Pages/AdminPages/contexts/NotificationContext.jsx';
 import List from './Components/Pages/AdminPages/venus/List.jsx';
-import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueContext.jsx';
+import FindAClass from './Components/Pages/AdminPages/Weekly Classes/Find a class/List.jsx';
 import ClassSchedule from './Components/Pages/AdminPages/venus/Class Schedule/List.jsx';
-import ViewSessions from './Components/Pages/AdminPages/venus/Class Schedule/ViewSessions.jsx';
+import Pending from './Components/Pages/AdminPages/venus/Class Schedule/View Session/pending.jsx';
+import Completed from './Components/Pages/AdminPages/venus/Class Schedule/View Session/completed.jsx';
+import Cancel from './Components/Pages/AdminPages/venus/Class Schedule/View Session/cancel.jsx';
 
 import TermDateList from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/List.jsx';
 import TermDateCreate from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/Create.jsx';
+import SessionPlanList from './Components/Pages/AdminPages/Holiday Camps/Session plan library/list.jsx';
+import SessionPlanCreate from './Components/Pages/AdminPages/Holiday Camps/Session plan library/Create.jsx';
+import SessionPlanPreview from './Components/Pages/AdminPages/Holiday Camps/Session plan library/Preview.jsx';
 
+import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberContext.jsx';
+import { PaymentPlanContextProvider } from './Components/Pages/AdminPages/contexts/PaymentPlanContext.jsx';
+import { DiscountContextProvider } from './Components/Pages/AdminPages/contexts/DiscountContext.jsx';
+import { SessionPlanContextProvider } from './Components/Pages/AdminPages/contexts/SessionPlanContext.jsx';
+import { NotificationProvider } from './Components/Pages/AdminPages/contexts/NotificationContext.jsx';
+import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueContext.jsx';
 
+import './App.css';
 
+// ----------------- MENU CONFIG -----------------
+const commonRole = ['Admin', 'user', 'Member','Agent' ,'Super Admin'];
+
+const menuItems = [
+  {
+    title: 'Dashboard',
+    icon: '/SidebarLogos/Dashboard.png',
+    iconHover: '/SidebarLogos/DashboardH.png',
+    link: '/',
+    role: commonRole
+  },
+  {
+    title: 'Weekly Classes',
+    icon: '/SidebarLogos/WeeklyClasses.png',
+    iconHover: '/SidebarLogos/WeeklyClassesH.png',
+    link: '/weekly-classes',
+    role: commonRole,
+    subItems: [
+       { title: 'Find a class', link: '/weekly-classes/find-a-class', role: commonRole },
+      { title: 'Venues', link: '/weekly-classes/venues' },
+      { title: 'Class Schedule', link: '/weekly-classes/venues/class-schedule' },
+      { title: 'View Session Plans', link: '/weekly-classes/venues/class-schedule/view-session-plans' },
+      { title: 'Term Dates & Session Plan mapping', link: '/weekly-classes/term-dates/list' }
+    ]
+  },
+  {
+    title: 'Holiday Camps',
+    icon: '/SidebarLogos/Holiday.png',
+    iconHover: '/SidebarLogos/HolidayH.png',
+    link: '/holiday-camps',
+    role: commonRole,
+    subItems: [
+      { title: 'Session Plan Library', link: '/holiday-camps/session-plan-list', role: commonRole },
+      { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager', role: commonRole },
+      { title: 'Add Payment Plan Group', link: '/holiday-camps/add-payment-plan-group', role: commonRole },
+      { title: 'Discounts', link: '/holiday-camps/discounts/list', role: commonRole }
+    ]
+  },
+  {
+    title: 'Notification',
+    icon: '/SidebarLogos/Notification.png',
+    iconHover: '/SidebarLogos/NotificationH.png',
+    link: '/notification',
+    role: commonRole
+  },
+  {
+    title: 'Administration',
+    icon: '/SidebarLogos/Admistration.png',
+    iconHover: '/SidebarLogos/AdmistrationH.png',
+    link: '/members',
+    role: ['Admin','Super Admin']
+  }
+];
+
+// ----------------- ALLOWED PATHS -----------------
+const getAllowedBasePathsFromMenu = (items, role) => {
+  return items
+    .filter(item => !item.role || item.role.includes(role))
+    .map(item => item.link)
+    .filter(Boolean);
+};
+
+// ----------------- AUTH ROUTES -----------------
 const AuthRoutes = () => {
   const location = useLocation();
   const isForgot = location.pathname === '/admin-ForgotPassword';
@@ -46,43 +121,53 @@ const AuthRoutes = () => {
   );
 };
 
+// ----------------- MAIN ROUTES -----------------
 const AppRoutes = () => {
   const location = useLocation();
-  const isAuthRoute = ['/admin-login', '/admin-ForgotPassword'].includes(location.pathname);
+  const role = localStorage.getItem('role') || 'user';
+  const allowedBasePaths = getAllowedBasePathsFromMenu(menuItems, role);
+  const isAuth = ['/admin-login', '/admin-ForgotPassword'].includes(location.pathname);
 
-  if (isAuthRoute) return <AuthRoutes />;
+  const isAllowed = (path) =>
+    allowedBasePaths.some(base => path === base || path.startsWith(base + '/'));
 
-  const protectedElement = (Component) => (
-    <AdminLayout>
-      <ProtectedRoute>{Component}</ProtectedRoute>
-    </AdminLayout>
-  );
+  const protect = (element, path) =>
+    isAllowed(path)
+      ? <AdminLayout><ProtectedRoute>{element}</ProtectedRoute></AdminLayout>
+      : <Navigate to="/" />;
+
+  if (isAuth) return <AuthRoutes />;
 
   return (
     <Routes>
-      <Route path="/" element={protectedElement(<Dashboard />)} />
-      <Route path="/dashboard" element={protectedElement(<userDashboard />)} />
-      <Route path="/members" element={protectedElement(<MemberList />)} />
-      <Route path="/members/update" element={protectedElement(<Update />)} />
-      <Route path="/holiday-camps/payment-planManager" element={protectedElement(<PaymentPlanManagerList />)} />
-      <Route path="/holiday-camps/add-payment-plan-group" element={protectedElement(<AddPaymentPlanGroup />)} />
-      <Route path="/notification" element={protectedElement(<Notification />)} />
-      <Route path="/notification-list" element={protectedElement(<NotificationList />)} />
-      <Route path="/discounts/list" element={protectedElement(<DiscountsList />)} />
-      <Route path="/discounts/create" element={protectedElement(<DiscountCreate />)} />
-      <Route path="/weekly-classes/venues" element={protectedElement(<List />)} />
-      <Route path="/weekly-classes/venues/class-schedule" element={protectedElement(<ClassSchedule />)} />
-      <Route path="/weekly-classes/venues/class-schedule/view-session-plans" element={protectedElement(<ViewSessions />)} />
-      <Route path="/weekly-classes/term-dates/list" element={protectedElement(<TermDateList />)} />
-      <Route path="/weekly-classes/term-dates/create" element={protectedElement(<TermDateCreate />)} />
-
-
-
+      <Route path="/" element={protect(<Dashboard />, '/')} />
+      <Route path="/dashboard" element={protect(<Dashboard />, '/dashboard')} />
+      <Route path="/members" element={protect(<MemberList />, '/members')} />
+      <Route path="/members/update" element={protect(<Update />, '/members/update')} />
+      <Route path="/holiday-camps/payment-planManager" element={protect(<PaymentPlanManagerList />, '/holiday-camps/payment-planManager')} />
+      <Route path="/holiday-camps/add-payment-plan-group" element={protect(<AddPaymentPlanGroup />, '/holiday-camps/add-payment-plan-group')} />
+      <Route path="/notification" element={protect(<Notification />, '/notification')} />
+      <Route path="/notification-list" element={protect(<NotificationList />, '/notification-list')} />
+      <Route path="/holiday-camps/discounts/list" element={protect(<DiscountsList />, '/holiday-camps/discounts/list')} />
+      <Route path="/holiday-camps/discounts/create" element={protect(<DiscountCreate />, '/holiday-camps/discounts/create')} />
+      <Route path="/weekly-classes/venues" element={protect(<List />, '/weekly-classes/venues')} />
+      <Route path="/weekly-classes/find-a-class" element={protect(<FindAClass />, '/weekly-classes/find-a-class')} />
+      <Route path="/weekly-classes/venues/class-schedule" element={protect(<ClassSchedule />, '/weekly-classes/venues/class-schedule')} />
+      <Route path="/weekly-classes/venues/class-schedule/Sessions/pending" element={protect(<Pending />, '/weekly-classes/venues/class-schedule/Sessions/pending')} />
+      <Route path="/weekly-classes/venues/class-schedule/Sessions/completed" element={protect(<Completed />, '/weekly-classes/venues/class-schedule/Sessions/completed')} />
+      <Route path="/weekly-classes/venues/class-schedule/Sessions/cancel" element={protect(<Cancel />, '/weekly-classes/venues/class-schedule/Sessions/cancel')} />
+      <Route path="/weekly-classes/term-dates/list" element={protect(<TermDateList />, '/weekly-classes/term-dates/list')} />
+      <Route path="/weekly-classes/term-dates/create" element={protect(<TermDateCreate />, '/weekly-classes/term-dates/create')} />
+      <Route path="/holiday-camps/session-plan-list" element={protect(<SessionPlanList />, '/holiday-camps/session-plan-list')} />
+      <Route path="/holiday-camps/session-plan-create" element={protect(<SessionPlanCreate />, '/holiday-camps/session-plan-create')} />
+      <Route path="/holiday-camps/session-plan-preview" element={protect(<SessionPlanPreview />, '/holiday-camps/session-plan-preview')} />
+    
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 };
 
-
+// ----------------- APP WRAPPER -----------------
 function App() {
   return (
     <Router>
@@ -91,9 +176,11 @@ function App() {
           <MemberProvider>
             <PaymentPlanContextProvider>
               <DiscountContextProvider>
+                <SessionPlanContextProvider>
                 <AppRoutes />
-              </ DiscountContextProvider>
-            </ PaymentPlanContextProvider>
+                </SessionPlanContextProvider>
+              </DiscountContextProvider>
+            </PaymentPlanContextProvider>
           </MemberProvider>
         </VenueProvider>
       </NotificationProvider>

@@ -2,18 +2,20 @@ import { createContext, useContext, useState, useCallback } from "react";
 import Swal from "sweetalert2"; // make sure it's installed
 import { useNavigate } from 'react-router-dom';
 
-const DiscountContext = createContext();
+const SessionPlanContext = createContext();
 
-export const DiscountContextProvider = ({ children }) => {
+export const SessionPlanContextProvider = ({ children }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("adminToken");
 
   const [discounts, setDiscounts] = useState([]);
   const [groups, setGroups] = useState([]);
   const [selectedDiscount, setSelectedDiscount] = useState(null);
-  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedExercise, setSelectedExercise] = useState(null);
   const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+  const [exercises, setExercises] = useState([]);
+
 
   // Fetch all discounts
   const fetchDiscounts = useCallback(async () => {
@@ -31,7 +33,63 @@ export const DiscountContextProvider = ({ children }) => {
       setLoading(false);
     }
   }, [token]);
+const createSessionExercise = useCallback(async (data, file) => {
+  if (!token) return;
 
+  try {
+    const formdata = new FormData();
+    formdata.append("title", data.title);
+    formdata.append("description", data.description);
+    formdata.append("duration", data.duration);
+    console.log('formdatahh',formdata)
+    if (file) formdata.append("image", file);
+
+    await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // No "Content-Type", browser sets it automatically with boundary
+      },
+      body: formdata,
+    });
+console.log('doneeee')
+    await fetchDiscounts(); // optional if refreshing UI
+  } catch (err) {
+    console.error("Failed to create exercise:", err);
+  }
+}, [token, fetchDiscounts]);
+
+
+  const fetchExercises = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      setExercises(result.data || []);
+    } catch (err) {
+      console.error("Failed to fetch packages:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+  const fetchExerciseById = useCallback(async (id) => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/apiadmin/session-plan-exercise/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await res.json();
+      setSelectedExercise(result.data || null);
+    } catch (err) {
+      console.error("Failed to fetch group:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
   // Fetch single discount
   const fetchDiscountById = useCallback(async (id) => {
     if (!token) return;
@@ -131,23 +189,31 @@ const createDiscount = useCallback(async (data) => {
   
 
   return (
-    <DiscountContext.Provider
+    <SessionPlanContext.Provider
       value={{
         // Discounts
         discounts,
         setDiscounts,
         loading,
+        createSessionExercise,
         selectedDiscount,
         fetchDiscounts,
         fetchDiscountById,
         createDiscount,
         updateDiscount,
         deleteDiscount,
+
+        selectedExercise,
+        setSelectedExercise,
+        exercises,
+        setExercises,
+        fetchExerciseById,
+        fetchExercises,
       }}
     >
       {children}
-    </DiscountContext.Provider>
+    </SessionPlanContext.Provider>
   );
 };
 
-export const useDiscounts = () => useContext(DiscountContext);
+export const useSessionPlan = () => useContext(SessionPlanContext);

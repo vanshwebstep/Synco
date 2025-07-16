@@ -26,7 +26,7 @@ export const VenueProvider = ({ children }) => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/member`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,

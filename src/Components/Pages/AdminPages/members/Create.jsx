@@ -43,20 +43,7 @@ const Create = () => {
       // Allow only digits
       newValue = value.replace(/\D/g, '');
 
-      // Limit to 10 digits
-      if (newValue.length > 10) {
-        newValue = newValue.slice(0, 10);
-      }
 
-      // Live validation
-      if (newValue.length !== 10) {
-        setErrors((prev) => ({
-          ...prev,
-          [name]: 'Phone number must be exactly 10 digits',
-        }));
-      } else {
-        setErrors((prev) => ({ ...prev, [name]: '' }));
-      }
     } else {
       // Clear error for other fields
       setErrors((prev) => ({ ...prev, [name]: '' }));
@@ -140,7 +127,7 @@ const Create = () => {
           },
         });
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/member`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -153,7 +140,7 @@ const Create = () => {
         if (!response.ok) {
           Swal.fire({
             icon: "error",
-            title: "Failed to Add Member",
+            title: result.message||"Failed to Add Member",
             text: result.message || "Something went wrong.",
           });
           return;
@@ -161,7 +148,7 @@ const Create = () => {
 
         Swal.fire({
           icon: "success",
-          title: "Member Created",
+          title: result.message || "Member Created",
           text: result.message || "New member was added successfully!",
           timer: 2000,
           showConfirmButton: false,

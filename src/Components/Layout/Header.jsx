@@ -22,7 +22,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     '/members': { title: 'Admin Panel', icon: "/members/Category.png" },
     '/holiday-camps/payment-planManager': { title: 'Configuration' },
     '/holiday-camps/add-payment-plan-group': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
-    '/discounts/list': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
+    '/holiday-camps/discounts/list': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
     '/notification': { title: 'Welcome Back', icon: "/images/Welcomeback.png" },
   };
   const routeInfo =
@@ -33,18 +33,18 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const { title, icon: Icon } = routeInfo;
 
 
-  useEffect(() => {
-    // Run once immediately
-    fetchNotification();
+  // useEffect(() => {
+  //   // Run once immediately
+  //   fetchNotification();
 
-    // Set up interval
-    const interval = setInterval(() => {
-      fetchNotification();
-    }, 5000); // 5000 ms = 5 seconds
+  //   // Set up interval
+  //   const interval = setInterval(() => {
+  //     fetchNotification();
+  //   }, 5000); // 5000 ms = 5 seconds
     
-    // Clear the interval on component unmount
-    return () => clearInterval(interval);
-  }, []); // empty deps = run once on mount
+  //   // Clear the interval on component unmount
+  //   return () => clearInterval(interval);
+  // }, []); // empty deps = run once on mount
 
     const handleNotificationClick = () => {
     if (notificationCount > 0) {

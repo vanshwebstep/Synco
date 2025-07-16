@@ -115,6 +115,7 @@ const List = () => {
             facility: "Indoor",
         },
     ];
+    
     const [isEditing, setIsEditing] = useState(false);
     const [value, setValue] = useState('Some text');
 
@@ -296,16 +297,20 @@ const List = () => {
 
                                                                             <div className="flex gap-2 mt-2 md:mt-0">
                                                                                 <button
-                                                                                    onClick={() => navigate('/weekly-classes/venues/class-schedule/view-session-plans')}
+                                                                                    onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/pending')}
                                                                                     className="bg-blue-500 font-semibold hover:bg-white hover:text-blue-500 border-2 border-transparent hover:border-blue-500 text-[16px] text-white px-3 py-2 rounded-xl"
                                                                                 >
                                                                                     View Session Plans
                                                                                 </button>
 
-                                                                                <button className="hover:bg-blue-500 font-semibold  bg-white text-blue-500 border-3 hover:border-transparent border-blue-500 text-[16px] hover:text-white px-3 py-2 rounded-xl">
+                                                                                <button
+                                                                                onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/completed')}
+                                                                                className="hover:bg-blue-500 font-semibold  bg-white text-blue-500 border-3 hover:border-transparent border-blue-500 text-[16px] hover:text-white px-3 py-2 rounded-xl">
                                                                                     View Class Register
                                                                                 </button>
-                                                                                <button className="bg-[#FE7058] font-semibold hover:bg-white hover:text-[#FE7058] border-3 border-transparent hover:border-[#FE7058] text-[16px] text-white px-3 py-2 rounded-xl">
+                                                                                <button
+                                                                                onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/cancel')}
+                                                                                 className="bg-[#FE7058] font-semibold hover:bg-white hover:text-[#FE7058] border-3 border-transparent hover:border-[#FE7058] text-[16px] text-white px-3 py-2 rounded-xl">
                                                                                     Cancel Session
                                                                                 </button>
                                                                             </div>
@@ -386,7 +391,7 @@ const List = () => {
                                         <label htmlFor="">Start Time</label>
 
                                         <DatePicker
-                                            selected={formData.startTime}
+                                            // selected={formData?.startTime}
                                             onChange={(date) => handleChange('startTime', date)}
                                             showTimeSelect
                                             showTimeSelectOnly
@@ -400,7 +405,7 @@ const List = () => {
 
                                         <label htmlFor="">End Time</label>
                                         <DatePicker
-                                            selected={formData.endTime}
+                                            // selected={formData?.endTime}
                                             onChange={(date) => handleChange('endTime', date)}
                                             showTimeSelect
                                             showTimeSelectOnly

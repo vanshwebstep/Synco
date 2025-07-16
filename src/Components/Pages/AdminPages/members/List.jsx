@@ -8,6 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 
 
 const List = () => {
+  const MyRole = localStorage.getItem("role");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const { members, fetchMembers, loading } = useMembers();
   const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -49,12 +50,17 @@ const List = () => {
 
       <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
         <h2 className="text-[28px] font-semibold">Admin panel</h2>
-        <button
-          onClick={() => setOpenForm(true)}
-          className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
-        >
-          <img src="/members/add.png" className='w-5' alt="" /> Add Member
-        </button>
+
+        {MyRole === 'Super Admin' && (
+          <button
+            onClick={() => setOpenForm(true)}
+            className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
+          >
+            <img src="/members/add.png" className="w-5" alt="" /> Add Member
+          </button>
+        )}
+
+
       </div>
 
       <div className="md:flex gap-6">
@@ -92,7 +98,7 @@ const List = () => {
                       const isChecked = selectedUserIds.includes(user.id);
 
                       return (
-                        <tr key={idx}  className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
+                        <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
                           <td className="p-4 cursor-pointer">
                             <div className="flex items-center gap-3">
                               <button
