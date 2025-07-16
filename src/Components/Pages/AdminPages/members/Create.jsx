@@ -291,7 +291,7 @@ const Create = () => {
               <img src={photoPreview} alt="Uploaded" className="h-full object-cover" />
             ) : (
               <>
-                <img src="members/addblack.png" className="w-4 block" alt="" />
+                <img src="/demo/synco/members/addblack.png" className="w-4 block" alt="" />
                 <span className="text-sm ml-2 font-semibold block">Add Photo</span>
               </>
             )}

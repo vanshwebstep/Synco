@@ -56,7 +56,7 @@ const List = () => {
             onClick={() => setOpenForm(true)}
             className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
           >
-            <img src="members/add.png" className="w-5" alt="" /> Add Member
+            <img src="/demo/synco/members/add.png" className="w-5" alt="" /> Add Member
           </button>
         )}
 

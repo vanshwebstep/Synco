@@ -74,14 +74,14 @@ const List = () => {
                                 <div className="flex gap-2">
                                     <button onClick={() => handleEditGroup(week.id, group.id)} className="text-gray-500 hover:text-blue-600">
                                         <img
-                                            src="icons/edit.png"
+                                            src="/demo/synco/icons/edit.png"
                                             alt="Edit"
                                             className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                         />
                                     </button>
                                     <button onClick={() => handleDeleteGroup(week.id, group.id)} className="text-gray-500 hover:text-red-500">
                                         <img
-                                            src="icons/deleteIcon.png"
+                                            src="/demo/synco/icons/deleteIcon.png"
                                             alt="Delete"
                                             className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                         />
@@ -102,7 +102,7 @@ const List = () => {
                             className="p-6 text-center text-[14px] font-semibold cursor-pointer"
                         >
                             <img
-                                src="members/addblack.png"
+                                src="/demo/synco/members/addblack.png"
                                 alt=""
                                 className="w-6 h-6 m-auto mb-2"
                             />

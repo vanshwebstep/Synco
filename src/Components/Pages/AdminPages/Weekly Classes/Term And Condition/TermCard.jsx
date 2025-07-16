@@ -46,10 +46,10 @@ const TermCard = ({ item, sessionData }) => {
                 {/* Action buttons */}
                 <div className={`flex gap-3 mt-2 ${showSessions ? ' items-start' : 'items-center'}  md:mt-0 ml-auto`}>
                     <button className="text-gray-500 hover:text-blue-500">
-                        <img className="min-w-5" src="icons/edit.png" alt="Edit" />
+                        <img className="min-w-5" src="/demo/synco/icons/edit.png" alt="Edit" />
                     </button>
                     <button className="text-gray-500 hover:text-red-500">
-                        <img className="min-w-5" src="icons/deleteIcon.png" alt="Delete" />
+                        <img className="min-w-5" src="/demo/synco/icons/deleteIcon.png" alt="Delete" />
                     </button>
                 </div>
             </div>
@@ -61,7 +61,7 @@ const TermCard = ({ item, sessionData }) => {
             >
                 <div className="text-center text-[#237FEA] flex justify-center items-center gap-2">
                     {showSessions ? 'Hide all session dates' : 'Show all session dates'}
-                    <img className="w-4" src="icons/bluearrowup.png" alt="Toggle" />
+                    <img className="w-4" src="/demo/synco/icons/bluearrowup.png" alt="Toggle" />
                 </div>
             </div>
         </div>

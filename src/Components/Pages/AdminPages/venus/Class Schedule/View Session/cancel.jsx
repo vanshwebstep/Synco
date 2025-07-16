@@ -29,7 +29,7 @@ const ViewSessions = () => {
           onClick={() => navigate('/weekly-classes/venues/class-schedule')}
           className="text-xl md:text-[28px] font-semibold flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
         >
-          <img src="icons/arrow-left.png" alt="Back" className="w-6 h-6" />
+          <img src="/demo/synco/icons/arrow-left.png" alt="Back" className="w-6 h-6" />
           <span>View Class Register</span>
         </h2>
       </div>
@@ -38,7 +38,7 @@ const ViewSessions = () => {
         {/* Left - Cancellation Summary */}
         <div className="w-full md:w-3/12 bg-gray-100 py-6 rounded-2xl text-center">
           <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-white mx-auto mb-4">
-            <img src="icons/cancelBig.png" alt="Cancel" />
+            <img src="/demo/synco/icons/cancelBig.png" alt="Cancel" />
           </div>
           <p className="text-base font-semibold mb-4 border-b border-gray-300 pb-4">Cancellation</p>
           <div className="text-sm text-left px-6 text-gray-700 space-y-3">

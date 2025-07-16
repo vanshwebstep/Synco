@@ -5,22 +5,22 @@ import Header from './Header';
 import HeaderBanner from '../Pages/AdminPages/HeaderBanner';
 
 const routeTitleMap = {
-  '/': { title: 'Dashboard', icon: "/members/Category.png" },
-  '/admin-forgotpassword': { title: 'One to One', icon: "/members/Category.png" },
-  '/merchandise': { title: 'Merchandise', icon: "/members/Category.png" },
-  '/email-management': { title: 'Email Management', icon: "/members/Category.png" },
-  '/recruitment-reports': { title: 'Recruitment Reports', icon: "/members/Category.png" },
-  '/templates': { title: 'Templates', icon: "/members/Category.png" },
-  '/synco-chat': { title: 'Synco Chat', icon: "/members/Category.png" },
-  '/members': { title: 'Admin Panel', icon: "/members/Category.png" },
-  '/holiday-camps/payment-planManager': { title: 'Payment Plan Manager', icon: "/members/Category.png" },
-  '/holiday-camps/add-payment-plan-group': { title: 'Add Payment Plan Group', icon: "/members/Category.png" },
-  '/holiday-camps/discounts/list': { title: 'Discounts', icon: "/members/Category.png" },
-  '/notification': { title: 'Notifications', icon: '/members/Notification.png' },
-  '/weekly-classes/term-dates/list': { title: 'Term Dates & Session Plan Mapping', icon: '/members/Category.png' },
-  '/weekly-classes/term-dates/create': { title: 'Term Dates & Session Plan Mapping', icon: '/members/Category.png' },
-  '/weekly-classes/venues/class-schedule': { title: 'Class Schedule ', icon: '/members/Category.png' },
-  '/holiday-camps/session-plan-list': { title: 'Session Plan Library ', icon: '/members/Document.png' },
+  '/': { title: 'Dashboard', icon: "/demo/synco/members/Category.png" },
+  '/admin-forgotpassword': { title: 'One to One', icon: "/demo/synco/members/Category.png" },
+  '/merchandise': { title: 'Merchandise', icon: "/demo/synco/members/Category.png" },
+  '/email-management': { title: 'Email Management', icon: "/demo/synco/members/Category.png" },
+  '/recruitment-reports': { title: 'Recruitment Reports', icon: "/demo/synco/members/Category.png" },
+  '/templates': { title: 'Templates', icon: "/demo/synco/members/Category.png" },
+  '/synco-chat': { title: 'Synco Chat', icon: "/demo/synco/members/Category.png" },
+  '/members': { title: 'Admin Panel', icon: "/demo/synco/members/Category.png" },
+  '/holiday-camps/payment-planManager': { title: 'Payment Plan Manager', icon: "/demo/synco/members/Category.png" },
+  '/holiday-camps/add-payment-plan-group': { title: 'Add Payment Plan Group', icon: "/demo/synco/members/Category.png" },
+  '/holiday-camps/discounts/list': { title: 'Discounts', icon: "/demo/synco/members/Category.png" },
+  '/notification': { title: 'Notifications', icon: '/demo/synco/members/Notification.png' },
+  '/weekly-classes/term-dates/list': { title: 'Term Dates & Session Plan Mapping', icon: '/demo/synco/members/Category.png' },
+  '/weekly-classes/term-dates/create': { title: 'Term Dates & Session Plan Mapping', icon: '/demo/synco/members/Category.png' },
+  '/weekly-classes/venues/class-schedule': { title: 'Class Schedule ', icon: '/demo/synco/members/Category.png' },
+  '/holiday-camps/session-plan-list': { title: 'Session Plan Library ', icon: '/demo/synco/members/Document.png' },
 
 };
 
@@ -35,7 +35,7 @@ const AdminLayout = ({ children }) => {
     Object.entries(routeTitleMap)
       .sort((a, b) => b[0].length - a[0].length)
       .find(([route]) => location.pathname.startsWith(route))?.[1]
-    || { title: 'Admin Panel', icon: '/members/Category.png' };
+    || { title: 'Admin Panel', icon: '/demo/synco/members/Category.png' };
       const { title, icon: Icon } = routeInfo;
 
   return (

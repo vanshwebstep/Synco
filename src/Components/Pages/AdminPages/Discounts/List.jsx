@@ -54,7 +54,7 @@ const DiscountsList = () => {
           // onClick={() => setOpenForm(true)}
           className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
         >
-          <img src="members/add.png" className='w-5' alt="" /> Add new discount
+          <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add new discount
         </button>
       </div>
 

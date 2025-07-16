@@ -58,7 +58,7 @@ const List = () => {
           onClick={() => setOpenForm(true)}
           className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
         >
-          <img src="members/add.png" className='w-5' alt="" /> Add New Venues
+          <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add New Venues
         </button>
       </div>
 
@@ -116,16 +116,16 @@ const List = () => {
                           <td className="p-4">
                             <div className="flex gap-2">
                               <div onClick={() => handleIconClick("calendar")} className="cursor-pointer">
-                                <img src="members/calendar-circle.png" className="w-6 h-6" alt="calendar" />
+                                <img src="/demo/synco/members/calendar-circle.png" className="w-6 h-6" alt="calendar" />
                               </div>
                               <div onClick={() => handleIconClick("currency")} className="cursor-pointer">
-                                <img src="members/Currency Icon.png" className="w-6 h-6" alt="currency" />
+                                <img src="/demo/synco/members/Currency Icon.png" className="w-6 h-6" alt="currency" />
                               </div>
                               <div onClick={() => handleIconClick("group")} className="cursor-pointer">
-                                <img src="members/Group-c.png" className="w-6 h-6" alt="group" />
+                                <img src="/demo/synco/members/Group-c.png" className="w-6 h-6" alt="group" />
                               </div>
                               <div onClick={() => handleIconClick("p")} className="cursor-pointer">
-                                <img src="members/p.png" className="w-6 h-6" alt="p icon" />
+                                <img src="/demo/synco/members/p.png" className="w-6 h-6" alt="p icon" />
                               </div>
                             </div>
 
@@ -136,9 +136,9 @@ const List = () => {
                                 setIsEditVenue(true);
                                 setFormData(user);
                                 setOpenForm(true)
-                              }} src="members/edit.png" className='w-6 h-6' alt="" /></div>
-                              <div><img src="members/delete-02.png" className='w-6 h-6' alt="" /></div>
-                              <div><img src="members/Time-Circle.png" className='w-6 h-6' alt="" /></div>
+                              }} src="/demo/synco/members/edit.png" className='w-6 h-6' alt="" /></div>
+                              <div><img src="/demo/synco/members/delete-02.png" className='w-6 h-6' alt="" /></div>
+                              <div><img src="/demo/synco/members/Time-Circle.png" className='w-6 h-6' alt="" /></div>
                             </div>
 
                           </td>

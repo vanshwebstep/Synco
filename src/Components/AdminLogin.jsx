@@ -110,7 +110,7 @@ const AdminLogin = () => {
           <div>
             <div className="mb-6">
               <img
-                src='images/mainlogo.png'
+                src='/demo/synco/images/mainlogo.png'
                 alt="Logo"
                 className=" mx-auto rounded-full"
               />
@@ -158,9 +158,9 @@ const AdminLogin = () => {
                   className="absolute right-4 top-14 -translate-y-1/2 text-gray-600"
                 >
                   {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-gray-600"  />
+                    <EyeOff className="w-5 h-5 text-gray-600" />
                   ) : (
-                    <Eye className="w-5 h-5 text-gray-600"  />
+                    <Eye className="w-5 h-5 text-gray-600" />
                   )}
                 </button>
               </div>
@@ -177,9 +177,9 @@ const AdminLogin = () => {
                   Remember me
                 </label>
 
-             <Link to="/admin-ForgotPassword" className="hover:underline font-semibold">
-  Forgot password?
-</Link>
+                <Link to="/admin-ForgotPassword" className="hover:underline font-semibold">
+                  Forgot password?
+                </Link>
               </div>
 
               <button

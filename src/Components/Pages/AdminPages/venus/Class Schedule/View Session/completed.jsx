@@ -71,7 +71,7 @@ const ViewSessions = ({ item, sessionData }) => {
                     }}
                     className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
                     <img
-                        src="icons/arrow-left.png"
+                        src="/demo/synco/icons/arrow-left.png"
                         alt="Back"
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
@@ -82,7 +82,7 @@ const ViewSessions = ({ item, sessionData }) => {
                 {/* Left Sidebar */}
                 <div className="w-full md:w-2/12 bg-gray-100 py-6  rounded-2xl  text-center">
                     <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
-                        <img src="icons/completeBig.png" alt="" />
+                        <img src="/demo/synco/icons/completeBig.png" alt="" />
                     </div>
                     <p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4">Completed</p>
                     <div className="text-sm  p-6 text-gray-700 space-y-3 text-left">
