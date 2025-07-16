@@ -5,7 +5,7 @@ const HeaderBanner = ({ title, icon: Icon }) => {
     <section
       className="headerbanner mt-8 py-7 bg-no-repeat bg-cover bg-center rounded-4xl flex items-center p-10"
       style={{
-        backgroundImage: "url('/members/headerbanner.png')",
+        backgroundImage: "url('members/headerbanner.png')",
       }}
     >
       <div className='flex gap-4 items-center'>

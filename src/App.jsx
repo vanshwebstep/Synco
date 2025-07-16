@@ -1,3 +1,4 @@
+// src/App.jsx
 import {
   BrowserRouter as Router,
   Routes,
@@ -190,7 +191,7 @@ const AppRoutes = () => {
 // ----------------- APP WRAPPER -----------------
 function App() {
   return (
-    <Router>
+    <Router basename="/demo/synco">
       <NotificationProvider>
         <VenueProvider>
           <MemberProvider>

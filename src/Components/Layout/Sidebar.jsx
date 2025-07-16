@@ -12,15 +12,15 @@ const commonRole = ['Admin', 'user','Member','Agent','Super Admin'];
 const menuItems = [
   {
     title: 'Dashboard',
-    icon: '/SidebarLogos/Dashboard.png',
-    iconHover: '/SidebarLogos/DashboardH.png',
+    icon: 'SidebarLogos/Dashboard.png',
+    iconHover: 'SidebarLogos/DashboardH.png',
     link: '/',
     role: commonRole
   },
   {
     title: 'Weekly Classes',
-    icon: '/SidebarLogos/WeeklyClasses.png',
-    iconHover: '/SidebarLogos/WeeklyClassesH.png',
+    icon: 'SidebarLogos/WeeklyClasses.png',
+    iconHover: 'SidebarLogos/WeeklyClassesH.png',
     role: commonRole,
     subItems: [
       { title: 'Find a class', link: '/weekly-classes/find-a-class', role: commonRole },
@@ -31,8 +31,8 @@ const menuItems = [
   },
   {
     title: 'One to One',
-    icon: '/SidebarLogos/OneTOOne.png',
-    iconHover: '/SidebarLogos/OneTOOneH.png',
+    icon: 'SidebarLogos/OneTOOne.png',
+    iconHover: 'SidebarLogos/OneTOOneH.png',
     role: commonRole,
     subItems: [
       {
@@ -53,8 +53,8 @@ const menuItems = [
   },
   {
     title: 'Holiday Camps',
-    icon: '/SidebarLogos/Holiday.png',
-    iconHover: '/SidebarLogos/HolidayH.png',
+    icon: 'SidebarLogos/Holiday.png',
+    iconHover: 'SidebarLogos/HolidayH.png',
     role: commonRole,
     subItems: [
       { title: 'Session Plan Library', link: '/holiday-camps/session-plan-list', role: commonRole },
@@ -64,8 +64,8 @@ const menuItems = [
   },
   {
     title: 'Birthday parties',
-    icon: '/SidebarLogos/Birthday.png',
-    iconHover: '/SidebarLogos/BirthdayH.png',
+    icon: 'SidebarLogos/Birthday.png',
+    iconHover: 'SidebarLogos/BirthdayH.png',
     role: commonRole,
     subItems: [
       { title: 'Party 1', link: '#', role: commonRole },
@@ -74,8 +74,8 @@ const menuItems = [
   },
   {
     title: 'Club',
-    icon: '/SidebarLogos/Club.png',
-    iconHover: '/SidebarLogos/ClubH.png',
+    icon: 'SidebarLogos/Club.png',
+    iconHover: 'SidebarLogos/ClubH.png',
     role: commonRole,
     subItems: [
       {
@@ -95,12 +95,12 @@ const menuItems = [
       { title: 'Session C', link: '#', role: commonRole }
     ]
   },
-  { title: 'Merchandise', icon: '/SidebarLogos/Merchandise.png', iconHover: '/SidebarLogos/MerchandiseH.png', link: '#', role: commonRole },
-  { title: 'Email management', icon: '/SidebarLogos/Management.png', iconHover: '/SidebarLogos/ManagementH.png', link: '#', role: commonRole },
+  { title: 'Merchandise', icon: 'SidebarLogos/Merchandise.png', iconHover: 'SidebarLogos/MerchandiseH.png', link: '#', role: commonRole },
+  { title: 'Email management', icon: 'SidebarLogos/Management.png', iconHover: 'SidebarLogos/ManagementH.png', link: '#', role: commonRole },
   {
     title: 'Surveys',
-    icon: '/SidebarLogos/Survey.png',
-    iconHover: '/SidebarLogos/SurveyH.png',
+    icon: 'SidebarLogos/Survey.png',
+    iconHover: 'SidebarLogos/SurveyH.png',
     role: commonRole,
     subItems: [
       { title: 'Survey 1', link: '#', role: commonRole },
@@ -109,8 +109,8 @@ const menuItems = [
   },
   {
     title: 'Email marketing',
-    icon: '/SidebarLogos/Marketing.png',
-    iconHover: '/SidebarLogos/MarketingH.png',
+    icon: 'SidebarLogos/Marketing.png',
+    iconHover: 'SidebarLogos/MarketingH.png',
     role: commonRole,
     subItems: [
       { title: 'Campaign 1', link: '#', role: commonRole },
@@ -119,8 +119,8 @@ const menuItems = [
   },
   {
     title: 'Recruitment',
-    icon: '/SidebarLogos/Recruitment.png',
-    iconHover: '/SidebarLogos/RecruitmentH.png',
+    icon: 'SidebarLogos/Recruitment.png',
+    iconHover: 'SidebarLogos/RecruitmentH.png',
     role: commonRole,
     subItems: [
       { title: 'Job 1', link: '#', role: commonRole },
@@ -129,8 +129,8 @@ const menuItems = [
   },
   {
     title: 'Reports',
-    icon: '/SidebarLogos/Reports.png',
-    iconHover: '/SidebarLogos/ReportsH.png',
+    icon: 'SidebarLogos/Reports.png',
+    iconHover: 'SidebarLogos/ReportsH.png',
     role: commonRole,
     subItems: [
       { title: 'Report 1', link: '#', role: commonRole },
@@ -139,8 +139,8 @@ const menuItems = [
   },
   {
     title: 'Marketing reports',
-    icon: '/SidebarLogos/MarketingReports.png',
-    iconHover: '/SidebarLogos/MarketingReportsH.png',
+    icon: 'SidebarLogos/MarketingReports.png',
+    iconHover: 'SidebarLogos/MarketingReportsH.png',
     role: commonRole,
     subItems: [
       { title: 'Report A', link: '#', role: commonRole },
@@ -149,29 +149,29 @@ const menuItems = [
   },
   {
     title: 'Recruitment reports',
-    icon: '/SidebarLogos/ReqReports.png',
-    iconHover: '/SidebarLogos/ReqReportsH.png',
+    icon: 'SidebarLogos/ReqReports.png',
+    iconHover: 'SidebarLogos/ReqReportsH.png',
     link: '#',
     role: commonRole
   },
   {
     title: 'Synco Chat',
-    icon: '/SidebarLogos/bubble-chat.png',
-    iconHover: '/SidebarLogos/bubble-chatH.png',
+    icon: 'SidebarLogos/bubble-chat.png',
+    iconHover: 'SidebarLogos/bubble-chatH.png',
     link: '#',
     role: commonRole
   },
   {
     title: 'Templates',
-    icon: '/SidebarLogos/Template.png',
-    iconHover: '/SidebarLogos/TemplateH.png',
+    icon: 'SidebarLogos/Template.png',
+    iconHover: 'SidebarLogos/TemplateH.png',
     link: '#',
     role: commonRole
   },
   {
     title: 'Administration',
-    icon: '/SidebarLogos/Admistration.png',
-    iconHover: '/SidebarLogos/AdmistrationH.png',
+    icon: 'SidebarLogos/Admistration.png',
+    iconHover: 'SidebarLogos/AdmistrationH.png',
     link: '/members',
     role: ['Admin','Super Admin']
   }
