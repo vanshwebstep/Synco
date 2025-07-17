@@ -144,14 +144,14 @@ const userDashboard = () => {
 
                   <div className="flex justify-start gap-5 items-end">
                     <div className="text-xs text-gray-400 mt-2 block">
-                      <span className="font-semibold  text-black flex items-center gap-2"> <img src='DashboardIcons/orangedot.png' alt="" /> Last Month</span>
+                      <span className="font-semibold  text-black flex items-center gap-2"> <img src='/demo/synco/DashboardIcons/orangedot.png' alt="" /> Last Month</span>
                       <br />
                       <span className="text-red-500  font-semibold bg-red-100 p-1 rounded-lg flex justify-center mt-2">
                         -0.56% <img src='/demo/synco/images/ArrowFall.png' alt="" />
                       </span>
                     </div>
                     <div className="text-xs text-gray-400 block">
-                      <span className="font-semibold text-black flex items-center gap-2"><img src='DashboardIcons/greendot.png' alt="" />  This Week</span>
+                      <span className="font-semibold text-black flex items-center gap-2"><img src='/demo/synco/DashboardIcons/greendot.png' alt="" />  This Week</span>
                       <br />
                       <span className="text-green-500 font-semibold bg-gray-100 p-1 rounded-lg flex justify-center mt-2">
                         +5.27% <img src='/demo/synco/images/Arrowtop.png' alt="" />

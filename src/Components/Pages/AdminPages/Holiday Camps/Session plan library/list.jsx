@@ -59,7 +59,7 @@ const List = () => {
 
             <div className="md:flex bg-white rounded-3xl p-6 shadow gap-6">
                 {weeks.map(week => (
-                    <div key={week.id} className="bg-gray-100 rounded-2xl p-4 min-w-[374px] max-w-xs">
+                    <div key={week.id} className="bg-gray-100 rounded-2xl p-4 md:min-w-[374px] max-w-xs">
                         <div className="flex items-center justify-between p-2">
                             <h3 className="font-semibold text-[24px]">{week.title}</h3>
                             <button className="text-gray-700 hover:text-black"><Eye size={24} /></button>

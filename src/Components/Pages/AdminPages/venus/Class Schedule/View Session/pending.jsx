@@ -93,7 +93,7 @@ const ViewSessions = ({ item, sessionData }) => {
         {/* Right Content */}
         <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
-          <div className="flex gap-4 border max-w-fit border-gray-300 p-1 rounded-xl  flex-wrap">
+          <div className="md:flex gap-4 border max-w-fit border-gray-300 p-1 rounded-xl  flex-wrap">
             {tabs.map((tab) => (
               <button
                 key={tab}
@@ -147,9 +147,9 @@ const ViewSessions = ({ item, sessionData }) => {
                   </p>
                 </div>
 
-                <div className='flex items-center mb-5 gap-4 '>
+                <div className='md:flex items-center mb-5 gap-4 '>
                   <div>
-                    <img className='min-h-[116px] min-w-[181px]' src="/demo/synco/images/cardimgSmall.png" alt="" />
+                    <img className='md:min-h-[116px] md:min-w-[181px]' src="/demo/synco/images/cardimgSmall.png" alt="" />
                   </div>
                   <div>
                     <h6 className='text-[18px] font-semibold'>Small Side Games</h6>
@@ -158,7 +158,7 @@ const ViewSessions = ({ item, sessionData }) => {
                   </div>
                 </div>
 
-                <div className='flex items-center gap-4 '>
+                <div className='md:flex items-center gap-4 '>
                   <div>
                     <img className='min-h-[116px] min-w-[181px]' src="/demo/synco/images/cardimgSmall.png" alt="" />
                   </div>
@@ -178,7 +178,7 @@ const ViewSessions = ({ item, sessionData }) => {
                 <img
                   src="/demo/synco/images/cardimgSmall.png"
                   alt="Small-sided games"
-                  className="rounded-xl min-w-90 my-6"
+                  className="rounded-xl md:min-w-90 my-6"
                 />
                 <p className="text-blue-500 text-[14px] font-semibold">Time Duration: 10 mins</p>
 

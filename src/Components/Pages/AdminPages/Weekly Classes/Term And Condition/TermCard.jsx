@@ -13,7 +13,7 @@ const TermCard = ({ item, sessionData }) => {
                 </div>
 
                 {/* Term summary & sessions */}
-                <div className="flex  gap-8 flex-1">
+                <div className="md:flex  gap-8 flex-1">
                     {sessionData.map(({ term, icon, sessions }) => (
                         <div key={term} className="flex flex-col gap-2 min-w-[120px]">
                             {/* Term summary */}

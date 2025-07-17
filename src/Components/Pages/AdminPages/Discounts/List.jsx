@@ -14,7 +14,7 @@ const users = new Array(9).fill({
   used: "15",
   status: "Active",
   activity: "2 Days Ago",
-  avatar: "/members/dummyuser.png"
+  avatar: "/demo/synco/members/dummyuser.png"
 });
 
 

@@ -651,7 +651,7 @@ const Create = () => {
                                     <div className="text-right">
                                         <button
                                             onClick={handleSavePlan}
-                                            className="bg-[#237FEA] text-white mt-5 min-w-50 font-semibold px-6 py-2 rounded-lg hover:bg-blue-700"
+                                            className="bg-[#237FEA] text-white mt-5 md:min-w-50 w-full md:w-auto font-semibold px-6 py-2 rounded-lg hover:bg-blue-700"
                                         >
                                             Save Exercise
                                         </button>

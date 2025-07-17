@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
-
+import { verifyToken } from './verifyToken';
 import { Eye, EyeOff, Check } from 'lucide-react';
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -15,87 +15,83 @@ const AdminLogin = () => {
     return /\S+@\S+\.\S+/.test(email);
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+const handleLogin = async (e) => {
+  e.preventDefault();
+  console.log('🔐 Starting login...');
 
-    // Validation
-    if (!email || !password) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Fields',
-        text: 'Please enter both email and password.',
-        confirmButtonColor: '#2563eb',
-      });
-      return;
-    }
+  if (!email || !password) {
+    Swal.fire({ icon: 'warning', title: 'Missing Fields', text: 'Please enter both email and password.' });
+    return;
+  }
 
-    if (!validateEmail(email)) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Invalid Email',
-        text: 'Please enter a valid email address.',
-        confirmButtonColor: '#2563eb',
-      });
-      return;
-    }
+  if (!validateEmail(email)) {
+    Swal.fire({ icon: 'error', title: 'Invalid Email', text: 'Please enter a valid email address.' });
+    return;
+  }
 
-    setLoading(true); // 🔵 Start loading
+  setLoading(true);
 
-    try {
-      const raw = JSON.stringify({ email, password });
+  try {
+    const raw = JSON.stringify({ email, password });
 
-      const requestOptions = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: raw,
-      };
+    const response = await fetch(`https://synconode.onrender.com/api/admin/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: raw,
+    });
 
-      const response = await fetch(
-        'https://synconode.onrender.com/api/admin/auth/login',
-        requestOptions
-      );
-      const result = await response.json();
+    const result = await response.json();
+    console.log('🟢 Login result:', result);
 
-      if (response.ok && result?.data?.token) {
-        localStorage.setItem('adminToken', result.data.token);
-        localStorage.setItem('adminId', result.data.adminId);
-        localStorage.setItem('role', result.data.admin.role);
+    if (response.ok && result?.data?.token) {
+      const token = result.data.token;
+      localStorage.setItem('adminToken', token);
+      localStorage.setItem('adminId', result.data.adminId);
+      localStorage.setItem('role', result.data.admin.role);
 
+      console.log('✅ Token saved:', token);
 
+      const verified = await verifyToken(token);
+      console.log('🔍 Verification result:', verified);
+
+      if (verified) {
         Swal.fire({
           icon: 'success',
           title: 'Login Successful',
           text: 'Redirecting to dashboard...',
-          timer: 2000,
+          timer: 1500,
           showConfirmButton: false,
         });
 
         setTimeout(() => {
+          console.log('➡️ Navigating to dashboard...');
           navigate('/');
-        }, 2000);
+        }, 1500);
       } else {
         Swal.fire({
           icon: 'error',
-          title: 'Login Failed',
-          text: result.message || 'Invalid credentials.',
-          confirmButtonColor: '#dc2626',
+          title: 'Verification Failed',
+          text: 'Token could not be verified.',
         });
       }
-    } catch (error) {
+    } else {
       Swal.fire({
         icon: 'error',
-        title: 'Server Error',
-        text: 'Unable to reach the server. Please try again later.',
-        confirmButtonColor: '#dc2626',
+        title: 'Login Failed',
+        text: result.message || 'Invalid credentials.',
       });
-      console.error('Login Error:', error);
-    } finally {
-      setLoading(false); // 🔵 Stop loading regardless of outcome
     }
-  };
-
+  } catch (error) {
+    console.error('🚨 Login error:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Server Error',
+      text: 'Unable to reach the server.',
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>

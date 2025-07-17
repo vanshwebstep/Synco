@@ -152,7 +152,7 @@ const Create = () => {
           icon: "success",
           title: result.message || "Member Created",
           text: result.message || "New member was added successfully!",
-          timer: 2000,
+          timer: 10000,
           showConfirmButton: false,
         });
 

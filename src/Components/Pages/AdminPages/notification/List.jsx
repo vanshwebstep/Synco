@@ -31,7 +31,7 @@ export default function List() {
         return `${year}/${month}/${day} - ${hours} ${ampm}`;
     }
 
-
+console.log('filtered',filtered)
     return (
         <div className="space-y-5 bg-white p-10 rounded-2xl">
             {filtered.map((item, idx) => (
@@ -42,12 +42,12 @@ export default function List() {
                 >
                     <div key={idx} className=" flex gap-4">
                         <img
-                            src={item.avatar || '/members/dummyuser.png'}
+                            src={item.avatar || '/demo/synco/members/dummyuser.png'}
                             alt={item.name}
                             className="w-12 h-12 rounded-full object-cover"
                         />
                         <div className="">
-                            <p className="font-semibold">{item.name || 'N/A'}</p>
+                            <p className="font-semibold">{item?.admin?.firstName || 'N/A'}</p>
                             <span className="text-[16px] text-[#717073]">
                                 {formatDateTime(item.createdAt)}
                             </span>

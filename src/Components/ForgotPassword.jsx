@@ -154,31 +154,54 @@ const ForgotPassword = () => {
 
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    if (!email || !validateEmail(email)) {
-      alert('Please enter a valid email.');
-      return;
+const fetchWithTimeout = (url, options, timeout = 10000) => {
+  return Promise.race([
+    fetch(url, options),
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out')), timeout)
+    ),
+  ]);
+};
+
+const handleForgotPassword = async (e) => {
+  e.preventDefault();
+
+  if (!email || !validateEmail(email)) {
+    alert('Please enter a valid email.');
+    return;
+  }
+
+  setLoading(true);
+
+  const url = `https://synconode.onrender.coms/api/admin/auth/password/forget`;
+
+  try {
+    console.log('Sending forgot password request to:', url);
+
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const result = await res.json();
+    console.log('Response from server:', result);
+
+    if (res.ok) {
+      setIsModalOpen(true);
+    } else {
+      alert(result.message || 'Failed to send password reset email.');
     }
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/admin/auth/password/forget`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const result = await res.json();
-      if (res.ok) {
-        setIsModalOpen(true);
-      } else {
-        alert(result.message || 'Email send failed.');
-      }
-    } catch (err) {
-      alert('Server error');
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    console.error('Error during forgot password request:', err);
+    alert('Server error: ' + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="w-full flex flex-col md:flex-row min-h-screen">

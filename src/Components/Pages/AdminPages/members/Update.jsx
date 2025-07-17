@@ -124,10 +124,11 @@ const Update = () => {
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, image: file }));
-      setPhotoPreview(URL.createObjectURL(file));
+      setFormData((prev) => ({ ...prev, image: file })); // this is the image to upload
+      setPhotoPreview(URL.createObjectURL(file)); // this is the preview
     }
   };
+
 
   const handleRoleChange = (selected) => {
     if (!selected) return;
@@ -271,53 +272,61 @@ const Update = () => {
     }
   };
 
-  const handleSuspend = async () => {
-    const confirm = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'You are about to suspend this member.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, suspend it!',
-    });
+const handleSuspend = async (status) => {
+  const isSuspending = status === 1; // 1 = suspend, 0 = activate
+  const statusText = isSuspending ? 'suspend' : 'active';
 
-    if (!confirm.isConfirmed) return;
+  const confirm = await Swal.fire({
+    title: 'Are you sure?',
+    text: `You are about to ${statusText} this member.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: `Yes, ${statusText} it!`,
+  });
 
-    const token = localStorage.getItem("adminToken");
-    if (!token) {
-      return Swal.fire("Error", "No token found. Please login again.", "error");
-    }
+  if (!confirm.isConfirmed) return;
 
-    Swal.fire({
-      title: 'Suspending...',
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
+  const token = localStorage.getItem("adminToken");
+  if (!token) {
+    return Swal.fire("Error", "No token found. Please login again.", "error");
+  }
+
+  Swal.fire({
+    title: `${statusText.charAt(0).toUpperCase() + statusText.slice(1)}...`,
+    allowOutsideClick: false,
+    didOpen: () => {
+      Swal.showLoading();
+    },
+  });
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/${id}/status?status=${statusText}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
       },
     });
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/${id}/status?status=suspend`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const result = await response.json();
 
-      const result = await response.json();
-
-      if (response.ok) {
-        Swal.fire("Suspended!", "Member has been suspended successfully.", "success");
-        navigate('/members');
-      } else {
-        Swal.fire("Error", result.message || "Failed to suspend the member.", "error");
-      }
-    } catch (err) {
-      console.error("Suspend error:", err);
-      Swal.fire("Error", "Network or server error occurred.", "error");
+    if (response.ok) {
+      Swal.fire(
+        `${statusText.charAt(0).toUpperCase() + statusText.slice(1)}  !`,
+        `Member has been ${statusText}ed successfully.`,
+        "success"
+      );
+      navigate('/members');
+    } else {
+      Swal.fire("Error", result.message || `Failed to ${statusText} the member.`, "error");
     }
-  };
+  } catch (err) {
+    console.error(`${statusText} error:`, err);
+    Swal.fire("Error", "Network or server error occurred.", "error");
+  }
+};
+
 
 
 
@@ -331,24 +340,29 @@ const Update = () => {
   if (error) return <p className="text-red-500 text-center mt-5">{error}</p>;
 
 
-
   return (
     <div className="md:max-w-[1043px] w-full mx-auto md:p-4 space-y-8">
       <div className="md:flex items-center justify-between bg-white p-6 rounded-2xl border border-[#E2E1E5]">
         <div className="flex items-center gap-4">
-          <div className="relative group cursor-pointer">
+          <div className="relative cursor-pointer w-20 h-20 md:w-[113px] md:h-[113px]">
             <img
               src={
-                formData.profile
-                  ? `${API_BASE_URL}/${formData.profile}`
-                  : '/SidebarLogos/OneTOOne.png'
-                    ? '/SidebarLogos/OneTOOne.png'
-                    : "/SidebarLogos/OneTOOne.png"
+                photoPreview
+                  ? photoPreview
+                  : formData.profile
+                    ? `${API_BASE_URL}/${formData.profile}`
+                    : '/demo/synco/SidebarLogos/OneTOOne.png'
               }
               alt="avatar"
-              className="md:w-[113px] md:h-[113px] w-20 h-20 rounded-full object-cover border"
+              className="w-full h-full rounded-full object-cover border"
             />
 
+            {/* Always visible small circle for Edit */}
+            <div className="absolute bottom-1 md:right-0 bg-black bg-opacity-30 text-white text-xs px-2 py-0.5 whitespace-nowrap rounded-full">
+              Edit Image
+            </div>
+
+            {/* File input over the whole circle */}
             <input
               type="file"
               accept="image/*"
@@ -356,6 +370,10 @@ const Update = () => {
               className="absolute inset-0 opacity-0 cursor-pointer"
             />
           </div>
+
+
+
+
           <div>
             <h2 className="text-[28px] font-semibold pb-1">
               {formData.firstName || formData.name || 'NIL'} {formData.lastName}
@@ -630,11 +648,12 @@ const Update = () => {
         {MyRole === 'Super Admin' && (
           <div className="flex gap-2">
             <button
-              onClick={handleSuspend}
+              onClick={() => handleSuspend(formData.status === 'suspend' ? 0 : 1)}
               className="btn border cursor-pointer border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
             >
-              Suspend
+              {formData.status === 'suspend' ? 'Activate' : 'Suspend'}
             </button>
+
             <button
               onClick={handleDelete}
               className="btn cursor-pointer border border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
@@ -642,6 +661,7 @@ const Update = () => {
               Delete
             </button>
           </div>
+
         )}
 
         <button className="btn bg-[#237FEA] text-white cursor-pointer px-8 py-2 font-semibold rounded-lg text-[14px]" onClick={handleSubmit}>Save</button>

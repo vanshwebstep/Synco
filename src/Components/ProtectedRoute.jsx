@@ -1,10 +1,12 @@
 // components/ProtectedRoute.js
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
   const [authStatus, setAuthStatus] = useState('checking'); // 'checking' | 'allowed' | 'denied'
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -37,12 +39,14 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
           console.warn('Token invalid or expired');
           localStorage.removeItem('adminToken');
           localStorage.removeItem('adminInfo');
+           navigate('/admin-login');
           setAuthStatus('denied');
         }
       } catch (error) {
         console.error('Verification failed:', error);
         localStorage.removeItem('adminToken');
         localStorage.removeItem('adminInfo');
+         navigate('/admin-login');
         setAuthStatus('denied');
       }
     };

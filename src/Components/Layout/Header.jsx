@@ -2,35 +2,64 @@ import React, { useEffect, useState } from 'react';
 import { Menu, X, Search, Bell, ChevronUp, ChevronDown } from 'lucide-react';
 import { useNotification } from '../Pages/AdminPages/contexts/NotificationContext';
 import { useNavigate } from 'react-router-dom';
+import Swal from "sweetalert2";
 
 const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpen }) => {
   const [showNotificationPopup, setShowNotificationPopup] = useState(null);
   const { notification, setNotification, fetchNotification } = useNotification();
+  const currentDate = new Date();
+  const [adminInfo, setAdminInfo] = useState({ firstName: "", lastName: "", role: "" });
+
+  const month = currentDate.toLocaleString("default", { month: "long" }); // e.g., January
+  const day = currentDate.getDate(); // e.g., 8
+  const weekday = currentDate.toLocaleString("default", { weekday: "long" }); // e.g., Monday
+  const year = currentDate.getFullYear(); // e.g., 2024
+  //
   const unreadNotifications = notification.filter(n => !n.isRead);
+  useEffect(() => {
+    const storedAdmin = localStorage.getItem("adminInfo");
+    if (storedAdmin) {
+      try {
+        const parsedAdmin = JSON.parse(storedAdmin);
+        setAdminInfo(parsedAdmin);
+      } catch (e) {
+        console.error("Invalid adminInfo JSON in localStorage:", e);
+      }
+    }
+  }, []);
+
   const notificationCount = unreadNotifications.length;
   const latestUnread = unreadNotifications[0]; // Show the most recent unread
   const navigate = useNavigate();
 
-  const routeTitleMap = {
-    '/': { title: 'Welcome Back', icon: "/demo/synco/images/Welcomeback.png" },
-    '/admin-forgotpassword': { title: 'Welcome Back', icon: "/demo/synco/images/Welcomeback.png" },
-    '/merchandise': { title: 'Welcome Back', icon: "/demo/synco/images/Welcomeback.png" },
-    '/email-management': { title: 'Welcome Back', icon: "/demo/synco/images/Welcomeback.png" },
-    '/recruitment-reports': { title: 'Welcome Back', icon: "/demo/synco/images/Welcomeback.png" },
-    '/templates': { title: 'Welcome Back', icon: "/demo/synco/images/Welcomeback.png" },
-    '/synco-chat': { title: 'Welcome Back', icon: "/demo/synco/images/Welcomeback.png" },
-    '/members': { title: 'Admin Panel', icon: "/demo/synco/members/Category.png" },
-    '/holiday-camps/payment-planManager': { title: 'Configuration' },
-    '/holiday-camps/add-payment-plan-group': { title: 'Welcome Back', icon: "/demo/synco/images/Welcomeback.png" },
-    '/holiday-camps/discounts/list': { title: 'Welcome Back', icon: "/demo/synco/images/Welcomeback.png" },
-    '/notification': { title: 'Welcome Back', icon: "/demo/synco/images/Welcomeback.png" },
-  };
-  const routeInfo =
-    Object.entries(routeTitleMap)
-      .sort((a, b) => b[0].length - a[0].length)
-      .find(([route]) => location.pathname.startsWith(route))?.[1]
-    || { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' };
-  const { title, icon: Icon } = routeInfo;
+const routeTitleMap = {
+  '': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+  'admin-forgotpassword': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+  'merchandise': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+  'email-management': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+  'recruitment-reports': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+  'templates': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+  'weekly-classes': { title: 'Configurtaion',  },
+  'synco-chat': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+  'members': { title: 'Admin Panel'},
+  'holiday-camps/payment-planManager': { title: 'Configuration' },
+  'holiday-camps/add-payment-plan-group': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+  'holiday-camps/discounts': { title: 'Discounts' },
+  'holiday-camps/session-plan-list': { title: 'Configurtaion',},
+  'notification': { title: 'Notification'},
+};
+
+// Extract the part after `/demo/synco/`
+const subPath = location.pathname.split('/demo/synco/')[1] || '';
+
+// Match the longest route
+const routeInfo =
+  Object.entries(routeTitleMap)
+    .sort((a, b) => b[0].length - a[0].length)
+    .find(([route]) => subPath.startsWith(route))?.[1]
+  || { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' };
+
+const { title, icon: Icon } = routeInfo;
 
 
   useEffect(() => {
@@ -38,19 +67,34 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
 
     const interval = setInterval(() => {
       fetchNotification();
-    }, 7000); 
-    
+    }, 7000);
+
     // Clear the interval on component unmount
     return () => clearInterval(interval);
   }, []); // empty deps = run once on mount
-
-    const handleNotificationClick = () => {
+  const handleLogout = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You will be logged out!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, logout",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        localStorage.clear();
+        navigate("/admin-login"); // redirect to dashboard (adjust route if needed)
+      }
+    });
+  };
+  const handleNotificationClick = () => {
     if (notificationCount > 0) {
       setShowNotificationPopup((prev) => !prev);
     } else {
       navigate('/notification');
     }
   };
+
   return (
     <>
       {/* HEADER */}
@@ -59,7 +103,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
 
         {/* Desktop LEFT: Greeting + Welcome */}
         <div className="hidden lg:block">
-          <span className="font-semibold text-[22px] sm:text-[24px] lg:text-[26px]">Hi Nillo!</span>
+          <span className="font-semibold text-[22px] sm:text-[24px] lg:text-[26px]">Hi {adminInfo?.firstName}!</span>
           <h2 className="text-[28px] sm:text-[32px] lg:text-[36px] font-semibold flex gap-2 items-center whitespace-nowrap">
             {title || 'Configuration'}
             {Icon && <img src={Icon} alt="Welcome" className="w-8 h-8 sm:w-10 sm:h-10" />}
@@ -94,7 +138,9 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
                 <ul className="text-sm text-gray-700 divide-y divide-gray-100">
                   <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">My Profile</li>
                   <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">Settings</li>
-                  <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">Logout</li>
+                  <li onClick={handleLogout} className="px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                    Logout
+                  </li>
                 </ul>
               </div>
             )}
@@ -115,20 +161,20 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
           </div>
 
           {/* Notification Bell */}
-        <div
-      onClick={handleNotificationClick}
-      className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center cursor-pointer
+          <div
+            onClick={handleNotificationClick}
+            className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center cursor-pointer
       ${notificationCount > 0 ? "bg-[#FF5A3C] text-white" : "bg-white border border-[#E2E1E5]"}`}
-    >
-      <Bell size={20} />
+          >
+            <Bell size={20} />
 
-      {/* Notification Badge */}
-      {notificationCount > 0 && (
-        <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white text-black text-sm font-semibold flex items-center justify-center shadow-md">
-          {notificationCount}
-        </span>
-      )}
-    </div>
+            {/* Notification Badge */}
+            {notificationCount > 0 && (
+              <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white text-black text-sm font-semibold flex items-center justify-center shadow-md">
+                {notificationCount}
+              </span>
+            )}
+          </div>
 
           {/* Notification Popup */}
           {showNotificationPopup && notificationCount > 0 && latestUnread && (
@@ -140,7 +186,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
                 {latestUnread.description}
               </p>
               <a
-                href="/notification"
+                href="/demo/synco/notification"
                 className="text-[#237FEA] text-[16px] font-semibold mt-2 inline-block underline"
               >
                 See more
@@ -151,9 +197,11 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
           {/* Date + Profile */}
           <div className="flex items-start sm:items-center justify-between w-full sm:w-auto">
             {/* Date */}
-            <div className="hidden sm:block text-sm text-gray-600 border-r border-gray-300 pr-4 mr-4">
-              <span className="block text-base text-gray-800 font-semibold">January</span>
-              <span className="font-semibold text-gray-600">8 Monday 2024</span>
+            <div className="block text-sm text-gray-600 border-r border-gray-300 pr-4 mr-4">
+              <span className="block text-base text-gray-800 font-semibold">{month}</span>
+              <span className="font-semibold text-gray-600">
+                {day} {weekday} {year}
+              </span>
             </div>
 
             {/* Profile Info + Dropdown */}
@@ -167,10 +215,12 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
                 </div>
                 <div className="block text-start">
                   <div className="flex items-center gap-1">
-                    <span className="text-base font-semibold leading-[1px]">Nilo V Bagga</span>
+                    <span className="text-base font-semibold leading-[1px]">
+                      {adminInfo?.firstName} {adminInfo?.lastName}
+                    </span>
                     {profileOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </div>
-                  <span className="text-sm text-gray-600 font-semibold">Super Admin</span>
+                  <span className="text-sm text-gray-600 font-semibold">{adminInfo?.role}</span>
                 </div>
               </div>
 
@@ -179,7 +229,9 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
                   <ul className="text-sm text-gray-700 divide-y divide-gray-100">
                     <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">My Profile</li>
                     <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">Settings</li>
-                    <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">Logout</li>
+                    <li onClick={handleLogout} className="px-4 py-2 hover:bg-gray-50 cursor-pointer">
+                      Logout
+                    </li>
                   </ul>
                 </div>
               )}

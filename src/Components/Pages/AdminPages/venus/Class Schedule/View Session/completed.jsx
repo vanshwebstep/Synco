@@ -125,18 +125,18 @@ const ViewSessions = ({ item, sessionData }) => {
                                         key={idx}
                                         className="py-3 border-b border-gray-200 hover:bg-gray-50 transition-colors"
                                     >
-                                        <div className="flex w-full md:w-8/12 items-center justify-between">
+                                        <div className="md:flex w-full md:w-8/12 items-center justify-between">
                                             {/* Name & Duration */}
-                                            <div className="flex w-5/12 justify-between items-center">
+                                            <div className="md:flex  md:w-5/12 space-x-2 justify-between items-center">
                                                 <span className="font-semibold text-[14px]">{idx + 1}. John Smith</span>
                                                 <span className="font-semibold text-[14px]">7 Years</span>
                                             </div>
 
                                             {/* Attendance Status */}
-                                            <div className="flex items-center gap-2">
+                                            <div className="md:flex space-y-2 md:space-y-0 items-center gap-2">
                                                 <button
                                                     onClick={() => toggleAttendance(idx, true)}
-                                                    className={`px-3 py-1 text-sm rounded-lg flex items-center gap-1 transition-colors 
+                                                    className={`px-3 py-1 text-sm  md:w-auto w-full  rounded-lg flex items-center gap-1 transition-colors 
                     ${attended
                                                             ? 'bg-[#34AE56] text-white hover:bg-green-600'
                                                             : 'bg-gray-200 text-gray-500 hover:bg-green-100 hover:text-green-700'}`}
@@ -146,7 +146,7 @@ const ViewSessions = ({ item, sessionData }) => {
                                                 </button>
                                                 <button
                                                     onClick={() => toggleAttendance(idx, false)}
-                                                    className={`px-3 py-1 text-sm rounded-lg   flex items-center gap-1 transition-colors 
+                                                    className={`px-3 py-1 text-sm rounded-lg  md:w-auto w-full flex items-center gap-1 transition-colors 
                     ${!attended
                                                             ? 'bg-[#FF5C40] text-white hover:bg-red-600'
                                                             : 'bg-gray-200 text-gray-500 hover:bg-red-100 hover:text-red-700'}`}

@@ -122,7 +122,7 @@ export default function NotificationList() {
         { value: "all", label: "All" },
         ...members.map((member) => ({
             value: member.id,
-            label: member.name || member.firstName,
+          label: `${member.name || member.firstName} (${member.email})`,
         })),
     ];
     useEffect(() => {
@@ -223,13 +223,13 @@ export default function NotificationList() {
 
                                         <td className="p-4 whitespace-nowrap">
                                             <div className="flex w-full -space-x-2 overflow-auto">
-                                                {item.reads.slice(0, 4).map((read, i) => (
+                                                {item?.reads?.slice(0, 4).map((read, i) => (
                                                     <img
                                                         key={i}
                                                         src={
                                                             read?.member?.profile
                                                                 ? `${API_BASE_URL}/${read.member.profile}`
-                                                                : "/SidebarLogos/OneTOOne.png"
+                                                                : "/demo/synco/SidebarLogos/OneTOOne.png"
                                                         }
                                                         alt={read?.member?.firstName || "User"}
                                                         title={read?.member?.firstName || "User"}
@@ -237,7 +237,7 @@ export default function NotificationList() {
                                                     />
 
                                                 ))}
-                                                {item.reads.length > 4 && (
+                                                {item?.reads?.length > 4 && (
                                                     <div
                                                         className="w-8 h-8 rounded-full text-xs flex items-center justify-center text-white bg-cover bg-center relative"
                                                         style={{
@@ -245,7 +245,7 @@ export default function NotificationList() {
                                                         }}
                                                     >
                                                         <div className="absolute inset-0 text-black rounded-full flex items-center justify-center text-xs">
-                                                            +{item.reads.length - 4}
+                                                            +{item?.reads?.length - 4}
                                                         </div>
                                                     </div>
                                                 )}

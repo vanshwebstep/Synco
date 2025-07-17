@@ -21,6 +21,7 @@ const routeTitleMap = {
   '/weekly-classes/term-dates/create': { title: 'Term Dates & Session Plan Mapping', icon: '/demo/synco/members/Category.png' },
   '/weekly-classes/venues/class-schedule': { title: 'Class Schedule ', icon: '/demo/synco/members/Category.png' },
   '/holiday-camps/session-plan-list': { title: 'Session Plan Library ', icon: '/demo/synco/members/Document.png' },
+  '/weekly-classes/venues': { title: 'Venues', icon: '/demo/synco/members/Category.png' },
 
 };
 

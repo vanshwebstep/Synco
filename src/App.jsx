@@ -8,6 +8,8 @@ import {
 } from 'react-router-dom';
 
 import AdminLogin from './Components/AdminLogin.jsx';
+import ResetPassword from './Components/ResetPassword.jsx';
+
 import ForgotPassword from './Components/ForgotPassword.jsx';
 import AdminLayout from './Components/Layout/AdminLayout.jsx';
 import ProtectedRoute from './Components/ProtectedRoute.jsx';
@@ -43,81 +45,7 @@ import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueConte
 
 import './App.css';
 
-// ----------------- MENU CONFIG -----------------
-const commonRole = ['Admin', 'user', 'Member','Agent' ,'Super Admin'];
 
-const menuItems = [
-  {
-    title: 'Dashboard',
-    icon: '/SidebarLogos/Dashboard.png',
-    iconHover: '/SidebarLogos/DashboardH.png',
-    link: '/',
-    role: commonRole
-  },
-  {
-    title: 'Weekly Classes',
-    icon: '/SidebarLogos/WeeklyClasses.png',
-    iconHover: '/SidebarLogos/WeeklyClassesH.png',
-    link: '/weekly-classes',
-    role: commonRole,
-    subItems: [
-       { title: 'Find a class', link: '/weekly-classes/find-a-class', role: commonRole },
-      { title: 'Venues', link: '/weekly-classes/venues' },
-      { title: 'Class Schedule', link: '/weekly-classes/venues/class-schedule' },
-      { title: 'View Session Plans', link: '/weekly-classes/venues/class-schedule/view-session-plans' },
-      { title: 'Term Dates & Session Plan mapping', link: '/weekly-classes/term-dates/list' }
-    ]
-  },
-    {
-    title: 'One to One',
-    icon: '/SidebarLogos/OneTOOne.png',
-    iconHover: '/SidebarLogos/OneTOOneH.png',
-    role: commonRole,
-    subItems: [
-      {
-        title: 'Leads',
-        subItems: [
-          { title: 'Leads Database', link: '/notification-list', role: commonRole },
-          { title: 'Add New Lead', link: '#', role: commonRole }
-        ]
-      },
-      {
-        title: 'Sales',
-        subItems: [
-          { title: 'Sale X', link: '/one-to-one/sales/x', role: commonRole },
-          { title: 'Sale Y', link: '/one-to-one/sales/y', role: commonRole }
-        ]
-      }
-    ]
-  },
-  {
-    title: 'Holiday Camps',
-    icon: '/SidebarLogos/Holiday.png',
-    iconHover: '/SidebarLogos/HolidayH.png',
-    link: '/holiday-camps',
-    role: commonRole,
-    subItems: [
-      { title: 'Session Plan Library', link: '/holiday-camps/session-plan-list', role: commonRole },
-      { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager', role: commonRole },
-      { title: 'Add Payment Plan Group', link: '/holiday-camps/add-payment-plan-group', role: commonRole },
-      { title: 'Discounts', link: '/holiday-camps/discounts/list', role: commonRole }
-    ]
-  },
-  {
-    title: 'Notification',
-    icon: '/SidebarLogos/Notification.png',
-    iconHover: '/SidebarLogos/NotificationH.png',
-    link: '/notification-list',
-    role: commonRole
-  },
-  {
-    title: 'Administration',
-    icon: '/SidebarLogos/Admistration.png',
-    iconHover: '/SidebarLogos/AdmistrationH.png',
-    link: '/members',
-    role: ['Admin','Super Admin']
-  }
-];
 
 // ----------------- ALLOWED PATHS -----------------
 const getAllowedBasePathsFromMenu = (items, role) => {
@@ -138,6 +66,8 @@ const AuthRoutes = () => {
         <Routes>
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin-ForgotPassword" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
         </Routes>
       </div>
     </div>
@@ -147,7 +77,7 @@ const AuthRoutes = () => {
 // ----------------- MAIN ROUTES -----------------
 const AppRoutes = () => {
   const location = useLocation();
-  const isAuth = ['/admin-login', '/admin-ForgotPassword'].includes(location.pathname);
+  const isAuth = ['/admin-login','/reset-password',  '/admin-ForgotPassword'].includes(location.pathname);
 
   if (isAuth) return <AuthRoutes />;
 
@@ -155,7 +85,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/" element={<AdminLayout><ProtectedRoute><Dashboard /></ProtectedRoute></AdminLayout>} />
       <Route path="/dashboard" element={<AdminLayout><ProtectedRoute><Dashboard /></ProtectedRoute></AdminLayout>} />
-      <Route path="/members" element={<AdminLayout><ProtectedRoute><MemberList /></ProtectedRoute></AdminLayout>} />
+      <Route path="/members/List" element={<AdminLayout><ProtectedRoute><MemberList /></ProtectedRoute></AdminLayout>} />
       <Route path="/members/update" element={<AdminLayout><ProtectedRoute><Update /></ProtectedRoute></AdminLayout>} />
 
       <Route path="/holiday-camps/payment-planManager" element={<AdminLayout><ProtectedRoute><PaymentPlanManagerList /></ProtectedRoute></AdminLayout>} />

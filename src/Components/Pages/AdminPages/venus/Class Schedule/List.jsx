@@ -115,7 +115,7 @@ const List = () => {
             facility: "Indoor",
         },
     ];
-    
+
     const [isEditing, setIsEditing] = useState(false);
     const [value, setValue] = useState('Some text');
 
@@ -175,7 +175,7 @@ const List = () => {
 
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
-            <div className={`flex pe-4 justify-between items-center mb-4 w-full`}>
+            <div className={`md:flex pe-4 justify-between items-center mb-4 w-full`}>
                 <h2 className="text-[28px] font-semibold">Class Schedule</h2>
                 <button
                     onClick={() => handleAddNew()}
@@ -282,41 +282,49 @@ const List = () => {
                                                                     {term.sessions.map((session) => (
                                                                         <div
                                                                             key={session.id}
-                                                                            className="flex flex-wrap gap-4 justify-between items-center border-b border-gray-300 mb-3 px-8 py-2"
+                                                                            className="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-4 justify-between items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
                                                                         >
-                                                                            <div className="flex items-center gap-2 text-sm mb-2 md:mb-0">
-                                                                                <span className="text-[16px]  md:min-w-[200px] font-semibold">{session.title}</span>
-                                                                                <span className="text-[16px] min-w-[200px] ">{session.date}</span>
+                                                                            {/* Title and Date */}
+                                                                            <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm w-full md:w-auto">
+                                                                                <span className="text-[15px] font-semibold min-w-0 md:min-w-[200px]">{session.title}</span>
+                                                                                <span className="text-[15px] min-w-0 md:min-w-[200px] text-gray-600">{session.date}</span>
                                                                             </div>
 
-                                                                            <div className="flex items-center min-w-[100px] gap-2 text-xs">
-                                                                                <span className="rounded-full flex gap-2 text-[16px] items-center font-medium">
-                                                                                    <img src="/demo/synco/icons/complete.png " className='w-4 h-4' alt="" /> {session.status}
+                                                                            {/* Status */}
+                                                                            <div className="flex items-center gap-2 text-sm mt-2 md:mt-0 w-full md:w-auto">
+                                                                                <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
+                                                                                    <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="" />
+                                                                                    {session.status}
                                                                                 </span>
                                                                             </div>
 
-                                                                            <div className="flex gap-2 mt-2 md:mt-0">
+                                                                            {/* Action Buttons */}
+                                                                            <div className="flex flex-col sm:flex-row gap-2 mt-3 md:mt-0 w-full md:w-auto">
                                                                                 <button
                                                                                     onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/pending')}
-                                                                                    className="bg-blue-500 font-semibold hover:bg-white hover:text-blue-500 border-2 border-transparent hover:border-blue-500 text-[16px] text-white px-3 py-2 rounded-xl"
+                                                                                    className="bg-blue-500 font-semibold hover:bg-white hover:text-blue-500 border-2 border-transparent hover:border-blue-500 text-[15px] text-white px-3 py-2 rounded-xl transition"
                                                                                 >
                                                                                     View Session Plans
                                                                                 </button>
 
                                                                                 <button
-                                                                                onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/completed')}
-                                                                                className="hover:bg-blue-500 font-semibold  bg-white text-blue-500 border-3 hover:border-transparent border-blue-500 text-[16px] hover:text-white px-3 py-2 rounded-xl">
+                                                                                    onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/completed')}
+                                                                                    className="hover:bg-blue-500 font-semibold bg-white text-blue-500 border-2 hover:border-transparent border-blue-500 text-[15px] hover:text-white px-3 py-2 rounded-xl transition"
+                                                                                >
                                                                                     View Class Register
                                                                                 </button>
+
                                                                                 <button
-                                                                                onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/cancel')}
-                                                                                 className="bg-[#FE7058] font-semibold hover:bg-white hover:text-[#FE7058] border-3 border-transparent hover:border-[#FE7058] text-[16px] text-white px-3 py-2 rounded-xl">
+                                                                                    onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/cancel')}
+                                                                                    className="bg-[#FE7058] font-semibold hover:bg-white hover:text-[#FE7058] border-2 border-transparent hover:border-[#FE7058] text-[15px] text-white px-3 py-2 rounded-xl transition"
+                                                                                >
                                                                                     Cancel Session
                                                                                 </button>
                                                                             </div>
                                                                         </div>
                                                                     ))}
                                                                 </div>
+
                                                             </div>
                                                         ))}
                                                     </div>

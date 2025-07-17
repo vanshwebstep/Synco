@@ -172,7 +172,7 @@ const Create = () => {
                             <input
                                 type="text"
                                 placeholder="Enter Term Group Name"
-                                className="w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                     </div>
@@ -223,10 +223,10 @@ const Create = () => {
                                                 onChange={(e) =>
                                                     handleInputChange(term.id, 'name', e.target.value)
                                                 }
-                                                className="w-1/2 px-4 mb-5 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="md:w-1/2 px-4 mb-5 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
 
-                                            <div className="flex gap-4 mb-5 justify-between">
+                                            <div className="md:flex gap-4 mb-5 justify-between">
                                                 <div className="w-full">
                                                     <label className="block text-base font-semibold text-gray-700 mb-2">
                                                         Start Date
@@ -257,7 +257,7 @@ const Create = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="flex gap-4 mb-5 justify-between">
+                                            <div className="md:flex gap-4 mb-5 justify-between">
                                                 <div className="w-full">
                                                     <label className="block text-base font-semibold text-gray-700 mb-2">
                                                         Exclusion Date(s)
@@ -309,7 +309,7 @@ const Create = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="w-1/2 mb-4">
+                                            <div className="md:w-1/2 mb-4">
                                                 <button
                                                     className="flex w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
                                                     onClick={() => addExclusionDate(term.id)}
@@ -324,15 +324,15 @@ const Create = () => {
                                             )}
 
                                             <div className="flex gap-4 justify-between">
-                                                <div className="w-full" />
-                                                <div className="w-full flex items-center gap-2">
+                                                <div className="w-full md:block hidden " />
+                                                <div className="w-full md:flex items-center gap-2 space-y-2 md:space-y-0">
                                                     <button
-                                                        className="flex whitespace-nowrap w-4/12 items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-blue-50"
+                                                        className="flex whitespace-nowrap md:w-4/12 w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-blue-50"
                                                         onClick={handleMapSession}
                                                     >
                                                         Map Session
                                                     </button>
-                                                    <button className="bg-[#237FEA] text-white text-[14px] w-8/12 font-semibold px-6 py-3 rounded-lg hover:bg-blue-700">
+                                                    <button className="bg-[#237FEA] text-white text-[14px] md:w-8/12 w-full font-semibold px-6 py-3 rounded-lg hover:bg-blue-700">
                                                         Save
                                                     </button>
                                                 </div>
@@ -395,13 +395,13 @@ const Create = () => {
                                 className="rounded-2xl mb-5 bg-white md:p-6"
                             >
                                 <div className="border border-gray-200 rounded-3xl px-4 py-3">
-                                    <div className="flex items-center justify-between mb-2">
+                                    <div className="md:flex items-center justify-between mb-2">
                                         <label className="block text-[22px] font-semibold">
                                             {activeTerm.name}
                                         </label>
                                     </div>
 
-                                    <div className="flex items-start gap-5 justify-between">
+                                    <div className="md:flex items-start gap-5 justify-between">
                                         {/* Session Date Column */}
                                         <div className="w-full">
                                             <label className="text-base">Session Date</label>

@@ -60,9 +60,9 @@ const RoleModal = () => {
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Select Permissions
             </label>
-            <div className="flex gap-3 items-center max-h-40 overflow-y-auto pr-1 flex-wrap">
+            <div className="block gap-3 items-center max-h-40 overflow-y-auto pr-1 flex-wrap">
               {roleOptions.map((role) => (
-                <label key={role.value} className="inline-flex items-center gap-2 text-sm text-gray-800">
+                <label key={role.value} className="inline-flex w-full items-center gap-2 text-sm text-gray-800">
                   <input
                     type="checkbox"
                     checked={permissions.includes(role.label)}
@@ -71,6 +71,7 @@ const RoleModal = () => {
                   />
                   {role.label}
                 </label>
+         
               ))}
             </div>
           </div>

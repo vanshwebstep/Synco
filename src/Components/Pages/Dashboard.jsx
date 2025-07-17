@@ -101,13 +101,9 @@ const Dashboard = () => {
             <div className="w-full lg:w-8/12">
               {/* Welcome Banner */}
               <div
-                className="bg-yellow-300 rounded-3xl p-4 sm:p-6 py-10 sm:py-12 flex flex-col sm:flex-row justify-between items-center text-white relative overflow-hidden"
-                style={{
-                  backgroundImage: `url(/demo/synco/images/welcomeToDashboard.png)`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'left',
-                  backgroundSize: 'contain',
-                }}
+                 className="bg-yellow-300 rounded-3xl p-6 md:py-12 pb-5 flex justify-between items-center text-white relative overflow-hidden 
+             md:bg-[url('/demo/synco/images/welcomeToDashboard.png')] bg-none 
+             bg-no-repeat bg-left bg-contain"
               >
                 <div className="text-center sm:text-end w-full">
                   <h2 className="text-[18px] sm:text-[24px] font-semibold text-black z-10">Monday 3rd June 2025</h2>
@@ -139,8 +135,8 @@ const Dashboard = () => {
 
                       {(metric.title === "Cancellations" || metric.title === "Growth") && (
                         <div className="flex justify-end gap-2 items-start">
-                          <img className="w-6 h-6" src='DashboardIcons/Show.png' alt="" />
-                          <img className="w-5 h-5" src='DashboardIcons/button.png' alt="" />
+                          <img className="w-6 h-6" src='/demo/synco/DashboardIcons/Show.png' alt="" />
+                          <img className="w-5 h-5" src='/demo/synco/DashboardIcons/button.png' alt="" />
                         </div>
                       )}
                     </div>
@@ -148,7 +144,7 @@ const Dashboard = () => {
                     <div className="flex flex-wrap justify-start gap-4 items-end">
                       <div className="text-xs text-gray-400 mt-2 block">
                         <span className="font-semibold text-black flex items-center gap-2">
-                          <img src='DashboardIcons/orangedot.png' alt="" /> Last Month
+                          <img src='/demo/synco/DashboardIcons/orangedot.png' alt="" /> Last Month
                         </span>
                         <span className="text-red-500 font-semibold bg-red-100 p-1 rounded-lg flex justify-center mt-2">
                           -0.56% <img src='/demo/synco/images/ArrowFall.png' alt="" />
@@ -156,7 +152,7 @@ const Dashboard = () => {
                       </div>
                       <div className="text-xs text-gray-400 block">
                         <span className="font-semibold text-black flex items-center gap-2">
-                          <img src='DashboardIcons/greendot.png' alt="" /> This Week
+                          <img src='/demo/synco/DashboardIcons/greendot.png' alt="" /> This Week
                         </span>
                         <span className="text-green-500 font-semibold bg-gray-100 p-1 rounded-lg flex justify-center mt-2">
                           +5.27% <img src='/demo/synco/images/Arrowtop.png' alt="" />
@@ -177,7 +173,7 @@ const Dashboard = () => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter by date</h3>
                   <button className="flex gap-2 items-center bg-blue-500 text-white px-3 py-2 rounded-lg text-sm sm:text-[16px]">
-                    <img src='DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                     Apply filter
                   </button>
                 </div>
@@ -298,18 +294,12 @@ const Dashboard = () => {
           <div className="flex flex-col lg:flex-row mt-6 gap-6">
             {/* Main Content */}
             <div className="w-full lg:w-8/12">
-              {/* Welcome Banner */}
-              <div
-                className="bg-yellow-300 rounded-3xl p-6 py-12 pb-5 flex justify-between items-center text-white relative overflow-hidden"
-                style={{
+         <div
+  className="bg-yellow-300 rounded-3xl p-6 md:py-12 pb-5 flex justify-between items-center text-white relative overflow-hidden 
+             md:bg-[url('/demo/synco/images/welcomeToDashboard.png')] bg-none 
+             bg-no-repeat bg-left bg-contain"
+>
 
-                  backgroundImage: `url(/demo/synco/images/welcomeToDashboard.png)`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'left',
-                  backgroundSize: 'contain',
-
-                }}
-              >
                 <div className="md:text-end w-full">
                   <h2 className="md:text-[24px] font-semibold text-black z-10">Monday 3rd June 2025</h2>
                   <h5 className="md:text-[28px] font-bold z-10 text-black">Welcome to your dashboard, USER</h5>
@@ -334,7 +324,7 @@ const Dashboard = () => {
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <h3 className="font-semibold text-[24px]">Filter by date</h3>
                   <button className="flex gap-2 items-center bg-blue-500 text-white p-2 rounded-lg text-[16px]">
-                    <img src='DashboardIcons/filtericon.png' className='w-5 h-5' alt="" />  Apply filter
+                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-5 h-5' alt="" />  Apply filter
                   </button>
                 </div>
 
