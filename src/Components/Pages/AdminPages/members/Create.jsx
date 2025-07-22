@@ -142,19 +142,24 @@ const Create = () => {
         if (!response.ok) {
           Swal.fire({
             icon: "error",
-            title: result.message||"Failed to Add Member",
+            title: "Failed to Add Member",
             text: result.message || "Something went wrong.",
           });
           return;
+        }
+        let additionalMessage = "";
+        if (result.data.emailSent === 1) {
+          additionalMessage = " A reset password link has been sent to your registered email address.";
         }
 
         Swal.fire({
           icon: "success",
           title: result.message || "Member Created",
-          text: result.message || "New member was added successfully!",
+          text: (result.message || "New member was added successfully!") + additionalMessage,
           timer: 10000,
           showConfirmButton: false,
         });
+
 
         fetchMembers();
 
@@ -260,28 +265,28 @@ const Create = () => {
         </div>
 
         <div className="relative">
-      <label className="block text-sm font-semibold text-[#282829]">
-        Password
-      </label>
-      <input
-        type={showPassword ? "text" : "password"}
-        name="password"
-        value={formData.password}
-        onChange={handleInputChange}
-        className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <button
-        type="button"
-        onClick={() => setShowPassword(!showPassword)}
-        className="absolute right-3 top-11 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-      >
-        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-      </button>
+          <label className="block text-sm font-semibold text-[#282829]">
+            Password
+          </label>
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-11 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
 
-      {errors.password && (
-        <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-      )}
-    </div>
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+          )}
+        </div>
 
 
         <div>

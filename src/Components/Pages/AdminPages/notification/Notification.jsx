@@ -13,9 +13,10 @@ export default function Notification() {
       </div>
       <div className="md:flex gap-5 bg-gray-50">
         <Sidebar />
-        <div className="md:w-9/12 mt-5 md:mt-0 overflow-y-auto">
+        <div className="md:w-9/12 mt-5 md:mt-0 overflow-y-auto break-words overflow-x-hidden">
           <List />
         </div>
+
       </div>
     </>
   );

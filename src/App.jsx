@@ -44,6 +44,7 @@ import { NotificationProvider } from './Components/Pages/AdminPages/contexts/Not
 import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueContext.jsx';
 
 import './App.css';
+import { TermDatesSessionProvider } from './Components/Pages/AdminPages/contexts/TermDatesSessionContext.jsx';
 
 
 
@@ -128,7 +129,10 @@ function App() {
             <PaymentPlanContextProvider>
               <DiscountContextProvider>
                 <SessionPlanContextProvider>
+                <TermDatesSessionProvider>
+
                 <AppRoutes />
+               </TermDatesSessionProvider>
                 </SessionPlanContextProvider>
               </DiscountContextProvider>
             </PaymentPlanContextProvider>

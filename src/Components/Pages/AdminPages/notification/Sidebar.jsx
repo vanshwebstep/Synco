@@ -23,27 +23,33 @@ const allTabs = ["All", ...validCategories];
 
 export default function Sidebar() {
   const { activeTab, setActiveTab } = useMembers();
-  const { notification  } = useNotification();
+  const { notification, customnotificationAll } = useNotification();
 
-  // 🔍 Filter only unread notifications
-  const unreadNotifications = notification.filter(n => !n.isRead);
+  // ✅ Merge and sanitize notifications
+  const mergedNotifications = [...notification, ...customnotificationAll].map(n => ({
+    ...n,
+    category: (typeof n.category === "string" ? n.category.trim() : "") || "System"
+  }));
 
-  // 🔢 Count unread notifications per category
+  // ✅ Filter unread only
+  const unreadNotifications = mergedNotifications.filter(n => !n.isRead);
+
+  // ✅ Count unread per category
   const categoryCounts = unreadNotifications.reduce((acc, curr) => {
     const cat = curr.category;
-    if (acc[cat]) {
-      acc[cat]++;
-    } else {
-      acc[cat] = 1;
-    }
+    acc[cat] = (acc[cat] || 0) + 1;
     return acc;
   }, {});
 
+  // Optional: Sort categories with unread items first
+  // const sortedTabs = [...allTabs].sort((a, b) => (categoryCounts[b] || 0) - (categoryCounts[a] || 0));
+  const tabsToDisplay = allTabs; // or use sortedTabs for sorting
+
   return (
-    <div className="md:w-3/12 lg:w-[508px] bg-white rounded-2xl">
+    <div className="md:w-3/12 bg-white rounded-2xl">
       <h2 className="text-[24px] font-semibold mb-4 px-7 pt-5">Categories</h2>
       <ul className="space-y-2">
-        {allTabs.map((tabLabel) => {
+        {tabsToDisplay.map((tabLabel) => {
           const count =
             tabLabel === "All"
               ? unreadNotifications.length

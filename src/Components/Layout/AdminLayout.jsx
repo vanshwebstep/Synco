@@ -42,7 +42,7 @@ const AdminLayout = ({ children }) => {
   return (
     <div className="flex">
       <Sidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
-      <div className="flex-1 w-full flex flex-col px-6 bg-gray-50">
+      <div className="flex-1 w-full flex flex-col px-6 bg-gray-50 md:w-10/12">
         <Header
           profileOpen={profileOpen}
           setProfileOpen={setProfileOpen}

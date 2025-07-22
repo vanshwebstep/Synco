@@ -45,7 +45,7 @@ const routeTitleMap = {
   'holiday-camps/payment-planManager': { title: 'Configuration' },
   'holiday-camps/add-payment-plan-group': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
   'holiday-camps/discounts': { title: 'Discounts' },
-  'holiday-camps/session-plan-list': { title: 'Configurtaion',},
+  'holiday-camps/session-plan': { title: 'Configurtaion',},
   'notification': { title: 'Notification'},
 };
 

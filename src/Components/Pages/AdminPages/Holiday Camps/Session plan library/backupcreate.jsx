@@ -67,10 +67,12 @@ const Create = () => {
     const handleBannerChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setBannerFile(file);
+            setBannerFile(file); 
 
         }
     };
+    console.log('bannerfile',bannerFile)
+    console.log('selectedGroup',selectedGroup)
 
     const handleCreateSession = () => {
         if (isProcessing) return;
@@ -90,6 +92,7 @@ const Create = () => {
             bannerFile,
             sessionExerciseIds: selectedPlans.map(plan => plan.id),
         };
+        console.log('currentLevel', currentLevel)
         setLevels((prevLevels) => {
             const existingIndex = prevLevels.findIndex((lvl) => lvl.level == activeTab);
             const updated = [...prevLevels];
@@ -99,6 +102,7 @@ const Create = () => {
             } else {
                 updated.push(currentLevel);
             }
+            console.log('updated', updated)
             handleNextTabOrSubmit(updated);
 
             return updated;
@@ -108,68 +112,89 @@ const Create = () => {
     };
 
     const handleNextTabOrSubmit = (updatedLevels) => {
-        console.log('➡️ handleNextTabOrSubmit called');
-        console.log('Current tab:', activeTab);
-        console.log('Updated levels:', updatedLevels);
+        const nextIndex = tabs.findIndex((tab) => tab == activeTab) + 1;
 
-        const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
-        const isLastTab = nextIndex >= tabs.length;
+        // ✅ If in edit mode, always submit and skip tab switching
+        if (isEditMode && id && level) {
+            const transformed = {
+                groupName: groupNameSection,
+                levels: {},
+            };
 
-        // Build common transformed data
-        const transformed = {
-            groupName: groupNameSection,
-            levels: {},
-        };
-
-        const allMediaFiles = {};
-
-        updatedLevels.forEach((item) => {
-            const levelKey = item.level.replace(/s$/i, '').toLowerCase();
-
-            if (!transformed.levels[levelKey]) {
-                transformed.levels[levelKey] = [];
-            }
-
-            // Only keep non-media fields inside levels
-            transformed.levels[levelKey].push({
-                player: item.player,
-                skillOfTheDay: item.skillOfTheDay,
-                description: item.descriptionSession,
-                sessionExerciseId: item.sessionExerciseIds,
+            updatedLevels.forEach((item) => {
+                const levelKey = item.level.replace(/s$/i, '');
+                if (!transformed.levels[levelKey]) {
+                    transformed.levels[levelKey] = [];
+                }
+                transformed.levels[levelKey].push({
+                    player: item.player,
+                    video: item.videoFile,
+                    banner: item.bannerFile,
+                    skillOfTheDay: item.skillOfTheDay,
+                    description: item.descriptionSession,
+                    sessionExerciseId: item.sessionExerciseIds || [],
+                });
             });
 
-            // Store media files separately
-            allMediaFiles[levelKey] = {
-                banner: item.bannerFile,
-                video: item.videoFile,
+            const allMediaFiles = {};
+            updatedLevels.forEach((item) => {
+                const levelKey = item.level.replace(/s$/i, '').toLowerCase();
+                allMediaFiles[levelKey] = {
+                    banner: item.bannerFile,
+                    video: item.videoFile,
+                };
+            });
+
+            Object.entries(allMediaFiles).forEach(([levelKey, media]) => {
+                transformed[`${levelKey}_video`] = media.video || null;
+                transformed[`${levelKey}_banner`] = media.banner || null;
+            });
+
+            console.log("✅ Final Transformed Session Data (Edit Mode):", transformed);
+            updateDiscount(id, transformed);
+            return; // 🚫 Stop further execution
+        }
+
+        // ✅ Normal flow (non-edit mode)
+        if (nextIndex >= tabs.length) {
+            const transformed = {
+                groupName: groupNameSection,
+                levels: {},
             };
-        });
 
+            updatedLevels.forEach((item) => {
+                const levelKey = item.level.replace(/s$/i, '');
+                if (!transformed.levels[levelKey]) {
+                    transformed.levels[levelKey] = [];
+                }
+                transformed.levels[levelKey].push({
+                    player: item.player,
+                    video: item.videoFile,
+                    banner: item.bannerFile,
+                    skillOfTheDay: item.skillOfTheDay,
+                    description: item.descriptionSession,
+                    sessionExerciseId: item.sessionExerciseIds || [],
+                });
+            });
 
-        console.log('allMediaFiles', allMediaFiles)
-        // Add media fields outside of levels only if they're Files (skip URLs)
-        Object.entries(allMediaFiles).forEach(([levelKey, media]) => {
-            if (media.video instanceof File) {
-                transformed[`${levelKey}_video`] = media.video;
-            }
-            if (media.banner instanceof File) {
-                transformed[`${levelKey}_banner`] = media.banner;
-            }
-        });
+            const allMediaFiles = {};
+            updatedLevels.forEach((item) => {
+                const levelKey = item.level.replace(/s$/i, '').toLowerCase();
+                allMediaFiles[levelKey] = {
+                    banner: item.bannerFile,
+                    video: item.videoFile,
+                };
+            });
 
+            Object.entries(allMediaFiles).forEach(([levelKey, media]) => {
+                transformed[`${levelKey}_video`] = media.video || null;
+                transformed[`${levelKey}_banner`] = media.banner || null;
+            });
 
-        // Submit if in edit mode or final tab
-        if ((isEditMode && id && level) || isLastTab) {
-            console.log(`📤 Submitting ${isEditMode ? 'updated' : 'new'} session group:`, transformed);
-
-            if (isEditMode && id && level) {
-                updateDiscount(id, transformed);
-            } else {
-                createSessionGroup(transformed);
-            }
+            console.log("✅ Final Transformed Session Data (Create Mode):", transformed);
+            createSessionGroup(transformed);
         } else {
-            // ⏭ Move to next tab
-            console.log(`➡️ Moving to next tab: ${tabs[nextIndex]}`);
+            // Move to next tab
             setActiveTab(tabs[nextIndex]);
             setPage(1);
             setPlayer('');
@@ -181,24 +206,27 @@ const Create = () => {
             setSessionExerciseId([]);
             if (videoInputRef.current) videoInputRef.current.value = null;
             if (bannerInputRef.current) bannerInputRef.current.value = null;
-            console.log('✅ Tab data reset and ready for next input.');
         }
     };
 
     useEffect(() => {
+        console.log('level', level)
         if (level) {
             const matchedTab = tabs.find(
                 tab => tab.toLowerCase() == level.toLowerCase()
             );
             setActiveTab(matchedTab || 'beginner');
+            console.log('tabFromUrl', matchedTab || 'Begisssnner');
         } else {
             const tabFromUrl = level && tabs.includes(level) ? (level) : 'beginner';
             setActiveTab(tabFromUrl);
+            console.log('tabFromUrl', tabFromUrl);
         }
     }, [level]);
 
     useEffect(() => {
         if (id) {
+            console.log('id foud', id);
             setIsEditMode(true);
             fetchGroupById(id);
         } else {
@@ -224,6 +252,7 @@ const Create = () => {
 
             const loadedLevels = [];
             setGroupNameSection(selectedGroup.groupName || '');
+            console.log('selectedGroup', selectedGroup);
 
             Object.entries(parsedLevels).forEach(([levelKey, sessions]) => {
                 const bannerKey = `${levelKey}_banner`;
@@ -232,17 +261,17 @@ const Create = () => {
                 const banner = selectedGroup[bannerKey] || '';
                 const video = selectedGroup[videoKey];
 
-                // if (video) {
-                //     const myVideo = `${API_BASE_URL}/${video}`;
-                //     setVideoFilePreview(myVideo); // ✅ Set only if it exists
-                // }
+                if (video) {
+                    const myVideo = `${API_BASE_URL}/${video}`;
+                    setVideoFilePreview(myVideo); // ✅ Set only if it exists
+                }
 
-                // if (banner) {
-                //     const myBanner = `${API_BASE_URL}/${banner}`;
-                //     setBannerFilePreview(myBanner); // ✅ Set only if it exists
-                // }
+                if (banner) {
+                    const myBanner = `${API_BASE_URL}/${banner}`;
+                    setBannerFilePreview(myBanner); // ✅ Set only if it exists
+                }
 
-                // setBannerFile(banner);
+                setBannerFile(banner);
                 sessions?.forEach((session) => {
                     loadedLevels.push({
                         level: levelKey,
@@ -261,64 +290,85 @@ const Create = () => {
         }
     }, [selectedGroup, isEditMode]);
 
-    useEffect(() => {
-        const existingLevel = levels.find((lvl) => lvl.level?.toLowerCase?.() === activeTab?.toLowerCase?.());
+useEffect(() => {
+    console.log("🔥 useEffect triggered with activeTab:", activeTab);
+    console.log("📦 All Levels:", levels);
 
-        if (!existingLevel) {
-            setPlayer('');
-            setSkillOfTheDay('');
-            setDescriptionSession('');
-            setBannerFile('');
-            setVideoFile('');
-            setSelectedPlans([]);
-            setSessionExerciseId([]);
-            return;
-        }
+    const existingLevel = levels.find((lvl) => lvl.level?.toLowerCase?.() === activeTab?.toLowerCase?.());
+    console.log("🔍 Found existingLevel:", existingLevel);
 
-        setPlayer(existingLevel.player || '');
-        setSkillOfTheDay(existingLevel.skillOfTheDay || '');
-        setDescriptionSession(existingLevel.descriptionSession || '');
-        setSessionExerciseId(existingLevel.sessionExerciseIds || []);
+    if (!existingLevel) {
+        console.log("🚫 No matching level found. Resetting all states.");
+        setPlayer('');
+        setSkillOfTheDay('');
+        setDescriptionSession('');
+        setBannerFile('');
+        setVideoFile('');
+        setSelectedPlans([]);
+        setSessionExerciseId([]);
+        return;
+    }
 
-        const plans = (existingLevel.sessionExerciseDetails || []).map((ex) => ({
-            id: ex.id,
-            title: ex.title,
-            duration: ex.duration,
-        }));
-        setSelectedPlans(plans);
+    console.log("✅ Populating data from existingLevel...");
 
-        // ✅ Handle videoFile (convert to previewable URL if File or string)
-        if (existingLevel.videoFile) {
-            if (existingLevel.videoFile instanceof File) {
-                // Already a File object
-                setVideoFile(existingLevel.videoFile);
-            } else if (typeof existingLevel.videoFile === 'string') {
-                const videoPath = `${API_BASE_URL}/${existingLevel.videoFile}`;
-                setVideoFile(videoPath); // ✅ Just set the string URL
-            }
-        } else {
-            console.log("🚫 No videoFile found in existingLevel.");
-        }
+    setPlayer(existingLevel.player || '');
+    setSkillOfTheDay(existingLevel.skillOfTheDay || '');
+    setDescriptionSession(existingLevel.descriptionSession || '');
+    setSessionExerciseId(existingLevel.sessionExerciseIds || []);
 
-        // ✅ Handle bannerFile (convert to previewable URL if File or string)
-        if (existingLevel.bannerFile) {
-            if (existingLevel.bannerFile instanceof File) {
-                // Already a File object
-                setBannerFile(existingLevel.bannerFile);
-            } else if (typeof existingLevel.bannerFile === 'string') {
-                const bannerPath = `${API_BASE_URL}/${existingLevel.bannerFile}`;
-                setBannerFile(bannerPath); // ✅ Just set the string URL
-            }
-        } else {
-            console.log("🚫 No bannerFile found in existingLevel.");
-        }
+    const plans = (existingLevel.sessionExerciseDetails || []).map((ex) => ({
+        id: ex.id,
+        title: ex.title,
+        duration: ex.duration,
+    }));
+    console.log("📋 Set session plans:", plans);
+    setSelectedPlans(plans);
 
-        console.log('existingLevel', existingLevel);
-    }, [activeTab, levels]);
+    if (existingLevel.videoFile) {
+        const videoPath = `${API_BASE_URL}/${existingLevel.videoFile}`;
+        console.log("🎞️ Fetching video from:", videoPath);
+
+        fetch(videoPath)
+            .then(res => {
+                console.log("🎥 Video fetch response:", res);
+                return res.blob();
+            })
+            .then(blob => {
+                const ext = blob.type.split('/')[1];
+                const file = new File([blob], `video.${ext}`, { type: blob.type });
+                console.log("📁 Created video file object:", file);
+                setVideoFile(file);
+            })
+            .catch(err => console.error("❌ Error fetching video:", err));
+    } else {
+        console.log("🚫 No videoFile found in existingLevel.");
+    }
+
+    if (existingLevel.bannerFile) {
+        const bannerPath = `${API_BASE_URL}/${existingLevel.bannerFile}`;
+        console.log("🖼️ Fetching banner from:", bannerPath);
+
+        fetch(bannerPath)
+            .then(res => {
+                console.log("🖼️ Banner fetch response:", res);
+                return res.blob();
+            })
+            .then(blob => {
+                const ext = blob.type.split('/')[1];
+                const file = new File([blob], `banner.${ext}`, { type: blob.type });
+                console.log("📁 Created banner file object:", file);
+                setBannerFile(file);
+            })
+            .catch(err => console.error("❌ Error fetching banner:", err));
+    } else {
+        console.log("🚫 No bannerFile found in existingLevel.");
+    }
+}, [activeTab, levels]);
 
 
     useEffect(() => {
         const currentLevelData = levels.find((item) => item.level == activeTab);
+        console.log('currentLevelData', levels)
         setSelectedPlans(
             (currentLevelData?.sessionExercises || []).map((exercise) => ({
                 id: exercise.id,
@@ -349,6 +399,7 @@ const Create = () => {
         const getPackages = async () => {
             try {
                 const response = await fetchExercises();
+                console.log("Fetched exercises:", response);
 
                 if (response?.status && Array.isArray(response.data)) {
                     setPlans(response.data); // Set the dynamic plans from backend
@@ -399,12 +450,10 @@ const Create = () => {
             </>
         )
     }
-    console.log('bannerFile', bannerFile)
-    console.log('videoFile', videoFile)
-const stripHtml = (html) => {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return doc.body.textContent || '';
-};
+    console.log('selectedPlanss', selectedPlans)
+
+    console.log('videoFilePreview', videoFilePreview)
+
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -510,44 +559,35 @@ const stripHtml = (html) => {
                                 </div>
                                 <div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-4 w-full">
                                     {/* Video Preview */}
-                                    {videoFile && (
+                                    {videoFile && typeof videoFile == "string" && (
                                         <div className="w-full md:w-1/2">
                                             <label className="block text-sm font-semibold mb-2 text-gray-700">Video Preview</label>
                                             <video
                                                 controls
                                                 className="w-full h-auto rounded shadow"
-                                                src={
-                                                    typeof videoFile === "string"
-                                                        ? videoFile
-                                                        : URL.createObjectURL(videoFile) // Blob URL for File
-                                                }
+                                                src={videoFile}
                                                 onError={() => console.error("Failed to load video:", videoFile)}
                                             />
+
                                         </div>
                                     )}
 
 
 
-
-                                    {bannerFile && (
+                                    {bannerFile && typeof bannerFile == "string" && (
                                         <div className="w-full md:w-1/2">
                                             <label className="block text-sm font-semibold mb-2 text-gray-700">Banner Preview</label>
                                             <img
                                                 src={
-                                                    typeof bannerFile === 'string'
-                                                        ? bannerFile
-                                                        : URL.createObjectURL(bannerFile) // Convert File to blob URL
+                                                   bannerFile
                                                 }
                                                 alt="Banner Preview"
                                                 className="w-full h-auto rounded shadow"
-                                                onError={(e) => {
-                                                    console.error("Failed to load banner:", bannerFile);
-                                                    e.target.style.display = "none";
-                                                }}
+                                              
                                             />
+
                                         </div>
                                     )}
-
 
 
                                 </div>
@@ -742,33 +782,29 @@ const stripHtml = (html) => {
                                             Description
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
+                                            <Editor
+                                                apiKey="frnlhul2sjabyse5v4xtgnphkcgjxm316p0r37ojfop0ux83"
 
-
-
-<Editor
-  apiKey="your-key"
-  value={formData.description}
-  onEditorChange={(content) =>
-    setFormData({ ...formData, description: stripHtml(content) })
-  }
-  init={{
-    menubar: false,
-    toolbar: 'bold italic underline | bullist numlist | undo redo',
-    height: 150,
-    branding: false,
-    content_style: `
-        body {
-            background-color: #f3f4f6;
-            font-family: inherit;
-            font-size: 1rem;
-            padding: 12px;
-            color: #111827;
-        }
-    `,
-  }}
-/>
-
-                                            
+                                                value={formData.description}
+                                                onEditorChange={(content) =>
+                                                    setFormData({ ...formData, description: content })
+                                                }
+                                                init={{
+                                                    menubar: false,
+                                                    toolbar: 'bold italic underline | bullist numlist | undo redo',
+                                                    height: 150,
+                                                    branding: false,
+                                                    content_style: `
+                                                        body {
+                                                            background-color: #f3f4f6;
+                                                            font-family: inherit;
+                                                            font-size: 1rem;
+                                                            padding: 12px;
+                                                            color: #111827;
+                                                        }
+                                                        `,
+                                                }}
+                                            />
                                         </div>
                                     </div>
 

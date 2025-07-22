@@ -196,7 +196,7 @@ const sidebarRef = useRef();
   const renderMenuItems = (items, level = 0) => {
     const location = useLocation(); // hook inside render so it's scoped
     const MyRole = localStorage.getItem("role");
-    console.log('localStorage', localStorage)
+  
     const filteredItems = items.filter((item) => {
       // If no role specified on item → show it
       if (!item.role) return true;
@@ -355,7 +355,7 @@ useEffect(() => {
 
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-72 h-screen bg-white border-r border-gray-100 flex-col shadow-lg">
+      <aside className="hidden md:w-2/12 lg:flex w-72 h-screen bg-white border-r border-gray-100 flex-col shadow-lg">
         <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
           <img src='/demo/synco/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
         </div>

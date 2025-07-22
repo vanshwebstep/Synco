@@ -2,89 +2,149 @@ import { createContext, useContext, useState, useCallback } from "react";
 import Swal from "sweetalert2"; // make sure it's installed
 import { useNavigate } from 'react-router-dom';
 
-const SessionPlanContext = createContext();
+const TermDatesSessionContext = createContext();
 
-export const SessionPlanContextProvider = ({ children }) => {
+export const TermDatesSessionProvider = ({ children }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("adminToken");
-
-  const [sessionGroup, setSessionGroup] = useState([]);
+  const [termGroup, setTermGroup] = useState([]);
+  const [termData, setTermData] = useState([]);
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [exercises, setExercises] = useState([]);
+  const [myGroupData, setMyGroupData] = useState(null);
 
 
-  // Fetch all sessionGroup
-  const fetchSessionGroup = useCallback(async () => {
+  // Fetch all termGroup
+  const fetchTermGroup = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/term-group/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
-      console.log('result', result)
-      setSessionGroup(result.data || []);
+      setTermGroup(result.data || []);
     } catch (err) {
-      console.error("Failed to fetch sessionGroup:", err);
+      console.error("Failed to fetch termGroup:", err);
     } finally {
       setLoading(false);
     }
   }, [token]);
-  const createSessionGroup = useCallback(
-    async (formdata, shouldRedirect = false) => {
-      if (!token) return;
+    const fetchTerm = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/term/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      setTermData(result.data || []);
+    } catch (err) {
+      console.error("Failed to fetch termGroup:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
-      try {
-        setLoading(true);
+const createTermGroup = useCallback(
+  async (formdata, shouldRedirect = false) => {
+    if (!token) return;
 
-        const fd = new FormData();
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", `Bearer ${token}`);
 
-        for (const key in formdata) {
-          if (key === "levels") continue;
-          if (formdata[key] instanceof File || typeof formdata[key] === "string") {
-            fd.append(key, formdata[key]);
-          }
-        }
+    const raw = JSON.stringify(formdata);
 
-        fd.append("levels", JSON.stringify(formdata.levels));
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow"
+    };
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: fd,
+    try {
+      setLoading(true);
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/term-group`, requestOptions);
+      const data = await response.json();
+setMyGroupData(data.data);
+
+      console.log("data", data.data);
+
+      if (response.ok && data.status === true) {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: data.message || 'Group created successfully.',
+          confirmButtonColor: '#237FEA'
         });
 
-        const data = await response.json();
-
-        if (response.ok && data.status === true) {
-          // ✅ Only redirect on final submission
-          await Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: result.message || 'Group created successfully.',
-            confirmButtonColor: '#237FEA'
-          });
-          navigate('/holiday-camps/session-plan-list');
-
-        } else {
-          console.error("API Error:", data.message || "Unknown error");
+        if (shouldRedirect) {
+          navigate('/weekly-classes/term-dates/list');
         }
-      } catch (err) {
-        console.error("Failed to create session group:", err);
-      } finally {
-        setLoading(false);
+      } else {
+        console.error("API Error:", data.message || "Unknown error");
       }
-    },
-    [token, navigate]
-  );
+    } catch (err) {
+      console.error("Failed to create session group:", err);
+    } finally {
+      setLoading(false);
+    }
+  },
+  [token, navigate]
+);
 
 
+
+const createTerms = useCallback(
+  async (formdata, shouldRedirect = false) => {
+    if (!token) return;
+
+    try {
+      setLoading(true);
+
+      const fd = new FormData();
+
+      for (const key in formdata) {
+        if (key === "levels") continue;
+        if (formdata[key] instanceof File || typeof formdata[key] === "string") {
+          fd.append(key, formdata[key]);
+        }
+      }
+
+      fd.append("levels", JSON.stringify(formdata.levels));
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: fd,
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.status === true) {
+        // ✅ Only redirect on final submission
+        if (shouldRedirect) {
+          navigate('/weekly-classes/term-dates/list');
+        }
+      } else {
+        console.error("API Error:", data.message || "Unknown error");
+      }
+    } catch (err) {
+      console.error("Failed to create session group:", err);
+    } finally {
+      setLoading(false);
+    }
+  },
+  [token, navigate]
+);
 
 
   const fetchExercises = useCallback(async () => {
@@ -183,7 +243,7 @@ export const SessionPlanContextProvider = ({ children }) => {
         throw new Error(result.message || "Something went wrong");
       }
 
-      await fetchSessionGroup();
+      await fetchTermGroup();
 
       await Swal.fire({
         icon: 'success',
@@ -192,7 +252,7 @@ export const SessionPlanContextProvider = ({ children }) => {
         confirmButtonColor: '#237FEA'
       });
 
-      navigate('/holiday-camps/sessionGroup/list');
+      navigate('/holiday-camps/termGroup/list');
     } catch (err) {
       Swal.fire({
         icon: 'error',
@@ -205,75 +265,33 @@ export const SessionPlanContextProvider = ({ children }) => {
     } finally {
       setLoading(false); // Stop loading regardless of success or error
     }
-  }, [token, fetchSessionGroup, navigate]);
+  }, [token, fetchTermGroup, navigate]);
 
 
-  // Update discount
-const updateDiscount = useCallback(async (id, data) => {
-  if (!token) return;
+const updateTermGroup = useCallback(
+  async (id, data) => {
+    if (!token) return;
 
-  setLoading(true); // 🔵 Start loading
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", `Bearer ${token}`);
 
-  try {
-    const formdata = new FormData();
+      const response = await fetch(`${API_BASE_URL}/api/admin/term-group/${id}`, {
+        method: "PUT",
+        headers: myHeaders,
+        body: JSON.stringify(data),
+      });
 
-    const appendMedia = (key, file) => {
-      if (file && typeof file !== "string") {
-        formdata.append(key, file, file.name || "[PROXY]");
-      }
-    };
+      const result = await response.json();
 
-    // Append media files
-    appendMedia("beginner_video", data.beginner_video);
-    appendMedia("beginner_banner", data.beginner_banner);
-    appendMedia("intermediate_video", data.intermediate_video);
-    appendMedia("intermediate_banner", data.intermediate_banner);
-    appendMedia("advanced_video", data.advanced_video);
-    appendMedia("advanced_banner", data.advanced_banner);
-    appendMedia("pro_video", data.pro_video);
-    appendMedia("pro_banner", data.pro_banner);
-
-    if (data.levels) {
-      formdata.append("levels", JSON.stringify(data.levels));
+      await fetchTermGroup();
+    } catch (err) {
+      console.error("Failed to update term group:", err);
     }
-
-    if (data.groupName) {
-      formdata.append("groupName", data.groupName);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formdata,
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) throw new Error(result.message || "Failed to update");
-
-    await Swal.fire({
-      icon: 'success',
-      title: 'Success',
-      text: result.message || 'Level updated successfully.',
-      confirmButtonColor: '#237FEA'
-    });
-
-    navigate('/holiday-camps/session-plan-list');
-    await fetchSessionGroup();
-
-  } catch (err) {
-    console.error("Failed to update discount:", err);
-    await Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: err.message || 'Something went wrong.',
-    });
-  } finally {
-    setLoading(false); // 🔵 End loading
-  }
-}, [token, fetchSessionGroup, navigate, setLoading]);
+  },
+  [token, fetchTermGroup, navigate]
+);
 
 
   // Delete discount
@@ -284,49 +302,50 @@ const updateDiscount = useCallback(async (id, data) => {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-      await fetchSessionGroup();
+      await fetchTermGroup();
     } catch (err) {
       console.error("Failed to delete discount:", err);
     }
-  }, [token, fetchSessionGroup]);
+  }, [token, fetchTermGroup]);
 
 
-
-
-  const deleteSessionlevel = useCallback(async (id, level) => {
+  const deleteSessionlevel = useCallback(async (id , level) => {
     if (!token) return;
     try {
       await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}/level/${level}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
-
+        
       });
-      await fetchSessionGroup();
+      await fetchTermGroup();
     } catch (err) {
       console.error("Failed to delete discount:", err);
     }
-  }, [token, fetchSessionGroup]);
+  }, [token, fetchTermGroup]);
 
 
   return (
-    <SessionPlanContext.Provider
+    <TermDatesSessionContext.Provider
       value={{
-        // sessionGroup
-        sessionGroup,
-        setSessionGroup,
+        // termGroup
+        termGroup,
+        setTermGroup,
         loading,
-        createSessionGroup,
+        createTermGroup,
         createSessionExercise,
         selectedGroup,
-        fetchSessionGroup,
+        fetchTermGroup,
         fetchGroupById,
         createDiscount,
-        updateDiscount,
+        updateTermGroup,
         deleteSessionGroup,
 
         selectedExercise,
         setSelectedExercise,
         exercises,
+        myGroupData,
+        fetchTerm,
+        termData,
         setExercises,
         fetchExerciseById,
         deleteSessionlevel,
@@ -334,8 +353,8 @@ const updateDiscount = useCallback(async (id, data) => {
       }}
     >
       {children}
-    </SessionPlanContext.Provider>
+    </TermDatesSessionContext.Provider>
   );
 };
 
-export const useSessionPlan = () => useContext(SessionPlanContext);
+export const useTermContext = () => useContext(TermDatesSessionContext);

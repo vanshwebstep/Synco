@@ -11,15 +11,10 @@ import { useSessionPlan } from '../../contexts/SessionPlanContext';
 
 const Create = () => {
     const videoInputRef = useRef(null);
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-    const tabRef = useRef(null);
     const bannerInputRef = useRef(null);
-    const [searchParams] = useSearchParams();
-    const id = searchParams.get("id");
-    const level = searchParams.get("level");
-    const tabs = ['beginner', 'intermediate', 'advanced', 'pro'];
-    const [activeTab, setActiveTab] = useState('beginner');
+    const tabRef = useRef(null);
+    const tabs = ['Beginners', 'Intermediate', 'Advanced', 'Pro'];
+    const [activeTab, setActiveTab] = useState('Beginners');
     const fileInputRef = useRef(null);
     const [page, setPage] = useState(1);
     const [groupName, setGroupName] = useState('');
@@ -27,23 +22,129 @@ const Create = () => {
     const [player, setPlayer] = useState('');
     const [skillOfTheDay, setSkillOfTheDay] = useState('');
     const [descriptionSession, setDescriptionSession] = useState('');
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [previewShowModal, setPreviewShowModal] = useState(false);
-    const { fetchExercises, sessionGroup, groups, updateDiscount, createSessionExercise, selectedGroup, fetchGroupById, loading, createGroup, selectedExercise, exercises, updateGroup, setExercises, createSessionGroup, fetchSessionGroup } = useSessionPlan();
-    const [selectedPlans, setSelectedPlans] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [isOpen, setIsOpen] = useState(false);
-    const visibleTabs = level ? tabs.filter((tab) => tab.toLowerCase() == level.toLowerCase()) : tabs;
+    const [description, setDescription] = useState('');
 
-    const [sessionExerciseId, setSessionExerciseId] = useState([]); // or selectedPlans[0]?.id
+    const [bannerUrl, setBannerUrl] = useState(''); // You will set this on actual upload
+    const [videoUrl, setVideoUrl] = useState('');
+    const [sessionExerciseId, setSessionExerciseId] = useState(null); // or selectedPlans[0]?.id
     const [levels, setLevels] = useState([]);
-    // State for raw file instead of preview URL
-    const [videoFile, setVideoFile] = useState(null);
-    const [videoFilePreview, setVideoFilePreview] = useState(null);
-    const [bannerFilePreview, setBannerFilePreview] = useState(null);
+    const handleVideoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setVideoUrl(url);
+        }
+    };
 
-    const [bannerFile, setBannerFile] = useState(null);
+    const handleBannerChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setBannerUrl(url);
+        }
+    };
+
+    const handleCreateSession = () => {
+        if (tabRef.current) {
+            tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        const currentLevel = {
+            level: activeTab,
+            player,
+            skillOfTheDay,
+            descriptionSession,
+            bannerUrl,
+            videoUrl,
+            sessionExerciseId: selectedPlans[0]?.id || null,
+        };
+
+        setLevels((prevLevels) => {
+            const existingIndex = prevLevels.findIndex((lvl) => lvl.level === activeTab);
+            const updated = [...prevLevels];
+
+            if (existingIndex !== -1) {
+                updated[existingIndex] = currentLevel;
+            } else {
+                updated.push(currentLevel);
+            }
+
+            // ✅ Log if this is the LAST tab
+            const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
+            if (nextIndex >= tabs.length) {
+                console.log('✅ Final Session Data:', updated);
+            }
+
+            return updated;
+        });
+
+        const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
+
+        if (nextIndex < tabs.length) {
+            setActiveTab(tabs[nextIndex]);
+            setPage(1);
+
+            // Clear form fields
+            setPlayer('');
+            setSkillOfTheDay('');
+            setDescriptionSession('');
+            setSelectedPlans([]);
+            setBannerUrl('');
+            setVideoUrl('');
+            setSessionExerciseId(null);
+
+            // 🔥 Reset file input values
+            if (videoInputRef.current) videoInputRef.current.value = null;
+            if (bannerInputRef.current) bannerInputRef.current.value = null;
+        }
+    };
+
+
+
+    const [previewShowModal, setPreviewShowModal] = useState(false);
+    const { fetchExercises, groups, createSessionExercise, fetchGroupById, loading, createGroup, selectedExercise, exercises, updateGroup, setExercises } = useSessionPlan();
+    const [selectedPlans, setSelectedPlans] = useState([]);
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
+    useEffect(() => {
+        if (id) {
+            console.log('id foud');
+            setIsEditMode(true);
+            fetchGroupById(id);
+        } else {
+            setIsLoading(false);
+        }
+    }, [id]);
+    useEffect(() => {
+        const existingLevel = levels.find((lvl) => lvl.level === activeTab);
+        if (existingLevel) {
+            setPlayer(existingLevel.player || '');
+            setSkillOfTheDay(existingLevel.skillOfTheDay || '');
+            setDescriptionSession(existingLevel.descriptionSession || '');
+            setBannerUrl(existingLevel.bannerUrl || '');
+            setVideoUrl(existingLevel.videoUrl || '');
+            setSessionExerciseId(existingLevel.sessionExerciseId || null);
+            setSelectedPlans([{ id: existingLevel.sessionExerciseId, title: 'Loaded Exercise', duration: 'x mins' }]); // Customize as needed
+        } else {
+            // Clear if no saved data
+            setPlayer('');
+            setSkillOfTheDay('');
+            setDescriptionSession('');
+            setBannerUrl('');
+            setVideoUrl('');
+            setSessionExerciseId(null);
+            setSelectedPlans([]);
+        }
+
+        if (videoInputRef.current) videoInputRef.current.value = null;
+        if (bannerInputRef.current) bannerInputRef.current.value = null;
+    }, [activeTab]);
+
     const [packageDetails, setPackageDetails] = useState('');
     const [terms, setTerms] = useState('');
     const [plans, setPlans] = useState([]);
@@ -55,289 +156,15 @@ const Create = () => {
 
     });
 
-    const [openForm, setOpenForm] = useState(false);
-    const navigate = useNavigate();
-    const handleVideoChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setVideoFile(file);
-        }
-    };
-
-    const handleBannerChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setBannerFile(file);
-
-        }
-    };
-
-    const handleCreateSession = () => {
-        if (isProcessing) return;
-        setIsProcessing(true);
-
-        if (tabRef.current) {
-            tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        const currentLevel = {
-            level: activeTab,
-            player,
-            groupNameSection,
-            skillOfTheDay,
-            descriptionSession,
-            videoFile,
-            bannerFile,
-            sessionExerciseIds: selectedPlans.map(plan => plan.id),
-        };
-        setLevels((prevLevels) => {
-            const existingIndex = prevLevels.findIndex((lvl) => lvl.level == activeTab);
-            const updated = [...prevLevels];
-
-            if (existingIndex !== -1) {
-                updated[existingIndex] = currentLevel;
-            } else {
-                updated.push(currentLevel);
-            }
-            handleNextTabOrSubmit(updated);
-
-            return updated;
-        });
-        setIsProcessing(false);
-
-    };
-
-    const handleNextTabOrSubmit = (updatedLevels) => {
-        console.log('➡️ handleNextTabOrSubmit called');
-        console.log('Current tab:', activeTab);
-        console.log('Updated levels:', updatedLevels);
-
-        const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
-        const isLastTab = nextIndex >= tabs.length;
-
-        // Build common transformed data
-        const transformed = {
-            groupName: groupNameSection,
-            levels: {},
-        };
-
-        const allMediaFiles = {};
-
-        updatedLevels.forEach((item) => {
-            const levelKey = item.level.replace(/s$/i, '').toLowerCase();
-
-            if (!transformed.levels[levelKey]) {
-                transformed.levels[levelKey] = [];
-            }
-
-            // Only keep non-media fields inside levels
-            transformed.levels[levelKey].push({
-                player: item.player,
-                skillOfTheDay: item.skillOfTheDay,
-                description: item.descriptionSession,
-                sessionExerciseId: item.sessionExerciseIds,
-            });
-
-            // Store media files separately
-            allMediaFiles[levelKey] = {
-                banner: item.bannerFile,
-                video: item.videoFile,
-            };
-        });
-
-
-        console.log('allMediaFiles', allMediaFiles)
-        // Add media fields outside of levels only if they're Files (skip URLs)
-        Object.entries(allMediaFiles).forEach(([levelKey, media]) => {
-            if (media.video instanceof File) {
-                transformed[`${levelKey}_video`] = media.video;
-            }
-            if (media.banner instanceof File) {
-                transformed[`${levelKey}_banner`] = media.banner;
-            }
-        });
-
-
-        // Submit if in edit mode or final tab
-        if ((isEditMode && id && level) || isLastTab) {
-            console.log(`📤 Submitting ${isEditMode ? 'updated' : 'new'} session group:`, transformed);
-
-            if (isEditMode && id && level) {
-                updateDiscount(id, transformed);
-            } else {
-                createSessionGroup(transformed);
-            }
-        } else {
-            // ⏭ Move to next tab
-            console.log(`➡️ Moving to next tab: ${tabs[nextIndex]}`);
-            setActiveTab(tabs[nextIndex]);
-            setPage(1);
-            setPlayer('');
-            setSkillOfTheDay('');
-            setDescriptionSession('');
-            setBannerFile('');
-            setVideoFile('');
-            setSelectedPlans([]);
-            setSessionExerciseId([]);
-            if (videoInputRef.current) videoInputRef.current.value = null;
-            if (bannerInputRef.current) bannerInputRef.current.value = null;
-            console.log('✅ Tab data reset and ready for next input.');
-        }
-    };
-
-    useEffect(() => {
-        if (level) {
-            const matchedTab = tabs.find(
-                tab => tab.toLowerCase() == level.toLowerCase()
-            );
-            setActiveTab(matchedTab || 'beginner');
-        } else {
-            const tabFromUrl = level && tabs.includes(level) ? (level) : 'beginner';
-            setActiveTab(tabFromUrl);
-        }
-    }, [level]);
-
-    useEffect(() => {
-        if (id) {
-            setIsEditMode(true);
-            fetchGroupById(id);
-        } else {
-            setIsLoading(false);
-        }
-    }, [id]);
-
-
-    useEffect(() => {
-        if (selectedGroup?.levels && isEditMode) {
-            let parsedLevels;
-
-            if (typeof selectedGroup.levels === "string") {
-                try {
-                    parsedLevels = JSON.parse(selectedGroup.levels);
-                } catch (err) {
-                    console.error("Failed to parse levels JSON:", err);
-                    return;
-                }
-            } else {
-                parsedLevels = selectedGroup.levels;
-            }
-
-            const loadedLevels = [];
-            setGroupNameSection(selectedGroup.groupName || '');
-
-            Object.entries(parsedLevels).forEach(([levelKey, sessions]) => {
-                const bannerKey = `${levelKey}_banner`;
-                const videoKey = `${levelKey}_video`;
-
-                const banner = selectedGroup[bannerKey] || '';
-                const video = selectedGroup[videoKey];
-
-                // if (video) {
-                //     const myVideo = `${API_BASE_URL}/${video}`;
-                //     setVideoFilePreview(myVideo); // ✅ Set only if it exists
-                // }
-
-                // if (banner) {
-                //     const myBanner = `${API_BASE_URL}/${banner}`;
-                //     setBannerFilePreview(myBanner); // ✅ Set only if it exists
-                // }
-
-                // setBannerFile(banner);
-                sessions?.forEach((session) => {
-                    loadedLevels.push({
-                        level: levelKey,
-                        player: session.player || '',
-                        skillOfTheDay: session.skillOfTheDay || '',
-                        descriptionSession: session.description || '',
-                        sessionExerciseId: session.sessionExerciseId || [],
-                        sessionExercises: session.sessionExercises || [],
-                        bannerFile: banner,
-                        videoFile: video,
-                    });
-                });
-            });
-
-            setLevels(loadedLevels);
-        }
-    }, [selectedGroup, isEditMode]);
-
-    useEffect(() => {
-        const existingLevel = levels.find((lvl) => lvl.level?.toLowerCase?.() === activeTab?.toLowerCase?.());
-
-        if (!existingLevel) {
-            setPlayer('');
-            setSkillOfTheDay('');
-            setDescriptionSession('');
-            setBannerFile('');
-            setVideoFile('');
-            setSelectedPlans([]);
-            setSessionExerciseId([]);
-            return;
-        }
-
-        setPlayer(existingLevel.player || '');
-        setSkillOfTheDay(existingLevel.skillOfTheDay || '');
-        setDescriptionSession(existingLevel.descriptionSession || '');
-        setSessionExerciseId(existingLevel.sessionExerciseIds || []);
-
-        const plans = (existingLevel.sessionExerciseDetails || []).map((ex) => ({
-            id: ex.id,
-            title: ex.title,
-            duration: ex.duration,
-        }));
-        setSelectedPlans(plans);
-
-        // ✅ Handle videoFile (convert to previewable URL if File or string)
-        if (existingLevel.videoFile) {
-            if (existingLevel.videoFile instanceof File) {
-                // Already a File object
-                setVideoFile(existingLevel.videoFile);
-            } else if (typeof existingLevel.videoFile === 'string') {
-                const videoPath = `${API_BASE_URL}/${existingLevel.videoFile}`;
-                setVideoFile(videoPath); // ✅ Just set the string URL
-            }
-        } else {
-            console.log("🚫 No videoFile found in existingLevel.");
-        }
-
-        // ✅ Handle bannerFile (convert to previewable URL if File or string)
-        if (existingLevel.bannerFile) {
-            if (existingLevel.bannerFile instanceof File) {
-                // Already a File object
-                setBannerFile(existingLevel.bannerFile);
-            } else if (typeof existingLevel.bannerFile === 'string') {
-                const bannerPath = `${API_BASE_URL}/${existingLevel.bannerFile}`;
-                setBannerFile(bannerPath); // ✅ Just set the string URL
-            }
-        } else {
-            console.log("🚫 No bannerFile found in existingLevel.");
-        }
-
-        console.log('existingLevel', existingLevel);
-    }, [activeTab, levels]);
-
-
-    useEffect(() => {
-        const currentLevelData = levels.find((item) => item.level == activeTab);
-        setSelectedPlans(
-            (currentLevelData?.sessionExercises || []).map((exercise) => ({
-                id: exercise.id,
-                title: exercise.title || 'not found',
-                duration: exercise.duration || 'not found',
-            }))
-        );
-
-    }, [activeTab, levels]);
-
 
     const planOptions = exercises?.map((plan) => ({
-        value: plan.id,
+  value: plan.id,
         label: `${plan.duration}: ${plan.title}`,
-        data: plan, // to retain full plan data
+        data: plan,// to retain full plan data
     }));
 
     const selectedOptions = selectedPlans.map((plan) => ({
-        value: plan.id,
+      value: plan.id,
         label: `${plan.duration}: ${plan.title}`,
         data: plan,
     }));
@@ -349,6 +176,7 @@ const Create = () => {
         const getPackages = async () => {
             try {
                 const response = await fetchExercises();
+                console.log("Fetched exercises:", response);
 
                 if (response?.status && Array.isArray(response.data)) {
                     setPlans(response.data); // Set the dynamic plans from backend
@@ -361,14 +189,58 @@ const Create = () => {
 
         getPackages();
     }, [fetchExercises]);
+    const previewPlans = [
+        { students: '1 Student', price: '£99.99' },
+        { students: '2 Student', price: '£99.99' },
+        { students: '3 Student', price: '£99.99' },
+    ];
+
+    const [openForm, setOpenForm] = useState(false);
+    const navigate = useNavigate();
+
     const handleAddPlan = () => {
         setOpenForm(true);
     };
+    const handleTogglePlan = (plan) => {
+        const isSelected = selectedPlans.some((p) => p.id === plan.id);
+        if (isSelected) {
+            setSelectedPlans(selectedPlans.filter((p) => p.id !== plan.id));
+        } else {
+            setSelectedPlans([...selectedPlans, plan]);
+        }
+    };
+
     const handleRemovePlan = (index) => {
         const updated = [...selectedPlans];
         updated.splice(index, 1);
         setSelectedPlans(updated);
     };
+
+    const filteredPlans = useMemo(() => {
+        return exercises?.filter((plan) =>
+            plan.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [searchTerm]);
+    const handleCreateGroup = async () => {
+        const ids = selectedPlans.map(plan => plan.id).join(',');
+        console.log('Selected Plan IDs:', ids);
+        const payload = {
+            name: groupName,
+            description: description,
+            plans: ids
+            // Or use: price: price
+        };
+
+        console.log("Final Group Payload:", payload);
+
+        try {
+            await createGroup(payload);
+        } catch (err) {
+            console.error("Error creating group:", err);
+        }
+    };
+
+
     const handleSavePlan = async () => {
         const newPlan = {
             title: formData.title,
@@ -391,6 +263,13 @@ const Create = () => {
             console.error('Error saving exercise:', err);
         }
     };
+    useEffect(() => {
+        if (id && selectedExercise) {
+            setGroupName(selectedExercise.name || "");
+            setDescription(selectedExercise.description || "");
+            setSelectedPlans(selectedExercise.paymentPlans || []);
+        }
+    }, [selectedExercise]);
 
     if (loading) {
         return (
@@ -399,12 +278,7 @@ const Create = () => {
             </>
         )
     }
-    console.log('bannerFile', bannerFile)
-    console.log('videoFile', videoFile)
-const stripHtml = (html) => {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return doc.body.textContent || '';
-};
+
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -439,21 +313,25 @@ const stripHtml = (html) => {
                         <div className="rounded-2xl  md:p-12 ">
                             <form className="mx-auto  space-y-4">
                                 {/* Group Name */}
-                                <div className="flex gap-4   border w-full border-gray-300 p-1 rounded-xl  flex-wrap">
-                                    {visibleTabs.map((tab) => (
+                                <div className="flex gap-4 border w-full border-gray-300 p-1 rounded-xl  flex-wrap">
+                                    {tabs.map((tab) => (
                                         <button
-                                            type="button"
+                                            type="button" // ✅ This prevents form submission
                                             ref={tabRef}
                                             key={tab}
                                             onClick={() => {
                                                 setActiveTab(tab);
                                                 setPage(1);
-                                                setVideoFile('');
-                                                setBannerFile('');
+
+                                                // Clear previews & reset file inputs
+                                                setVideoUrl('');
+                                                setBannerUrl('');
                                                 if (videoInputRef.current) videoInputRef.current.value = null;
                                                 if (bannerInputRef.current) bannerInputRef.current.value = null;
                                             }}
-                                            className={`px-4 py-1.5 rounded-xl text-[19.28px] font-medium capitalize transition ${activeTab == tab ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-blue-500'
+                                            className={`px-4 py-1.5 rounded-xl text-[19.28px] font-medium transition ${activeTab === tab
+                                                ? 'bg-blue-500 text-white'
+                                                : 'text-gray-500 hover:text-blue-500'
                                                 }`}
                                         >
                                             {tab}
@@ -482,7 +360,7 @@ const stripHtml = (html) => {
                                         onClick={() => videoInputRef.current.click()}
                                         className="flex w-1/2 items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
                                     >
-                                        {videoFile ? "Change Video" : "Add Video"}
+                                        {videoUrl ? "Change Video" : "Add Video"}
                                     </button>
                                     <input
                                         type="file"
@@ -498,7 +376,7 @@ const stripHtml = (html) => {
                                         onClick={() => bannerInputRef.current.click()}
                                         className="flex w-1/2 items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
                                     >
-                                        {bannerFile ? "Change Banner" : "Add Banner"}
+                                        {bannerUrl ? "Change Banner" : "Add Banner"}
                                     </button>
                                     <input
                                         type="file"
@@ -510,48 +388,29 @@ const stripHtml = (html) => {
                                 </div>
                                 <div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-4 w-full">
                                     {/* Video Preview */}
-                                    {videoFile && (
+                                    {videoUrl && (
                                         <div className="w-full md:w-1/2">
                                             <label className="block text-sm font-semibold mb-2 text-gray-700">Video Preview</label>
                                             <video
+                                                src={videoUrl}
                                                 controls
-                                                className="w-full h-auto rounded shadow"
-                                                src={
-                                                    typeof videoFile === "string"
-                                                        ? videoFile
-                                                        : URL.createObjectURL(videoFile) // Blob URL for File
-                                                }
-                                                onError={() => console.error("Failed to load video:", videoFile)}
+                                                className="w-full rounded-xl border border-gray-300 shadow-md"
                                             />
                                         </div>
                                     )}
 
-
-
-
-                                    {bannerFile && (
+                                    {/* Banner Preview */}
+                                    {bannerUrl && (
                                         <div className="w-full md:w-1/2">
-                                            <label className="block text-sm font-semibold mb-2 text-gray-700">Banner Preview</label>
+                                            <label className="block text-sm font-semibold  mb-2 text-gray-700">Banner Preview</label>
                                             <img
-                                                src={
-                                                    typeof bannerFile === 'string'
-                                                        ? bannerFile
-                                                        : URL.createObjectURL(bannerFile) // Convert File to blob URL
-                                                }
+                                                src={bannerUrl}
                                                 alt="Banner Preview"
-                                                className="w-full h-auto rounded shadow"
-                                                onError={(e) => {
-                                                    console.error("Failed to load banner:", bannerFile);
-                                                    e.target.style.display = "none";
-                                                }}
+                                                className="w-1/2 object-contain  rounded-xl border border-gray-300 shadow-md"
                                             />
                                         </div>
                                     )}
-
-
-
                                 </div>
-
 
                                 {/* Description */}
                                 <div>
@@ -640,8 +499,7 @@ const stripHtml = (html) => {
                                             <div className="text-gray-400 italic">No Exercise selected</div>
                                         )}
                                     </div>
-
-                                    <AnimatePresence initial={false}>
+                              <AnimatePresence initial={false}>
                                         {isOpen && (
                                             <motion.div
                                                 initial={{ height: 0, opacity: 0 }}
@@ -692,8 +550,10 @@ const stripHtml = (html) => {
                                         onClick={handleCreateSession}
                                         className="bg-[#237FEA] text-white min-w-50 font-semibold px-6 py-2 rounded-lg hover:bg-blue-700 w-full md:w-auto"
                                     >
-                                        {isEditMode && id && level ? (activeTab == 'Pro' ? "Finish & Update All" : "Update Session") : (activeTab == 'Pro' ? "Finish & Save All" : "Create Sessions")}
+                                        {activeTab === 'Pro' ? "Finish & Save All" : "Create Sessions"}
                                     </button>
+
+
                                 </div>
 
                             </form>
@@ -742,33 +602,29 @@ const stripHtml = (html) => {
                                             Description
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
+                                            <Editor
+                                                apiKey="frnlhul2sjabyse5v4xtgnphkcgjxm316p0r37ojfop0ux83"
 
-
-
-<Editor
-  apiKey="your-key"
-  value={formData.description}
-  onEditorChange={(content) =>
-    setFormData({ ...formData, description: stripHtml(content) })
-  }
-  init={{
-    menubar: false,
-    toolbar: 'bold italic underline | bullist numlist | undo redo',
-    height: 150,
-    branding: false,
-    content_style: `
-        body {
-            background-color: #f3f4f6;
-            font-family: inherit;
-            font-size: 1rem;
-            padding: 12px;
-            color: #111827;
-        }
-    `,
-  }}
-/>
-
-                                            
+                                                value={formData.description}
+                                                onEditorChange={(content) =>
+                                                    setFormData({ ...formData, description: content })
+                                                }
+                                                init={{
+                                                    menubar: false,
+                                                    toolbar: 'bold italic underline | bullist numlist | undo redo',
+                                                    height: 150,
+                                                    branding: false,
+                                                    content_style: `
+                                                        body {
+                                                            background-color: #f3f4f6;
+                                                            font-family: inherit;
+                                                            font-size: 1rem;
+                                                            padding: 12px;
+                                                            color: #111827;
+                                                        }
+                                                        `,
+                                                }}
+                                            />
                                         </div>
                                     </div>
 

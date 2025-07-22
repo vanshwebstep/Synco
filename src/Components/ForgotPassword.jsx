@@ -173,7 +173,7 @@ const handleForgotPassword = async (e) => {
 
   setLoading(true);
 
-  const url = `https://synconode.onrender.coms/api/admin/auth/password/forget`;
+  const url = `https://synconode.onrender.com/api/admin/auth/password/forget`;
 
   try {
     console.log('Sending forgot password request to:', url);

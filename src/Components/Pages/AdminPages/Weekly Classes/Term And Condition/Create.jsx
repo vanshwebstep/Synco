@@ -1,8 +1,9 @@
 import Select from "react-select";
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SessionPlanSelect from "./SessionPlanSelect"
 import { useNavigate } from 'react-router-dom';
+import { useTermContext } from '../../contexts/TermDatesSessionContext';
 
 const initialTerms = [
     {
@@ -34,6 +35,11 @@ const initialTerms = [
     },
 ];
 const Create = () => {
+
+    const [termGroupName, setTermGroupName] = useState("");
+    const [termGroupId, setTermGroupId] = useState(null); // store ID after creation
+    const { createTermGroup, updateTermGroup, myGroupData } = useTermContext();
+
     const [terms, setTerms] = useState(initialTerms);
     const [activeSessionValue, setActiveSessionValue] = useState('');
     const [sessionMappings, setSessionMappings] = useState([]);
@@ -62,7 +68,26 @@ const Create = () => {
             }))
         );
     };
+    const handleBlur = async () => {
+        if (!termGroupName.trim()) return;
 
+        const payload = {
+            name: termGroupName,
+        };
+
+        try {
+            console.log('myGroupData', myGroupData)
+            if (myGroupData) {
+                await updateTermGroup(myGroupData.id, payload);
+
+
+            } else {
+                await createTermGroup(payload);
+            }
+        } catch (err) {
+            console.error("Error saving Term Group:", err);
+        }
+    };
     const handleInputChange = (id, field, value) => {
         setTerms((prev) =>
             prev.map((term) =>
@@ -162,7 +187,7 @@ const Create = () => {
 
                     <div className="rounded-2xl mb-5 bg-white md:p-6">
 
-                        <div className="border border-gray-200 rounded-3xl px-4  py-3">
+                        <div className="border border-gray-200 rounded-3xl px-4 py-3">
                             <div className="flex items-center justify-between">
                                 <label className="rounded-3xl block text-base font-semibold text-gray-700 mb-2">
                                     Name of Term Group
@@ -172,6 +197,9 @@ const Create = () => {
                             <input
                                 type="text"
                                 placeholder="Enter Term Group Name"
+                                value={termGroupName}
+                                onChange={(e) => setTermGroupName(e.target.value)}
+                                onBlur={handleBlur}
                                 className="md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>

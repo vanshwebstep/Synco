@@ -6,6 +6,8 @@ export const NotificationProvider = ({ children }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [notification, setNotification] = useState([]);
     const [customNotification, setCustomNotification] = useState([]);
+    const [customnotificationAll, setCustomnotificationAll] = useState([]);
+
     const [loadingNotification, setLoadingNotification] = useState(null);
     const [loadingCustomNotification, setLoadingCustomNotification] = useState(null);
 
@@ -25,6 +27,7 @@ export const NotificationProvider = ({ children }) => {
             const resultRaw = await response.json();
             const result = resultRaw.data.notifications || [];
             setNotification(result);
+            setCustomnotificationAll( resultRaw.data.customNotifications)
         } catch (error) {
             console.error("Failed to fetch notification:", error);
         } finally {
@@ -76,7 +79,7 @@ export const NotificationProvider = ({ children }) => {
     }, []);
 
     return (
-        <NotificationContext.Provider value={{ fetchCustomNotification, fetchMarkAsRead, loadingCustomNotification, setLoadingCustomNotification, notification, setNotification, fetchNotification, loadingNotification, customNotification, setCustomNotification }}>
+        <NotificationContext.Provider value={{ fetchCustomNotification, fetchMarkAsRead, loadingCustomNotification, setLoadingCustomNotification, notification, setNotification, fetchNotification, loadingNotification,customnotificationAll ,customNotification, setCustomnotificationAll ,setCustomNotification }}>
             {children}
         </NotificationContext.Provider>
     );
