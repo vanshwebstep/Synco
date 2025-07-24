@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useVenue } from "../contexts/VenueContext";
 import { motion, AnimatePresence } from "framer-motion";
+  import Swal from "sweetalert2";
+
 const Create = ({ packages, termGroup, onClose }) => {
 
 
@@ -19,14 +21,26 @@ const Create = ({ packages, termGroup, onClose }) => {
   const [selectedTerms, setSelectedTerms] = useState([]);
   const [selectedSubs, setSelectedSubs] = useState([]);
   const [selectedTermIds, setSelectedTermIds] = useState([]);
+  const [selectedLabels, setSelectedLabels] = useState([]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+
     console.log("Venue Submitted:", formData);
     createVenues(formData);
     onClose(); // close form on success
 
   };
+
+const handleCancel = () => {
+      setFormData({
+        area: "", name: "", address: "", facility: "",
+        hasParking: false, isCongested: false, parkingNote: "",
+        congestionNote: "", termGroupId: "", paymentPlanId: ""
+      });
+      onClose();
+
+};
+
   console.log('formData', formData)
   const toggleValue = (list, setList, value) => {
     setList((prev) =>
@@ -43,11 +57,10 @@ const Create = ({ packages, termGroup, onClose }) => {
 
 
 
-
   const handleSaveTerm = () => {
     setFormData((prev) => ({
       ...prev,
-      termId: selectedTermIds.join(", "),
+      termGroupId: selectedTermIds, // now just an array
     }));
     setShowTermDropdown(false);
   };
@@ -55,10 +68,12 @@ const Create = ({ packages, termGroup, onClose }) => {
   const handleSaveSub = () => {
     setFormData((prev) => ({
       ...prev,
-      paymentPlanId: selectedSubs.join(", "),
+      paymentPlanId: selectedSubs, // now just an array
     }));
     setShowSubDropdown(false);
   };
+
+
 
   const termOptions = termGroup.map((group) => {
     const date = new Date(group.createdAt);
@@ -71,9 +86,14 @@ const Create = ({ packages, termGroup, onClose }) => {
     };
   });
 
-  const selectedLabels = termOptions
-    .filter(opt => selectedTermIds.includes(opt.id))
-    .map(opt => opt.label);
+  useEffect(() => {
+    const labels = termOptions
+      .filter(opt => selectedTermIds.includes(opt.id))
+      .map(opt => opt.label);
+    setSelectedLabels(labels);
+  }, [selectedTermIds, termOptions]);
+
+
 
   const toggleTermId = (id) => {
     setSelectedTermIds(prev =>
@@ -92,10 +112,43 @@ const Create = ({ packages, termGroup, onClose }) => {
     label: `${pkg.duration} (${pkg.students} Students) £${pkg.price.toFixed(2)}`
   }));
   console.log(subOptions);
+
+
+  useEffect(() => {
+    if (formData?.paymentPlanId) {
+      try {
+        const parsed = Array.isArray(formData.paymentPlanId)
+          ? formData.paymentPlanId
+          : JSON.parse(formData.paymentPlanId);
+        setSelectedSubs(parsed);
+      } catch {
+        setSelectedSubs([]);
+      }
+    }
+
+    if (formData?.termGroupId) {
+      try {
+        const parsed = Array.isArray(formData.termGroupId)
+          ? formData.termGroupId
+          : JSON.parse(formData.termGroupId);
+        setSelectedTermIds(parsed);
+      } catch {
+        setSelectedTermIds([]);
+      }
+    }
+  }, [formData]);
+
+  useEffect(() => {
+    const matched = termOptions
+      .filter((group) => selectedTermIds.includes(group.id))
+      .map((group) => group.label);
+    setSelectedLabels(matched);
+  }, [selectedTermIds, termOptions]);
+
   return (
     <div className="max-w-md mx-auto">
       <h2 className="md:text-[24px] font-semibold mb-4 flex gap-2 items-center border-[#E2E1E5] border-b p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" />{isEditVenue ? 'Edit Venue' : 'Add New Venue'}</h2>
-      <form onSubmit={handleSubmit} className="space-y-2  p-5 pt-1">
+      <form className="space-y-2  p-5 pt-1">
 
         <div>
           <label className="block font-semibold text-[16px] pb-2">Area</label>
@@ -150,14 +203,14 @@ const Create = ({ packages, termGroup, onClose }) => {
             <span className="block font-semibold text-[16px]">Parking</span>
             <input
               type="checkbox"
-              name="parking"
-              checked={formData.parking}
+              name="hasParking"
+              checked={formData.hasParking}
               onChange={handleInputChange}
               className="sr-only"
             />
             <div
               className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
-        ${formData.parking ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
+        ${formData.hasParking ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
             >
               <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
             </div>
@@ -168,14 +221,14 @@ const Create = ({ packages, termGroup, onClose }) => {
             <span className="block font-semibold text-[16px]">Congestion</span>
             <input
               type="checkbox"
-              name="congestion"
-              checked={formData.congestion}
+              name="isCongested"
+              checked={formData.isCongested}
               onChange={handleInputChange}
               className="sr-only"
             />
             <div
               className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
-        ${formData.congestion ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
+        ${formData.isCongested ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
             >
               <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
             </div>
@@ -198,8 +251,8 @@ const Create = ({ packages, termGroup, onClose }) => {
         <div>
           <label className="block font-semibold text-[16px] pb-2">How to enter facility</label>
           <textarea
-            name="entryNote"
-            value={formData.entryNote}
+            name="congestionNote"
+            value={formData.congestionNote}
             onChange={handleInputChange}
             className="w-full border bg-[#FAFAFA] border-[#E2E1E5] rounded-xl p-4 text-sm"
             rows={3}
@@ -315,17 +368,13 @@ const Create = ({ packages, termGroup, onClose }) => {
         </div>
         <div className="flex justify-between mt-6">
           <button
-            onClick={() =>
-              setFormData({
-                area: "", name: "", address: "", facility: "",
-                parking: false, congestion: false, parkingNote: "",
-                entryNote: "", termId: "", paymentPlanId: ""
-              })
-            }
+            type="button"
+            onClick={handleCancel}
             className="w-1/2 mr-2 py-3 font-semibold border border-[#E2E1E5] rounded-xl text-[18px] text-[#717073] hover:bg-gray-100"
           >
             Cancel
           </button>
+
           <button
             type="button"
             onClick={() => {

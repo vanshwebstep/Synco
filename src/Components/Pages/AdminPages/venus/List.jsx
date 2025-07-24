@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 import Loader from '../contexts/Loader';
 import { useVenue } from '../contexts/VenueContext';
 import { usePayments } from '../contexts/PaymentPlanContext';
-import { useTermContext } from '../contexts/termDatesSessionContext';
+import { useTermContext } from '../contexts/termDatesSessionContext ';
 import Swal from "sweetalert2"; // make sure it's installed
 
 const List = () => {
@@ -43,17 +43,22 @@ const List = () => {
   };
 
 
-  const handledelete = (id) => {
-    Swal({
-      title: "Are you sure?",
-      text: "This action will permanently delete the venue.",
-      icon: "warning",
-      buttons: ["Cancel", "Yes, delete it!"],
-      dangerMode: true,
-    }).then((willDelete) => {
-      if (willDelete) {
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action will permanently delete the venue.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
         console.log('DeleteId:', id);
+
         deleteVenue(id); // Call your delete function here
+
       }
     });
   };
@@ -165,7 +170,7 @@ const List = () => {
                               }} src="/demo/synco/members/edit.png" className='w-6 h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90' alt="" /></div>
                               <div>
                                 <img
-                                  onClick={() => handledelete(user.id)}
+                                  onClick={() => handleDelete(user.id)}
                                   src="/demo/synco/members/delete-02.png"
                                   className="w-6 h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
                                   alt=""
@@ -175,7 +180,7 @@ const List = () => {
                                 src="/demo/synco/members/Time-Circle.png"
                                 className="w-6 h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
                                 alt="Navigate"
-                                onClick={() => navigate('/weekly-classes/venues/class-schedule')}
+                                onClick={() => navigate(`/weekly-classes/venues/class-schedule?id=${user.id}`)}
                               /></div>
                             </div>
 

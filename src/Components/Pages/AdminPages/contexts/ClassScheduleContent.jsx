@@ -1,15 +1,15 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import Swal from "sweetalert2"; // make sure it's installed
 
-const VenueContext = createContext();
+const ClassScheduleContext = createContext();
 
-export const VenueProvider = ({ children }) => {
+export const ClassScheduleProvider = ({ children }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const [venues, setVenues] = useState([]);
+  const [classSchedules, setClassSchedules] = useState([]);
   const token = localStorage.getItem("adminToken");
 
   const [loading, setLoading] = useState(false);
-  const [isEditVenue, setIsEditVenue] = useState(false);
+  const [isEditClassSchedule, setIsEditClassSchedule] = useState(false);
   const [formData, setFormData] = useState({
     area: "",
     name: "",
@@ -21,13 +21,13 @@ export const VenueProvider = ({ children }) => {
     entryNote: "",
   });
 
-  const fetchVenues = useCallback(async () => {
+  const fetchClassSchedules = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/venue`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -36,14 +36,16 @@ export const VenueProvider = ({ children }) => {
 
       const resultRaw = await response.json();
       const result = resultRaw.data || [];
-      setVenues(result);
+      setClassSchedules(result);
     } catch (error) {
-      console.error("Failed to fetch venues:", error);
+      console.error("Failed to fetch classSchedules:", error);
     } finally {
       setLoading(false);
     }
   }, []);
-  const createVenues = async (venueData) => {
+
+
+  const createClassSchedules = async (classScheduleData) => {
     setLoading(true);
 
     const myHeaders = new Headers();
@@ -55,34 +57,34 @@ export const VenueProvider = ({ children }) => {
     const requestOptions = {
       method: "POST",
       headers: myHeaders,
-      body: JSON.stringify(venueData),
+      body: JSON.stringify(classScheduleData),
       redirect: "follow",
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/venue/`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule`, requestOptions);
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create venue");
+        throw new Error(errorData.message || "Failed to create classSchedule");
       }
 
       const result = await response.json();
 
       await Swal.fire({
         title: "Success!",
-        text: result.message || "Venue has been created successfully.",
+        text: result.message || "ClassSchedule has been created successfully.",
         icon: "success",
         confirmButtonText: "OK",
       });
 
-      fetchVenues();
+      fetchClassSchedules();
       return result;
     } catch (error) {
-      console.error("Error creating venue:", error);
+      console.error("Error creating classSchedule:", error);
       await Swal.fire({
         title: "Error",
-        text: error.message || "Something went wrong while creating venue.",
+        text: error.message || "Something went wrong while creating classSchedule.",
         icon: "error",
         confirmButtonText: "OK",
       });
@@ -93,7 +95,7 @@ export const VenueProvider = ({ children }) => {
   };
 
   // UPDATE VENUE
-  const updateVenues = async (venueId, updatedVenueData) => {
+  const updateClassSchedules = async (classScheduleId, updatedClassScheduleData) => {
     setLoading(true);
 
     const myHeaders = new Headers();
@@ -105,34 +107,34 @@ export const VenueProvider = ({ children }) => {
     const requestOptions = {
       method: "PUT",
       headers: myHeaders,
-      body: JSON.stringify(updatedVenueData),
+      body: JSON.stringify(updatedClassScheduleData),
       redirect: "follow",
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/venue/${venueId}`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/classSchedule/${classScheduleId}`, requestOptions);
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update venue");
+        throw new Error(errorData.message || "Failed to update classSchedule");
       }
 
       const result = await response.json();
 
       await Swal.fire({
         title: "Success!",
-        text: result.message || "Venue has been updated successfully.",
+        text: result.message || "ClassSchedule has been updated successfully.",
         icon: "success",
         confirmButtonText: "OK",
       });
 
-      fetchVenues();
+      fetchClassSchedules();
       return result;
     } catch (error) {
-      console.error("Error updating venue:", error);
+      console.error("Error updating classSchedule:", error);
       await Swal.fire({
         title: "Error",
-        text: error.message || "Something went wrong while updating venue.",
+        text: error.message || "Something went wrong while updating classSchedule.",
         icon: "error",
         confirmButtonText: "OK",
       });
@@ -141,11 +143,11 @@ export const VenueProvider = ({ children }) => {
       setLoading(false);
     }
   };
-const deleteVenue = useCallback(async (id) => {
+const deleteClassSchedule = useCallback(async (id) => {
   if (!token) return;
 
   try {
-    const res = await fetch(`${API_BASE_URL}/api/admin/venue/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/admin/classSchedule/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -155,18 +157,18 @@ const deleteVenue = useCallback(async (id) => {
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.message || "Failed to delete venue");
+      throw new Error(data.message || "Failed to delete classSchedule");
     }
 
     await Swal.fire({
       icon: "success",
-      title: data.message || "Venue deleted successfully",
+      title: data.message || "ClassSchedule deleted successfully",
       confirmButtonColor: "#3085d6",
     });
 
-    await fetchVenues(); // Refresh the list
+    await fetchClassSchedules(); // Refresh the list
   } catch (err) {
-    console.error("Failed to delete venue:", err);
+    console.error("Failed to delete classSchedule:", err);
     await Swal.fire({
       icon: "error",
       title: "Error",
@@ -174,15 +176,15 @@ const deleteVenue = useCallback(async (id) => {
       confirmButtonColor: "#d33",
     });
   }
-}, [token, fetchVenues]);
+}, [token, fetchClassSchedules]);
 
 
   return (
-    <VenueContext.Provider
-      value={{ venues, createVenues, updateVenues, deleteVenue, formData, setFormData, isEditVenue, setIsEditVenue, setVenues, fetchVenues, loading }}>
+    <ClassScheduleContext.Provider
+      value={{ classSchedules, createClassSchedules, updateClassSchedules, deleteClassSchedule, formData, setFormData, isEditClassSchedule, setIsEditClassSchedule, setClassSchedules, fetchClassSchedules, loading }}>
       {children}
-    </VenueContext.Provider>
+    </ClassScheduleContext.Provider>
   );
 };
 
-export const useVenue = () => useContext(VenueContext);
+export const useClassSchedule = () => useContext(ClassScheduleContext);

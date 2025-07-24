@@ -44,7 +44,7 @@ import { DiscountContextProvider } from './Components/Pages/AdminPages/contexts/
 import { SessionPlanContextProvider } from './Components/Pages/AdminPages/contexts/SessionPlanContext.jsx';
 import { NotificationProvider } from './Components/Pages/AdminPages/contexts/NotificationContext.jsx';
 import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueContext.jsx';
-
+import { ClassScheduleProvider } from './Components/Pages/AdminPages/contexts/ClassScheduleContent.jsx';
 import './App.css';
 import { TermDatesSessionProvider } from './Components/Pages/AdminPages/contexts/TermDatesSessionContext.jsx';
 
@@ -80,7 +80,7 @@ const AuthRoutes = () => {
 // ----------------- MAIN ROUTES -----------------
 const AppRoutes = () => {
   const location = useLocation();
-  const isAuth = ['/admin-login','/reset-password',  '/admin-ForgotPassword'].includes(location.pathname);
+  const isAuth = ['/admin-login', '/reset-password', '/admin-ForgotPassword'].includes(location.pathname);
 
   if (isAuth) return <AuthRoutes />;
 
@@ -132,10 +132,11 @@ function App() {
             <PaymentPlanContextProvider>
               <DiscountContextProvider>
                 <SessionPlanContextProvider>
-                <TermDatesSessionProvider>
-
-                <AppRoutes />
-               </TermDatesSessionProvider>
+                  <TermDatesSessionProvider>
+                    <ClassScheduleProvider>
+                      <AppRoutes />
+                    </ClassScheduleProvider>
+                  </TermDatesSessionProvider>
                 </SessionPlanContextProvider>
               </DiscountContextProvider>
             </PaymentPlanContextProvider>

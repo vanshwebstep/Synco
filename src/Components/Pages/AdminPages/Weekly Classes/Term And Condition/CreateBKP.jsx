@@ -43,9 +43,6 @@ const initialTerms = [
     },
 ];
 const Create = () => {
-    const [isEditing, setIsEditing] = useState(true);
-    const [isCreated, setIsCreated] = useState(false);
-
     const [searchParams] = useSearchParams();
     const [initialTerms, setInitialTerms] = useState([]);
 
@@ -54,6 +51,7 @@ const Create = () => {
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
+    const [isCreated, setIsCreated] = useState(false); // ✅ Track if group was created
     const [isMapCreated, setIsMapCreated] = useState(false); // ✅ Track if group was created
 
     const [termGroupName, setTermGroupName] = useState("");
@@ -99,7 +97,7 @@ const Create = () => {
         );
         setIsMapCreated(false);
     };
-    const handleSave = async () => {
+    const handleBlur = async () => {
         const trimmedName = termGroupName.trim();
         if (!trimmedName) return;
 
@@ -107,24 +105,20 @@ const Create = () => {
             name: trimmedName,
         };
 
-        try {
-            if (isCreated) {
-                // 🔁 Update
+        try { if (isCreated) {
+                // ✅ Update using myGroupData.id
                 await updateTermGroup(myGroupData.id, payload);
-                console.log("🔄 Updated Term Group");
+                console.log("🔄 Updated using myGroupData");
             } else {
-                // 🆕 Create
-                const created = await createTermGroup(payload);
+                // ✅ Create new
+                await createTermGroup(payload);
                 setIsCreated(true);
-                console.log("✅ Created New Term Group");
+                console.log("✅ Created new term group");
             }
-
-            setIsEditing(false); // Lock input after saving
         } catch (err) {
             console.error("❌ Error saving Term Group:", err);
         }
     };
-
 
     useEffect(() => {
         setIsCreated(false);
@@ -318,39 +312,23 @@ const Create = () => {
                     <h3 className="font-semibold   text-[24px]"> <b>Step 1: </b>Add term Dates </h3>
 
                     <div className="rounded-2xl mb-5 bg-white md:p-6">
+
                         <div className="border border-gray-200 rounded-3xl px-4 py-3">
                             <div className="flex items-center justify-between">
-                                <label className="block text-base font-semibold text-gray-700 mb-2">
+                                <label className="rounded-3xl block text-base font-semibold text-gray-700 mb-2">
                                     Name of Term Group
                                 </label>
-                                {isEditing ? (
-                                    <img
-                                        src="/demo/synco/icons/edit.png"
-                                        onClick={handleSave}
-                                        className="w-[18px] cursor-pointer"
-                                        alt="Save"
-                                    />
-                                ) : (
-                                    <img
-                                        src="/demo/synco/icons/edit.png"
-                                        onClick={() => setIsEditing(true)}
-                                        className="w-[18px] cursor-pointer"
-                                        alt="Edit"
-                                    />
-                                )}
+                                <img src="/demo/synco/icons/edit.png" className="w-[18px]" alt="" />
                             </div>
-
                             <input
                                 type="text"
                                 placeholder="Enter Term Group Name"
                                 value={termGroupName}
                                 onChange={(e) => setTermGroupName(e.target.value)}
-                                disabled={!isEditing}
-                                className={`md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 ${isEditing ? "focus:ring-blue-500" : "bg-gray-100 cursor-not-allowed"
-                                    }`}
+                                onBlur={handleBlur}
+                                className="md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
-
                     </div>
                     <div className="rounded-2xl mb-5 bg-white md:p-6">
                         {terms.map((term) => (
@@ -546,7 +524,7 @@ const Create = () => {
 
                         <div className="flex mb-5 flex-wrap flex-col-reverse gap-4 md:flex-row md:items-center md:justify-end md:gap-4">
                             <button
-                                onClick={() => {
+                                onClick={() =>
                                     setTerms((prev) => [
                                         ...prev,
                                         {
@@ -558,15 +536,12 @@ const Create = () => {
                                             sessions: '',
                                             isOpen: true,
                                         },
-                                    ]);
-                                    setIsMapping(false);
-                                    setSessionMappings([]);
-                                }}
+                                    ])
+                                }
                                 className="flex items-center min-w-40 justify-center gap-1 border border-gray-400 text-gray-400 text-[14px] px-4 py-3 rounded-lg hover:bg-gray-100 w-full md:w-auto"
                             >
                                 + Add Term
                             </button>
-
                             <button
                                 onClick={() => {
                                     if (!termGroupName?.trim()) {
@@ -637,7 +612,7 @@ const Create = () => {
                                                         placeholderText={`Session Date ${idx + 1}`}
                                                         selected={
                                                             sessionMappings[idx]?.date
-                                                                ? new Date(sessionMappings[idx]?.date)
+                                                                ? new Date(sessionMappings[idx].date)
                                                                 : null
                                                         }
                                                         onChange={(date) =>

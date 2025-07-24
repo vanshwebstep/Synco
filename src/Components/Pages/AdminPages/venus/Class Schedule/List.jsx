@@ -6,10 +6,97 @@ import { useVenue } from '../../contexts/VenueContext';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { motion, AnimatePresence } from "framer-motion";
+import { format } from "date-fns";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useClassSchedule } from '../../contexts/ClassScheduleContent';
+import { useSearchParams } from "react-router-dom";
 
 const List = () => {
-    const terms = [
+    const navigate = useNavigate();
+
+    const [searchParams] = useSearchParams();
+    const venueId = searchParams.get("id");
+    
+
+    const { fetchClassSchedules, createClassSchedules, classSchedules } = useClassSchedule()
+    useEffect(() => {
+        fetchClassSchedules();
+        if (!venueId) {
+            navigate(`/weekly-classes/venues/`)
+        }
+    }, [fetchClassSchedules]);
+    const filteredSchedules = classSchedules.filter(
+        (item) => item.venueId == venueId
+    );
+
+    console.log('Filtered Class Schedules:', classSchedules);
+
+
+
+    const [openTerms, setOpenTerms] = useState({});
+
+    const [showModal, setShowModal] = useState(false);
+    const [clickedIcon, setClickedIcon] = useState(null);
+    const handleIconClick = (icon) => {
+        setClickedIcon(icon);
+        setShowModal(true);
+    };
+    const handleEditClick = (classItem) => {
+        setFormData(classItem);
+        setIsEditing(true);
+        setOpenForm(true);
+    };
+    const toggleTerm = (termId) => {
+        setOpenTerms((prev) => ({
+            ...prev,
+            [termId]: !prev[termId],
+        }));
+    };
+
+    const [openClassIndex, setOpenClassIndex] = useState(null);
+
+    const toggleSessions = (index) => {
+        setOpenClassIndex(openClassIndex === index ? null : index);
+    };
+    // Reset for new form
+    const handleAddNew = () => {
+        setIsEditing(false);
+        setOpenForm(true);
+    };
+    const classes = [
+        {
+            className: "namedbfhs",
+            ageGroup: "4-7 Years",
+            capacity: 24,
+            day: "Saturday",
+            startTime: "2:00 pm",
+            endTime: "3:00 pm",
+            allowFreeTrial: "Yes",
+            facility: "Indoor",
+        },
+        {
+            className: "namedbfhs",
+            ageGroup: "8-12 Years",
+            capacity: 24,
+            day: "Saturday",
+            startTime: "2:00 pm",
+            endTime: "3:00 pm",
+            allowFreeTrial: "Yes",
+            facility: "Indoor",
+            highlight: true, // Red border
+        },
+        {
+            className: "namedbfhs",
+            ageGroup: "4-7 Years",
+            capacity: 24,
+            day: "Saturday",
+            startTime: "2:00 pm",
+            endTime: "3:00 pm",
+            allowFreeTrial: "No",
+            facility: "Indoor",
+        },
+    ];
+const terms = [
         {
             id: "autumn1",
             name: "Autumn Term",
@@ -50,72 +137,6 @@ const List = () => {
             ],
         },
     ];
-    const navigate = useNavigate();
-
-    const [openTerms, setOpenTerms] = useState({});
-
-    const [showModal, setShowModal] = useState(false);
-    const [clickedIcon, setClickedIcon] = useState(null);
-    const handleIconClick = (icon) => {
-        setClickedIcon(icon);
-        setShowModal(true);
-    };
-    const handleEditClick = (classItem) => {
-        setFormData(classItem);
-        setIsEditing(true);
-        setOpenForm(true);
-    };
-    const toggleTerm = (termId) => {
-        setOpenTerms((prev) => ({
-            ...prev,
-            [termId]: !prev[termId],
-        }));
-    };
-
-    const [openClassIndex, setOpenClassIndex] = useState(null);
-
-    const toggleSessions = (index) => {
-        setOpenClassIndex(openClassIndex === index ? null : index);
-    };
-    // Reset for new form
-    const handleAddNew = () => {
-        setIsEditing(false);
-        setOpenForm(true);
-    };
-    const classes = [
-        {
-            name: "Class 1",
-            ageGroup: "4-7 Years",
-            capacity: 24,
-            day: "Saturday",
-            startTime: "2:00 pm",
-            endTime: "3:00 pm",
-            freeTrial: "Yes",
-            facility: "Indoor",
-        },
-        {
-            name: "Class 2",
-            ageGroup: "8-12 Years",
-            capacity: 24,
-            day: "Saturday",
-            startTime: "2:00 pm",
-            endTime: "3:00 pm",
-            freeTrial: "Yes",
-            facility: "Indoor",
-            highlight: true, // Red border
-        },
-        {
-            name: "Class 3",
-            ageGroup: "4-7 Years",
-            capacity: 24,
-            day: "Saturday",
-            startTime: "2:00 pm",
-            endTime: "3:00 pm",
-            freeTrial: "No",
-            facility: "Indoor",
-        },
-    ];
-
     const [isEditing, setIsEditing] = useState(false);
     const [value, setValue] = useState('Some text');
 
@@ -144,7 +165,14 @@ const List = () => {
     };
 
     const handleSave = () => {
-        console.log('Saving class:', formData);
+        const payload = {
+            ...formData,
+            startTime: format(formData.startTime, "hh:mm aa"),
+            endTime: format(formData.endTime, "hh:mm aa"),
+            venueId: venueId
+        };
+        createClassSchedules(payload);
+
         setOpenForm(false);
     };
 
@@ -205,8 +233,8 @@ const List = () => {
                                             {/* Class info block */}
                                             <div className="grid grid-cols-2 md:grid-cols-9 gap-4 w-full text-sm">
                                                 <div>
-                                                    <p className="font-semibold text-[16px]">{item.name}</p>
-                                                    <p className="text-xs font-semibold text-[16px]">{item.ageGroup}</p>
+                                                    <p className="font-semibold text-[16px]">Class +{item.length}</p>
+                                                    <p className="text-xs font-semibold text-[16px]">{item.className}</p>
                                                 </div>
                                                 <div>
                                                     <p className="text-[#717073] font-semibold text-[16px]">Capacity</p>
@@ -226,7 +254,7 @@ const List = () => {
                                                 </div>
                                                 <div className='text-[#717073]  font-semibold text-[16px]'>
                                                     <p className="text-[#717073]">Free Trials?</p>
-                                                    <p className="font-semibold">{item.freeTrial}</p>
+                                                    <p className="font-semibold">{item.allowFreeTrial}</p>
                                                 </div>
                                                 <div className='text-[#717073] font-semibold  text-[16px]'>
                                                     <p className="text-[#717073]">Facility</p>
@@ -394,12 +422,11 @@ const List = () => {
                                         ))}
                                     </select>
                                 </div>
-                                <div className='flex w-1/2  gap-4'>
+                                <div className='flex w-1/2 gap-4'>
                                     <div className='w-1/2'>
                                         <label htmlFor="">Start Time</label>
-
                                         <DatePicker
-                                            // selected={formData?.startTime}
+                                            selected={formData?.startTime}
                                             onChange={(date) => handleChange('startTime', date)}
                                             showTimeSelect
                                             showTimeSelectOnly
@@ -407,13 +434,15 @@ const List = () => {
                                             dateFormat="h:mm aa"
                                             timeCaption="Time"
                                             className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                            maxTime={formData?.endTime || new Date(0, 0, 0, 23, 59)} // limit to selected endTime
+                                            minTime={new Date(0, 0, 0, 0, 0)} // allow from 12:00 AM
                                         />
                                     </div>
-                                    <div className='w-1/2'>
 
+                                    <div className='w-1/2'>
                                         <label htmlFor="">End Time</label>
                                         <DatePicker
-                                            // selected={formData?.endTime}
+                                            selected={formData?.endTime}
                                             onChange={(date) => handleChange('endTime', date)}
                                             showTimeSelect
                                             showTimeSelectOnly
@@ -421,10 +450,12 @@ const List = () => {
                                             dateFormat="h:mm aa"
                                             timeCaption="Time"
                                             className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                            minTime={formData?.startTime || new Date(0, 0, 0, 0, 0)} // limit to selected startTime
+                                            maxTime={new Date(0, 0, 0, 23, 59)} // allow till 11:59 PM
                                         />
-
                                     </div>
                                 </div>
+
                             </div>
 
 
