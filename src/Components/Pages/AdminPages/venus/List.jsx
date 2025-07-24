@@ -4,9 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
 import Loader from '../contexts/Loader';
 import { useVenue } from '../contexts/VenueContext';
-
+import { usePayments } from '../contexts/PaymentPlanContext';
+import { useTermContext } from '../contexts/termDatesSessionContext';
+import Swal from "sweetalert2"; // make sure it's installed
 
 const List = () => {
+  const navigate = useNavigate();
+
   const [showModal, setShowModal] = useState(false);
   const [clickedIcon, setClickedIcon] = useState(null);
   const handleIconClick = (icon) => {
@@ -14,9 +18,11 @@ const List = () => {
     setShowModal(true);
   };
 
+  const { fetchPackages, packages } = usePayments()
+  const { fetchTermGroup, termGroup } = useTermContext()
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { venues, formData, setFormData, isEditVenue, setIsEditVenue, fetchVenues, loading } = useVenue()
+  const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue()
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
@@ -37,10 +43,27 @@ const List = () => {
   };
 
 
+  const handledelete = (id) => {
+    Swal({
+      title: "Are you sure?",
+      text: "This action will permanently delete the venue.",
+      icon: "warning",
+      buttons: ["Cancel", "Yes, delete it!"],
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        console.log('DeleteId:', id);
+        deleteVenue(id); // Call your delete function here
+      }
+    });
+  };
+
   const [openForm, setOpenForm] = useState(false);
   useEffect(() => {
     fetchVenues();
-  }, [fetchVenues]);
+    fetchPackages();
+    fetchTermGroup();
+  }, [fetchVenues, fetchPackages, fetchTermGroup]);
 
   if (loading) {
     return (
@@ -58,7 +81,10 @@ const List = () => {
           onClick={() => setOpenForm(true)}
           className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
         >
-          <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add New Venues
+          <div className="flex items-center gap-2">
+            <img src="/demo/synco/members/add.png" className="w-5" alt="" />
+            <span>Add New Venue</span>
+          </div>
         </button>
       </div>
 
@@ -107,12 +133,12 @@ const List = () => {
                               >
                                 {isChecked && <Check size={16} strokeWidth={3} className="text-gray-700" />}
                               </button>
-                              <span>{user.firstName || "-"}</span>
+                              <span>{user.area || "-"}</span>
                             </div>
                           </td>
-                          <td className="p-4">{user.role?.role || "-"}</td>
-                          <td className="p-4">{user.phoneNumber || "-"}</td>
-                          <td className="p-4">{user.email || "-"}</td>
+                          <td className="p-4">{user.name || "-"}</td>
+                          <td className="p-4">{user.address || "-"}</td>
+                          <td className="p-4">{user.facility || "-"}</td>
                           <td className="p-4">
                             <div className="flex gap-2">
                               <div onClick={() => handleIconClick("calendar")} className="cursor-pointer">
@@ -136,9 +162,21 @@ const List = () => {
                                 setIsEditVenue(true);
                                 setFormData(user);
                                 setOpenForm(true)
-                              }} src="/demo/synco/members/edit.png" className='w-6 h-6' alt="" /></div>
-                              <div><img src="/demo/synco/members/delete-02.png" className='w-6 h-6' alt="" /></div>
-                              <div><img src="/demo/synco/members/Time-Circle.png" className='w-6 h-6' alt="" /></div>
+                              }} src="/demo/synco/members/edit.png" className='w-6 h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90' alt="" /></div>
+                              <div>
+                                <img
+                                  onClick={() => handledelete(user.id)}
+                                  src="/demo/synco/members/delete-02.png"
+                                  className="w-6 h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
+                                  alt=""
+                                />
+                              </div>
+                              <div>  <img
+                                src="/demo/synco/members/Time-Circle.png"
+                                className="w-6 h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
+                                alt="Navigate"
+                                onClick={() => navigate('/weekly-classes/venues/class-schedule')}
+                              /></div>
                             </div>
 
                           </td>
@@ -162,7 +200,7 @@ const List = () => {
             <button
               onClick={() => {
                 setOpenForm(false);
-                setIsEditVenue(null);
+                setIsEditVenue(false);
                 setFormData({
                   area: "",
                   name: "",
@@ -181,7 +219,9 @@ const List = () => {
             >
               &times;
             </button>
-            <Create />
+            <Create packages={packages} termGroup={termGroup} onClose={() => setOpenForm(false)} />
+
+
           </div>
         )}
 

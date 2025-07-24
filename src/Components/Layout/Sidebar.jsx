@@ -24,7 +24,6 @@ const menuItems = [
     subItems: [
       { title: 'Find a class', link: '/weekly-classes/find-a-class', role: commonRole },
       { title: 'Venues', link: '/weekly-classes/venues', role: commonRole },
-      { title: 'Class Schedule', link: '/weekly-classes/venues/class-schedule', role: commonRole },
       { title: 'Term Dates & Session Plan mapping', link: '/weekly-classes/term-dates/list', role: commonRole },
     ]
   },

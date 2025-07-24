@@ -401,10 +401,10 @@ const Create = () => {
     }
     console.log('bannerFile', bannerFile)
     console.log('videoFile', videoFile)
-const stripHtml = (html) => {
-  const doc = new DOMParser().parseFromString(html, 'text/html');
-  return doc.body.textContent || '';
-};
+    const stripHtml = (html) => {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || '';
+    };
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -745,18 +745,18 @@ const stripHtml = (html) => {
 
 
 
-<Editor
-  apiKey="your-key"
-  value={formData.description}
-  onEditorChange={(content) =>
-    setFormData({ ...formData, description: stripHtml(content) })
-  }
-  init={{
-    menubar: false,
-    toolbar: 'bold italic underline | bullist numlist | undo redo',
-    height: 150,
-    branding: false,
-    content_style: `
+                                            <Editor
+                                                apiKey="your-key"
+                                                value={formData.description}
+                                                onEditorChange={(content) =>
+                                                    setFormData({ ...formData, description: stripHtml(content) })
+                                                }
+                                                init={{
+                                                    menubar: false,
+                                                    toolbar: 'bold italic underline | bullist numlist | undo redo',
+                                                    height: 150,
+                                                    branding: false,
+                                                    content_style: `
         body {
             background-color: #f3f4f6;
             font-family: inherit;
@@ -765,10 +765,10 @@ const stripHtml = (html) => {
             color: #111827;
         }
     `,
-  }}
-/>
+                                                }}
+                                            />
 
-                                            
+
                                         </div>
                                     </div>
 

@@ -10,7 +10,9 @@ export const TermDatesSessionProvider = ({ children }) => {
   const [termGroup, setTermGroup] = useState([]);
   const [termData, setTermData] = useState([]);
   const [groups, setGroups] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedTermGroup, setSelectedTermGroup] = useState(null);
+  const [selectedTerm, setSelectedTerm] = useState(null);
+
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -84,9 +86,7 @@ setMyGroupData(data.data);
           confirmButtonColor: '#237FEA'
         });
 
-        if (shouldRedirect) {
-          navigate('/weekly-classes/term-dates/list');
-        }
+      
       } else {
         console.error("API Error:", data.message || "Unknown error");
       }
@@ -205,15 +205,30 @@ const createTerms = useCallback(
   // Fetch single discount
 
 
-  const fetchGroupById = useCallback(async (id) => {
+  const fetchTermGroupById = useCallback(async (id) => {
     if (!token) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/term-group/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
-      setSelectedGroup(result.data || null);
+      setSelectedTermGroup(result.data || null);
+    } catch (err) {
+      console.error("Failed to fetch discount:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+    const fetchTermById = useCallback(async (id) => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      setSelectedTerm(result.data || null);
     } catch (err) {
       console.error("Failed to fetch discount:", err);
     } finally {
@@ -295,10 +310,10 @@ const updateTermGroup = useCallback(
 
 
   // Delete discount
-  const deleteSessionGroup = useCallback(async (id) => {
+  const deleteTermGroup = useCallback(async (id) => {
     if (!token) return;
     try {
-      await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
+      await fetch(`${API_BASE_URL}/api/admin/term-group/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -333,17 +348,22 @@ const updateTermGroup = useCallback(
         loading,
         createTermGroup,
         createSessionExercise,
-        selectedGroup,
+        selectedTermGroup,
+        selectedTerm,
         fetchTermGroup,
-        fetchGroupById,
+        fetchTermGroupById,
+        fetchTermById,
         createDiscount,
         updateTermGroup,
-        deleteSessionGroup,
+        setSelectedTermGroup,
+        setSelectedTerm,
+        deleteTermGroup,
 
         selectedExercise,
         setSelectedExercise,
         exercises,
         myGroupData,
+        setMyGroupData,
         fetchTerm,
         termData,
         setExercises,

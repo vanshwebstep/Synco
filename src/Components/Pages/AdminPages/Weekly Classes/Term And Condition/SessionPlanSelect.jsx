@@ -1,17 +1,22 @@
 // SessionPlanSelect.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Search } from 'lucide-react';
+import { useTermContext } from '../../contexts/TermDatesSessionContext';
+import { useSessionPlan } from '../../contexts/SessionPlanContext';
 
-const options = [
-  { value: 'pele-week-01', label: 'Pelé – Week 01' },
-  { value: 'pele-week-02', label: 'Pelé – Week 02' },
-  { value: 'pele-week-03', label: 'Pelé – Week 03' },
-  { value: 'pele-week-04', label: 'Pelé – Week 04' },
-];
+
+
+const ageMapping = {
+  Beginner: "4-6 Years",
+  Intermediate: "6-7 Years",
+  Advanced: "8-9 Years",
+  Pro: "10-12 Years",
+};
 
 const customStyles = {
+
   control: (base, state) => ({
     ...base,
     borderRadius: '12px',
@@ -45,15 +50,45 @@ const customStyles = {
   }),
 };
 
-const SessionPlanSelect = ({ idx = 0, value = '', onChange }) => {
-  const [selectedOption, setSelectedOption] = useState(
-    options.find((opt) => opt.label === value) || null
-  );
+const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
+  const { fetchSessionGroup, sessionGroup } = useSessionPlan();
+  const [options, setOptions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(null);
+
+  useEffect(() => {
+    const getPackages = async () => {
+      try {
+        const response = await fetchSessionGroup();
+        console.log("Fetched packages:", response);
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+      }
+    };
+    getPackages();
+  }, [fetchSessionGroup]);
+
+  useEffect(() => {
+    if (sessionGroup?.length > 0) {
+      const transformedWeeks = sessionGroup.map((group) => ({
+        value: group.id,
+        label: group.groupName,
+      }));
+      setOptions(transformedWeeks);
+    }
+  }, [sessionGroup]);
+
+  // Sync selected value when options or value change
+  useEffect(() => {
+    if (options.length > 0 && value) {
+      const matched = options.find((opt) => opt.value === value);
+      setSelectedOption(matched || null);
+    }
+  }, [value, options]);
 
   const handleChange = (option) => {
     setSelectedOption(option);
     if (onChange) {
-      onChange(idx, 'plan', option?.label || '');
+      onChange(idx, 'plan', option?.value || '');
     }
   };
 

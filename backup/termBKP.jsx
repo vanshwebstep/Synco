@@ -4,6 +4,7 @@ import Loader from '../../contexts/Loader';
 import TermCard from './TermCard';
 import { useNavigate } from 'react-router-dom';
 import { useTermContext } from '../../contexts/TermDatesSessionContext';
+import { useVenue } from '../../contexts/VenueContext';
 
 const formatDate = (iso) => {
   const d = new Date(iso);
@@ -24,105 +25,68 @@ const formatShortDate = (iso) => {
 
 const List = () => {
   const navigate = useNavigate();
-  const { fetchTermGroup, fetchTerm, termGroup, termData, loading } = useTermContext();
+  const { venues, fetchVenues, loading } = useVenue();
+  const { fetchTermGroup, fetchTerm, termGroup, termData } = useTermContext();
   const [sessionDataList, setSessionDataList] = useState([]);
   const [classList, setClassList] = useState([]);
 
   useEffect(() => {
+    fetchVenues();
     fetchTerm();
     fetchTermGroup();
-  }, [fetchTerm, fetchTermGroup]);
+  }, [fetchVenues, fetchTerm, fetchTermGroup]);
+
   useEffect(() => {
-    console.log("🚀 useEffect triggered");
+    // Build sessionData + classes when data is ready
+    if (!termGroup.length || !termData.length) return;
 
-    // Step 1: Check data presence
-    if (!termGroup.length || !termData.length) {
-      console.log("⛔ Missing termGroup or termData");
-      return;
-    }
+    const grouped = termGroup.map((group) => {
+      const terms = termData.filter((t) => t.termGroupId === group.id);
+      if (!terms.length) return null;
 
-    console.log("✅ termGroup:", termGroup);
-    console.log("✅ termData:", termData);
-
-    // Helper to detect season
-    const detectSeason = (termName) => {
-      const name = termName?.toLowerCase();
-      if (name?.includes('autumn')) return 'autumn';
-      if (name?.includes('spring')) return 'spring';
-      return 'summer';
-    };
-
-    const grouped = termGroup.map((group, groupIdx) => {
-      console.log(`\n📦 Processing Group #${groupIdx + 1}:`, group);
-
-      // Use termGroup?.id to match correctly
-      const terms = termData.filter((t) => t.termGroup?.id === group.id);
-      if (!terms.length) {
-        console.log(`⚠️ No terms found for group ID ${group.id}`);
-        return null;
-      }
-
-      console.log(`🔍 Matched ${terms.length} terms for group '${group.name}'`);
-
-      // Step 2: Map each term to sessionData
-      const sessionData = terms.map((term, termIdx) => {
+      // Build sessionData format for this group
+      const sessionData = terms.map((term) => {
         const start = formatDate(term.startDate);
         const end = formatDate(term.endDate);
         const dateRange = `${start} - ${end}`;
+        const exclusion =
+          term.exclusionDates?.map((ex) => formatDate(ex)).join(', ') || 'None';
 
-        // Parse exclusionDates
-        let exclusionArr = [];
-        try {
-          exclusionArr = JSON.parse(term.exclusionDates || '[]');
-        } catch (err) {
-          console.error(`❌ Failed to parse exclusions for term ${term.id}:`, err);
-        }
+        const sessions = term.sessionsMap.map((session, idx) => {
+          return `Session ${idx + 1}: Plan #${session.sessionPlanId}`;
+        });
 
-        const exclusion = exclusionArr.length
-          ? exclusionArr.map((ex) => formatDate(ex)).join(', ')
-          : 'None';
-        const sessions = term.sessionsMap.map((session, idx) => ({
-          groupName: session.groupName,
-          date: formatDate(session.sessionDate), // assuming you have a formatDate function
-        }));
-
-
-
-
-        const season = detectSeason(term.termName);
-
-        const sessionObj = {
-         
+        return {
           term: term.termName,
-          icon: `/demo/synco/icons/${season}.png`,
-          date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
+          icon: `/demo/synco/icons/${term.termName.toLowerCase().includes('autumn')
+            ? 'autumn'
+            : term.termName.toLowerCase().includes('spring')
+              ? 'spring'
+              : 'summer'
+            }.png`,
+          date: dateRange,
           exclusion,
           sessions,
-
         };
-
-        console.log(`📘 Term #${termIdx + 1} (${term.termName}):`, sessionObj);
-        return sessionObj;
       });
 
-      console.log('📊 SessionData for this group:', sessionData);
-
-      // Step 3: Build the class card
       const classCard = {
-        id: group.id,
         name: group.name,
-        Date: formatShortDate(group.createdAt),
+        Date: formatShortDate(group.createdAt), // this is your "4-7 Years" placeholder
         endTime: '3:00 pm',
         freeTrial: 'Yes',
         facility: 'Indoor',
       };
 
+      // Spread terms into classCard as keys like autumn, spring, etc.
       sessionData.forEach((termData) => {
-        const key = detectSeason(termData.term);
-        classCard[key] = `${termData.date}`;
+        const key = termData.term.toLowerCase().includes('autumn')
+          ? 'autumn'
+          : termData.term.toLowerCase().includes('spring')
+            ? 'spring'
+            : 'summer';
+        classCard[key] = `${termData.date} Half-Term Exclusion: ${termData.exclusion}`;
       });
-
-      console.log(`🧾 Built classCard for group '${group.name}':`, classCard);
 
       return { sessionData, classCard };
     });
@@ -131,14 +95,9 @@ const List = () => {
     const allSessions = filtered.map((g) => g.sessionData);
     const allClasses = filtered.map((g) => g.classCard);
 
-    console.log("✅ Final SessionDataList:", allSessions);
-    console.log("✅ Final ClassList:", allClasses);
-
     setSessionDataList(allSessions);
     setClassList(allClasses);
   }, [termGroup, termData]);
-
-
 
   if (loading) return <Loader />;
 
@@ -161,7 +120,7 @@ const List = () => {
 
       {/* Term Cards */}
       <div className="transition-all duration-300 w-full">
-        {classList.length > 0 ? (
+        {venues.length > 0 && classList.length > 0 ? (
           <div className="rounded-3xl shadow">
             {classList.map((item, index) => (
               <TermCard item={item} sessionData={sessionDataList[index]} key={index} />

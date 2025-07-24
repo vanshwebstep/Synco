@@ -32,6 +32,8 @@ import Cancel from './Components/Pages/AdminPages/venus/Class Schedule/View Sess
 
 import TermDateList from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/List.jsx';
 import TermDateCreate from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/Create.jsx';
+
+import TermDateUpdate from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/Update.jsx';
 import SessionPlanList from './Components/Pages/AdminPages/Holiday Camps/Session plan library/list.jsx';
 import SessionPlanCreate from './Components/Pages/AdminPages/Holiday Camps/Session plan library/Create.jsx';
 import SessionPlanPreview from './Components/Pages/AdminPages/Holiday Camps/Session plan library/Preview.jsx';
@@ -108,6 +110,7 @@ const AppRoutes = () => {
 
       <Route path="/weekly-classes/term-dates/list" element={<AdminLayout><ProtectedRoute><TermDateList /></ProtectedRoute></AdminLayout>} />
       <Route path="/weekly-classes/term-dates/create" element={<AdminLayout><ProtectedRoute><TermDateCreate /></ProtectedRoute></AdminLayout>} />
+      <Route path="/weekly-classes/term-dates/update" element={<AdminLayout><ProtectedRoute><TermDateUpdate /></ProtectedRoute></AdminLayout>} />
 
       <Route path="/holiday-camps/session-plan-list" element={<AdminLayout><ProtectedRoute><SessionPlanList /></ProtectedRoute></AdminLayout>} />
       <Route path="/holiday-camps/session-plan-create" element={<AdminLayout><ProtectedRoute><SessionPlanCreate /></ProtectedRoute></AdminLayout>} />

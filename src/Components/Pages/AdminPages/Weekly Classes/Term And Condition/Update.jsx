@@ -53,12 +53,14 @@ const Create = () => {
 
     const [termGroupName, setTermGroupName] = useState("");
     const [termGroupId, setTermGroupId] = useState(null); // store ID after creation
-    const { createTermGroup, updateTermGroup, myGroupData, selectedTermGroup, fetchTerm, termData, fetchTermGroupById, } = useTermContext();
+    const { createTermGroup, updateTermGroup, myGroupData, selectedTermGroup, setMyGroupData, fetchTerm, termData, fetchTermGroupById, } = useTermContext();
     const [mapSession, setMapSession] = useState([]);
 
     const [terms, setTerms] = useState(initialTerms);
     const [activeSessionValue, setActiveSessionValue] = useState('');
     const [sessionMappings, setSessionMappings] = useState([]);
+    const [machedTermsID, setMachedTermsID] = useState([]);
+
     const activeTerm = terms.find(t => t.isOpen);
     const activeSessionCount = parseInt(activeSessionValue || 0, 10);
     const [isMapping, setIsMapping] = useState(false);
@@ -102,7 +104,12 @@ const Create = () => {
             name: trimmedName,
         };
 
-        try { if (isCreated) {
+        try {
+            if (selectedTermGroup?.id) {
+                // ✅ Update using selectedTermGroup.id
+                await updateTermGroup(selectedTermGroup.id, payload);
+                console.log("🔄 Updated using selectedTermGroup");
+            } else if (isCreated) {
                 // ✅ Update using myGroupData.id
                 await updateTermGroup(myGroupData.id, payload);
                 console.log("🔄 Updated using myGroupData");
@@ -135,7 +142,8 @@ const Create = () => {
             }
         }
     };
-    const handleSaveTerm = async (term) => {
+    const handleSaveTerm = async (term, isEdit) => {
+        console.log('myGroupData', myGroupData)
         if (!myGroupData?.id) {
             console.error("Missing termGroupId");
             return;
@@ -152,14 +160,20 @@ const Create = () => {
             sessionPlanGroupId: 1, // Replace with dynamic value if needed
             startDate: term.startDate,
             endDate: term.endDate,
-            sessionsMap: sessionsMap,
             exclusionDates: term.exclusions.filter((ex) => ex.trim() !== ""),
-            totalNumberOfSessions: Number(term.sessions),
+            totalSessions: Number(term.sessions), // Use totalSessions for PUT as per your API
+            sessionsMap: sessionsMap, // Optional in PUT if not needed
         };
 
+        const url = isEdit
+            ? `${API_BASE_URL}/api/admin/term/${term.id}`
+            : `${API_BASE_URL}/api/admin/term`;
+
+        const method = isEdit ? "PUT" : "POST";
+
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/term`, {
-                method: "POST",
+            const response = await fetch(url, {
+                method,
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`,
@@ -173,25 +187,27 @@ const Create = () => {
                 throw new Error(data.message || 'Failed to save term.');
             }
 
-            console.log("✅ Term Saved:", data);
+            console.log(`✅ Term ${isEdit ? 'Updated' : 'Created'}:`, data);
 
             Swal.fire({
                 icon: 'success',
-                title: data.message || 'Term Saved Successfully',
-                confirmButtonColor: '#3085d6'
+                title: data.message || `Term ${isEdit ? 'Updated' : 'Saved'} Successfully`,
+                confirmButtonColor: '#3085d6',
             });
-            toggleTerm(term.id)
+
+            toggleTerm(term.id);
 
         } catch (error) {
-            console.error("❌ Error saving term:", error);
+            console.error(`❌ Error ${isEdit ? 'updating' : 'saving'} term:`, error);
             Swal.fire({
                 icon: 'error',
-                title: 'Failed to Save Term',
+                title: `Failed to ${isEdit ? 'Update' : 'Save'} Term`,
                 text: error.message || 'An unexpected error occurred.',
-                confirmButtonColor: '#d33'
+                confirmButtonColor: '#d33',
             });
         }
     };
+
 
     const handleExclusionChange = (termId, index, value) => {
         setTerms((prev) =>
@@ -216,9 +232,43 @@ const Create = () => {
             )
         );
     };
-    const deleteTerm = (id) => {
-        setTerms((prev) => prev.filter((term) => term.id !== id));
-    };
+
+  const deleteTerm = useCallback(async (id) => {
+    if (!token) return;
+
+    const willDelete = await Swal.fire({
+        title: "Are you sure?",
+        text: "This action will permanently delete the term.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+    });
+
+    if (!willDelete.isConfirmed) return; // Exit if user cancels
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+            Swal.fire("Deleted!", "The term was deleted successfully.", "success");
+            fetchTerm()
+        } else {
+            const errorData = await response.json();
+            Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
+        }
+    } catch (err) {
+        console.error("Failed to delete term:", err);
+        Swal.fire("Error", "Something went wrong. Please try again.", "error");
+    }
+}, [token]);
+
+
     const removeExclusionDate = (termId, indexToRemove) => {
         setTerms((prev) =>
             prev.map((term) =>
@@ -231,14 +281,27 @@ const Create = () => {
             )
         );
     };
-    const handleMappingChange = (index, field, value) => {
-
-        setSessionMappings(prev => {
+    const handleMappingChange = (idx, field, value) => {
+        setSessionMappings((prev) => {
             const updated = [...prev];
-            updated[index] = {
-                ...updated[index],
-                [field]: value,
-            };
+            const globalIndex = sessionMappings.findIndex(
+                (m, i) => m.termId === activeTerm.id && i === idx
+            );
+
+            if (globalIndex !== -1) {
+                updated[globalIndex] = {
+                    ...updated[globalIndex],
+                    [field]: value,
+                };
+            } else {
+                // Handle when session not found for the index
+                updated.push({
+                    termId: activeTerm.id,
+                    date: field === 'date' ? value : '',
+                    plan: field === 'plan' ? value : '',
+                });
+            }
+
             return updated;
         });
     };
@@ -266,7 +329,7 @@ const Create = () => {
         setIsMapping(false);
 
         // If you want to update activeTerm state as well
-        //  (updatedTerm); // uncomment if using useState
+        // setActiveTerm(updatedTerm); // uncomment if using useState
     };
     const handleSaveClick = async () => {
         // Optional: perform save logic here (e.g. API call)
@@ -283,7 +346,52 @@ const Create = () => {
         // Navigate after confirmation
         navigate('/weekly-classes/term-dates/list');
     };
+    console.log('selectedTermGroup', selectedTermGroup)
+    useEffect(() => {
+        if (selectedTermGroup) {
+            setTermGroupName(selectedTermGroup?.name);
+            setMyGroupData(selectedTermGroup);
 
+        }
+    }, [selectedTermGroup]);
+    useEffect(() => {
+        if (selectedTermGroup?.id) {
+            const matchedTerms = termData.filter(
+                (term) => term.termGroup?.id === selectedTermGroup.id
+            );
+
+            const formattedTerms = matchedTerms.map((term) => ({
+                id: term.id,
+                name: term.termName,
+                startDate: term.startDate,
+                endDate: term.endDate,
+                exclusions: JSON.parse(term.exclusionDates || '[]'),
+                sessions: term.sessionsMap?.length || 0,
+                sessionsMap: term.sessionsMap || [],
+                isEditMode: true
+            }));
+
+            const extractedData = formattedTerms.flatMap(term =>
+                term.sessionsMap.map(session => ({
+                    date: session.sessionDate,
+                    plan: session.sessionPlanId,
+                    termId: term.id,
+                }))
+            );
+
+            setSessionMappings(extractedData);
+            console.log('sessionMapData', extractedData);
+
+            setTerms(formattedTerms);
+            setMachedTermsID(formattedTerms)
+        }
+    }, [selectedTermGroup, termData]);
+
+    const filteredMappings = sessionMappings.filter(
+        (mapping) => mapping.termId === activeTerm?.id
+    );
+    console.log('Terms', terms);
+    console.log('setSessionMappings', sessionMappings);
 
     return (
         <div className="md:p-6 bg-gray-50 min-h-screen">
@@ -484,7 +592,7 @@ const Create = () => {
                                                     </button>
                                                     <button
                                                         className={`text-[14px] md:w-8/12 w-full font-semibold px-6 py-3 rounded-lg 
-    ${(isMapCreated && termGroupName.trim())
+    ${(isEditMode || (isMapCreated && termGroupName.trim()))
                                                                 ? 'bg-[#237FEA] text-white hover:bg-blue-700'
                                                                 : 'bg-gray-400 text-white cursor-not-allowed'}`}
                                                         onClick={() => {
@@ -497,7 +605,7 @@ const Create = () => {
                                                                 return;
                                                             }
 
-                                                            if (!isMapCreated) {
+                                                            if (!isMapCreated && !isEditMode) {
                                                                 Swal.fire({
                                                                     icon: 'warning',
                                                                     title: 'Please save map first',
@@ -505,12 +613,18 @@ const Create = () => {
                                                                 });
                                                                 return;
                                                             }
+                                                            // Use update handler in edit mode
+                                                            if (isEditMode) {
+                                                                handleSaveTerm(term, true);
+                                                            } else {
+                                                                handleSaveTerm(term);
+                                                            }
 
-                                                            handleSaveTerm(term);
                                                         }}
                                                     >
-                                                        Save
+                                                        {isEditMode ? 'Update' : 'Save'}
                                                     </button>
+
                                                 </div>
                                             </div>
                                         </motion.div>
@@ -595,6 +709,7 @@ const Create = () => {
 
                                     <div className="md:flex items-start gap-5 justify-between">
                                         {/* Session Date Column */}
+                                        {/* Session Date Column */}
                                         <div className="w-full">
                                             <label className="text-base">Session Date</label>
                                             {Array.from({ length: activeSessionCount }).map((_, idx) => (
@@ -608,12 +723,12 @@ const Create = () => {
                                                     <DatePicker
                                                         placeholderText={`Session Date ${idx + 1}`}
                                                         selected={
-                                                            sessionMappings[idx]?.date
-                                                                ? new Date(sessionMappings[idx].date)
+                                                            filteredMappings[idx]?.date
+                                                                ? new Date(filteredMappings[idx].date)
                                                                 : null
                                                         }
                                                         onChange={(date) =>
-                                                            handleMappingChange(idx, "date", date?.toISOString() || "")
+                                                            handleMappingChange(idx, "date", date?.toISOString() || "", activeTerm.id)
                                                         }
                                                         className="w-full px-4 mb-5 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                         dateFormat="yyyy-MM-dd"
@@ -624,7 +739,7 @@ const Create = () => {
 
                                         {/* Session Plan Column */}
                                         <div className="w-full">
-                                            <label className="text-base">Ssession Plan</label>
+                                            <label className="text-base">Session Plan</label>
                                             {Array.from({ length: activeSessionCount }).map((_, idx) => (
                                                 <motion.div
                                                     key={`plan-${idx}`}
@@ -635,12 +750,15 @@ const Create = () => {
                                                 >
                                                     <SessionPlanSelect
                                                         idx={idx}
-                                                        value={sessionMappings[idx]?.plan}
-                                                        onChange={handleMappingChange}
+                                                        value={filteredMappings[idx]?.plan}
+                                                        onChange={(value) =>
+                                                            handleMappingChange(idx, "plan", value, activeTerm.id)
+                                                        }
                                                     />
                                                 </motion.div>
                                             ))}
                                         </div>
+
                                     </div>
 
                                     {/* Footer Buttons */}

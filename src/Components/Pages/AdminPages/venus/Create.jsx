@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useVenue } from "../contexts/VenueContext";
 import { motion, AnimatePresence } from "framer-motion";
-const Create = () => {
-  const { formData, setFormData } = useVenue();
+const Create = ({ packages, termGroup, onClose }) => {
+
+
+  const { formData, setFormData, createVenues, isEditVenue, updateVenues, setIsEditVenue } = useVenue();
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -15,22 +18,36 @@ const Create = () => {
   const [showSubDropdown, setShowSubDropdown] = useState(false);
   const [selectedTerms, setSelectedTerms] = useState([]);
   const [selectedSubs, setSelectedSubs] = useState([]);
+  const [selectedTermIds, setSelectedTermIds] = useState([]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Venue Submitted:", formData);
+    createVenues(formData);
+    onClose(); // close form on success
 
   };
+  console.log('formData', formData)
   const toggleValue = (list, setList, value) => {
     setList((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
   };
+  const handleUpdate = (id) => {
+    updateVenues(id, formData);
+    onClose(); // close form on success
+
+    console.log("Venue Updated:", formData);
+  };
+
+
+
+
 
   const handleSaveTerm = () => {
     setFormData((prev) => ({
       ...prev,
-      termDateLinkage: selectedTerms.join(", "),
+      termId: selectedTermIds.join(", "),
     }));
     setShowTermDropdown(false);
   };
@@ -38,26 +55,31 @@ const Create = () => {
   const handleSaveSub = () => {
     setFormData((prev) => ({
       ...prev,
-      subscriptionLinkage: selectedSubs.join(", "),
+      paymentPlanId: selectedSubs.join(", "),
     }));
     setShowSubDropdown(false);
   };
 
-  const termOptions = [
-    "Saturdays 2025/2026",
-    "Sundays 2025/2026",
-    "Sundays 2025/2026 KX",
-    "Tuesday 2025/2026 Chelsea",
-  ];
+  const termOptions = termGroup.map((group) => {
+    const date = new Date(group.createdAt);
+    const dayName = date.toLocaleDateString("en-GB", { weekday: "long" }); // "Tuesday"
+    const label = `${dayName} 2025/2026 ${group.name.replace(/^(Saturday|Sunday|Tuesday)\s?/i, "")}`.trim();
 
-  const subOptions = [
-    "12 Month (1 Student) £47.99",
-    "12 Month (2 Student) £47.99",
-    "12 Month (3 Student) £47.99",
-    "6 Month (1 Student) £47.99",
-    "6 Month (2 Student) £47.99",
-    "6Month (3 Student) £47.99",
-  ];
+    return {
+      id: group.id,
+      label
+    };
+  });
+
+  const selectedLabels = termOptions
+    .filter(opt => selectedTermIds.includes(opt.id))
+    .map(opt => opt.label);
+
+  const toggleTermId = (id) => {
+    setSelectedTermIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
 
   const dropdownVariants = {
     hidden: { opacity: 0, scale: 0.95, y: -10 },
@@ -65,9 +87,14 @@ const Create = () => {
     exit: { opacity: 0, scale: 0.95, y: -10 },
   };
 
+  const subOptions = packages?.map(pkg => ({
+    id: pkg.id,
+    label: `${pkg.duration} (${pkg.students} Students) £${pkg.price.toFixed(2)}`
+  }));
+  console.log(subOptions);
   return (
     <div className="max-w-md mx-auto">
-      <h2 className="md:text-[24px] font-semibold mb-4 flex gap-2 items-center border-[#E2E1E5] border-b p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" />Add New Venue</h2>
+      <h2 className="md:text-[24px] font-semibold mb-4 flex gap-2 items-center border-[#E2E1E5] border-b p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" />{isEditVenue ? 'Edit Venue' : 'Add New Venue'}</h2>
       <form onSubmit={handleSubmit} className="space-y-2  p-5 pt-1">
 
         <div>
@@ -183,7 +210,7 @@ const Create = () => {
         <div className="space-y-6 max-w-md">
 
           {/* TERM DATE */}
-          <div className="relative">
+          <div className="relative w-full max-w-xl">
             <label className="block font-semibold text-[16px] pb-2">
               Term Date Linkage
             </label>
@@ -191,8 +218,8 @@ const Create = () => {
               onClick={() => setShowTermDropdown(!showTermDropdown)}
               className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white cursor-pointer"
             >
-              {selectedTerms.length > 0
-                ? selectedTerms.join(", ")
+              {selectedLabels.length > 0
+                ? selectedLabels.join(", ")
                 : "Select Term Date Group"}
             </div>
 
@@ -208,19 +235,18 @@ const Create = () => {
                 >
                   <p className="font-semibold text-[17px]">Select Term Date Group</p>
                   {termOptions.map((group) => (
-                    <label key={group} className="flex items-center gap-2 text-[15px]">
+                    <label key={group.id} className="flex items-center gap-2 text-[15px]">
                       <input
                         type="checkbox"
-                        checked={selectedTerms.includes(group)}
-                        onChange={() =>
-                          toggleValue(selectedTerms, setSelectedTerms, group)
-                        }
+                        checked={selectedTermIds.includes(group.id)}
+                        onChange={() => toggleTermId(group.id)}
                         className="accent-blue-600"
                       />
-                      {group}
+                      {group.label}
                     </label>
                   ))}
                   <button
+                    type="button"
                     onClick={handleSaveTerm}
                     className="w-full bg-[#237FEA] hover:bg-blue-700 text-white font-semibold py-2 rounded-lg mt-2"
                   >
@@ -241,7 +267,10 @@ const Create = () => {
               className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white cursor-pointer"
             >
               {selectedSubs.length > 0
-                ? selectedSubs.join(", ")
+                ? subOptions
+                  .filter(opt => selectedSubs.includes(opt.id))
+                  .map(opt => opt.label)
+                  .join(", ")
                 : "Select Subscription Plan"}
             </div>
 
@@ -258,20 +287,22 @@ const Create = () => {
                   <p className="font-semibold text-[17px]">
                     Select Available Subscription Plans
                   </p>
-                  {subOptions.map((plan) => (
-                    <label key={plan} className="flex items-center gap-2 text-[15px]">
+                  {subOptions?.map((plan) => (
+                    <label key={plan.id} className="flex items-center gap-2 text-[15px]">
                       <input
                         type="checkbox"
-                        checked={selectedSubs.includes(plan)}
+                        checked={selectedSubs.includes(plan.id)}
                         onChange={() =>
-                          toggleValue(selectedSubs, setSelectedSubs, plan)
+                          toggleValue(selectedSubs, setSelectedSubs, plan.id)
                         }
                         className="accent-blue-600"
                       />
-                      {plan}
+                      {plan.label}
                     </label>
                   ))}
+
                   <button
+                    type="button"
                     onClick={handleSaveSub}
                     className="w-full bg-[#237FEA] hover:bg-blue-700 text-white font-semibold py-2 rounded-lg mt-2"
                   >
@@ -288,7 +319,7 @@ const Create = () => {
               setFormData({
                 area: "", name: "", address: "", facility: "",
                 parking: false, congestion: false, parkingNote: "",
-                entryNote: "", termDateLinkage: "", subscriptionLinkage: ""
+                entryNote: "", termId: "", paymentPlanId: ""
               })
             }
             className="w-1/2 mr-2 py-3 font-semibold border border-[#E2E1E5] rounded-xl text-[18px] text-[#717073] hover:bg-gray-100"
@@ -296,11 +327,19 @@ const Create = () => {
             Cancel
           </button>
           <button
-            onClick={handleSubmit}
+            type="button"
+            onClick={() => {
+              if (isEditVenue) {
+                handleUpdate(formData.id);
+              } else {
+                handleSubmit();
+              }
+            }}
             className="w-1/2 ml-2 py-3 font-semibold bg-[#237FEA] text-white rounded-xl text-[18px] hover:bg-blue-700"
           >
-            Add
+            {isEditVenue ? 'Update' : 'Add'}
           </button>
+
         </div>
       </form>
     </div>
