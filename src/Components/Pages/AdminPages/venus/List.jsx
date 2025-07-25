@@ -5,7 +5,7 @@ import { Check } from "lucide-react";
 import Loader from '../contexts/Loader';
 import { useVenue } from '../contexts/VenueContext';
 import { usePayments } from '../contexts/PaymentPlanContext';
-import { useTermContext } from '../contexts/termDatesSessionContext ';
+import { useTermContext } from '../contexts/termDatesSessionContext';
 import Swal from "sweetalert2"; // make sure it's installed
 
 const List = () => {

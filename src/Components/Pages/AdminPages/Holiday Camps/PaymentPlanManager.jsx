@@ -101,6 +101,7 @@ const PaymentPlanManagerList = () => {
                       Free Holiday Camp Bag
                     </li>
                   </ul>
+                  
                 </div>
               ))}
             </div>

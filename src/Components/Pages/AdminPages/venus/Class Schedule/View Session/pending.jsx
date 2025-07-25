@@ -1,10 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { formatDistanceToNow } from 'date-fns';
 const ViewSessions = ({ item, sessionData }) => {
-  const tabs = ['Beginners', 'Intermediate', 'Advanced', 'Pro'];
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const [activeTab, setActiveTab] = useState('Beginners');
+  const [myData, setMyData] = useState({});
   const [page, setPage] = useState(1);
+  const location = useLocation();
+  const sessionMap = location.state?.sessionMap;
+  const sessionId = location.state?.sessionId;
+  console.log(
+    'sessionMap',
+    sessionMap.sessionPlan
+  );
+  console.log('sessionId', sessionId)
+  const selectedGroup =  sessionMap.sessionPlan;
+  const levelKeyToLabel = {
+    beginner: "Beginners",
+    intermediate: "Intermediate",
+    advanced: "Advanced",
+    pro: "Pro",
+  };
 
   // Demo page content for each tab
   const contentMap = {
@@ -53,11 +70,57 @@ const ViewSessions = ({ item, sessionData }) => {
       },
     ],
   };
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  const pages = contentMap[activeTab] || [];
-  const totalPages = pages.length;
-  const currentContent = pages[page - 1];
+useEffect(() => {
+  if (selectedGroup?.levels) {
+    const buildContentMap = () => {
+      const content = {};
+      const exerciseMap = {};
+
+      // Create a map of exercise ID to full exercise object
+      selectedGroup.exercises?.forEach((exercise) => {
+        exerciseMap[exercise.id] = exercise;
+      });
+
+      Object.entries(selectedGroup?.levels).forEach(([levelKey, items]) => {
+        const label = levelKeyToLabel[levelKey];
+        const banner = selectedGroup[`${levelKey}_banner`] || null;
+        const video = selectedGroup[`${levelKey}_video`] || null;
+
+        content[label] = items.map((entry, index) => {
+          const sessionExercises = entry.sessionExerciseId?.map(
+            (id) => exerciseMap[id]
+          ).filter(Boolean); // Remove nulls if any ID doesn't match
+
+          return {
+            title: `${label} – Page ${index + 1}`,
+            heading: entry.skillOfTheDay || 'No Skill',
+            videoUrl: video ? `${API_BASE_URL}/${video}` : '',
+            bannerUrl: banner ? `${API_BASE_URL}/${banner}` : '',
+            description: entry.description || '',
+            sessionExercises,
+          };
+        });
+      });
+
+      return content;
+    };
+
+    const dynamicContent = buildContentMap();
+    setMyData(dynamicContent);
+
+    const firstTab = Object.keys(dynamicContent)[0];
+    setActiveTab(firstTab);
+    setPage(1);
+  }
+}, [selectedGroup]);
+ ;
+
+  const dynamicTabs = Object.keys(myData);
+  const currentContent = myData[activeTab]?.[page - 1] || {};
+  const totalPages = myData[activeTab]?.length || 0;
+  console.log('currentContent', dynamicTabs)
   return (
     <div className="md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -94,7 +157,7 @@ const ViewSessions = ({ item, sessionData }) => {
         <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
           <div className="md:flex gap-4 border max-w-fit border-gray-300 p-1 rounded-xl  flex-wrap">
-            {tabs.map((tab) => (
+            {dynamicTabs.map((tab) => (
               <button
                 key={tab}
                 onClick={() => {
@@ -116,13 +179,15 @@ const ViewSessions = ({ item, sessionData }) => {
             <div className="flex flex-col lg:flex-row gap-6">
               {/* Left - Video and Info */}
               <div className="w-full lg:w-1/2 space-y-2">
-                <img
-                  src="/demo/synco/images/playLikePele.png"
-                  alt="Play like Pele"
-                  className="rounded-xl mb-2"
-                />
+                {currentContent.bannerUrl && (
+                  <img
+                    src={currentContent.bannerUrl}
+                    alt="Play like Pele"
+                    className="rounded-xl mb-2"
+                  />
+                )}
                 <h2 className="font-semibold text-[28px] mb-0">
-                  {currentContent.title}
+                  {selectedGroup?.groupName}
                 </h2>
                 <p className="text-[20px] flex items-center gap-2 font-semibold">
                   {currentContent.heading} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
@@ -130,11 +195,13 @@ const ViewSessions = ({ item, sessionData }) => {
                 <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
                   {currentContent.description}
                 </p>
-                <video
-                  src={currentContent.videoUrl}
-                  controls
-                  className="w-full  pt-3 rounded-4xl"
-                />
+                {currentContent.videoUrl && (
+                  <video
+                    src={currentContent.videoUrl}
+                    controls
+                    className="w-full  pt-3 rounded-4xl"
+                  />
+                )}
                 <div className='flex items-center  mb-0 justify-between' >
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
@@ -142,32 +209,39 @@ const ViewSessions = ({ item, sessionData }) => {
                   <img src="/demo/synco/icons/downloadicon.png" alt="" />
                 </div>
                 <div>
-                  <p className="text-sm flex items-center gap-2  text-gray-500 border-b border-gray-300 pb-3 ">
-                    <img src="/demo/synco/members/Time-Circle.png" className='w-4 h-4' alt="" />  4 hours ago
+                  <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
+                    <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                    {selectedGroup?.updatedAt
+                      ? formatDistanceToNow(new Date(selectedGroup.updatedAt), { addSuffix: true })
+                      : '—'}
                   </p>
                 </div>
 
-                <div className='md:flex items-center mb-5 gap-4 '>
-                  <div>
-                    <img className='md:min-h-[116px] md:min-w-[181px]' src="/demo/synco/images/cardimgSmall.png" alt="" />
+                {currentContent.sessionExercises?.length > 0 && (
+                  <div className="mt-6 space-y-6">
+                    {currentContent.sessionExercises.map((exercise) => (
+                      <div key={exercise.id} className="flex items-center gap-4">
+                        <div>
+                          <img
+                            className="min-h-[116px] min-w-[181px] rounded object-cover"
+                            src={`${API_BASE_URL}/${exercise.imageUrl}`}
+                            alt={exercise.title}
+                          />
+                        </div>
+                        <div>
+                          <h6 className="text-[18px] font-semibold">{exercise.title}</h6>
+                          <p className="text-[16px] text-gray-700">
+                            {exercise.description || 'No description available.'}
+                          </p>
+                          <span className="text-[14px] text-gray-500">
+                            {exercise.duration || '—'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div>
-                    <h6 className='text-[18px] font-semibold'>Small Side Games</h6>
-                    <p className='text-[16px]'>This skills tutorial will help you understand how to perform the Penguim.</p>
-                    <span className='text-[14px]'>10 mins</span>
-                  </div>
-                </div>
+                )}
 
-                <div className='md:flex items-center gap-4 '>
-                  <div>
-                    <img className='min-h-[116px] min-w-[181px]' src="/demo/synco/images/cardimgSmall.png" alt="" />
-                  </div>
-                  <div>
-                    <h6 className='text-[18px] font-semibold'>Small Side Games</h6>
-                    <p className='text-[16px]'>This skills tutorial will help you understand how to perform the Penguim.</p>
-                    <span className='text-[14px]'>10 mins</span>
-                  </div>
-                </div>
               </div>
 
               {/* Right - Placeholder Drill Info */}
@@ -178,7 +252,7 @@ const ViewSessions = ({ item, sessionData }) => {
                 <img
                   src="/demo/synco/images/cardimgSmall.png"
                   alt="Small-sided games"
-                  className="rounded-xl md:min-w-90 my-6"
+                  className="rounded-xl min-w-90 my-6"
                 />
                 <p className="text-blue-500 text-[14px] font-semibold">Time Duration: 10 mins</p>
 
@@ -208,8 +282,8 @@ const ViewSessions = ({ item, sessionData }) => {
                       <li>No slide tackles</li>
                       <li>if the ball roll out of play, students should all freeze and wait for a new ball to be rollled in (have 5 football nearby ready )</li>
                     </ol>
-                  </div> 
-                   <div>
+                  </div>
+                  <div>
                     <p className="font-semibold text-[18px]">Conditions </p>
                     <p className='font-semibold text-gray-500  text-[14px]'>You can select a condition from below to stop students from all chasing the ball and/or playing as solo players. Keep classes fun by variating the conditions each week.</p>
                     <br />
@@ -221,7 +295,7 @@ const ViewSessions = ({ item, sessionData }) => {
                   </div>
                   <div>
                     <p className="font-semibold text-[18px]">How to maintain the tone & intensity </p>
-                   
+
                   </div>
                 </div>
               </div>

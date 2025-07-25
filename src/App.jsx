@@ -45,10 +45,10 @@ import { SessionPlanContextProvider } from './Components/Pages/AdminPages/contex
 import { NotificationProvider } from './Components/Pages/AdminPages/contexts/NotificationContext.jsx';
 import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueContext.jsx';
 import { ClassScheduleProvider } from './Components/Pages/AdminPages/contexts/ClassScheduleContent.jsx';
-import './App.css';
 import { TermDatesSessionProvider } from './Components/Pages/AdminPages/contexts/TermDatesSessionContext.jsx';
+import { FindClassProvider } from './Components/Pages/AdminPages/contexts/FindClassContext.jsx';
 
-
+import './App.css';
 
 // ----------------- ALLOWED PATHS -----------------
 const getAllowedBasePathsFromMenu = (items, role) => {
@@ -134,7 +134,9 @@ function App() {
                 <SessionPlanContextProvider>
                   <TermDatesSessionProvider>
                     <ClassScheduleProvider>
-                      <AppRoutes />
+                      <FindClassProvider>
+                        <AppRoutes />
+                      </FindClassProvider>
                     </ClassScheduleProvider>
                   </TermDatesSessionProvider>
                 </SessionPlanContextProvider>

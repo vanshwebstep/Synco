@@ -10,15 +10,18 @@ import { format } from "date-fns";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useClassSchedule } from '../../contexts/ClassScheduleContent';
 import { useSearchParams } from "react-router-dom";
+import Swal from "sweetalert2"; // make sure it's installed
 
 const List = () => {
     const navigate = useNavigate();
 
     const [searchParams] = useSearchParams();
     const venueId = searchParams.get("id");
-    
+    const [sessionStates, setSessionStates] = useState({});
+    const [openDropdownSessionId, setOpenDropdownSessionId] = useState(null);
 
-    const { fetchClassSchedules, createClassSchedules, classSchedules } = useClassSchedule()
+
+    const { fetchClassSchedules, createClassSchedules, updateClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
     useEffect(() => {
         fetchClassSchedules();
         if (!venueId) {
@@ -30,7 +33,25 @@ const List = () => {
     );
 
     console.log('Filtered Class Schedules:', classSchedules);
+    const formatDateToTimeString = (date) => {
+        if (!date) return '';
+        return date.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        });
+    };
 
+    const parseTimeStringToDate = (timeString) => {
+        if (!timeString) return null;
+        const [time, modifier] = timeString.split(' ');
+        let [hours, minutes] = time.split(':').map(Number);
+        if (modifier === 'PM' && hours !== 12) hours += 12;
+        if (modifier === 'AM' && hours === 12) hours = 0;
+        const date = new Date(0, 0, 0);
+        date.setHours(hours, minutes);
+        return date;
+    };
 
 
     const [openTerms, setOpenTerms] = useState({});
@@ -63,93 +84,18 @@ const List = () => {
         setIsEditing(false);
         setOpenForm(true);
     };
-    const classes = [
-        {
-            className: "namedbfhs",
-            ageGroup: "4-7 Years",
-            capacity: 24,
-            day: "Saturday",
-            startTime: "2:00 pm",
-            endTime: "3:00 pm",
-            allowFreeTrial: "Yes",
-            facility: "Indoor",
-        },
-        {
-            className: "namedbfhs",
-            ageGroup: "8-12 Years",
-            capacity: 24,
-            day: "Saturday",
-            startTime: "2:00 pm",
-            endTime: "3:00 pm",
-            allowFreeTrial: "Yes",
-            facility: "Indoor",
-            highlight: true, // Red border
-        },
-        {
-            className: "namedbfhs",
-            ageGroup: "4-7 Years",
-            capacity: 24,
-            day: "Saturday",
-            startTime: "2:00 pm",
-            endTime: "3:00 pm",
-            allowFreeTrial: "No",
-            facility: "Indoor",
-        },
-    ];
-const terms = [
-        {
-            id: "autumn1",
-            name: "Autumn Term",
-            date: "Sat Jul 26",
-            sessions: [
-                {
-                    id: 1,
-                    title: "Session 1: Pele",
-                    date: "Saturday, 09/09/2025",
-                    status: "Completed",
-                },
-                {
-                    id: 2,
-                    title: "Session 2: Maradona",
-                    date: "Saturday, 09/16/2025",
-                    status: "Completed",
-                },
-                // Add more sessions as needed...
-            ],
-        },
-        {
-            id: "autumn2",
-            name: "Autumn Term 2",
-            date: "Sat Jul 26",
-            sessions: [
-                {
-                    id: 1,
-                    title: "Session 1: Messi",
-                    date: "Saturday, 09/09/2025",
-                    status: "Completed",
-                },
-                {
-                    id: 2,
-                    title: "Session 2: Ronaldo",
-                    date: "Saturday, 09/16/2025",
-                    status: "Completed",
-                },
-            ],
-        },
-    ];
+
     const [isEditing, setIsEditing] = useState(false);
     const [value, setValue] = useState('Some text');
-
-
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const { venues, isEditVenue, setIsEditVenue, fetchVenues, loading } = useVenue()
+    const { venues, isEditVenue, setIsEditVenue, fetchVenues } = useVenue()
     const [formData, setFormData] = useState({
         className: '',
         capacity: '',
         day: '',
         startTime: null,
         endTime: null,
-        allowTrial: false
+        allowFreeTrial: false
     });
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const toggleCheckbox = (userId) => {
@@ -167,14 +113,24 @@ const terms = [
     const handleSave = () => {
         const payload = {
             ...formData,
-            startTime: format(formData.startTime, "hh:mm aa"),
-            endTime: format(formData.endTime, "hh:mm aa"),
             venueId: venueId
         };
         createClassSchedules(payload);
+        setFormData({})
 
         setOpenForm(false);
     };
+    const handleEdit = (id) => {
+        const payload = {
+            ...formData,
+            venueId: venueId
+        };
+        updateClassSchedules(id, payload);
+        setFormData({})
+
+        setOpenForm(false);
+    };
+
 
     const isAllSelected = venues.length > 0 && selectedUserIds.length === venues.length;
 
@@ -192,6 +148,44 @@ const terms = [
     useEffect(() => {
         fetchVenues();
     }, [fetchVenues]);
+    const handleDeleteClick = (item) => {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This action will delete the schedule permanently!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteClassSchedule(item); // only called after confirmation
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Deleted!',
+                    text: 'The class schedule has been deleted.',
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+            }
+        });
+    };
+
+
+    const handleSessionMapChange = (sessionId, value, sessionMaps) => {
+        const [date, groupName] = value.split('|||');
+        const matched = sessionMaps.find(
+            (s) => s.sessionDate === date && s.sessionPlan.groupName === groupName
+        );
+
+        setSessionStates((prev) => ({
+            ...prev,
+            [sessionId]: {
+                selectedKey: value,
+                selectedSessionMap: matched,
+            },
+        }));
+    };
 
     if (loading) {
         return (
@@ -200,7 +194,7 @@ const terms = [
             </>
         )
     }
-
+    console.log('formData', formData)
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`md:flex pe-4 justify-between items-center mb-4 w-full`}>
@@ -223,7 +217,7 @@ const terms = [
                                 <h2 className="font-semibold text-lg text-[18px]">Chelsea Academy</h2>
                                 <p className="text-[14px]   mb-4 border-b pb-4 border-gray-200">Lots Road, London, SW10 0AB</p>
 
-                                {classes.map((item, index) => (
+                                {filteredSchedules.map((item, index) => (
                                     <>
                                         <div
                                             key={index}
@@ -231,7 +225,7 @@ const terms = [
                                                 } rounded-xl px-4  pr-16 py-4 mb-3 hover:shadow transition`}
                                         >
                                             {/* Class info block */}
-                                            <div className="grid grid-cols-2 md:grid-cols-9 gap-4 w-full text-sm">
+                                            <div className="grid grid-cols-2 md:grid-cols-8 gap-4 w-full text-sm">
                                                 <div>
                                                     <p className="font-semibold text-[16px]">Class +{item.length}</p>
                                                     <p className="text-xs font-semibold text-[16px]">{item.className}</p>
@@ -254,11 +248,11 @@ const terms = [
                                                 </div>
                                                 <div className='text-[#717073]  font-semibold text-[16px]'>
                                                     <p className="text-[#717073]">Free Trials?</p>
-                                                    <p className="font-semibold">{item.allowFreeTrial}</p>
+                                                    <p className="font-semibold">{item.allowFreeTrial == true ? 'yes' : 'no'}</p>
                                                 </div>
                                                 <div className='text-[#717073] font-semibold  text-[16px]'>
                                                     <p className="text-[#717073]">Facility</p>
-                                                    <p className="font-semibold">{item.facility}</p>
+                                                    <p className="font-semibold">{item.facility || 'null'}</p>
                                                 </div>
                                             </div>
 
@@ -269,7 +263,13 @@ const terms = [
                                                     alt="Edit"
                                                     className="w-6 h-6 cursor-pointer"
                                                     onClick={() => handleEditClick(item)}
-                                                />                                            <img src="/demo/synco/icons/deleteIcon.png" alt="" />
+                                                />
+                                                <img
+                                                    onClick={() => handleDeleteClick(item.id)}
+                                                    src="/demo/synco/icons/deleteIcon.png"
+                                                    alt="Delete"
+                                                />
+
                                                 <button onClick={() => toggleSessions(index)} className="ml-4 flex font-semibold items-center gap-2 whitespace-nowrap px-4 pr-6 py-2 border rounded-xl text-[16px] font-medium text-blue-600 border-blue-500 hover:bg-blue-50">
                                                     {openClassIndex === index ? 'Hide sessions' : 'View sessions'}  <img src="/demo/synco/icons/bluearrowup.png" className={`${openClassIndex === index ? '' : 'rotate-180'} transition-transform`} alt="" />
                                                 </button>
@@ -286,7 +286,7 @@ const terms = [
                                                     className="overflow-hidden mt-4  rounded-xl"
                                                 >
                                                     <div className="space-y-4">
-                                                        {terms.map((term) => (
+                                                        {item.venue?.termGroups.map((term) => (
                                                             <div key={term.id} className=" rounded-xl w-full">
                                                                 <div
                                                                     onClick={() => toggleTerm(term.id)}
@@ -307,50 +307,157 @@ const terms = [
                                                                     className={`transition-all duration-300 overflow-hidden ${openTerms[term.id] ? "max-h-[1000px]" : "max-h-0"
                                                                         }`}
                                                                 >
-                                                                    {term.sessions.map((session) => (
-                                                                        <div
-                                                                            key={session.id}
-                                                                            className="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-4 justify-between items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
-                                                                        >
-                                                                            {/* Title and Date */}
-                                                                            <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm w-full md:w-auto">
-                                                                                <span className="text-[15px] font-semibold min-w-0 md:min-w-[200px]">{session.title}</span>
-                                                                                <span className="text-[15px] min-w-0 md:min-w-[200px] text-gray-600">{session.date}</span>
+                                                                    {term.terms.map((session) => {
+                                                                        const sessionMaps = session.sessionsMap || [];
+
+                                                                        const sessionState = sessionStates[session.id] || {};
+
+                                                                        const handleToggleDropdown = (sessionId) => {
+                                                                            setSessionStates((prev) => ({
+                                                                                ...prev,
+                                                                                [sessionId]: {
+                                                                                    ...prev[sessionId],
+                                                                                    selectedKey: '',
+                                                                                    selectedSessionMap: null,
+                                                                                },
+                                                                            }));
+
+                                                                            setOpenDropdownSessionId((prevId) =>
+                                                                                prevId === sessionId ? null : sessionId
+                                                                            );
+                                                                        };
+
+
+                                                                        const handleSessionMapChange = (value) => {
+                                                                            const [date, groupName] = value.split('|||');
+                                                                            const matched = sessionMaps.find(
+                                                                                (s) => s.sessionDate === date && s.sessionPlan.groupName === groupName
+                                                                            );
+
+                                                                            setSessionStates((prev) => ({
+                                                                                ...prev,
+                                                                                [session.id]: {
+                                                                                    ...prev[session.id],
+                                                                                    selectedKey: value,
+                                                                                    selectedSessionMap: matched,
+                                                                                },
+                                                                            }));
+                                                                        };
+
+                                                                        const handleNavigate = () => {
+                                                                            const selected = sessionStates[session.id]?.selectedSessionMap;
+                                                                            if (selected) {
+                                                                                navigate('/weekly-classes/venues/class-schedule/Sessions/pending', {
+                                                                                    state: {
+                                                                                        sessionMap: selected,
+                                                                                        sessionId: selected.sessionPlanId,
+                                                                                    },
+                                                                                });
+                                                                            }
+                                                                        };
+
+                                                                        return (
+                                                                            <div
+                                                                                key={session.id}
+                                                                                className="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-4 justify-between items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
+                                                                            >
+                                                                                {/* Title and Date */}
+                                                                                <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm w-full md:w-auto">
+                                                                                    <span className="text-[15px] font-semibold min-w-0 md:min-w-[200px]">{session.termName}</span>
+                                                                                    <span className="text-[15px] min-w-0 md:min-w-[200px] text-gray-600">{session.startDate}</span>
+                                                                                </div>
+
+                                                                                {/* Status */}
+                                                                                <div className="flex items-center gap-2 text-sm mt-2 md:mt-0 w-full md:w-auto">
+                                                                                    <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
+                                                                                        <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="" />
+                                                                                        {session.status || "Completed"}
+                                                                                    </span>
+                                                                                </div>
+
+                                                                                {/* Action Buttons */}
+                                                                                <div className="flex flex-col sm:flex-row gap-2 mt-3 md:mt-0 w-full md:w-auto">
+
+
+                                                                                    {/* Step 2: Show dropdown and view button */}
+                                                                                    <button
+                                                                                        onClick={() => handleToggleDropdown(session.id)}
+                                                                                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
+                                                                                    >
+                                                                                        View Session Plan
+                                                                                    </button>
+
+                                                                                    {/* Animated Dropdown (Drawer style) */}
+                                                                                    <AnimatePresence>
+                                                                                        {openDropdownSessionId === session.id && (
+                                                                                            <motion.div
+                                                                                                initial={{ opacity: 0, y: -10 }}
+                                                                                                animate={{ opacity: 1, y: 0 }}
+                                                                                                exit={{ opacity: 0, y: -10 }}
+                                                                                                transition={{ duration: 0.3 }}
+                                                                                                style={{
+                                                                                                    position: "absolute",
+                                                                                                    opacity: 1,
+                                                                                                    transform: "none",
+                                                                                                    maxWidth: "400px"
+                                                                                                }}
+                                                                                                className="absolute z-50 mt-2  w-full md:w-1/3 bg-white border border-gray-200 rounded-xl shadow-xl p-4 space-y-4"
+                                                                                            >
+                                                                                                {/* Dropdown */}
+                                                                                                <div>
+                                                                                                    <div className="flex mb-4 justify-between">
+                                                                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Select {session.termName} Plan</label>
+
+                                                                                                        <button onClick={handleToggleDropdown}>X</button></div>
+                                                                                                    <select
+                                                                                                        value={sessionState.selectedKey || ''}
+                                                                                                        onChange={(e) => handleSessionMapChange(e.target.value)}
+                                                                                                        className="border p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                                                                    >
+                                                                                                        <option value="">-- Select --</option>
+                                                                                                        {sessionMaps.map((s, i) => (
+                                                                                                            <option
+                                                                                                                key={i}
+                                                                                                                value={`${s.sessionDate}|||${s.sessionPlan?.groupName}`}
+                                                                                                            >
+                                                                                                                {s.sessionDate} - {s.sessionPlan?.groupName}
+                                                                                                            </option>
+                                                                                                        ))}
+                                                                                                    </select>
+                                                                                                </div>
+
+                                                                                                {/* View Button */}
+                                                                                                <button
+                                                                                                    onClick={handleNavigate}
+                                                                                                    disabled={!sessionState.selectedSessionMap}
+                                                                                                    className={`w-full px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${sessionState.selectedSessionMap
+                                                                                                        ? 'bg-blue-600 text-white hover:bg-white hover:text-blue-600 border border-blue-600'
+                                                                                                        : 'bg-gray-300 text-white cursor-not-allowed'
+                                                                                                        }`}
+                                                                                                >
+                                                                                                    View
+                                                                                                </button>
+                                                                                            </motion.div>
+                                                                                        )}
+                                                                                    </AnimatePresence>
+
+                                                                                    <button
+                                                                                        onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/completed')}
+                                                                                        className="hover:bg-blue-500 font-semibold bg-white text-blue-500 border-2 hover:border-transparent border-blue-500 text-[15px] hover:text-white px-3 py-2 rounded-xl transition"
+                                                                                    >
+                                                                                        View Class Register
+                                                                                    </button>
+
+                                                                                    <button
+                                                                                        onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/cancel')}
+                                                                                        className="bg-[#FE7058] font-semibold hover:bg-white hover:text-[#FE7058] border-2 border-transparent hover:border-[#FE7058] text-[15px] text-white px-3 py-2 rounded-xl transition"
+                                                                                    >
+                                                                                        Cancel Session
+                                                                                    </button>
+                                                                                </div>
                                                                             </div>
-
-                                                                            {/* Status */}
-                                                                            <div className="flex items-center gap-2 text-sm mt-2 md:mt-0 w-full md:w-auto">
-                                                                                <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
-                                                                                    <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="" />
-                                                                                    {session.status}
-                                                                                </span>
-                                                                            </div>
-
-                                                                            {/* Action Buttons */}
-                                                                            <div className="flex flex-col sm:flex-row gap-2 mt-3 md:mt-0 w-full md:w-auto">
-                                                                                <button
-                                                                                    onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/pending')}
-                                                                                    className="bg-blue-500 font-semibold hover:bg-white hover:text-blue-500 border-2 border-transparent hover:border-blue-500 text-[15px] text-white px-3 py-2 rounded-xl transition"
-                                                                                >
-                                                                                    View Session Plans
-                                                                                </button>
-
-                                                                                <button
-                                                                                    onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/completed')}
-                                                                                    className="hover:bg-blue-500 font-semibold bg-white text-blue-500 border-2 hover:border-transparent border-blue-500 text-[15px] hover:text-white px-3 py-2 rounded-xl transition"
-                                                                                >
-                                                                                    View Class Register
-                                                                                </button>
-
-                                                                                <button
-                                                                                    onClick={() => navigate('/weekly-classes/venues/class-schedule/Sessions/cancel')}
-                                                                                    className="bg-[#FE7058] font-semibold hover:bg-white hover:text-[#FE7058] border-2 border-transparent hover:border-[#FE7058] text-[15px] text-white px-3 py-2 rounded-xl transition"
-                                                                                >
-                                                                                    Cancel Session
-                                                                                </button>
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
+                                                                        )
+                                                                    })}
                                                                 </div>
 
                                                             </div>
@@ -424,37 +531,46 @@ const terms = [
                                 </div>
                                 <div className='flex w-1/2 gap-4'>
                                     <div className='w-1/2'>
-                                        <label htmlFor="">Start Time</label>
+                                        <label>Start Time</label>
                                         <DatePicker
-                                            selected={formData?.startTime}
-                                            onChange={(date) => handleChange('startTime', date)}
+                                            selected={parseTimeStringToDate(formData?.startTime)}
+                                            onChange={(date) =>
+                                                handleChange('startTime', formatDateToTimeString(date))
+                                            }
                                             showTimeSelect
                                             showTimeSelectOnly
                                             timeIntervals={15}
                                             dateFormat="h:mm aa"
                                             timeCaption="Time"
                                             className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-                                            maxTime={formData?.endTime || new Date(0, 0, 0, 23, 59)} // limit to selected endTime
-                                            minTime={new Date(0, 0, 0, 0, 0)} // allow from 12:00 AM
+                                            maxTime={
+                                                parseTimeStringToDate(formData?.endTime) || new Date(0, 0, 0, 23, 59)
+                                            }
+                                            minTime={new Date(0, 0, 0, 0, 0)}
                                         />
                                     </div>
 
                                     <div className='w-1/2'>
-                                        <label htmlFor="">End Time</label>
+                                        <label>End Time</label>
                                         <DatePicker
-                                            selected={formData?.endTime}
-                                            onChange={(date) => handleChange('endTime', date)}
+                                            selected={parseTimeStringToDate(formData?.endTime)}
+                                            onChange={(date) =>
+                                                handleChange('endTime', formatDateToTimeString(date))
+                                            }
                                             showTimeSelect
                                             showTimeSelectOnly
                                             timeIntervals={15}
                                             dateFormat="h:mm aa"
                                             timeCaption="Time"
                                             className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-                                            minTime={formData?.startTime || new Date(0, 0, 0, 0, 0)} // limit to selected startTime
-                                            maxTime={new Date(0, 0, 0, 23, 59)} // allow till 11:59 PM
+                                            minTime={
+                                                parseTimeStringToDate(formData?.startTime) || new Date(0, 0, 0, 0, 0)
+                                            }
+                                            maxTime={new Date(0, 0, 0, 23, 59)}
                                         />
                                     </div>
                                 </div>
+
 
                             </div>
 
@@ -465,8 +581,8 @@ const terms = [
                                 <label className="inline-flex mt-2 relative items-center cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        checked={formData.allowTrial}
-                                        onChange={(e) => handleChange('allowTrial', e.target.checked)}
+                                        checked={formData.allowFreeTrial}
+                                        onChange={(e) => handleChange('allowFreeTrial', e.target.checked)}
                                         className="sr-only peer"
                                     />
                                     <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 transition-all"></div>
@@ -484,11 +600,18 @@ const terms = [
                                 Cancel
                             </button>
                             <button
-                                onClick={handleSave}
+                                onClick={() => {
+                                    if (isEditing) {
+                                        handleEdit(formData.id);
+                                    } else {
+                                        handleSave();
+                                    }
+                                }}
                                 className="px-20 py-4 bg-[#237FEA] hover:bg-blue-700 text-white rounded-lg mt-2"
                             >
                                 {isEditing ? 'Update' : 'Save'}
                             </button>
+
                         </div>
                     </div>
                 </div>

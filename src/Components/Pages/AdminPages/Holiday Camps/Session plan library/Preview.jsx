@@ -128,13 +128,13 @@ const Preview = ({ item, sessionData }) => {
                 <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
                   {currentContent.description}
                 </p>
-                  {currentContent.videoUrl && (
-                <video
-                  src={currentContent.videoUrl}
-                  controls
-                  className="w-full  pt-3 rounded-4xl"
-                />
-                 )}
+                {currentContent.videoUrl && (
+                  <video
+                    src={currentContent.videoUrl}
+                    controls
+                    className="w-full  pt-3 rounded-4xl"
+                  />
+                )}
                 <div className='flex items-center  mb-0 justify-between' >
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
@@ -142,38 +142,38 @@ const Preview = ({ item, sessionData }) => {
                   <img src="/demo/synco/icons/downloadicon.png" alt="" />
                 </div>
                 <div>
-             <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
-  <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
-  {selectedGroup?.updatedAt
-    ? formatDistanceToNow(new Date(selectedGroup.updatedAt), { addSuffix: true })
-    : '—'}
-</p>
+                  <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
+                    <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                    {selectedGroup?.updatedAt
+                      ? formatDistanceToNow(new Date(selectedGroup.updatedAt), { addSuffix: true })
+                      : '—'}
+                  </p>
                 </div>
 
-               {currentContent.sessionExercises?.length > 0 && (
-  <div className="mt-6 space-y-6">
-    {currentContent.sessionExercises.map((exercise) => (
-      <div key={exercise.id} className="flex items-center gap-4">
-        <div>
-          <img
-            className="min-h-[116px] min-w-[181px] rounded object-cover"
-            src={`${API_BASE_URL}/${exercise.imageUrl}`}
-            alt={exercise.title}
-          />
-        </div>
-        <div>
-          <h6 className="text-[18px] font-semibold">{exercise.title}</h6>
-          <p className="text-[16px] text-gray-700">
-            {exercise.description || 'No description available.'}
-          </p>
-          <span className="text-[14px] text-gray-500">
-            {exercise.duration || '—'}
-          </span>
-        </div>
-      </div>
-    ))}
-  </div>
-)}
+                {currentContent.sessionExercises?.length > 0 && (
+                  <div className="mt-6 space-y-6">
+                    {currentContent.sessionExercises.map((exercise) => (
+                      <div key={exercise.id} className="flex items-center gap-4">
+                        <div>
+                          <img
+                            className="min-h-[116px] min-w-[181px] rounded object-cover"
+                            src={`${API_BASE_URL}/${exercise.imageUrl}`}
+                            alt={exercise.title}
+                          />
+                        </div>
+                        <div>
+                          <h6 className="text-[18px] font-semibold">{exercise.title}</h6>
+                          <p className="text-[16px] text-gray-700">
+                            {exercise.description || 'No description available.'}
+                          </p>
+                          <span className="text-[14px] text-gray-500">
+                            {exercise.duration || '—'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
               </div>
 

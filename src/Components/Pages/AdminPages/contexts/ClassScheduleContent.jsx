@@ -48,48 +48,46 @@ export const ClassScheduleProvider = ({ children }) => {
   const createClassSchedules = async (classScheduleData) => {
     setLoading(true);
 
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    if (token) {
-      myHeaders.append("Authorization", `Bearer ${token}`);
-    }
-
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: JSON.stringify(classScheduleData),
-      redirect: "follow",
+    const headers = {
+      "Content-Type": "application/json",
     };
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule`, requestOptions);
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create classSchedule");
-      }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(classScheduleData),
+      });
 
       const result = await response.json();
 
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create class schedule");
+      }
+
       await Swal.fire({
         title: "Success!",
-        text: result.message || "ClassSchedule has been created successfully.",
+        text: result.message || "Class schedule has been created successfully.",
         icon: "success",
         confirmButtonText: "OK",
       });
 
-      fetchClassSchedules();
       return result;
     } catch (error) {
-      console.error("Error creating classSchedule:", error);
+      console.error("Error creating class schedule:", error);
       await Swal.fire({
         title: "Error",
-        text: error.message || "Something went wrong while creating classSchedule.",
+        text: error.message || "Something went wrong while creating class schedule.",
         icon: "error",
         confirmButtonText: "OK",
       });
       throw error;
     } finally {
+     await fetchClassSchedules();
       setLoading(false);
     }
   };
@@ -112,7 +110,7 @@ export const ClassScheduleProvider = ({ children }) => {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/classSchedule/${classScheduleId}`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule/${classScheduleId}`, requestOptions);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -128,7 +126,6 @@ export const ClassScheduleProvider = ({ children }) => {
         confirmButtonText: "OK",
       });
 
-      fetchClassSchedules();
       return result;
     } catch (error) {
       console.error("Error updating classSchedule:", error);
@@ -140,43 +137,44 @@ export const ClassScheduleProvider = ({ children }) => {
       });
       throw error;
     } finally {
+      await fetchClassSchedules();
       setLoading(false);
     }
   };
-const deleteClassSchedule = useCallback(async (id) => {
-  if (!token) return;
+  const deleteClassSchedule = useCallback(async (id) => {
+    if (!token) return;
 
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/admin/classSchedule/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/class-schedule/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(data.message || "Failed to delete classSchedule");
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to delete classSchedule");
+      }
+
+      await Swal.fire({
+        icon: "success",
+        title: data.message || "ClassSchedule deleted successfully",
+        confirmButtonColor: "#3085d6",
+      });
+
+      await fetchClassSchedules(); // Refresh the list
+    } catch (err) {
+      console.error("Failed to delete classSchedule:", err);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message || "Something went wrong",
+        confirmButtonColor: "#d33",
+      });
     }
-
-    await Swal.fire({
-      icon: "success",
-      title: data.message || "ClassSchedule deleted successfully",
-      confirmButtonColor: "#3085d6",
-    });
-
-    await fetchClassSchedules(); // Refresh the list
-  } catch (err) {
-    console.error("Failed to delete classSchedule:", err);
-    await Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: err.message || "Something went wrong",
-      confirmButtonColor: "#d33",
-    });
-  }
-}, [token, fetchClassSchedules]);
+  }, [token, fetchClassSchedules]);
 
 
   return (

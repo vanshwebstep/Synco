@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useVenue } from "../contexts/VenueContext";
 import { motion, AnimatePresence } from "framer-motion";
-  import Swal from "sweetalert2";
+import Swal from "sweetalert2";
 
 const Create = ({ packages, termGroup, onClose }) => {
 
@@ -27,19 +27,24 @@ const Create = ({ packages, termGroup, onClose }) => {
 
     console.log("Venue Submitted:", formData);
     createVenues(formData);
+    setFormData({
+      area: "", name: "", address: "", facility: "",
+      hasParking: false, isCongested: false, parkingNote: "",
+      congestionNote: "", termGroupId: "", paymentPlanId: ""
+    });
     onClose(); // close form on success
 
   };
 
-const handleCancel = () => {
-      setFormData({
-        area: "", name: "", address: "", facility: "",
-        hasParking: false, isCongested: false, parkingNote: "",
-        congestionNote: "", termGroupId: "", paymentPlanId: ""
-      });
-      onClose();
+  const handleCancel = () => {
+    setFormData({
+      area: "", name: "", address: "", facility: "",
+      hasParking: false, isCongested: false, parkingNote: "",
+      congestionNote: "", termGroupId: "", paymentPlanId: ""
+    });
+    onClose();
 
-};
+  };
 
   console.log('formData', formData)
   const toggleValue = (list, setList, value) => {
@@ -49,6 +54,11 @@ const handleCancel = () => {
   };
   const handleUpdate = (id) => {
     updateVenues(id, formData);
+    setFormData({
+      area: "", name: "", address: "", facility: "",
+      hasParking: false, isCongested: false, parkingNote: "",
+      congestionNote: "", termGroupId: "", paymentPlanId: ""
+    });
     onClose(); // close form on success
 
     console.log("Venue Updated:", formData);
@@ -109,7 +119,7 @@ const handleCancel = () => {
 
   const subOptions = packages?.map(pkg => ({
     id: pkg.id,
-    label: `${pkg.duration} (${pkg.students} Students) £${pkg.price.toFixed(2)}`
+    label: `${pkg.title} (${pkg.students} Students) £${pkg.price.toFixed(2)}`
   }));
   console.log(subOptions);
 

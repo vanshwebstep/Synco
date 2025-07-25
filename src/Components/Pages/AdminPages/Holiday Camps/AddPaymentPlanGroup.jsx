@@ -447,27 +447,93 @@ const AddPaymentPlanGroup = () => {
                                     {[
                                         { label: "Title", name: "title", type: "text" },
                                         { label: "Price (€)", name: "price", type: "number" },
-                                        { label: "Interval", name: "interval", type: "text" },
-                                        { label: "Duration", name: "duration", type: "text" },
+                                        {
+                                            label: "Interval",
+                                            name: "interval",
+                                            type: "dropdown",
+                                            options: ["Week", "Month", "Quarter", "Year"]
+                                        },
+                                        { label: "Duration", name: "duration", type: "number" },
                                         { label: "Number of Students", name: "students", type: "number" },
                                         { label: "Joining Fee (€)", name: "joiningFee", type: "number" }
-                                    ].map((field) => (
-                                        <div key={field.name} className="mb-4">
-                                            <label className="block text-base font-semibold text-gray-700 mb-2">
-                                                {field.label}
-                                            </label>
-                                            <input
-                                                type={field.type}
-                                                value={formData[field.name]}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, [field.name]: e.target.value })
-                                                }
-                                                className={`w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 
-                ${field.name === "price" ? "appearance-none bg-transparent" : ""}`}
-                                                step={field.type === "number" ? "0.01" : undefined}
-                                            />
-                                        </div>
-                                    ))}
+                                    ].map((field) => {
+                                        // Duration options for dropdown
+                                        let durationOptions = [];
+                                        if (field.name === "duration") {
+                                            if (formData.interval === "Month") {
+                                                durationOptions = Array.from({ length: 12 }, (_, i) => ({
+                                                    label: `${i + 1} month${i + 1 > 1 ? "s" : ""}`,
+                                                    value: i + 1
+                                                }));
+                                            } else if (formData.interval === "Year") {
+                                                durationOptions = Array.from({ length: 20 }, (_, i) => ({
+                                                    label: `${i + 1} year${i + 1 > 1 ? "s" : ""}`,
+                                                    value: i + 1
+                                                }));
+                                            } else if (formData.interval === "Quarter") {
+                                                durationOptions = Array.from({ length: 8 }, (_, i) => ({
+                                                    label: `${i + 1} quarter${i + 1 > 1 ? "s" : ""}`,
+                                                    value: i + 1
+                                                }));
+                                            }
+                                        }
+
+                                        return (
+                                            <div key={field.name} className="mb-4">
+                                                <label className="block text-base font-semibold text-gray-700 mb-2">
+                                                    {field.label}
+                                                </label>
+
+                                                {field.type === "dropdown" ? (
+                                                    <select
+                                                        value={formData[field.name]}
+                                                        onChange={(e) =>
+                                                            setFormData({ ...formData, [field.name]: e.target.value })
+                                                        }
+                                                        className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    >
+                                                        <option value="" disabled>Select {field.label}</option>
+                                                        {field.options.map((option) => (
+                                                            <option key={option} value={option}>{option}</option>
+                                                        ))}
+                                                    </select>
+                                                ) : field.name === "duration" && formData.interval ? (
+                                                    <select
+                                                        value={formData.duration}
+                                                        onChange={(e) =>
+                                                            setFormData({ ...formData, duration: parseInt(e.target.value) })
+                                                        }
+                                                        className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    >
+                                                        <option value="" disabled>Select Duration</option>
+                                                        {durationOptions.map((opt) => (
+                                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                                        ))}
+                                                    </select>
+                                                ) : (
+                                                    <input
+                                                        type={field.type}
+                                                        value={formData[field.name]}
+                                                        onChange={(e) => {
+                                                            let value = e.target.value;
+                                                            if (field.type === "number") {
+                                                                value = Number(value);
+                                                                if (field.name === "students" && value > 3) value = 3;
+                                                            }
+                                                            setFormData({ ...formData, [field.name]: value });
+                                                        }}
+                                                        className={`w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 
+            ${field.name === "price" ? "appearance-none bg-transparent" : ""}`}
+                                                        step={field.type === "number" ? "0.01" : undefined}
+                                                        min={field.type === "number" ? 1 : undefined}
+                                                        max={field.name === "students" ? 3 : undefined}
+                                                    />
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+
+
 
 
                                     <div className="mb-4">
@@ -476,8 +542,7 @@ const AddPaymentPlanGroup = () => {
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             <Editor
-                                                apiKey="frnlhul2sjabyse5v4xtgnphkcgjxm316p0r37ojfop0ux83"
-
+                                                apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
                                                 value={formData.HolidayCampPackage}
                                                 onEditorChange={(content) =>
                                                     setFormData({ ...formData, HolidayCampPackage: content })
@@ -488,14 +553,14 @@ const AddPaymentPlanGroup = () => {
                                                     height: 150,
                                                     branding: false,
                                                     content_style: `
-          body {
-            background-color: #f3f4f6;
-            font-family: inherit;
-            font-size: 1rem;
-            padding: 12px;
-            color: #111827;
-          }
-        `,
+                                                    body {
+                                                        background-color: #f3f4f6;
+                                                        font-family: inherit;
+                                                        font-size: 1rem;
+                                                        padding: 12px;
+                                                        color: #111827;
+                                                    }
+                                                    `,
                                                 }}
                                             />
                                         </div>
@@ -507,7 +572,7 @@ const AddPaymentPlanGroup = () => {
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             <Editor
-                                                apiKey="frnlhul2sjabyse5v4xtgnphkcgjxm316p0r37ojfop0ux83"
+                                                apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
 
                                                 value={formData.termsAndCondition}
                                                 onEditorChange={(content) =>
