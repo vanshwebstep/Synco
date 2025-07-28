@@ -246,7 +246,7 @@ const handleIconClick = (icon, plan = null) => {
                               >
                                 <img
                                   src="/demo/synco/members/calendar-circle.png"
-                                  className="w-6 h-6"
+                                  className="min-w-6 min-h-6 max-w-6 max-h-6"
                                   alt="calendar"
                                 />
                               </div>
@@ -256,7 +256,7 @@ const handleIconClick = (icon, plan = null) => {
                               >
                                 <img
                                   src="/demo/synco/members/Currency Icon.png"
-                                  className="w-6 h-6"
+                                  className="min-w-6 min-h-6 max-w-6 max-h-6"
                                   alt="currency"
                                 />
                               </div>
@@ -266,7 +266,7 @@ const handleIconClick = (icon, plan = null) => {
                               >
                                 <img
                                   src="/demo/synco/members/Group-c.png"
-                                  className="w-6 h-6"
+                                  className="min-w-6 min-h-6 max-w-6 max-h-6"
                                   alt="group"
                                 />
                               </div>
@@ -276,7 +276,7 @@ const handleIconClick = (icon, plan = null) => {
                               >
                                 <img
                                   src="/demo/synco/members/p.png"
-                                  className="w-6 h-6"
+                                  className="min-w-6 min-h-6 max-w-6 max-h-6"
                                   alt="p icon"
                                 />
                               </div>
@@ -290,18 +290,18 @@ const handleIconClick = (icon, plan = null) => {
                                 setIsEditVenue(true);
                                 setFormData(user);
                                 setOpenForm(true)
-                              }} src="/demo/synco/members/edit.png" className='w-6 h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90' alt="" /></div>
+                              }} src="/demo/synco/members/edit.png" className='min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90' alt="" /></div>
                               <div>
                                 <img
                                   onClick={() => handleDelete(user.id)}
                                   src="/demo/synco/members/delete-02.png"
-                                  className="w-6 h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
+                                  className="min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
                                   alt=""
                                 />
                               </div>
                               <div>  <img
                                 src="/demo/synco/members/Time-Circle.png"
-                                className="w-6 h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
+                                className="min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
                                 alt="Navigate"
                                 onClick={() => navigate(`/weekly-classes/venues/class-schedule?id=${user.id}`)}
                               /></div>
