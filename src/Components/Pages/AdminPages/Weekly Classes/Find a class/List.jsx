@@ -13,17 +13,17 @@ import { FiMapPin } from "react-icons/fi";
 import { FaFacebookF, FaInstagram, FaWhatsapp, FaPinterestP } from "react-icons/fa";
 import PlanTabs from './PlanTabs';
 const List = () => {
-  const { fetchFindClasses,findClasses } = useFindClass();
+  const { fetchFindClasses, findClasses } = useFindClass();
 
-    useEffect(() => {
-            fetchFindClasses()
-    }, [fetchFindClasses]);
+  useEffect(() => {
+    fetchFindClasses()
+  }, [fetchFindClasses]);
   const [showModal, setShowModal] = useState(false);
   const [showteamModal, setShowteamModal] = useState(false);
   const [showCongestionModal, setShowCongestionModal] = useState(false);
   const [showParkingModal, setShowParkingModal] = useState(false);
-const [selectedPlans, setSelectedPlans] = useState([]);
-console.log('selectedPlans',selectedPlans)
+  const [selectedPlans, setSelectedPlans] = useState([]);
+  console.log('selectedPlans', selectedPlans)
   const [expression, setExpression] = useState('');
   const [result, setResult] = useState('');
   const [clickedIcon, setClickedIcon] = useState(null);
@@ -31,7 +31,7 @@ console.log('selectedPlans',selectedPlans)
     setClickedIcon(icon);
     setShowModal(true);
   };
-  const venues = ["All venues", "Acton", "Chelsea", "Kensington", "London"];
+  const venues = ["All venues", ...new Set(findClasses.map(v => v.area).filter(Boolean))];
 
 
   const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -62,9 +62,9 @@ console.log('selectedPlans',selectedPlans)
   const [searchPostcode, setSearchPostcode] = useState("");
   const [selectedVenues, setSelectedVenues] = useState(["All venues"]);
   const [selectedDays, setSelectedDays] = useState(["Sunday"]);
-  const [showAvailableOnly, setShowAvailableOnly] = useState(true);
+  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
 
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const days = [...new Set(findClasses.flatMap(v => v.classes.map(c => c.day)))];
 
   const toggleVenue = (venue) => {
     if (venue === "All venues") {
@@ -257,6 +257,47 @@ console.log('selectedPlans',selectedPlans)
     ['1', '2', '3', '-'],
     ['0', '.', '=', '+'],
   ];
+const filteredClasses = Array.isArray(findClasses)
+  ? findClasses.filter((venue) => {
+      const nameMatch =
+        !searchVenue || venue.venueName?.toLowerCase().includes(searchVenue.toLowerCase());
+
+      const postcodeMatch =
+        !searchPostcode || (venue?.postal_code || "").toLowerCase().includes(searchPostcode.toLowerCase());
+
+      // Only apply venue filter when availability switch is ON
+      const venueMatch =
+        !showAvailableOnly ||
+        selectedVenues.length === 0 ||
+        selectedVenues.includes("All venues") ||
+        selectedVenues.includes(venue.area);
+
+      // Only apply day filter when availability switch is ON
+      const dayMatch =
+        !showAvailableOnly ||
+        selectedDays.length === 0 ||
+        selectedDays.some((selectedDay) =>
+          (venue.classes || []).some((cls) => cls.day === selectedDay)
+        );
+
+      const availableMatch =
+        !showAvailableOnly || (venue.classes || []).some((cls) => cls.capacity > 0);
+
+      console.log(`🧪 Venue: ${venue.venueName}`);
+      console.log({ nameMatch, postcodeMatch, venueMatch, dayMatch, availableMatch });
+
+      return nameMatch && postcodeMatch && venueMatch && dayMatch && availableMatch;
+    })
+  : [];
+
+
+
+
+
+
+  console.log('filteredClasses', filteredClasses)
+  console.log('findClasses', findClasses)
+
   const modalRef = useRef(null);
   const PRef = useRef(null);
 
@@ -347,7 +388,7 @@ console.log('selectedPlans',selectedPlans)
           <div>
             <h3 className="text-[20px] font-medium mb-2 border-b border-gray-300 pb-2 text-semibold">Days</h3>
             <div className="space-y-2 pt-2">
-              {days.map((day) => (
+              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
                 <label key={day} className="flex text-[16px] items-center gap-2">
                   <input
                     type="checkbox"
@@ -362,23 +403,25 @@ console.log('selectedPlans',selectedPlans)
           </div>
 
           {/* Toggle */}
-          <div className=" pb-4 border-gray-300 border-b">
+          <div className="pb-4 border-gray-300 border-b">
             <Switch.Group as="div" className="flex items-center justify-between">
-
               <Switch
                 checked={showAvailableOnly}
                 onChange={setShowAvailableOnly}
                 className={`${showAvailableOnly ? "bg-blue-600" : "bg-gray-300"}
-              relative inline-flex h-6 w-11 items-center rounded-full transition`}
+        relative inline-flex h-6 w-11 items-center rounded-full transition`}
               >
                 <span
                   className={`${showAvailableOnly ? "translate-x-6" : "translate-x-1"}
-                inline-block h-4 w-4 transform bg-white rounded-full transition`}
+          inline-block h-4 w-4 transform bg-white rounded-full transition`}
                 />
               </Switch>
-              <Switch.Label className="text-[16px] text-semibold">Show venues with availability</Switch.Label>
+              <Switch.Label className="text-[16px] text-semibold">
+                Show venues with availability
+              </Switch.Label>
             </Switch.Group>
           </div>
+
         </div>
         <div
           className={`transition-all duration-300  md:w-9/12 `}>
@@ -387,7 +430,7 @@ console.log('selectedPlans',selectedPlans)
 
               <div className={`overflow-auto rounded-4xl w-full`}>
                 <div className="space-y-5">
-                  {findClasses.map((venue, idx) => (
+                  {filteredClasses.map((venue, idx) => (
                     <div key={idx} className="rounded-2xl relative  p-2 border border-[#D9D9D9] overflow-hidden shadow-sm bg-white">
                       <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
@@ -397,10 +440,10 @@ console.log('selectedPlans',selectedPlans)
                           </span>
                         </div>
                         <div className="flex relative items-center gap-4 ">
-                          <img src="/demo/synco/icons/fcDollar.png"  onClick={() => {
-    setSelectedPlans(venue.paymentPlans || []);
-    setShowModal(true);
-  }} alt="" />
+                          <img src="/demo/synco/icons/fcDollar.png" onClick={() => {
+                            setSelectedPlans(venue.paymentPlans || []);
+                            setShowModal(true);
+                          }} alt="" />
 
                           <img src="/demo/synco/icons/fcCalendar.png" onClick={() => setShowteamModal(true)} alt="" />
                           <img src="/demo/synco/icons/fcLocation.png" onClick={() => setShowModal(true)} alt="" />
@@ -418,7 +461,7 @@ console.log('selectedPlans',selectedPlans)
                             <div className="whitespace-nowrap font-semibold  text-[14px]"> {(venue.distanceMiles / 1609.34).toFixed(2)}miles</div>
                           </div>
                           <div>
-                              <div className="text-[#384455] text-[16px] font-semibold">{[...new Set(venue.classes.map(c => c.day))].join(', ')}</div>
+                            <div className="text-[#384455] text-[16px] font-semibold">{[...new Set(venue.classes.map(c => c.day))].join(', ')}</div>
                             <div className="whitespace-nowrap font-semibold  text-[14px]" >{venue.facility}</div>
                           </div>
                         </div>
@@ -442,7 +485,7 @@ console.log('selectedPlans',selectedPlans)
 
                               {/* Action Buttons */}
                               <div className="flex gap-2 col-span-2 flex-wrap justify-end">
-                                {s.capacity == 0? (
+                                {s.capacity == 0 ? (
                                   <button className="bg-[#237FEA] text-white border border-[#237FEA] px-3 py-1 rounded-xl text-sm font-medium">
                                     Add to Waiting List
                                   </button>
@@ -482,7 +525,7 @@ console.log('selectedPlans',selectedPlans)
                     <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(false)} alt="close" className="w-5 h-5" />
                   </button>
                 </div>
-               <PlanTabs selectedPlans={selectedPlans} />
+                <PlanTabs selectedPlans={selectedPlans} />
               </div>
             </div>
           </div>

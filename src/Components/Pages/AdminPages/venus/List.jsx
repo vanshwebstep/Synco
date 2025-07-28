@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Create from './Create';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
@@ -7,16 +7,23 @@ import { useVenue } from '../contexts/VenueContext';
 import { usePayments } from '../contexts/PaymentPlanContext';
 import { useTermContext } from '../contexts/termDatesSessionContext';
 import Swal from "sweetalert2"; // make sure it's installed
+import PlanTabs from '../Weekly Classes/Find a class/PlanTabs';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const List = () => {
   const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
   const [clickedIcon, setClickedIcon] = useState(null);
-  const handleIconClick = (icon) => {
-    setClickedIcon(icon);
-    setShowModal(true);
-  };
+const handleIconClick = (icon, plan = null) => {
+  setClickedIcon(icon);
+  if (icon === 'currency') {
+    setSelectedPlans(plan || []); // default to empty array
+  }
+  setShowModal(true);
+};
+
+  const [selectedPlans, setSelectedPlans] = useState([]);
 
   const { fetchPackages, packages } = usePayments()
   const { fetchTermGroup, termGroup } = useTermContext()
@@ -64,11 +71,98 @@ const List = () => {
   };
 
   const [openForm, setOpenForm] = useState(false);
+
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   useEffect(() => {
     fetchVenues();
     fetchPackages();
     fetchTermGroup();
   }, [fetchVenues, fetchPackages, fetchTermGroup]);
+
+  const today = new Date();
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [fromDate, setFromDate] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 11));
+  const [toDate, setToDate] = useState(null);
+
+  const month = currentDate.getMonth();
+  const year = currentDate.getFullYear();
+
+  const getDaysArray = () => {
+    const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days = [];
+
+    const offset = startDay === 0 ? 6 : startDay - 1;
+
+    for (let i = 0; i < offset; i++) {
+      days.push(null);
+    }
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(year, month, i));
+    }
+
+    return days;
+  };
+
+  const calendarDays = getDaysArray();
+
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+    setFromDate(null);
+    setToDate(null);
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+    setFromDate(null);
+    setToDate(null);
+  };
+
+  const isSameDate = (d1, d2) =>
+    d1 &&
+    d2 &&
+    d1.getDate() === d2.getDate() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getFullYear() === d2.getFullYear();
+
+  const isInRange = (date) =>
+    fromDate && toDate && date && date >= fromDate && date <= toDate;
+
+  const handleDateClick = (date) => {
+    if (!fromDate || (fromDate && toDate)) {
+      setFromDate(date);
+      setToDate(null);
+    } else if (fromDate && !toDate) {
+      if (date < fromDate) {
+        setFromDate(date);
+      } else {
+        setToDate(date);
+      }
+    }
+  };
+  const modalRef = useRef(null);
+  const PRef = useRef(null);
+  useEffect(() => {
+    function handleClickOutside(event) {
+      const activeRef = clickedIcon === "group" ? modalRef : PRef;
+
+      if (
+        activeRef.current &&
+        !activeRef.current.contains(event.target)
+      ) {
+        setShowModal(false); // Close the modal
+      }
+    }
+
+    if (showModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showModal, clickedIcon, setShowModal]);
 
   if (loading) {
     return (
@@ -146,19 +240,48 @@ const List = () => {
                           <td className="p-4">{user.facility || "-"}</td>
                           <td className="p-4">
                             <div className="flex gap-2">
-                              <div onClick={() => handleIconClick("calendar")} className="cursor-pointer">
-                                <img src="/demo/synco/members/calendar-circle.png" className="w-6 h-6" alt="calendar" />
+                              <div
+                                onClick={() => handleIconClick("calendar")}
+                                className="cursor-pointer"
+                              >
+                                <img
+                                  src="/demo/synco/members/calendar-circle.png"
+                                  className="w-6 h-6"
+                                  alt="calendar"
+                                />
                               </div>
-                              <div onClick={() => handleIconClick("currency")} className="cursor-pointer">
-                                <img src="/demo/synco/members/Currency Icon.png" className="w-6 h-6" alt="currency" />
+                              <div
+                                onClick={() => handleIconClick("currency", user.paymentPlans)}
+                                className="cursor-pointer"
+                              >
+                                <img
+                                  src="/demo/synco/members/Currency Icon.png"
+                                  className="w-6 h-6"
+                                  alt="currency"
+                                />
                               </div>
-                              <div onClick={() => handleIconClick("group")} className="cursor-pointer">
-                                <img src="/demo/synco/members/Group-c.png" className="w-6 h-6" alt="group" />
+                              <div
+                                onClick={() => handleIconClick("group")}
+                                className="cursor-pointer"
+                              >
+                                <img
+                                  src="/demo/synco/members/Group-c.png"
+                                  className="w-6 h-6"
+                                  alt="group"
+                                />
                               </div>
-                              <div onClick={() => handleIconClick("p")} className="cursor-pointer">
-                                <img src="/demo/synco/members/p.png" className="w-6 h-6" alt="p icon" />
+                              <div
+                                onClick={() => handleIconClick("p")}
+                                className="cursor-pointer"
+                              >
+                                <img
+                                  src="/demo/synco/members/p.png"
+                                  className="w-6 h-6"
+                                  alt="p icon"
+                                />
                               </div>
                             </div>
+
 
                           </td>
                           <td className="p-4">
@@ -232,18 +355,152 @@ const List = () => {
 
       </div>
 
-      {showModal && (
-        <div className="fixed inset-0 bg-[#0000007a] bg-opacity-30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-[350px]">
-            <h2 className="text-lg font-semibold mb-2">Clicked Icon</h2>
-            <p className="text-[#717073] mb-4">You clicked: <strong>{clickedIcon}</strong></p>
-            <div className="text-right">
-              <button
-                onClick={() => setShowModal(false)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-              >
-                Close
+         {showModal && clickedIcon === "currency" && selectedPlans.length > 0 && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+          <div className="flex items-center justify-center w-full px-4 py-6 sm:px-6 md:py-10">
+            <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
+                <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
+                <button className="text-gray-400 hover:text-black text-xl font-bold">
+                  <img
+                    src="/demo/synco/icons/cross.png"
+                    onClick={() => setShowModal(false)}
+                    alt="close"
+                    className="w-5 h-5"
+                  />
+                </button>
+              </div>
+              <PlanTabs selectedPlans={selectedPlans} />
+            </div>
+          </div>
+        </div>
+      )}
+      {showModal && clickedIcon === "calendar" && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+          <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
+            {/* Header */}
+            <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
+              <h2 className="text-[24px] font-semibold">Term Dates</h2>
+              <button onClick={() => setShowModal(false)}>
+                <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
               </button>
+            </div>
+
+            {/* Term List */}
+            <div className="space-y-6 text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
+              {/* Repeat Term Sections */}
+              {["Autumn", "Spring", "Summer"].map((term) => (
+                <div key={term}>
+                  <h3 className="text-[20px] font-semibold mb-1">{term} Term 2022</h3>
+                  <p className="text-[18px]">Sun 11th Sep 2022 - Sun 04th Dec 2022</p>
+                  <p className="text-[18px]">Half term Exclusion: Sun 23rd Oct 2022</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar Section */}
+            <div className="rounded p-4 mt-6 text-center text-sm w-full max-w-md mx-auto">
+              {/* Calendar Header */}
+              <div className="flex justify-around items-center mb-3">
+                <button
+                  onClick={goToPreviousMonth}
+                  className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <p className="font-semibold text-[20px]">
+                  {currentDate.toLocaleString("default", { month: "long" })} {year}
+                </p>
+                <button
+                  onClick={goToNextMonth}
+                  className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Day Labels */}
+              <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
+                {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
+                  <div key={day} className="font-medium text-center">
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar Grid */}
+              <div className="flex flex-col gap-1">
+                {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
+                  const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
+                  const highlightRow = week.some((date) => isInRange(date));
+
+                  return (
+                    <div
+                      key={weekIndex}
+                      className={`grid grid-cols-7 text-[18px] gap-1 py-1 rounded ${highlightRow ? "bg-sky-100" : ""
+                        }`}
+                    >
+                      {week.map((date, i) => {
+                        const isFrom = isSameDate(date, fromDate);
+                        const isTo = isSameDate(date, toDate);
+
+                        return (
+                          <div
+                            key={i}
+                            onClick={() => date && handleDateClick(date)}
+                            className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-sm rounded-full cursor-pointer
+                        ${isFrom || isTo ? "bg-blue-600 text-white font-bold" : "text-gray-800"}
+                      `}
+                          >
+                            {date ? date.getDate() : ""}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showModal && clickedIcon === "group" && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+          <div
+            ref={modalRef}
+            className="relative bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[409px] max-w-[489px]"
+          >
+            <div className="flex items-start justify-between">
+              <h2 className="text-red-500 font-semibold text-[18px] leading-tight">
+                Congestion Information
+              </h2>
+              <img src="/demo/synco/icons/infoIcon.png" alt="" />
+            </div>
+
+            <div className="mt-2 text-[16px] text-gray-700 leading-snug">
+              <p>This venue has no parking facilities available.</p>
+              <p>Paid road parking is available.</p>
+            </div>
+          </div>
+        </div>
+      )}
+      {showModal && clickedIcon === "p" && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
+          <div
+            ref={PRef}
+            className="relative bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[409px] max-w-[489px]"
+          >
+            <div className="flex items-start justify-between">
+              <h2 className="text-red-500 font-semibold text-[18px] leading-tight">
+                Parking Information
+              </h2>
+              <img src="/demo/synco/icons/infoIcon.png" alt="" />
+            </div>
+
+            <div className="mt-2 text-[16px] text-gray-700 leading-snug">
+              <p>This venue has no parking facilities available.</p>
+              <p>Paid road parking is available.</p>
             </div>
           </div>
         </div>

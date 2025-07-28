@@ -36,16 +36,16 @@ const PlanTabs = ({ selectedPlans }) => {
 
       {/* Plan Cards */}
       <div className="grid pt-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {groupedPlans[activeTab].map((plan, idx) => (
+        {groupedPlans[activeTab]?.map((plan, idx) => (
           <div
-            key={plan.id}
+            key={plan?.id}
             className="border border-[#E2E1E5] rounded-xl p-4 sm:p-5 flex flex-col justify-between transition"
           >
             <h3 className="text-[18px] sm:text-[20px] font-semibold mb-2">
               {activeTab + 1} Student{activeTab > 0 ? "s" : ""}
             </h3>
             <p className="text-[24px] sm:text-[32px] font-semibold mb-4">
-              £{plan.price}
+              £{plan?.price}
             </p>
             <hr className="mb-4 text-[#E2E1E5]" />
             <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
