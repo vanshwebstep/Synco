@@ -35,36 +35,98 @@ const List = () => {
         };
         getPackages();
     }, [fetchSessionGroup]);
+// with empty conditon 
+useEffect(() => {
+  if (sessionGroup?.length > 0) {
+    console.log('sessionGroup', sessionGroup);
 
-    useEffect(() => {
-        if (sessionGroup?.length > 0) {
-          console.log('sessionGroup',sessionGroup)
-            const transformedWeeks = sessionGroup.map((group) => {
-                const levels = typeof group.levels === 'string'
-                    ? JSON.parse(group.levels)
-                    : group.levels || {};
+    const transformedWeeks = sessionGroup
+      .map((group) => {
+        const levels = typeof group.levels === 'string'
+          ? JSON.parse(group.levels)
+          : group.levels || {};
 
-                const groups = Object.keys(levels).map((levelKey, index) => {
-                    const capitalizedLevel = levelKey.charAt(0).toUpperCase() + levelKey.slice(1); // e.g. beginner → Beginner
-                    return {
-                        id: index + 1,
-                        name: capitalizedLevel,
-                        age: ageMapping[capitalizedLevel] || "N/A", // fallback if missing
-                    };
-                });
+        const validLevels = Object.keys(levels).filter((levelKey) => {
+          const levelData = levels[levelKey];
+          return levelData.some(item =>
+            item.player?.trim() ||
+            item.skillOfTheDay?.trim() ||
+            item.description?.trim() ||
+            (item.sessionExerciseId && item.sessionExerciseId.length > 0) ||
+            (item.sessionExercises && item.sessionExercises.length > 0 && Object.keys(item.sessionExercises[0]).length > 0)
+          );
+        });
 
-                return {
-                    id: group.id,
-                    title: group.groupName,
-                    groups,
-                };
-            });
-
-            setWeeks(transformedWeeks);
-            setWeekList(transformedWeeks);
-
+        if (validLevels.length === 0) {
+          return null; // Entire group is empty, skip it
         }
-    }, [sessionGroup]);
+
+        const groups = validLevels.map((levelKey, index) => {
+          const capitalizedLevel = levelKey.charAt(0).toUpperCase() + levelKey.slice(1);
+          return {
+            id: index + 1,
+            name: capitalizedLevel,
+            age: ageMapping[capitalizedLevel] || "N/A",
+          };
+        });
+
+        return {
+          id: group.id,
+          title: group.groupName,
+          groups,
+        };
+      })
+      .filter(Boolean); // remove null groups
+
+    setWeeks(transformedWeeks);
+    setWeekList(transformedWeeks);
+  }
+}, [sessionGroup]);
+
+// without condition 
+//  useEffect(() => {
+//   if (sessionGroup?.length > 0) {
+//     console.log('sessionGroup', sessionGroup);
+
+//     const transformedWeeks = sessionGroup.map((group) => {
+//       const levels = typeof group.levels === 'string'
+//         ? JSON.parse(group.levels)
+//         : group.levels || {};
+
+//       const groups = Object.keys(levels)
+//         .filter((levelKey) => {
+//           const levelData = levels[levelKey];
+//           // Check if *every* object inside the array is fully empty
+//           return levelData.some(item => {
+//             return item.player?.trim() ||
+//               item.skillOfTheDay?.trim() ||
+//               item.description?.trim() ||
+//               (item.sessionExerciseId && item.sessionExerciseId.length > 0) ||
+//               (item.sessionExercises && item.sessionExercises.length > 0 && Object.keys(item.sessionExercises[0]).length > 0);
+//           });
+//         })
+//         .map((levelKey, index) => {
+//           const capitalizedLevel = levelKey.charAt(0).toUpperCase() + levelKey.slice(1);
+//           return {
+//             id: index + 1,
+//             name: capitalizedLevel,
+//             age: ageMapping[capitalizedLevel] || "N/A",
+//           };
+//         });
+
+//       console.log('groups', groups);
+
+//       return {
+//         id: group.id,
+//         title: group.groupName,
+//         groups,
+//       };
+//     });
+
+//     setWeeks(transformedWeeks);
+//     setWeekList(transformedWeeks);
+//   }
+// }, [sessionGroup]);
 
 
     const handleAddNew = () => {

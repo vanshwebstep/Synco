@@ -14,16 +14,25 @@ const List = () => {
   const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
-  const [clickedIcon, setClickedIcon] = useState(null);
-const handleIconClick = (icon, plan = null) => {
-  setClickedIcon(icon);
-  if (icon === 'currency') {
-    setSelectedPlans(plan || []); // default to empty array
-  }
-  setShowModal(true);
-};
-
   const [selectedPlans, setSelectedPlans] = useState([]);
+  const [congestionNote, setCongestionNote] = useState(null);
+
+  const [clickedIcon, setClickedIcon] = useState(null);
+  const handleIconClick = (icon, plan = null) => {
+    setClickedIcon(icon);
+      setCongestionNote(null)
+    if (icon === 'currency') {
+      setSelectedPlans(plan || []); // default to empty array
+    }
+    else if (icon == 'group') {
+      setCongestionNote(plan)
+    }
+      else if (icon == 'p') {
+      setCongestionNote(plan)
+    }
+    setShowModal(true);
+  };
+
 
   const { fetchPackages, packages } = usePayments()
   const { fetchTermGroup, termGroup } = useTermContext()
@@ -261,7 +270,11 @@ const handleIconClick = (icon, plan = null) => {
                                 />
                               </div>
                               <div
-                                onClick={() => handleIconClick("group")}
+                                  onClick={() =>
+                                  user.isCongested
+                                    ? handleIconClick("group", user.congestionNote)
+                                    : handleIconClick("group")
+                                }
                                 className="cursor-pointer"
                               >
                                 <img
@@ -271,7 +284,11 @@ const handleIconClick = (icon, plan = null) => {
                                 />
                               </div>
                               <div
-                                onClick={() => handleIconClick("p")}
+                                onClick={() =>
+                                  user.hasParking
+                                    ? handleIconClick("p", user.parkingNote)
+                                    : handleIconClick("p")
+                                }
                                 className="cursor-pointer"
                               >
                                 <img
@@ -280,6 +297,7 @@ const handleIconClick = (icon, plan = null) => {
                                   alt="p icon"
                                 />
                               </div>
+
                             </div>
 
 
@@ -355,7 +373,7 @@ const handleIconClick = (icon, plan = null) => {
 
       </div>
 
-         {showModal && clickedIcon === "currency" && selectedPlans.length > 0 && (
+      {showModal && clickedIcon === "currency" && selectedPlans.length > 0 && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
           <div className="flex items-center justify-center w-full px-4 py-6 sm:px-6 md:py-10">
             <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
@@ -479,8 +497,14 @@ const handleIconClick = (icon, plan = null) => {
             </div>
 
             <div className="mt-2 text-[16px] text-gray-700 leading-snug">
-              <p>This venue has no parking facilities available.</p>
-              <p>Paid road parking is available.</p>
+                {congestionNote ? (
+                <p>{congestionNote}</p>
+              ) : (
+                <>
+                  <p>This venue has no parking facilities available.</p>
+                  <p>Paid road parking is available.</p>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -499,9 +523,17 @@ const handleIconClick = (icon, plan = null) => {
             </div>
 
             <div className="mt-2 text-[16px] text-gray-700 leading-snug">
-              <p>This venue has no parking facilities available.</p>
-              <p>Paid road parking is available.</p>
+              {congestionNote ? (
+                congestionNote
+              ) : (
+                <>
+                  <p>This venue has no parking facilities available.</p>
+                  <p>Paid road parking is available.</p>
+                </>
+              )}
             </div>
+
+
           </div>
         </div>
       )}

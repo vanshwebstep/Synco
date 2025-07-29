@@ -118,7 +118,7 @@ const List = () => {
                     <td className="p-4" onClick={() => navigate(`/members/update?id=${user.id}`)}>{user.email || '-'}</td>
                     <td className="p-4" onClick={() => navigate(`/members/update?id=${user.id}`)}>{user.position || '-'}</td>
                     <td className="p-4">
-                      {user.createdAt ? formatDistanceToNow(new Date(user.createdAt), { addSuffix: true }) : '-'}
+                      {user.updatedAt ? formatDistanceToNow(new Date(user.updatedAt), { addSuffix: true }) : '-'}
                     </td>
                   </tr>
                 );

@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
-const menuItems = [
+ const menuItems = [
   {
     title: 'Dashboard',
     icon: '/demo/synco/SidebarLogos/Dashboard.png',
@@ -20,11 +20,11 @@ const menuItems = [
     title: 'Weekly Classes',
     icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
     iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
-    role: commonRole,
+    role: ['Admin', 'Call Agent'],
     subItems: [
-      { title: 'Find a class', link: '/weekly-classes/find-a-class', role: commonRole },
-      { title: 'Venues', link: '/weekly-classes/venues', role: commonRole },
-      { title: 'Term Dates & Session Plan mapping', link: '/weekly-classes/term-dates/list', role: commonRole },
+      { title: 'Find a class', link: '/weekly-classes/find-a-class', role:  ['Admin', 'Call Agent'] },
+      { title: 'Venues', link: '/weekly-classes/venues', role:  ['Admin'] },
+      { title: 'Term Dates & Session Plan mapping', link: '/weekly-classes/term-dates/list', role: ['Admin'] },
     ]
   },
   {
@@ -49,15 +49,15 @@ const menuItems = [
       }
     ]
   },
-  {
+ {
     title: 'Holiday Camps',
     icon: '/demo/synco/SidebarLogos/Holiday.png',
     iconHover: '/demo/synco/SidebarLogos/HolidayH.png',
-    role: commonRole,
+    role:  ['Admin'],
     subItems: [
-      { title: 'Session Plan Library', link: '/holiday-camps/session-plan-list', role: commonRole },
-      { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager', role: commonRole },
-      { title: 'Discounts', link: '/holiday-camps/discounts/list', role: commonRole }
+      { title: 'Session Plan Library', link: '/holiday-camps/session-plan-list', role: ['Admin'] },
+      { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager', role: ['Admin'] },
+      { title: 'Discounts', link: '/holiday-camps/discounts/list', role: ['Admin'] }
     ]
   },
   {

@@ -51,7 +51,7 @@ const Create = () => {
         title: '',
         duration: '',
         description: '',
-        image: null, // new field
+        image: [], // new field
 
     });
 
@@ -370,27 +370,34 @@ const Create = () => {
         setSelectedPlans(updated);
     };
     const handleSavePlan = async () => {
-        const newPlan = {
-            title: formData.title,
-            duration: formData.duration,
-            description: formData.description,
-        };
+        const data = new FormData();
+        data.append('title', formData.title);
+        data.append('duration', formData.duration);
+        data.append('description', formData.description);
+
+        formData.images.forEach((file) => {
+            if (file instanceof File) {
+                data.append('images', file); // or 'images[]' depending on backend
+            }
+        });
 
         try {
-            await createSessionExercise(newPlan, formData.image); // pass file here
+            await createSessionExercise(formData);
 
             // Reset form
             setFormData({
                 title: '',
                 duration: '',
                 description: '',
-                image: null,
+                images: [],
             });
             setOpenForm(false);
         } catch (err) {
             console.error('Error saving exercise:', err);
         }
     };
+
+
 
     if (loading) {
         return (
@@ -399,8 +406,8 @@ const Create = () => {
             </>
         )
     }
-    console.log('bannerFile', bannerFile)
-    console.log('videoFile', videoFile)
+
+    console.log('formData', formData)
     const stripHtml = (html) => {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || '';
@@ -551,7 +558,6 @@ const Create = () => {
 
 
                                 </div>
-
 
                                 {/* Description */}
                                 <div>
@@ -734,40 +740,64 @@ const Create = () => {
                                                 onChange={(e) => setFormData({ ...formData, [field.name]: e.target.value })}
                                                 className="w-full px-4 font-semibold text-[18px] py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                             />
+
                                         </div>
                                     ))}
 
-                                    <div className="mb-4">
+                                    <div className="mb-4 relative">
                                         <label className="block text-[18px] font-semibold text-gray-700 mb-2">
                                             Description
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
+
                                             <Editor
                                                 apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
-
                                                 value={formData.description}
                                                 onEditorChange={(content) =>
-                                                    setFormData({ ...formData, description: stripHtml(content) })
+                                                    setFormData({ ...formData, description: content })
                                                 }
                                                 init={{
                                                     menubar: false,
-                                                    toolbar: 'bold italic underline | bullist numlist | undo redo',
-                                                    height: 150,
+                                                    plugins: 'lists advlist',
+                                                    toolbar:
+                                                        'fontsizeselect capitalize bold italic underline alignleft aligncenter alignjustify',
+                                                    height: 200,
                                                     branding: false,
                                                     content_style: `
-        body {
-            background-color: #f3f4f6;
-            font-family: inherit;
-            font-size: 1rem;
-            padding: 12px;
-            color: #111827;
-        }
+      body {
+        background-color: #f3f4f6;
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 12px;
+        color: #111827;
+      }
     `,
+                                                    setup: (editor) => {
+                                                        // Register custom icon
+                                                        editor.ui.registry.addIcon(
+                                                            'capitalize-icon',
+                                                            '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
+                                                        );
+
+                                                        // Register and add button
+                                                        editor.ui.registry.addButton('capitalize', {
+                                                            icon: 'capitalize-icon',
+                                                            tooltip: 'Capitalize Text',
+                                                            onAction: () => {
+                                                                editor.formatter.register('capitalize', {
+                                                                    inline: 'span',
+                                                                    styles: { textTransform: 'capitalize' },
+                                                                });
+
+                                                                editor.formatter.toggle('capitalize');
+                                                            },
+                                                        });
+                                                    },
                                                 }}
                                             />
 
-
                                         </div>
+
                                     </div>
 
                                     <div>
@@ -775,8 +805,12 @@ const Create = () => {
                                             <input
                                                 type="file"
                                                 accept="image/*"
+                                                multiple
                                                 ref={fileInputRef}
-                                                onChange={(e) => setFormData({ ...formData, image: e.target.files[0] })}
+                                                onChange={(e) => {
+                                                    const files = Array.from(e.target.files);
+                                                    setFormData((prev) => ({ ...prev, images: files }));
+                                                }}
                                                 style={{ display: 'none' }}
                                             />
                                             <button
@@ -784,9 +818,10 @@ const Create = () => {
                                                 onClick={() => fileInputRef.current?.click()}
                                                 className="flex w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
                                             >
-                                                Upload image
+                                                Upload images
                                             </button>
                                         </div>
+
                                     </div>
                                     <div className="text-right">
                                         <button

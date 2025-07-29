@@ -155,17 +155,29 @@ const Preview = ({ item, sessionData }) => {
                     {currentContent.sessionExercises.map((exercise) => (
                       <div key={exercise.id} className="flex items-center gap-4">
                         <div>
-                          <img
-                            className="min-h-[116px] min-w-[181px] rounded object-cover"
-                            src={`${API_BASE_URL}/${exercise.imageUrl}`}
-                            alt={exercise.title}
-                          />
+                          {exercise.imageUrl ? (
+                            JSON.parse(exercise.imageUrl).map((imgUrl, index) => (
+                              <img
+                                key={index}
+                                className="max-h-[116px] max-w-[181px] rounded object-cover mr-2 mb-2"
+                                src={`${API_BASE_URL}/${imgUrl}`}
+                                alt={`${exercise.title} ${index + 1}`}
+                              />
+                            ))
+                          ) : (
+                            <p>No images available</p>
+                          )}
+
                         </div>
                         <div>
                           <h6 className="text-[18px] font-semibold">{exercise.title}</h6>
-                          <p className="text-[16px] text-gray-700">
-                            {exercise.description || 'No description available.'}
-                          </p>
+                          <div
+                            className="text-[16px] text-gray-700"
+                            dangerouslySetInnerHTML={{
+                              __html: exercise.description || '<p>No description available.</p>',
+                            }}
+                          />
+
                           <span className="text-[14px] text-gray-500">
                             {exercise.duration || '—'}
                           </span>

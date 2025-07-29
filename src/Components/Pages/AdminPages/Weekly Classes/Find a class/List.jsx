@@ -27,8 +27,10 @@ const List = () => {
   useEffect(() => {
     fetchFindClasses()
   }, [fetchFindClasses]);
+  const iconContainerRef = useRef(null);
 
   const [activeParkingVenueId, setActiveParkingVenueId] = useState(null);
+  const [notes, setNotes] = useState(null);
   const [activeCongestionVenueId, setActiveCongestionVenueId] = useState(null);
   const [showteamModal, setShowteamModal] = useState(null);
   const [showModal, setShowModal] = useState(null);
@@ -388,6 +390,56 @@ const List = () => {
       document.removeEventListener("mousedown", handleOutsideClickP);
     };
   }, [activeParkingVenueId]);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (iconContainerRef.current && !iconContainerRef.current.contains(event.target)) {
+        // Clicked outside
+        setShowModal(null);
+        setShowteamModal(null);
+        setOpenMapId(null);
+        setActiveCongestionVenueId(null);
+        setActiveParkingVenueId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  const handleIconClick = (type, venueId, paymentPlans = []) => {
+    setNotes(null);
+    setShowModal(null);
+    setShowteamModal(null);
+    setOpenMapId(null);
+    setActiveCongestionVenueId(null);
+    setActiveParkingVenueId(null);
+
+    // Apply active toggle
+    switch (type) {
+      case 'payment':
+        setSelectedPlans(paymentPlans || []);
+        setShowModal(prev => (prev === venueId ? null : venueId));
+        break;
+      case 'team':
+        setShowteamModal(prev => (prev === venueId ? null : venueId));
+        break;
+      case 'location':
+        setOpenMapId(prev => (prev === venueId ? null : venueId));
+        break;
+      case 'congestion':
+        setNotes(paymentPlans);
+        setActiveCongestionVenueId(prev => (prev === venueId ? null : venueId));
+        break;
+      case 'parking':
+        setNotes(paymentPlans);
+        setActiveParkingVenueId(prev => (prev === venueId ? null : venueId));
+        break;
+      default:
+        break;
+    }
+  };
+
 
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
@@ -505,74 +557,43 @@ const List = () => {
                           <img src="/demo/synco/icons/Location.png" alt="" />
                           <span className="font-medium text-[16px]">{venue.address}</span>
                         </div>
-                        <div className="flex relative items-center gap-4">
+                        <div ref={iconContainerRef} className="flex relative items-center gap-4">
                           <img
                             src="/demo/synco/icons/fcDollar.png"
-                            onClick={() => {
-                              setSelectedPlans(venue.paymentPlans || []);
-                              setShowModal(venue.venueId === showModal ? null : venue.venueId);
-                              setShowteamModal(null);
-                              setActiveCongestionVenueId(null);
-                              setActiveParkingVenueId(null);
-                              setOpenMapId(null)
-                            }}
+                            onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentPlans)}
                             alt=""
                             className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                           />
 
                           <img
                             src="/demo/synco/icons/fcCalendar.png"
-                            onClick={() => {
-                              setShowteamModal(venue.venueId === showteamModal ? null : venue.venueId);
-                              setShowModal(null);
-                              setActiveCongestionVenueId(null);
-                              setActiveParkingVenueId(null);
-                              setOpenMapId(null)
-
-                            }}
+                            onClick={() => handleIconClick('team', venue.venueId)}
                             alt=""
                             className={`cursor-pointer w-6 h-6 rounded-full ${showteamModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                           />
 
                           <img
                             src="/demo/synco/icons/fcLocation.png"
-                            onClick={() => {
-                              setShowteamModal(null);
-                              setShowModal(null);
-                              setActiveCongestionVenueId(null);
-                              setActiveParkingVenueId(null);
-                              setOpenMapId(openMapId === venue.venueId ? null : venue.venueId)
-                            }}
+                            onClick={() => handleIconClick('location', venue.venueId)}
                             alt=""
                             className={`cursor-pointer w-6 h-6 rounded-full ${openMapId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                           />
 
                           <img
                             src="/demo/synco/icons/fcCicon.png"
-                            onClick={() => {
-                              setActiveCongestionVenueId(venue.venueId === activeCongestionVenueId ? null : venue.venueId);
-                              setShowModal(null);
-                              setShowteamModal(null);
-                              setOpenMapId(null)
-                              setActiveParkingVenueId(null);
-                            }}
+                            onClick={() => handleIconClick('congestion', venue?.venueId, venue?.congestionNote)}
                             alt=""
                             className={`cursor-pointer w-6 h-6 rounded-full ${activeCongestionVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                           />
 
                           <img
                             src="/demo/synco/icons/fcPIcon.png"
-                            onClick={() => {
-                              setActiveParkingVenueId(venue.venueId === activeParkingVenueId ? null : venue.venueId);
-                              setShowModal(null);
-                              setShowteamModal(null);
-                              setOpenMapId(null)
-                              setActiveCongestionVenueId(null);
-                            }}
+                            onClick={() => handleIconClick('parking', venue?.venueId, venue?.parkingNote)}
                             alt=""
                             className={`cursor-pointer w-6 h-6 rounded-full ${activeParkingVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                           />
                         </div>
+
 
                       </div>
 
@@ -644,8 +665,14 @@ const List = () => {
                                 <img src="/demo/synco/icons/infoIcon.png" alt="" />
                               </div>
                               <div className="mt-2 text-[16px] text-gray-700 leading-snug">
-                                <p>This venue has no parking facilities available.</p>
-                                <p>Paid road parking is available.</p>
+                                {notes ? (
+                                  notes
+                                ) : (
+                                  <>
+                                    <p>This venue has no parking facilities available.</p>
+                                    <p>Paid road parking is available.</p>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -659,8 +686,15 @@ const List = () => {
                                 <img src="/demo/synco/icons/infoIcon.png" alt="" />
                               </div>
                               <div className="mt-2 text-[16px] text-gray-700 leading-snug">
-                                <p>This venue has no parking facilities available.</p>
-                                <p>Paid road parking is available.</p>
+
+                                {notes ? (
+                                  notes
+                                ) : (
+                                  <>
+                                    <p>This venue has no parking facilities available.</p>
+                                    <p>Paid road parking is available.</p>
+                                  </>
+                                )}
                               </div>
                             </div>
                           </div>

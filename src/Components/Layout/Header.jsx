@@ -48,7 +48,6 @@ const routeTitleMap = {
   'holiday-camps/session-plan': { title: 'Configurtaion',},
   'notification': { title: 'Notification'},
 };
-
 // Extract the part after `/demo/synco/`
 const subPath = location.pathname.split('/demo/synco/')[1] || '';
 
@@ -94,7 +93,7 @@ const { title, icon: Icon } = routeInfo;
       navigate('/notification');
     }
   };
-
+console.log('localdd',localStorage)
   return (
     <>
       {/* HEADER */}

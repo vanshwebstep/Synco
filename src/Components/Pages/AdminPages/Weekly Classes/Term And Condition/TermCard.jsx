@@ -29,7 +29,7 @@ const TermCard = ({ item, sessionData }) => {
         });
     };
     const handleEdit = (id) => {
-        navigate(`/weekly-classes/term-dates/update?id=${id}`)
+        navigate(`/weekly-classes/term-dates/Create?id=${id}`)
     };
     console.log('sessionData', sessionData);
     console.log('item', item)

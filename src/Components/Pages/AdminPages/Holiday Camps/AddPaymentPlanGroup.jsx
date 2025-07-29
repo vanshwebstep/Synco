@@ -536,7 +536,7 @@ const AddPaymentPlanGroup = () => {
 
 
 
-                                    <div className="mb-4">
+                                    <div className="mb-4 relative">
                                         <label className="block text-base font-semibold text-gray-700 mb-2">
                                             Holiday Camp Package Details
                                         </label>
@@ -547,26 +547,49 @@ const AddPaymentPlanGroup = () => {
                                                 onEditorChange={(content) =>
                                                     setFormData({ ...formData, HolidayCampPackage: content })
                                                 }
-                                                init={{
+                                                  init={{
                                                     menubar: false,
-                                                    toolbar: 'bold italic underline | bullist numlist | undo redo',
-                                                    height: 150,
+                                                    plugins: 'lists advlist',
+                                                    toolbar:
+                                                        'fontsizeselect capitalize bold italic underline alignleft aligncenter alignjustify',
+                                                    height: 200,
                                                     branding: false,
                                                     content_style: `
-                                                    body {
-                                                        background-color: #f3f4f6;
-                                                        font-family: inherit;
-                                                        font-size: 1rem;
-                                                        padding: 12px;
-                                                        color: #111827;
-                                                    }
-                                                    `,
+      body {
+        background-color: #f3f4f6;
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 12px;
+        color: #111827;
+      }
+    `,
+                                                    setup: (editor) => {
+                                                        // Register custom icon
+                                                        editor.ui.registry.addIcon(
+                                                            'capitalize-icon',
+                                                            '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
+                                                        );
+
+                                                        // Register and add button
+                                                        editor.ui.registry.addButton('capitalize', {
+                                                            icon: 'capitalize-icon',
+                                                            tooltip: 'Capitalize Text',
+                                                            onAction: () => {
+                                                                editor.formatter.register('capitalize', {
+                                                                    inline: 'span',
+                                                                    styles: { textTransform: 'capitalize' },
+                                                                });
+
+                                                                editor.formatter.toggle('capitalize');
+                                                            },
+                                                        });
+                                                    },
                                                 }}
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="mb-4">
+                                    <div className="mb-4 relative">
                                         <label className="block text-base font-semibold text-gray-700 mb-2">
                                             Terms & Conditions
                                         </label>
@@ -578,20 +601,43 @@ const AddPaymentPlanGroup = () => {
                                                 onEditorChange={(content) =>
                                                     setFormData({ ...formData, termsAndCondition: content })
                                                 }
-                                                init={{
+                                              init={{
                                                     menubar: false,
-                                                    toolbar: 'bold italic underline | bullist numlist | undo redo',
-                                                    height: 150,
+                                                    plugins: 'lists advlist',
+                                                    toolbar:
+                                                        'fontsizeselect capitalize bold italic underline alignleft aligncenter alignjustify',
+                                                    height: 200,
                                                     branding: false,
                                                     content_style: `
-          body {
-            background-color: #f3f4f6;
-            font-family: inherit;
-            font-size: 1rem;
-            padding: 12px;
-            color: #111827;
-          }
-        `,
+      body {
+        background-color: #f3f4f6;
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 12px;
+        color: #111827;
+      }
+    `,
+                                                    setup: (editor) => {
+                                                        // Register custom icon
+                                                        editor.ui.registry.addIcon(
+                                                            'capitalize-icon',
+                                                            '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
+                                                        );
+
+                                                        // Register and add button
+                                                        editor.ui.registry.addButton('capitalize', {
+                                                            icon: 'capitalize-icon',
+                                                            tooltip: 'Capitalize Text',
+                                                            onAction: () => {
+                                                                editor.formatter.register('capitalize', {
+                                                                    inline: 'span',
+                                                                    styles: { textTransform: 'capitalize' },
+                                                                });
+
+                                                                editor.formatter.toggle('capitalize');
+                                                            },
+                                                        });
+                                                    },
                                                 }}
                                             />
                                         </div>

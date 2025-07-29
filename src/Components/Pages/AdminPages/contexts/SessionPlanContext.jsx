@@ -62,27 +62,38 @@ export const SessionPlanContextProvider = ({ children }) => {
 
         const data = await response.json();
 
-        if (response.ok && data.status === true) {
-          // ✅ Only redirect on final submission
+        if (response.ok && data.status) {
           await Swal.fire({
             icon: 'success',
             title: 'Success',
-            text: result.message || 'Group created successfully.',
+            text: data.message || 'Group created successfully.',
             confirmButtonColor: '#237FEA'
           });
           navigate('/holiday-camps/session-plan-list');
-
         } else {
+          await Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message || 'Failed to create session group.',
+            confirmButtonColor: '#d33'
+          });
           console.error("API Error:", data.message || "Unknown error");
         }
       } catch (err) {
         console.error("Failed to create session group:", err);
+        await Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Something went wrong while creating the session group.',
+          confirmButtonColor: '#d33'
+        });
       } finally {
         setLoading(false);
       }
     },
     [token, navigate]
   );
+
 
 
 
@@ -102,31 +113,37 @@ export const SessionPlanContextProvider = ({ children }) => {
       setLoading(false);
     }
   }, [token]);
-  const createSessionExercise = useCallback(async (data, file) => {
-    if (!token) return;
+const createSessionExercise = useCallback(async (data) => {
+  if (!token) return;
 
-    try {
-      const formdata = new FormData();
-      formdata.append("title", data.title);
-      formdata.append("description", data.description);
-      formdata.append("duration", data.duration);
-      console.log('formdatahh', formdata)
-      if (file) formdata.append("image", file);
+  try {
+    const formdata = new FormData();
+    formdata.append("title", data.title);
+    formdata.append("description", data.description);
+    formdata.append("duration", data.duration);
 
-      await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // No "Content-Type", browser sets it automatically with boundary
-        },
-        body: formdata,
+    // Append each file to "images"
+    if (Array.isArray(data.images)) {
+      data.images.forEach((file) => {
+        formdata.append("images", file); // ← this matches backend field name
       });
-      console.log('doneeee')
-      await fetchExercises(); // optional if refreshing UI
-    } catch (err) {
-      console.error("Failed to create exercise:", err);
     }
-  }, [token, fetchExercises]);
+
+    await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formdata,
+    });
+
+    console.log("✅ Exercise created");
+    await fetchExercises();
+  } catch (err) {
+    console.error("❌ Failed to create exercise:", err);
+  }
+}, [token, fetchExercises]);
+
   const fetchExerciseById = useCallback(async (id) => {
     if (!token) return;
     setLoading(true);
@@ -209,71 +226,71 @@ export const SessionPlanContextProvider = ({ children }) => {
 
 
   // Update discount
-const updateDiscount = useCallback(async (id, data) => {
-  if (!token) return;
+  const updateDiscount = useCallback(async (id, data) => {
+    if (!token) return;
 
-  setLoading(true); // 🔵 Start loading
+    setLoading(true); // 🔵 Start loading
 
-  try {
-    const formdata = new FormData();
+    try {
+      const formdata = new FormData();
 
-    const appendMedia = (key, file) => {
-      if (file && typeof file !== "string") {
-        formdata.append(key, file, file.name || "[PROXY]");
+      const appendMedia = (key, file) => {
+        if (file && typeof file !== "string") {
+          formdata.append(key, file, file.name || "[PROXY]");
+        }
+      };
+
+      // Append media files
+      appendMedia("beginner_video", data.beginner_video);
+      appendMedia("beginner_banner", data.beginner_banner);
+      appendMedia("intermediate_video", data.intermediate_video);
+      appendMedia("intermediate_banner", data.intermediate_banner);
+      appendMedia("advanced_video", data.advanced_video);
+      appendMedia("advanced_banner", data.advanced_banner);
+      appendMedia("pro_video", data.pro_video);
+      appendMedia("pro_banner", data.pro_banner);
+
+      if (data.levels) {
+        formdata.append("levels", JSON.stringify(data.levels));
       }
-    };
 
-    // Append media files
-    appendMedia("beginner_video", data.beginner_video);
-    appendMedia("beginner_banner", data.beginner_banner);
-    appendMedia("intermediate_video", data.intermediate_video);
-    appendMedia("intermediate_banner", data.intermediate_banner);
-    appendMedia("advanced_video", data.advanced_video);
-    appendMedia("advanced_banner", data.advanced_banner);
-    appendMedia("pro_video", data.pro_video);
-    appendMedia("pro_banner", data.pro_banner);
+      if (data.groupName) {
+        formdata.append("groupName", data.groupName);
+      }
 
-    if (data.levels) {
-      formdata.append("levels", JSON.stringify(data.levels));
+      const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formdata,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) throw new Error(result.message || "Failed to update");
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: result.message || 'Level updated successfully.',
+        confirmButtonColor: '#237FEA'
+      });
+
+      navigate('/holiday-camps/session-plan-list');
+      await fetchSessionGroup();
+
+    } catch (err) {
+      console.error("Failed to update discount:", err);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message || 'Something went wrong.',
+      });
+    } finally {
+      setLoading(false); // 🔵 End loading
     }
-
-    if (data.groupName) {
-      formdata.append("groupName", data.groupName);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formdata,
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) throw new Error(result.message || "Failed to update");
-
-    await Swal.fire({
-      icon: 'success',
-      title: 'Success',
-      text: result.message || 'Level updated successfully.',
-      confirmButtonColor: '#237FEA'
-    });
-
-    navigate('/holiday-camps/session-plan-list');
-    await fetchSessionGroup();
-
-  } catch (err) {
-    console.error("Failed to update discount:", err);
-    await Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: err.message || 'Something went wrong.',
-    });
-  } finally {
-    setLoading(false); // 🔵 End loading
-  }
-}, [token, fetchSessionGroup, navigate, setLoading]);
+  }, [token, fetchSessionGroup, navigate, setLoading]);
 
 
   // Delete discount

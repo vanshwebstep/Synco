@@ -88,7 +88,7 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
   const handleChange = (option) => {
     setSelectedOption(option);
     if (onChange) {
-      onChange(idx, 'plan', option?.value || '');
+      onChange(idx, 'sessionPlanId', option?.value || '');
     }
   };
 

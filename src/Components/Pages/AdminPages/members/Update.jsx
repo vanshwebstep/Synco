@@ -203,13 +203,13 @@ const Update = () => {
 
       Swal.fire({
         icon: "success",
-        title: "Member Created",
+        title: "Member Updated",
         text: result.message || "New member was Updated successfully!",
         timer: 2000,
         showConfirmButton: false,
       });
 
-      navigate('/members')
+      navigate('/members/List')
 
 
       setPhotoPreview(null);
@@ -262,7 +262,7 @@ const Update = () => {
 
       if (response.ok) {
         Swal.fire("Deleted!", "Member has been deleted.", "success");
-        navigate('/members');
+        navigate('/members/List');
       } else {
         Swal.fire("Error", result.message || "Something went wrong.", "error");
       }
@@ -317,7 +317,7 @@ const handleSuspend = async (status) => {
         `Member has been ${statusText}ed successfully.`,
         "success"
       );
-      navigate('/members');
+      navigate('/members/List');
     } else {
       Swal.fire("Error", result.message || `Failed to ${statusText} the member.`, "error");
     }

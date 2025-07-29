@@ -92,7 +92,7 @@ const List = () => {
         const season = detectSeason(term.termName);
 
         const sessionObj = {
-         
+
           term: term.termName,
           icon: `/demo/synco/icons/${season}.png`,
           date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
@@ -160,7 +160,7 @@ const List = () => {
       </div>
 
       {/* Term Cards */}
-      <div className="transition-all duration-300 w-full">
+      <div className="transition-all duration-300 h-full w-full">
         {classList.length > 0 ? (
           <div className="rounded-3xl shadow">
             {classList.map((item, index) => (
