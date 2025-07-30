@@ -119,21 +119,25 @@ export const PaymentPlanContextProvider = ({ children }) => {
   }, [token]);
 
   // Fetch group by ID
-  const fetchGroupById = useCallback(async (id) => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/admin/payment-group/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await res.json();
-      setSelectedGroup(result.data || null);
-    } catch (err) {
-      console.error("Failed to fetch group:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+const fetchGroupById = useCallback(async (id) => {
+  if (!token) return null;
+  setLoading(true);
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/admin/payment-group/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const result = await res.json();
+    const group = result.data || null;
+    setSelectedGroup(group);
+    return group; // ✅ RETURN the group data
+  } catch (err) {
+    console.error("Failed to fetch group:", err);
+    return null;
+  } finally {
+    setLoading(false);
+  }
+}, [token]);
+
 
   // Create group
   const createGroup = useCallback(async (data) => {
@@ -170,7 +174,7 @@ export const PaymentPlanContextProvider = ({ children }) => {
           title: `${result.message}`,
         
         });
-        navigate('/holiday-camps/payment-planManager');
+        navigate('/weekly-classes/subscription-planManager');
 
       } else {
         const errorText = await response.text();
@@ -194,51 +198,51 @@ export const PaymentPlanContextProvider = ({ children }) => {
     }
   }, [token, fetchGroups, navigate]);
 
-  const updateGroup = useCallback(async (id, data) => {
-    if (!token) return;
+const updateGroup = useCallback(async (id, data) => {
+  if (!token) return;
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/payment-group/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/payment-group/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+
+      await Swal.fire({
+        icon: 'success',
+        title: result.message || 'Group updated successfully!',
       });
 
-      if (response.ok) {
-          const result = await response.json();
+      navigate('/weekly-classes/subscription-planManager');
+    } else {
+      const errorData = await response.json(); // ✅ Parse JSON error body
 
-        await Swal.fire({
-          icon: 'success',
-          title: `${result.message}`,
-         
-        });
-
-        navigate('/holiday-camps/payment-planManager');
-
-      } else {
-        const errorText = await response.text();
-        console.error("Server Error:", errorText);
-
-        await Swal.fire({
-          icon: 'error',
-          title: 'Failed!',
-          text: 'Could not update the group. Please try again.',
-        });
-      }
-
-    } catch (err) {
-      console.error("Failed to update package:", err);
+      console.error("Server Error:", errorData);
 
       await Swal.fire({
         icon: 'error',
-        title: 'Oops!',
-        text: 'Something went wrong while updating the group.',
+        title: 'Failed!',
+        text: errorData.message || 'Could not update the group. Please try again.',
       });
     }
-  }, [token, navigate]);
+
+  } catch (err) {
+    console.error("Failed to update package:", err);
+
+    await Swal.fire({
+      icon: 'error',
+      title: 'Oops!',
+      text: 'Something went wrong while updating the group.',
+    });
+  }
+}, [token, navigate]);
+
   // Assign plans to group
   const assignPlansToGroup = useCallback(async (groupId, planIds) => {
     if (!token) return;

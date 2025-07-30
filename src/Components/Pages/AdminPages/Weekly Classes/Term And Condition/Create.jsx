@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSearchParams } from "react-router-dom";
+import { format } from "date-fns";
 
 const initialTerms = [];
 const Create = () => {
@@ -31,7 +32,7 @@ const Create = () => {
     const [isMapping, setIsMapping] = useState(false);
     const navigate = useNavigate();
 
-    const { createTermGroup, updateTermGroup, myGroupData, setMyGroupData,setSelectedTermGroup, selectedTermGroup, fetchTerm, termData, fetchTermGroupById } = useTermContext();
+    const { createTermGroup, updateTermGroup, myGroupData, setMyGroupData, setSelectedTermGroup, selectedTermGroup, fetchTerm, termData, fetchTermGroupById } = useTermContext();
     console.log('terms', terms)
     // Handle prefilling data in edit mode
     // First: fetch group data and wait for state update
@@ -46,7 +47,7 @@ const Create = () => {
 
             fetchData();
         }
-        else{
+        else {
             setSelectedTermGroup(null)
         }
     }, [id]);
@@ -55,7 +56,7 @@ const Create = () => {
     useEffect(() => {
         if (isEditMode && termData.length && selectedTermGroup?.id) {
             console.log('Processing group data...', termData);
-setMyGroupData(null)
+            setMyGroupData(null)
             setGroupName(selectedTermGroup.name);
             setIsGroupSaved(true);
 
@@ -127,7 +128,7 @@ setMyGroupData(null)
             } else {
                 // Create new group
                 const createdGroup = await createTermGroup(payload);
-            
+
             }
 
             setIsGroupSaved(true);
@@ -649,6 +650,8 @@ setMyGroupData(null)
                                                             onChange={(date) =>
                                                                 handleInputChange(term.id, 'startDate', date?.toISOString() || "")
                                                             }
+                                                            dateFormat="EEEE, dd MMM"
+
                                                             className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                         />
                                                     </div>
@@ -662,6 +665,8 @@ setMyGroupData(null)
                                                             onChange={(date) =>
                                                                 handleInputChange(term.id, 'endDate', date?.toISOString() || "")
                                                             }
+                                                            dateFormat="EEEE, dd MMM"
+
                                                             className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                         />
 
@@ -683,6 +688,8 @@ setMyGroupData(null)
                                                                     onChange={(date) =>
                                                                         handleExclusionChange(term.id, idx, date?.toISOString() || "")
                                                                     }
+                                                                    dateFormat="EEEE, dd MMM"
+
                                                                     className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                                 />
                                                                 {term.exclusions.length > 1 && (
@@ -802,29 +809,37 @@ setMyGroupData(null)
                                 <div className="border border-gray-200 rounded-3xl px-4 py-3">
                                     <div className="md:flex items-center justify-between mb-2">
                                         <label className="block text-[22px] font-semibold">
-                                            {activeTerm.name}
+                                            {activeTerm?.name}
                                         </label>
                                     </div>
-                                    <label className="text-base">Session Date</label>
+                                    <div className="flex justify-between gap-4 w-full text-[18px] mb-4 font-semibold">
+                                        <label className=" w-1/2">Session Date</label> <label className=" w-1/2 md:pl-5">Session Plan</label>
+                                    </div>
                                     {Array.from({ length: activeSessionCount }).map((_, index) => (
-                                        <div key={index} className="md:flex items-start gap-5 justify-between mb-4">
-                                            <div className="w-full">
+                                        <div key={index} className="md:flex w-full items-start gap-4 justify-between mb-4">
+                                            <div className="w-1/2 ">
 
 
-                                                <DatePicker
-                                                    placeholderText={`Session Date ${index + 1}`}
-                                                    selected={
-                                                        sessionMappings[index]?.sessionDate
-                                                            ? new Date(sessionMappings[index].sessionDate)
-                                                            : null
-                                                    }
-                                                    onChange={(e) => handleMappingChange(index, 'sessionDate', e?.toISOString() || "")}
-                                                    className="w-full px-4 mb-5 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    dateFormat="yyyy-MM-dd"
-                                                />
+                                                <div className="flex items-center  gap-2 bg-white border border-gray-300 rounded-2xl px-4 py-3 mb-4 shadow-sm">
+                                                    <span className="font-semibold text-base text-black whitespace-nowrap">Session {index + 1}</span>
+                                                    <DatePicker
+                                                        selected={
+                                                            sessionMappings[index]?.sessionDate
+                                                                ? new Date(sessionMappings[index].sessionDate)
+                                                                : null
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleMappingChange(index, "sessionDate", e?.toISOString() || "")
+                                                        }
+                                                        dateFormat="EEEE, dd MMM"
+                                                        className="text-[#717073] text-[15px] font-semibold bg-transparent focus:outline-none"
+                                                        placeholderText="Select date"
+                                                    />
+                                                </div>
+
                                             </div>
-                                            <div className="w-full">
-                                                <label className="text-base">Session Plan</label>
+                                            <div className="w-1/2 ">
+
                                                 <motion.div
                                                     key={`sessionPlanId-${index}`}
                                                     initial={{ opacity: 0, x: 10 }}

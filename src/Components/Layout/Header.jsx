@@ -32,45 +32,48 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const latestUnread = unreadNotifications[0]; // Show the most recent unread
   const navigate = useNavigate();
 
-const routeTitleMap = {
-  '': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-  'admin-forgotpassword': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-  'merchandise': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-  'email-management': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-  'recruitment-reports': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-  'templates': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-  'weekly-classes': { title: 'Configurtaion',  },
-  'synco-chat': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-  'members': { title: 'Admin Panel'},
-  'holiday-camps/payment-planManager': { title: 'Configuration' },
-  'holiday-camps/add-payment-plan-group': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-  'holiday-camps/discounts': { title: 'Discounts' },
-  'holiday-camps/session-plan': { title: 'Configurtaion',},
-  'notification': { title: 'Notification'},
-};
-// Extract the part after `/demo/synco/`
-const subPath = location.pathname.split('/demo/synco/')[1] || '';
+  const routeTitleMap = {
+    '': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'admin-forgotpassword': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'merchandise': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'email-management': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'recruitment-reports': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'templates': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'weekly-classes': { title: 'Configurtaion', },
+    'synco-chat': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'members': { title: 'Admin Panel' },
+    'holiday-camps/payment-planManager': { title: 'Configuration' },
+    'holiday-camps/add-subscription-plan-group': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'holiday-camps/discounts': { title: 'Discounts' },
+    'holiday-camps/session-plan': { title: 'Configurtaion', },
+    'notification': { title: 'Notification' },
+  };
+  // Extract the part after `/demo/synco/`
+  const subPath = location.pathname.split('/demo/synco/')[1] || '';
 
-// Match the longest route
-const routeInfo =
-  Object.entries(routeTitleMap)
-    .sort((a, b) => b[0].length - a[0].length)
-    .find(([route]) => subPath.startsWith(route))?.[1]
-  || { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' };
+  // Match the longest route
+  const routeInfo =
+    Object.entries(routeTitleMap)
+      .sort((a, b) => b[0].length - a[0].length)
+      .find(([route]) => subPath.startsWith(route))?.[1]
+    || { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' };
 
-const { title, icon: Icon } = routeInfo;
+  const { title, icon: Icon } = routeInfo;
 
 
   useEffect(() => {
-    fetchNotification();
+    const fetchAndMerge = async () => {
+      await fetchNotification(); // this updates notification state only
+      // no impact on formData, no flicker
+    };
 
-    const interval = setInterval(() => {
-      fetchNotification();
-    }, 7000);
+    fetchAndMerge(); // initial run
 
-    // Clear the interval on component unmount
+    const interval = setInterval(fetchAndMerge, 7000);
     return () => clearInterval(interval);
-  }, []); // empty deps = run once on mount
+  }, [fetchNotification]);
+
+  
   const handleLogout = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -93,7 +96,7 @@ const { title, icon: Icon } = routeInfo;
       navigate('/notification');
     }
   };
-console.log('localdd',localStorage)
+
   return (
     <>
       {/* HEADER */}
@@ -153,10 +156,11 @@ console.log('localdd',localStorage)
           <div className="relative w-full sm:w-[280px] lg:w-[200px] xl:w-[250px] 2xl:w-[400px]">
             <input
               type="search"
-              className="w-full px-4 py-3 pl-8 border border-[#E2E1E5] rounded-lg bg-white text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 pl-10 border border-[#E2E1E5] rounded-lg bg-white text-[16px] focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Search"
             />
-            <Search className="absolute right-3 top-1/2 left-2 transform -translate-y-1/2 text-black" size={20} />
+            <img src="/demo/synco/icons/search.png" className="absolute right-3 top-1/2 left-2 max-w-[10px] transform -translate-y-1/2 text-black"  alt="" />
+
           </div>
 
           {/* Notification Bell */}
@@ -165,7 +169,8 @@ console.log('localdd',localStorage)
             className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center cursor-pointer
       ${notificationCount > 0 ? "bg-[#FF5A3C] text-white" : "bg-white border border-[#E2E1E5]"}`}
           >
-            <Bell size={20} />
+            <img src="/demo/synco/DashboardIcons/notificationIcon.png" alt="" />
+           
 
             {/* Notification Badge */}
             {notificationCount > 0 && (

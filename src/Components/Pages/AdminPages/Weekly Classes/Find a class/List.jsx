@@ -658,7 +658,7 @@ const List = () => {
                           )}
                         </div>
                         {activeCongestionVenueId === venue.venueId && (
-                          <div className="absolute right-2 z-10 mt-2">
+                          <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
                             <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
                               <div className="flex items-start justify-between">
                                 <h2 className="text-red-500 font-semibold text-[18px]">Congestion Information</h2>
@@ -679,7 +679,7 @@ const List = () => {
                         )}
 
                         {activeParkingVenueId === venue.venueId && (
-                          <div className="absolute right-2 z-10 mt-2">
+                          <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
                             <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
                               <div className="flex items-start justify-between">
                                 <h2 className="text-red-500 font-semibold text-[18px]">Parking Information</h2>
@@ -700,7 +700,7 @@ const List = () => {
                           </div>
                         )}
                         {showteamModal === venue.venueId && (
-                          <div className="absolute bg-opacity-30 min-w-[489px] flex right-2 items-center justify-center z-50">
+                          <div ref={iconContainerRef} className="absolute bg-opacity-30 min-w-[489px] flex right-2 items-center justify-center z-50">
                             <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
                               {/* Header */}
                               <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
@@ -802,7 +802,7 @@ const List = () => {
 
                         )}
                         {showModal === venue.venueId && (
-                          <div className="absolute bg-opacity-30 flex right-2 items-center justify-center z-50">
+                          <div ref={iconContainerRef} className=" absolute bg-opacity-30 flex right-2 items-center justify-center z-50">
                             <div className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
                               <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
                                 {/* Header */}
@@ -819,7 +819,7 @@ const List = () => {
                         )}
                       </div>
                       {openMapId === venue.venueId && (
-                        <div className="mt-4 h-[450px] w-full rounded-lg overflow-hidden">
+                        <div ref={iconContainerRef} className="mt-4 h-[450px] w-full rounded-lg overflow-hidden">
                           <MapContainer
                             center={[venue.latitude, venue.longitude]}
                             zoom={13}

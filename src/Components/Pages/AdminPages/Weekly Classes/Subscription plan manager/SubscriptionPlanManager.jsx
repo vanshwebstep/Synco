@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
-import { usePayments } from '../contexts/PaymentPlanContext';
+import { usePayments } from '../../contexts/PaymentPlanContext';
 import Swal from "sweetalert2"; // make sure it's installed
-import Loader from '../contexts/Loader';
+import Loader from '../../contexts/Loader';
 const PaymentPlanManagerList = () => {
   const { fetchGroups, groups, deleteGroup, fetchGroupById, selectedGroup, loading } = usePayments();
   const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
   const [checkedIds, setCheckedIds] = useState([]);
   const [previewShowModal, setPreviewShowModal] = useState(false);
+
+
   useEffect(() => {
     const getPackages = async () => {
       try {
@@ -22,18 +24,33 @@ const PaymentPlanManagerList = () => {
     };
     getPackages();
   }, [fetchGroups]);
+  const [activeTab, setActiveTab] = useState({});
+  const [studentKeys, setStudentKeys] = useState([]);
+  const [groupByStudents, setGroupByStudents] = useState([]);
+  const handleShow = async (id) => {
+    const group = await fetchGroupById(id);
+    if (!group || !group.paymentPlans) return;
+    console.log('group.paymentPlans', group.paymentPlans)
+    const grouped = group.paymentPlans.reduce((acc, plan) => {
+      if (!acc[plan.students]) acc[plan.students] = [];
+      acc[plan.students].push(plan);
+      return acc;
+    }, {});
 
-  const handleShow = (id) => {
-    console.log("Show details for:", id);
-    fetchGroupById(id);
-    console.log('selectedGroup', selectedGroup)
+    const keys = Object.keys(grouped).sort();
 
-    setPreviewShowModal(true)
+    setGroupByStudents(grouped);
+    setStudentKeys(keys);
+    setActiveTab(keys[0] || "");
+    setPreviewShowModal(true);
   };
+
+
+
 
   const handleEdit = (id) => {
     console.log("Edit group with ID:", id);
-    navigate(`/holiday-camps/add-payment-plan-group?id=${id}`)
+    navigate(`/weekly-classes/add-subscription-plan-group?id=${id}`)
   };
 
   const handleDelete = async (id) => {
@@ -63,61 +80,119 @@ const PaymentPlanManagerList = () => {
       </>
     )
   }
+
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
 
       {previewShowModal && (
-        <div className="flex items-center justify-center w-full px-4 py-6 sm:px-6 md:py-10">
-          <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+        <>
+          <h2
+            onClick={() => setPreviewShowModal(false)}
+            className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
+            <img
+              src="/demo/synco/icons/arrow-left.png"
+              alt="Back"
+              className="w-5 h-5 md:w-6 md:h-6"
+            />
+            <span className="truncate">{selectedGroup?.name}</span>
+          </h2>
+          <div className="flex items-center rounded-3xl max-w-fit justify-left bg-white w-full px-4 py-6 sm:px-6 md:py-10">
+            <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
 
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-              <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
-              <button
-                onClick={() => setPreviewShowModal(false)}
-                className="text-gray-400 hover:text-black text-xl font-bold"
-              >
-                <img src="/demo/synco/icons/cross.png" alt="close" className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Plans Grid */}
-            <div className="grid pt-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {selectedGroup.paymentPlans.map((plan, idx) => (
-                <div
-                  key={idx}
-                  className="border border-[#E2E1E5] rounded-xl p-4 sm:p-5 flex flex-col justify-between transition"
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
+                <h2 className="font-semibold text-[20px] sm:text-[24px]">Subscription Plan</h2>
+                <button
+                  onClick={() => setPreviewShowModal(false)}
+                  className="text-gray-400 hover:text-black text-xl font-bold"
                 >
-                  <h3 className="text-[18px] sm:text-[20px] font-semibold mb-2">{plan.students} Students</h3>
-                  <p className="text-[24px] sm:text-[32px] font-semibold mb-4">£{plan.price}</p>
-                  <hr className="mb-4 text-[#E2E1E5]" />
-                  <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold">
-                    <li className="flex items-center py-2 gap-2">
-                      <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
-                      {plan.duration}
-                    </li>
-                    <li className="flex items-center py-2 pb-2 sm:pb-4 gap-2">
-                      <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
-                      Free Holiday Camp Bag
-                    </li>
-                  </ul>
-                  
+                  <img src="/demo/synco/icons/cross.png" alt="close" className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Plans Grid */}
+
+              <div className="w-full">
+                {/* Student Tabs */}
+                <div className="flex justify-center my-6">
+                  <div className="md:inline-flex rounded-2xl border border-gray-300 bg-white p-1">
+                    {studentKeys.map((key) => (
+                      <button
+                        key={key}
+                        onClick={() => setActiveTab(key)}
+                        className={`px-6 py-2 text-[16px] md:w-auto w-full font-medium rounded-xl transition ${activeTab === key
+                          ? "bg-[#237FEA] text-white"
+                          : "bg-white text-[#237FEA]"
+                          }`}
+                      >
+                        {key} Student{key > 1 ? "s" : ""}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              ))}
+
+                {/* Plan Cards */}
+                <div className="grid pt-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {groupByStudents[activeTab]?.map((plan, idx) => (
+                    <div
+                      key={plan?.id}
+                      className="border border-[#E2E1E5] rounded-xl p-4 sm:p-5 flex flex-col justify-between shadow transition"
+                    >
+                      <h3 className="text-[18px] sm:text-[20px] font-semibold mb-2">
+                        {plan.title}
+                      </h3>
+                      <p className="text-[24px] sm:text-[32px] font-semibold mb-4">
+                        £{plan?.price?.toFixed(2)}/<span className="text-sm">{plan.interval?.toLowerCase()}</span>
+                      </p>
+                      <hr className="mb-4 text-[#E2E1E5]" />
+                      <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
+                        {plan.termsAndCondition &&
+                          plan.termsAndCondition
+                            // Remove <p> tags
+                            .replace(/<\/?p>/gi, '')
+                            // Replace both <br> and &nbsp; with a special marker (e.g. ###)
+                            .replace(/<br\s*\/?>|&nbsp;/gi, '###')
+                            // Split by that marker
+                            .split('###')
+                            .map((item, index) => {
+                              const text = item.trim();
+                              return text ? (
+                                <li key={index} className="flex items-center gap-2">
+                                  <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
+                                  {text}
+                                </li>
+                              ) : null;
+                            })}
+
+                        {/* Package info */}
+                        <li className="flex items-center gap-2">
+                          <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
+                          {plan.holidayCampPackage ? "Free Holiday Camp Bag" : "No Holiday Camp Bag"}
+                        </li>
+                      </ul>
+
+
+                      <button className="px-8 py-3 text-[16px] font-medium rounded-xl bg-[#237FEA] text-white shadow transition">
+                        {plan.joiningFee ? `£${plan.joiningFee} Joining Fee` : "£35 Joining Fee"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        </>
 
       ) ||
         <>
           <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 ${openForm ? 'md:w-3/4' : 'w-full md:w-[55%]'}`}>
-            <h2 className="text-2xl font-semibold">Payment Plan Manager</h2>
+            <h2 className="text-2xl font-semibold">Subscription Plan Manager</h2>
             <button
-              onClick={() => navigate(`/holiday-camps/add-payment-plan-group`)}
+              onClick={() => navigate(`/weekly-classes/add-subscription-plan-group`)}
               // onClick={() => setOpenForm(true)}
               className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
             >
-              <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add Payment Plan Group
+              <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add Membership Plan Group
             </button>
           </div>
           <div className="flex flex-col md:flex-row gap-6">

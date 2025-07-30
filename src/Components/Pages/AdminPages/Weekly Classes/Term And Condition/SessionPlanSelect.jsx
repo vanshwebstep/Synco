@@ -19,7 +19,7 @@ const customStyles = {
 
   control: (base, state) => ({
     ...base,
-    borderRadius: '12px',
+    borderRadius: '1rem',
     borderColor: state.isFocused ? '#237FEA' : '#e5e7eb',
     boxShadow: state.isFocused ? '0 0 0 2px rgba(35, 127, 234, 0.3)' : 'none',
     fontWeight: 600,
@@ -93,7 +93,7 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
   };
 
   return (
-    <div className="relative w-full mb-5">
+    <div className="relative  w-full mb-5">
       <Select
         options={options}
         value={selectedOption}

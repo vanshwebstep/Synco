@@ -1,4 +1,4 @@
-import React, { useState ,useEffect,useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   LayoutGrid, Package, Truck, User, ChevronDown, ChevronUp, ChevronRight, MessageCircle, FileText, Settings
 } from 'lucide-react';
@@ -8,7 +8,8 @@ import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
- const menuItems = [
+
+const menuItems = [
   {
     title: 'Dashboard',
     icon: '/demo/synco/SidebarLogos/Dashboard.png',
@@ -22,8 +23,11 @@ const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
     iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
     role: ['Admin', 'Call Agent'],
     subItems: [
-      { title: 'Find a class', link: '/weekly-classes/find-a-class', role:  ['Admin', 'Call Agent'] },
-      { title: 'Venues', link: '/weekly-classes/venues', role:  ['Admin'] },
+      { title: 'Session Plan Library', link: '/weekly-classes/session-plan-list', role: ['Admin'] },
+      { title: 'Subscription Plan Manager', link: '/weekly-classes/subscription-planManager', role: ['Admin'] },
+
+      { title: 'Find a class', link: '/weekly-classes/find-a-class', role: ['Admin', 'Call Agent'] },
+      { title: 'Venues', link: '/weekly-classes/venues', role: ['Admin'] },
       { title: 'Term Dates & Session Plan mapping', link: '/weekly-classes/term-dates/list', role: ['Admin'] },
     ]
   },
@@ -49,14 +53,12 @@ const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
       }
     ]
   },
- {
+  {
     title: 'Holiday Camps',
     icon: '/demo/synco/SidebarLogos/Holiday.png',
     iconHover: '/demo/synco/SidebarLogos/HolidayH.png',
-    role:  ['Admin'],
+    role: ['Admin',],
     subItems: [
-      { title: 'Session Plan Library', link: '/holiday-camps/session-plan-list', role: ['Admin'] },
-      { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager', role: ['Admin'] },
       { title: 'Discounts', link: '/holiday-camps/discounts/list', role: ['Admin'] }
     ]
   },
@@ -170,9 +172,19 @@ const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
     title: 'Administration',
     icon: '/demo/synco/SidebarLogos/Admistration.png',
     iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
-    link: '/members/List',
-    role: ['Admin', 'Super Admin']
-  }
+    role: ['Admin', 'Super Admin'],
+    subItems: [
+      { title: 'Admin Panel', link: '/members/List', role: ['Admin', 'Super Admin'] },
+    ]
+  }, {
+    title: 'Configuration',
+    icon: '/demo/synco/SidebarLogos/config.png',
+    iconHover: '/demo/synco/SidebarLogos/configH.png',
+    role: commonRole,
+    subItems: [
+      { title: 'config', link: '#', role: commonRole },
+    ]
+  },
 ];
 
 
@@ -182,7 +194,7 @@ const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const [openDropdowns, setOpenDropdowns] = useState({});
   const [hoveredItem, setHoveredItem] = useState(null);
-const sidebarRef = useRef();
+  const sidebarRef = useRef();
 
   const toggleDropdown = (title) => {
     setOpenDropdowns((prev) => ({ ...prev, [title]: !prev[title] }));
@@ -195,7 +207,7 @@ const sidebarRef = useRef();
   const renderMenuItems = (items, level = 0) => {
     const location = useLocation(); // hook inside render so it's scoped
     const MyRole = localStorage.getItem("role");
-  
+
     const filteredItems = items.filter((item) => {
       // If no role specified on item → show it
       if (!item.role) return true;
@@ -203,100 +215,97 @@ const sidebarRef = useRef();
       return item.role.includes(MyRole);
     });
 
-   return (
-  <ul
-    className={`${level === 0 ? 'px-4' : 'pl-10'} ${
-      level === 2 ? 'list-disc' : 'list-none'
-    } space-y-1`}
-  >
-    {filteredItems.map((item) => {
-      const hasSubItems = Array.isArray(item.subItems);
-      const hasInnerSubItems = Array.isArray(item.innerSubItems);
-      const itemTitle = typeof item === 'string' ? item : item.title;
+    return (
+      <ul
+        className={`${level === 0 ? 'px-4' : 'pl-10'} ${level === 2 ? 'list-disc' : 'list-none'
+          } space-y-1`}
+      >
+        {filteredItems.map((item) => {
+          const hasSubItems = Array.isArray(item.subItems);
+          const hasInnerSubItems = Array.isArray(item.innerSubItems);
+          const itemTitle = typeof item === 'string' ? item : item.title;
 
-      const isActive = item.link && location.pathname === item.link;
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+          const isActive = item.link && location.pathname === item.link;
+          const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
 
-      const content = (
-        <motion.div
-          initial={false}
-          onClick={() => {
-            if (hasSubItems || hasInnerSubItems) {
-              toggleDropdown(itemTitle);
-            } else if (isMobile) {
-              setIsMobileMenuOpen(false);
-            }
-          }}
-          onMouseEnter={() => setHoveredItem(itemTitle)}
-          onMouseLeave={() => setHoveredItem(null)}
-          className={`flex items-center justify-between font-semibold cursor-pointer px-4 py-2 rounded-lg transition-all duration-100
-            ${
-              level === 0
-                ? isActive
-                  ? 'bg-blue-500 text-white'
-                  : ' hover:bg-blue-500 hover:text-white text-black'
-                : isActive
-                ? 'text-blue-600 font-bold'
-                : 'hover:text-blue-600'
-            } ${
-                  (hoveredItem === itemTitle || isActive) && isMobile
-                    ? 'bg-blue-500  text-white'
-                    : ''
+          const content = (
+            <motion.div
+              initial={false}
+              onClick={() => {
+                if (hasSubItems || hasInnerSubItems) {
+                  toggleDropdown(itemTitle);
+                } else if (isMobile) {
+                  setIsMobileMenuOpen(false);
+                }
+              }}
+              onMouseEnter={() => setHoveredItem(itemTitle)}
+              onMouseLeave={() => setHoveredItem(null)}
+              className={`flex items-center justify-between font-semibold cursor-pointer px-4 py-2 rounded-lg transition-all duration-100
+            ${level === 0
+                  ? isActive
+                    ? 'bg-blue-500 text-white'
+                    : ' hover:bg-blue-500 hover:text-white text-black'
+                  : isActive
+                    ? 'text-blue-600 font-bold'
+                    : 'hover:text-blue-600'
+                } ${(hoveredItem === itemTitle || isActive) && isMobile
+                  ? 'bg-blue-500  text-white'
+                  : ''
                 }`}
-        >
-          <span className={`flex items-center gap-3 transition-all duration-100 `}>
-            {item.icon && level === 0 && (
-              <span
-                className={`w-8 h-8 flex items-center justify-center rounded `}
-              >
-                <motion.img
-                  src={
-                    hoveredItem === itemTitle || isActive
-                      ? item.iconHover
-                      : item.icon
-                  }
-                  alt={itemTitle}
-                  className="w-6 h-6 drop-shadow-sm"
-                  initial={{ opacity: 0.8 }}
-                  animate={{ opacity: 1 }}
-                />
+            >
+              <span className={`flex items-center gap-3 transition-all duration-100 `}>
+                {item.icon && level === 0 && (
+                  <span
+                    className={`w-8 h-8 flex items-center justify-center rounded `}
+                  >
+                    <motion.img
+                      src={
+                        hoveredItem === itemTitle || isActive
+                          ? item.iconHover
+                          : item.icon
+                      }
+                      alt={itemTitle}
+                      className="w-6 h-6 drop-shadow-sm"
+                      initial={{ opacity: 0.8 }}
+                      animate={{ opacity: 1 }}
+                    />
+                  </span>
+                )}
+                <span>{itemTitle}</span>
               </span>
-            )}
-            <span>{itemTitle}</span>
-          </span>
 
-          {level === 0 && hasSubItems &&
-            (openDropdowns[itemTitle] ? <ChevronUp size={20} /> : <ChevronDown size={20} />)}
+              {level === 0 && hasSubItems &&
+                (openDropdowns[itemTitle] ? <ChevronUp size={20} /> : <ChevronDown size={20} />)}
 
-          {level === 1 && hasInnerSubItems && <span className="ml-2 text-sm">-</span>}
-        </motion.div>
-      );
+              {level === 1 && hasInnerSubItems && <span className="ml-2 text-sm">-</span>}
+            </motion.div>
+          );
 
-      return (
-        <li className="mb-2 text-lg" key={itemTitle}>
-          {item.link ? <Link to={item.link}>{content}</Link> : content}
+          return (
+            <li className="mb-2 text-lg" key={itemTitle}>
+              {item.link ? <Link to={item.link}>{content}</Link> : content}
 
-          <AnimatePresence initial={false}>
-            {(hasSubItems || hasInnerSubItems) && openDropdowns[itemTitle] && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                {hasSubItems && renderMenuItems(item.subItems, level + 1)}
-                {hasInnerSubItems && renderMenuItems(item.innerSubItems, level + 1)}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </li>
-      );
-    })}
-  </ul>
-);
+              <AnimatePresence initial={false}>
+                {(hasSubItems || hasInnerSubItems) && openDropdowns[itemTitle] && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {hasSubItems && renderMenuItems(item.subItems, level + 1)}
+                    {hasInnerSubItems && renderMenuItems(item.innerSubItems, level + 1)}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </li>
+          );
+        })}
+      </ul>
+    );
 
   };
-useEffect(() => {
+  useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         sidebarRef.current &&
@@ -322,35 +331,35 @@ useEffect(() => {
 
       {/* Mobile Drawer */}
       {/* Mobile Drawer */}
-<AnimatePresence>
-      {isMobileMenuOpen && (
-        <>
-          {/* Optional semi-transparent overlay */}
-          <div className="fixed inset-0 bg-black/30 z-40 lg:hidden" />
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Optional semi-transparent overlay */}
+            <div className="fixed inset-0 bg-black/30 z-40 lg:hidden" />
 
-          <motion.aside
-            ref={sidebarRef}
-            initial={{ x: '-100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
-            transition={{ type: 'tween' }}
-            className="fixed top-0 left-0 w-72 h-full bg-white z-50 shadow-lg border-r lg:hidden flex flex-col"
-          >
-            <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
-              <img
-                src="/demo/synco/images/synco-text.png"
-                alt="Logo"
-                className="h-10 w-auto object-contain"
-              />
-            </div>
+            <motion.aside
+              ref={sidebarRef}
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'tween' }}
+              className="fixed top-0 left-0 w-72 h-full bg-white z-50 shadow-lg border-r lg:hidden flex flex-col"
+            >
+              <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
+                <img
+                  src="/demo/synco/images/synco-text.png"
+                  alt="Logo"
+                  className="h-10 w-auto object-contain"
+                />
+              </div>
 
-            <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 px-2 pb-6">
-              {renderMenuItems(menuItems)}
-            </nav>
-          </motion.aside>
-        </>
-      )}
-    </AnimatePresence>
+              <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 px-2 pb-6">
+                {renderMenuItems(menuItems)}
+              </nav>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
 
       {/* Desktop Sidebar */}

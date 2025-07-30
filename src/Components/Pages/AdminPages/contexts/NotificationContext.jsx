@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
-
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
@@ -7,33 +8,48 @@ export const NotificationProvider = ({ children }) => {
     const [notification, setNotification] = useState([]);
     const [customNotification, setCustomNotification] = useState([]);
     const [customnotificationAll, setCustomnotificationAll] = useState([]);
+const navigate = useNavigate();
 
     const [loadingNotification, setLoadingNotification] = useState(null);
     const [loadingCustomNotification, setLoadingCustomNotification] = useState(null);
 
-    const fetchNotification = useCallback(async () => {
-        const token = localStorage.getItem("adminToken");
-        if (!token) return;
+const fetchNotification = useCallback(async () => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
 
-        setLoadingNotification(true);
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/notification`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+    setLoadingNotification(true);
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/notification`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const resultRaw = await response.json();
+
+        if (resultRaw.status === false && resultRaw.code === "ACCOUNT_SUSPENDED") {
+            Swal.fire({
+                icon: 'error',
+                title: 'Account Suspended',
+                text: resultRaw.message || "Your account is suspended. Please contact support.",
+                confirmButtonText: 'OK'
+            }).then(() => {
+                localStorage.clear(); // ✅ Clear all localStorage
+                navigate('/admin-login'); // ✅ Navigate to login
             });
-
-            const resultRaw = await response.json();
-            const result = resultRaw.data.notifications || [];
-            setNotification(result);
-            setCustomnotificationAll( resultRaw.data.customNotifications)
-        } catch (error) {
-            console.error("Failed to fetch notification:", error);
-        } finally {
-            setLoadingNotification(false);
+            return;
         }
-    }, []);
+
+        const result = resultRaw.data?.notifications || [];
+        setNotification(result);
+        setCustomnotificationAll(resultRaw.data?.customNotifications || []);
+    } catch (error) {
+        console.error("Failed to fetch notification:", error);
+    } finally {
+        setLoadingNotification(false);
+    }
+}, [navigate]);
 
     const fetchMarkAsRead = useCallback(async () => {
         const token = localStorage.getItem("adminToken");

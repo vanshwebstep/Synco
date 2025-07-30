@@ -207,68 +207,86 @@ const Create = ({ packages, termGroup, onClose }) => {
           </select>
         </div>
 
-        <div className="flex py-2 items-center justify-between gap-6">
-          {/* Parking Toggle */}
-          <label className="flex items-center gap-2 cursor-pointer">
-            <span className="block font-semibold text-[16px]">Parking</span>
-            <input
-              type="checkbox"
-              name="hasParking"
-              checked={formData.hasParking}
-              onChange={handleInputChange}
-              className="sr-only"
-            />
-            <div
-              className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
-        ${formData.hasParking ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
-            >
-              <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
-            </div>
-          </label>
+       <div className="flex py-2 items-center justify-between gap-6">
+  {/* Parking Toggle */}
+  <label className="flex items-center gap-2 cursor-pointer">
+    <span className="block font-semibold text-[16px]">Parking</span>
+    <input
+      type="checkbox"
+      name="hasParking"
+      checked={formData.hasParking}
+      onChange={(e) => {
+        const { checked } = e.target;
+        setFormData((prev) => ({
+          ...prev,
+          hasParking: checked,
+          parkingNote: checked ? prev.parkingNote : '',
+        }));
+      }}
+      className="sr-only"
+    />
+    <div
+      className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
+      ${formData.hasParking ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
+    >
+      <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
+    </div>
+  </label>
 
-          {/* Congestion Toggle */}
-          <label className="flex items-center gap-2 cursor-pointer">
-            <span className="block font-semibold text-[16px]">Congestion</span>
-            <input
-              type="checkbox"
-              name="isCongested"
-              checked={formData.isCongested}
-              onChange={handleInputChange}
-              className="sr-only"
-            />
-            <div
-              className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
-        ${formData.isCongested ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
-            >
-              <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
-            </div>
-          </label>
-        </div>
+  {/* Congestion Toggle */}
+  <label className="flex items-center gap-2 cursor-pointer">
+    <span className="block font-semibold text-[16px]">Congestion</span>
+    <input
+      type="checkbox"
+      name="isCongested"
+      checked={formData.isCongested}
+      onChange={(e) => {
+        const { checked } = e.target;
+        setFormData((prev) => ({
+          ...prev,
+          isCongested: checked,
+          congestionNote: checked ? prev.congestionNote : '',
+        }));
+      }}
+      className="sr-only"
+    />
+    <div
+      className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
+      ${formData.isCongested ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
+    >
+      <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
+    </div>
+  </label>
+</div>
 
+{/* Conditionally Render Textareas */}
+{formData.hasParking && (
+  <div>
+    <textarea
+      rows={3}
+      name="parkingNote"
+      value={formData.parkingNote}
+      onChange={handleInputChange}
+      placeholder="Add a parking note"
+      className="w-full border bg-[#FAFAFA] border-[#E2E1E5] rounded-xl p-4 text-sm"
+    />
+  </div>
+)}
 
+{formData.isCongested && (
+  <div>
+    <label className="block font-semibold text-[16px] pb-2">How to enter facility</label>
+    <textarea
+      name="congestionNote"
+      value={formData.congestionNote}
+      onChange={handleInputChange}
+      className="w-full border bg-[#FAFAFA] border-[#E2E1E5] rounded-xl p-4 text-sm"
+      rows={3}
+      placeholder="Add notes"
+    />
+  </div>
+)}
 
-        <div>
-          <textarea
-            rows={3}
-            name="parkingNote"
-            value={formData.parkingNote}
-            onChange={handleInputChange}
-            placeholder="Add a parking note"
-            className="w-full border bg-[#FAFAFA] border-[#E2E1E5] rounded-xl p-4 text-sm"
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold text-[16px] pb-2">How to enter facility</label>
-          <textarea
-            name="congestionNote"
-            value={formData.congestionNote}
-            onChange={handleInputChange}
-            className="w-full border bg-[#FAFAFA] border-[#E2E1E5] rounded-xl p-4 text-sm"
-            rows={3}
-            placeholder="Add notes"
-          />
-        </div>
 
         <div className="space-y-6 max-w-md">
 

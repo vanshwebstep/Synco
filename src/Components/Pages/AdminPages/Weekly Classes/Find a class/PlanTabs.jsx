@@ -15,12 +15,12 @@ const PlanTabs = ({ selectedPlans }) => {
     <div className="w-full">
       {/* Student Tabs */}
       <div className="flex justify-center my-6">
-        <div className="inline-flex rounded-2xl border border-gray-300 bg-white p-1">
+        <div className="md:inline-flex rounded-2xl border border-gray-300 bg-white p-1">
           {studentKeys.map((key) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`px-6 py-2 text-[16px] font-medium rounded-xl transition ${
+              className={`px-6 md:w-auto w-full py-2 text-[16px] font-medium rounded-xl transition ${
                 activeTab === key
                   ? "bg-[#237FEA] text-white"
                   : "bg-white text-[#237FEA]"

@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { Trash2, Eye, Check, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
-import Loader from '../contexts/Loader';
+import Loader from '../../contexts/Loader';
 import { Editor } from '@tinymce/tinymce-react';
 
-import { usePayments } from '../contexts/PaymentPlanContext';
+import { usePayments } from '../../contexts/PaymentPlanContext';
+import PlanTabs from "../Find a class/PlanTabs";
 
 const AddPaymentPlanGroup = () => {
 
@@ -48,18 +49,27 @@ const AddPaymentPlanGroup = () => {
 
     });
 
+    const [formIsDirty, setFormIsDirty] = useState(false);
+
+    const formatStudentLabel = (plan) => {
+        if (plan.students > 0) {
+            return `${plan.title}: ${plan.students} ${plan.students === 1 ? 'Student' : 'Students'}`;
+        }
+        return `${plan.title}`;
+    };
 
     const planOptions = packages.map((plan) => ({
         value: plan.id,
-        label: `${plan.title}: ${plan.price}`,
-        data: plan, // to retain full plan data
+        label: formatStudentLabel(plan),
+        data: plan,
     }));
 
     const selectedOptions = selectedPlans.map((plan) => ({
         value: plan.id,
-        label: `${plan.title}: ${plan.price}`,
+        label: formatStudentLabel(plan),
         data: plan,
     }));
+
 
     const handleSelectChange = (selected) => {
         setSelectedPlans(selected ? selected.map((item) => item.data) : []);
@@ -201,7 +211,6 @@ const AddPaymentPlanGroup = () => {
         )
     }
 
-    console.log('selectedPlanss', selectedPlans)
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -211,7 +220,7 @@ const AddPaymentPlanGroup = () => {
                         if (previewShowModal) {
                             setPreviewShowModal(false);
                         } else {
-                            navigate('/holiday-camps/payment-planManager');
+                            navigate('/weekly-classes/subscription-planManager');
                         }
                     }}
                     className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
@@ -222,21 +231,21 @@ const AddPaymentPlanGroup = () => {
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
                     <span className="truncate">
-                        {previewShowModal ? '2023/24 Standard Pricing preview' : 'Add Payment Plan Group'}
+                        {previewShowModal ? '2023/24 Standard Pricing preview' : 'Add Membership Plan Group'}
                     </span>
                 </h2>
 
 
             </div>
 
-            <div className={`flex flex-col md:flex-row bg-white  rounded-3xl ${previewShowModal ? 'md:min-w-3/4  md:p-10' : 'w-full  md:p-12 p-4'}`}>
+            <div className={`flex flex-col md:flex-row bg-white rounded-3xl ${previewShowModal ? ' m-auto  md:p-10' : 'w-full  md:p-12 p-4'}`}>
                 {previewShowModal && (
-                    <div className="flex items-center justify-center w-full px-4 py-6 sm:px-6 md:py-10">
+                    <div className="flex items-center rounded-3xl max-w-fit justify-left bg-white md:w-full px-4 py-6 sm:px-6 md:py-10">
                         <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
 
                             {/* Header */}
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-                                <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
+                                <h2 className="font-semibold text-[20px] sm:text-[24px]">Subscription Plan</h2>
                                 <button
                                     onClick={() => setPreviewShowModal(false)}
                                     className="text-gray-400 hover:text-black text-xl font-bold"
@@ -246,35 +255,16 @@ const AddPaymentPlanGroup = () => {
                             </div>
 
                             {/* Plans Grid */}
-                            <div className="grid pt-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                                {selectedPlans.map((plan, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="border border-[#E2E1E5] rounded-xl p-4 sm:p-5 flex flex-col justify-between transition"
-                                    >
-                                        <h3 className="text-[18px] sm:text-[20px] font-semibold mb-2">{plan.students} Students</h3>
-                                        <p className="text-[24px] sm:text-[32px] font-semibold mb-4">£{plan.price}</p>
-                                        <hr className="mb-4 text-[#E2E1E5]" />
-                                        <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold">
-                                            <li className="flex items-center py-2 gap-2">
-                                                <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
-                                                {plan.duration}
-                                            </li>
-                                            <li className="flex items-center py-2 pb-2 sm:pb-4 gap-2">
-                                                <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
-                                                Free Holiday Camp Bag
-                                            </li>
-                                        </ul>
-                                    </div>
-                                ))}
-                            </div>
+                            <PlanTabs selectedPlans={selectedPlans} />
+
+
                         </div>
                     </div>
 
                 ) ||
                     <>
                         <div className={`transition-all duration-300 md:w-1/2`}>
-                            <div className="rounded-2xl  md:p-12 ">
+                            <div className="rounded-2xl w-full md:p-12 ">
                                 <form onSubmit={(e) => {
                                     e.preventDefault(); // prevents page refresh
                                     if (id && selectedGroup) {
@@ -322,7 +312,7 @@ const AddPaymentPlanGroup = () => {
                                             onClick={() => setIsOpen(!isOpen)}
                                         >
                                             <label className="block text-base font-semibold text-gray-700">
-                                                Payment Plans
+                                                Membership Plan
                                             </label>
 
                                         </div>
@@ -342,7 +332,11 @@ const AddPaymentPlanGroup = () => {
                                                         key={plan.id || idx}
                                                         className="flex items-center font-semibold justify-between"
                                                     >
-                                                        <span>{`${plan.title}: ${plan.price}`}</span>
+                                                        <span>
+                                                            {plan.students > 0
+                                                                ? `${plan.title}: ${plan.students} ${plan.students === 1 ? 'Student' : 'Students'}`
+                                                                : ''}
+                                                        </span>
                                                         <button
                                                             type="button"
                                                             onClick={(e) => {
@@ -375,7 +369,7 @@ const AddPaymentPlanGroup = () => {
                                                             value={selectedOptions}
                                                             onChange={handleSelectChange}
                                                             isMulti
-                                                            placeholder="Select payment plans..."
+                                                            placeholder="Select Membership plans..."
                                                             className="react-select-container"
                                                             classNamePrefix="react-select"
 
@@ -398,7 +392,7 @@ const AddPaymentPlanGroup = () => {
                                         onClick={handleAddPlan}
                                         className="w-full bg-[#237FEA] mb-8 text-white text-[16px] font-semibold py-2 rounded-lg hover:bg-blue-700"
                                     >
-                                        Add Payment Plan
+                                        Add Membership Plan
                                     </button>
 
                                     {/* Footer Buttons */}
@@ -410,7 +404,7 @@ const AddPaymentPlanGroup = () => {
                                             onClick={() => setPreviewShowModal(true)}
                                             className="flex items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 w-full md:w-auto"
                                         >
-                                            Preview Payment Plans
+                                            Preview Membership Plans
                                             <Eye size={16} />
                                         </button>
                                         <button
@@ -443,7 +437,7 @@ const AddPaymentPlanGroup = () => {
                                         &times;
                                     </button>
                                     {/* Add your form content here */}
-                                    <div className="text-[24px] font-semibold mb-4">Payment Plan</div>
+                                    <div className="text-[24px] font-semibold mb-4">Membership Plan</div>
                                     {[
                                         { label: "Title", name: "title", type: "text" },
                                         { label: "Price (€)", name: "price", type: "number" },
@@ -547,7 +541,8 @@ const AddPaymentPlanGroup = () => {
                                                 onEditorChange={(content) =>
                                                     setFormData({ ...formData, HolidayCampPackage: content })
                                                 }
-                                                  init={{
+                                                init={{
+
                                                     menubar: false,
                                                     plugins: 'lists advlist',
                                                     toolbar:
@@ -585,6 +580,9 @@ const AddPaymentPlanGroup = () => {
                                                         });
                                                     },
                                                 }}
+                                                onInit={(evt, editor) => {
+                                                    console.log('Editor initialized', editor);
+                                                }}
                                             />
                                         </div>
                                     </div>
@@ -601,7 +599,7 @@ const AddPaymentPlanGroup = () => {
                                                 onEditorChange={(content) =>
                                                     setFormData({ ...formData, termsAndCondition: content })
                                                 }
-                                              init={{
+                                                init={{
                                                     menubar: false,
                                                     plugins: 'lists advlist',
                                                     toolbar:
@@ -638,6 +636,9 @@ const AddPaymentPlanGroup = () => {
                                                             },
                                                         });
                                                     },
+                                                }}
+                                                onInit={(evt, editor) => {
+                                                    console.log('Editor initialized', editor);
                                                 }}
                                             />
                                         </div>

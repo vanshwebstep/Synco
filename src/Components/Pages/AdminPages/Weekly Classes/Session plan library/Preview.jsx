@@ -61,6 +61,7 @@ const Preview = ({ item, sessionData }) => {
     }
   }, [selectedGroup]);
 
+  console.log('myData',myData)
   const dynamicTabs = Object.keys(myData);
   const currentContent = myData[activeTab]?.[page - 1] || {};
   const totalPages = myData[activeTab]?.length || 0;
@@ -72,7 +73,7 @@ const Preview = ({ item, sessionData }) => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
         <h2
           onClick={() => {
-            navigate('/holiday-camps/session-plan-list');
+            navigate('/weekly-classes/session-plan-list');
           }}
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
@@ -116,7 +117,7 @@ const Preview = ({ item, sessionData }) => {
                   <img
                     src={currentContent.bannerUrl}
                     alt="Play like Pele"
-                    className="rounded-xl mb-2"
+                    className="rounded-xl max-h-50  mb-2"
                   />
                 )}
                 <h2 className="font-semibold text-[28px] mb-0">
@@ -154,12 +155,12 @@ const Preview = ({ item, sessionData }) => {
                   <div className="mt-6 space-y-6">
                     {currentContent.sessionExercises.map((exercise) => (
                       <div key={exercise.id} className="flex items-center gap-4">
-                        <div>
+                        <div className="w-6/12">
                           {exercise.imageUrl ? (
                             JSON.parse(exercise.imageUrl).map((imgUrl, index) => (
                               <img
                                 key={index}
-                                className="max-h-[116px] max-w-[181px] rounded object-cover mr-2 mb-2"
+                                className="  rounded object-cover mr-2 mb-2"
                                 src={`${API_BASE_URL}/${imgUrl}`}
                                 alt={`${exercise.title} ${index + 1}`}
                               />
@@ -170,7 +171,7 @@ const Preview = ({ item, sessionData }) => {
 
                         </div>
                         <div>
-                          <h6 className="text-[18px] font-semibold">{exercise.title}</h6>
+                          <h6 className="text-[18px] w-7/12 font-semibold">{exercise.title}</h6>
                           <div
                             className="text-[16px] text-gray-700"
                             dangerouslySetInnerHTML={{

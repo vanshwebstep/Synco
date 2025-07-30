@@ -20,14 +20,14 @@ const List = () => {
   const [clickedIcon, setClickedIcon] = useState(null);
   const handleIconClick = (icon, plan = null) => {
     setClickedIcon(icon);
-      setCongestionNote(null)
+    setCongestionNote(null)
     if (icon === 'currency') {
       setSelectedPlans(plan || []); // default to empty array
     }
     else if (icon == 'group') {
       setCongestionNote(plan)
     }
-      else if (icon == 'p') {
+    else if (icon == 'p') {
       setCongestionNote(plan)
     }
     setShowModal(true);
@@ -270,7 +270,7 @@ const List = () => {
                                 />
                               </div>
                               <div
-                                  onClick={() =>
+                                onClick={() =>
                                   user.isCongested
                                     ? handleIconClick("group", user.congestionNote)
                                     : handleIconClick("group")
@@ -379,7 +379,7 @@ const List = () => {
             <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
               {/* Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-                <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
+                <h2 className="font-semibold text-[20px] sm:text-[24px]">Subscription Plan Preview</h2>
                 <button className="text-gray-400 hover:text-black text-xl font-bold">
                   <img
                     src="/demo/synco/icons/cross.png"
@@ -497,7 +497,7 @@ const List = () => {
             </div>
 
             <div className="mt-2 text-[16px] text-gray-700 leading-snug">
-                {congestionNote ? (
+              {congestionNote ? (
                 <p>{congestionNote}</p>
               ) : (
                 <>

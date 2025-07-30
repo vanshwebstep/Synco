@@ -135,7 +135,7 @@ useEffect(() => {
     };
 
     const handleEditGroup = (weekId, groupId) => {
-        navigate(`/holiday-camps/session-plan-create?id=${weekId}&level=${groupId}`);
+        navigate(`/weekly-classes/session-plan-create?id=${weekId}&level=${groupId}`);
     };
 
     const handleDeleteGroup = (weekId) => {
@@ -268,7 +268,7 @@ useEffect(() => {
                           <div className="flex gap-2 item-center">
                             <button
                               onClick={() =>
-                                navigate(`/holiday-camps/session-plan-preview?id=${week.id}`)
+                                navigate(`/weekly-classes/session-plan-preview?id=${week.id}`)
                               }
                               className="text-gray-700 hover:text-black"
                             >
@@ -328,7 +328,7 @@ useEffect(() => {
 
               {!reorderMode && (
                 <div
-                  onClick={() => navigate('/holiday-camps/session-plan-create')}
+                  onClick={() => navigate('/weekly-classes/session-plan-create')}
                   className="border border-dashed border-gray-300 rounded-2xl min-w-[168px] max-w-xs items-center justify-center max-h-[100px] cursor-pointer text-gray-500 hover:text-black p-6 text-center text-[14px] font-semibold"
                 >
                   <img

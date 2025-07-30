@@ -69,7 +69,7 @@ export const SessionPlanContextProvider = ({ children }) => {
             text: data.message || 'Group created successfully.',
             confirmButtonColor: '#237FEA'
           });
-          navigate('/holiday-camps/session-plan-list');
+          navigate('/weekly-classes/session-plan-list');
         } else {
           await Swal.fire({
             icon: 'error',
@@ -209,7 +209,7 @@ const createSessionExercise = useCallback(async (data) => {
         confirmButtonColor: '#237FEA'
       });
 
-      navigate('/holiday-camps/sessionGroup/list');
+      navigate('/weekly-classes/sessionGroup/list');
     } catch (err) {
       Swal.fire({
         icon: 'error',
@@ -277,7 +277,7 @@ const createSessionExercise = useCallback(async (data) => {
         confirmButtonColor: '#237FEA'
       });
 
-      navigate('/holiday-camps/session-plan-list');
+      navigate('/weekly-classes/session-plan-list');
       await fetchSessionGroup();
 
     } catch (err) {

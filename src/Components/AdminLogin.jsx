@@ -15,83 +15,83 @@ const AdminLogin = () => {
     return /\S+@\S+\.\S+/.test(email);
   };
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  console.log('🔐 Starting login...');
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    console.log('🔐 Starting login...');
 
-  if (!email || !password) {
-    Swal.fire({ icon: 'warning', title: 'Missing Fields', text: 'Please enter both email and password.' });
-    return;
-  }
+    if (!email || !password) {
+      Swal.fire({ icon: 'warning', title: 'Missing Fields', text: 'Please enter both email and password.' });
+      return;
+    }
 
-  if (!validateEmail(email)) {
-    Swal.fire({ icon: 'error', title: 'Invalid Email', text: 'Please enter a valid email address.' });
-    return;
-  }
+    if (!validateEmail(email)) {
+      Swal.fire({ icon: 'error', title: 'Invalid Email', text: 'Please enter a valid email address.' });
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const raw = JSON.stringify({ email, password });
+    try {
+      const raw = JSON.stringify({ email, password });
 
-    const response = await fetch(`https://synconode.onrender.com/api/admin/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: raw,
-    });
+      const response = await fetch(`https://synconode.onrender.com/api/admin/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: raw,
+      });
 
-    const result = await response.json();
-    console.log('🟢 Login result:', result);
+      const result = await response.json();
+      console.log('🟢 Login result:', result);
 
-    if (response.ok && result?.data?.token) {
-      const token = result.data.token;
-      localStorage.setItem('adminToken', token);
-      localStorage.setItem('adminId', result.data.adminId);
-      localStorage.setItem('role', result.data.admin.role);
+      if (response.ok && result?.data?.token) {
+        const token = result.data.token;
+        localStorage.setItem('adminToken', token);
+        localStorage.setItem('adminId', result.data.adminId);
+        localStorage.setItem('role', result.data.admin.role);
 
-      console.log('✅ Token saved:', token);
+        console.log('✅ Token saved:', token);
 
-      const verified = await verifyToken(token);
-      console.log('🔍 Verification result:', verified);
+        const verified = await verifyToken(token);
+        console.log('🔍 Verification result:', verified);
 
-      if (verified) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Login Successful',
-          text: 'Redirecting to dashboard...',
-          timer: 1500,
-          showConfirmButton: false,
-        });
+        if (verified) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Login Successful',
+            text: 'Redirecting to dashboard...',
+            timer: 1500,
+            showConfirmButton: false,
+          });
 
-        setTimeout(() => {
-          console.log('➡️ Navigating to dashboard...');
-          navigate('/');
-        }, 1500);
+          setTimeout(() => {
+            console.log('➡️ Navigating to dashboard...');
+            navigate('/');
+          }, 1500);
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Verification Failed',
+            text: 'Token could not be verified.',
+          });
+        }
       } else {
         Swal.fire({
           icon: 'error',
-          title: 'Verification Failed',
-          text: 'Token could not be verified.',
+          title: 'Login Failed',
+          text: result.message || 'Invalid credentials.',
         });
       }
-    } else {
+    } catch (error) {
+      console.error('🚨 Login error:', error);
       Swal.fire({
         icon: 'error',
-        title: 'Login Failed',
-        text: result.message || 'Invalid credentials.',
+        title: 'Server Error',
+        text: 'Unable to reach the server.',
       });
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error('🚨 Login error:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'Server Error',
-      text: 'Unable to reach the server.',
-    });
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <>
@@ -121,7 +121,7 @@ const handleLogin = async (e) => {
             </p>
 
             {/* Form */}
-            <form className="w-full m-auto max-w-lg " onSubmit={handleLogin}>
+            <form className="w-full m-auto max-w-lg " onSubmit={handleLogin}  autoComplete="on">
               <div className="mb-4">
                 <label className="block text-gray-900 mb-2 font-semibold" htmlFor="email">
                   Email
@@ -129,6 +129,8 @@ const handleLogin = async (e) => {
                 <input
                   id="email"
                   type="email"
+                   autoComplete="email"
+                   name="email"
                   placeholder="Enter email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -142,6 +144,8 @@ const handleLogin = async (e) => {
                 </label>
                 <input
                   id="password"
+                   name="password"
+                    autoComplete="current-password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter password"
                   value={password}

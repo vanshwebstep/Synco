@@ -18,8 +18,8 @@ import Unauthorized from './Components/Unauthorized.jsx';
 import Dashboard from './Components/Pages/Dashboard.jsx';
 import MemberList from './Components/Pages/AdminPages/members/List.jsx';
 import Update from './Components/Pages/AdminPages/members/Update.jsx';
-import PaymentPlanManagerList from './Components/Pages/AdminPages/Holiday Camps/PaymentPlanManager.jsx';
-import AddPaymentPlanGroup from './Components/Pages/AdminPages/Holiday Camps/AddPaymentPlanGroup.jsx';
+import SubscriptiontPlanManagerList from './Components/Pages/AdminPages/Weekly Classes/Subscription plan manager/SubscriptionPlanManager.jsx';
+import AddMembershipPlanGroup from './Components/Pages/AdminPages/Weekly Classes/Subscription plan manager/AddMembershipPlanGroup.jsx';
 import DiscountsList from './Components/Pages/AdminPages/discounts/list.jsx';
 import DiscountCreate from './Components/Pages/AdminPages/discounts/create.jsx';
 import Notification from './Components/Pages/AdminPages/notification/Notification.jsx';
@@ -33,9 +33,9 @@ import Cancel from './Components/Pages/AdminPages/venus/Class Schedule/View Sess
 import TermDateList from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/List.jsx';
 import TermDateCreate from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/Create.jsx';
 import TermDateUpdate from './Components/Pages/AdminPages/Weekly Classes/Term And Condition/Update.jsx';
-import SessionPlanList from './Components/Pages/AdminPages/Holiday Camps/Session plan library/list.jsx';
-import SessionPlanCreate from './Components/Pages/AdminPages/Holiday Camps/Session plan library/Create.jsx';
-import SessionPlanPreview from './Components/Pages/AdminPages/Holiday Camps/Session plan library/Preview.jsx';
+import SessionPlanList from './Components/Pages/AdminPages/Weekly Classes/Session plan library/list.jsx';
+import SessionPlanCreate from './Components/Pages/AdminPages/Weekly Classes/Session plan library/Create.jsx';
+import SessionPlanPreview from './Components/Pages/AdminPages/Weekly Classes/Session plan library/Preview.jsx';
 
 // Import all context providers
 import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberContext.jsx';
@@ -144,21 +144,21 @@ const AppRoutes = () => {
         </AdminLayout>
       } />
 
-      <Route path="/holiday-camps/payment-planManager" element={
+      <Route path="/weekly-classes/subscription-planManager" element={
         <AdminLayout>
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={['Admin']}>
-              <PaymentPlanManagerList />
+              <SubscriptiontPlanManagerList />
             </RoleBasedRoute>
           </ProtectedRoute>
         </AdminLayout>
       } />
       
-      <Route path="/holiday-camps/add-payment-plan-group" element={
+      <Route path="/weekly-classes/add-subscription-plan-group" element={
         <AdminLayout>
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={['Admin']}>
-              <AddPaymentPlanGroup />
+              <AddMembershipPlanGroup />
             </RoleBasedRoute>
           </ProtectedRoute>
         </AdminLayout>
@@ -294,7 +294,7 @@ const AppRoutes = () => {
         </AdminLayout>
       } />
 
-      <Route path="/holiday-camps/session-plan-list" element={
+      <Route path="/weekly-classes/session-plan-list" element={
         <AdminLayout>
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={['Admin']}>
@@ -304,7 +304,7 @@ const AppRoutes = () => {
         </AdminLayout>
       } />
       
-      <Route path="/holiday-camps/session-plan-create" element={
+      <Route path="/weekly-classes/session-plan-create" element={
         <AdminLayout>
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={['Admin']}>
@@ -314,7 +314,7 @@ const AppRoutes = () => {
         </AdminLayout>
       } />
       
-      <Route path="/holiday-camps/session-plan-preview" element={
+      <Route path="/weekly-classes/session-plan-preview" element={
         <AdminLayout>
           <ProtectedRoute>
             <RoleBasedRoute allowedRoles={['Admin']}>
@@ -407,8 +407,8 @@ export const menuItems = [
     iconHover: '/demo/synco/SidebarLogos/HolidayH.png',
     role:  ['Admin'],
     subItems: [
-      { title: 'Session Plan Library', link: '/holiday-camps/session-plan-list', role: ['Admin'] },
-      { title: 'Payment Plan Manager', link: '/holiday-camps/payment-planManager', role: ['Admin'] },
+      { title: 'Session Plan Library', link: '/weekly-classes/session-plan-list', role: ['Admin'] },
+      { title: 'Subscription Plan Manager', link: '/weekly-classes/subscription-planManager', role: ['Admin'] },
       { title: 'Discounts', link: '/holiday-camps/discounts/list', role: ['Admin'] }
     ]
   },
