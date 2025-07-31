@@ -61,12 +61,21 @@ const Preview = ({ item, sessionData }) => {
     }
   }, [selectedGroup]);
 
-  console.log('myData',myData)
+  console.log('myData', myData)
   const dynamicTabs = Object.keys(myData);
   const currentContent = myData[activeTab]?.[page - 1] || {};
   const totalPages = myData[activeTab]?.length || 0;
 
   console.log(selectedGroup)
+  const [selectedExercise, setSelectedExercise] = useState(
+    currentContent.sessionExercises?.[0] || null
+  );
+  useEffect(() => {
+    if (currentContent.sessionExercises?.length > 0) {
+      setSelectedExercise(currentContent.sessionExercises[0]);
+    }
+  }, [currentContent]);
+
   return (
     <div className="md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -110,7 +119,7 @@ const Preview = ({ item, sessionData }) => {
 
           {/* Main Page Content */}
           {currentContent && (
-            <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex w-full flex-col lg:flex-row gap-6">
               {/* Left - Video and Info */}
               <div className="w-full lg:w-1/2 space-y-2">
                 {currentContent.bannerUrl && (
@@ -154,13 +163,18 @@ const Preview = ({ item, sessionData }) => {
                 {currentContent.sessionExercises?.length > 0 && (
                   <div className="mt-6 space-y-6">
                     {currentContent.sessionExercises.map((exercise) => (
-                      <div key={exercise.id} className="flex items-center gap-4">
+                      <div
+                        key={exercise.id}
+                        className={`flex items-center gap-4 cursor-pointer p-2 rounded ${selectedExercise?.id === exercise.id ? 'bg-blue-50 border border-blue-200' : ''
+                          }`}
+                        onClick={() => setSelectedExercise(exercise)}
+                      >
                         <div className="w-6/12">
                           {exercise.imageUrl ? (
                             JSON.parse(exercise.imageUrl).map((imgUrl, index) => (
                               <img
                                 key={index}
-                                className="  rounded object-cover mr-2 mb-2"
+                                className="rounded object-cover mr-2 mb-2"
                                 src={`${API_BASE_URL}/${imgUrl}`}
                                 alt={`${exercise.title} ${index + 1}`}
                               />
@@ -168,7 +182,6 @@ const Preview = ({ item, sessionData }) => {
                           ) : (
                             <p>No images available</p>
                           )}
-
                         </div>
                         <div>
                           <h6 className="text-[18px] w-7/12 font-semibold">{exercise.title}</h6>
@@ -178,7 +191,6 @@ const Preview = ({ item, sessionData }) => {
                               __html: exercise.description || '<p>No description available.</p>',
                             }}
                           />
-
                           <span className="text-[14px] text-gray-500">
                             {exercise.duration || '—'}
                           </span>
@@ -188,63 +200,46 @@ const Preview = ({ item, sessionData }) => {
                   </div>
                 )}
 
+
               </div>
 
               {/* Right - Placeholder Drill Info */}
-              <div className="w-full  border-l pl-6 border-gray-300 lg:w-1/2 bg-white">
-                <h2 className="font-semibold text-[24px] mb-0">
-                  Small-sided games
-                </h2>
-                <img
-                  src="/demo/synco/images/cardimgSmall.png"
-                  alt="Small-sided games"
-                  className="rounded-xl min-w-90 my-6"
-                />
-                <p className="text-blue-500 text-[14px] font-semibold">Time Duration: 10 mins</p>
-
-                <div className="text-sm  space-y-3">
-                  <div>
-                    <p className="font-semibold text-[18px]">Organisation</p>
-                    <p className="font-semibold text-gray-500  text-[14px]">Set up two small-sided games. You will need the following:</p>
-                    <ul className="list-disc text-gray-500 font-semibold  pl-5 text-sm">
-                      <li>4 pop-up goals</li>
-                      <li>Bibs to divide teams</li>
-                      <li>4 blue cones</li>
-                      <li>5 footballs</li>
-                    </ul>
+              {selectedExercise && (
+                <div className="w-full border-l pl-6 border-gray-300 lg:w-1/2 bg-white">
+                  <h2 className="font-semibold text-[24px] mb-0">{selectedExercise.title}</h2>
+                  <div className="flex flex-wrap justify-start gap-2 w-full ">
+                    {selectedExercise.imageUrl ? (
+                      JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
+                        <img
+                          key={index}
+                          className="rounded object-cover mr-2 min-h-50 max-h-50 mb-2"
+                          src={`${API_BASE_URL}/${imgUrl}`}
+                          alt={`${selectedExercise.title} ${index + 1}`}
+                        />
+                      ))
+                    ) : (
+                      <p>No images available</p>
+                    )}
                   </div>
+                  <p className="text-blue-500 text-[14px] font-semibold">
+                    Time Duration: {selectedExercise.duration || '—'}
+                  </p>
 
-                  <div>
-                    <p className="font-semibold text-[18px]">Description</p>
-                    <p className='font-semibold text-gray-500  text-[14px]'>Begin the lessons with two small-sided games</p>
-                    <p className='font-semibold text-gray-500  text-[14px]'>Organise palyers based on abiltiy into four teams. if you do not have many students, use one pitch only. Keep an eye on both games, unless you have a support coach working with you </p>
-                  </div>
-
-                  <div>
-                    <p className="font-semibold text-[18px]">Rules</p>
-                    <p className='font-semibold text-gray-500  text-[14px]'>Befor ou start the game, quickly reiterate the rules of the game: </p>
-                    <br />
-                    <ol className="list-decimal   font-semibold text-gray-500  text-[14px] pl-5">
-                      <li>No slide tackles</li>
-                      <li>if the ball roll out of play, students should all freeze and wait for a new ball to be rollled in (have 5 football nearby ready )</li>
-                    </ol>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[18px]">Conditions </p>
-                    <p className='font-semibold text-gray-500  text-[14px]'>You can select a condition from below to stop students from all chasing the ball and/or playing as solo players. Keep classes fun by variating the conditions each week.</p>
-                    <br />
-                    <ol className="list-decimal   font-semibold text-gray-500  text-[14px] pl-5">
-                      <li> Players can only shoot once every member of the team has touched the ball.</li>
-                      <li>Only can only shoot once they have built 3–5 passes.</li>
-                      <li>Only one member of each team is selected as the goalscorer.</li>
-                    </ol>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-[18px]">How to maintain the tone & intensity </p>
-
+                  <div className="text-sm space-y-3">
+                    <div>
+                      <p className="font-semibold text-[18px]">Description</p>
+                      <div
+                        className="text-gray-500 text-[14px] font-semibold"
+                        dangerouslySetInnerHTML={{
+                          __html: selectedExercise.description || '<p>No description available.</p>',
+                        }}
+                      />
+                    </div>
+                    {/* Add other sections like Rules, Conditions, etc. if you have them in exercise */}
                   </div>
                 </div>
-              </div>
+              )}
+
             </div>
           )}
 

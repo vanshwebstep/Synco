@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Menu, X, Search, Bell, ChevronUp, ChevronDown } from 'lucide-react';
 import { useNotification } from '../Pages/AdminPages/contexts/NotificationContext';
 import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 
 const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpen }) => {
+  const isFetchingRef = useRef(false);
+
   const [showNotificationPopup, setShowNotificationPopup] = useState(null);
   const { notification, setNotification, fetchNotification } = useNotification();
   const currentDate = new Date();
@@ -61,17 +63,22 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const { title, icon: Icon } = routeInfo;
 
 
-  useEffect(() => {
-    const fetchAndMerge = async () => {
-      await fetchNotification(); // this updates notification state only
-      // no impact on formData, no flicker
-    };
+useEffect(() => {
+  const fetchAndMerge = async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
 
-    fetchAndMerge(); // initial run
+    const success = await fetchNotification();
 
-    const interval = setInterval(fetchAndMerge, 7000);
-    return () => clearInterval(interval);
-  }, [fetchNotification]);
+    isFetchingRef.current = false;
+  };
+
+  fetchAndMerge();
+  const interval = setInterval(fetchAndMerge, 7000);
+
+  return () => clearInterval(interval);
+}, [fetchNotification]);
+
 
   
   const handleLogout = () => {

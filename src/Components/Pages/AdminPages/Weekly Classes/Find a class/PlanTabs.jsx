@@ -10,7 +10,7 @@ const PlanTabs = ({ selectedPlans }) => {
 
   const studentKeys = Object.keys(groupByStudents).sort(); // ["1", "2", "3"]
   const [activeTab, setActiveTab] = useState(studentKeys[0]);
-
+console.log('groupByStudents',groupByStudents)
   return (
     <div className="w-full">
       {/* Student Tabs */}
@@ -46,20 +46,27 @@ const PlanTabs = ({ selectedPlans }) => {
               £{plan?.price?.toFixed(2)}/<span className="text-sm">{plan.interval?.toLowerCase()}</span>
             </p>
             <hr className="mb-4 text-[#E2E1E5]" />
-            <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
-              <li className="flex items-center gap-2">
-                <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
-                {plan.duration} {plan.interval}{plan.duration > 1 ? "s" : ""}
-              </li>
-              <li className="flex items-center gap-2">
-                <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
-                {plan.holidayCampPackage
-                  ? "Free Holiday Camp Bag"
-                  : "No Holiday Camp Bag"}
-              </li>
-            </ul>
+           <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
+                        {plan.HolidayCampPackage &&
+                          plan.HolidayCampPackage
+                            // Remove <p> tags
+                            .replace(/<\/?p>/gi, '')
+                            // Replace both <br> and &nbsp; with a special marker (e.g. ###)
+                            .replace(/<br\s*\/?>|&nbsp;/gi, '###')
+                            // Split by that marker
+                            .split('###')
+                            .map((item, index) => {
+                              const text = item.trim();
+                              return text ? (
+                                <li key={index} className="flex items-center gap-2">
+                                  <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
+                                  {text}
+                                </li>
+                              ) : null;
+                            })}
+                      </ul>
             <button className="px-8 py-3 text-[16px] font-medium rounded-xl bg-[#237FEA] text-white shadow transition">
-              {plan.joiningFee ? `£${plan.joiningFee} Joining Fee` : "£35 Joining Fee"}
+              {plan.joiningFee ? `£${plan.joiningFee} Joining Fee` : "Not Defined Joining Fee"}
             </button>
           </div>
         ))}

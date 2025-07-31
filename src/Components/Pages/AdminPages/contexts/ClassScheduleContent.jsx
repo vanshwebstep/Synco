@@ -10,6 +10,8 @@ export const ClassScheduleProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(false);
   const [isEditClassSchedule, setIsEditClassSchedule] = useState(false);
+  const [singleClassSchedules, setSingleClassSchedules] = useState([]);
+
   const [formData, setFormData] = useState({
     area: "",
     name: "",
@@ -37,6 +39,30 @@ export const ClassScheduleProvider = ({ children }) => {
       const resultRaw = await response.json();
       const result = resultRaw.data || [];
       setClassSchedules(result);
+    } catch (error) {
+      console.error("Failed to fetch classSchedules:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchClassSchedulesID = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/venue/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setSingleClassSchedules(result);
     } catch (error) {
       console.error("Failed to fetch classSchedules:", error);
     } finally {
@@ -87,7 +113,7 @@ export const ClassScheduleProvider = ({ children }) => {
       });
       throw error;
     } finally {
-     await fetchClassSchedules();
+      await fetchClassSchedules();
       setLoading(false);
     }
   };
@@ -179,7 +205,21 @@ export const ClassScheduleProvider = ({ children }) => {
 
   return (
     <ClassScheduleContext.Provider
-      value={{ classSchedules, createClassSchedules, updateClassSchedules, deleteClassSchedule, formData, setFormData, isEditClassSchedule, setIsEditClassSchedule, setClassSchedules, fetchClassSchedules, loading }}>
+      value={{
+        classSchedules,
+        createClassSchedules,
+        updateClassSchedules,
+        deleteClassSchedule,
+        fetchClassSchedulesID,
+        singleClassSchedules,
+        formData,
+        setFormData,
+        isEditClassSchedule,
+        setIsEditClassSchedule,
+        setClassSchedules,
+        fetchClassSchedules,
+        loading,
+      }}>
       {children}
     </ClassScheduleContext.Provider>
   );

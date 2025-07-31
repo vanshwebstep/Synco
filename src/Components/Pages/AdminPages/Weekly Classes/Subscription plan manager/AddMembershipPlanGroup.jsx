@@ -166,6 +166,7 @@ const AddPaymentPlanGroup = () => {
             price: formData.price,
             interval: formData.interval,
             duration: formData.duration,
+            joiningFee : formData.joiningFee,
             students: formData.students,
             termsAndCondition: formData.termsAndCondition,
             HolidayCampPackage: formData.HolidayCampPackage
@@ -445,7 +446,7 @@ const AddPaymentPlanGroup = () => {
                                             label: "Interval",
                                             name: "interval",
                                             type: "dropdown",
-                                            options: ["Week", "Month", "Quarter", "Year"]
+                                            options: ["Month", "Quarter", "Year"]
                                         },
                                         { label: "Duration", name: "duration", type: "number" },
                                         { label: "Number of Students", name: "students", type: "number" },
@@ -470,6 +471,7 @@ const AddPaymentPlanGroup = () => {
                                                     value: i + 1
                                                 }));
                                             }
+                                           
                                         }
 
                                         return (
@@ -532,7 +534,7 @@ const AddPaymentPlanGroup = () => {
 
                                     <div className="mb-4 relative">
                                         <label className="block text-base font-semibold text-gray-700 mb-2">
-                                            Holiday Camp Package Details
+                                            Membership Package Details
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             <Editor

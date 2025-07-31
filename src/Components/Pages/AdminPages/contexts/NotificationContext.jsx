@@ -14,42 +14,46 @@ const navigate = useNavigate();
     const [loadingCustomNotification, setLoadingCustomNotification] = useState(null);
 
 const fetchNotification = useCallback(async () => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+  const token = localStorage.getItem("adminToken");
+  if (!token) return false;
 
-    setLoadingNotification(true);
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/notification`, {
-            method: "GET",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+  setLoadingNotification(true);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/notification`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-        const resultRaw = await response.json();
+    const resultRaw = await response.json();
 
-        if (resultRaw.status === false && resultRaw.code === "ACCOUNT_SUSPENDED") {
-            Swal.fire({
-                icon: 'error',
-                title: 'Account Suspended',
-                text: resultRaw.message || "Your account is suspended. Please contact support.",
-                confirmButtonText: 'OK'
-            }).then(() => {
-                localStorage.clear(); // ✅ Clear all localStorage
-                navigate('/admin-login'); // ✅ Navigate to login
-            });
-            return;
-        }
-
-        const result = resultRaw.data?.notifications || [];
-        setNotification(result);
-        setCustomnotificationAll(resultRaw.data?.customNotifications || []);
-    } catch (error) {
-        console.error("Failed to fetch notification:", error);
-    } finally {
-        setLoadingNotification(false);
+    // If account is suspended
+    if (resultRaw.status === false && resultRaw.code === "ACCOUNT_SUSPENDED") {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Account Suspended',
+        text: resultRaw.message || "Your account is suspended. Please contact support.",
+        confirmButtonText: 'OK'
+      });
+      localStorage.clear();
+      navigate('/admin-login');
+      return false; // ⛔ stop further processing
     }
+
+    // If successful
+    const result = resultRaw.data?.notifications || [];
+    setNotification(result);
+    setCustomnotificationAll(resultRaw.data?.customNotifications || []);
+    return true;
+  } catch (error) {
+    console.error("Failed to fetch notification:", error);
+    return false;
+  } finally {
+    setLoadingNotification(false);
+  }
 }, [navigate]);
+
 
     const fetchMarkAsRead = useCallback(async () => {
         const token = localStorage.getItem("adminToken");

@@ -36,6 +36,7 @@ export const TermDatesSessionProvider = ({ children }) => {
       setLoading(false);
     }
   }, [token]);
+  
     const fetchTerm = useCallback(async () => {
     if (!token) return;
     setLoading(true);

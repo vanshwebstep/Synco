@@ -21,13 +21,23 @@ const List = () => {
     const [openDropdownSessionId, setOpenDropdownSessionId] = useState(null);
 
 
-    const { fetchClassSchedules, createClassSchedules, updateClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
+
+    const { fetchClassSchedules, createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
     useEffect(() => {
-        fetchClassSchedules();
-        if (!venueId) {
-            navigate(`/weekly-classes/venues/`)
-        }
-    }, [fetchClassSchedules]);
+        const fetchData = async () => {
+            await fetchClassSchedules();
+
+            if (!venueId) {
+                navigate(`/weekly-classes/venues/`);
+                return; // Prevent further execution if no venueId
+            }
+
+            await fetchClassSchedulesID(venueId);
+        };
+
+        fetchData();
+    }, [fetchClassSchedules, venueId, navigate, fetchClassSchedulesID]);
+
     const filteredSchedules = classSchedules.filter(
         (item) => item.venueId == venueId
     );
@@ -42,16 +52,6 @@ const List = () => {
         });
     };
 
-    const parseTimeStringToDate = (timeString) => {
-        if (!timeString) return null;
-        const [time, modifier] = timeString.split(' ');
-        let [hours, minutes] = time.split(':').map(Number);
-        if (modifier === 'PM' && hours !== 12) hours += 12;
-        if (modifier === 'AM' && hours === 12) hours = 0;
-        const date = new Date(0, 0, 0);
-        date.setHours(hours, minutes);
-        return date;
-    };
 
 
     const [openTerms, setOpenTerms] = useState({});
@@ -194,6 +194,31 @@ const List = () => {
             </>
         )
     }
+    const parseTimeStringToDate = (timeString) => {
+        if (!timeString || typeof timeString !== "string" || !timeString.includes(":")) return null;
+
+        const [hoursStr, minutesStr] = timeString.split(":");
+        const hours = parseInt(hoursStr, 10);
+        const minutes = parseInt(minutesStr, 10);
+
+        if (isNaN(hours) || isNaN(minutes)) return null;
+
+        const date = new Date();
+        date.setHours(hours);
+        date.setMinutes(minutes);
+        date.setSeconds(0);
+        date.setMilliseconds(0);
+
+        // Round to nearest 15 mins
+        const roundedMinutes = Math.round(minutes / 15) * 15;
+        date.setMinutes(roundedMinutes);
+
+        return date;
+    };
+
+
+    console.log('singleClassSchedules', singleClassSchedules)
+    console.log("filteredSchedules", filteredSchedules)
     console.log('formData', formData)
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
@@ -214,8 +239,8 @@ const List = () => {
                         venues.length > 0 ? (
 
                             <div className="bg-white rounded-3xl p-6 shadow">
-                                <h2 className="font-semibold text-lg text-[18px]">Chelsea Academy</h2>
-                                <p className="text-[14px]   mb-4 border-b pb-4 border-gray-200">Lots Road, London, SW10 0AB</p>
+                                <h2 className="font-semibold text-lg text-[18px]">{singleClassSchedules.name || null}</h2>
+                                <p className="text-[14px]   mb-4 border-b pb-4 border-gray-200">{singleClassSchedules.address || null}</p>
 
                                 {filteredSchedules.map((item, index) => (
                                     <>
@@ -227,7 +252,7 @@ const List = () => {
                                             {/* Class info block */}
                                             <div className="grid grid-cols-2 md:grid-cols-8 gap-4 w-full text-sm">
                                                 <div>
-                                                    <p className="font-semibold text-[16px]">Class +{item.length}</p>
+                                                    <p className="font-semibold text-[16px]">Class +{index + 1}</p>
                                                     <p className="text-xs font-semibold text-[16px]">{item.className}</p>
                                                 </div>
                                                 <div>
@@ -543,10 +568,6 @@ const List = () => {
                                             dateFormat="h:mm aa"
                                             timeCaption="Time"
                                             className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-                                            maxTime={
-                                                parseTimeStringToDate(formData?.endTime) || new Date(0, 0, 0, 23, 59)
-                                            }
-                                            minTime={new Date(0, 0, 0, 0, 0)}
                                         />
                                     </div>
 
@@ -563,10 +584,7 @@ const List = () => {
                                             dateFormat="h:mm aa"
                                             timeCaption="Time"
                                             className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-                                            minTime={
-                                                parseTimeStringToDate(formData?.startTime) || new Date(0, 0, 0, 0, 0)
-                                            }
-                                            maxTime={new Date(0, 0, 0, 23, 59)}
+
                                         />
                                     </div>
                                 </div>

@@ -146,8 +146,8 @@ const PaymentPlanManagerList = () => {
                       </p>
                       <hr className="mb-4 text-[#E2E1E5]" />
                       <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
-                        {plan.termsAndCondition &&
-                          plan.termsAndCondition
+                        {plan.HolidayCampPackage &&
+                          plan.HolidayCampPackage
                             // Remove <p> tags
                             .replace(/<\/?p>/gi, '')
                             // Replace both <br> and &nbsp; with a special marker (e.g. ###)
@@ -163,17 +163,11 @@ const PaymentPlanManagerList = () => {
                                 </li>
                               ) : null;
                             })}
-
-                        {/* Package info */}
-                        <li className="flex items-center gap-2">
-                          <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
-                          {plan.holidayCampPackage ? "Free Holiday Camp Bag" : "No Holiday Camp Bag"}
-                        </li>
                       </ul>
 
 
                       <button className="px-8 py-3 text-[16px] font-medium rounded-xl bg-[#237FEA] text-white shadow transition">
-                        {plan.joiningFee ? `£${plan.joiningFee} Joining Fee` : "£35 Joining Fee"}
+                        {plan.joiningFee ? `£${plan.joiningFee} Joining Fee` : "Not Defined Joining Fee"}
                       </button>
                     </div>
                   ))}

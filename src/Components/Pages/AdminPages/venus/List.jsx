@@ -9,7 +9,7 @@ import { useTermContext } from '../contexts/termDatesSessionContext';
 import Swal from "sweetalert2"; // make sure it's installed
 import PlanTabs from '../Weekly Classes/Find a class/PlanTabs';
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
+import { format, parseISO } from "date-fns";
 const List = () => {
   const navigate = useNavigate();
 
@@ -28,6 +28,9 @@ const List = () => {
       setCongestionNote(plan)
     }
     else if (icon == 'p') {
+      setCongestionNote(plan)
+    }
+    else if (icon == 'calendar') {
       setCongestionNote(plan)
     }
     setShowModal(true);
@@ -135,8 +138,7 @@ const List = () => {
     d1.getMonth() === d2.getMonth() &&
     d1.getFullYear() === d2.getFullYear();
 
-  const isInRange = (date) =>
-    fromDate && toDate && date && date >= fromDate && date <= toDate;
+
 
   const handleDateClick = (date) => {
     if (!fromDate || (fromDate && toDate)) {
@@ -180,7 +182,34 @@ const List = () => {
       </>
     )
   }
+const allTermRanges = Array.isArray(congestionNote)
+  ? congestionNote.flatMap(group =>
+      group.terms.map(term => ({
+        start: new Date(term.startDate),
+        end: new Date(term.endDate),
+        exclusions: (Array.isArray(term.exclusionDates)
+          ? term.exclusionDates
+          : JSON.parse(term.exclusionDates || '[]')
+        ).map(date => new Date(date)),
+      }))
+    )
+  : [];
+ // or `null`, `undefined`, or any fallback value
 
+  // Usage inside calendar cell:
+  const isInRange = (date) => {
+    return allTermRanges.some(({ start, end }) =>
+      date >= start && date <= end
+    );
+  };
+
+  const isExcluded = (date) => {
+    return allTermRanges.some(({ exclusions }) =>
+      exclusions.some(ex => ex.toDateString() === date?.toDateString())
+    );
+  };
+
+  console.log('congestionNote', congestionNote)
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
       <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
@@ -250,7 +279,7 @@ const List = () => {
                           <td className="p-4">
                             <div className="flex gap-2">
                               <div
-                                onClick={() => handleIconClick("calendar")}
+                                onClick={() => handleIconClick("calendar", user.termGroups)}
                                 className="cursor-pointer"
                               >
                                 <img
@@ -396,9 +425,9 @@ const List = () => {
       )}
       {showModal && clickedIcon === "calendar" && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
-          <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
+          <div className="bg-white rounded-3xl w-full max-h-[80%]   overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500  max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
             {/* Header */}
-            <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
+            <div className="flex justify-between items-center border-b  border-[#E2E1E5] pb-4 mb-4">
               <h2 className="text-[24px] font-semibold">Term Dates</h2>
               <button onClick={() => setShowModal(false)}>
                 <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
@@ -406,15 +435,30 @@ const List = () => {
             </div>
 
             {/* Term List */}
-            <div className="space-y-6 text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
-              {/* Repeat Term Sections */}
-              {["Autumn", "Spring", "Summer"].map((term) => (
-                <div key={term}>
-                  <h3 className="text-[20px] font-semibold mb-1">{term} Term 2022</h3>
-                  <p className="text-[18px]">Sun 11th Sep 2022 - Sun 04th Dec 2022</p>
-                  <p className="text-[18px]">Half term Exclusion: Sun 23rd Oct 2022</p>
-                </div>
-              ))}
+            <div className="space-y-6 text-center text-[13px]   sm:text-[14px] text-[#2E2F3E] font-medium">
+              {congestionNote.map((group) =>
+                group.terms.map((term, idx) => {
+                  const start = format(parseISO(term.startDate), "EEE dd MMM yyyy");
+                  const end = format(parseISO(term.endDate), "EEE dd MMM yyyy");
+                  const exclusions = (term.exclusionDates || [])
+                    .map((d) => format(new Date(d), "EEE dd MMM yyyy"))
+                    .join(", ");
+
+                  return (
+                    <div key={term.id}>
+                      <h3 className="text-[20px] font-semibold mb-1">
+                        {term.termName} Term {new Date(term.startDate).getFullYear()}
+                      </h3>
+                      <p className="text-[18px]">{start} - {end}</p>
+                      {exclusions && (
+                        <p className="text-[18px]">
+                          Half term Exclusion: {exclusions}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
 
             {/* Calendar Section */}
@@ -447,6 +491,7 @@ const List = () => {
                 ))}
               </div>
 
+              {/*also in calendar make auto prefilled terms startdate and end date print all like january has 15 to 21 feb has 23 to 28 */}
               {/* Calendar Grid */}
               <div className="flex flex-col gap-1">
                 {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
@@ -465,13 +510,13 @@ const List = () => {
 
                         return (
                           <div
-                            key={i}
-                            onClick={() => date && handleDateClick(date)}
-                            className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-sm rounded-full cursor-pointer
-                        ${isFrom || isTo ? "bg-blue-600 text-white font-bold" : "text-gray-800"}
-                      `}
+                            className={`w-8 h-8 flex items-center justify-center mx-auto text-sm rounded-full cursor-pointer
+    ${isFrom || isTo ? "bg-blue-600 text-white font-bold" : ""}
+    ${isExcluded(date) ? "bg-red-200" : ""}
+    ${isInRange(date) ? "bg-sky-100" : ""}
+  `}
                           >
-                            {date ? date.getDate() : ""}
+                            {date?.getDate()}
                           </div>
                         );
                       })}

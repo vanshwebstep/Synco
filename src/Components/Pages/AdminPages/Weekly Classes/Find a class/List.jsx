@@ -123,7 +123,6 @@ const List = () => {
   const [selectedDays, setSelectedDays] = useState(["Sunday"]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
 
-  const days = [...new Set(findClasses.flatMap(v => v.classes.map(c => c.day)))];
 
   const toggleVenue = (venue) => {
     if (venue === "All venues") {
@@ -351,9 +350,6 @@ const List = () => {
 
 
 
-
-
-
   console.log('filteredClasses', filteredClasses)
   console.log('findClasses', findClasses)
 
@@ -440,7 +436,7 @@ const List = () => {
     }
   };
 
-
+  console.log('filteredClasses', filteredClasses)
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
 
@@ -543,7 +539,7 @@ const List = () => {
         <div
           className={`transition-all duration-300 flex-1 bg-white`}>
           {
-            venues.length > 0 ? (
+            venues.length > 1 ? (
 
               <div className={` rounded-4xl w-full`}>
                 <div className="space-y-5">
@@ -597,9 +593,9 @@ const List = () => {
 
                       </div>
 
-                      <div className="flex bg-[#FCF9F6] flex-col lg:flex-row"> {/* ✅ responsive layout */}
+                      <div className="flex items-center bg-[#FCF9F6] flex-col lg:flex-row"> {/* ✅ responsive layout */}
                         {/* Meta Info */}
-                        <div className="flex items-start gap-4 text-sm text-[#555] px-4 py-2 border-r border-b lg:border-b-0 my-6 border-gray-300 min-w-[250px]">
+                        <div className="flex items-start  w-1/12 text-sm text-[#555] px-4 py-2  border-b lg:border-b-0 my-6 border-gray-300 min-w-[250px]">
                           <div>
                             <div className="font-semibold text-[20px] text-black">{venue.venueName}</div>
                             <div className="whitespace-nowrap font-semibold text-[14px]">
@@ -607,49 +603,65 @@ const List = () => {
                             </div>
                           </div>
                           <div>
-                            <div className="text-[#384455] text-[16px] font-semibold">
-                              {[...new Set(venue.classes.map(c => c.day))].join(', ') || "No days listed"}
-                            </div>
-                            <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
+                      
                           </div>
                         </div>
 
                         {/* Classes */}
-                        <div className="px-4 py-2 flex-1">
-                          {venue.classes.length > 0 ? (
-                            venue.classes.map((s, i) => (
-                              <div key={i} className="grid grid-cols-7 items-center py-3 text-sm min-h-[60px] ">
-                                <div className="font-bold text-[16px] text-black">Class {i + 1}</div>
-                                <div className="font-semibold text-[16px]">{s.className}</div>
-                                <div className="font-semibold text-[16px] flex gap-2 items-center col-span-2">
-                                  <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />{s.time}
-                                </div>
+                        <div className="px-4  w-11/12 py-2 flex-1 space-y-6">
+                          {venue.classes && Object.keys(venue.classes).length > 0 ? (
+                            Object.entries(venue.classes).map(([day, classList]) => (
+                              <div key={day} className="flex gap-6 items-center ">
+                                <div className="block border-r pr-3 border-[#b6b2ad] ">
+                                <div className="text-[16px] font-semibold text-[#384455]">{day}</div>
+                                <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
+</div>
+                                <div className="flex flex-col w-full space-y-4">
+                                  {classList.map((s, i) => (
+                                    <div
+                                      key={s.classId}
+                                      className="grid grid-cols-7 items-center text-sm min-h-[60px]"
+                                    >
+                                      <div className="font-bold text-[16px] text-black">Class {i + 1}</div>
+                                      <div className="font-semibold text-[16px]">{s.className}</div>
+                                      <div className="font-semibold text-[16px] flex gap-2 items-center col-span-2">
+                                        <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />{s.time}
+                                      </div>
 
-                                {/* Capacity */}
-                                <div className="text-sm">
-                                  {s.capacity === 0 ? (
-                                    <span className="text-red-500 bg-red-50 p-2 rounded-xl text-[14px] font-semibold">Fully booked</span>
-                                  ) : (
-                                    <span className="text-green-600 bg-green-50 p-2 rounded-xl text-[14px] font-semibold">+{s.capacity} spaces</span>
-                                  )}
-                                </div>
+                                      {/* Capacity */}
+                                      <div className="text-sm">
+                                        {s.capacity === 0 ? (
+                                          <span className="text-red-500 bg-red-50 p-2 rounded-xl text-[14px] font-semibold">
+                                            Fully booked
+                                          </span>
+                                        ) : (
+                                          <span className="text-green-600 bg-green-50 p-2 rounded-xl text-[14px] font-semibold">
+                                            +{s.capacity} spaces
+                                          </span>
+                                        )}
+                                      </div>
 
-                                {/* Action Buttons */}
-                                <div className="flex gap-2 col-span-2 flex-wrap justify-end">
-                                  {s.capacity == 0 ? (
-                                    <button className="bg-[#237FEA] text-white border border-[#237FEA] px-3 py-1 rounded-xl text-sm font-medium">
-                                      Add to Waiting List
-                                    </button>
-                                  ) : (
-                                    <>
-                                      <button className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium">
-                                        Book a FREE Trial
-                                      </button>
-                                      <button className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium">
-                                        Book a Membership
-                                      </button>
-                                    </>
-                                  )}
+                                      {/* Action Buttons */}
+                                      <div className="flex gap-2 col-span-2 flex-wrap justify-end">
+                                        {s.capacity === 0 ? (
+                                          <button className="bg-[#237FEA] text-white border border-[#237FEA] px-3 py-1 rounded-xl text-sm font-medium">
+                                            Add to Waiting List
+                                          </button>
+                                        ) : (
+                                          <>
+                                            {s.allowFreeTrial && (
+                                              <button className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium">
+                                                Book a FREE Trial
+                                              </button>
+                                            )}
+                                            <button className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium">
+                                              Book a Membership
+                                            </button>
+                                          </>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
                               </div>
                             ))
@@ -657,6 +669,7 @@ const List = () => {
                             <div className="text-center text-gray-500 font-medium py-8">No classes available for this venue</div>
                           )}
                         </div>
+
                         {activeCongestionVenueId === venue.venueId && (
                           <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
                             <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">

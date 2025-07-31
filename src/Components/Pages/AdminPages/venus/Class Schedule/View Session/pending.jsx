@@ -15,7 +15,7 @@ const ViewSessions = ({ item, sessionData }) => {
     sessionMap.sessionPlan
   );
   console.log('sessionId', sessionId)
-  const selectedGroup =  sessionMap.sessionPlan;
+  const selectedGroup = sessionMap.sessionPlan;
   const levelKeyToLabel = {
     beginner: "Beginners",
     intermediate: "Intermediate",
@@ -72,57 +72,73 @@ const ViewSessions = ({ item, sessionData }) => {
   };
   const navigate = useNavigate();
 
-useEffect(() => {
-  if (selectedGroup?.levels) {
-    const buildContentMap = () => {
-      const content = {};
-      const exerciseMap = {};
+  useEffect(() => {
+    if (selectedGroup?.levels) {
+      const buildContentMap = () => {
+        const content = {};
+        const exerciseMap = {};
 
-      // Create a map of exercise ID to full exercise object
-      selectedGroup.exercises?.forEach((exercise) => {
-        exerciseMap[exercise.id] = exercise;
-      });
-console.log('selectedGroup?.level',JSON.parse(selectedGroup?.levels))
-
-      Object.entries(JSON.parse(selectedGroup?.levels)).forEach(([levelKey, items]) => {
-        console.log('levelKey',levelKey)
-        const label = levelKeyToLabel[levelKey];
-        const banner = selectedGroup[`${levelKey}_banner`] || null;
-        const video = selectedGroup[`${levelKey}_video`] || null;
-
-        content[label] = items.map((entry, index) => {
-          const sessionExercises = entry.sessionExerciseId?.map(
-            (id) => exerciseMap[id]
-          ).filter(Boolean); // Remove nulls if any ID doesn't match
-
-          return {
-            title: `${label} – Page ${index + 1}`,
-            heading: entry.skillOfTheDay || 'No Skill',
-            videoUrl: video ? `${API_BASE_URL}/${video}` : '',
-            bannerUrl: banner ? `${API_BASE_URL}/${banner}` : '',
-            description: entry.description || '',
-            sessionExercises,
-          };
+        // Create a map of exercise ID to full exercise object
+        selectedGroup.exercises?.forEach((exercise) => {
+          exerciseMap[exercise.id] = exercise;
         });
-      });
+        let levelsData = selectedGroup?.levels;
+        if (typeof levelsData === 'string') {
+          try {
+            levelsData = JSON.parse(levelsData);
+          } catch (e) {
+            console.error('Invalid JSON format in selectedGroup.levels:', e);
+            levelsData = {}; // fallback to empty object
+          }
+        }
+        Object.entries(levelsData).forEach(([levelKey, items]) => {
+          console.log('levelKey', levelKey)
+          const label = levelKeyToLabel[levelKey];
+          const banner = selectedGroup[`${levelKey}_banner`] || null;
+          const video = selectedGroup[`${levelKey}_video`] || null;
 
-      return content;
-    };
+          content[label] = items.map((entry, index) => {
+            const sessionExercises = entry.sessionExerciseId?.map(
+              (id) => exerciseMap[id]
+            ).filter(Boolean); // Remove nulls if any ID doesn't match
 
-    const dynamicContent = buildContentMap();
-    setMyData(dynamicContent);
+            return {
+              title: `${label} – Page ${index + 1}`,
+              heading: entry.skillOfTheDay || 'No Skill',
+              videoUrl: video ? `${API_BASE_URL}/${video}` : '',
+              bannerUrl: banner ? `${API_BASE_URL}/${banner}` : '',
+              description: entry.description || '',
+              sessionExercises,
+            };
+          });
+        });
 
-    const firstTab = Object.keys(dynamicContent)[0];
-    setActiveTab(firstTab);
-    setPage(1);
-  }
-}, [selectedGroup]);
- ;
+        return content;
+      };
+
+      const dynamicContent = buildContentMap();
+      setMyData(dynamicContent);
+
+      const firstTab = Object.keys(dynamicContent)[0];
+      setActiveTab(firstTab);
+      setPage(1);
+    }
+  }, [selectedGroup]);
+  ;
 
   const dynamicTabs = Object.keys(myData);
   const currentContent = myData[activeTab]?.[page - 1] || {};
   const totalPages = myData[activeTab]?.length || 0;
   console.log('currentContent', dynamicTabs)
+    const [selectedExercise, setSelectedExercise] = useState(
+      currentContent.sessionExercises?.[0] || null
+    );
+    useEffect(() => {
+      if (currentContent.sessionExercises?.length > 0) {
+        setSelectedExercise(currentContent.sessionExercises[0]);
+      }
+    }, [currentContent]);
+  
   return (
     <div className="md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -156,195 +172,181 @@ console.log('selectedGroup?.level',JSON.parse(selectedGroup?.levels))
         </div>
 
         {/* Right Content */}
-      <div className="w-full md:w-10/12 space-y-6">
-               {/* Tabs */}
-               <div className="flex gap-4 border max-w-fit border-gray-300 p-1 rounded-xl  flex-wrap">
-                 {dynamicTabs.map((tab) => (
-                   <button
-                     key={tab}
-                     onClick={() => {
-                       setActiveTab(tab);
-                       setPage(1);
-                     }}
-                     className={`px-4 py-1.5 rounded-xl text-sm font-medium transition ${activeTab === tab
-                       ? 'bg-blue-500 text-white'
-                       : 'text-gray-500 hover:text-blue-500'
-                       }`}
-                   >
-                     {tab}
-                   </button>
-                 ))}
-               </div>
-     
-               {/* Main Page Content */}
-               {currentContent && (
-                 <div className="flex flex-col lg:flex-row gap-6">
-                   {/* Left - Video and Info */}
-                   <div className="w-full lg:w-1/2 space-y-2">
-                     {currentContent.bannerUrl && (
-                       <img
-                         src={currentContent.bannerUrl}
-                         alt="Play like Pele"
-                         className="rounded-xl mb-2"
-                       />
-                     )}
-                     <h2 className="font-semibold text-[28px] mb-0">
-                       {selectedGroup?.groupName}
-                     </h2>
-                     <p className="text-[20px] flex items-center gap-2 font-semibold">
-                       {currentContent.heading} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
-                     </p>
-                     <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
-                       {currentContent.description}
-                     </p>
-                     {currentContent.videoUrl && (
-                       <video
-                         src={currentContent.videoUrl}
-                         controls
-                         className="w-full  pt-3 rounded-4xl"
-                       />
-                     )}
-                     <div className='flex items-center  mb-0 justify-between' >
-                       <h2 className="font-semibold text-[24px] mb-0">
-                         Session Plan
-                       </h2>
-                       <img src="/demo/synco/icons/downloadicon.png" alt="" />
-                     </div>
-                     <div>
-                       <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
-                         <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
-                         {selectedGroup?.updatedAt
-                           ? formatDistanceToNow(new Date(selectedGroup.updatedAt), { addSuffix: true })
-                           : '—'}
-                       </p>
-                     </div>
-     
-                     {currentContent.sessionExercises?.length > 0 && (
-                       <div className="mt-6 space-y-6">
-                         {currentContent.sessionExercises.map((exercise) => (
-                           <div key={exercise.id} className="flex items-center gap-4">
-                             <div>
-                               {exercise.imageUrl ? (
-                                 JSON.parse(exercise.imageUrl).map((imgUrl, index) => (
-                                   <img
-                                     key={index}
-                                     className="max-h-[116px] max-w-[181px] rounded object-cover mr-2 mb-2"
-                                     src={`${API_BASE_URL}/${imgUrl}`}
-                                     alt={`${exercise.title} ${index + 1}`}
-                                   />
-                                 ))
-                               ) : (
-                                 <p>No images available</p>
-                               )}
-     
-                             </div>
-                             <div>
-                               <h6 className="text-[18px] font-semibold">{exercise.title}</h6>
-                               <div
-                                 className="text-[16px] text-gray-700"
-                                 dangerouslySetInnerHTML={{
-                                   __html: exercise.description || '<p>No description available.</p>',
-                                 }}
-                               />
-     
-                               <span className="text-[14px] text-gray-500">
-                                 {exercise.duration || '—'}
-                               </span>
-                             </div>
-                           </div>
-                         ))}
-                       </div>
-                     )}
-     
-                   </div>
-     
-                   {/* Right - Placeholder Drill Info */}
-                   <div className="w-full  border-l pl-6 border-gray-300 lg:w-1/2 bg-white">
-                     <h2 className="font-semibold text-[24px] mb-0">
-                       Small-sided games
-                     </h2>
-                     <img
-                       src="/demo/synco/images/cardimgSmall.png"
-                       alt="Small-sided games"
-                       className="rounded-xl min-w-90 my-6"
-                     />
-                     <p className="text-blue-500 text-[14px] font-semibold">Time Duration: 10 mins</p>
-     
-                     <div className="text-sm  space-y-3">
-                       <div>
-                         <p className="font-semibold text-[18px]">Organisation</p>
-                         <p className="font-semibold text-gray-500  text-[14px]">Set up two small-sided games. You will need the following:</p>
-                         <ul className="list-disc text-gray-500 font-semibold  pl-5 text-sm">
-                           <li>4 pop-up goals</li>
-                           <li>Bibs to divide teams</li>
-                           <li>4 blue cones</li>
-                           <li>5 footballs</li>
-                         </ul>
-                       </div>
-     
-                       <div>
-                         <p className="font-semibold text-[18px]">Description</p>
-                         <p className='font-semibold text-gray-500  text-[14px]'>Begin the lessons with two small-sided games</p>
-                         <p className='font-semibold text-gray-500  text-[14px]'>Organise palyers based on abiltiy into four teams. if you do not have many students, use one pitch only. Keep an eye on both games, unless you have a support coach working with you </p>
-                       </div>
-     
-                       <div>
-                         <p className="font-semibold text-[18px]">Rules</p>
-                         <p className='font-semibold text-gray-500  text-[14px]'>Befor ou start the game, quickly reiterate the rules of the game: </p>
-                         <br />
-                         <ol className="list-decimal   font-semibold text-gray-500  text-[14px] pl-5">
-                           <li>No slide tackles</li>
-                           <li>if the ball roll out of play, students should all freeze and wait for a new ball to be rollled in (have 5 football nearby ready )</li>
-                         </ol>
-                       </div>
-                       <div>
-                         <p className="font-semibold text-[18px]">Conditions </p>
-                         <p className='font-semibold text-gray-500  text-[14px]'>You can select a condition from below to stop students from all chasing the ball and/or playing as solo players. Keep classes fun by variating the conditions each week.</p>
-                         <br />
-                         <ol className="list-decimal   font-semibold text-gray-500  text-[14px] pl-5">
-                           <li> Players can only shoot once every member of the team has touched the ball.</li>
-                           <li>Only can only shoot once they have built 3–5 passes.</li>
-                           <li>Only one member of each team is selected as the goalscorer.</li>
-                         </ol>
-                       </div>
-                       <div>
-                         <p className="font-semibold text-[18px]">How to maintain the tone & intensity </p>
-     
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-               )}
-     
-               {/* Pagination Buttons
-             <div className="flex justify-between items-center pt-4 border-t mt-6">
-               <button
-                 onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                 disabled={page === 1}
-                 className={`px-4 py-2 text-sm rounded-xl border ${
-                   page === 1
-                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                     : 'bg-white text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white transition'
-                 }`}
-               >
-                 ← Previous
-               </button>
-     
-               <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
-     
-               <button
-                 onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                 disabled={page === totalPages}
-                 className={`px-4 py-2 text-sm rounded-xl border ${
-                   page === totalPages
-                     ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                     : 'bg-white text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white transition'
-                 }`}
-               >
-                 Next →
-               </button>
-             </div> */}
-             </div>
+            <div className="w-full md:w-10/12 space-y-6">
+              {/* Tabs */}
+              <div className="flex gap-4 border max-w-fit border-gray-300 p-1 rounded-xl  flex-wrap">
+                {dynamicTabs.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => {
+                      setActiveTab(tab);
+                      setPage(1);
+                    }}
+                    className={`px-4 py-1.5 rounded-xl text-sm font-medium transition ${activeTab === tab
+                      ? 'bg-blue-500 text-white'
+                      : 'text-gray-500 hover:text-blue-500'
+                      }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+    
+              {/* Main Page Content */}
+              {currentContent && (
+                <div className="flex w-full flex-col lg:flex-row gap-6">
+                  {/* Left - Video and Info */}
+                  <div className="w-full lg:w-1/2 space-y-2">
+                    {currentContent.bannerUrl && (
+                      <img
+                        src={currentContent.bannerUrl}
+                        alt="Play like Pele"
+                        className="rounded-xl max-h-50  mb-2"
+                      />
+                    )}
+                    <h2 className="font-semibold text-[28px] mb-0">
+                      {selectedGroup?.groupName}
+                    </h2>
+                    <p className="text-[20px] flex items-center gap-2 font-semibold">
+                      {currentContent.heading} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
+                    </p>
+                    <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
+                      {currentContent.description}
+                    </p>
+                    {currentContent.videoUrl && (
+                      <video
+                        src={currentContent.videoUrl}
+                        controls
+                        className="w-full  pt-3 rounded-4xl"
+                      />
+                    )}
+                    <div className='flex items-center  mb-0 justify-between' >
+                      <h2 className="font-semibold text-[24px] mb-0">
+                        Session Plan
+                      </h2>
+                      <img src="/demo/synco/icons/downloadicon.png" alt="" />
+                    </div>
+                    <div>
+                      <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
+                        <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                        {selectedGroup?.updatedAt
+                          ? formatDistanceToNow(new Date(selectedGroup.updatedAt), { addSuffix: true })
+                          : '—'}
+                      </p>
+                    </div>
+    
+                    {currentContent.sessionExercises?.length > 0 && (
+                      <div className="mt-6 space-y-6">
+                        {currentContent.sessionExercises.map((exercise) => (
+                          <div
+                            key={exercise.id}
+                            className={`flex items-center gap-4 cursor-pointer p-2 rounded ${selectedExercise?.id === exercise.id ? 'bg-blue-50 border border-blue-200' : ''
+                              }`}
+                            onClick={() => setSelectedExercise(exercise)}
+                          >
+                            <div className="w-6/12">
+                              {exercise.imageUrl ? (
+                                JSON.parse(exercise.imageUrl).map((imgUrl, index) => (
+                                  <img
+                                    key={index}
+                                    className="rounded object-cover mr-2 mb-2"
+                                    src={`${API_BASE_URL}/${imgUrl}`}
+                                    alt={`${exercise.title} ${index + 1}`}
+                                  />
+                                ))
+                              ) : (
+                                <p>No images available</p>
+                              )}
+                            </div>
+                            <div>
+                              <h6 className="text-[18px] w-7/12 font-semibold">{exercise.title}</h6>
+                              <div
+                                className="text-[16px] text-gray-700"
+                                dangerouslySetInnerHTML={{
+                                  __html: exercise.description || '<p>No description available.</p>',
+                                }}
+                              />
+                              <span className="text-[14px] text-gray-500">
+                                {exercise.duration || '—'}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+    
+    
+                  </div>
+    
+                  {/* Right - Placeholder Drill Info */}
+                  {selectedExercise && (
+                    <div className="w-full border-l pl-6 border-gray-300 lg:w-1/2 bg-white">
+                      <h2 className="font-semibold text-[24px] mb-0">{selectedExercise.title}</h2>
+                      <div className="flex flex-wrap justify-start gap-2 w-full ">
+                        {selectedExercise.imageUrl ? (
+                          JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
+                            <img
+                              key={index}
+                              className="rounded object-cover mr-2 min-h-50 max-h-50 mb-2"
+                              src={`${API_BASE_URL}/${imgUrl}`}
+                              alt={`${selectedExercise.title} ${index + 1}`}
+                            />
+                          ))
+                        ) : (
+                          <p>No images available</p>
+                        )}
+                      </div>
+                      <p className="text-blue-500 text-[14px] font-semibold">
+                        Time Duration: {selectedExercise.duration || '—'}
+                      </p>
+    
+                      <div className="text-sm space-y-3">
+                        <div>
+                          <p className="font-semibold text-[18px]">Description</p>
+                          <div
+                            className="text-gray-500 text-[14px] font-semibold"
+                            dangerouslySetInnerHTML={{
+                              __html: selectedExercise.description || '<p>No description available.</p>',
+                            }}
+                          />
+                        </div>
+                        {/* Add other sections like Rules, Conditions, etc. if you have them in exercise */}
+                      </div>
+                    </div>
+                  )}
+    
+                </div>
+              )}
+    
+              {/* Pagination Buttons
+            <div className="flex justify-between items-center pt-4 border-t mt-6">
+              <button
+                onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                disabled={page === 1}
+                className={`px-4 py-2 text-sm rounded-xl border ${
+                  page === 1
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white transition'
+                }`}
+              >
+                ← Previous
+              </button>
+    
+              <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
+    
+              <button
+                onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+                disabled={page === totalPages}
+                className={`px-4 py-2 text-sm rounded-xl border ${
+                  page === totalPages
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white transition'
+                }`}
+              >
+                Next →
+              </button>
+            </div> */}
+            </div>
       </div>
 
 

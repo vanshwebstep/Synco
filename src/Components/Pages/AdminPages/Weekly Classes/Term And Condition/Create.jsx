@@ -5,6 +5,8 @@ import SessionPlanSelect from "./SessionPlanSelect";
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTermContext } from '../../contexts/TermDatesSessionContext';
 import Swal from 'sweetalert2';
+import Loader from '../../contexts/Loader';
+
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSearchParams } from "react-router-dom";
@@ -32,7 +34,7 @@ const Create = () => {
     const [isMapping, setIsMapping] = useState(false);
     const navigate = useNavigate();
 
-    const { createTermGroup, updateTermGroup, myGroupData, setMyGroupData, setSelectedTermGroup, selectedTermGroup, fetchTerm, termData, fetchTermGroupById } = useTermContext();
+    const { createTermGroup, updateTermGroup, myGroupData, setMyGroupData, setSelectedTermGroup, selectedTermGroup, fetchTerm, termData, fetchTermGroupById, loading } = useTermContext();
     console.log('terms', terms)
     // Handle prefilling data in edit mode
     // First: fetch group data and wait for state update
@@ -40,20 +42,26 @@ const Create = () => {
         if (id) {
             const fetchData = async () => {
                 console.log('Fetching group data...');
-                setMyGroupData(null)
-                await fetchTermGroupById(id); // This should update selectedTermGroup and termData
-                setIsEditMode(true); // Only set this AFTER fetch completes
+                setMyGroupData(null);
+                await fetchTerm();
+
+                await fetchTermGroupById(id);
+                setIsEditMode(true);
             };
 
             fetchData();
+        } else {
+            setSelectedTermGroup(null);
         }
-        else {
-            setSelectedTermGroup(null)
-        }
-    }, [id]);
+    }, [id, fetchTermGroupById]); // include fetchTermGroupById if it's stable (e.g., useCallback)
+
+
 
     // Second: Wait for isEditMode + termData + selectedTermGroup
     useEffect(() => {
+        console.log('isEditMode1', isEditMode)
+        console.group('termData1', termData)
+        console.log('selectedTermGroup1', selectedTermGroup)
         if (isEditMode && termData.length && selectedTermGroup?.id) {
             console.log('Processing group data...', termData);
             setMyGroupData(null)
@@ -71,7 +79,9 @@ const Create = () => {
                     name: term.termName,
                     startDate: term.startDate,
                     endDate: term.endDate,
-                    exclusions: JSON.parse(term.exclusionDates || '[]'),
+                    exclusions: Array.isArray(term?.exclusionDates)
+                        ? term.exclusionDates
+                        : JSON.parse(term?.exclusionDates || '[]'),
                     sessions: term.sessionsMap?.length || 0,
                     isOpen: false,
                     sessionsMap: term.sessionsMap || []
@@ -253,7 +263,6 @@ const Create = () => {
             )
         );
     };
-
     const deleteTerm = useCallback(async (id) => {
         if (!token) return;
 
@@ -268,8 +277,21 @@ const Create = () => {
             cancelButtonColor: "#3085d6",
         });
 
-        if (!willDelete.isConfirmed) return; // Exit if user cancels
+        if (!willDelete.isConfirmed) return;
 
+        // Check if term is saved (has real backend ID)
+        const isSaved = savedTermIds.has(id);
+
+        if (!isSaved) {
+            // Just remove it locally
+            setTerms(prev => prev.filter(term => term.id !== id));
+            // Optionally, clear sessionMappings if it was the open one
+            setSessionMappings([]);
+            Swal.fire("Deleted!", "The unsaved term was removed.", "success");
+            return;
+        }
+
+        // Otherwise delete from backend
         try {
             const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
                 method: "DELETE",
@@ -278,7 +300,7 @@ const Create = () => {
 
             if (response.ok) {
                 Swal.fire("Deleted!", "The term was deleted successfully.", "success");
-                fetchTerm()
+                fetchTerm();
             } else {
                 const errorData = await response.json();
                 Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
@@ -287,7 +309,8 @@ const Create = () => {
             console.error("Failed to delete term:", err);
             Swal.fire("Error", "Something went wrong. Please try again.", "error");
         }
-    }, [token]);
+    }, [token, savedTermIds, fetchTerm]);
+
     const removeExclusionDate = (termId, indexToRemove) => {
         setTerms((prev) =>
             prev.map((term) =>
@@ -332,10 +355,16 @@ const Create = () => {
 
         setSessionsMap(sessionMappings);
         setIsMapping(false);
-        alert('Session mappings saved successfully');
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Session mappings saved successfully',
+            confirmButtonColor: '#3085d6',
+        });
     };
     const handleSaveTerm = async (term) => {
         console.log('selectedTermGroup', selectedTermGroup)
+        console.log('myGroupData', myGroupData)
         if (!myGroupData?.id && !selectedTermGroup) {
             console.error("Missing termGroupId");
             return;
@@ -475,22 +504,25 @@ const Create = () => {
             return;
         }
 
-        // Clear session mappings for the new term
-        setSessionMappings([]);
 
+        setSessionMappings([]);
+        const newTerm = {
+            id: Date.now(),
+            name: '',
+            startDate: '',
+            endDate: '',
+            exclusions: [''],
+            sessions: '',
+            isOpen: true,
+            sessionsMap: []
+        };
         setTerms(prev => [
-            ...prev,
-            {
-                id: Date.now(),
-                name: '',
-                startDate: '',
-                endDate: '',
-                exclusions: [''],
-                sessions: '',
-                isOpen: true,
-                sessionsMap: []
-            },
+            ...prev.map(term => ({ ...term, isOpen: false })),
+            newTerm
         ]);
+        setIsMapping(false);
+
+
     };
 
     const handleSaveAll = async () => {
@@ -528,6 +560,8 @@ const Create = () => {
     };
     console.log('selectedTermGroup', selectedTermGroup)
     console.log("myGroupData", myGroupData)
+
+    if (loading) return <Loader />;
     return (
         <div className="md:p-6 bg-gray-50 min-h-screen">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
@@ -755,8 +789,14 @@ const Create = () => {
                                                             }}
                                                             disabled={isLoading}
                                                         >
-                                                            {isLoading ? 'Saving...' : 'Save Term'}
+                                                            {isLoading
+                                                                ? 'Saving...'
+                                                                : (() => {
+                                                                    const activeTerm = terms.find(t => t.isOpen);
+                                                                    return activeTerm && savedTermIds.has(activeTerm.id) ? 'Update Term' : 'Save Term';
+                                                                })()}
                                                         </button>
+
                                                     </div>
                                                 </div>
                                             </motion.div>

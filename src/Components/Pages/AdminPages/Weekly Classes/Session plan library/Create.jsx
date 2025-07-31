@@ -35,6 +35,10 @@ const Create = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const visibleTabs = level ? tabs.filter((tab) => tab.toLowerCase() == level.toLowerCase()) : tabs;
+console.log('visibleTabs',visibleTabs)
+console.log('tabs',tabs)
+
+console.log('level',level)
 
     const [sessionExerciseId, setSessionExerciseId] = useState([]); // or selectedPlans[0]?.id
     const [levels, setLevels] = useState([]);
@@ -79,7 +83,6 @@ const Create = () => {
         if (tabRef.current) {
             tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-
         const currentLevel = {
             level: activeTab,
             player,
@@ -90,15 +93,18 @@ const Create = () => {
             bannerFile,
             sessionExerciseIds: selectedPlans.map(plan => plan.id),
         };
+        console.log('currentLevel',currentLevel)
         setLevels((prevLevels) => {
             const existingIndex = prevLevels.findIndex((lvl) => lvl.level == activeTab);
             const updated = [...prevLevels];
-
             if (existingIndex !== -1) {
                 updated[existingIndex] = currentLevel;
             } else {
                 updated.push(currentLevel);
             }
+            console.log('existingIndex',existingIndex)
+            console.log('updated',updated)
+
             handleNextTabOrSubmit(updated);
 
             return updated;
@@ -177,8 +183,6 @@ const Create = () => {
             setDescriptionSession('');
             setBannerFile('');
             setVideoFile('');
-            setSelectedPlans([]);
-            setSessionExerciseId([]);
             if (videoInputRef.current) videoInputRef.current.value = null;
             if (bannerInputRef.current) bannerInputRef.current.value = null;
             console.log('✅ Tab data reset and ready for next input.');
@@ -278,14 +282,24 @@ const Create = () => {
         setPlayer(existingLevel.player || '');
         setSkillOfTheDay(existingLevel.skillOfTheDay || '');
         setDescriptionSession(existingLevel.descriptionSession || '');
+        // Step 1: Ensure sessionExerciseIds is set
         setSessionExerciseId(existingLevel.sessionExerciseIds || []);
 
-        const plans = (existingLevel.sessionExerciseDetails || []).map((ex) => ({
-            id: ex.id,
-            title: ex.title,
-            duration: ex.duration,
-        }));
-        setSelectedPlans(plans);
+        // Step 2: Match selected plans from planOptions using the ids
+        const selectedPlans = (planOptions || [])
+            .filter(option => (existingLevel.sessionExerciseIds || []).includes(option.value))
+            .map(option => ({
+                id: option.data.id,
+                title: option.data.title,
+                duration: option.data.duration
+            }));
+
+        // Optional: Logging for debug
+        console.log('Selected Plan IDs:', existingLevel.sessionExerciseIds);
+        console.log('Matched Selected Plans:', selectedPlans);
+
+        // Step 3: Set selected plans state
+        setSelectedPlans(selectedPlans);
 
         // ✅ Handle videoFile (convert to previewable URL if File or string)
         if (existingLevel.videoFile) {
@@ -398,7 +412,19 @@ const Create = () => {
     };
 
 
+    const videoPreviewUrl = useMemo(() => {
+        if (videoFile && typeof videoFile !== "string") {
+            return URL.createObjectURL(videoFile);
+        }
+        return typeof videoFile === "string" ? videoFile : null;
+    }, [videoFile]);
 
+    const bannerPreviewUrl = useMemo(() => {
+        if (bannerFile && typeof bannerFile !== "string") {
+            return URL.createObjectURL(bannerFile);
+        }
+        return typeof bannerFile === "string" ? bannerFile : null;
+    }, [bannerFile]);
     if (loading) {
         return (
             <>
@@ -412,6 +438,15 @@ const Create = () => {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || '';
     };
+    const handleTabClick = (tab) => {
+        setActiveTab(tab);
+        setPage(1);
+        setVideoFile('');
+        setBannerFile('');
+        if (videoInputRef.current) videoInputRef.current.value = null;
+        if (bannerInputRef.current) bannerInputRef.current.value = null;
+    };
+    console.log('selectedPlans', selectedPlans)
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -452,20 +487,14 @@ const Create = () => {
                                             type="button"
                                             ref={tabRef}
                                             key={tab}
-                                            onClick={() => {
-                                                setActiveTab(tab);
-                                                setPage(1);
-                                                setVideoFile('');
-                                                setBannerFile('');
-                                                if (videoInputRef.current) videoInputRef.current.value = null;
-                                                if (bannerInputRef.current) bannerInputRef.current.value = null;
-                                            }}
+                                            onClick={() => handleTabClick(tab)}
                                             className={`px-4 py-1.5 rounded-xl text-[19.28px] font-medium capitalize transition ${activeTab == tab ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-blue-500'
                                                 }`}
                                         >
                                             {tab}
                                         </button>
                                     ))}
+
                                 </div>
 
                                 <div>
@@ -517,34 +546,23 @@ const Create = () => {
                                 </div>
                                 <div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-4 w-full">
                                     {/* Video Preview */}
-                                    {videoFile && (
+                                    {videoFile && videoPreviewUrl && (
                                         <div className="w-full md:w-1/2">
                                             <label className="block text-sm font-semibold mb-2 text-gray-700">Video Preview</label>
                                             <video
                                                 controls
                                                 className="w-full h-auto rounded shadow"
-                                                src={
-                                                    typeof videoFile === "string"
-                                                        ? videoFile
-                                                        : URL.createObjectURL(videoFile) // Blob URL for File
-                                                }
+                                                src={videoPreviewUrl}
                                                 onError={() => console.error("Failed to load video:", videoFile)}
                                             />
                                         </div>
                                     )}
 
-
-
-
-                                    {bannerFile && (
+                                    {bannerFile && bannerPreviewUrl && (
                                         <div className="w-full md:w-1/2">
                                             <label className="block text-sm font-semibold mb-2 text-gray-700">Banner Preview</label>
                                             <img
-                                                src={
-                                                    typeof bannerFile === 'string'
-                                                        ? bannerFile
-                                                        : URL.createObjectURL(bannerFile) // Convert File to blob URL
-                                                }
+                                                src={bannerPreviewUrl}
                                                 alt="Banner Preview"
                                                 className="w-full h-auto rounded shadow"
                                                 onError={(e) => {
@@ -749,7 +767,6 @@ const Create = () => {
                                             Description
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
-
                                             <Editor
                                                 apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
                                                 value={formData.description}
@@ -758,28 +775,26 @@ const Create = () => {
                                                 }
                                                 init={{
                                                     menubar: false,
-                                                    plugins: 'lists advlist',
+                                                    plugins: 'lists advlist code',
                                                     toolbar:
-                                                        'fontsizeselect capitalize bold italic underline alignleft aligncenter alignjustify',
+                                                        'fontsizeselect capitalize bold italic underline alignleft aligncenter alignjustify  bullist numlist  code',
                                                     height: 200,
                                                     branding: false,
                                                     content_style: `
-      body {
-        background-color: #f3f4f6;
-        font-family: inherit;
-        font-size: 1rem;
-        padding: 12px;
-        color: #111827;
-      }
-    `,
+                                                            body {
+                                                                background-color: #f3f4f6;
+                                                                font-family: inherit;
+                                                                font-size: 1rem;
+                                                                padding: 12px;
+                                                                color: #111827;
+                                                            }
+                                                            `,
                                                     setup: (editor) => {
-                                                        // Register custom icon
                                                         editor.ui.registry.addIcon(
                                                             'capitalize-icon',
                                                             '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
                                                         );
 
-                                                        // Register and add button
                                                         editor.ui.registry.addButton('capitalize', {
                                                             icon: 'capitalize-icon',
                                                             tooltip: 'Capitalize Text',
@@ -795,6 +810,7 @@ const Create = () => {
                                                     },
                                                 }}
                                             />
+
 
                                         </div>
 
