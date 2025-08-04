@@ -18,18 +18,52 @@ const menuItems = [
     role: commonRole
   },
   {
-    title: 'Weekly Classes',
-    icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
-    iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
-    role: ['Admin', 'Call Agent'],
+    title: 'Configuration',
+    icon: '/demo/synco/SidebarLogos/config.png',
+    iconHover: '/demo/synco/SidebarLogos/configH.png',
+    role: commonRole,
     subItems: [
-      { title: 'Session Plan Library', link: '/weekly-classes/session-plan-list', role: ['Admin'] },
-      { title: 'Subscription Plan Manager', link: '/weekly-classes/subscription-planManager', role: ['Admin'] },
-
-      { title: 'Find a class', link: '/weekly-classes/find-a-class', role: ['Admin', 'Call Agent'] },
-      { title: 'Venues', link: '/weekly-classes/venues', role: ['Admin'] },
-      { title: 'Term Dates & Session Plan mapping', link: '/weekly-classes/term-dates/list', role: ['Admin'] },
+      {
+        title: 'Weekly Classes',
+        icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
+        iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
+        role: ['Admin', 'Call Agent'],
+        subItems: [
+          { title: 'Session Plan Library', link: '/configuration/weekly-classes/session-plan-list', role: ['Admin'] },
+          { title: 'Subscription Plan Manager', link: '/configuration/weekly-classes/subscription-planManager', role: ['Admin'] },
+          { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', role: ['Admin', 'Call Agent'] },
+          { title: 'Venues', link: '/configuration/weekly-classes/venues', role: ['Admin'] },
+          { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', role: ['Admin'] }
+        ]
+      },
+      {
+        title: 'Holiday Camps',
+        icon: '/demo/synco/SidebarLogos/Holiday.png',
+        iconHover: '/demo/synco/SidebarLogos/HolidayH.png',
+        role: ['Admin'],
+        subItems: [
+          { title: 'Discounts', link: '/configuration/holiday-camps/discounts/list', role: ['Admin'] }
+        ]
+      },
+      {
+        title: 'Administration',
+        icon: '/demo/synco/SidebarLogos/Admistration.png',
+        iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
+        role: ['Admin', 'Super Admin'],
+        subItems: [
+          { title: 'Admin Panel', link: '/configuration/members/List', role: ['Admin', 'Super Admin'] }
+        ]
+      }
     ]
+  }
+];
+const remainingTabs = [
+  {
+    title: 'Dashboard',
+    icon: '/demo/synco/SidebarLogos/Dashboard.png',
+    iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
+    link: '/',
+    role: commonRole
   },
   {
     title: 'One to One',
@@ -51,15 +85,6 @@ const menuItems = [
           { title: 'Sale Y', link: '/one-to-one/sales/y', role: commonRole }
         ]
       }
-    ]
-  },
-  {
-    title: 'Holiday Camps',
-    icon: '/demo/synco/SidebarLogos/Holiday.png',
-    iconHover: '/demo/synco/SidebarLogos/HolidayH.png',
-    role: ['Admin',],
-    subItems: [
-      { title: 'Discounts', link: '/holiday-camps/discounts/list', role: ['Admin'] }
     ]
   },
   {
@@ -95,8 +120,20 @@ const menuItems = [
       { title: 'Session C', link: '#', role: commonRole }
     ]
   },
-  { title: 'Merchandise', icon: '/demo/synco/SidebarLogos/Merchandise.png', iconHover: '/demo/synco/SidebarLogos/MerchandiseH.png', link: '#', role: commonRole },
-  { title: 'Email management', icon: '/demo/synco/SidebarLogos/Management.png', iconHover: '/demo/synco/SidebarLogos/ManagementH.png', link: '#', role: commonRole },
+  {
+    title: 'Merchandise',
+    icon: '/demo/synco/SidebarLogos/Merchandise.png',
+    iconHover: '/demo/synco/SidebarLogos/MerchandiseH.png',
+    link: '#',
+    role: commonRole
+  },
+  {
+    title: 'Email management',
+    icon: '/demo/synco/SidebarLogos/Management.png',
+    iconHover: '/demo/synco/SidebarLogos/ManagementH.png',
+    link: '#',
+    role: commonRole
+  },
   {
     title: 'Surveys',
     icon: '/demo/synco/SidebarLogos/Survey.png',
@@ -167,25 +204,9 @@ const menuItems = [
     iconHover: '/demo/synco/SidebarLogos/TemplateH.png',
     link: '#',
     role: commonRole
-  },
-  {
-    title: 'Administration',
-    icon: '/demo/synco/SidebarLogos/Admistration.png',
-    iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
-    role: ['Admin', 'Super Admin'],
-    subItems: [
-      { title: 'Admin Panel', link: '/members/List', role: ['Admin', 'Super Admin'] },
-    ]
-  }, {
-    title: 'Configuration',
-    icon: '/demo/synco/SidebarLogos/config.png',
-    iconHover: '/demo/synco/SidebarLogos/configH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'config', link: '#', role: commonRole },
-    ]
-  },
+  }
 ];
+
 
 
 
@@ -225,9 +246,11 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           const hasInnerSubItems = Array.isArray(item.innerSubItems);
           const itemTitle = typeof item === 'string' ? item : item.title;
 
-          const isActive = item.link && location.pathname === item.link;
+     const isActive = item.link && location.pathname === item.link;
           const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
-
+console.log('item.link',item.link)
+console.log('pathname.link',location.pathname)
+     console.log('itemTitle',itemTitle)
           const content = (
             <motion.div
               initial={false}

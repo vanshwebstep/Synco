@@ -59,7 +59,7 @@ export default function List() {
               className="w-12 h-12 rounded-full object-cover"
             />
             <div>
-              <p className="font-semibold">{item?.admin?.firstName || 'N/A'}</p>
+              <p className="font-semibold">{item?.admin?.firstName || item?.createdBy?.name  ||'N/A'}</p>
               <span className="text-[16px] text-[#717073]">
                 {formatDateTime(item.createdAt)}
               </span>

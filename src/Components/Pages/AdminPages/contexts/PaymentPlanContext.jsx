@@ -174,7 +174,7 @@ const fetchGroupById = useCallback(async (id) => {
           title: `${result.message}`,
         
         });
-        navigate('/weekly-classes/subscription-planManager');
+        navigate('/configuration/weekly-classes/subscription-planManager');
 
       } else {
         const errorText = await response.text();
@@ -219,7 +219,7 @@ const updateGroup = useCallback(async (id, data) => {
         title: result.message || 'Group updated successfully!',
       });
 
-      navigate('/weekly-classes/subscription-planManager');
+      navigate('/configuration/weekly-classes/subscription-planManager');
     } else {
       const errorData = await response.json(); // ✅ Parse JSON error body
 

@@ -110,7 +110,7 @@ const List = () => {
         </h2>
 
         <button
-          onClick={() => navigate('/weekly-classes/term-dates/create')}
+          onClick={() => navigate('/configuration/weekly-classes/term-dates/create')}
           className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] md:text-[16px] font-semibold"
         >
           <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />

@@ -6,11 +6,12 @@ import Swal from "sweetalert2";
 
 const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpen }) => {
   const isFetchingRef = useRef(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [showNotificationPopup, setShowNotificationPopup] = useState(null);
   const { notification, setNotification, fetchNotification } = useNotification();
   const currentDate = new Date();
-  const [adminInfo, setAdminInfo] = useState({ firstName: "", lastName: "", role: "" });
+  const [adminInfo, setAdminInfo] = useState({ firstName: "", lastName: "", role: "", profile: "" });
 
   const month = currentDate.toLocaleString("default", { month: "long" }); // e.g., January
   const day = currentDate.getDate(); // e.g., 8
@@ -41,13 +42,13 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'email-management': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'recruitment-reports': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'templates': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-    'weekly-classes': { title: 'Configurtaion', },
+    'weekly-classes': { title: 'Configuration', },
     'synco-chat': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'members': { title: 'Admin Panel' },
     'holiday-camps/payment-planManager': { title: 'Configuration' },
     'holiday-camps/add-subscription-plan-group': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'holiday-camps/discounts': { title: 'Discounts' },
-    'holiday-camps/session-plan': { title: 'Configurtaion', },
+    'holiday-camps/session-plan': { title: 'Configuration', },
     'notification': { title: 'Notification' },
   };
   // Extract the part after `/demo/synco/`
@@ -63,24 +64,24 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const { title, icon: Icon } = routeInfo;
 
 
-useEffect(() => {
-  const fetchAndMerge = async () => {
-    if (isFetchingRef.current) return;
-    isFetchingRef.current = true;
+  useEffect(() => {
+    const fetchAndMerge = async () => {
+      if (isFetchingRef.current) return;
+      isFetchingRef.current = true;
 
-    const success = await fetchNotification();
+      const success = await fetchNotification();
 
-    isFetchingRef.current = false;
-  };
+      isFetchingRef.current = false;
+    };
 
-  fetchAndMerge();
-  const interval = setInterval(fetchAndMerge, 7000);
+    fetchAndMerge();
+    const interval = setInterval(fetchAndMerge, 7000);
 
-  return () => clearInterval(interval);
-}, [fetchNotification]);
+    return () => clearInterval(interval);
+  }, [fetchNotification]);
 
 
-  
+
   const handleLogout = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -103,6 +104,40 @@ useEffect(() => {
       navigate('/notification');
     }
   };
+  const popupRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setShowNotificationPopup(false);
+      }
+    }
+
+    if (showNotificationPopup) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showNotificationPopup, setShowNotificationPopup]);
+    const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    }
+
+    if (profileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileOpen]);
 
   return (
     <>
@@ -137,7 +172,7 @@ useEffect(() => {
               onClick={() => setProfileOpen(!profileOpen)}
             >
               <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
-                <img src='/demo/synco/images/demoprofile.png' alt="Profile" className="w-full h-full object-cover" />
+                <img src='{/demo/synco/images/demoprofile.png}' alt="Profile" className="w-full h-full object-cover" />
               </div>
             </div>
 
@@ -166,7 +201,7 @@ useEffect(() => {
               className="w-full px-4 py-3 pl-10 border border-[#E2E1E5] rounded-lg bg-white text-[16px] focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Search"
             />
-            <img src="/demo/synco/icons/search.png" className="absolute right-3 top-1/2 left-2 max-w-[10px] transform -translate-y-1/2 text-black"  alt="" />
+            <img src="/demo/synco/icons/search.png" className="absolute right-3 top-1/2 left-2 max-w-[10px] transform -translate-y-1/2 text-black" alt="" />
 
           </div>
 
@@ -177,7 +212,7 @@ useEffect(() => {
       ${notificationCount > 0 ? "bg-[#FF5A3C] text-white" : "bg-white border border-[#E2E1E5]"}`}
           >
             <img src="/demo/synco/DashboardIcons/notificationIcon.png" alt="" />
-           
+
 
             {/* Notification Badge */}
             {notificationCount > 0 && (
@@ -189,7 +224,10 @@ useEffect(() => {
 
           {/* Notification Popup */}
           {showNotificationPopup && notificationCount > 0 && latestUnread && (
-            <div className="md:max-w-[450px] absolute top-14 right-0 bg-white rounded-2xl shadow-sm p-6 z-10">
+            <div
+              ref={popupRef}
+              className="md:max-w-[450px] absolute top-14 right-0 bg-white rounded-2xl shadow-sm p-6 z-10"
+            >
               <h3 className="text-red-500 font-semibold text-[18px] mb-1">
                 {latestUnread.title}
               </h3>
@@ -222,12 +260,20 @@ useEffect(() => {
                 onClick={() => setProfileOpen(!profileOpen)}
               >
                 <div className="profileimg w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
-                  <img src='/demo/synco/images/demoprofile.png' alt="profile" className="object-cover w-full h-full" />
+                  <img
+                    src={
+                      adminInfo?.profile
+                        ? `${API_BASE_URL}/${adminInfo.profile}`
+                        : '/demo/synco/SidebarLogos/OneTOOne.png'
+                    }
+                    alt="profile"
+                    className="object-cover w-full h-full"
+                  />
                 </div>
                 <div className="block text-start">
                   <div className="flex items-center gap-1">
                     <span className="text-base font-semibold leading-[1px]">
-                      {adminInfo?.firstName} {adminInfo?.lastName}
+                      {adminInfo?.firstName}
                     </span>
                     {profileOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </div>
@@ -236,7 +282,10 @@ useEffect(() => {
               </div>
 
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md border z-10">
+                <div
+                  ref={dropdownRef}
+                  className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-md border z-10"
+                >
                   <ul className="text-sm text-gray-700 divide-y divide-gray-100">
                     <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">My Profile</li>
                     <li className="px-4 py-2 hover:bg-gray-50 cursor-pointer">Settings</li>

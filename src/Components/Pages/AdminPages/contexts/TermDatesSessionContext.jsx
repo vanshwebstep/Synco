@@ -133,7 +133,7 @@ const createTerms = useCallback(
       if (response.ok && data.status === true) {
         // ✅ Only redirect on final submission
         if (shouldRedirect) {
-          navigate('/weekly-classes/term-dates/list');
+          navigate('/configuration/weekly-classes/term-dates/list');
         }
       } else {
         console.error("API Error:", data.message || "Unknown error");
@@ -319,6 +319,7 @@ const updateTermGroup = useCallback(
         headers: { Authorization: `Bearer ${token}` },
       });
       await fetchTermGroup();
+      await fetchTerm();
     } catch (err) {
       console.error("Failed to delete discount:", err);
     }

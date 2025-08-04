@@ -158,7 +158,18 @@ export default function NotificationList() {
             </>
         )
     }
+const handleRecipientPopup = (recipients) => {
+  const content = recipients.map(r =>
+    `<li>${r.recipientEmail}</li>`
+  ).join("");
 
+  Swal.fire({
+    title: recipients.length === 1 ? 'Recipient' : 'All Recipients',
+    html: `<ul class="text-left pl-4 list-disc">${content}</ul>`,
+    icon: 'info',
+    confirmButtonText: 'Close',
+  });
+};
     const filteredNotifications = customNotification.filter(item => {
         const createdDate = new Date(item.createdAt);
         const createdDateOnly = createdDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
@@ -171,7 +182,7 @@ export default function NotificationList() {
         return startMatch && endMatch && matchCategory;
     });
 
-
+console.log('filteredNotifications',filteredNotifications)
 
     return (
         <>
@@ -201,75 +212,66 @@ export default function NotificationList() {
                         </button>
                     </div>
                 </div>
-                {filteredNotifications.length > 0 ? (
-                    <div className="bg-white rounded-3xl overflow-x-auto">
-                        <table className="min-w-full bg-white text-sm">
-                            <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
-                                <tr className='font-semibold'>
-                                    <th className="p-4 text-[#717073]">
-                                        Notification Title</th>
-                                    <th className="p-4 text-[#717073]">Created by</th>
-                                    <th className="p-4 text-[#717073]">Date</th>
-                                    <th className="p-4 text-[#717073] whitespace-nowrap">Sent to</th>
-                                    <th className="p-4 text-[#717073]">Category</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredNotifications.map((item, idx) => (
-                                    <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
-                                        <td className="p-4 cursor-pointer">{item.title}</td>
-                                        <td className="p-4">{item.admin?.name}</td>
-                                        <td className="p-4">{formatFullDateWithSuffix(item.createdAt)}</td>
+              {filteredNotifications.length > 0 ? (
+    <div className="bg-white rounded-3xl overflow-x-auto">
+        <table className="min-w-full bg-white text-sm">
+            <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
+                <tr className='font-semibold'>
+                    <th className="p-4 text-[#717073]">Notification Title</th>
+                    <th className="p-4 text-[#717073]">Created by</th>
+                    <th className="p-4 text-[#717073]">Date</th>
+                    <th className="p-4 text-[#717073] whitespace-nowrap">Sent to</th>
+                    <th className="p-4 text-[#717073]">Category</th>
+                </tr>
+            </thead>
+            <tbody>
+                {filteredNotifications.map((item, idx) => (
+                    <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
+                        <td className="p-4 cursor-pointer">{item.title}</td>
+                        <td className="p-4">{item.createdBy?.name}</td>
+                        <td className="p-4">{formatFullDateWithSuffix(item.createdAt)}</td>
 
-                                        <td className="p-4 whitespace-nowrap">
-                                            <div className="flex w-full -space-x-2 overflow-auto">
-                                                {item?.reads?.slice(0, 4).map((read, i) => (
-                                                    <img
-                                                        key={i}
-                                                        src={
-                                                            read?.member?.profile
-                                                                ? `${API_BASE_URL}/${read.member.profile}`
-                                                                : "/demo/synco/SidebarLogos/OneTOOne.png"
-                                                        }
-                                                        alt={read?.member?.firstName || "User"}
-                                                        title={read?.member?.firstName || "User"}
-                                                        className="md:w-10 md:h-10 rounded-full border-2 border-white"
-                                                    />
+  <td className="p-4 whitespace-nowrap">
+  <div className="flex items-center overflow-hidden">
+    <div className="flex -space-x-2 cursor-pointer" onClick={() => handleRecipientPopup(item.recipients)}>
+      {item.recipients?.slice(0, 4).map((recipient, i) => (
+        <img
+          key={i}
+          src={recipient?.profileImage || "/demo/synco/SidebarLogos/OneTOOne.png"}
+          alt={recipient?.recipientEmail}
+          title={recipient?.recipientEmail}
+          className="w-8 h-8 rounded-full border-2 border-white object-cover"
+        />
+      ))}
 
-                                                ))}
-                                                {item?.reads?.length > 4 && (
-                                                    <div
-                                                        className="w-8 h-8 rounded-full text-xs flex items-center justify-center text-white bg-cover bg-center relative"
-                                                        style={{
-                                                            backgroundImage: `url('/members/more.png')`,
-                                                        }}
-                                                    >
-                                                        <div className="absolute inset-0 text-black rounded-full flex items-center justify-center text-xs">
-                                                            +{item?.reads?.length - 4}
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex justify-between">
-                                                <span className={`px-3 py-1 rounded-lg text-[#717073] bg-gray-100`}>
-                                                    {item.category}
-                                                </span>
-                                                <EllipsisVertical />
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+      {item.recipients?.length > 4 && (
+        <div className="w-8 h-8 rounded-full border-2 border-white bg-white text-xs font-semibold text-black flex items-center justify-center ring-2 ring-yellow-400">
+          +{item.recipients.length - 4}
+        </div>
+      )}
+    </div>
+  </div>
+</td>
 
-                            </tbody>
-                        </table>
-                    </div>
 
-                ) : (
-                    <p className='text-center  p-4 border-dotted border rounded-md'>Notification Empty</p>
-                )
-                }
+
+                        <td className="p-4">
+                            <div className="flex justify-between">
+                                <span className="px-3 py-1 rounded-lg text-[#717073] bg-gray-100">
+                                    {item.category}
+                                </span>
+                                <EllipsisVertical />
+                            </div>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+) : (
+    <p className='text-center p-4 border-dotted border rounded-md'>Notification Empty</p>
+)}
+
             </div>
             {openForm && (
                 <div className="fixed inset-0 bg-[#0d0d0d7a] px-5 bg-opacity-40 z-50 flex items-center justify-center">
