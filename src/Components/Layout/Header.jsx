@@ -43,6 +43,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'recruitment-reports': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'templates': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'weekly-classes': { title: 'Configuration', },
+    'configuration/weekly-classes/find-a-class/': { title: 'Weekly Classes', },
     'synco-chat': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'members': { title: 'Admin Panel' },
     'holiday-camps/payment-planManager': { title: 'Configuration' },
@@ -50,6 +51,8 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'holiday-camps/discounts': { title: 'Discounts' },
     'holiday-camps/session-plan': { title: 'Configuration', },
     'notification': { title: 'Notification' },
+    'configuration/weekly-classes/all-members': { title: 'Members' },
+    
   };
   // Extract the part after `/demo/synco/`
   const subPath = location.pathname.split('/demo/synco/')[1] || '';

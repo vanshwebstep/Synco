@@ -9,9 +9,9 @@ const HeaderBanner = ({ title, icon: Icon }) => {
       }}
     >
       <div className='flex gap-4 items-center'>
-        <div className="md:max-w-[40px] max-w-[20px] text-black">
-          <img src={Icon} className="w-full" alt="Default Icon" />
-        </div>
+       {Icon && <div className="md:max-w-[40px] max-w-[20px] text-black">
+   <img src={Icon} className="w-full" alt="Default Icon" />
+        </div>}
         <h2 className="text-black font-bold md:text-[38px] text-lg flex items-center gap-2">
           {title}
         </h2>

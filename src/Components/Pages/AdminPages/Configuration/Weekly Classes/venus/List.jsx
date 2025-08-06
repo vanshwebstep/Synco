@@ -131,6 +131,34 @@ const List = () => {
     setToDate(null);
   };
 
+  const getDateStatus = (date) => {
+    let isStartOrEnd = false;
+    let isInBetween = false;
+    let isExcluded = false;
+
+    congestionNote.forEach((term) => {
+      const start = new Date(term.startDate);
+      const end = new Date(term.endDate);
+
+      if (!date) return;
+
+      if (isSameDate(date, start) || isSameDate(date, end)) {
+        isStartOrEnd = true;
+      } else if (date >= start && date <= end) {
+        isInBetween = true;
+      }
+
+      term.exclusionDates?.forEach((ex) => {
+        const exclusionDate = new Date(ex);
+        if (isSameDate(date, exclusionDate)) {
+          isExcluded = true;
+        }
+      });
+    });
+
+    return { isStartOrEnd, isInBetween, isExcluded };
+  };
+
   const isSameDate = (d1, d2) =>
     d1 &&
     d2 &&
@@ -182,31 +210,15 @@ const List = () => {
       </>
     )
   }
-const allTermRanges = Array.isArray(congestionNote)
-  ? congestionNote.flatMap(group =>
-      group.terms.map(term => ({
-        start: new Date(term.startDate),
-        end: new Date(term.endDate),
-        exclusions: (Array.isArray(term.exclusionDates)
-          ? term.exclusionDates
-          : JSON.parse(term.exclusionDates || '[]')
-        ).map(date => new Date(date)),
-      }))
-    )
-  : [];
- // or `null`, `undefined`, or any fallback value
-
-  // Usage inside calendar cell:
-  const isInRange = (date) => {
-    return allTermRanges.some(({ start, end }) =>
-      date >= start && date <= end
-    );
-  };
-
-  const isExcluded = (date) => {
-    return allTermRanges.some(({ exclusions }) =>
-      exclusions.some(ex => ex.toDateString() === date?.toDateString())
-    );
+ 
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
   };
 
   console.log('congestionNote', congestionNote)
@@ -279,8 +291,9 @@ const allTermRanges = Array.isArray(congestionNote)
                           <td className="p-4">
                             <div className="flex gap-2">
                               <div
-                                onClick={() => handleIconClick("calendar", user.termGroups)}
-                                className="cursor-pointer"
+  onClick={() =>
+    handleIconClick("calendar", user.termGroups?.[0]?.terms || [])
+  }                                className="cursor-pointer"
                               >
                                 <img
                                   src="/demo/synco/members/calendar-circle.png"
@@ -436,29 +449,23 @@ const allTermRanges = Array.isArray(congestionNote)
 
             {/* Term List */}
             <div className="space-y-6 text-center text-[13px]   sm:text-[14px] text-[#2E2F3E] font-medium">
-              {congestionNote.map((group) =>
-                group.terms.map((term, idx) => {
-                  const start = format(parseISO(term.startDate), "EEE dd MMM yyyy");
-                  const end = format(parseISO(term.endDate), "EEE dd MMM yyyy");
-                  const exclusions = (term.exclusionDates || [])
-                    .map((d) => format(new Date(d), "EEE dd MMM yyyy"))
-                    .join(", ");
 
-                  return (
-                    <div key={term.id}>
-                      <h3 className="text-[20px] font-semibold mb-1">
-                        {term.termName} Term {new Date(term.startDate).getFullYear()}
-                      </h3>
-                      <p className="text-[18px]">{start} - {end}</p>
-                      {exclusions && (
-                        <p className="text-[18px]">
-                          Half term Exclusion: {exclusions}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })
-              )}
+              {congestionNote.map((term) => (
+                <div key={term.id}>
+                  <h3 className="text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
+                  <p className="text-[18px]">
+                    {formatDate(term.startDate)} - {formatDate(term.endDate)}
+                  </p>
+                  <p className="text-[18px]">
+                    Half term Exclusion:{" "}
+                    {term.exclusionDates?.map((ex, idx) => (
+                      <span key={idx}>
+                        {formatDate(ex)}{idx < term.exclusionDates.length - 1 ? ", " : ""}
+                      </span>
+                    ))}
+                  </p>
+                </div>
+              ))}
             </div>
 
             {/* Calendar Section */}
@@ -493,33 +500,37 @@ const allTermRanges = Array.isArray(congestionNote)
 
               {/*also in calendar make auto prefilled terms startdate and end date print all like january has 15 to 21 feb has 23 to 28 */}
               {/* Calendar Grid */}
-              <div className="flex flex-col gap-1">
-                {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
-                  const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
-                  const highlightRow = week.some((date) => isInRange(date));
+              <div className="grid grid-cols-7 gap-0 text-[16px]">
+                {calendarDays.map((date, i) => {
+                  const { isStartOrEnd, isInBetween, isExcluded } = getDateStatus(date);
+
+                  let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
+                  let innerDiv = null;
+
+                  if (!date) {
+                    className += "";
+                  } else if (isExcluded) {
+                    className += "bg-gray-300 text-white opacity-60 cursor-not-allowed";
+                  } else if (isStartOrEnd) {
+                    className += "bg-sky-100"; // Outer background
+                    innerDiv = (
+                      <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
+                        {date.getDate()}
+                      </div>
+                    );
+                  } else if (isInBetween) {
+                    className += "bg-sky-100 text-gray-800";
+                  } else {
+                    className += "hover:bg-gray-100 text-gray-800";
+                  }
 
                   return (
                     <div
-                      key={weekIndex}
-                      className={`grid grid-cols-7 text-[18px] gap-1 py-1 rounded ${highlightRow ? "bg-sky-100" : ""
-                        }`}
+                      key={i}
+                      onClick={() => date && !isExcluded && handleDateClick(date)}
+                      className={className}
                     >
-                      {week.map((date, i) => {
-                        const isFrom = isSameDate(date, fromDate);
-                        const isTo = isSameDate(date, toDate);
-
-                        return (
-                          <div
-                            className={`w-8 h-8 flex items-center justify-center mx-auto text-sm rounded-full cursor-pointer
-    ${isFrom || isTo ? "bg-blue-600 text-white font-bold" : ""}
-    ${isExcluded(date) ? "bg-red-200" : ""}
-    ${isInRange(date) ? "bg-sky-100" : ""}
-  `}
-                          >
-                            {date?.getDate()}
-                          </div>
-                        );
-                      })}
+                      {innerDiv || (date ? date.getDate() : "")}
                     </div>
                   );
                 })}

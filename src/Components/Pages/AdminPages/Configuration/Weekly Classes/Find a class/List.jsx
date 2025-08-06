@@ -84,7 +84,7 @@ const List = () => {
 
 
   const [selectedPlans, setSelectedPlans] = useState([]);
-  console.log('selectedPlans', selectedPlans)
+
   const [expression, setExpression] = useState('');
   const [result, setResult] = useState('');
   const [clickedIcon, setClickedIcon] = useState(null);
@@ -121,6 +121,7 @@ const List = () => {
   const [searchVenue, setSearchVenue] = useState("");
   const [searchPostcode, setSearchPostcode] = useState("");
   const [selectedVenues, setSelectedVenues] = useState(["All venues"]);
+  const [calendarData, setCalendarData] = useState([]);
   const [selectedDays, setSelectedDays] = useState(["Sunday"]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
 
@@ -147,86 +148,6 @@ const List = () => {
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
   };
-  const sessionData = [
-    {
-      id: 1,
-      name: "The King Fahad Academy",
-      address: "East Acton Lane, London W3 7HD",
-      venueName: "Acton",
-      distanceMiles: "2 miles",
-      day: "Saturday",
-      surface: "Outdoor",
-      classes: [
-        {
-          className: "Class 1",
-          age: "4–7 years",
-          time: "9:30am - 10:30am",
-          capacity: "Fully booked",
-        },
-        {
-          className: "Class 2",
-          age: "8–12 years",
-          time: "10:30am - 11:30am",
-          capacity: "Available",
-          spaces: 4,
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "The King Fahad Academy",
-      address: "East Acton Lane, London W3 7HD",
-      venueName: "Acton",
-      distanceMiles: "2 miles",
-      day: "Saturday",
-      surface: "Outdoor",
-      classes: [
-        {
-          className: "Class 1",
-          age: "4–7 years",
-          time: "9:30am - 10:30am",
-          capacity: "Fully booked",
-        },
-        {
-          className: "Class 2",
-          age: "8–12 years",
-          time: "10:30am - 11:30am",
-          capacity: "Available",
-          spaces: 4,
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: "The King Fahad Academy",
-      address: "East Acton Lane, London W3 7HD",
-      venueName: "Acton",
-      distanceMiles: "2 miles",
-      day: "Saturday",
-      surface: "Outdoor",
-      classes: [
-        {
-          className: "Class 1",
-          age: "4–7 years",
-          time: "9:30am - 10:30am",
-          capacity: "Fully booked",
-        },
-        {
-          className: "Class 2",
-          age: "8–12 years",
-          time: "10:30am - 11:30am",
-          capacity: "Available",
-          spaces: 4,
-        },
-      ],
-    },
-    // Add more venue cards as needed
-  ];
-
-
-
-
-
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [fromDate, setFromDate] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 11));
@@ -267,9 +188,36 @@ const List = () => {
     setToDate(null);
   };
 
+  const getDateStatus = (date) => {
+    let isStartOrEnd = false;
+    let isInBetween = false;
+    let isExcluded = false;
+
+    calendarData.forEach((term) => {
+      const start = new Date(term.startDate);
+      const end = new Date(term.endDate);
+
+      if (!date) return;
+
+      if (isSameDate(date, start) || isSameDate(date, end)) {
+        isStartOrEnd = true;
+      } else if (date >= start && date <= end) {
+        isInBetween = true;
+      }
+
+      term.exclusionDates?.forEach((ex) => {
+        const exclusionDate = new Date(ex);
+        if (isSameDate(date, exclusionDate)) {
+          isExcluded = true;
+        }
+      });
+    });
+
+    return { isStartOrEnd, isInBetween, isExcluded };
+  };
+
   const isSameDate = (d1, d2) =>
-    d1 &&
-    d2 &&
+    d1 && d2 &&
     d1.getDate() === d2.getDate() &&
     d1.getMonth() === d2.getMonth() &&
     d1.getFullYear() === d2.getFullYear();
@@ -429,6 +377,7 @@ const List = () => {
         break;
       case 'team':
         setShowteamModal(prev => (prev === venueId ? null : venueId));
+        setCalendarData(paymentPlans || [])
         break;
       case 'location':
         setOpenMapId(prev => (prev === venueId ? null : venueId));
@@ -457,6 +406,42 @@ const List = () => {
       state: { classId },
     });
   };
+  const handleBookMembership = (classId) => {
+    navigate('/configuration/weekly-classes/find-a-class/book-a-membership/list', {
+      state: { classId },
+    });
+  };
+  console.log('calendarData', calendarData)
+
+  const getActiveTerm = () =>
+    calendarData.find((term) => {
+      const start = new Date(term.startDate);
+      const end = new Date(term.endDate);
+      return currentDate >= start && currentDate <= end;
+    });
+
+  const isExcluded = (date, term) =>
+    term?.exclusionDates?.some(
+      (ex) => isSameDate(new Date(ex), date)
+    );
+
+  const isTermStartOrEnd = (date, term) =>
+    isSameDate(date, new Date(term?.startDate)) || isSameDate(date, new Date(term?.endDate));
+
+  const isWithinTerm = (date, term) =>
+    date >= new Date(term?.startDate) &&
+    date <= new Date(term?.endDate);
+
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+  };
+
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
 
@@ -583,7 +568,7 @@ const List = () => {
 
                           <img
                             src="/demo/synco/icons/fcCalendar.png"
-                            onClick={() => handleIconClick('team', venue.venueId)}
+                            onClick={() => handleIconClick('team', venue.venueId, venue.terms)}
                             alt=""
                             className={`cursor-pointer w-6 h-6 rounded-full ${showteamModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                           />
@@ -677,7 +662,9 @@ const List = () => {
                                                 Book a FREE Trial
                                               </button>
                                             )}
-                                            <button className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium">
+                                            <button
+                                              onClick={() => handleBookMembership(s.classId)}
+                                              className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium">
                                               Book a Membership
                                             </button>
                                           </>
@@ -748,21 +735,22 @@ const List = () => {
 
                               {/* Term List */}
                               <div className="space-y-6 text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
-                                <div>
-                                  <h3 className="text-[20px]  font-semibold mb-1">Autumn Term 2022</h3>
-                                  <p className="text-[18px]">Sun 11th Sep 2022 - Sun 04th Dec 2022</p>
-                                  <p className="text-[18px]">Half term Exclusion: Sun 23rd Oct 2022</p>
-                                </div>
-                                <div>
-                                  <h3 className="text-[20px] font-semibold mb-1">Spring Term 2022</h3>
-                                  <p className="text-[18px]"> Sun 11th Sep 2022 - Sun 04th Dec 2022</p>
-                                  <p className="text-[18px]">Half term Exclusion: Sun 23rd Oct 2022</p>
-                                </div>
-                                <div>
-                                  <h3 className="text-[20px] font-semibold mb-1">Summer Term 2022</h3>
-                                  <p className="text-[18px]">Sun 11th Sep 2022 - Sun 04th Dec 2022</p>
-                                  <p className="text-[18px]">Half term Exclusion: Sun 23rd Oct 2022</p>
-                                </div>
+                                {calendarData.map((term) => (
+                                  <div key={term.id}>
+                                    <h3 className="text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
+                                    <p className="text-[18px]">
+                                      {formatDate(term.startDate)} - {formatDate(term.endDate)}
+                                    </p>
+                                    <p className="text-[18px]">
+                                      Half term Exclusion:{" "}
+                                      {term.exclusionDates.map((ex, idx) => (
+                                        <span key={idx}>
+                                          {formatDate(ex)}{idx < term.exclusionDates.length - 1 ? ", " : ""}
+                                        </span>
+                                      ))}
+                                    </p>
+                                  </div>
+                                ))}
                               </div>
 
                               {/* Calendar Section */}
@@ -796,42 +784,42 @@ const List = () => {
                                 </div>
 
                                 {/* Calendar Weeks */}
-                                <div className="flex flex-col  gap-1">
-                                  {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
-                                    const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
+                                <div className="grid grid-cols-7 gap-0 text-[16px]">
+                                  {calendarDays.map((date, i) => {
+                                    const { isStartOrEnd, isInBetween, isExcluded } = getDateStatus(date);
 
-                                    // Check if any date in this week is in range
-                                    const highlightRow = week.some((date) => isInRange(date));
+                                    let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
+                                    let innerDiv = null;
+
+                                    if (!date) {
+                                      className += "";
+                                    } else if (isExcluded) {
+                                      className += "bg-gray-300 text-white opacity-60 cursor-not-allowed";
+                                    } else if (isStartOrEnd) {
+                                      className += "bg-sky-100"; // Outer background
+                                      innerDiv = (
+                                        <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
+                                          {date.getDate()}
+                                        </div>
+                                      );
+                                    } else if (isInBetween) {
+                                      className += "bg-sky-100 text-gray-800";
+                                    } else {
+                                      className += "hover:bg-gray-100 text-gray-800";
+                                    }
 
                                     return (
                                       <div
-                                        key={weekIndex}
-                                        className={`grid grid-cols-7 text-[18px] gap-1 py-1 rounded ${highlightRow ? "bg-sky-100" : ""
-                                          }`}
+                                        key={i}
+                                        onClick={() => date && !isExcluded && handleDateClick(date)}
+                                        className={className}
                                       >
-                                        {week.map((date, i) => {
-                                          const isFrom = isSameDate(date, fromDate);
-                                          const isTo = isSameDate(date, toDate);
-
-                                          return (
-                                            <div
-                                              key={i}
-                                              onClick={() => date && handleDateClick(date)}
-                                              className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-sm rounded-full cursor-pointer
-                      ${isFrom || isTo
-                                                  ? "bg-blue-600 text-white font-bold"
-                                                  : "text-gray-800"
-                                                }
-                    `}
-                                            >
-                                              {date ? date.getDate() : ""}
-                                            </div>
-                                          );
-                                        })}
+                                        {innerDiv || (date ? date.getDate() : "")}
                                       </div>
                                     );
                                   })}
                                 </div>
+
                               </div>
                             </div>
                           </div>

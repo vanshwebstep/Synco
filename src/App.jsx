@@ -27,6 +27,7 @@ import NotificationList from './Components/Pages/AdminPages/notification/Notific
 import List from './Components/Pages/AdminPages/configuration/Weekly Classes/venus/List.jsx';
 import FindAClass from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/List.jsx';
 import BookFreeTrial from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Book a free trial/list.jsx'
+import BookMembership from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Book a Membership/list.jsx'
 import ClassSchedule from './Components/Pages/AdminPages/Configuration/Weekly Classes/venus/Class Schedule/List.jsx';
 import Pending from './Components/Pages/AdminPages/configuration/Weekly Classes/venus/Class Schedule/View Session/pending.jsx';
 import Completed from './Components/Pages/AdminPages/configuration/Weekly Classes/venus/Class Schedule/View Session/completed.jsx';
@@ -37,6 +38,9 @@ import TermDateUpdate from './Components/Pages/AdminPages/configuration/Weekly C
 import SessionPlanList from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/list.jsx';
 import SessionPlanCreate from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/Create.jsx';
 import SessionPlanPreview from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/Preview.jsx';
+import TrialLists from './Components/Pages/AdminPages/Configuration/Weekly Classes/Trials/List.jsx';
+import AddMembers from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/List.jsx';
+import MembershipSales from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/membershipSales.jsx';
 
 // Import all context providers
 import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberContext.jsx';
@@ -48,9 +52,9 @@ import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueConte
 import { ClassScheduleProvider } from './Components/Pages/AdminPages/contexts/ClassScheduleContent.jsx';
 import { TermDatesSessionProvider } from './Components/Pages/AdminPages/contexts/TermDatesSessionContext.jsx';
 import { FindClassProvider } from './Components/Pages/AdminPages/contexts/FindClassContext.jsx';
+import { BookFreeTrialProvider } from './Components/Pages/AdminPages/contexts/BookAFreeTrialContext.jsx';
 
 import './App.css';
-
 // Define roles
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -233,6 +237,15 @@ const AppRoutes = () => {
           </ProtectedRoute>
         </AdminLayout>
       } />
+      <Route path="/configuration/weekly-classes/find-a-class/book-a-membership/list" element={
+        <AdminLayout>
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={['Admin', 'Call Agent']}>
+              <BookMembership />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        </AdminLayout>
+      } />
       <Route path="/configuration/weekly-classes/venues/class-schedule" element={
         <AdminLayout>
           <ProtectedRoute>
@@ -332,7 +345,33 @@ const AppRoutes = () => {
           </ProtectedRoute>
         </AdminLayout>
       } />
-
+      <Route path="/configuration/weekly-classes/trial/list" element={
+        <AdminLayout>
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={['Admin', 'Agent']}>
+              <TrialLists />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        </AdminLayout>
+      } />
+      <Route path="/configuration/weekly-classes/all-members/list" element={
+        <AdminLayout>
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={['Admin', 'Agent']}>
+              <AddMembers />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        </AdminLayout>
+      } />
+      <Route path="/configuration/weekly-classes/all-members/membership-sales" element={
+        <AdminLayout>
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={['Admin', 'Agent']}>
+              <MembershipSales />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        </AdminLayout>
+      } />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
@@ -351,7 +390,11 @@ function App() {
                   <TermDatesSessionProvider>
                     <ClassScheduleProvider>
                       <FindClassProvider>
-                        <AppRoutes />
+                        <BookFreeTrialProvider>
+
+
+                          <AppRoutes />
+                        </BookFreeTrialProvider>
                       </FindClassProvider>
                     </ClassScheduleProvider>
                   </TermDatesSessionProvider>
@@ -386,6 +429,10 @@ export const menuItems = [
       { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', role: ['Admin', 'Call Agent'] },
       { title: 'Venues', link: '/configuration/weekly-classes/venues', role: ['Admin'] },
       { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', role: ['Admin'] },
+      { title: 'Trials', link: '/configuration/weekly-classes/trial/list', role: ['Admin'] },
+      { title: 'All Members', link: '/configuration/weekly-classes/all-members/list', role: ['Admin'] },
+      { title: 'All Members', link: '/configuration/weekly-classes/all-members/membership-sales', role: ['Admin'] },
+
     ]
   },
   {

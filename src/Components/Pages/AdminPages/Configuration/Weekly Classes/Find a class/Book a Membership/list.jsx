@@ -27,6 +27,8 @@ import { useClassSchedule } from '../../../../contexts/ClassScheduleContent';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
 const List = () => {
+    const [isOpen, setIsOpen] = useState(false);
+
     const [expression, setExpression] = useState('');
     const [result, setResult] = useState('');
     const navigate = useNavigate();
@@ -35,7 +37,18 @@ const List = () => {
     const popup1Ref = useRef(null);
     const popup2Ref = useRef(null);
     const popup3Ref = useRef(null);
-
+    const [showPopup, setShowPopup] = useState(false);
+    const [directDebitData, setDirectDebitData] = useState([]);
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        billingAddress: "",
+        accountHolder: "",
+        sortCode: "",
+        accountNumber: "",
+        authorise: false,
+    });
     console.log('classId', classId)
     const { fetchClassSchedulesByID, singleClassSchedulesOnly } = useClassSchedule()
 
@@ -107,7 +120,7 @@ const List = () => {
     const { fetchTermGroup, termGroup } = useTermContext()
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue()
+    const { venues, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue()
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const toggleCheckbox = (userId) => {
         setSelectedUserIds((prev) =>
@@ -164,13 +177,13 @@ const List = () => {
 
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
-const formatLocalDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
-    const day = String(date.getDate()).padStart(2, "0");
+    const formatLocalDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
+        const day = String(date.getDate()).padStart(2, "0");
 
-    return `${year}-${month}-${day}`; // e.g., "2025-08-10"
-};
+        return `${year}-${month}-${day}`; // e.g., "2025-08-10"
+    };
 
     const getDaysArray = () => {
         const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
@@ -204,29 +217,29 @@ const formatLocalDate = (date) => {
         setToDate(null);
     };
 
-const isSameDate = (d1, d2) => {
-    const date1 = typeof d1 === "string" ? new Date(d1) : d1;
-    const date2 = typeof d2 === "string" ? new Date(d2) : d2;
+    const isSameDate = (d1, d2) => {
+        const date1 = typeof d1 === "string" ? new Date(d1) : d1;
+        const date2 = typeof d2 === "string" ? new Date(d2) : d2;
 
-    return (
-        date1 &&
-        date2 &&
-        date1.getDate() === date2.getDate() &&
-        date1.getMonth() === date2.getMonth() &&
-        date1.getFullYear() === date2.getFullYear()
-    );
-};
+        return (
+            date1 &&
+            date2 &&
+            date1.getDate() === date2.getDate() &&
+            date1.getMonth() === date2.getMonth() &&
+            date1.getFullYear() === date2.getFullYear()
+        );
+    };
 
 
-const handleDateClick = (date) => {
-    const formattedDate = formatLocalDate(date); // safe from timezone issues
+    const handleDateClick = (date) => {
+        const formattedDate = formatLocalDate(date); // safe from timezone issues
 
-    if (selectedDate === formattedDate) {
-        setSelectedDate(null);
-    } else {
-        setSelectedDate(formattedDate);
-    }
-};
+        if (selectedDate === formattedDate) {
+            setSelectedDate(null);
+        } else {
+            setSelectedDate(formattedDate);
+        }
+    };
 
 
 
@@ -333,8 +346,8 @@ const handleDateClick = (date) => {
         const updatedStudents = [...students];
         updatedStudents[index][field] = value;
         setStudents(updatedStudents);
-    }; 
-    
+    };
+
     useEffect(() => {
         const newStudents = Array.from({ length: numberOfStudents }).map(() => ({
             studentFirstName: "",
@@ -344,7 +357,7 @@ const handleDateClick = (date) => {
             gender: "",
             medicalInformation: null,
             class: singleClassSchedulesOnly?.className,
-            time:singleClassSchedulesOnly?.startTime,
+            time: singleClassSchedulesOnly?.startTime,
         }));
         setStudents(newStudents);
     }, [numberOfStudents]);
@@ -448,6 +461,7 @@ const handleDateClick = (date) => {
             classScheduleId: singleClassSchedulesOnly?.id,
             trialDate: selectedDate,
             totalStudents: students.length,
+            formData,
             students,
             parents,
             emergencyContact,
@@ -507,7 +521,7 @@ const handleDateClick = (date) => {
         });
     };
 
-console.log('"2025-08-01"',selectedDate)
+    console.log('"2025-08-01"', selectedDate)
 
     const buttons = [
         ['AC', '±', '%', '÷',],
@@ -552,7 +566,7 @@ console.log('"2025-08-01"',selectedDate)
             console.log('cleanedPlans not found');
         }
     }, [singleClassSchedulesOnly]); // ✅ now it runs when data is fetched
-console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
+    console.log('singleClassSchedulesOnly?.venue?', singleClassSchedulesOnly)
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
@@ -684,7 +698,7 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                 <div className="md:min-w-[508px] md:max-w-[508px] text-base space-y-5">
                     {/* Search */}
                     <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
-                        <h2 className="text-[24px] font-semibold">Enter Trial Information</h2>
+                        <h2 className="text-[24px] font-semibold">   Information</h2>
                         <div className="">
                             <label htmlFor="" className="text-base font-semibold">Venue</label>
                             <div className="relative mt-2 ">
@@ -719,12 +733,40 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
 
                             </div>
                         </div>
+                        <div className="mb-5">
+                            <label htmlFor="" className="text-base font-semibold">Membership Plan </label>
+                            <div className="relative mt-2 ">
+
+                                <Select
+                                    options={[{ label: "None", value: "none" }]} // Replace with your relationOptions
+                                    value={null}
+                                    onChange={() => { }}
+                                    placeholder="Choose Plan "
+                                    className="mt-2"
+                                    classNamePrefix="react-select"
+                                />
+
+                            </div>
+                        </div><div className="mb-5">
+                            <label htmlFor="" className="text-base font-semibold">Joining Fee</label>
+                            <div className="relative mt-2 ">
+
+                                <Select
+                                    options={[{ label: "None", value: "none" }]} // Replace with your relationOptions
+                                    value={null}
+                                    onChange={() => { }}
+                                    placeholder="Choose Joining fee"
+                                    className="mt-2"
+                                    classNamePrefix="react-select"
+                                />
+
+                            </div>
+                        </div>
                     </div>
 
                     <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
                         <div className="">
-                            <h2 className="text-[24px] font-semibold">Select trial Date </h2>
-
+                            <h2 className="text-[24px] font-semibold">Select start date </h2>
                             <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
                                 {/* Header */}
                                 <div className="flex justify-around items-center mb-3">
@@ -788,6 +830,58 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div className="w-full max-w-xl mx-auto">
+                        <button
+                            type="button"
+                            onClick={() => setIsOpen(!isOpen)}
+                            className="bg-[#237FEA] text-white text-[18px]  font-semibold border w-full border-[#237FEA] px-6 py-3 rounded-lg flex items-center justify-center"
+                        >
+                            Membership Plan Breakdown
+
+                            <img
+                                src={isOpen ? "/demo/synco/members/dash.png" : "/demo/synco/members/add.png"}
+                                alt={isOpen ? "Collapse" : "Expand"}
+                                className="ml-2 w-5 h-5 inline-block"
+                            />
+
+                        </button>
+
+                        {isOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                exit={{ opacity: 0, height: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="bg-white mt-4 rounded-2xl shadow p-6   font-semibold  space-y-4 text-[16px]"
+                            >
+                                <div className="flex justify-between text-[#333]">
+                                    <span>Membership Plan</span>
+                                    <span>12 Months</span>
+                                </div>
+                                <div className="flex justify-between text-[#333]">
+                                    <span>Monthly Subscription Fee</span>
+                                    <span>£39.99 p/m</span>
+                                </div>
+                                <div className="flex justify-between text-[#333]">
+                                    <span>One-off Joining Fee</span>
+                                    <span>£35.00</span>
+                                </div>
+                                <div className="flex justify-between text-[#333]">
+                                    <span>Number of lessons pro-rated</span>
+                                    <span>2</span>
+                                </div>
+                                <div className="flex justify-between text-[#333]">
+                                    <span>Price per class per child</span>
+                                    <span>£11.33</span>
+                                </div>
+                                <div className="flex justify-between text-[#000]">
+                                    <span>Cost of pro-rated lessons</span>
+                                    <span>£23.66</span>
+                                </div>
+                            </motion.div>
+                        )}
                     </div>
                 </div>
 
@@ -915,7 +1009,7 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                             <label className="block text-[16px] font-semibold">Time</label>
                                             <input
                                                 type="text"
-                                                  value={singleClassSchedulesOnly?.startTime}
+                                                value={singleClassSchedulesOnly?.startTime}
                                                 readOnly
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Automatic entry"
@@ -1135,7 +1229,7 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                 classNamePrefix="react-select "
                                 styles={{
                                     control: (base, state) => ({
-                                       ...base,
+                                        ...base,
                                         borderRadius: '1rem',
                                         borderColor: state.isFocused ? '#ccc' : '#E5E7EB', // light gray
                                         boxShadow: 'none',
@@ -1165,15 +1259,16 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                             </button>
 
                             <button
-                                type="submit"
-                                onClick={handleSubmit}
-                                className="bg-[#237FEA] text-white  text-[18px]  font-semibold border  border-[#237FEA] px-6 py-3 rounded-lg"
+                                type="button"
+                                onClick={() => setShowPopup(true)}
+                                className="bg-[#237FEA] text-white font-semibold border border-[#237FEA] text-[18px] px-6 py-3 rounded-lg"
                             >
-                                Book FREE Trial
+                                Setup Direct Debit
                             </button>
 
+
                         </div>
-                        <div className="bg-white rounded-3xl p-6 space-y-4">
+                        <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
                             <h2 className="text-[24px] font-semibold">Comment</h2>
 
                             {/* Input section */}
@@ -1235,7 +1330,122 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                 ))}
                             </div>
                         </div>
+                        {showPopup && (
+                            <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+<div className="bg-white rounded-2xl max-w-[541px] min-w-[541px] max-h-[90%] overflow-y-scroll space-y-6 relative scrollbar-hide">
+                                    <button
+                                        className="absolute top-3 p-6 left-4 text-xl font-bold"
+                                        onClick={() => setShowPopup(false)}
+                                    >
+                                        <img src="/demo/synco/icons/cross.png" alt="Close" />
+                                    </button>
 
+                                    <div className="text-center">
+                                        <h2 className="font-semibold  text-[24px] mb-2 py-6  border-b border-gray-400 ">Direct Debit Details</h2>
+
+                                    </div>
+                                    <div className="text-left directDebitBg p-6 mb-4 m-6 rounded-2xl ">
+                                        <p className="text-white text-[16px]">12 month membership plan (1 student)</p>
+                                        <p className="font-bold white text-white text-[24px]">£39.99</p>
+                                    </div>
+                                    <div className="space-y-2 px-6 pb-6">
+                                        <h3 className="font-semibold text-[20px]">Personal Details</h3>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                                <label className="block text-[16px] font-semibold">First name</label>
+                                                <input
+                                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                    type="text"
+                                                    value={formData.firstName}
+                                                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[16px] font-semibold">Last name </label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                    value={formData.lastName}
+                                                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[16px] font-semibold">Email address </label>
+                                            <input
+                                                type="email"
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                value={formData.email}
+                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            />
+                                        </div>       <div>
+                                            <label className="block text-[16px] font-semibold">Billing address </label>
+                                            <input
+                                                type="text"
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                value={formData.billingAddress}
+                                                onChange={(e) => setFormData({ ...formData, billingAddress: e.target.value })}
+                                            />
+                                        </div>
+
+                                        <h3 className="font-semibold text-[20px] pt-2">Bank Details</h3>
+                                        <div>
+                                            <label className="block text-[16px] font-semibold">Account holder name</label>
+                                            <input
+                                                type="text"
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                value={formData.accountHolder}
+                                                onChange={(e) => setFormData({ ...formData, accountHolder: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[16px] font-semibold">Your sort code (must be 6 digits long)</label>
+
+                                            <input
+                                                type="text"
+                                                maxLength={6}
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                value={formData.sortCode}
+                                                onChange={(e) => setFormData({ ...formData, sortCode: e.target.value })}
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-[16px] font-semibold">Your account number (must be 8 digits long)</label>
+                                            <input
+                                                type="text"
+                                                maxLength={8}
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                value={formData.accountNumber}
+                                                onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
+                                            /></div>
+
+                                        <div className="flex items-center space-x-2 pt-2">
+                                            <input
+                                                type="checkbox"
+                                                className=" border border-gray-300 rounded-xl px-4 py-3 text-base"
+
+                                                checked={formData.authorise}
+                                                onChange={(e) => setFormData({ ...formData, authorise: e.target.checked })}
+                                            />
+                                            <label className="block text-[16px] font-semibold">I can authorise Direct Debits on this account myself</label>
+                                        </div>
+                                    </div>
+                                    <div className="w-full mx-auto flex justify-center" >
+                                        <button
+                                            onClick={() => {
+                                                setDirectDebitData([...directDebitData, formData]);
+                                                setShowPopup(false);
+                                                handleSubmit(formData);
+                                            }}
+                                            className=" bg-[#237FEA] w-full max-w-[90%]  mx-auto my-3  text-white text-[16px] py-3 rounded-lg font-semibold"
+                                        >
+                                            Set up Direct Debit
+                                        </button>
+                                        </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

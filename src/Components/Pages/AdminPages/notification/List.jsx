@@ -40,7 +40,7 @@ export default function List() {
     hours = hours % 12 || 12;
     return `${year}/${month}/${day} - ${hours} ${ampm}`;
   }
-
+console.log('filtered',filtered)
   return (
     <div className="space-y-5 bg-white p-10 rounded-2xl">
       {filtered.length === 0 && (

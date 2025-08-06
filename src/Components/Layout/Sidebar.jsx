@@ -32,6 +32,8 @@ const menuItems = [
           { title: 'Session Plan Library', link: '/configuration/weekly-classes/session-plan-list', role: ['Admin'] },
           { title: 'Subscription Plan Manager', link: '/configuration/weekly-classes/subscription-planManager', role: ['Admin'] },
           { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', role: ['Admin', 'Call Agent'] },
+          { title: 'Trials', link: '/configuration/weekly-classes/trial/list', role: ['Admin'] },
+          { title: 'All Members', link: '/configuration/weekly-classes/all-members/list', role: ['Admin'] },
           { title: 'Venues', link: '/configuration/weekly-classes/venues', role: ['Admin'] },
           { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', role: ['Admin'] }
         ]
@@ -246,11 +248,11 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           const hasInnerSubItems = Array.isArray(item.innerSubItems);
           const itemTitle = typeof item === 'string' ? item : item.title;
 
-     const isActive = item.link && location.pathname === item.link;
+          const isActive = item.link && location.pathname === item.link;
           const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
-console.log('item.link',item.link)
-console.log('pathname.link',location.pathname)
-     console.log('itemTitle',itemTitle)
+          console.log('item.link', item.link)
+          console.log('pathname.link', location.pathname)
+          console.log('itemTitle', itemTitle)
           const content = (
             <motion.div
               initial={false}

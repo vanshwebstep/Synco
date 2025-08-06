@@ -776,7 +776,7 @@ const Create = () => {
                                                     <div className="w-full md:flex items-center gap-2 space-y-2 md:space-y-0">
                                                         <button
                                                             className={`flex whitespace-nowrap md:w-4/12 w-full items-center justify-center gap-1 border ${term.isSubmitted ? 'border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed' : 'border-blue-500 text-[#237FEA] hover:bg-blue-50'
-                                                                } px-4 py-2 rounded-lg text-[14px] font-semibold`}
+                                                                } px-6 py-2 rounded-lg text-[14px] font-semibold`}
                                                             onClick={() => !term.isSubmitted && handleMapSession(term.id)}
                                                             disabled={term.isSubmitted}
                                                         >
@@ -814,14 +814,14 @@ const Create = () => {
                                 >
                                     + Add Term
                                 </button>
-                           <button
-    className={`min-w-40 font-semibold px-6 py-3 rounded-lg text-[14px] w-full md:w-auto 
+                                <button
+                                    className={`min-w-40 font-semibold px-6 py-3 rounded-lg text-[14px] w-full md:w-auto 
         ${isSaveDisabled ? 'bg-gray-400 cursor-not-allowed text-white' : 'bg-[#237FEA] hover:bg-blue-700 text-white'}`}
-    onClick={handleSaveAll}
-    disabled={isSaveDisabled || isLoading}
->
-    {'Save All'}
-</button>
+                                    onClick={handleSaveAll}
+                                    disabled={isSaveDisabled || isLoading}
+                                >
+                                    {'Save All'}
+                                </button>
 
                             </div>
                         </div>

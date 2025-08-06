@@ -25,12 +25,15 @@ export default function Sidebar() {
   const { activeTab, setActiveTab } = useMembers();
   const { notification, customnotificationAll } = useNotification();
 
-  // ✅ Merge and sanitize notifications
   const mergedNotifications = [...notification, ...customnotificationAll].map(n => ({
     ...n,
-    category: (typeof n.category === "string" ? n.category.trim() : "") || "System"
+    category: n.category?.trim() || "System"
   }));
-
+  const filtered =
+    activeTab === "All"
+      ? mergedNotifications
+      : mergedNotifications.filter(n => n.category === activeTab);
+  console.log('filtsdsdered', filtered)
   // ✅ Filter unread only
   const unreadNotifications = mergedNotifications.filter(n => !n.isRead);
 
@@ -40,7 +43,7 @@ export default function Sidebar() {
     acc[cat] = (acc[cat] || 0) + 1;
     return acc;
   }, {});
-
+  console.log("mergedNotifications", mergedNotifications)
   // Optional: Sort categories with unread items first
   // const sortedTabs = [...allTabs].sort((a, b) => (categoryCounts[b] || 0) - (categoryCounts[a] || 0));
   const tabsToDisplay = allTabs; // or use sortedTabs for sorting
@@ -59,11 +62,10 @@ export default function Sidebar() {
             <li
               key={tabLabel}
               onClick={() => setActiveTab(tabLabel)}
-              className={`cursor-pointer text-[#282829] font-medium p-4 flex gap-5 text-[18px] px-7 ${
-                activeTab === tabLabel
-                  ? "bg-[#F7FBFF] border-l-3 border-[#237FEA] font-medium"
-                  : ""
-              }`}
+              className={`cursor-pointer text-[#282829] font-medium p-4 flex gap-5 text-[18px] px-7 ${activeTab === tabLabel
+                ? "bg-[#F7FBFF] border-l-3 border-[#237FEA] font-medium"
+                : ""
+                }`}
             >
               <span>{tabLabel}</span>
               {count > 0 && (
@@ -78,3 +80,51 @@ export default function Sidebar() {
     </div>
   );
 }
+
+
+
+
+
+// const adminId = 7; // Replace this with the actual logged-in admin ID
+
+// // ✅ Step 1: Clean up and flag correct isRead for custom notifications
+// const cleanedCustomNotifications = customnotificationAll.map(n => {
+//   const recipient = n.recipients?.find(r => r.recipientId === adminId);
+//   return {
+//     ...n,
+//     isRead: recipient?.isRead ?? true, // if not found, treat as read
+//     category: n.category?.trim() || "System"
+//   };
+// });
+
+// // ✅ Step 2: Also normalize normal notifications (in case they don't have top-level isRead)
+// const cleanedNormalNotifications = notification.map(n => {
+//   const recipient = n.recipients?.find(r => r.recipientId === adminId);
+//   return {
+//     ...n,
+//     isRead: recipient?.isRead ?? true, // fallback to read if not found
+//     category: n.category?.trim() || "System"
+//   };
+// });
+
+// // ✅ Step 3: Merge both cleaned arrays
+// const mergedNotifications = [...cleanedNormalNotifications, ...cleanedCustomNotifications];
+
+// // ✅ Step 4: Apply category filter
+// const filtered =
+//   activeTab === "All"
+//     ? mergedNotifications
+//     : mergedNotifications.filter(n => n.category === activeTab);
+
+// // ✅ Step 5: Filter unread notifications
+// const unreadNotifications = mergedNotifications.filter(n => !n.isRead);
+
+// // ✅ Step 6: Count unread notifications by category
+// const categoryCounts = unreadNotifications.reduce((acc, curr) => {
+//   const cat = curr.category;
+//   acc[cat] = (acc[cat] || 0) + 1;
+//   return acc;
+// }, {});
+
+// console.log("filtered", filtered);
+// console.log("categoryCounts", categoryCounts);

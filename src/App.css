@@ -256,3 +256,22 @@ body#tinymce {
     width: 18px !important;
     height: 18px !important;
 }
+.directDebitBg {
+  background-image: url(/public/images/directDebitBG.png);
+object-fit: contain;
+background-repeat: no-repeat;
+background-position: center;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+
+
+/* // for hide scrolbar .scrollbar-hide */

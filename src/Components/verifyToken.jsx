@@ -17,10 +17,11 @@ export const verifyToken = async (token) => {
     } else {
       localStorage.removeItem('adminToken');
       localStorage.removeItem('adminInfo');
-      return false;
+      throw new Error(result.message || 'Token verification failed');
     }
   } catch (err) {
     console.error('❌ verifyToken error:', err);
-    return false;
+    throw new Error(err.message || 'Something went wrong during token verification');
   }
 };
+

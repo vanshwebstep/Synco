@@ -26,6 +26,11 @@ const routeTitleMap = {
   '/configuration/weekly-classes/venues': { title: 'Venues', icon: '/demo/synco/members/Location.png' },
   '/configuration/weekly-classes/find-a-class': { title: 'Find a Class', icon: '/demo/synco/members/FindClass.png' },
   '/configuration/weekly-classes/find-a-class/book-a-free-trial': { title: 'Book a FREE Trial', icon: '/demo/synco/members/Buy.png' },
+  '/configuration/weekly-classes/trial/list': { title: 'Triallists', icon: '' },
+  '/configuration/weekly-classes/all-members/list': { title: 'All Members', icon: '/demo/synco/members/allMembers.png' },
+
+  '/configuration/weekly-classes/find-a-class/book-a-membership': { title: 'Book a Membership', icon: '/demo/synco/members/bookMembership.png' },
+
 
 };
 

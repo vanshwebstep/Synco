@@ -154,54 +154,53 @@ const ForgotPassword = () => {
 
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
-const fetchWithTimeout = (url, options, timeout = 10000) => {
-  return Promise.race([
-    fetch(url, options),
-    new Promise((_, reject) =>
-      setTimeout(() => reject(new Error('Request timed out')), timeout)
-    ),
-  ]);
-};
+  const fetchWithTimeout = (url, options, timeout = 10000) => {
+    return Promise.race([
+      fetch(url, options),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out')), timeout)
+      ),
+    ]);
+  };
 
-const handleForgotPassword = async (e) => {
-  e.preventDefault();
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
 
-  if (!email || !validateEmail(email)) {
-    alert('Please enter a valid email.');
-    return;
-  }
-
-  setLoading(true);
-
-  const url = `https://synconode.onrender.com/api/admin/auth/password/forget`;
-
-  try {
-    console.log('Sending forgot password request to:', url);
-
-    const res = await fetchWithTimeout(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
-
-    const result = await res.json();
-    console.log('Response from server:', result);
-
-    if (res.ok) {
-      setIsModalOpen(true);
-    } else {
-      alert(result.message || 'Failed to send password reset email.');
+    if (!email || !validateEmail(email)) {
+      alert('Please enter a valid email.');
+      return;
     }
-  } catch (err) {
-    console.error('Error during forgot password request:', err);
-    alert('Server error: ' + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
 
+    setLoading(true);
+
+    const url = `https://synconode.onrender.com/api/admin/auth/password/forget`;
+
+    try {
+      console.log('Sending forgot password request to:', url);
+
+      const res = await fetchWithTimeout(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await res.json();
+      console.log('Response from server:', result);
+
+      if (res.ok) {
+        setIsModalOpen(true);
+      } else {
+        alert(result.message || 'Failed to send password reset email.');
+      }
+    } catch (err) {
+      console.error('Error during forgot password request:', err);
+      alert('Server error: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="w-full flex flex-col md:flex-row min-h-screen">
@@ -227,11 +226,10 @@ const handleForgotPassword = async (e) => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 text-[22px] font-semibold text-white rounded-xl transition-colors ${
-                loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-              }`}
+              className={`w-full py-3 text-[22px] font-semibold text-white rounded-xl transition-colors ${loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                }`}
             >
-             {loading ? 'Sending...' : 'Send Reset Link'}
+              {loading ? 'Reseting...' : 'Reset Password'}
             </button>
           </form>
         </div>
