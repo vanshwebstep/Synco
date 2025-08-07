@@ -43,7 +43,7 @@ const AddPaymentPlanGroup = () => {
     const [formData, setFormData] = useState({
         title: '',
         price: '',
-        pricePerLesson: '',
+        priceLesson: '',
         interval: '',
         duration: '',
         students: '',
@@ -164,10 +164,10 @@ const AddPaymentPlanGroup = () => {
     };
 
     const handleSavePlan = async () => {
-        const { title, price, interval, duration, joiningFee, students } = formData;
+        const { title, price, priceLesson, interval, duration, joiningFee, students } = formData;
 
         // ✅ Validation
-        if (!title || !price || !interval || !duration || !students || !joiningFee) {
+        if (!title || !price || !interval || !priceLesson || !duration || !students || !joiningFee) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Missing Fields',
@@ -179,6 +179,7 @@ const AddPaymentPlanGroup = () => {
         const newPlan = {
             title,
             price,
+            priceLesson,
             interval,
             duration,
             joiningFee,
@@ -476,7 +477,7 @@ const AddPaymentPlanGroup = () => {
                                     {[
                                         { label: "Title", name: "title", type: "text" },
                                         { label: "Price (€)", name: "price", type: "number" },
-                                        { label: "Price per lesson(€)", name: "pricePerLesson", type: "number" },
+                                        { label: "Price per lesson(€)", name: "priceLesson", type: "number" },
                                         {
                                             label: "Interval",
                                             name: "interval",

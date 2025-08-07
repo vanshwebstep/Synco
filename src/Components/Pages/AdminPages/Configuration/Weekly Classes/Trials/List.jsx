@@ -3,15 +3,27 @@ import { FiSearch } from "react-icons/fi";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Select from "react-select";
 import { Check, } from "lucide-react";
+import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
+import { useNavigate } from "react-router-dom";
 
 const trialLists = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [fromDate, setFromDate] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 11));
     const [toDate, setToDate] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
+    const { fetchBookFreeTrials, bookFreeTrials } = useBookFreeTrial()
 
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
+
+const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            await fetchBookFreeTrials();
+        };
+        fetchData();
+    }, [fetchBookFreeTrials]);
 
     const getDaysArray = () => {
         const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
@@ -131,6 +143,8 @@ const trialLists = () => {
         setSavedAgent(tempSelectedAgent);
         setShowPopup(false);
     };
+
+    console.log('bookFreeTrials', bookFreeTrials)
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
 
@@ -182,13 +196,8 @@ const trialLists = () => {
                         <table className="min-w-full rounded-4xl bg-white text-sm border border-[#E2E1E5]">
                             <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
                                 <tr className="font-semibold">
-                                    <th className="p-4 text-[#717073]">
-                                        <div className="flex gap-2 items-center">
-
-                                            Name
-                                        </div>
-                                    </th>
-                                    <th className="p-4 text-[#717073]">Age  </th>
+                                    <th className="p-4 text-[#717073]">Name</th>
+                                    <th className="p-4 text-[#717073]">Age</th>
                                     <th className="p-4 text-[#717073]">Venue</th>
                                     <th className="p-4 text-[#717073]">Date of Booking</th>
                                     <th className="p-4 text-[#717073]">Date of Trial</th>
@@ -199,33 +208,54 @@ const trialLists = () => {
                             </thead>
 
                             <tbody>
-                                {/* Static Row 1 */}
-                                <tr className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
-                                    <td className="p-4 cursor-pointer">
-                                        <div className="flex items-center gap-3">
-                                            <button className="lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-300" />
-                                            <span>Downtown</span>
-                                        </div>
-                                    </td>
-                                    <td className="p-4">Sunrise Sports Center</td>
-                                    <td className="p-4">123 Main St, NY</td>
-                                    <td className="p-4">Indoor Court</td>
-                                    <td className="p-4">Indoor Court</td>
-                                    <td className="p-4">Indoor Court</td>
-                                    <td className="p-4 text-center">
-                                        1
-                                    </td>
-                                    <td className="p-4">
-                                        <div className="flex text-red-500 rounded-lg p-1 text-center justify-center bg-red-100 gap-2">
-                                            not attached
+                                {bookFreeTrials.map((item, index) =>
+                                    item.students.map((student, studentIndex) => (
+                                        <tr
+onClick={() =>
+  navigate(
+    '/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list',
+    { state: { itemId: item.id } }
+  )
+}                                            key={`${item.id}-${studentIndex}`}
+                                            className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
+                                        >
+                                            <td className="p-4 cursor-pointer">
+                                                <div className="flex items-center gap-3">
+                                                    <button className="lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-300" />
+                                                    <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
+                                                </div>
+                                            </td>
 
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                {/* You can add more static rows below if needed */}
+                                            <td className="p-4">{student.age}</td>
+                                            <td className="p-4">{item.venue?.name || '-'}</td>
+                                            <td className="p-4">
+                                                {new Date(item.createdAt || item.trialDate).toLocaleDateString()}
+                                            </td>
+                                            <td className="p-4">
+                                                {new Date(item.trialDate).toLocaleDateString()}
+                                            </td>
+                                            <td className="p-4">
+                                                {item.parents?.[0]?.howDidYouHear || '-'}
+                                            </td>
+                                            <td className="p-4 text-center">{'static '}</td>
+                                            <td className="p-4">
+                                                <div
+                                                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status === 'pending'
+                                                        ? 'bg-yellow-100 text-yellow-600'
+                                                        : item.status === 'cancelled'
+                                                            ? 'bg-red-100 text-red-500'
+                                                            : 'bg-green-100 text-green-600'
+                                                        }`}
+                                                >
+                                                    {item.status}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
+
                     </div>
 
                 </div>
@@ -322,58 +352,58 @@ const trialLists = () => {
                                             className="peer hidden"
                                         />
                                         <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
-                                          <Check
-                                                    className="w-4 h-4   transition-all"
-                                                    strokeWidth={3}
-                                                />
-                                           
+                                            <Check
+                                                className="w-4 h-4   transition-all"
+                                                strokeWidth={3}
+                                            />
+
                                         </span>
                                         <span>Agent</span>
                                     </label>
                                 </div>
                             </div>
-{showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div
-            ref={popupRef}
-            className="bg-white rounded-2xl p-6 w-[300px] space-y-4 shadow-lg"
-          >
-            <h2 className="text-lg font-semibold">Select agent</h2>
-            <div className="space-y-3 max-h-72 overflow-y-auto">
-              {agents.map((agent, index) => (
-                <label
-                  key={index}
-                  className="flex items-center gap-3 cursor-pointer"
-                >
-                  <input
-                    type="radio"
-                    name="agent"
-                    checked={tempSelectedAgent === index}
-                    onChange={() => setTempSelectedAgent(index)}
-                    className="hidden peer"
-                  />
-                  <span className="w-4 h-4 border rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center">
-                    {tempSelectedAgent === index && (
-                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </span>
-                  <img src={agent.avatar} alt={agent.name} className="w-8 h-8 rounded-full" />
-                  <span>{agent.name}</span>
-                </label>
-              ))}
-            </div>
-            <button
-              className="w-full bg-blue-600 text-white rounded-md py-2 font-medium"
-              onClick={handleNext}
-              disabled={tempSelectedAgent === null}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
+                            {showPopup && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                    <div
+                                        ref={popupRef}
+                                        className="bg-white rounded-2xl p-6 w-[300px] space-y-4 shadow-lg"
+                                    >
+                                        <h2 className="text-lg font-semibold">Select agent</h2>
+                                        <div className="space-y-3 max-h-72 overflow-y-auto">
+                                            {agents.map((agent, index) => (
+                                                <label
+                                                    key={index}
+                                                    className="flex items-center gap-3 cursor-pointer"
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name="agent"
+                                                        checked={tempSelectedAgent === index}
+                                                        onChange={() => setTempSelectedAgent(index)}
+                                                        className="hidden peer"
+                                                    />
+                                                    <span className="w-4 h-4 border rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center">
+                                                        {tempSelectedAgent === index && (
+                                                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        )}
+                                                    </span>
+                                                    <img src={agent.avatar} alt={agent.name} className="w-8 h-8 rounded-full" />
+                                                    <span>{agent.name}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                        <button
+                                            className="w-full bg-blue-600 text-white rounded-md py-2 font-medium"
+                                            onClick={handleNext}
+                                            disabled={tempSelectedAgent === null}
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                             <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
                                 {/* Header */}
                                 <div className="flex justify-around items-center mb-3">

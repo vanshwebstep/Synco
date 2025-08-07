@@ -41,6 +41,7 @@ import SessionPlanPreview from './Components/Pages/AdminPages/configuration/Week
 import TrialLists from './Components/Pages/AdminPages/Configuration/Weekly Classes/Trials/List.jsx';
 import AddMembers from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/List.jsx';
 import MembershipSales from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/membershipSales.jsx';
+import AccountInformation from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Book a free trial/Account Information/list.jsx';
 
 // Import all context providers
 import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberContext.jsx';
@@ -246,6 +247,15 @@ const AppRoutes = () => {
           </ProtectedRoute>
         </AdminLayout>
       } />
+      <Route path="/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list" element={
+        <AdminLayout>
+          <ProtectedRoute>
+            <RoleBasedRoute allowedRoles={['Admin', 'Call Agent']}>
+              <AccountInformation />
+            </RoleBasedRoute>
+          </ProtectedRoute>
+        </AdminLayout>
+      } />
       <Route path="/configuration/weekly-classes/venues/class-schedule" element={
         <AdminLayout>
           <ProtectedRoute>
@@ -380,7 +390,7 @@ const AppRoutes = () => {
 // ----------------- APP WRAPPER -----------------
 function App() {
   return (
-    <Router basename="/demo/synco">
+    <Router basename="/demo/synco/">
       <NotificationProvider>
         <VenueProvider>
           <MemberProvider>

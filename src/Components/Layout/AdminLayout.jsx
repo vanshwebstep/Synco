@@ -30,6 +30,7 @@ const routeTitleMap = {
   '/configuration/weekly-classes/all-members/list': { title: 'All Members', icon: '/demo/synco/members/allMembers.png' },
 
   '/configuration/weekly-classes/find-a-class/book-a-membership': { title: 'Book a Membership', icon: '/demo/synco/members/bookMembership.png' },
+  '/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
 
 
 };

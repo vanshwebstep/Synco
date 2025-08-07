@@ -26,6 +26,7 @@ import { useClassSchedule } from '../../../../contexts/ClassScheduleContent';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
+import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
 const List = () => {
     const [expression, setExpression] = useState('');
     const [result, setResult] = useState('');
@@ -38,6 +39,8 @@ const List = () => {
 
     console.log('classId', classId)
     const { fetchClassSchedulesByID, singleClassSchedulesOnly } = useClassSchedule()
+    const { createBookFreeTrials } = useBookFreeTrial()
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -70,9 +73,9 @@ const List = () => {
     ];
 
     const hearOptions = [
-        { value: "social", label: "Social Media" },
-        { value: "friend", label: "Friend" },
-        { value: "flyer", label: "Flyer" },
+        { value: "Social Media ", label: "Social Media" },
+        { value: "Friend", label: "Friend" },
+        { value: "Flyer", label: "Flyer" },
     ];
     const keyInfoOptions = [
         { value: "keyInfo 1", label: "keyInfo 1" },
@@ -164,13 +167,13 @@ const List = () => {
 
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
-const formatLocalDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
-    const day = String(date.getDate()).padStart(2, "0");
+    const formatLocalDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
+        const day = String(date.getDate()).padStart(2, "0");
 
-    return `${year}-${month}-${day}`; // e.g., "2025-08-10"
-};
+        return `${year}-${month}-${day}`; // e.g., "2025-08-10"
+    };
 
     const getDaysArray = () => {
         const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
@@ -204,29 +207,29 @@ const formatLocalDate = (date) => {
         setToDate(null);
     };
 
-const isSameDate = (d1, d2) => {
-    const date1 = typeof d1 === "string" ? new Date(d1) : d1;
-    const date2 = typeof d2 === "string" ? new Date(d2) : d2;
+    const isSameDate = (d1, d2) => {
+        const date1 = typeof d1 === "string" ? new Date(d1) : d1;
+        const date2 = typeof d2 === "string" ? new Date(d2) : d2;
 
-    return (
-        date1 &&
-        date2 &&
-        date1.getDate() === date2.getDate() &&
-        date1.getMonth() === date2.getMonth() &&
-        date1.getFullYear() === date2.getFullYear()
-    );
-};
+        return (
+            date1 &&
+            date2 &&
+            date1.getDate() === date2.getDate() &&
+            date1.getMonth() === date2.getMonth() &&
+            date1.getFullYear() === date2.getFullYear()
+        );
+    };
 
 
-const handleDateClick = (date) => {
-    const formattedDate = formatLocalDate(date); // safe from timezone issues
+    const handleDateClick = (date) => {
+        const formattedDate = formatLocalDate(date); // safe from timezone issues
 
-    if (selectedDate === formattedDate) {
-        setSelectedDate(null);
-    } else {
-        setSelectedDate(formattedDate);
-    }
-};
+        if (selectedDate === formattedDate) {
+            setSelectedDate(null);
+        } else {
+            setSelectedDate(formattedDate);
+        }
+    };
 
 
 
@@ -333,8 +336,8 @@ const handleDateClick = (date) => {
         const updatedStudents = [...students];
         updatedStudents[index][field] = value;
         setStudents(updatedStudents);
-    }; 
-    
+    };
+
     useEffect(() => {
         const newStudents = Array.from({ length: numberOfStudents }).map(() => ({
             studentFirstName: "",
@@ -344,7 +347,7 @@ const handleDateClick = (date) => {
             gender: "",
             medicalInformation: null,
             class: singleClassSchedulesOnly?.className,
-            time:singleClassSchedulesOnly?.startTime,
+            time: singleClassSchedulesOnly?.startTime,
         }));
         setStudents(newStudents);
     }, [numberOfStudents]);
@@ -353,12 +356,13 @@ const handleDateClick = (date) => {
     const [parents, setParents] = useState([
         {
             id: Date.now(),
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            relation: '',
-            hearAbout: ''
+            parentFirstName: '',
+            parentLastName: '',
+            parentEmail: '',
+            parentPhoneNumber: '',
+            relationToChild: '',
+            howDidYouHear: ''
+
         }
     ]);
     const handleAddParent = () => {
@@ -366,12 +370,12 @@ const handleDateClick = (date) => {
             ...prev,
             {
                 id: Date.now(),
-                firstName: "",
-                lastName: "",
-                email: "",
-                phone: "",
-                relation: "",
-                hearAbout: "",
+               parentFirstName: '',
+            parentLastName: '',
+            parentEmail: '',
+            parentPhoneNumber: '',
+            relationToChild: '',
+            howDidYouHear: ''
             },
         ]);
     };
@@ -410,10 +414,10 @@ const handleDateClick = (date) => {
         const primaryParent = updated[studentIndex].parents[0];
         if (primaryParent) {
             updated[studentIndex].emergency = {
-                firstName: primaryParent.parentFirstName,
-                lastName: primaryParent.parentLastName,
-                phoneNumber: primaryParent.parentPhoneNumber,
-                relationship: primaryParent.relation?.label || "",
+                parentFirstName: primaryParent.parentFirstName,
+                parentLastName: primaryParent.parentLastName,
+                parentPhoneNumber: primaryParent.parentPhoneNumber,
+                relationToChild: primaryParent.relationToChild?.label || "",
                 sameAsAbove: true
             };
         }
@@ -424,38 +428,59 @@ const handleDateClick = (date) => {
         updated[index].phone = value;
         setParents(updated);
     };
-    const [emergencyContact, setEmergencyContact] = useState({
+    const [emergency, setEmergency] = useState({
         sameAsAbove: false,
-        firstName: "",
-        lastName: "",
-        phoneNumber: "",
-        relation: null
+        emergencyFirstName: "",
+        emergencyLastName: "",
+        emergencyPhoneNumber: "",
+        emergencyRelation: "",
     });
     useEffect(() => {
-        if (emergencyContact.sameAsAbove && parents.length > 0) {
+        if (emergency.sameAsAbove && parents.length > 0) {
             const firstParent = parents[0];
-            setEmergencyContact(prev => ({
+            setEmergency(prev => ({
                 ...prev,
-                firstName: firstParent.firstName || "",
-                lastName: firstParent.lastName || "",
-                phoneNumber: firstParent.phone || "",
-                relation: { label: "Parent", value: "parent" } // or whatever default you want
+                emergencyFirstName: firstParent.parentFirstName || "",
+                emergencyLastName: firstParent.parentLastName || "",
+                emergencyPhoneNumber: firstParent.parentPhoneNumber || "",
+                emergencyRelation: firstParent.relationToChild || "", // or whatever default you want
             }));
         }
-    }, [emergencyContact.sameAsAbove, parents]);
-    const handleSubmit = () => {
+    }, [emergency.sameAsAbove, parents]);
+    const handleSubmit = async () => {
+        if (!selectedDate) {
+            Swal.fire({
+                icon: "warning",
+                title: "Trial Date Required",
+                text: "Please select a trial date before submitting.",
+            });
+            return;
+        }
+        setIsSubmitting(true); // Start loading
+
         const payload = {
+            keyInformation:selectedKeyInfo,
+            venueId: singleClassSchedulesOnly?.venue?.id,
             classScheduleId: singleClassSchedulesOnly?.id,
             trialDate: selectedDate,
             totalStudents: students.length,
             students,
             parents,
-            emergencyContact,
+            emergency,
         };
 
-        console.log("Final Payload:", JSON.stringify(payload, null, 2));
-        // send to API with fetch/axios
+        try {
+            await createBookFreeTrials(payload); // assume it's a promise
+            console.log("Final Payload:", JSON.stringify(payload, null, 2));
+            // Optionally show success alert or reset form
+        } catch (error) {
+            console.error("Error while submitting:", error);
+            // Optionally show error alert
+        } finally {
+            setIsSubmitting(false); // Stop loading
+        }
     };
+
 
     const handleClick = (val) => {
         if (val === 'AC') {
@@ -507,7 +532,7 @@ const handleDateClick = (date) => {
         });
     };
 
-console.log('"2025-08-01"',selectedDate)
+    console.log('"2025-08-01"', selectedDate)
 
     const buttons = [
         ['AC', '±', '%', '÷',],
@@ -552,7 +577,7 @@ console.log('"2025-08-01"',selectedDate)
             console.log('cleanedPlans not found');
         }
     }, [singleClassSchedulesOnly]); // ✅ now it runs when data is fetched
-console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
+    console.log('singleClassSchedulesOnly?.venue?', singleClassSchedulesOnly)
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
@@ -794,14 +819,14 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                 <div className="flex-1 bg-white transition-all duration-300">
                     <div className="max-w-full mx-auto bg-[#f9f9f9] px-6 ">
 
-                        <div className="space-y-10">
+                        <div className="space-y-10   ">
                             {students.map((student, index) => (
                                 <motion.div
                                     key={index}
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.4, delay: index * 0.1 }}
-                                    className="bg-white p-6 rounded-3xl shadow-sm space-y-6"
+                                    className="bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6"
                                 >
                                     <h2 className="text-[20px] font-semibold">
                                         Student {index + 1} Information
@@ -855,7 +880,7 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                                 type="text"
                                                 value={student.age}
                                                 readOnly
-                                                className="w-full bg-gray-100 mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                className="w-full  mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Automatic entry"
                                             />
                                         </div>
@@ -915,7 +940,7 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                             <label className="block text-[16px] font-semibold">Time</label>
                                             <input
                                                 type="text"
-                                                  value={singleClassSchedulesOnly?.startTime}
+                                                value={singleClassSchedulesOnly?.startTime}
                                                 readOnly
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Automatic entry"
@@ -926,17 +951,17 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                             ))}
                         </div>
 
-                        <div className="space-y-6">
+                        <div className="space-y-6 ">
                             {parents.map((parent, index) => (
                                 <motion.div
                                     key={parent.id}
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.3, delay: index * 0.1 }}
-                                    className="bg-white p-6 rounded-3xl shadow-sm space-y-6 relative"
+                                    className="bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6 relative"
                                 >
                                     {/* Top Header Row */}
-                                    <div className="flex justify-between items-start">
+                                    <div className="flex justify-between  items-start">
                                         <h2 className="text-[20px] font-semibold">Parent information</h2>
 
                                         <div className="flex items-center gap-2">
@@ -967,8 +992,8 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                             <input
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Enter first name"
-                                                value={parent.firstName}
-                                                onChange={(e) => handleParentChange(index, "firstName", e.target.value)}
+                                                value={parent.parentFirstName}
+                                                onChange={(e) => handleParentChange(index, "parentFirstName", e.target.value)}
                                             />
                                         </div>
                                         <div className="w-1/2">
@@ -976,8 +1001,8 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                             <input
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Enter last name"
-                                                value={parent.lastName}
-                                                onChange={(e) => handleParentChange(index, "lastName", e.target.value)}
+                                                value={parent.parentLastName}
+                                                onChange={(e) => handleParentChange(index, "parentLastName", e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -990,16 +1015,16 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                                 type="email"
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Enter email address"
-                                                value={parent.email}
-                                                onChange={(e) => handleParentChange(index, "email", e.target.value)}
+                                                value={parent.parentEmail}
+                                                onChange={(e) => handleParentChange(index, "parentEmail", e.target.value)}
                                             />
                                         </div>
                                         <div className="w-1/2">
                                             <label className="block text-[16px] font-semibold">Phone number</label>
                                             <PhoneInput
                                                 country={"gb"}
-                                                value={parent.phone}
-                                                onChange={(val) => handleParentChange(index, "phone", val)}
+                                                value={parent.parentPhoneNumber}
+                                                onChange={(val) => handleParentChange(index, "parentPhoneNumber", val)}
                                                 inputClass="!w-full !h-full !border-0"
                                                 containerClass="w-full mt-2 border border-gray-300 rounded-xl px-2 py-3 custom-phone"
                                                 inputStyle={{ width: "100%", border: "none", height: "48px" }}
@@ -1016,9 +1041,9 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                                 placeholder="Select Relation"
                                                 className="mt-2"
                                                 classNamePrefix="react-select"
-                                                value={relationOptions.find((o) => o.value === parent.relation)}
+                                                value={relationOptions.find((o) => o.value === parent.relationToChild)}
                                                 onChange={(selected) =>
-                                                    handleParentChange(index, "relation", selected.value)
+                                                    handleParentChange(index, "relationToChild", selected.value)
                                                 }
                                             />
                                         </div>
@@ -1029,9 +1054,9 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                                 placeholder="Select from drop down"
                                                 className="mt-2"
                                                 classNamePrefix="react-select"
-                                                value={hearOptions.find((o) => o.value === parent.hearAbout)}
+                                                value={hearOptions.find((o) => o.value === parent.howDidYouHear)}
                                                 onChange={(selected) =>
-                                                    handleParentChange(index, "hearAbout", selected.value)
+                                                    handleParentChange(index, "howDidYouHear", selected.value)
                                                 }
                                             />
                                         </div>
@@ -1045,9 +1070,9 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                             <div className="flex items-center gap-2">
                                 <input
                                     type="checkbox"
-                                    checked={emergencyContact.sameAsAbove}
+                                    checked={emergency.sameAsAbove}
                                     onChange={() =>
-                                        setEmergencyContact(prev => ({
+                                        setEmergency(prev => ({
                                             ...prev,
                                             sameAsAbove: !prev.sameAsAbove
                                         }))
@@ -1064,11 +1089,11 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                     <input
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                         placeholder="Enter first name"
-                                        value={emergencyContact.firstName}
+                                        value={emergency.emergencyFirstName}
                                         onChange={e =>
-                                            setEmergencyContact(prev => ({
+                                            setEmergency(prev => ({
                                                 ...prev,
-                                                firstName: e.target.value
+                                                emergencyFirstName: e.target.value
                                             }))
                                         }
                                     />
@@ -1078,11 +1103,11 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                     <input
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                         placeholder="Enter last name"
-                                        value={emergencyContact.lastName}
+                                        value={emergency.emergencyLastName}
                                         onChange={e =>
-                                            setEmergencyContact(prev => ({
+                                            setEmergency(prev => ({
                                                 ...prev,
-                                                lastName: e.target.value
+                                                emergencyLastName: e.target.value
                                             }))
                                         }
                                     />
@@ -1094,11 +1119,11 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                     <label className="block text-[16px] font-semibold">Phone number</label>
                                     <PhoneInput
                                         country={'gb'}
-                                        value={emergencyContact.phoneNumber}
+                                        value={emergency.emergencyPhoneNumber}
                                         onChange={value =>
-                                            setEmergencyContact(prev => ({
+                                            setEmergency(prev => ({
                                                 ...prev,
-                                                phoneNumber: value
+                                                emergencyPhoneNumber: value
                                             }))
                                         }
                                         inputClass="!w-full !h-full !border-0"
@@ -1110,11 +1135,11 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                                     <label className="block text-[16px] font-semibold">Relation to child</label>
                                     <Select
                                         options={relationOptions}
-                                        value={emergencyContact.relation}
-                                        onChange={value =>
-                                            setEmergencyContact(prev => ({
+                                        value={relationOptions.find(option => option.value === emergency.emergencyRelation)}
+                                        onChange={selectedOption =>
+                                            setEmergency(prev => ({
                                                 ...prev,
-                                                relation: value
+                                                emergencyRelation: selectedOption?.value || ""
                                             }))
                                         }
                                         placeholder="Select Relation"
@@ -1126,37 +1151,38 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                         </div>
 
                         <div className="w-full my-10">
-                            <Select
-                                options={keyInfoOptions}
-                                value={selectedKeyInfo}
-                                onChange={setSelectedKeyInfo}
-                                placeholder="Key Information"
-                                className="react-select-container text-[20px]"
-                                classNamePrefix="react-select "
-                                styles={{
-                                    control: (base, state) => ({
-                                       ...base,
-                                        borderRadius: '1rem',
-                                        borderColor: state.isFocused ? '#ccc' : '#E5E7EB', // light gray
-                                        boxShadow: 'none',
-                                        padding: '8px 8px',
-                                        minHeight: '48px',
-                                    }),
-                                    placeholder: (base) => ({
-                                        ...base,
-                                        color: '#000000ff', // tailwind text-gray-400
-                                        fontWeight: 600,
-                                    }),
-                                    dropdownIndicator: (base) => ({
-                                        ...base,
-                                        color: '#9CA3AF',
-                                    }),
-                                    indicatorSeparator: () => ({ display: 'none' }),
-                                }}
-                            />
-                        </div>
+  <Select
+    options={keyInfoOptions}
+    value={keyInfoOptions.find(option => option.value === selectedKeyInfo)}
+    onChange={(selectedOption) => setSelectedKeyInfo(selectedOption?.value || '')}
+    placeholder="Key Information"
+    className="react-select-container text-[20px]"
+    classNamePrefix="react-select"
+    styles={{
+      control: (base, state) => ({
+        ...base,
+        borderRadius: '1rem',
+        borderColor: state.isFocused ? '#ccc' : '#E5E7EB',
+        boxShadow: 'none',
+        padding: '8px 8px',
+        minHeight: '48px',
+      }),
+      placeholder: (base) => ({
+        ...base,
+        color: '#000000ff',
+        fontWeight: 600,
+      }),
+      dropdownIndicator: (base) => ({
+        ...base,
+        color: '#9CA3AF',
+      }),
+      indicatorSeparator: () => ({ display: 'none' }),
+    }}
+  />
+</div>
 
-                        <div className="flex justify-end gap-4">
+
+                        <div className="flex justify-end  mb-10 gap-4">
                             <button
                                 type="button"
                                 className="flex items-center justify-center gap-1 border border-[#717073] text-[#717073] px-12 text-[18px]  py-2 rounded-lg font-semibold bg-none"
@@ -1167,9 +1193,11 @@ console.log('singleClassSchedulesOnly?.venue?',singleClassSchedulesOnly)
                             <button
                                 type="submit"
                                 onClick={handleSubmit}
+                                disabled={isSubmitting}
                                 className="bg-[#237FEA] text-white  text-[18px]  font-semibold border  border-[#237FEA] px-6 py-3 rounded-lg"
                             >
-                                Book FREE Trial
+                                {isSubmitting ? "Submitting..." : "Book FREE Trial"}
+
                             </button>
 
                         </div>

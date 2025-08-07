@@ -38,7 +38,7 @@ const List = () => {
 
 
   const { fetchPackages, packages } = usePayments()
-  const { fetchTermGroup, termGroup } = useTermContext()
+  const { fetchTermGroup, termGroup, fetchTerm, termData } = useTermContext()
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue()
@@ -89,7 +89,8 @@ const List = () => {
     fetchVenues();
     fetchPackages();
     fetchTermGroup();
-  }, [fetchVenues, fetchPackages, fetchTermGroup]);
+    fetchTerm();
+  }, [fetchVenues, fetchPackages, fetchTermGroup, fetchTerm]);
 
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -210,7 +211,7 @@ const List = () => {
       </>
     )
   }
- 
+
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-GB", {
@@ -221,7 +222,116 @@ const List = () => {
     });
   };
 
+
+
   console.log('congestionNote', congestionNote)
+
+
+const formatShortDate = (iso) => {
+  const d = new Date(iso);
+  return `${d.toLocaleDateString('en-GB', {
+    weekday: 'short',
+  })} ${d.getDate()}/${String(d.getFullYear()).slice(2)}`;
+};
+  const detectSeason = (termName) => {
+      const name = termName?.toLowerCase();
+      if (name?.includes('autumn')) return 'autumn';
+      if (name?.includes('spring')) return 'spring';
+      return 'summer';
+    };
+
+ const grouped = termGroup.map((group, groupIdx) => {
+      console.log(`\n📦 Processing Group #${groupIdx + 1}:`, group);
+
+      // Use termGroup?.id to match correctly
+      const terms = termData.filter((t) => t.termGroup?.id === group.id);
+      if (!terms.length) {
+        console.log(`⚠️ No terms found for group ID ${group.id}`);
+        return null;
+      }
+
+      console.log(`🔍 Matched ${terms.length} terms for group '${group.name}'`);
+
+      // Step 2: Map each term to sessionData
+      const sessionData = terms.map((term, termIdx) => {
+        const start = formatDate(term.startDate);
+        const end = formatDate(term.endDate);
+        const dateRange = `${start} - ${end}`;
+        console.log('terms', terms)
+        // Parse exclusionDates
+        let exclusionArr = [];
+        try {
+
+          if (Array.isArray(term.exclusionDates)) {
+            exclusionArr = term.exclusionDates;
+          } else if (typeof term.exclusionDates === 'string') {
+            try {
+              exclusionArr = JSON.parse(term.exclusionDates || '[]');
+            } catch (e) {
+              exclusionArr = [];
+            }
+          }
+        } catch (err) {
+          console.error(`❌ Failed to parse exclusions for term ${term.id}:`, err);
+        }
+
+        const exclusion = exclusionArr.length
+          ? exclusionArr.map((ex) => formatDate(ex)).join(', ')
+          : 'None';
+        const sessions = term.sessionsMap.map((session, idx) => ({
+          groupName: session?.sessionPlan?.groupName,
+          date: formatDate(session.sessionDate), // assuming you have a formatDate function
+        }));
+
+
+
+
+        const season = detectSeason(term.termName);
+
+        const sessionObj = {
+
+          term: term.termName,
+          icon: `/demo/synco/icons/${season}.png`,
+          date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
+          exclusion,
+          sessions,
+
+        };
+
+        console.log(`📘 Term #${termIdx + 1} (${term.termName}):`, sessionObj);
+        return sessionObj;
+      });
+
+      console.log('📊 SessionData for this group:', sessionData);
+
+      // Step 3: Build the class card
+      const classCard = {
+        id: group.id,
+        name: group.name,
+        createdAt: group.createdAt,
+        endTime: '3:00 pm',
+        freeTrial: 'Yes',
+        facility: 'Indoor',
+      };
+
+      sessionData.forEach((termData) => {
+        const key = detectSeason(termData.term);
+        classCard[key] = `${termData.date}`;
+      });
+
+      console.log(`🧾 Built classCard for group '${group.name}':`, classCard);
+
+      return { sessionData, classCard };
+    });
+
+const classCards = grouped
+    .filter(item => item && item.classCard)
+    .map(item => item.classCard);
+
+console.log('sessionData',grouped)
+console.log('classCards',classCards)
+      
+
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
       <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
@@ -291,9 +401,9 @@ const List = () => {
                           <td className="p-4">
                             <div className="flex gap-2">
                               <div
-  onClick={() =>
-    handleIconClick("calendar", user.termGroups?.[0]?.terms || [])
-  }                                className="cursor-pointer"
+                                onClick={() =>
+                                  handleIconClick("calendar", user.termGroups?.[0]?.terms || [])
+                                } className="cursor-pointer"
                               >
                                 <img
                                   src="/demo/synco/members/calendar-circle.png"
@@ -407,7 +517,7 @@ const List = () => {
             >
               &times;
             </button>
-            <Create packages={packages} termGroup={termGroup} onClose={() => setOpenForm(false)} />
+            <Create packages={packages} termGroup={classCards} onClose={() => setOpenForm(false)} />
 
 
           </div>

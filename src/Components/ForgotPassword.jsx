@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import Swal from 'sweetalert2';
 
 const StepModal = ({ isOpen, onClose, email }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -190,13 +191,36 @@ const ForgotPassword = () => {
       console.log('Response from server:', result);
 
       if (res.ok) {
-        setIsModalOpen(true);
+      Swal.fire({
+  icon: 'success',
+  title: result.message || 'Email Sent!',
+  html: `
+    <p class="swal-subtext">Please check your inbox and follow the instructions.</p>
+  `,
+  customClass: {
+    popup: 'rounded-xl p-6',
+    title: 'text-[20px] font-semibold text-green-600',
+    htmlContainer: 'text-[16px] text-gray-700',
+  },
+  confirmButtonText: 'OK',
+  confirmButtonColor: '#3085d6',
+  buttonsStyling: true,
+});
+
       } else {
-        alert(result.message || 'Failed to send password reset email.');
+        Swal.fire({
+          icon: 'error', // or 'success' if it's a success message
+          title: 'Oops...',
+          text: result.message || 'Failed to send password reset email.',
+        });
       }
     } catch (err) {
       console.error('Error during forgot password request:', err);
-      alert('Server error: ' + err.message);
+      Swal.fire({
+        icon: 'error', // or 'success' if it's a success message
+        title: 'Oops...',
+        text: 'Server error: ' + err.message,
+      });
     } finally {
       setLoading(false);
     }

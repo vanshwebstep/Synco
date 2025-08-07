@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from "react";
+import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2"; // make sure it's installed
 
 const BookFreeTrialContext = createContext();
@@ -7,6 +8,7 @@ export const BookFreeTrialProvider = ({ children }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [bookFreeTrials, setBookFreeTrials] = useState([]);
   const token = localStorage.getItem("adminToken");
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
   const [isEditBookFreeTrial, setIsEditBookFreeTrial] = useState(false);
@@ -30,7 +32,7 @@ export const BookFreeTrialProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -120,12 +122,13 @@ export const BookFreeTrialProvider = ({ children }) => {
 
       await Swal.fire({
         title: "Success!",
-        text: result.message || "Class schedule has been created successfully.",
+        text: result.message || "Free Trial has been created successfully.",
         icon: "success",
         confirmButtonText: "OK",
       });
-
+      navigate(`/configuration/weekly-classes/trial/list`)
       return result;
+
     } catch (error) {
       console.error("Error creating class schedule:", error);
       await Swal.fire({
