@@ -562,6 +562,11 @@ const Create = () => {
 
     console.log('selectedTermGroup', selectedTermGroup)
     console.log("myGroupData", myGroupData)
+    const parseLocalDate = (dateStr) => {
+        if (!dateStr) return null;
+        const [year, month, day] = dateStr.split("-").map(Number);
+        return new Date(year, month - 1, day); // <-- local date, no timezone shift
+    };
 
     if (loading) return <Loader />;
     return (
@@ -681,30 +686,37 @@ const Create = () => {
                                                             Start Date
                                                         </label>
                                                         <DatePicker
-                                                            placeholderText="Enter Start Date"
-                                                            selected={term.startDate ? new Date(term.startDate) : null}
-                                                            onChange={(date) =>
-                                                                handleInputChange(term.id, 'startDate', date?.toISOString() || "")
-                                                            }
-                                                            dateFormat="EEEE, dd MMM"
+      placeholderText="Enter Start Date"
+      selected={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
+      onChange={(date) => {
+        const localDate = date ? date.toLocaleDateString("en-CA") : "";
+        handleInputChange(term.id, "startDate", localDate);
+      }}
+      dateFormat="EEEE, dd MMM"
+      maxDate={term.endDate ? new Date(term.endDate + "T00:00:00") : null} 
+      className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
 
-                                                            className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                        />
+
+
+
                                                     </div>
                                                     <div className="w-full">
                                                         <label className="block text-base font-semibold text-gray-700 mb-2">
                                                             End Date
                                                         </label>
                                                         <DatePicker
-                                                            placeholderText="Enter End Date"
-                                                            selected={term.endDate ? new Date(term.endDate) : null}
-                                                            onChange={(date) =>
-                                                                handleInputChange(term.id, 'endDate', date?.toISOString() || "")
-                                                            }
-                                                            dateFormat="EEEE, dd MMM"
+      placeholderText="Enter End Date"
+      selected={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
+      onChange={(date) => {
+        const localDate = date ? date.toLocaleDateString("en-CA") : "";
+        handleInputChange(term.id, "endDate", localDate);
+      }}
+      dateFormat="EEEE, dd MMM"
+      minDate={term.startDate ? new Date(term.startDate + "T00:00:00") : null} 
+      className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
 
-                                                            className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                        />
 
                                                     </div>
                                                 </div>
@@ -714,32 +726,38 @@ const Create = () => {
                                                         <label className="block text-base font-semibold text-gray-700 mb-2">
                                                             Exclusion Date(s)
                                                         </label>
-                                                        {term.exclusions.map((ex, idx) => (
-                                                            <div key={idx} className="flex gap-2 mb-2 items-center">
+                                                       {term.exclusions.map((ex, idx) => (
+    <div key={idx} className="flex gap-2 mb-2 items-center">
+      <DatePicker
+        placeholderText={`Exclusion Date ${idx + 1}`}
+        selected={ex ? new Date(ex + "T00:00:00") : null}
+        onChange={(date) =>
+          handleExclusionChange(
+            term.id,
+            idx,
+            date ? date.toLocaleDateString("en-CA") : ""
+          )
+        }
+        dateFormat="EEEE, dd MMM"
+        minDate={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
+        maxDate={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
+        className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+
+      {term.exclusions.length > 1 && (
+        <button
+          onClick={() => removeExclusionDate(term.id, idx)}
+          type="button"
+          className="text-red-500 hover:text-red-700 font-bold text-xl"
+          title="Remove"
+        >
+          &times;
+        </button>
+      )}
+    </div>
+  ))}
 
 
-                                                                <DatePicker
-                                                                    placeholderText={`Exclusion Date ${idx + 1}`}
-                                                                    selected={ex ? new Date(ex) : null}
-                                                                    onChange={(date) =>
-                                                                        handleExclusionChange(term.id, idx, date?.toISOString() || "")
-                                                                    }
-                                                                    dateFormat="EEEE, dd MMM"
-
-                                                                    className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                                />
-                                                                {term.exclusions.length > 1 && (
-                                                                    <button
-                                                                        onClick={() => removeExclusionDate(term.id, idx)}
-                                                                        type="button"
-                                                                        className="text-red-500 hover:text-red-700 font-bold text-xl"
-                                                                        title="Remove"
-                                                                    >
-                                                                        &times;
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        ))}
                                                         <button
                                                             className="text-sm text-blue-500 mt-1 font-semibold"
                                                             onClick={() => addExclusionDate(term.id)}
@@ -869,16 +887,21 @@ const Create = () => {
                                                     <DatePicker
                                                         selected={
                                                             sessionMappings[index]?.sessionDate
-                                                                ? new Date(sessionMappings[index].sessionDate)
+                                                                ? new Date(sessionMappings[index].sessionDate + "T00:00:00")
                                                                 : null
                                                         }
-                                                        onChange={(e) =>
-                                                            handleMappingChange(index, "sessionDate", e?.toISOString() || "")
+                                                        onChange={(date) =>
+                                                            handleMappingChange(
+                                                                index,
+                                                                "sessionDate",
+                                                                date ? date.toLocaleDateString("en-CA") : "" // ✅ local YYYY-MM-DD
+                                                            )
                                                         }
                                                         dateFormat="EEEE, dd MMM"
                                                         className="text-[#717073] text-[15px] font-semibold bg-transparent focus:outline-none"
                                                         placeholderText="Select date"
                                                     />
+
                                                 </div>
 
                                             </div>

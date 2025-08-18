@@ -47,7 +47,7 @@ const PaymentPlanManagerList = () => {
 
 
 
-
+console.log('plan.HolidayCampPackage',groupByStudents[activeTab])
   const handleEdit = (id) => {
     console.log("Edit group with ID:", id);
     navigate(`/configuration/weekly-classes/add-subscription-plan-group?id=${id}`)
@@ -80,7 +80,10 @@ const PaymentPlanManagerList = () => {
       </>
     )
   }
-
+function unescapeHTML(escapedStr) {
+  const doc = new DOMParser().parseFromString(escapedStr, "text/html");
+  return doc.documentElement.textContent;
+}
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
 
@@ -146,24 +149,30 @@ const PaymentPlanManagerList = () => {
                       </p>
                       <hr className="mb-4 text-[#E2E1E5]" />
                       <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
-                        {plan.HolidayCampPackage &&
-                          plan.HolidayCampPackage
-                            // Remove <p> tags
-                            .replace(/<\/?p>/gi, '')
-                            // Replace both <br> and &nbsp; with a special marker (e.g. ###)
-                            .replace(/<br\s*\/?>|&nbsp;/gi, '###')
-                            // Split by that marker
-                            .split('###')
-                            .map((item, index) => {
-                              const text = item.trim();
-                              return text ? (
-                                <li key={index} className="flex items-center gap-2">
-                                  <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
-                                  {text}
-                                </li>
-                              ) : null;
-                            })}
-                      </ul>
+  {plan.HolidayCampPackage &&
+    // Decode HTML entities
+    new DOMParser()
+      .parseFromString(plan.HolidayCampPackage, "text/html")
+      .body.textContent
+      // Replace <br> and &nbsp; with a marker for splitting
+      .replace(/\r?\n|&nbsp;/gi, '###')
+      // Split by <p> and <br> equivalent markers
+      .split(/###|<\/?p>/gi)
+      .map((item, index) => {
+        const text = item.replace(/<\/?[^>]+(>|$)/g, '').trim(); // remove leftover tags
+        return text ? (
+          <li key={index} className="flex items-center gap-2">
+            <img
+              src="/demo/synco/icons/tick-circle.png"
+              alt=""
+              className="w-5 h-5"
+            />
+            {text}
+          </li>
+        ) : null;
+      })}
+</ul>
+
 
 
                       <button className="px-8 py-3 text-[16px] font-medium rounded-xl bg-[#237FEA] text-white shadow transition">
@@ -179,26 +188,26 @@ const PaymentPlanManagerList = () => {
 
       ) ||
         <>
-          <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 ${openForm ? 'md:w-3/4' : 'w-full md:w-[55%]'}`}>
-            <h2 className="text-2xl font-semibold">Subscription Plan Manager</h2>
+        <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 ${openForm ? 'md:w-3/4' : 'w-full md:w-[55%]'}`}>
+          <h2 className="text-2xl font-semibold">Subscription Plan Manager</h2>
             <button
               onClick={() => navigate(`/configuration/weekly-classes/add-subscription-plan-group`)}
               // onClick={() => setOpenForm(true)}
-              className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
+            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
             >
-              <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add Membership Plan Group
+            <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add Membership Plan Group
             </button>
           </div>
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className={`transition-all duration-300 w-full ${openForm ? 'md:w-3/4' : 'md:w-[55%]'}`}>
-              <div className="overflow-x-auto w-full rounded-2xl border border-gray-200">
-                <table className="hidden md:table w-full bg-white text-sm">
-                  <thead className="bg-[#F5F5F5] text-left">
-                    <tr className='font-semibold'>
-                      <th className="p-4 text-[14px] text-[#717073]">Name</th>
-                      <th className="p-4 text-[#717073] text-center">No. of Plans</th>
-                      <th className="p-4 text-[#717073]">Date Created</th>
-                      <th className="p-4 text-[#717073] text-center">Actions</th>
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className={`transition-all duration-300 w-full ${openForm ? 'md:w-3/4' : 'md:w-[55%]'}`}>
+            <div className="overflow-x-auto w-full rounded-2xl border border-gray-200">
+              <table className="hidden md:table w-full bg-white text-sm">
+                <thead className="bg-[#F5F5F5] text-left">
+                  <tr className='font-semibold'>
+                    <th className="p-4 text-[14px] text-[#717073]">Name</th>
+                    <th className="p-4 text-[#717073] text-center">No. of Plans</th>
+                    <th className="p-4 text-[#717073]">Date Created</th>
+                    <th className="p-4 text-[#717073] text-center">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -265,7 +274,7 @@ const PaymentPlanManagerList = () => {
                 </table>
 
                 {/* Mobile Version */}
-                <div className="md:hidden space-y-4">
+              <div className="md:hidden space-y-4">
                   {groups.map((user, idx) => (
                     <div key={idx} className="border rounded-lg p-4 shadow-sm bg-white">
                       <div className="flex justify-between items-center mb-2">
@@ -332,16 +341,16 @@ const PaymentPlanManagerList = () => {
             </div>
 
             {openForm && (
-              <div className="w-full md:w-1/4 bg-white rounded-2xl p-4 relative shadow-md">
+            <div className="w-full md:w-1/4 bg-white rounded-2xl p-4 relative shadow-md">
                 <button
                   onClick={() => setOpenForm(false)}
-                  className="absolute top-2 right-3 text-gray-400 hover:text-gray-700 text-xl"
+                className="absolute top-2 right-3 text-gray-400 hover:text-gray-700 text-xl"
                   title="Close"
                 >
                   &times;
                 </button>
                 {/* Add your form content here */}
-                <div className="text-gray-500 text-sm">Form Section (coming soon)</div>
+              <div className="text-gray-500 text-sm">Form Section (coming soon)</div>
               </div>
             )}
           </div>

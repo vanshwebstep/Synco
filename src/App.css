@@ -272,6 +272,10 @@ background-position: center;
   scrollbar-width: none; /* Firefox */
 }
 
-
-
+button {
+  cursor: pointer;
+}
+.tox-toolbar__group span.tox-icon.tox-tbtn__icon-wrap {
+    cursor: pointer;
+}
 /* // for hide scrolbar .scrollbar-hide */

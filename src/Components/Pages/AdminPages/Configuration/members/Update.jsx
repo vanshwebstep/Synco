@@ -7,6 +7,8 @@ import { useMembers } from "../../contexts/MemberContext";
 import RoleModal from "./RoleModal";
 import { useLocation, useNavigate } from "react-router-dom";
 import Loader from '../../contexts/Loader'
+import { verifyToken } from '../../../../verifyToken';
+
 const Update = () => {
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -196,7 +198,9 @@ const Update = () => {
       });
 
       const result = await response.json();
-
+  const verified = await verifyToken(token);
+  
+        console.log('🔍 Verification result:', verified);
       if (!response.ok) {
         Swal.fire({
           icon: "error",

@@ -165,7 +165,7 @@ const Preview = ({ item, sessionData }) => {
                     {currentContent.sessionExercises.map((exercise) => (
                       <div
                         key={exercise.id}
-                        className={`flex items-center gap-4 cursor-pointer p-2 rounded ${selectedExercise?.id === exercise.id ? 'bg-blue-50 border border-blue-200' : ''
+                        className={`flex items-center gap-4 cursor-pointer p-2 rounded ${selectedExercise?.id === exercise.id ? ' border border-blue-200' : 'border border-transparent'
                           }`}
                         onClick={() => setSelectedExercise(exercise)}
                       >
@@ -174,7 +174,7 @@ const Preview = ({ item, sessionData }) => {
                             JSON.parse(exercise.imageUrl).map((imgUrl, index) => (
                               <img
                                 key={index}
-                                className="rounded object-cover mr-2 mb-2"
+                                className="rounded  min-w-30 object-cover mr-2 mb-2"
                                 src={`${API_BASE_URL}/${imgUrl}`}
                                 alt={`${exercise.title} ${index + 1}`}
                               />

@@ -52,8 +52,8 @@ const TermCard = ({ item, sessionData }) => {
                                 <div>
                                     <p className="text-[#717073]">{term}</p>
                                     <p className="whitespace-pre-line text-sm text-gray-600">{date}</p>
-
-                                    <p className="font-medium text-[#717073]">{item[term?.toLowerCase()]}</p>
+{/* 
+                                    <p className="font-medium text-[#717073]">{item[term?.toLowerCase()]}</p> */}
                                 </div>
                             </div>
 

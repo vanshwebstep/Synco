@@ -46,25 +46,31 @@ console.log('groupByStudents',groupByStudents)
               £{plan?.price?.toFixed(2)}/<span className="text-sm">{plan.interval?.toLowerCase()}</span>
             </p>
             <hr className="mb-4 text-[#E2E1E5]" />
-           <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
-                        {plan.HolidayCampPackage &&
-                          plan.HolidayCampPackage
-                            // Remove <p> tags
-                            .replace(/<\/?p>/gi, '')
-                            // Replace both <br> and &nbsp; with a special marker (e.g. ###)
-                            .replace(/<br\s*\/?>|&nbsp;/gi, '###')
-                            // Split by that marker
-                            .split('###')
-                            .map((item, index) => {
-                              const text = item.trim();
-                              return text ? (
-                                <li key={index} className="flex items-center gap-2">
-                                  <img src="/demo/synco/icons/tick-circle.png" alt="" className="w-5 h-5" />
-                                  {text}
-                                </li>
-                              ) : null;
-                            })}
-                      </ul>
+                               <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
+  {plan.HolidayCampPackage &&
+    // Decode HTML entities
+    new DOMParser()
+      .parseFromString(plan.HolidayCampPackage, "text/html")
+      .body.textContent
+      // Replace <br> and &nbsp; with a marker for splitting
+      .replace(/\r?\n|&nbsp;/gi, '###')
+      // Split by <p> and <br> equivalent markers
+      .split(/###|<\/?p>/gi)
+      .map((item, index) => {
+        const text = item.replace(/<\/?[^>]+(>|$)/g, '').trim(); // remove leftover tags
+        return text ? (
+          <li key={index} className="flex items-center gap-2">
+            <img
+              src="/demo/synco/icons/tick-circle.png"
+              alt=""
+              className="w-5 h-5"
+            />
+            {text}
+          </li>
+        ) : null;
+      })}
+</ul>
+
             <button className="px-8 py-3 text-[16px] font-medium rounded-xl bg-[#237FEA] text-white shadow transition">
               {plan.joiningFee ? `£${plan.joiningFee} Joining Fee` : "Not Defined Joining Fee"}
             </button>

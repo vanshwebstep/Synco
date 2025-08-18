@@ -16,6 +16,7 @@
     "@tinymce/tinymce-react": "^6.2.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.23.0",
+    "html-react-parser": "^5.2.6",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.525.0",
     "mathjs": "^14.5.3",

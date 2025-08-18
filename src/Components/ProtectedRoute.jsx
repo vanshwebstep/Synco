@@ -35,6 +35,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
           setAuthStatus('allowed');
           // Optional: Save admin info to localStorage
           localStorage.setItem('adminInfo', JSON.stringify(result.admin));
+           localStorage.setItem('role', (result.admin.role));
         } else {
           console.warn('Token invalid or expired');
           localStorage.removeItem('adminToken');

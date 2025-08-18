@@ -242,7 +242,7 @@ const AddPaymentPlanGroup = () => {
             </>
         )
     }
-
+console.log('formData.HolidayCampPackage',formData.HolidayCampPackage)
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -573,21 +573,19 @@ const AddPaymentPlanGroup = () => {
                                             Membership Package Details
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
-                                            <Editor
-                                                apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
-                                                value={formData.HolidayCampPackage}
-                                                onEditorChange={(content) =>
-                                                    setFormData({ ...formData, HolidayCampPackage: content })
-                                                }
-                                                init={{
-
-                                                    menubar: false,
-                                                    plugins: 'lists advlist',
-                                                    toolbar:
-                                                        'fontsizeselect capitalize bold italic underline alignleft aligncenter alignjustify',
-                                                    height: 200,
-                                                    branding: false,
-                                                    content_style: `
+<Editor
+  apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
+  value={formData.HolidayCampPackage}
+  onEditorChange={(content) =>
+    setFormData({ ...formData, HolidayCampPackage: content })
+  }
+  init={{
+    menubar: false,
+    plugins: 'lists advlist',
+    toolbar: 'fontsizeselect capitalize bold italic underline alignleft aligncenter alignjustify',
+    height: 200,
+    branding: false,
+    content_style: `
       body {
         background-color: #f3f4f6;
         font-family: inherit;
@@ -596,32 +594,40 @@ const AddPaymentPlanGroup = () => {
         color: #111827;
       }
     `,
-                                                    setup: (editor) => {
-                                                        // Register custom icon
-                                                        editor.ui.registry.addIcon(
-                                                            'capitalize-icon',
-                                                            '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
-                                                        );
+    setup: (editor) => {
+      // Custom capitalize button
+      editor.ui.registry.addIcon(
+        'capitalize-icon',
+        '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
+      );
+      editor.ui.registry.addButton('capitalize', {
+        icon: 'capitalize-icon',
+        tooltip: 'Capitalize Text',
+        onAction: () => {
+          editor.formatter.register('capitalize', {
+            inline: 'span',
+            styles: { textTransform: 'capitalize' },
+          });
+          editor.formatter.toggle('capitalize');
+        },
+      });
 
-                                                        // Register and add button
-                                                        editor.ui.registry.addButton('capitalize', {
-                                                            icon: 'capitalize-icon',
-                                                            tooltip: 'Capitalize Text',
-                                                            onAction: () => {
-                                                                editor.formatter.register('capitalize', {
-                                                                    inline: 'span',
-                                                                    styles: { textTransform: 'capitalize' },
-                                                                });
+      // Remove className from content on init
+      editor.on('BeforeSetContent', (e) => {
+        if (e.content) {
+          e.content = e.content.replace(/\sclass="[^"]*"/g, '');
+        }
+      });
 
-                                                                editor.formatter.toggle('capitalize');
-                                                            },
-                                                        });
-                                                    },
-                                                }}
-                                                onInit={(evt, editor) => {
-                                                    console.log('Editor initialized', editor);
-                                                }}
-                                            />
+      // Also clean pasted content
+      editor.on('PastePostProcess', (e) => {
+        e.node.innerHTML = e.node.innerHTML.replace(/\sclass="[^"]*"/g, '');
+      });
+    },
+  }}
+/>
+
+
                                         </div>
                                     </div>
 

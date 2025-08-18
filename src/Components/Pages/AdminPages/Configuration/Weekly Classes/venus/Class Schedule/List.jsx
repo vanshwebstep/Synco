@@ -43,15 +43,10 @@ const List = () => {
     );
 
     console.log('Filtered Class Schedules:', classSchedules);
-    const formatDateToTimeString = (date) => {
-        if (!date) return '';
-        return date.toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true,
-        });
-    };
-
+   const formatDateToTimeString = (date) => {
+  if (!date) return "";
+  return format(date, "h:mm aa");
+};
 
 
     const [openTerms, setOpenTerms] = useState({});
@@ -81,6 +76,7 @@ const List = () => {
     };
     // Reset for new form
     const handleAddNew = () => {
+         setFormData({})
         setIsEditing(false);
         setOpenForm(true);
     };
@@ -194,28 +190,27 @@ const List = () => {
             </>
         )
     }
-    const parseTimeStringToDate = (timeString) => {
-        if (!timeString || typeof timeString !== "string" || !timeString.includes(":")) return null;
+const parseTimeStringToDate = (timeString) => {
+  if (!timeString || typeof timeString !== "string") return null;
 
-        const [hoursStr, minutesStr] = timeString.split(":");
-        const hours = parseInt(hoursStr, 10);
-        const minutes = parseInt(minutesStr, 10);
+  const match = timeString.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (!match) return null;
 
-        if (isNaN(hours) || isNaN(minutes)) return null;
+  let [_, hoursStr, minutesStr, meridian] = match;
+  let hours = parseInt(hoursStr, 10);
+  const minutes = parseInt(minutesStr, 10);
 
-        const date = new Date();
-        date.setHours(hours);
-        date.setMinutes(minutes);
-        date.setSeconds(0);
-        date.setMilliseconds(0);
+  if (meridian.toUpperCase() === "PM" && hours !== 12) {
+    hours += 12;
+  }
+  if (meridian.toUpperCase() === "AM" && hours === 12) {
+    hours = 0;
+  }
 
-        // Round to nearest 15 mins
-        const roundedMinutes = Math.round(minutes / 15) * 15;
-        date.setMinutes(roundedMinutes);
-
-        return date;
-    };
-
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date;
+};
 
     console.log('singleClassSchedules', singleClassSchedules)
     console.log("filteredSchedules", filteredSchedules)
@@ -277,7 +272,7 @@ const List = () => {
                                                 </div>
                                                 <div className='text-[#717073] font-semibold  text-[16px]'>
                                                     <p className="text-[#717073]">Facility</p>
-                                                    <p className="font-semibold">{item.facility || 'null'}</p>
+                                                    <p className="font-semibold">{singleClassSchedules.facility || 'null'}</p>
                                                 </div>
                                             </div>
 
@@ -290,6 +285,7 @@ const List = () => {
                                                     onClick={() => handleEditClick(item)}
                                                 />
                                                 <img
+                                                                                                    className=" cursor-pointer"
                                                     onClick={() => handleDeleteClick(item.id)}
                                                     src="/demo/synco/icons/deleteIcon.png"
                                                     alt="Delete"
@@ -374,6 +370,7 @@ const List = () => {
                                                                             if (selected) {
                                                                                 navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/pending', {
                                                                                     state: {
+                                                                                       singleClassSchedules: singleClassSchedules,
                                                                                         sessionMap: selected,
                                                                                         sessionId: selected.sessionPlanId,
                                                                                     },

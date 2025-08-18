@@ -11,8 +11,10 @@ export const verifyToken = async (token) => {
     const result = await response.json();
     console.log('📦 Verify response:', result);
 
-    if (response.ok && result.status === true) {
+    if (response.ok) {
       localStorage.setItem('adminInfo', JSON.stringify(result.admin));
+      localStorage.setItem('role', (result.admin.role));
+    
       return true;
     } else {
       localStorage.removeItem('adminToken');

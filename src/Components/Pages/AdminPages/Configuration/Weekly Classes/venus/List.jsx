@@ -212,15 +212,21 @@ const List = () => {
     )
   }
 
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-GB", {
-      weekday: "short",
-      day: "numeric",
-      month: "short",
-      year: "numeric"
-    });
-  };
+const formatDate = (dateStr) => {
+  if (!dateStr) return "";
+
+  const date = new Date(dateStr + "T00:00:00"); // force local midnight
+  if (isNaN(date.getTime())) return ""; // invalid date
+
+  return date.toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+
 
 
 
@@ -526,9 +532,9 @@ console.log('classCards',classCards)
       </div>
 
       {showModal && clickedIcon === "currency" && selectedPlans.length > 0 && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
-          <div className="flex items-center justify-center w-full px-4 py-6 sm:px-6 md:py-10">
-            <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-black/60 flex  max-h-full items-center justify-center">
+          <div className="flex items-center    justify-center w-full px-4 py-6 sm:px-6 md:py-10">
+            <div className="bg-white rounded-3xl overflow-y-auto max-h-[500px] scrollbar-hide p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
               {/* Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
                 <h2 className="font-semibold text-[20px] sm:text-[24px]">Subscription Plan Preview</h2>
@@ -548,12 +554,16 @@ console.log('classCards',classCards)
       )}
       {showModal && clickedIcon === "calendar" && (
         <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
-          <div className="bg-white rounded-3xl w-full max-h-[80%]   overflow-y-scroll scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500  max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
+          <div className="bg-white rounded-3xl w-full max-h-[80%]   overflow-y-scroll  scrollbar-hide scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500  max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
             {/* Header */}
             <div className="flex justify-between items-center border-b  border-[#E2E1E5] pb-4 mb-4">
               <h2 className="text-[24px] font-semibold">Term Dates</h2>
               <button onClick={() => setShowModal(false)}>
-                <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
+<img 
+  src="/demo/synco/icons/cross.png" 
+  alt="close" 
+    className="w-4 h-4 cursor-pointer transform transition-transform duration-200 hover:scale-110" 
+/>
               </button>
             </div>
 
@@ -562,7 +572,7 @@ console.log('classCards',classCards)
 
               {congestionNote.map((term) => (
                 <div key={term.id}>
-                  <h3 className="text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
+                  <h3 className="text-[20px] font-semibold mb-1">{term.termName} </h3>
                   <p className="text-[18px]">
                     {formatDate(term.startDate)} - {formatDate(term.endDate)}
                   </p>

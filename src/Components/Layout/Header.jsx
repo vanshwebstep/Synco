@@ -18,8 +18,10 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const weekday = currentDate.toLocaleString("default", { weekday: "long" }); // e.g., Monday
   const year = currentDate.getFullYear(); // e.g., 2024
   //
-  const unreadNotifications = notification.filter(n => !n.isRead);
-  useEffect(() => {
+  console.log('notification',notification)
+const unreadNotifications = Array.isArray(notification ? notification : notification)
+    ? notification.filter(n => !n.isRead)
+    : [];  useEffect(() => {
     const storedAdmin = localStorage.getItem("adminInfo");
     if (storedAdmin) {
       try {
@@ -281,7 +283,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
                     </span>
                     {profileOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </div>
-                  <span className="text-sm text-gray-600 font-semibold">{adminInfo?.role}</span>
+                  <span className="text-sm text-gray-600 font-semibold"> {localStorage.getItem("role")}</span>
                 </div>
               </div>
 

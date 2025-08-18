@@ -10,11 +10,12 @@ const ViewSessions = ({ item, sessionData }) => {
   const location = useLocation();
   const sessionMap = location.state?.sessionMap;
   const sessionId = location.state?.sessionId;
+    const singleClassSchedules = location.state?.singleClassSchedules;
+
   console.log(
     'sessionMap',
     sessionMap.sessionPlan
   );
-  console.log('sessionId', sessionId)
   const selectedGroup = sessionMap.sessionPlan;
   const levelKeyToLabel = {
     beginner: "Beginners",
@@ -71,6 +72,7 @@ const ViewSessions = ({ item, sessionData }) => {
     ],
   };
   const navigate = useNavigate();
+  console.log('sessionId', selectedGroup)
 
   useEffect(() => {
     if (selectedGroup?.levels) {
@@ -138,7 +140,41 @@ const ViewSessions = ({ item, sessionData }) => {
         setSelectedExercise(currentContent.sessionExercises[0]);
       }
     }, [currentContent]);
-  
+  console.log('singleClassSchedules',singleClassSchedules)
+  const ageGroups = {
+  "Beginners": "4–5 Years",
+  "Intermediate": "6–7 Years",
+  "Advanced": "8–9 Years",
+  "Pro": "10–12 Years"
+};
+function formatDateWithSuffix(dateStr) {
+  const date = new Date(dateStr);
+
+  // Day of week
+  const weekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
+
+  // Day with suffix
+  const day = date.getDate();
+  const suffix = (d => {
+    if (d > 3 && d < 21) return 'th'; // 4-20 -> th
+    switch (d % 10) {
+      case 1: return 'st';
+      case 2: return 'nd';
+      case 3: return 'rd';
+      default: return 'th';
+    }
+  })(day);
+
+  // Month and Year
+  const month = date.toLocaleDateString('en-GB', { month: 'long' });
+  const year = date.getFullYear();
+
+  return `${weekday} ${day}${suffix} ${month} ${year}`;
+}
+
+
+// Output: Sunday 23rd April 2023
+
   return (
     <div className="md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -164,9 +200,9 @@ const ViewSessions = ({ item, sessionData }) => {
           </div>
           <p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4">Pending</p>
           <div className="text-sm  p-6 text-gray-700 space-y-3 text-left">
-            <p><span className="font-semibold">Venue</span><br /> Chelsea Academy</p>
-            <p><span className="font-semibold">Class</span><br /> 4–5 Years</p>
-            <p><span className="font-semibold">Date:</span> <br />Sunday 23rd April 2023</p>
+            <p><span className="font-semibold">Venue</span><br /> {singleClassSchedules.name}</p>
+            <p><span className="font-semibold">Class</span><br />   {ageGroups[activeTab]}</p>
+            <p><span className="font-semibold">Date:</span> <br />{formatDateWithSuffix(singleClassSchedules.createdAt)} </p>
             <p><span className="font-semibold">Time:</span> <br />11:00am – 12:00pm</p>
           </div>
         </div>

@@ -44,6 +44,9 @@ export const NotificationProvider = ({ children }) => {
       // If successful
       const result = resultRaw.data?.notifications || [];
       setNotification(result);
+      if(result?.role){
+      localStorage.setItem('role', (result?.role));
+      }
       setCustomnotificationAll(resultRaw.data?.customNotifications || []);
       return true;
     } catch (error) {
