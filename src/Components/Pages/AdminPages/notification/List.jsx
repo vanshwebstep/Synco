@@ -14,10 +14,16 @@ export default function List() {
   } = useNotification();
 
   // ✅ Merge notifications with fallback category if missing
-  const allNotifications = [...notification, ...customnotificationAll].map(n => ({
-    ...n,
-    category: n.category?.trim() || "System"
-  }));
+const toArray = (val) => Array.isArray(val) ? val : val ? [val] : [];
+
+const allNotifications = [
+  ...toArray(notification),
+  ...toArray(customnotificationAll)
+].map(n => ({
+  ...n,
+  category: n.category?.trim() || "System"
+}));
+
 
   // ✅ Filter by active tab
   const filtered =

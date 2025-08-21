@@ -261,9 +261,7 @@ const Create = () => {
             placeholder="Select or create role"
             classNamePrefix="react-select"
           />
-
         </div>
-
         <div className="relative">
           <label className="block text-sm font-semibold text-[#282829]">
             Password

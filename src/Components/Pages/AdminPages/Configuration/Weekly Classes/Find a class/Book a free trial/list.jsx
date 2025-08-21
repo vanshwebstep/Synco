@@ -578,6 +578,12 @@ const List = () => {
         }
     }, [singleClassSchedulesOnly]); // ✅ now it runs when data is fetched
     console.log('singleClassSchedulesOnly?.venue?', singleClassSchedulesOnly)
+    
+const genderOptions = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" },
+];
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
@@ -890,14 +896,16 @@ const List = () => {
                                     <div className="flex gap-4">
                                         <div className="w-1/2">
                                             <label className="block text-[16px] font-semibold">Gender</label>
-                                            <input
-                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                placeholder="Enter gender"
-                                                value={student.gender}
-                                                onChange={(e) =>
-                                                    handleInputChange(index, 'gender', e.target.value)
-                                                }
-                                            />
+                                           <Select
+  className="w-full mt-2 text-base"
+  classNamePrefix="react-select"
+  placeholder="Select gender"
+  value={genderOptions.find((option) => option.value === student.gender) || null}
+  onChange={(selectedOption) =>
+    handleInputChange(index, "gender", selectedOption ? selectedOption.value : "")
+  }
+  options={genderOptions}
+/>
                                         </div>
                                         <div className="w-1/2">
                                             <label className="block text-[16px] font-semibold">

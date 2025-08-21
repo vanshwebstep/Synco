@@ -224,7 +224,55 @@ export const ClassScheduleProvider = ({ children }) => {
       });
     }
   }, [token, fetchClassSchedules]);
+ const cancelClass = async  (classScheduleId, updatedClassScheduleData) => {
+    setLoading(true);
 
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    if (token) {
+      myHeaders.append("Authorization", `Bearer ${token}`);
+    }
+
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: JSON.stringify(updatedClassScheduleData),
+      redirect: "follow",
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-class/${classScheduleId}/cancel`, requestOptions);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update classSchedule");
+      }
+
+      const result = await response.json();
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "ClassSchedule has been Canceled successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Error updating classSchedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while updating classSchedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchClassSchedules();
+      setLoading(false);
+    }
+  };
 
   return (
     <ClassScheduleContext.Provider
@@ -244,6 +292,7 @@ export const ClassScheduleProvider = ({ children }) => {
         setClassSchedules,
         fetchClassSchedules,
         loading,
+        cancelClass,
       }}>
       {children}
     </ClassScheduleContext.Provider>

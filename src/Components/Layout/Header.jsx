@@ -3,13 +3,14 @@ import { Menu, X, Search, Bell, ChevronUp, ChevronDown } from 'lucide-react';
 import { useNotification } from '../Pages/AdminPages/contexts/NotificationContext';
 import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
+import { useMembers } from "../Pages/AdminPages/contexts/MemberContext";
 
 const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpen }) => {
   const isFetchingRef = useRef(false);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [showNotificationPopup, setShowNotificationPopup] = useState(null);
-  const { notification, setNotification, fetchNotification } = useNotification();
+  const { notification,customnotificationAll, setNotification, fetchNotification } = useNotification();
   const currentDate = new Date();
   const [adminInfo, setAdminInfo] = useState({ firstName: "", lastName: "", role: "", profile: "" });
 
@@ -17,11 +18,12 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const day = currentDate.getDate(); // e.g., 8
   const weekday = currentDate.toLocaleString("default", { weekday: "long" }); // e.g., Monday
   const year = currentDate.getFullYear(); // e.g., 2024
-  //
-  console.log('notification',notification)
-const unreadNotifications = Array.isArray(notification ? notification : notification)
-    ? notification.filter(n => !n.isRead)
-    : [];  useEffect(() => {
+  const { activeTab, setActiveTab } = useMembers();
+  
+  console.log('notificassstion',notification)
+
+  useEffect(() => {
+    // ✅ Load adminInfo from localStorage
     const storedAdmin = localStorage.getItem("adminInfo");
     if (storedAdmin) {
       try {
@@ -31,9 +33,48 @@ const unreadNotifications = Array.isArray(notification ? notification : notifica
         console.error("Invalid adminInfo JSON in localStorage:", e);
       }
     }
-  }, []);
+  }, []);const mergedNotifications = [
+  ...(Array.isArray(notification?.notifications) ? notification.notifications : []),
+  ...(Array.isArray(customnotificationAll) ? customnotificationAll : [])
+].map(n => {
+  // check recipient read status
+  const recipientUnread = Array.isArray(n.recipients)
+    ? n.recipients.some(r => r.isRead === false) // at least one unread
+    : false;
 
-  const notificationCount = unreadNotifications.length;
+  // normalize isRead
+  const normalizedIsRead = n.isRead !== undefined
+    ? n.isRead
+    : !recipientUnread; // if recipients exist, mark false if any unread
+
+  return {
+    ...n,
+    category: n.category?.trim() || "System",
+    isRead: normalizedIsRead
+  };
+});
+
+// filter by tab
+const filtered =
+  activeTab === "All"
+    ? mergedNotifications
+    : mergedNotifications.filter(n => n.category === activeTab);
+
+// unread only
+const unreadNotifications = mergedNotifications.filter(n => !n.isRead);
+
+// unread count per category
+const totalUnreadCount = unreadNotifications.reduce((acc, curr) => {
+  const cat = curr.category;
+  acc[cat] = (acc[cat] || 0) + 1;
+  return acc;
+}, {});
+
+// 🔥 total unread count (if you need it)
+const notificationCount = unreadNotifications.length;
+
+
+
   const latestUnread = unreadNotifications[0]; // Show the most recent unread
   const navigate = useNavigate();
 

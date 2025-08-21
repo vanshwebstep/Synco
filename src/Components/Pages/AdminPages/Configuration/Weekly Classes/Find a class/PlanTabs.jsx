@@ -10,7 +10,7 @@ const PlanTabs = ({ selectedPlans }) => {
 
   const studentKeys = Object.keys(groupByStudents).sort(); // ["1", "2", "3"]
   const [activeTab, setActiveTab] = useState(studentKeys[0]);
-console.log('groupByStudents',groupByStudents)
+console.log('groupByStudents',groupByStudents[activeTab])
   return (
     <div className="w-full">
       {/* Student Tabs */}
@@ -46,18 +46,22 @@ console.log('groupByStudents',groupByStudents)
               £{plan?.price?.toFixed(2)}/<span className="text-sm">{plan.interval?.toLowerCase()}</span>
             </p>
             <hr className="mb-4 text-[#E2E1E5]" />
-                               <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
-  {plan.HolidayCampPackage &&
-    // Decode HTML entities
+  <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
+  {(
+    plan.HolidayCampPackage || plan.holidayCampPackage // ✅ support both
+  ) &&
     new DOMParser()
-      .parseFromString(plan.HolidayCampPackage, "text/html")
+      .parseFromString(
+        plan.HolidayCampPackage || plan.holidayCampPackage, 
+        "text/html"
+      )
       .body.textContent
-      // Replace <br> and &nbsp; with a marker for splitting
-      .replace(/\r?\n|&nbsp;/gi, '###')
-      // Split by <p> and <br> equivalent markers
+      // Replace <br> and &nbsp; with markers
+      .replace(/\r?\n|&nbsp;/gi, "###")
+      // Split by <p>, <br>, or markers
       .split(/###|<\/?p>/gi)
       .map((item, index) => {
-        const text = item.replace(/<\/?[^>]+(>|$)/g, '').trim(); // remove leftover tags
+        const text = item.replace(/<\/?[^>]+(>|$)/g, "").trim(); // clean tags
         return text ? (
           <li key={index} className="flex items-center gap-2">
             <img

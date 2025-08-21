@@ -25,10 +25,23 @@ export default function Sidebar() {
   const { activeTab, setActiveTab } = useMembers();
   const { notification, customnotificationAll } = useNotification();
 
-  const mergedNotifications = [...notification, ...customnotificationAll].map(n => ({
+const mergedNotifications = [
+  ...(Array.isArray(notification) ? notification : []),
+  ...(Array.isArray(customnotificationAll) ? customnotificationAll : [])
+].map(n => {
+  // Check recipient read status (if exists)
+  const recipientIsRead = Array.isArray(n.recipients)
+    ? n.recipients.every(r => r.isRead) // all recipients read → true
+    : false;
+
+  return {
     ...n,
-    category: n.category?.trim() || "System"
-  }));
+    category: n.category?.trim() || "System",
+    isRead: n.isRead ?? recipientIsRead // ✅ normalize isRead at top level
+  };
+});
+
+
   const filtered =
     activeTab === "All"
       ? mergedNotifications

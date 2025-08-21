@@ -263,7 +263,7 @@ console.log('formData.HolidayCampPackage',formData.HolidayCampPackage)
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
                     <span className="truncate">
-                        {previewShowModal ? '2023/24 Standard Pricing preview' : 'Add Membership Plan Group'}
+                        {previewShowModal ? `${selectedGroup?.name} `: 'Add Membership Plan Group'}
                     </span>
                 </h2>
 

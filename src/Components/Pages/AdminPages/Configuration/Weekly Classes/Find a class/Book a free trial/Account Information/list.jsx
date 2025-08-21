@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, {useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
+
 const tabs = [
   "Parent Profile",
   "Student Profile",
@@ -9,15 +12,39 @@ const tabs = [
 ];
 import ServiceHistory from "./serviceHistory";
 import ParentProfile from "./ParentProfile";
-const list = () => {
+import { useBookFreeTrial } from '../../../../../contexts/BookAFreeTrialContext';
 
+const list = () => {
+      const { serviceHistoryFetchById ,serviceHistory} = useBookFreeTrial()
+  
+    const navigate = useNavigate();
+     const location = useLocation();
+  const [itemId, setItemId] = useState(null);
+useEffect(() => {
+    if (location.state?.itemId) {
+      setItemId(location.state.itemId);
+    }
+  }, [location.state]);
+
+     useEffect(() => {
+          const fetchData = async () => {
+              if (itemId) {
+                  await serviceHistoryFetchById(itemId);
+              }
+          };
+          fetchData();
+      }, [itemId, serviceHistoryFetchById]);
   const [activeTab, setActiveTab] = useState("Service History");
+console.log('serviceHistory',serviceHistory)
+
 
   return (
     <>
       <div className=" flex items-end mb-5 gap-2 md:gap-3">
         <div className=" flex items-center gap-2 md:gap-3">
-          <h2
+          <h2 onClick={() => {
+                    navigate('/configuration/weekly-classes/trial/list');
+                }}
 
             className="text-xl md:text-2xl font-semibold cursor-pointer hover:opacity-80 transition-opacity duration-200"
           >
@@ -79,15 +106,15 @@ const list = () => {
             </div>
           </div>
           <button
-            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] md:text-[16px] font-semibold"
+            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
           >
             <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
             Add booking
           </button>
         </div>
       </div>
-      {activeTab === "Service History" && <ServiceHistory />}
-      {activeTab === "Parent Profile" && <ParentProfile />}
+{activeTab === "Service History" && <ServiceHistory serviceHistory={serviceHistory} />}
+      {activeTab === "Parent Profile" && <ParentProfile  ParentProfile={serviceHistory}  />}
 
     </>
   )

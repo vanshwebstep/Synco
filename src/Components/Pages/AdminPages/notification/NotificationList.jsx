@@ -118,13 +118,28 @@ export default function NotificationList() {
         }
     };
 
-    const recipientOptions = [
-        { value: "all", label: "All" },
-        ...members.map((member) => ({
-            value: member.id,
-            label: `${member.name || member.firstName} (${member.email})`,
-        })),
-    ];
+  const storedAdmin = localStorage.getItem("adminInfo");
+let adminId = null;
+
+if (storedAdmin) {
+  try {
+    const parsedAdmin = JSON.parse(storedAdmin);
+    adminId = parsedAdmin?.id || null;
+  } catch (e) {
+    console.error("Invalid adminInfo JSON in localStorage:", e);
+  }
+}
+
+const recipientOptions = [
+  { value: "all", label: "All" },
+  ...members
+    .filter((member) => member.id !== adminId) // ✅ Exclude logged-in admin
+    .map((member) => ({
+      value: member.id,
+      label: `${member.name || member.firstName} (${member.email})`,
+    })),
+];
+
     useEffect(() => {
         fetchMembers();
         fetchCustomNotification();

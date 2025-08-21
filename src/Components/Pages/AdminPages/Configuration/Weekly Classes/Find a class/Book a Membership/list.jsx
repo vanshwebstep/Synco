@@ -23,11 +23,14 @@ import DatePicker from "react-datepicker";
 import Select from "react-select";
 import { useLocation } from 'react-router-dom';
 import { useClassSchedule } from '../../../../contexts/ClassScheduleContent';
+import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
 const List = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { createBookMembership } = useBookFreeTrial()
 
     const [expression, setExpression] = useState('');
     const [result, setResult] = useState('');
@@ -39,14 +42,16 @@ const List = () => {
     const popup3Ref = useRef(null);
     const [showPopup, setShowPopup] = useState(false);
     const [directDebitData, setDirectDebitData] = useState([]);
-    const [formData, setFormData] = useState({
+    const [payment, setPayment] = useState({
         firstName: "",
         lastName: "",
         email: "",
         billingAddress: "",
-        accountHolder: "",
-        sortCode: "",
-        accountNumber: "",
+        reference: "",
+        cardHolderName: "",
+        cv2: "",
+        expiryDate: "",
+        pan: "",
         authorise: false,
     });
     console.log('classId', classId)
@@ -69,6 +74,7 @@ const List = () => {
     const [congestionNote, setCongestionNote] = useState(null);
     const [numberOfStudents, setNumberOfStudents] = useState('')
     const [selectedDate, setSelectedDate] = useState(null);
+    const [membershipPlan, setMembershipPlan] = useState(null);
 
 
     const relationOptions = [
@@ -366,12 +372,13 @@ const List = () => {
     const [parents, setParents] = useState([
         {
             id: Date.now(),
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            relation: '',
-            hearAbout: ''
+            parentFirstName: '',
+            parentLastName: '',
+            parentEmail: '',
+            parentPhoneNumber: '',
+            relationToChild: '',
+            howDidYouHear: ''
+
         }
     ]);
     const handleAddParent = () => {
@@ -379,12 +386,12 @@ const List = () => {
             ...prev,
             {
                 id: Date.now(),
-                firstName: "",
-                lastName: "",
-                email: "",
-                phone: "",
-                relation: "",
-                hearAbout: "",
+                parentFirstName: '',
+                parentLastName: '',
+                parentEmail: '',
+                parentPhoneNumber: '',
+                relationToChild: '',
+                howDidYouHear: ''
             },
         ]);
     };
@@ -423,10 +430,10 @@ const List = () => {
         const primaryParent = updated[studentIndex].parents[0];
         if (primaryParent) {
             updated[studentIndex].emergency = {
-                firstName: primaryParent.parentFirstName,
-                lastName: primaryParent.parentLastName,
-                phoneNumber: primaryParent.parentPhoneNumber,
-                relationship: primaryParent.relation?.label || "",
+                parentFirstName: primaryParent.parentFirstName,
+                parentLastName: primaryParent.parentLastName,
+                parentPhoneNumber: primaryParent.parentPhoneNumber,
+                relationToChild: primaryParent.relationToChild?.label || "",
                 sameAsAbove: true
             };
         }
@@ -437,36 +444,82 @@ const List = () => {
         updated[index].phone = value;
         setParents(updated);
     };
-    const [emergencyContact, setEmergencyContact] = useState({
+
+    const [emergency, setEmergency] = useState({
         sameAsAbove: false,
-        firstName: "",
-        lastName: "",
-        phoneNumber: "",
-        relation: null
+        emergencyFirstName: "",
+        emergencyLastName: "",
+        emergencyPhoneNumber: "",
+        emergencyRelation: "",
     });
     useEffect(() => {
-        if (emergencyContact.sameAsAbove && parents.length > 0) {
+        if (emergency.sameAsAbove && parents.length > 0) {
             const firstParent = parents[0];
-            setEmergencyContact(prev => ({
+            setEmergency(prev => ({
                 ...prev,
-                firstName: firstParent.firstName || "",
-                lastName: firstParent.lastName || "",
-                phoneNumber: firstParent.phone || "",
-                relation: { label: "Parent", value: "parent" } // or whatever default you want
+                emergencyFirstName: firstParent.parentFirstName || "",
+                emergencyLastName: firstParent.parentLastName || "",
+                emergencyPhoneNumber: firstParent.parentPhoneNumber || "",
+                emergencyRelation: firstParent.relationToChild || "", // or whatever default you want
             }));
         }
-    }, [emergencyContact.sameAsAbove, parents]);
-    const handleSubmit = () => {
+    }, [emergency.sameAsAbove, parents]);
+    const handleSubmit = async () => {
+        if (!selectedDate) {
+            Swal.fire({
+                icon: "warning",
+                title: "Trial Date Required",
+                text: "Please select a trial date before submitting.",
+            });
+            return;
+        }
+        const filteredPayment = Object.fromEntries(
+            Object.entries(payment || {}).filter(
+                ([, value]) => value !== null && value !== "" && value !== undefined
+            )
+        );
+
+        // Transform payment fields
+        const transformedPayment = { ...filteredPayment };
+
+        // Handle expiry date
+        if (transformedPayment.expiryDate || transformedPayment["expiry date"]) {
+            const rawExpiry =
+                transformedPayment.expiryDate || transformedPayment["expiry date"];
+            transformedPayment.expiryDate = rawExpiry.replace("/", ""); // "12/12" -> "1212"
+            delete transformedPayment["expiry date"]; // remove old key if exists
+        }
+
+        // Handle PAN
+        if (transformedPayment.pan) {
+            transformedPayment.pan = transformedPayment.pan.replace(/\s+/g, ""); // remove spaces
+        }
+
+        setIsSubmitting(true);
+
         const payload = {
+            venueId: singleClassSchedulesOnly?.venue?.id,
             classScheduleId: singleClassSchedulesOnly?.id,
             trialDate: selectedDate,
             totalStudents: students.length,
-            formData,
+            keyInformation: selectedKeyInfo,
             students,
             parents,
-            emergencyContact,
-        };
+            emergency,
+            paymentPlanId: membershipPlan?.value ?? null, // only value
 
+            ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
+        };
+        try {
+            await createBookMembership(payload); // assume it's a promise
+            console.log("Final Payload:", JSON.stringify(payload, null, 2));
+            // Optionally show success alert or reset form
+        } catch (error) {
+            console.error("Error while submitting:", error);
+            // Optionally show error alert
+        } finally {
+            setIsSubmitting(false); // Stop loading
+        }
         console.log("Final Payload:", JSON.stringify(payload, null, 2));
         // send to API with fetch/axios
     };
@@ -567,6 +620,29 @@ const List = () => {
         }
     }, [singleClassSchedulesOnly]); // ✅ now it runs when data is fetched
     console.log('singleClassSchedulesOnly?.venue?', singleClassSchedulesOnly)
+
+    const paymentPlanOptions =
+        singleClassSchedulesOnly?.venue?.paymentPlans?.map((plan) => ({
+            label: `${plan.title} (${plan.students} student${plan.students > 1 ? 's' : ''})`,
+            value: plan.id,
+            joiningFee: plan.joiningFee,
+            all: plan,
+        })) || [];
+
+    // Prefill first plan (or specific one)
+    useEffect(() => {
+        if (paymentPlanOptions.length) {
+            setMembershipPlan(paymentPlanOptions[0]);
+        }
+    }, [singleClassSchedulesOnly]);
+    const genderOptions = [
+        { value: "male", label: "Male" },
+        { value: "female", label: "Female" },
+        { value: "other", label: "Other" },
+    ];
+    if (loading) return <Loader />;
+
+    console.log('membershipPlan', membershipPlan)
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
@@ -582,7 +658,7 @@ const List = () => {
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
                     <span className="truncate">
-                        Book a FREE Trial
+                        Book a Membership
                     </span>
                 </h2>
                 <div className="flex gap-3 relative items-center">
@@ -738,27 +814,34 @@ const List = () => {
                             <div className="relative mt-2 ">
 
                                 <Select
-                                    options={[{ label: "None", value: "none" }]} // Replace with your relationOptions
-                                    value={null}
-                                    onChange={() => { }}
-                                    placeholder="Choose Plan "
+                                    options={paymentPlanOptions}
+                                    value={membershipPlan}
+                                    onChange={(plan) => setMembershipPlan(plan)}
+                                    placeholder="Choose Plan"
                                     className="mt-2"
                                     classNamePrefix="react-select"
+                                    isClearable  // ✅ This adds the cross button
                                 />
 
                             </div>
                         </div><div className="mb-5">
                             <label htmlFor="" className="text-base font-semibold">Joining Fee</label>
                             <div className="relative mt-2 ">
-
-                                <Select
+                                <input
+                                    type="text"
+                                    placeholder="Choose Joining fee"
+                                    value={membershipPlan?.joiningFee != null ? `£${membershipPlan.joiningFee}` : ""}
+                                    readOnly
+                                    className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3  focus:outline-none"
+                                />
+                                {/* <Select
                                     options={[{ label: "None", value: "none" }]} // Replace with your relationOptions
                                     value={null}
                                     onChange={() => { }}
                                     placeholder="Choose Joining fee"
                                     className="mt-2"
                                     classNamePrefix="react-select"
-                                />
+                                /> */}
 
                             </div>
                         </div>
@@ -835,8 +918,12 @@ const List = () => {
                     <div className="w-full max-w-xl mx-auto">
                         <button
                             type="button"
+                            disabled={!membershipPlan}
                             onClick={() => setIsOpen(!isOpen)}
-                            className="bg-[#237FEA] text-white text-[18px]  font-semibold border w-full border-[#237FEA] px-6 py-3 rounded-lg flex items-center justify-center"
+                            className={`bg-[#237FEA] text-white text-[18px]  font-semibold border w-full border-[#237FEA] px-6 py-3 rounded-lg flex items-center justify-center  ${membershipPlan
+                                ? "bg-[#237FEA] border border-[#237FEA]"
+                                : "bg-gray-400 border-gray-400 cursor-not-allowed"
+                                }`}
                         >
                             Membership Plan Breakdown
 
@@ -858,15 +945,18 @@ const List = () => {
                             >
                                 <div className="flex justify-between text-[#333]">
                                     <span>Membership Plan</span>
-                                    <span>12 Months</span>
+                                    <span>
+                                        {membershipPlan.all.duration} {membershipPlan.all.interval}
+                                        {membershipPlan.all.duration > 1 ? 's' : ''}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between text-[#333]">
                                     <span>Monthly Subscription Fee</span>
-                                    <span>£39.99 p/m</span>
+                                    <span>£{membershipPlan.all.priceLesson} p/m</span>
                                 </div>
                                 <div className="flex justify-between text-[#333]">
                                     <span>One-off Joining Fee</span>
-                                    <span>£35.00</span>
+                                    <span>£{membershipPlan.all.joiningFee}</span>
                                 </div>
                                 <div className="flex justify-between text-[#333]">
                                     <span>Number of lessons pro-rated</span>
@@ -949,7 +1039,7 @@ const List = () => {
                                                 type="text"
                                                 value={student.age}
                                                 readOnly
-                                                className="w-full bg-gray-100 mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Automatic entry"
                                             />
                                         </div>
@@ -959,13 +1049,17 @@ const List = () => {
                                     <div className="flex gap-4">
                                         <div className="w-1/2">
                                             <label className="block text-[16px] font-semibold">Gender</label>
-                                            <input
-                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                placeholder="Enter gender"
-                                                value={student.gender}
-                                                onChange={(e) =>
-                                                    handleInputChange(index, 'gender', e.target.value)
+
+                                            <Select
+                                                className="w-full mt-2 text-base"
+                                                classNamePrefix="react-select"
+                                                placeholder="Select gender"
+                                                value={genderOptions.find((option) => option.value === student.gender) || null}
+                                                onChange={(selectedOption) =>
+                                                    handleInputChange(index, "gender", selectedOption ? selectedOption.value : "")
                                                 }
+
+                                                options={genderOptions}
                                             />
                                         </div>
                                         <div className="w-1/2">
@@ -1020,17 +1114,17 @@ const List = () => {
                             ))}
                         </div>
 
-                        <div className="space-y-6">
+                        <div className="space-y-6 ">
                             {parents.map((parent, index) => (
                                 <motion.div
                                     key={parent.id}
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.3, delay: index * 0.1 }}
-                                    className="bg-white p-6 rounded-3xl shadow-sm space-y-6 relative"
+                                    className="bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6 relative"
                                 >
                                     {/* Top Header Row */}
-                                    <div className="flex justify-between items-start">
+                                    <div className="flex justify-between  items-start">
                                         <h2 className="text-[20px] font-semibold">Parent information</h2>
 
                                         <div className="flex items-center gap-2">
@@ -1061,8 +1155,8 @@ const List = () => {
                                             <input
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Enter first name"
-                                                value={parent.firstName}
-                                                onChange={(e) => handleParentChange(index, "firstName", e.target.value)}
+                                                value={parent.parentFirstName}
+                                                onChange={(e) => handleParentChange(index, "parentFirstName", e.target.value)}
                                             />
                                         </div>
                                         <div className="w-1/2">
@@ -1070,8 +1164,8 @@ const List = () => {
                                             <input
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Enter last name"
-                                                value={parent.lastName}
-                                                onChange={(e) => handleParentChange(index, "lastName", e.target.value)}
+                                                value={parent.parentLastName}
+                                                onChange={(e) => handleParentChange(index, "parentLastName", e.target.value)}
                                             />
                                         </div>
                                     </div>
@@ -1084,16 +1178,16 @@ const List = () => {
                                                 type="email"
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Enter email address"
-                                                value={parent.email}
-                                                onChange={(e) => handleParentChange(index, "email", e.target.value)}
+                                                value={parent.parentEmail}
+                                                onChange={(e) => handleParentChange(index, "parentEmail", e.target.value)}
                                             />
                                         </div>
                                         <div className="w-1/2">
                                             <label className="block text-[16px] font-semibold">Phone number</label>
                                             <PhoneInput
                                                 country={"gb"}
-                                                value={parent.phone}
-                                                onChange={(val) => handleParentChange(index, "phone", val)}
+                                                value={parent.parentPhoneNumber}
+                                                onChange={(val) => handleParentChange(index, "parentPhoneNumber", val)}
                                                 inputClass="!w-full !h-full !border-0"
                                                 containerClass="w-full mt-2 border border-gray-300 rounded-xl px-2 py-3 custom-phone"
                                                 inputStyle={{ width: "100%", border: "none", height: "48px" }}
@@ -1110,9 +1204,9 @@ const List = () => {
                                                 placeholder="Select Relation"
                                                 className="mt-2"
                                                 classNamePrefix="react-select"
-                                                value={relationOptions.find((o) => o.value === parent.relation)}
+                                                value={relationOptions.find((o) => o.value === parent.relationToChild)}
                                                 onChange={(selected) =>
-                                                    handleParentChange(index, "relation", selected.value)
+                                                    handleParentChange(index, "relationToChild", selected.value)
                                                 }
                                             />
                                         </div>
@@ -1123,9 +1217,9 @@ const List = () => {
                                                 placeholder="Select from drop down"
                                                 className="mt-2"
                                                 classNamePrefix="react-select"
-                                                value={hearOptions.find((o) => o.value === parent.hearAbout)}
+                                                value={hearOptions.find((o) => o.value === parent.howDidYouHear)}
                                                 onChange={(selected) =>
-                                                    handleParentChange(index, "hearAbout", selected.value)
+                                                    handleParentChange(index, "howDidYouHear", selected.value)
                                                 }
                                             />
                                         </div>
@@ -1139,9 +1233,9 @@ const List = () => {
                             <div className="flex items-center gap-2">
                                 <input
                                     type="checkbox"
-                                    checked={emergencyContact.sameAsAbove}
+                                    checked={emergency.sameAsAbove}
                                     onChange={() =>
-                                        setEmergencyContact(prev => ({
+                                        setEmergency(prev => ({
                                             ...prev,
                                             sameAsAbove: !prev.sameAsAbove
                                         }))
@@ -1158,11 +1252,11 @@ const List = () => {
                                     <input
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                         placeholder="Enter first name"
-                                        value={emergencyContact.firstName}
+                                        value={emergency.emergencyFirstName}
                                         onChange={e =>
-                                            setEmergencyContact(prev => ({
+                                            setEmergency(prev => ({
                                                 ...prev,
-                                                firstName: e.target.value
+                                                emergencyFirstName: e.target.value
                                             }))
                                         }
                                     />
@@ -1172,11 +1266,11 @@ const List = () => {
                                     <input
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                         placeholder="Enter last name"
-                                        value={emergencyContact.lastName}
+                                        value={emergency.emergencyLastName}
                                         onChange={e =>
-                                            setEmergencyContact(prev => ({
+                                            setEmergency(prev => ({
                                                 ...prev,
-                                                lastName: e.target.value
+                                                emergencyLastName: e.target.value
                                             }))
                                         }
                                     />
@@ -1188,11 +1282,11 @@ const List = () => {
                                     <label className="block text-[16px] font-semibold">Phone number</label>
                                     <PhoneInput
                                         country={'gb'}
-                                        value={emergencyContact.phoneNumber}
+                                        value={emergency.emergencyPhoneNumber}
                                         onChange={value =>
-                                            setEmergencyContact(prev => ({
+                                            setEmergency(prev => ({
                                                 ...prev,
-                                                phoneNumber: value
+                                                emergencyPhoneNumber: value
                                             }))
                                         }
                                         inputClass="!w-full !h-full !border-0"
@@ -1204,11 +1298,11 @@ const List = () => {
                                     <label className="block text-[16px] font-semibold">Relation to child</label>
                                     <Select
                                         options={relationOptions}
-                                        value={emergencyContact.relation}
-                                        onChange={value =>
-                                            setEmergencyContact(prev => ({
+                                        value={relationOptions.find(option => option.value === emergency.emergencyRelation)}
+                                        onChange={selectedOption =>
+                                            setEmergency(prev => ({
                                                 ...prev,
-                                                relation: value
+                                                emergencyRelation: selectedOption?.value || ""
                                             }))
                                         }
                                         placeholder="Select Relation"
@@ -1222,23 +1316,23 @@ const List = () => {
                         <div className="w-full my-10">
                             <Select
                                 options={keyInfoOptions}
-                                value={selectedKeyInfo}
-                                onChange={setSelectedKeyInfo}
+                                value={keyInfoOptions.find(option => option.value === selectedKeyInfo)}
+                                onChange={(selectedOption) => setSelectedKeyInfo(selectedOption?.value || '')}
                                 placeholder="Key Information"
                                 className="react-select-container text-[20px]"
-                                classNamePrefix="react-select "
+                                classNamePrefix="react-select"
                                 styles={{
                                     control: (base, state) => ({
                                         ...base,
                                         borderRadius: '1rem',
-                                        borderColor: state.isFocused ? '#ccc' : '#E5E7EB', // light gray
+                                        borderColor: state.isFocused ? '#ccc' : '#E5E7EB',
                                         boxShadow: 'none',
                                         padding: '8px 8px',
                                         minHeight: '48px',
                                     }),
                                     placeholder: (base) => ({
                                         ...base,
-                                        color: '#000000ff', // tailwind text-gray-400
+                                        color: '#000000ff',
                                         fontWeight: 600,
                                     }),
                                     dropdownIndicator: (base) => ({
@@ -1258,10 +1352,31 @@ const List = () => {
                                 Cancel
                             </button>
 
+
                             <button
                                 type="button"
-                                onClick={() => setShowPopup(true)}
-                                className="bg-[#237FEA] text-white font-semibold border border-[#237FEA] text-[18px] px-6 py-3 rounded-lg"
+                                onClick={() => {
+                                    if (!membershipPlan || !selectedDate) {
+                                        let msg = "";
+                                        if (!membershipPlan && !selectedDate) msg = "Please select Membership Plan and Trial Date";
+                                        else if (!membershipPlan) msg = "Please select Membership Plan";
+                                        else if (!selectedDate) msg = "Please select Trial Date";
+
+                                        Swal.fire({
+                                            icon: "warning",
+                                            title: "Required Fields",
+                                            text: msg,
+                                        });
+                                        return;
+                                    }
+
+                                    // If both are selected, proceed
+                                    setShowPopup(true);
+                                }}
+                                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${membershipPlan && selectedDate
+                                    ? "bg-[#237FEA] border border-[#237FEA]"
+                                    : "bg-gray-400 border-gray-400 cursor-not-allowed"
+                                    }`}
                             >
                                 Setup Direct Debit
                             </button>
@@ -1332,7 +1447,7 @@ const List = () => {
                         </div>
                         {showPopup && (
                             <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
-<div className="bg-white rounded-2xl max-w-[541px] min-w-[541px] max-h-[90%] overflow-y-scroll space-y-6 relative scrollbar-hide">
+                                <div className="bg-white rounded-2xl max-w-[541px] min-w-[541px] max-h-[90%] overflow-y-scroll space-y-6 relative scrollbar-hide">
                                     <button
                                         className="absolute top-3 p-6 left-4 text-xl font-bold"
                                         onClick={() => setShowPopup(false)}
@@ -1345,8 +1460,10 @@ const List = () => {
 
                                     </div>
                                     <div className="text-left directDebitBg p-6 mb-4 m-6 rounded-2xl ">
-                                        <p className="text-white text-[16px]">12 month membership plan (1 student)</p>
-                                        <p className="font-bold white text-white text-[24px]">£39.99</p>
+                                        <p className="text-white text-[16px]">{membershipPlan?.label || ''}</p>
+                                        <p className="font-bold text-white text-[24px]">
+                                            {membershipPlan?.joiningFee != null && `£${membershipPlan?.joiningFee}`}
+                                        </p>
                                     </div>
                                     <div className="space-y-2 px-6 pb-6">
                                         <h3 className="font-semibold text-[20px]">Personal Details</h3>
@@ -1356,8 +1473,8 @@ const List = () => {
                                                 <input
                                                     className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                     type="text"
-                                                    value={formData.firstName}
-                                                    onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                                    value={payment.firstName}
+                                                    onChange={(e) => setPayment({ ...payment, firstName: e.target.value })}
                                                 />
                                             </div>
                                             <div>
@@ -1365,8 +1482,8 @@ const List = () => {
                                                 <input
                                                     type="text"
                                                     className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                    value={formData.lastName}
-                                                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                                    value={payment.lastName}
+                                                    onChange={(e) => setPayment({ ...payment, lastName: e.target.value })}
                                                 />
                                             </div>
                                         </div>
@@ -1375,58 +1492,144 @@ const List = () => {
                                             <input
                                                 type="email"
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                value={formData.email}
-                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                value={payment.email}
+                                                onChange={(e) => setPayment({ ...payment, email: e.target.value })}
                                             />
                                         </div>       <div>
                                             <label className="block text-[16px] font-semibold">Billing address </label>
                                             <input
                                                 type="text"
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                value={formData.billingAddress}
-                                                onChange={(e) => setFormData({ ...formData, billingAddress: e.target.value })}
+                                                value={payment.billingAddress}
+                                                onChange={(e) => setPayment({ ...payment, billingAddress: e.target.value })}
                                             />
                                         </div>
 
                                         <h3 className="font-semibold text-[20px] pt-2">Bank Details</h3>
-                                        <div>
-                                            <label className="block text-[16px] font-semibold">Account holder name</label>
-                                            <input
-                                                type="text"
-                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                value={formData.accountHolder}
-                                                onChange={(e) => setFormData({ ...formData, accountHolder: e.target.value })}
-                                            />
+
+                                        <div className="flex gap-6 mt-3">
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                    type="radio"
+                                                    name="paymentType"
+                                                    value="rrn"
+                                                    checked={payment.paymentType === "rrn"}
+                                                    onChange={(e) => setPayment({ ...payment, paymentType: e.target.value })}
+                                                />
+                                                <span>RRN</span>
+                                            </label>
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                    type="radio"
+                                                    name="paymentType"
+                                                    value="card"
+                                                    checked={payment.paymentType === "card"}
+                                                    onChange={(e) => setPayment({ ...payment, paymentType: e.target.value })}
+                                                />
+                                                <span>Card</span>
+                                            </label>
                                         </div>
-                                        <div>
-                                            <label className="block text-[16px] font-semibold">Your sort code (must be 6 digits long)</label>
 
-                                            <input
-                                                type="text"
-                                                maxLength={6}
-                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                value={formData.sortCode}
-                                                onChange={(e) => setFormData({ ...formData, sortCode: e.target.value })}
-                                            />
-                                        </div>
 
-                                        <div>
-                                            <label className="block text-[16px] font-semibold">Your account number (must be 8 digits long)</label>
-                                            <input
-                                                type="text"
-                                                maxLength={8}
-                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                value={formData.accountNumber}
-                                                onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
-                                            /></div>
+                                        {payment.paymentType === "rrn" && (
+                                            <div className="mt-4">
+                                                <label className="block text-[16px] font-semibold">Reference Number</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Enter Reference No."
+                                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                    value={payment.reference}
+                                                    onChange={(e) =>
+                                                        setPayment({
+                                                            ...payment,
+                                                            reference: e.target.value.replace(/\D/g, ""), // only digits
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                        )}
+                                        {payment.paymentType === "card" && (
+                                            <div className="mt-5">
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">Card Holder Name</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder=""
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        value={payment.cardHolderName}
+                                                        onChange={(e) =>
+                                                            setPayment({
+                                                                ...payment,
+                                                                cardHolderName: e.target.value.replace(/[^a-zA-Z\s]/g, ""), // only letters & spaces
+                                                            })
+                                                        }
+                                                    />
+                                                </div>
+                                                <div class="flex gap-4">
+                                                    <div class="w-full">
+                                                        <label className="block text-[16px] font-semibold">Expiry Date</label>
 
+                                                        <input
+                                                            type="text"
+                                                            inputMode="numeric"
+                                                            placeholder="MM/YY"
+                                                            maxLength={5}
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.expiryDate}
+                                                            onChange={(e) => {
+                                                                let value = e.target.value.replace(/\D/g, ""); // only digits
+                                                                if (value.length >= 3) {
+                                                                    value = value.slice(0, 2) + "/" + value.slice(2, 4);
+                                                                }
+                                                                setPayment({ ...payment, expiryDate: value });
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div class="w-full">
+
+                                                        <label className="block text-[16px] font-semibold">CV2</label>
+
+                                                        <input
+                                                            type="password"
+                                                            inputMode="numeric"
+                                                            placeholder="123"
+                                                            maxLength={4} // 3 (Visa/MC) or 4 (Amex)
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.cv2}
+                                                            onChange={(e) =>
+                                                                setPayment({
+                                                                    ...payment,
+                                                                    cv2: e.target.value.replace(/\D/g, ""), // only digits
+                                                                })
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div className="mt-4">
+                                                    <label className="block text-[16px] font-semibold">PAN</label>
+                                                    <input
+                                                        type="text"
+                                                        inputMode="numeric"
+                                                        placeholder="**** **** **** ****"
+                                                        maxLength={19}
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base tracking-widest"
+                                                        value={payment.pan}
+                                                        onChange={(e) => {
+                                                            let value = e.target.value.replace(/\D/g, ""); // only digits
+                                                            value = value.replace(/(.{4})/g, "$1 ").trim(); // format as XXXX XXXX XXXX XXXX
+                                                            setPayment({ ...payment, pan: value });
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="flex items-center space-x-2 pt-2">
                                             <input
                                                 type="checkbox"
                                                 className=" border border-gray-300 rounded-xl px-4 py-3 text-base"
 
-                                                checked={formData.authorise}
-                                                onChange={(e) => setFormData({ ...formData, authorise: e.target.checked })}
+                                                checked={payment.authorise}
+                                                onChange={(e) => setPayment({ ...payment, authorise: e.target.checked })}
                                             />
                                             <label className="block text-[16px] font-semibold">I can authorise Direct Debits on this account myself</label>
                                         </div>
@@ -1434,15 +1637,18 @@ const List = () => {
                                     <div className="w-full mx-auto flex justify-center" >
                                         <button
                                             onClick={() => {
-                                                setDirectDebitData([...directDebitData, formData]);
+                                                setDirectDebitData([...directDebitData, payment]);
                                                 setShowPopup(false);
-                                                handleSubmit(formData);
+                                                handleSubmit(payment);
                                             }}
-                                            className=" bg-[#237FEA] w-full max-w-[90%]  mx-auto my-3  text-white text-[16px] py-3 rounded-lg font-semibold"
+                                            disabled={!payment.authorise} // disables button if authorise is false
+                                            className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold ${payment.authorise ? "bg-[#237FEA] cursor-pointer" : "bg-gray-400 cursor-not-allowed"
+                                                }`}
                                         >
                                             Set up Direct Debit
                                         </button>
-                                        </div>
+
+                                    </div>
                                 </div>
                             </div>
                         )}

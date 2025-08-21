@@ -1,52 +1,61 @@
 // src/components/ParentProfile.jsx
 
-import React from "react";
+import React, { useEffect, useRef, useState } from 'react';
+
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
-const parents = [
-    {
-        id: "p1",
-        parentFirstName: "John",
-        parentLastName: "Doe",
-        parentEmail: "john.doe@example.com",
-        parentPhoneNumber: "+447911123456",
-        relationToChild: "father",
-        howDidYouHear: "facebook",
-    },
-    {
-        id: "p2",
-        parentFirstName: "Jane",
-        parentLastName: "Doe",
-        parentEmail: "jane.doe@example.com",
-        parentPhoneNumber: "+447911654321",
-        relationToChild: "mother",
-        howDidYouHear: "google",
-    },
-];
-const emergency = {
-    sameAsAbove: false,
-    emergencyFirstName: "Emily",
-    emergencyLastName: "Smith",
-    emergencyPhoneNumber: "+447700900900",
-    emergencyRelation: "aunt",
-};
-const relationOptions = [
-    { value: "father", label: "Father" },
-    { value: "mother", label: "Mother" },
-    { value: "guardian", label: "Guardian" },
-    { value: "aunt", label: "Aunt" },
-    { value: "uncle", label: "Uncle" },
-];
+import DatePicker from "react-datepicker";
+import Select from "react-select";
+import "react-datepicker/dist/react-datepicker.css";
+import { format } from "date-fns";
 
-const hearOptions = [
-    { value: "facebook", label: "Facebook" },
-    { value: "google", label: "Google" },
-    { value: "friend", label: "Friend Referral" },
-    { value: "flyer", label: "Flyer" },
-    { value: "other", label: "Other" },
-];
+const ParentProfile = ({ ParentProfile }) => {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const [selectedDate, setSelectedDate] = useState(null);
 
-const ParentProfile = () => {
+    const [showRebookTrial, setshowRebookTrial] = useState(false);
+    const [showCancelTrial, setshowCancelTrial] = useState(false);
+    const [selectedTime, setSelectedTime] = useState(null);
+    const [reason, setReason] = useState("");
+    const reasonOptions = [
+        { value: "sick", label: "Student sick" },
+        { value: "other", label: "Other" },
+    ];
+    const formatDate = (dateString, withTime = false) => {
+        if (!dateString) return "-";
+        const date = new Date(dateString);
+        const options = {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+        };
+        if (withTime) {
+            return (
+                date.toLocaleDateString("en-US", options) +
+                ", " +
+                date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+            );
+        }
+        return date.toLocaleDateString("en-US", options);
+    };
+
+    const {
+        bookingId,
+        trialDate,
+        bookedBy,
+        status,
+        createdAt,
+        students,
+        classSchedule,
+        paymentPlans,
+    } = ParentProfile;
+    console.log('parents', ParentProfile.emergency)
+    const parents = ParentProfile.parents;
+
+    const studentCount = students?.length || 0;
+    const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
+    const emergency = ParentProfile.emergency;
+    console.log('matchedPlan', matchedPlan)
     return (
         <>
             <div className="md:flex w-full gap-4">
@@ -54,7 +63,7 @@ const ParentProfile = () => {
                     <div className="space-y-6">
                         {parents.map((parent, index) => (
                             <div
-                                key={parent.id}
+                                key={parent.parentFirstName}
                                 className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
                             >
                                 {/* Top Header Row */}
@@ -113,7 +122,7 @@ const ParentProfile = () => {
                                         <label className="block text-[16px] font-semibold">Relation to child</label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={relationOptions.find((o) => o.value === parent.relationToChild)?.label || ""}
+                                            value={parent.relationToChild}
                                             readOnly
                                         />
                                     </div>
@@ -121,7 +130,7 @@ const ParentProfile = () => {
                                         <label className="block text-[16px] font-semibold">How did you hear about us?</label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={hearOptions.find((o) => o.value === parent.howDidYouHear)?.label || ""}
+                                            value={parent.howDidYouHear}
                                             readOnly
                                         />
                                     </div>
@@ -129,53 +138,56 @@ const ParentProfile = () => {
                             </div>
                         ))}
                     </div>
+                    {emergency.map((emergency, index) => (
+                        <div className="bg-white p-6 rounded-3xl shadow-sm space-y-6">
 
-                    <div className="bg-white p-6 rounded-3xl shadow-sm space-y-6">
-                        <h2 className="text-[20px] font-semibold">Emergency contact details</h2>
+                            <h2 className="text-[20px] font-semibold">Emergency contact details</h2>
 
-                        <div className="flex items-center gap-2">
-                            <input type="checkbox" checked={emergency.sameAsAbove} readOnly disabled />
-                            <label className="text-base font-semibold text-gray-700">Fill same as above</label>
+                            <div className="flex items-center gap-2">
+                                <input type="checkbox" checked={emergency.sameAsAbove} readOnly disabled />
+                                <label className="text-base font-semibold text-gray-700">Fill same as above</label>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <div className="w-1/2">
+                                    <label className="block text-[16px] font-semibold">First name</label>
+                                    <input
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        value={emergency.emergencyFirstName}
+                                        readOnly
+                                    />
+                                </div>
+                                <div className="w-1/2">
+                                    <label className="block text-[16px] font-semibold">Last name</label>
+                                    <input
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        value={emergency.emergencyLastName}
+                                        readOnly
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <div className="w-1/2">
+                                    <label className="block text-[16px] font-semibold">Phone number</label>
+                                    <input
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        value={emergency.emergencyPhoneNumber}
+                                        readOnly
+                                    />
+                                </div>
+                                <div className="w-1/2">
+                                    <label className="block text-[16px] font-semibold">Relation to child</label>
+                                    <input
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        value={emergency.emergencyRelation}
+                                        readOnly
+                                    />
+                                </div>
+                            </div>
+
                         </div>
-
-                        <div className="flex gap-4">
-                            <div className="w-1/2">
-                                <label className="block text-[16px] font-semibold">First name</label>
-                                <input
-                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                    value={emergency.emergencyFirstName}
-                                    readOnly
-                                />
-                            </div>
-                            <div className="w-1/2">
-                                <label className="block text-[16px] font-semibold">Last name</label>
-                                <input
-                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                    value={emergency.emergencyLastName}
-                                    readOnly
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex gap-4">
-                            <div className="w-1/2">
-                                <label className="block text-[16px] font-semibold">Phone number</label>
-                                <input
-                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                    value={emergency.emergencyPhoneNumber}
-                                    readOnly
-                                />
-                            </div>
-                            <div className="w-1/2">
-                                <label className="block text-[16px] font-semibold">Relation to child</label>
-                                <input
-                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                    value={relationOptions.find((o) => o.value === emergency.emergencyRelation)?.label || ""}
-                                    readOnly
-                                />
-                            </div>
-                        </div>
-                    </div>
+                    ))}
                     <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
 
@@ -191,7 +203,7 @@ const ParentProfile = () => {
                                 placeholder="Add a comment"
                                 className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none"
                             />
-                            <button className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600">
+                            <button className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-[#237FEA]">
                                 <img src="/demo/synco/icons/sent.png" alt="" />
                             </button>
                         </div>
@@ -239,9 +251,9 @@ const ParentProfile = () => {
                         </div>
                     </div>
                 </div>
-                <div className="md:min-w-[508px] md:max-w-[508px] text-base space-y-5">
+                <div className="md:min-w-[508px] bg-white max-h-fit rounded-full md:max-w-[508px] text-base space-y-5">
                     {/* Card Wrapper */}
-                    <div className="rounded-3xl bg-black overflow-hidden shadow-md border border-gray-200">
+                    <div className="rounded-3xl bg-[#2E2F3E] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
                         <div className="bg-[#FECF2F] m-2 px-6 rounded-3xl py-3 flex items-center justify-between">
                             <div>
@@ -249,58 +261,376 @@ const ParentProfile = () => {
                                 <div className="text-[16px] font-semibold text-[#1F2937]">Trials</div>
                             </div>
                             <div className="bg-[#343A40] flex items-center gap-2  text-white text-[14px] px-3 py-2 rounded-xl">
-                                <img src="/demo/synco/icons/x-circle-contained.png" alt="" /> Not Attended
+                                <div className="flex items-center gap-2">
+                                    {status === 'pending' && (
+                                        <img src="/demo/synco/icons/loadingWhite.png" alt="Loading" />
+                                    )}
+                                    {status === 'not attend' && (
+                                        <img src="/demo/synco/icons/x-circle-contained.png" alt="Not Attended" />
+                                    )}
+                                    {status === 'attend' && (
+                                        <img src="/demo/synco/icons/attendedicon.png" alt="Attended" />
+                                    )}
+                                    {/* Fallback for any other or undefined status */}
+                                    {!status && (
+                                        <>
+                                            <img src="/demo/synco/icons/x-circle-contained.png" alt="Not Attended" />
+                                            Not Attended
+                                        </>
+                                    )}
+
+                                    {/* Optional text next to the icon */}
+                                    <span>
+                                        {status === 'pending'
+                                            ? 'Pending'
+                                            : status === 'attend'
+                                                ? 'Attended'
+                                                : 'Not Attended'}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Content */}
-                        <div className="bg-[#2E2F3E] text-white px-6 py-6 space-y-6">
-                            {/* Avatar & Account Holder */}
-                            <div className="flex items-center gap-4">
-                                <img
-                                    src="https://cdn-icons-png.flaticon.com/512/147/147144.png"
-                                    alt="avatar"
-                                    className="w-18 h-18 rounded-full"
-                                />
-                                <div>
-                                    <div className="text-[24px] font-semibold leading-tight">Account Holder</div>
-                                    <div className="text-[16px] text-gray-300">John Doe / Father</div>
-                                </div>
-                            </div>
-
-                            {/* Details */}
-                            <div className="space-y-4">
-                                <div>
-                                    <div className="text-[20px] font-bold tracking-wide">Venue</div>
-                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
-                                        Acton
+                        {parents.map((parent, index) => (
+                            <div className="bg-[#2E2F3E] text-white px-6 py-6 space-y-6">
+                                {/* Avatar & Account Holder */}
+                                <div className="flex items-center gap-4">
+                                    <img
+                                        src={
+                                            (status === 'pending' || status === 'attend') && bookedBy?.profile
+                                                ? `${API_BASE_URL}/${bookedBy.profile}`
+                                                : "https://cdn-icons-png.flaticon.com/512/147/147144.png"
+                                        }
+                                        alt="avatar"
+                                        className="w-18 h-18 rounded-full"
+                                        onError={(e) => {
+                                            e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/147/147144.png"; // fallback if image fails to load
+                                        }}
+                                    />
+                                    <div>
+                                        <div className="text-[24px] font-semibold leading-tight">
+                                            {status === 'pending' || status === 'attend'
+                                                ? 'Booked By'
+                                                : 'Account Holder'}
+                                        </div>
+                                        <div className="text-[16px] text-gray-300">
+                                            {status === 'pending' || status === 'attend'
+                                                ? `${bookedBy.firstName} ${bookedBy.lastName}`
+                                                : `${parent.parentFirstName} / ${parent.relationToChild}`}
+                                        </div>
                                     </div>
                                 </div>
 
+                                {/* Details */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <div className="text-[20px] font-bold tracking-wide">Venue</div>
+                                        <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
+                                            {classSchedule?.venue?.name || "-"}
+                                        </div>
+                                    </div>
+
+                                    <div className="border-t border-[#495362] py-5">
+                                        {status === 'pending' || status === 'attend' ? (
+                                            <>
+                                                <div className="text-[20px] text-white">Membership Plan</div>
+
+                                                {matchedPlan && (
+                                                    <div className="text-[16px] mt-1 text-gray-400">
+                                                        {matchedPlan.duration} {matchedPlan.interval} Plan
+                                                    </div>
+                                                )}
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div className="text-[20px] text-white">Students</div>
+                                                <div className="text-[16px] mt-1 text-gray-400">{students?.length || 0}</div>
+                                            </>
+                                        )}
+
+                                    </div>
+
+                                    <div className="border-t border-[#495362] py-5">
+                                        {status === 'pending' || status === 'attend' ? (
+                                            <>
+                                                <div className=" text-[20px] text-white">Booking Date</div>
+                                                <div className="text-[16px]  mt-1 text-gray-400"> {formatDate(createdAt, true)}</div>
+
+                                            </>
+                                        ) : (
+                                            <>
+
+                                                <div className=" text-[20px] text-white">Date of Booking</div>
+                                                <div className="text-[16px]  mt-1 text-gray-400"> {formatDate(createdAt, true)}</div>
+                                            </>
+                                        )}
+
+                                    </div>
+
+                                    <div className="border-t border-[#495362] py-5">
+                                        <div className=" text-[20px] text-white">Date of Trial</div>
+                                        <div className="text-[16px]  mt-1 text-gray-400">{formatDate(trialDate)}</div>
+                                    </div>
+                                    {status === 'pending' || status === 'attend' ? (
+                                        <>
+                                            <div className="border-t border-[#495362] py-5">
+                                                <div className=" text-[20px] text-white">Price</div>
+                                                <div className="text-[16px]  mt-1 text-gray-400"> £{matchedPlan?.price} </div>
+                                            </div>
+
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="border-t border-[#495362] py-5">
+                                                <div className=" text-[20px] text-white">Booking Source</div>
+                                                <div className="text-[16px]  mt-1 text-gray-400"> {bookedBy?.firstName} {bookedBy?.lastName}</div>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+
+
+                    </div>
+                    <div className="bg-white rounded-3xl p-6  space-y-4">
+
+                        {/* Top Row: Email + Text */}
+                        <div className="flex gap-7">
+
+                            <button className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium">
+                                <img src="/demo/synco/icons/mail.png" alt="" /> Send Email
+                            </button>
+
+                            <button className="flex-1 border border-[#717073] rounded-xl py-3 flex  text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-[#717073] font-medium">
+                                <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
+                            </button>
+                        </div>
+
+                        {status !== 'pending' && status !== 'attend' && (
+                            <button
+                                onClick={() => {
+                                    setshowRebookTrial(true);
+                                }}
+                                className="w-full bg-[#237FEA] text-white  rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700  hover:shadow-md transition-shadow duration-300 transition">
+                                Rebook FREE Trial
+                            </button>
+                        )}
+
+                        {status !== 'attend' && (
+                            <button
+                                onClick={() => {
+                                    setshowCancelTrial(true);
+                                }}
+                                className="w-full border border-gray-300 text-[#717073]  text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300  font-medium">
+                                Cancel Trial
+                            </button>
+                        )}
+                        {status !== 'pending' && status !== 'attend' && (
+                            <button className="w-full border border-gray-300 text-[#717073]  text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
+                                Book a Membership
+                            </button>
+                        )}
+                        {status == 'attend' && (
+                            <div className="flex gap-7">
+
+                                <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
+                                    No Membership
+                                </button>
+
+                                <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex  text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
+                                    Book a Membership
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                {showRebookTrial && (
+                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                            <button
+                                className="absolute top-4 left-4 p-2"
+                                onClick={() => setshowRebookTrial(false)}
+                            >
+                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                            </button>
+
+                            <div className="text-center py-6 border-b border-gray-300">
+                                <h2 className="font-semibold text-[24px]">Rebook Free Trial</h2>
+                            </div>
+
+                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                {/* Venue */}
                                 <div>
-                                    <div className="text-[16px] text-gray-400">Students</div>
-                                    <div className="text-[14px] text-white mt-1">1</div>
+                                    <label className="block text-[16px] font-semibold">Venue</label>
+                                    <input
+                                        type="text"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        placeholder="Select Venue"
+                                    />
                                 </div>
 
+                                {/* Class */}
                                 <div>
-                                    <div className="text-[16px] text-gray-400">Date of Booking</div>
-                                    <div className="text-[14px] text-white mt-1">Nov 18 2021, 17:00</div>
+                                    <label className="block text-[16px] font-semibold">Class</label>
+                                    <input
+                                        type="text"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        placeholder="Select Class"
+                                    />
                                 </div>
 
+                                {/* Date */}
                                 <div>
-                                    <div className="text-[16px] text-gray-400">Date of Trial</div>
-                                    <div className="text-[14px] text-white mt-1">Nov 18 2021</div>
+                                    <label className="block text-[16px] font-semibold">Date</label>
+                                    <DatePicker
+                                        selected={selectedDate}
+                                        onChange={(date) => setSelectedDate(date)}
+                                        dateFormat="EEEE, dd MMMM yyyy" // Thursday, 26 November 2023
+                                        placeholderText="Select a date"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                    />
                                 </div>
 
+                                {/* Time */}
+                                <div className="space-y-4">
+                                    {/* Time Picker */}
+                                    <div>
+                                        <label className="block text-[16px] font-semibold">Time</label>
+                                        <DatePicker
+                                            selected={selectedTime}
+                                            onChange={(date) => setSelectedTime(date)}
+                                            showTimeSelect
+                                            showTimeSelectOnly
+                                            timeIntervals={60} // interval in minutes
+                                            timeCaption="Time"
+                                            dateFormat="h:mm aa"
+                                            placeholderText="Select Time"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        />
+                                    </div>
+
+                                    {/* Reason */}
+                                    <div>
+                                        <label className="block text-[16px] font-semibold">
+                                            Reason for Non-Attendance
+                                        </label>
+                                        <Select
+                                            value={reason}
+                                            onChange={setReason}
+                                            options={reasonOptions}
+                                            placeholder="Select Reason"
+                                            className=" rounded-lg mt-2"
+                                            styles={{
+                                                control: (base, state) => ({
+                                                    ...base,
+                                                    borderRadius: "0.7rem",
+                                                    boxShadow: "none",
+                                                    padding: "4px 8px",
+                                                    minHeight: "48px",
+                                                }),
+                                                placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                                dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                                indicatorSeparator: () => ({ display: "none" }),
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Additional Notes */}
                                 <div>
-                                    <div className="text-[16px] text-gray-400">Booking Source</div>
-                                    <div className="text-[14px] text-white mt-1">Online</div>
+                                    <label className="block text-[16px] font-semibold">Additional Notes (Optional)</label>
+                                    <textarea
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        rows={3}
+                                        placeholder="Add any notes here..."
+                                    />
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex gap-4 pt-4">
+                                    <button
+                                        className="flex-1 border border-gray-400 rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        onClick={() => setshowRebookTrial(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                    >
+                                        Rebook Trial
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
+                )}
+                {showCancelTrial && (
+                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                            <button
+                                className="absolute top-4 left-4 p-2"
+                                onClick={() => setshowCancelTrial(false)}
+                            >
+                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                            </button>
+
+                            <div className="text-center py-6 border-b border-gray-300">
+                                <h2 className="font-semibold text-[24px]">Cancel Free Trial</h2>
+                            </div>
+
+                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                {/* Venue */}
+
+                                {/* Reason */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">
+                                        Reason for Cancellation
+                                    </label>
+                                    <Select
+                                        value={reason}
+                                        onChange={setReason}
+                                        options={reasonOptions}
+                                        placeholder=""
+                                        className=" rounded-lg mt-2"
+                                        styles={{
+                                            control: (base, state) => ({
+                                                ...base,
+                                                borderRadius: "0.7rem",
+                                                boxShadow: "none",
+                                                padding: "4px 8px",
+                                                minHeight: "48px",
+                                            }),
+                                            placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                            dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                            indicatorSeparator: () => ({ display: "none" }),
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Additional Notes (Optional)</label>
+                                    <textarea
+                                        className="w-full bg-gray-100 mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        rows={3}
+                                        placeholder=""
+                                    />
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex justify-end gap-4 pt-4">
+
+                                    <button
+                                        className=" w-1/2 bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                    >
+                                        Cancel Trial
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                )}
             </div>
         </>
     );

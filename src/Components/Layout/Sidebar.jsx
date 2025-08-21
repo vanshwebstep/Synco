@@ -208,12 +208,6 @@ const remainingTabs = [
     role: commonRole
   }
 ];
-
-
-
-
-
-
 const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const [openDropdowns, setOpenDropdowns] = useState({});
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -226,7 +220,6 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen((prev) => !prev);
   };
-
   const renderMenuItems = (items, level = 0) => {
     const location = useLocation(); // hook inside render so it's scoped
     const MyRole = localStorage.getItem("role");

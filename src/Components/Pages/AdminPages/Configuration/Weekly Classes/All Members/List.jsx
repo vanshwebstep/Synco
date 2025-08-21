@@ -4,14 +4,43 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Select from "react-select";
 import { Check, } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
+import Loader from '../../../contexts/Loader';
 
 const trialLists = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [fromDate, setFromDate] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 11));
     const [toDate, setToDate] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+ 
+const filterOptions = [
+  { label: "Pending", key: "pending" },
+  { label: "Active", key: "active" },
+  { label: "Date Booked", key: "dateBooked" },
+  { label: "Date of Trial", key: "dateOfTrial" },
+  { label: "6 Months", key: "sixMonths" },
+  { label: "3 Months", key: "threeMonths" },
+  { label: "flexi Plan", key: "flexiPlan" },
+];
+const [checkedStatuses, setCheckedStatuses] = useState(
+  filterOptions.reduce((acc, option) => ({ ...acc, [option.key]: false }), {})
+);
 
+// ✅ Generic checkbox change handler
+const handleCheckboxChange = (key) => {
+  setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
+};
+    const [selectedDates, setSelectedDates] = useState([]);
+    const { fetchBookMemberships, bookMembership, setBookMembership, setSearchTerm, searchTerm, status, loading, selectedVenue, setSelectedVenue, myVenues, setMyVenues } = useBookFreeTrial()
+   
+    useEffect(() => {
+        if (selectedVenue) {
+            fetchBookMemberships("", selectedVenue.label); // Using label as venueName
+        } else {
+            fetchBookMemberships(); // No filter
+        }
+    }, [selectedVenue, fetchBookMemberships]);
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
 
@@ -47,22 +76,64 @@ const trialLists = () => {
         setToDate(null);
     };
 
-    const isSameDate = (d1, d2) =>
-        d1 &&
-        d2 &&
-        d1.getDate() === d2.getDate() &&
-        d1.getMonth() === d2.getMonth() &&
-        d1.getFullYear() === d2.getFullYear();
+    const isSameDate = (d1, d2) => {
+        if (!d1 || !d2) return false;
 
+        // Ensure both are Date objects
+        const date1 = d1 instanceof Date ? d1 : new Date(d1);
+        const date2 = d2 instanceof Date ? d2 : new Date(d2);
 
+        return (
+            date1.getDate() === date2.getDate() &&
+            date1.getMonth() === date2.getMonth() &&
+            date1.getFullYear() === date2.getFullYear()
+        );
+    };
 
     const handleDateClick = (date) => {
-        if (selectedDate && isSameDate(date, selectedDate)) {
-            setSelectedDate(null); // Unselect if clicked again
-        } else {
-            setSelectedDate(date);
-        }
+        if (!date) return;
+        setSelectedDates((prev) => {
+            const exists = prev.find((d) => d.getTime() === date.getTime());
+            if (exists) return prev.filter((d) => d.getTime() !== date.getTime());
+            return [...prev, date];
+        });
     };
+  const applyFilter = () => {
+  const forAttend = checkedStatuses.pending;
+  const forNotAttend = checkedStatuses.active;
+
+  let forDateOkBookingTrial = [];
+  let forDateOfTrial = [];
+  let forOtherDate = [];
+
+  if (selectedDates.length) {
+    selectedDates.forEach((date) => {
+      let added = false;
+
+      if (checkedStatuses.dateBooked) {
+        forDateOkBookingTrial.push(date);
+        added = true;
+      }
+      if (checkedStatuses.dateOfTrial) {
+        forDateOfTrial.push(date);
+        added = true;
+      }
+      if (!added) {
+        forOtherDate.push(date);
+      }
+    });
+  }
+
+  fetchBookMemberships(
+    "",
+    "",
+    forAttend,
+    forNotAttend,
+    forDateOkBookingTrial,
+    forDateOfTrial,
+    forOtherDate
+  );
+};
 
 
 
@@ -135,6 +206,16 @@ const trialLists = () => {
         setSavedAgent(tempSelectedAgent);
         setShowPopup(false);
     };
+    const handleSearch = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+
+        // Fetch data with search value (debounce optional)
+        fetchBookMemberships(value);
+    };
+    // if (loading) return <Loader />;
+
+    console.log('bookMembership', bookMembership)
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
 
@@ -203,32 +284,40 @@ const trialLists = () => {
                             </thead>
 
                             <tbody>
-                                {/* Static Row 1 */}
-                                <tr   onClick={() => navigate('/demo/synco/configuration/weekly-classes/all-members/membership-sales')}
- className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
-                                    <td className="p-4 cursor-pointer">
-                                        <div className="flex items-center gap-3">
-                                            <button className="lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-300" />
-                                            <span>Downtown</span>
-                                        </div>
-                                    </td>
-                                    <td className="p-4">Sunrise Sports Center</td>
-                                    <td className="p-4">123 Main St, NY</td>
-                                    <td className="p-4">Indoor Court</td>
-                                    <td className="p-4">Indoor Court</td>
-                                    <td className="p-4">Indoor Court</td>
-                                    <td className="p-4 text-center">
-                                        1
-                                    </td>
-                                    <td className="p-4">
-                                        <div className="flex text-red-500 rounded-lg p-1 text-center justify-center bg-red-100 gap-2">
-                                            not attached
+                                {bookMembership.map((item, index) =>
+                                    item.students.map((student, studentIndex) => (
+                                        <tr onClick={() => navigate('/configuration/weekly-classes/all-members/membership-sales')}
+                                            className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
+                                            <td className="p-4 cursor-pointer">
+                                                <div className="flex items-center gap-3">
+                                                    <button className="lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-300" />
+                                                    <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
+                                                </div>
+                                            </td>
+                                            <td className="p-4">{student.age}</td>
+                                            <td className="p-4">{item.venue?.name || '-'}</td>
+                                            <td className="p-4">{new Date(item.dateBooked).toLocaleDateString()}</td>
+                                            <td className="p-4">Indoor Court</td>
+                                            <td className="p-4"> {item?.paymentPlan?.title}</td>
+                                            <td className="p-4 text-center">
+                                                {item?.paymentPlan?.duration} {item?.paymentPlan?.interval}{item?.paymentPlan?.duration > 1 ? 's' : ''}
+                                            </td>
+                                            <td className="p-4">
+                                                <div
+                                                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === 'attend'
+                                                        ? 'bg-green-100 text-green-600'
+                                                        : item.status.toLowerCase() === 'pending'
+                                                            ? 'bg-yellow-100 text-yellow-600'
+                                                            : 'bg-red-100 text-red-500'
+                                                        } capitalize`}
+                                                >
+                                                    {item.status}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
 
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                {/* You can add more static rows below if needed */}
                             </tbody>
                         </table>
                     </div>
@@ -244,8 +333,9 @@ const trialLists = () => {
                                 <input
                                     type="text"
                                     placeholder="Search by student name"
+                                    value={searchTerm}
+                                    onChange={handleSearch}
                                     className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 pl-9 focus:outline-none"
-
                                 />
                                 <FiSearch className="absolute left-3 top-4 text-[20px]" />
                             </div>
@@ -254,32 +344,31 @@ const trialLists = () => {
                             <label htmlFor="" className="text-base font-semibold">Venue</label>
                             <div className="relative mt-2 ">
                                 <Select
-                                    options={[{ label: "None", value: "none" }]} // Replace with your relationOptions
-                                    value={null}
-                                    onChange={() => { }}
+                                    options={myVenues.map((venue) => ({
+                                        label: venue?.name, // or `${venue.name} (${venue.area})`
+                                        value: venue?.id,
+                                    }))}
+                                    value={selectedVenue}
+                                    onChange={(venue) => setSelectedVenue(venue)}
                                     placeholder="Choose venue"
                                     className="mt-2"
                                     classNamePrefix="react-select"
+                                    isClearable={true} // 👈 adds cross button
                                     styles={{
                                         control: (base, state) => ({
                                             ...base,
-                                            borderRadius: '1.5rem',
-                                            borderColor: state.isFocused ? '#ccc' : '#E5E7EB', // light gray
-                                            boxShadow: 'none',
-                                            padding: '4px 8px',
-                                            minHeight: '48px',
+                                            borderRadius: "1.5rem",
+                                            borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
+                                            boxShadow: "none",
+                                            padding: "4px 8px",
+                                            minHeight: "48px",
                                         }),
-                                        placeholder: (base) => ({
-                                            ...base,// tailwind text-[#717073]
-                                            fontWeight: 600,
-                                        }),
-                                        dropdownIndicator: (base) => ({
-                                            ...base,
-                                            color: '#9CA3AF',
-                                        }),
-                                        indicatorSeparator: () => ({ display: 'none' }),
+                                        placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                        dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                        indicatorSeparator: () => ({ display: "none" }),
                                     }}
                                 />
+
 
 
                             </div>
@@ -290,7 +379,7 @@ const trialLists = () => {
                         <div className="">
                             <div className="flex justify-between items-center mb-5 ">
                                 <h2 className="text-[24px] font-semibold">Filter by Date </h2>
-                                <button className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-2 rounded-lg text-sm sm:text-[16px]">
+                                <button onClick={applyFilter} className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-2 rounded-lg text-sm sm:text-[16px]">
                                     <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                                     Apply filter
                                 </button>
@@ -299,25 +388,20 @@ const trialLists = () => {
                                 <div className="font-semibold mb-2 text-[18px]">Choose type</div>
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-2 font-semibold text-[16px]">
 
-                                    {["Attended", "Not Attended", "Date Booked", "Date of Trial"].map((label, i) => (
-                                        <label
-                                            key={i}
-                                            className="flex items-center gap-2"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                className="peer hidden"
-                                                id={`checkbox-${i}`}
-                                            />
-                                            <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
-                                                <Check
-                                                    className="w-4 h-4   transition-all"
-                                                    strokeWidth={3}
-                                                />
-                                            </span>
-                                            <span className="">{label}</span>
-                                        </label>
-                                    ))}
+                                   {filterOptions.map(({ label, key }) => (
+  <label key={key} className="flex items-center gap-2">
+    <input
+      type="checkbox"
+      className="peer hidden"
+      checked={checkedStatuses[key]}
+      onChange={() => handleCheckboxChange(key)}
+    />
+    <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
+      <Check className="w-4 h-4 transition-all" strokeWidth={3} />
+    </span>
+    <span>{label}</span>
+  </label>
+))}
                                     <label className="flex items-center gap-2 cursor-pointer">
                                         <input
                                             type="checkbox"
@@ -327,58 +411,58 @@ const trialLists = () => {
                                             className="peer hidden"
                                         />
                                         <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
-                                          <Check
-                                                    className="w-4 h-4   transition-all"
-                                                    strokeWidth={3}
-                                                />
-                                           
+                                            <Check
+                                                className="w-4 h-4   transition-all"
+                                                strokeWidth={3}
+                                            />
+
                                         </span>
                                         <span>Agent</span>
                                     </label>
                                 </div>
                             </div>
-{showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div
-            ref={popupRef}
-            className="bg-white rounded-2xl p-6 w-[300px] space-y-4 shadow-lg"
-          >
-            <h2 className="text-lg font-semibold">Select agent</h2>
-            <div className="space-y-3 max-h-72 overflow-y-auto">
-              {agents.map((agent, index) => (
-                <label
-                  key={index}
-                  className="flex items-center gap-3 cursor-pointer"
-                >
-                  <input
-                    type="radio"
-                    name="agent"
-                    checked={tempSelectedAgent === index}
-                    onChange={() => setTempSelectedAgent(index)}
-                    className="hidden peer"
-                  />
-                  <span className="w-4 h-4 border rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center">
-                    {tempSelectedAgent === index && (
-                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </span>
-                  <img src={agent.avatar} alt={agent.name} className="w-8 h-8 rounded-full" />
-                  <span>{agent.name}</span>
-                </label>
-              ))}
-            </div>
-            <button
-              className="w-full bg-blue-600 text-white rounded-md py-2 font-medium"
-              onClick={handleNext}
-              disabled={tempSelectedAgent === null}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
+                            {showPopup && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                    <div
+                                        ref={popupRef}
+                                        className="bg-white rounded-2xl p-6 w-[300px] space-y-4 shadow-lg"
+                                    >
+                                        <h2 className="text-lg font-semibold">Select agent</h2>
+                                        <div className="space-y-3 max-h-72 overflow-y-auto">
+                                            {agents.map((agent, index) => (
+                                                <label
+                                                    key={index}
+                                                    className="flex items-center gap-3 cursor-pointer"
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name="agent"
+                                                        checked={tempSelectedAgent === index}
+                                                        onChange={() => setTempSelectedAgent(index)}
+                                                        className="hidden peer"
+                                                    />
+                                                    <span className="w-4 h-4 border rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center">
+                                                        {tempSelectedAgent === index && (
+                                                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        )}
+                                                    </span>
+                                                    <img src={agent.avatar} alt={agent.name} className="w-8 h-8 rounded-full" />
+                                                    <span>{agent.name}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                        <button
+                                            className="w-full bg-blue-600 text-white rounded-md py-2 font-medium"
+                                            onClick={handleNext}
+                                            disabled={tempSelectedAgent === null}
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                             <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
                                 {/* Header */}
                                 <div className="flex justify-around items-center mb-3">
@@ -419,17 +503,16 @@ const trialLists = () => {
                                                 className={`grid grid-cols-7 text-[18px] gap-1 py-1 rounded `}
                                             >
                                                 {week.map((date, i) => {
-                                                    const isSelected = isSameDate(date, selectedDate);
+                                                    const isSelected = isSameDate(date, selectedDates);
                                                     return (
                                                         <div
                                                             key={i}
                                                             onClick={() => date && handleDateClick(date)}
                                                             className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full cursor-pointer
-                                         ${isSelected
+  ${selectedDates.some(d => isSameDate(d, date))
                                                                     ? "bg-blue-600 text-white font-bold"
                                                                     : "text-gray-800"
-                                                                }
-                                       `}
+                                                                }`}
                                                         >
                                                             {date ? date.getDate() : ""}
                                                         </div>
@@ -451,7 +534,7 @@ const trialLists = () => {
                             <img src='/demo/synco/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
-                        <button className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
+                        <button onClick={applyFilter} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
                             <img src='/demo/synco/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Apply filter
                         </button>

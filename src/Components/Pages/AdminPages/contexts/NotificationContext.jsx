@@ -43,6 +43,7 @@ export const NotificationProvider = ({ children }) => {
 
       // If successful
       const result = resultRaw.data?.notifications || [];
+
       setNotification(result);
       if(result?.role){
       localStorage.setItem('role', (result?.role));

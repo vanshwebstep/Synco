@@ -43,10 +43,10 @@ const List = () => {
     );
 
     console.log('Filtered Class Schedules:', classSchedules);
-   const formatDateToTimeString = (date) => {
-  if (!date) return "";
-  return format(date, "h:mm aa");
-};
+    const formatDateToTimeString = (date) => {
+        if (!date) return "";
+        return format(date, "h:mm aa");
+    };
 
 
     const [openTerms, setOpenTerms] = useState({});
@@ -76,7 +76,7 @@ const List = () => {
     };
     // Reset for new form
     const handleAddNew = () => {
-         setFormData({})
+        setFormData({})
         setIsEditing(false);
         setOpenForm(true);
     };
@@ -190,27 +190,27 @@ const List = () => {
             </>
         )
     }
-const parseTimeStringToDate = (timeString) => {
-  if (!timeString || typeof timeString !== "string") return null;
+    const parseTimeStringToDate = (timeString) => {
+        if (!timeString || typeof timeString !== "string") return null;
 
-  const match = timeString.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-  if (!match) return null;
+        const match = timeString.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+        if (!match) return null;
 
-  let [_, hoursStr, minutesStr, meridian] = match;
-  let hours = parseInt(hoursStr, 10);
-  const minutes = parseInt(minutesStr, 10);
+        let [_, hoursStr, minutesStr, meridian] = match;
+        let hours = parseInt(hoursStr, 10);
+        const minutes = parseInt(minutesStr, 10);
 
-  if (meridian.toUpperCase() === "PM" && hours !== 12) {
-    hours += 12;
-  }
-  if (meridian.toUpperCase() === "AM" && hours === 12) {
-    hours = 0;
-  }
+        if (meridian.toUpperCase() === "PM" && hours !== 12) {
+            hours += 12;
+        }
+        if (meridian.toUpperCase() === "AM" && hours === 12) {
+            hours = 0;
+        }
 
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  return date;
-};
+        const date = new Date();
+        date.setHours(hours, minutes, 0, 0);
+        return date;
+    };
 
     console.log('singleClassSchedules', singleClassSchedules)
     console.log("filteredSchedules", filteredSchedules)
@@ -285,7 +285,7 @@ const parseTimeStringToDate = (timeString) => {
                                                     onClick={() => handleEditClick(item)}
                                                 />
                                                 <img
-                                                                                                    className=" cursor-pointer"
+                                                    className=" cursor-pointer"
                                                     onClick={() => handleDeleteClick(item.id)}
                                                     src="/demo/synco/icons/deleteIcon.png"
                                                     alt="Delete"
@@ -370,7 +370,7 @@ const parseTimeStringToDate = (timeString) => {
                                                                             if (selected) {
                                                                                 navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/pending', {
                                                                                     state: {
-                                                                                       singleClassSchedules: singleClassSchedules,
+                                                                                        singleClassSchedules: singleClassSchedules,
                                                                                         sessionMap: selected,
                                                                                         sessionId: selected.sessionPlanId,
                                                                                     },
@@ -471,11 +471,23 @@ const parseTimeStringToDate = (timeString) => {
                                                                                     </button>
 
                                                                                     <button
-                                                                                        onClick={() => navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/cancel')}
-                                                                                        className="bg-[#FE7058] font-semibold hover:bg-white hover:text-[#FE7058] border-2 border-transparent hover:border-[#FE7058] text-[15px] text-white px-3 py-2 rounded-xl transition"
+                                                                                        onClick={() =>
+                                                                                            navigate(
+                                                                                                item.status === "cancelled"
+                                                                                                    ? "/configuration/weekly-classes/venues/class-schedule/Sessions/detail"
+                                                                                                    : "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
+                                                                                                { state: { schedule: item } } // Pass the entire item
+                                                                                            )
+                                                                                        }
+                                                                                        className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
+        ${item.status === "cancelled"
+                                                                                                ? "bg-white text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
+                                                                                                : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
+                                                                                            }`}
                                                                                     >
-                                                                                        Cancel Session
+                                                                                        {item.status === "cancelled" ? "See Detail" : "Cancel Session"}
                                                                                     </button>
+
                                                                                 </div>
                                                                             </div>
                                                                         )

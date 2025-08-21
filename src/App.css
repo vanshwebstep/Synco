@@ -279,3 +279,6 @@ button {
     cursor: pointer;
 }
 /* // for hide scrolbar .scrollbar-hide */
+.react-select__control {
+    padding: 8px 5px;
+}
