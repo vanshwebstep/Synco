@@ -42,6 +42,7 @@ const Preview = ({ item, sessionData }) => {
           content[label] = items.map((entry, index) => ({
             title: `${label} – Page ${index + 1}`,
             heading: entry.skillOfTheDay || 'No Skill',
+            player: entry.player || 'player',
             videoUrl: video ? `${API_BASE_URL}/${video}` : '',
             bannerUrl: banner ? `${API_BASE_URL}/${banner}` : '',
             description: entry.description || '',
@@ -75,7 +76,7 @@ const Preview = ({ item, sessionData }) => {
       setSelectedExercise(currentContent.sessionExercises[0]);
     }
   }, [currentContent]);
-
+  console.log('currentContent', currentContent)
   return (
     <div className="md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -90,7 +91,7 @@ const Preview = ({ item, sessionData }) => {
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
-          <span className="truncate">View Session Plans</span>
+          <span className="truncate">     {selectedGroup?.groupName || 'View Session Plans'}</span>
         </h2>
       </div>
       <div className="bg-white rounded-3xl shadow p-6 flex flex-col md:flex-row gap-6">
@@ -130,10 +131,11 @@ const Preview = ({ item, sessionData }) => {
                   />
                 )}
                 <h2 className="font-semibold text-[28px] mb-0">
-                  {selectedGroup?.groupName}
+                  {currentContent.heading}
                 </h2>
                 <p className="text-[20px] flex items-center gap-2 font-semibold">
-                  {currentContent.heading} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
+
+                  {currentContent?.player} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
                 </p>
                 <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
                   {currentContent.description}

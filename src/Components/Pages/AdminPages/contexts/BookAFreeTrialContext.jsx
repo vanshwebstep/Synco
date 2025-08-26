@@ -13,6 +13,8 @@ export const BookFreeTrialProvider = ({ children }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVenue, setSelectedVenue] = useState(null);
   const [status, setStatus] = useState(null);
+  const [statsMembership, setStatsMembership] = useState([]);
+  const [bookedByAdmin, setBookedByAdmin] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [isEditBookFreeTrial, setIsEditBookFreeTrial] = useState(false);
@@ -47,7 +49,9 @@ export const BookFreeTrialProvider = ({ children }) => {
       status2 = false,
       dateofmembership = "",
       dateoftrial = "",
-      forOtherDate = ""
+      forOtherDate = "",
+      BookedBy = []
+
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
@@ -70,7 +74,9 @@ export const BookFreeTrialProvider = ({ children }) => {
         // Status filters
         if (status1) queryParams.append("status", "attend");
         if (status2) queryParams.append("status", "not attend");
-
+        if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
+          BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
+        }
         // CreatedAt dates (membership + other)
         const createdDates = [dateofmembership, forOtherDate]
           .filter(Boolean)
@@ -101,7 +107,8 @@ export const BookFreeTrialProvider = ({ children }) => {
         const resultRaw = await response.json();
         const result = resultRaw.data.trials || [];
         const venues = resultRaw.data.venue || [];
-
+        const bookedByAdmin = resultRaw.data.bookedByAdmin || []
+        setBookedByAdmin(bookedByAdmin);
         setMyVenues(venues);
         setBookFreeTrials(result);
       } catch (error) {
@@ -352,7 +359,7 @@ export const BookFreeTrialProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/trial/list`)
+      navigate(`/configuration/weekly-classes/all-members/list`)
       return result;
 
     } catch (error) {
@@ -369,73 +376,85 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
-const fetchBookMemberships = useCallback(
-  async (
-    studentName = "",
-    venueName = "",
-    status1 = false,
-    status2 = false,
-    dateofmembership = [],
-    dateoftrial = [],
-    forOtherDate = []
-  ) => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+  const fetchBookMemberships = useCallback(
+    async (
+      studentName = "",
+      venueName = "",
+      status1 = false,
+      status2 = false,
+      dateofmembership = [],
+      month1 = false,
+      month2 = false,
+      month3 = false,
+      forOtherDate = [],
+      BookedBy = []
+    ) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
 
-    const shouldShowLoader =
-      studentName ||
-      venueName ||
-      status1 ||
-      status2 ||
-      dateofmembership.length ||
-      dateoftrial.length ||
-      forOtherDate.length;
-    if (shouldShowLoader) setLoading(true);
+      const shouldShowLoader =
+        studentName ||
+        venueName ||
+        status1 ||
+        status2 ||
+        dateofmembership.length ||
+        forOtherDate.length;
+      if (shouldShowLoader) setLoading(true);
 
-    try {
-      const queryParams = new URLSearchParams();
+      try {
+        const queryParams = new URLSearchParams();
+        console.log('BookedBy', BookedBy)
+        if (studentName) queryParams.append("studentName", studentName);
+        if (venueName) queryParams.append("venueName", venueName);
 
-      if (studentName) queryParams.append("studentName", studentName);
-      if (venueName) queryParams.append("venueName", venueName);
+        if (status1) queryParams.append("status", "pending");
+        if (status2) queryParams.append("status", "active");
 
-      if (status1) queryParams.append("status", "pending");
-      if (status2) queryParams.append("status", "active");
+        if (month1) queryParams.append("duration", "6");
+        if (month2) queryParams.append("duration", "3");
+        if (month3) queryParams.append("duration", "1");
+       if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
+    BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
+}
 
-      [...dateofmembership, ...forOtherDate]
-        .filter(Boolean)
-        .map((d) => new Date(d))
-        .filter((d) => !isNaN(d.getTime()))
-        .forEach((d) => queryParams.append("createdAt", d.toISOString()));
+        [...forOtherDate]
+          .filter(Boolean)
+          .map((d) => new Date(d))
+          .filter((d) => !isNaN(d.getTime()))
+          .forEach((d) => queryParams.append("createdAt", d.toISOString()));
 
-      (Array.isArray(dateoftrial) ? dateoftrial : [dateoftrial])
-        .filter(Boolean)
-        .map((d) => formatLocalDate(d))
-        .filter(Boolean)
-        .forEach((d) => queryParams.append("trialDate", d));
+        (Array.isArray(dateofmembership) ? dateofmembership : [dateofmembership])
+          .filter(Boolean)
+          .map((d) => formatLocalDate(d))
+          .filter(Boolean)
+          .forEach((d) => queryParams.append("dateBooked", d));
 
-      const url = `${API_BASE_URL}/api/admin/book-membership${
-        queryParams.toString() ? `?${queryParams.toString()}` : ""
-      }`;
 
-      const response = await fetch(url, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+        const url = `${API_BASE_URL}/api/admin/book-membership${queryParams.toString() ? `?${queryParams.toString()}` : ""
+          }`;
 
-      const resultRaw = await response.json();
-      const result = resultRaw.data.membership || [];
-      const venues = resultRaw.data.venue || [];
+        const response = await fetch(url, {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-      setMyVenues(venues);
-      setBookMembership(result);
-    } catch (error) {
-      console.error("Failed to fetch bookMemberships:", error);
-    } finally {
-      if (shouldShowLoader) setLoading(false);
-    }
-  },
-  []
-);
+        const resultRaw = await response.json();
+        const result = resultRaw.data.membership || [];
+        const venues = resultRaw.data.venue || [];
+        const bookedByAdmin = resultRaw.data.bookedByAdmins || []
+        const MyStats = resultRaw.stats || [];
+        setBookedByAdmin(bookedByAdmin);
+        setStatsMembership(MyStats);
+        setMyVenues(venues);
+        setBookMembership(result);
+      } catch (error) {
+        console.error("Failed to fetch bookMemberships:", error);
+      } finally {
+        if (shouldShowLoader) setLoading(false);
+      }
+    },
+    []
+  );
 
 
 
@@ -465,7 +484,7 @@ const fetchBookMemberships = useCallback(
         setServiceHistory,
         serviceHistory,
         setSearchTerm, createBookMembership, bookMembership, setBookMembership, fetchBookMemberships,
-        searchTerm, setSelectedVenue, selectedVenue, setMyVenues, myVenues, setStatus, status
+        searchTerm, setSelectedVenue, bookedByAdmin, statsMembership, selectedVenue, setMyVenues, myVenues, setStatus, status
       }}>
       {children}
     </BookFreeTrialContext.Provider>

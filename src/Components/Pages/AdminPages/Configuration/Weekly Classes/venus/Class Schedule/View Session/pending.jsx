@@ -10,7 +10,7 @@ const ViewSessions = ({ item, sessionData }) => {
   const location = useLocation();
   const sessionMap = location.state?.sessionMap;
   const sessionId = location.state?.sessionId;
-    const singleClassSchedules = location.state?.singleClassSchedules;
+  const singleClassSchedules = location.state?.singleClassSchedules;
 
   console.log(
     'sessionMap',
@@ -107,6 +107,7 @@ const ViewSessions = ({ item, sessionData }) => {
             return {
               title: `${label} – Page ${index + 1}`,
               heading: entry.skillOfTheDay || 'No Skill',
+              player: entry.player || 'player',
               videoUrl: video ? `${API_BASE_URL}/${video}` : '',
               bannerUrl: banner ? `${API_BASE_URL}/${banner}` : '',
               description: entry.description || '',
@@ -132,48 +133,48 @@ const ViewSessions = ({ item, sessionData }) => {
   const currentContent = myData[activeTab]?.[page - 1] || {};
   const totalPages = myData[activeTab]?.length || 0;
   console.log('currentContent', dynamicTabs)
-    const [selectedExercise, setSelectedExercise] = useState(
-      currentContent.sessionExercises?.[0] || null
-    );
-    useEffect(() => {
-      if (currentContent.sessionExercises?.length > 0) {
-        setSelectedExercise(currentContent.sessionExercises[0]);
-      }
-    }, [currentContent]);
-  console.log('singleClassSchedules',singleClassSchedules)
-  const ageGroups = {
-  "Beginners": "4–5 Years",
-  "Intermediate": "6–7 Years",
-  "Advanced": "8–9 Years",
-  "Pro": "10–12 Years"
-};
-function formatDateWithSuffix(dateStr) {
-  const date = new Date(dateStr);
-
-  // Day of week
-  const weekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
-
-  // Day with suffix
-  const day = date.getDate();
-  const suffix = (d => {
-    if (d > 3 && d < 21) return 'th'; // 4-20 -> th
-    switch (d % 10) {
-      case 1: return 'st';
-      case 2: return 'nd';
-      case 3: return 'rd';
-      default: return 'th';
+  const [selectedExercise, setSelectedExercise] = useState(
+    currentContent.sessionExercises?.[0] || null
+  );
+  useEffect(() => {
+    if (currentContent.sessionExercises?.length > 0) {
+      setSelectedExercise(currentContent.sessionExercises[0]);
     }
-  })(day);
+  }, [currentContent]);
+  console.log('singleClassSchedules', singleClassSchedules)
+  const ageGroups = {
+    "Beginners": "4–5 Years",
+    "Intermediate": "6–7 Years",
+    "Advanced": "8–9 Years",
+    "Pro": "10–12 Years"
+  };
+  function formatDateWithSuffix(dateStr) {
+    const date = new Date(dateStr);
 
-  // Month and Year
-  const month = date.toLocaleDateString('en-GB', { month: 'long' });
-  const year = date.getFullYear();
+    // Day of week
+    const weekday = date.toLocaleDateString('en-GB', { weekday: 'long' });
 
-  return `${weekday} ${day}${suffix} ${month} ${year}`;
-}
+    // Day with suffix
+    const day = date.getDate();
+    const suffix = (d => {
+      if (d > 3 && d < 21) return 'th'; // 4-20 -> th
+      switch (d % 10) {
+        case 1: return 'st';
+        case 2: return 'nd';
+        case 3: return 'rd';
+        default: return 'th';
+      }
+    })(day);
+
+    // Month and Year
+    const month = date.toLocaleDateString('en-GB', { month: 'long' });
+    const year = date.getFullYear();
+
+    return `${weekday} ${day}${suffix} ${month} ${year}`;
+  }
 
 
-// Output: Sunday 23rd April 2023
+  // Output: Sunday 23rd April 2023
 
   return (
     <div className="md:p-6 bg-gray-50 min-h-screen">
@@ -208,153 +209,153 @@ function formatDateWithSuffix(dateStr) {
         </div>
 
         {/* Right Content */}
-            <div className="w-full md:w-10/12 space-y-6">
-              {/* Tabs */}
-              <div className="flex gap-4 border max-w-fit border-gray-300 p-1 rounded-xl  flex-wrap">
-                {dynamicTabs.map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => {
-                      setActiveTab(tab);
-                      setPage(1);
-                    }}
-                    className={`px-4 py-1.5 rounded-xl text-sm font-medium transition ${activeTab === tab
-                      ? 'bg-blue-500 text-white'
-                      : 'text-gray-500 hover:text-blue-500'
-                      }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
-    
-              {/* Main Page Content */}
-              {currentContent && (
-                <div className="flex w-full flex-col lg:flex-row gap-6">
-                  {/* Left - Video and Info */}
-                  <div className="w-full lg:w-1/2 space-y-2">
-                    {currentContent.bannerUrl && (
-                      <img
-                        src={currentContent.bannerUrl}
-                        alt="Play like Pele"
-                        className="rounded-xl max-h-50  mb-2"
-                      />
-                    )}
-                    <h2 className="font-semibold text-[28px] mb-0">
-                      {selectedGroup?.groupName}
-                    </h2>
-                    <p className="text-[20px] flex items-center gap-2 font-semibold">
-                      {currentContent.heading} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
-                    </p>
-                    <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
-                      {currentContent.description}
-                    </p>
-                    {currentContent.videoUrl && (
-                      <video
-                        src={currentContent.videoUrl}
-                        controls
-                        className="w-full  pt-3 rounded-4xl"
-                      />
-                    )}
-                    <div className='flex items-center  mb-0 justify-between' >
-                      <h2 className="font-semibold text-[24px] mb-0">
-                        Session Plan
-                      </h2>
-                      <img src="/demo/synco/icons/downloadicon.png" alt="" />
-                    </div>
-                    <div>
-                      <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
-                        <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
-                        {selectedGroup?.updatedAt
-                          ? formatDistanceToNow(new Date(selectedGroup.updatedAt), { addSuffix: true })
-                          : '—'}
-                      </p>
-                    </div>
-    
-                    {currentContent.sessionExercises?.length > 0 && (
-                      <div className="mt-6 space-y-6">
-                        {currentContent.sessionExercises.map((exercise) => (
-                          <div
-                            key={exercise.id}
-                            className={`flex items-center gap-4 cursor-pointer p-2 rounded ${selectedExercise?.id === exercise.id ? 'bg-blue-50 border border-blue-200' : ''
-                              }`}
-                            onClick={() => setSelectedExercise(exercise)}
-                          >
-                            <div className="w-6/12">
-                              {exercise.imageUrl ? (
-                                JSON.parse(exercise.imageUrl).map((imgUrl, index) => (
-                                  <img
-                                    key={index}
-                                    className="rounded object-cover mr-2 mb-2"
-                                    src={`${API_BASE_URL}/${imgUrl}`}
-                                    alt={`${exercise.title} ${index + 1}`}
-                                  />
-                                ))
-                              ) : (
-                                <p>No images available</p>
-                              )}
-                            </div>
-                            <div>
-                              <h6 className="text-[18px] w-7/12 font-semibold">{exercise.title}</h6>
-                              <div
-                                className="text-[16px] text-gray-700"
-                                dangerouslySetInnerHTML={{
-                                  __html: exercise.description || '<p>No description available.</p>',
-                                }}
+        <div className="w-full md:w-10/12 space-y-6">
+          {/* Tabs */}
+          <div className="flex gap-4 border max-w-fit border-gray-300 p-1 rounded-xl  flex-wrap">
+            {dynamicTabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setPage(1);
+                }}
+                className={`px-4 py-1.5 rounded-xl text-sm font-medium transition ${activeTab === tab
+                  ? 'bg-blue-500 text-white'
+                  : 'text-gray-500 hover:text-blue-500'
+                  }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Main Page Content */}
+          {currentContent && (
+            <div className="flex w-full flex-col lg:flex-row gap-6">
+              {/* Left - Video and Info */}
+              <div className="w-full lg:w-1/2 space-y-2">
+                {currentContent.bannerUrl && (
+                  <img
+                    src={currentContent.bannerUrl}
+                    alt="Play like Pele"
+                    className="rounded-xl max-h-50  mb-2"
+                  />
+                )}
+                <h2 className="font-semibold text-[28px] mb-0">
+                  {currentContent.heading}
+                </h2>
+                <p className="text-[20px] flex items-center gap-2 font-semibold">
+                  {currentContent?.player} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
+                </p>
+                <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
+                  {currentContent.description}
+                </p>
+                {currentContent.videoUrl && (
+                  <video
+                    src={currentContent.videoUrl}
+                    controls
+                    className="w-full  pt-3 rounded-4xl"
+                  />
+                )}
+                <div className='flex items-center  mb-0 justify-between' >
+                  <h2 className="font-semibold text-[24px] mb-0">
+                    Session Plan
+                  </h2>
+                  <img src="/demo/synco/icons/downloadicon.png" alt="" />
+                </div>
+                <div>
+                  <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
+                    <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                    {selectedGroup?.updatedAt
+                      ? formatDistanceToNow(new Date(selectedGroup.updatedAt), { addSuffix: true })
+                      : '—'}
+                  </p>
+                </div>
+
+                {currentContent.sessionExercises?.length > 0 && (
+                  <div className="mt-6 space-y-6">
+                    {currentContent.sessionExercises.map((exercise) => (
+                      <div
+                        key={exercise.id}
+                        className={`flex items-center gap-4 cursor-pointer p-2 rounded ${selectedExercise?.id === exercise.id ? 'bg-blue-50 border border-blue-200' : ''
+                          }`}
+                        onClick={() => setSelectedExercise(exercise)}
+                      >
+                        <div className="w-6/12">
+                          {exercise.imageUrl ? (
+                            JSON.parse(exercise.imageUrl).map((imgUrl, index) => (
+                              <img
+                                key={index}
+                                className="rounded object-cover mr-2 mb-2"
+                                src={`${API_BASE_URL}/${imgUrl}`}
+                                alt={`${exercise.title} ${index + 1}`}
                               />
-                              <span className="text-[14px] text-gray-500">
-                                {exercise.duration || '—'}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-    
-    
-                  </div>
-    
-                  {/* Right - Placeholder Drill Info */}
-                  {selectedExercise && (
-                    <div className="w-full border-l pl-6 border-gray-300 lg:w-1/2 bg-white">
-                      <h2 className="font-semibold text-[24px] mb-0">{selectedExercise.title}</h2>
-                      <div className="flex flex-wrap justify-start gap-2 w-full ">
-                        {selectedExercise.imageUrl ? (
-                          JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
-                            <img
-                              key={index}
-                              className="rounded object-cover mr-2 min-h-50 max-h-50 mb-2"
-                              src={`${API_BASE_URL}/${imgUrl}`}
-                              alt={`${selectedExercise.title} ${index + 1}`}
-                            />
-                          ))
-                        ) : (
-                          <p>No images available</p>
-                        )}
-                      </div>
-                      <p className="text-blue-500 text-[14px] font-semibold">
-                        Time Duration: {selectedExercise.duration || '—'}
-                      </p>
-    
-                      <div className="text-sm space-y-3">
+                            ))
+                          ) : (
+                            <p>No images available</p>
+                          )}
+                        </div>
                         <div>
-                          <p className="font-semibold text-[18px]">Description</p>
+                          <h6 className="text-[18px] w-7/12 font-semibold">{exercise.title}</h6>
                           <div
-                            className="text-gray-500 text-[14px] font-semibold"
+                            className="text-[16px] text-gray-700"
                             dangerouslySetInnerHTML={{
-                              __html: selectedExercise.description || '<p>No description available.</p>',
+                              __html: exercise.description || '<p>No description available.</p>',
                             }}
                           />
+                          <span className="text-[14px] text-gray-500">
+                            {exercise.duration || '—'}
+                          </span>
                         </div>
-                        {/* Add other sections like Rules, Conditions, etc. if you have them in exercise */}
                       </div>
+                    ))}
+                  </div>
+                )}
+
+
+              </div>
+
+              {/* Right - Placeholder Drill Info */}
+              {selectedExercise && (
+                <div className="w-full border-l pl-6 border-gray-300 lg:w-1/2 bg-white">
+                  <h2 className="font-semibold text-[24px] mb-0">{selectedExercise.title}</h2>
+                  <div className="flex flex-wrap justify-start gap-2 w-full ">
+                    {selectedExercise.imageUrl ? (
+                      JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
+                        <img
+                          key={index}
+                          className="rounded object-cover mr-2 min-h-50 max-h-50 mb-2"
+                          src={`${API_BASE_URL}/${imgUrl}`}
+                          alt={`${selectedExercise.title} ${index + 1}`}
+                        />
+                      ))
+                    ) : (
+                      <p>No images available</p>
+                    )}
+                  </div>
+                  <p className="text-blue-500 text-[14px] font-semibold">
+                    Time Duration: {selectedExercise.duration || '—'}
+                  </p>
+
+                  <div className="text-sm space-y-3">
+                    <div>
+                      <p className="font-semibold text-[18px]">Description</p>
+                      <div
+                        className="text-gray-500 text-[14px] font-semibold"
+                        dangerouslySetInnerHTML={{
+                          __html: selectedExercise.description || '<p>No description available.</p>',
+                        }}
+                      />
                     </div>
-                  )}
-    
+                    {/* Add other sections like Rules, Conditions, etc. if you have them in exercise */}
+                  </div>
                 </div>
               )}
-    
-              {/* Pagination Buttons
+
+            </div>
+          )}
+
+          {/* Pagination Buttons
             <div className="flex justify-between items-center pt-4 border-t mt-6">
               <button
                 onClick={() => setPage((p) => Math.max(p - 1, 1))}
@@ -382,7 +383,7 @@ function formatDateWithSuffix(dateStr) {
                 Next →
               </button>
             </div> */}
-            </div>
+        </div>
       </div>
 
 

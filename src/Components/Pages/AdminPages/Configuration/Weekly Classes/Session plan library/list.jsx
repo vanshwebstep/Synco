@@ -36,57 +36,57 @@ const List = () => {
     getPackages();
   }, [fetchSessionGroup]);
   // with empty conditon 
-useEffect(() => {
-  if (sessionGroup?.length > 0) {
-    const transformedWeeks = sessionGroup
-      .map((group) => {
-        const levels = typeof group.levels === 'string'
-          ? JSON.parse(group.levels)
-          : group.levels || {};
+  useEffect(() => {
+    if (sessionGroup?.length > 0) {
+      const transformedWeeks = sessionGroup
+        .map((group) => {
+          const levels = typeof group.levels === 'string'
+            ? JSON.parse(group.levels)
+            : group.levels || {};
 
-        const validLevels = Object.keys(levels).filter((levelKey) => {
-          const levelData = levels[levelKey];
-          return levelData?.some(item =>
-            item.player?.trim() ||
-            item.skillOfTheDay?.trim() ||
-            item.description?.trim() ||
-            (item.sessionExerciseId?.length > 0) ||
-            (item.sessionExercises?.length > 0 && Object.keys(item.sessionExercises[0] || {}).length > 0)
-          );
-        });
+          const validLevels = Object.keys(levels).filter((levelKey) => {
+            const levelData = levels[levelKey];
+            return levelData?.some(item =>
+              item.player?.trim() ||
+              item.skillOfTheDay?.trim() ||
+              item.description?.trim() ||
+              (item.sessionExerciseId?.length > 0) ||
+              (item.sessionExercises?.length > 0 && Object.keys(item.sessionExercises[0] || {}).length > 0)
+            );
+          });
 
-        if (validLevels.length === 0) return null;
+          if (validLevels.length === 0) return null;
 
-        const groups = validLevels.map((levelKey, index) => {
-          const capitalizedLevel = levelKey.charAt(0).toUpperCase() + levelKey.slice(1);
+          const groups = validLevels.map((levelKey, index) => {
+            const capitalizedLevel = levelKey.charAt(0).toUpperCase() + levelKey.slice(1);
 
-          // Get first non-empty player
-          const levelPlayer = levels[levelKey]
-            .map(item => item.player?.trim())
-            .find(player => !!player) || ""; // Default to empty string
+            // Get first non-empty player
+            const levelPlayer = levels[levelKey]
+              .map(item => item.player?.trim())
+              .find(player => !!player) || ""; // Default to empty string
+
+            return {
+              id: index + 1,
+              name: capitalizedLevel,
+              age: ageMapping[capitalizedLevel] || "N/A",
+              player: levelPlayer,
+            };
+          });
 
           return {
-            id: index + 1,
-            name: capitalizedLevel,
-            age: ageMapping[capitalizedLevel] || "N/A",
-            player: levelPlayer,
+            id: group.id,
+            title: group.groupName,
+            groups,
           };
-        });
+        })
+        .filter(Boolean); // remove nulls
 
-        return {
-          id: group.id,
-          title: group.groupName,
-          groups,
-        };
-      })
-      .filter(Boolean); // remove nulls
+      setWeeks(transformedWeeks);
+      setWeekList(transformedWeeks);
+    }
+  }, [sessionGroup]);
 
-    setWeeks(transformedWeeks);
-    setWeekList(transformedWeeks);
-  }
-}, [sessionGroup]);
-
-console.log('sessionGroup',sessionGroup)
+  console.log('sessionGroup', sessionGroup)
   // without condition 
   //  useEffect(() => {
   //   if (sessionGroup?.length > 0) {
@@ -225,26 +225,26 @@ console.log('sessionGroup',sessionGroup)
       <div className="flex pe-4 justify-between items-center mb-4 w-full">
         <h2 className="text-[28px] font-semibold">Session Plan Library</h2>
 
-      {reorderMode ? (
-  <button
-    onClick={() => setReorderMode(false)}
-    className="bg-gray-300 text-black px-4 py-2 rounded-xl hover:bg-gray-400 font-semibold"
-  >
-    Cancel
-  </button>
-) : weekList.length > 0 ? (
-  <button
-    onClick={() => setReorderMode(true)}
-    className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
-  >
-    Reorder Sessions
-  </button>
-) : 
-(
-  <p className="text-red-500 text-[16px] font-medium">
-    You don't have any  plans
-  </p>
-)}
+        {reorderMode ? (
+          <button
+            onClick={() => setReorderMode(false)}
+            className="bg-gray-300 text-black px-4 py-2 rounded-xl hover:bg-gray-400 font-semibold"
+          >
+            Cancel
+          </button>
+        ) : weekList.length > 0 ? (
+          <button
+            onClick={() => setReorderMode(true)}
+            className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
+          >
+            Reorder Sessions
+          </button>
+        ) :
+          (
+            <p className="text-red-500 text-[16px] font-medium">
+              You don't have any  plans
+            </p>
+          )}
 
       </div>
 
@@ -318,7 +318,13 @@ console.log('sessionGroup',sessionGroup)
                               />
                             </button>
                             <button
-                              onClick={() => handleDeleteLevel(week.id, group.name)}
+                              onClick={() => {
+                                if (week.groups?.length === 1) {
+                                  handleDeleteGroup(week.id);
+                                } else {
+                                  handleDeleteLevel(week.id, group.name);
+                                }
+                              }}
                               className="text-gray-500 hover:text-red-500"
                             >
                               <img

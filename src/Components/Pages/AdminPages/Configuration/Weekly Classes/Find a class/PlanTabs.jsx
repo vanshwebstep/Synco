@@ -11,6 +11,15 @@ const PlanTabs = ({ selectedPlans }) => {
   const studentKeys = Object.keys(groupByStudents).sort(); // ["1", "2", "3"]
   const [activeTab, setActiveTab] = useState(studentKeys[0]);
 console.log('groupByStudents',groupByStudents[activeTab])
+const sortedPlans = [...groupByStudents[activeTab]].sort((a, b) => {
+  // Sort by duration ascending
+  if (a.interval === "Year" && b.interval !== "Year") return 1;
+  if (b.interval === "Year" && a.interval !== "Year") return -1;
+
+  // Optional: Sort by interval if needed (e.g., Month before Year)
+  const intervalOrder = ["Day", "Week", "Month", "Year"];
+  return intervalOrder.indexOf(a.interval) - intervalOrder.indexOf(b.interval);
+});
   return (
     <div className="w-full">
       {/* Student Tabs */}
@@ -34,7 +43,7 @@ console.log('groupByStudents',groupByStudents[activeTab])
 
       {/* Plan Cards */}
       <div className="grid pt-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {groupByStudents[activeTab]?.map((plan, idx) => (
+        {sortedPlans?.map((plan, idx) => (
           <div
             key={plan?.id}
             className="border border-[#E2E1E5] rounded-xl p-4 sm:p-5 flex flex-col justify-between shadow transition"

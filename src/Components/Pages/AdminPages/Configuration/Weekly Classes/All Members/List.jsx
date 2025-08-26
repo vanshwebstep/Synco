@@ -13,27 +13,29 @@ const trialLists = () => {
     const [toDate, setToDate] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const navigate = useNavigate();
- 
-const filterOptions = [
-  { label: "Pending", key: "pending" },
-  { label: "Active", key: "active" },
-  { label: "Date Booked", key: "dateBooked" },
-  { label: "Date of Trial", key: "dateOfTrial" },
-  { label: "6 Months", key: "sixMonths" },
-  { label: "3 Months", key: "threeMonths" },
-  { label: "flexi Plan", key: "flexiPlan" },
-];
-const [checkedStatuses, setCheckedStatuses] = useState(
-  filterOptions.reduce((acc, option) => ({ ...acc, [option.key]: false }), {})
-);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
 
-// ✅ Generic checkbox change handler
-const handleCheckboxChange = (key) => {
-  setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
-};
+    // ✅ Define all filters with dynamic API mapping
+    const filterOptions = [
+        { label: "Pending", key: "pending", apiParam: "status", apiValue: "pending" },
+        { label: "Active", key: "active", apiParam: "status", apiValue: "active" },
+        { label: "Date Booked", key: "trialDate", apiParam: "trialDate" },
+        { label: "6 Months", key: "sixMonths", apiParam: "month", apiValue: "sixMonths" },
+        { label: "3 Months", key: "threeMonths", apiParam: "month", apiValue: "threeMonths" },
+        { label: "flexi Plan", key: "flexiPlan", apiParam: "month", apiValue: "flexiPlan" },
+    ]
+    const [checkedStatuses, setCheckedStatuses] = useState(
+        filterOptions.reduce((acc, option) => ({ ...acc, [option.key]: false }), {})
+    );
+
+    // ✅ Generic checkbox change handler
+    const handleCheckboxChange = (key) => {
+        setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
     const [selectedDates, setSelectedDates] = useState([]);
-    const { fetchBookMemberships, bookMembership, setBookMembership, setSearchTerm, searchTerm, status, loading, selectedVenue, setSelectedVenue, myVenues, setMyVenues } = useBookFreeTrial()
-   
+    const { fetchBookMemberships, bookMembership, setBookMembership, bookedByAdmin, setSearchTerm, searchTerm, status, loading, selectedVenue, setSelectedVenue, statsMembership, myVenues, setMyVenues } = useBookFreeTrial()
+
     useEffect(() => {
         if (selectedVenue) {
             fetchBookMemberships("", selectedVenue.label); // Using label as venueName
@@ -98,42 +100,47 @@ const handleCheckboxChange = (key) => {
             return [...prev, date];
         });
     };
-  const applyFilter = () => {
-  const forAttend = checkedStatuses.pending;
-  const forNotAttend = checkedStatuses.active;
+    const applyFilter = () => {
+        const forAttend = checkedStatuses.pending;
+        const forNotAttend = checkedStatuses.active;
+        const sixMonths = checkedStatuses.sixMonths;
+        const threeMonths = checkedStatuses.threeMonths;
+        const flexiPlan = checkedStatuses.flexiPlan;
 
-  let forDateOkBookingTrial = [];
-  let forDateOfTrial = [];
-  let forOtherDate = [];
+        let forDateOkBookingTrial = [];
+        let forOtherDate = [];
 
-  if (selectedDates.length) {
-    selectedDates.forEach((date) => {
-      let added = false;
+        if (selectedDates.length) {
+            selectedDates.forEach((date) => {
+                let added = false;
 
-      if (checkedStatuses.dateBooked) {
-        forDateOkBookingTrial.push(date);
-        added = true;
-      }
-      if (checkedStatuses.dateOfTrial) {
-        forDateOfTrial.push(date);
-        added = true;
-      }
-      if (!added) {
-        forOtherDate.push(date);
-      }
-    });
-  }
+                if (checkedStatuses.trialDate) {
+                    forDateOkBookingTrial.push(date);
+                    added = true;
+                }
 
-  fetchBookMemberships(
-    "",
-    "",
-    forAttend,
-    forNotAttend,
-    forDateOkBookingTrial,
-    forDateOfTrial,
-    forOtherDate
-  );
-};
+                if (!added) {
+                    forOtherDate.push(date);
+                }
+            });
+        }
+const bookedByParams = savedAgent || []; // savedAgent is already an array of IDs
+
+        // Prepare bookedBy parameter if agents are selected
+
+        fetchBookMemberships(
+            "",
+            "",
+            forAttend,
+            forNotAttend,
+            forDateOkBookingTrial,
+            sixMonths,
+            threeMonths,
+            flexiPlan,
+            forOtherDate,
+            bookedByParams // add this at the end
+        );
+    };
 
 
 
@@ -142,23 +149,22 @@ const handleCheckboxChange = (key) => {
     const stats = [
         {
             title: "Total Students",
-            value: "1920",
-            icon: "/demo/synco/members/allmemberTotalRevenue.png", // Replace with actual SVG if needed
+            value: statsMembership?.totalStudents?.toString() || "0",
+            icon: "/demo/synco/members/allmemberTotalRevenue.png",
             change: "+12%",
             color: "text-green-500",
             bg: "bg-[#F3FAF5]"
         },
         {
             title: "Monthly revenue",
-            value: "Abdul Ali",
-            subValue: "(456)",
+            value: statsMembership?.totalRevenue?.toFixed(2) || "0.00",
             icon: "/demo/synco/members/allmemberMonthlyRevenue.png",
             color: "text-green-500",
             bg: "bg-[#F3FAFD]"
         },
         {
             title: "AV. Monthly Fee",
-            value: "120",
+            value: statsMembership?.avgMonthlyFee?.toFixed(2) || "0.00",
             icon: "/demo/synco/members/allmemberMonthlyFee.png",
             change: "35%",
             color: "text-green-500",
@@ -166,7 +172,7 @@ const handleCheckboxChange = (key) => {
         },
         {
             title: "AV. Life Cycle",
-            value: "57",
+            value: statsMembership?.avgLifeCycle?.toFixed(2) || "0.00",
             icon: "/demo/synco/members/allmemberLifeCycle.png",
             change: "45%",
             color: "text-green-500",
@@ -174,16 +180,25 @@ const handleCheckboxChange = (key) => {
         }
     ];
 
+
     const [showPopup, setShowPopup] = useState(false);
     const [tempSelectedAgent, setTempSelectedAgent] = useState(null);
-    const [savedAgent, setSavedAgent] = useState(null);
+    const [savedAgent, setSavedAgent] = useState([]);
     const popupRef = useRef(null);
-
-    const agents = Array(6).fill({
-        name: "Jaffar",
-        avatar: "https://i.ibb.co/ZVPd9vJ/jaffar.png", // Replace with real image or asset
-    });
-
+    const [selectedAgents, setSelectedAgents] = useState([]);
+    const toggleAgent = (agentId) => {
+        if (selectedAgents.includes(agentId)) {
+            // 👉 prevent unselecting (disable once checked)
+            return;
+        }
+        setSelectedAgents((prev) => [...prev, agentId]);
+    };
+    const agents = bookedByAdmin.map((admin) => ({
+        name: `${admin.firstName} ${admin.lastName}`.trim(),
+        avatar: admin.profile
+            ? `${API_BASE_URL}${admin.profile}`
+            : "/demo/synco/members/dummyuser.png", // fallback image
+    }));
     // Close popup if clicked outside
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -203,9 +218,20 @@ const handleCheckboxChange = (key) => {
     }, [showPopup, savedAgent]);
 
     const handleNext = () => {
-        setSavedAgent(tempSelectedAgent);
+        if (tempSelectedAgents.length > 0) {
+            const selectedNames = tempSelectedAgents.map(
+                (agent) => `${agent.id}`
+            );
+            setSavedAgent(selectedNames); // ✅ saves full names as strings
+            console.log("selectedNames", tempSelectedAgents);
+        } else {
+            setSavedAgent([]); // nothing selected → clear
+        }
         setShowPopup(false);
     };
+
+
+
     const handleSearch = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
@@ -296,7 +322,7 @@ const handleCheckboxChange = (key) => {
                                             </td>
                                             <td className="p-4">{student.age}</td>
                                             <td className="p-4">{item.venue?.name || '-'}</td>
-                                            <td className="p-4">{new Date(item.dateBooked).toLocaleDateString()}</td>
+                                            <td className="p-4">{new Date(item.trialDate).toLocaleDateString()}</td>
                                             <td className="p-4">Indoor Court</td>
                                             <td className="p-4"> {item?.paymentPlan?.title}</td>
                                             <td className="p-4 text-center">
@@ -388,81 +414,124 @@ const handleCheckboxChange = (key) => {
                                 <div className="font-semibold mb-2 text-[18px]">Choose type</div>
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-2 font-semibold text-[16px]">
 
-                                   {filterOptions.map(({ label, key }) => (
-  <label key={key} className="flex items-center gap-2">
-    <input
-      type="checkbox"
-      className="peer hidden"
-      checked={checkedStatuses[key]}
-      onChange={() => handleCheckboxChange(key)}
-    />
-    <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
-      <Check className="w-4 h-4 transition-all" strokeWidth={3} />
-    </span>
-    <span>{label}</span>
-  </label>
-))}
+                                    {filterOptions.map(({ label, key }) => (
+                                        <label key={key} className="flex items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                className="peer hidden"
+                                                checked={checkedStatuses[key]}
+                                                onChange={() => handleCheckboxChange(key)}
+                                            />
+                                            <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
+                                                <Check className="w-4 h-4 transition-all" strokeWidth={3} />
+                                            </span>
+                                            <span>{label}</span>
+                                        </label>
+                                    ))}
                                     <label className="flex items-center gap-2 cursor-pointer">
                                         <input
                                             type="checkbox"
-                                            checked={!!savedAgent}
-                                            readOnly
-                                            onClick={() => setShowPopup(true)}
+                                            checked={savedAgent?.length > 0} // checked if some agents are saved
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    fetchBookMemberships();
+                                                    setShowPopup(true); // open popup
+                                                } else {
+                                                    // Clear everything if unchecked
+                                                    setSavedAgent([]);
+                                                    setTempSelectedAgents([]);
+                                                }
+                                            }}
                                             className="peer hidden"
                                         />
                                         <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
-                                            <Check
-                                                className="w-4 h-4   transition-all"
-                                                strokeWidth={3}
-                                            />
-
+                                            <Check className="w-4 h-4 transition-all" strokeWidth={3} />
                                         </span>
                                         <span>Agent</span>
                                     </label>
+
+
+
+
                                 </div>
                             </div>
                             {showPopup && (
-                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                <div
+                                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                                    onClick={() => {
+                                        // click outside → reset everything
+                                        setShowPopup(false);
+                                        setSavedAgent([]);
+                                        setTempSelectedAgents([]);
+                                    }}
+                                >
                                     <div
                                         ref={popupRef}
                                         className="bg-white rounded-2xl p-6 w-[300px] space-y-4 shadow-lg"
+                                        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
                                     >
-                                        <h2 className="text-lg font-semibold">Select agent</h2>
+                                        <h2 className="text-lg font-semibold">Select agent(s)</h2>
                                         <div className="space-y-3 max-h-72 overflow-y-auto">
-                                            {agents.map((agent, index) => (
-                                                <label
-                                                    key={index}
-                                                    className="flex items-center gap-3 cursor-pointer"
-                                                >
-                                                    <input
-                                                        type="radio"
-                                                        name="agent"
-                                                        checked={tempSelectedAgent === index}
-                                                        onChange={() => setTempSelectedAgent(index)}
-                                                        className="hidden peer"
-                                                    />
-                                                    <span className="w-4 h-4 border rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center">
-                                                        {tempSelectedAgent === index && (
-                                                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                            </svg>
-                                                        )}
-                                                    </span>
-                                                    <img src={agent.avatar} alt={agent.name} className="w-8 h-8 rounded-full" />
-                                                    <span>{agent.name}</span>
-                                                </label>
-                                            ))}
+                                            {bookedByAdmin.map((admin, index) => {
+                                                const isSelected = tempSelectedAgents.some(
+                                                    (a) => a.id === admin.id
+                                                );
+
+                                                return (
+                                                    <label key={index} className="flex items-center gap-3 cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={() => {
+                                                                if (isSelected) {
+                                                                    setTempSelectedAgents((prev) =>
+                                                                        prev.filter((a) => a.id !== admin.id)
+                                                                    );
+                                                                } else {
+                                                                    setTempSelectedAgents((prev) => [
+                                                                        ...prev,
+                                                                        { id: admin.id, firstName: admin.firstName, lastName: admin.lastName },
+                                                                    ]);
+                                                                }
+                                                            }}
+                                                            className="hidden peer"
+                                                        />
+                                                        <span className="w-4 h-4 border rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center">
+                                                            {isSelected && (
+                                                                <svg
+                                                                    className="w-3 h-3 text-white"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth={2}
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                            )}
+                                                        </span>
+                                                        <img
+                                                            src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/demo/synco/members/dummyuser.png"}
+                                                            alt={`${admin.firstName} ${admin.lastName}`}
+                                                            className="w-8 h-8 rounded-full"
+                                                        />
+                                                        <span>{`${admin.firstName} ${admin.lastName}`}</span>
+                                                    </label>
+                                                );
+                                            })}
                                         </div>
+
                                         <button
                                             className="w-full bg-blue-600 text-white rounded-md py-2 font-medium"
                                             onClick={handleNext}
-                                            disabled={tempSelectedAgent === null}
+                                            disabled={tempSelectedAgents.length === 0}
                                         >
                                             Next
                                         </button>
                                     </div>
                                 </div>
                             )}
+
+
                             <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
                                 {/* Header */}
                                 <div className="flex justify-around items-center mb-3">

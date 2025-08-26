@@ -47,7 +47,7 @@ const List = () => {
         lastName: "",
         email: "",
         billingAddress: "",
-        reference: "",
+        referenceId: "",
         cardHolderName: "",
         cv2: "",
         expiryDate: "",
@@ -72,7 +72,7 @@ const List = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedPlans, setSelectedPlans] = useState([]);
     const [congestionNote, setCongestionNote] = useState(null);
-    const [numberOfStudents, setNumberOfStudents] = useState('')
+    const [numberOfStudents, setNumberOfStudents] = useState('1')
     const [selectedDate, setSelectedDate] = useState(null);
     const [membershipPlan, setMembershipPlan] = useState(null);
 
@@ -620,15 +620,35 @@ const List = () => {
         }
     }, [singleClassSchedulesOnly]); // ✅ now it runs when data is fetched
     console.log('singleClassSchedulesOnly?.venue?', singleClassSchedulesOnly)
-
-    const paymentPlanOptions =
+    const allPaymentPlans =
         singleClassSchedulesOnly?.venue?.paymentPlans?.map((plan) => ({
-            label: `${plan.title} (${plan.students} student${plan.students > 1 ? 's' : ''})`,
+            label: `${plan.title} (${plan.students} student${plan.students > 1 ? "s" : ""})`,
             value: plan.id,
             joiningFee: plan.joiningFee,
             all: plan,
         })) || [];
+    const paymentPlanOptions = numberOfStudents
+        ? allPaymentPlans.filter((plan) => plan.all.students === Number(numberOfStudents))
+        : allPaymentPlans;
 
+
+    const handleNumberChange = (e) => {
+        const val = e.target.value === "" ? "" : Number(e.target.value);
+        if (val === "" || [1, 2, 3].includes(val)) {
+            setNumberOfStudents(val);
+
+            // If currently selected plan doesn't match new number, reset it
+            if (membershipPlan && membershipPlan.all.students !== val) {
+                setMembershipPlan(null);
+            }
+        }
+    };
+    const handlePlanChange = (plan) => {
+        setMembershipPlan(plan);
+        if (plan) {
+            setNumberOfStudents(plan.all.students); // Update numberOfStudents to match plan
+        }
+    };
     // Prefill first plan (or specific one)
     useEffect(() => {
         if (paymentPlanOptions.length) {
@@ -796,13 +816,7 @@ const List = () => {
                                 <input
                                     type="number"
                                     value={numberOfStudents}
-                                    onChange={(e) => {
-                                        const val = Number(e.target.value);
-                                        if ([1, 2, 3].includes(val) || e.target.value === "") {
-                                            setNumberOfStudents(e.target.value);
-                                        }
-                                        // Do nothing if invalid
-                                    }}
+                                    onChange={handleNumberChange}
                                     placeholder="Choose number of students"
                                     className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 focus:outline-none"
                                 />
@@ -812,19 +826,21 @@ const List = () => {
                         <div className="mb-5">
                             <label htmlFor="" className="text-base font-semibold">Membership Plan </label>
                             <div className="relative mt-2 ">
-
+   
                                 <Select
                                     options={paymentPlanOptions}
                                     value={membershipPlan}
-                                    onChange={(plan) => setMembershipPlan(plan)}
+                                    onChange={handlePlanChange}
                                     placeholder="Choose Plan"
                                     className="mt-2"
                                     classNamePrefix="react-select"
-                                    isClearable  // ✅ This adds the cross button
+                                    isClearable
+                                     isDisabled={!numberOfStudents} 
                                 />
 
                             </div>
-                        </div><div className="mb-5">
+                        </div>
+                        <div className="mb-5">
                             <label htmlFor="" className="text-base font-semibold">Joining Fee</label>
                             <div className="relative mt-2 ">
                                 <input
@@ -1121,7 +1137,8 @@ const List = () => {
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.3, delay: index * 0.1 }}
-                                    className="bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6 relative"
+                                    className={`bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6 relative ${students.length < 1 ? "" : "mt-10"
+                                        }`}
                                 >
                                     {/* Top Header Row */}
                                     <div className="flex justify-between  items-start">
@@ -1373,12 +1390,12 @@ const List = () => {
                                     // If both are selected, proceed
                                     setShowPopup(true);
                                 }}
-                                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${membershipPlan && selectedDate
+                                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${ isSubmitting || membershipPlan && selectedDate
                                     ? "bg-[#237FEA] border border-[#237FEA]"
                                     : "bg-gray-400 border-gray-400 cursor-not-allowed"
                                     }`}
                             >
-                                Setup Direct Debit
+                                 {isSubmitting ? "Submitting..." : "Setup Direct Debit"}
                             </button>
 
 
@@ -1535,14 +1552,15 @@ const List = () => {
                                             <div className="mt-4">
                                                 <label className="block text-[16px] font-semibold">Reference Number</label>
                                                 <input
+                                                    required={payment.paymentType === "rrn"}
                                                     type="text"
                                                     placeholder="Enter Reference No."
                                                     className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                    value={payment.reference}
+                                                    value={payment.referenceId}
                                                     onChange={(e) =>
                                                         setPayment({
                                                             ...payment,
-                                                            reference: e.target.value.replace(/\D/g, ""), // only digits
+                                                            referenceId: e.target.value.replace(/\D/g, ""), // only digits
                                                         })
                                                     }
                                                 />
@@ -1553,6 +1571,7 @@ const List = () => {
                                                 <div>
                                                     <label className="block text-[16px] font-semibold">Card Holder Name</label>
                                                     <input
+                                                        required={payment.paymentType === "card"}
                                                         type="text"
                                                         placeholder=""
                                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
@@ -1570,6 +1589,7 @@ const List = () => {
                                                         <label className="block text-[16px] font-semibold">Expiry Date</label>
 
                                                         <input
+                                                            required={payment.paymentType === "card"}
                                                             type="text"
                                                             inputMode="numeric"
                                                             placeholder="MM/YY"
@@ -1590,6 +1610,7 @@ const List = () => {
                                                         <label className="block text-[16px] font-semibold">CV2</label>
 
                                                         <input
+                                                            required={payment.paymentType === "card"}
                                                             type="password"
                                                             inputMode="numeric"
                                                             placeholder="123"
@@ -1609,6 +1630,7 @@ const List = () => {
                                                     <label className="block text-[16px] font-semibold">PAN</label>
                                                     <input
                                                         type="text"
+                                                        required={payment.paymentType === "card"}
                                                         inputMode="numeric"
                                                         placeholder="**** **** **** ****"
                                                         maxLength={19}
@@ -1635,18 +1657,37 @@ const List = () => {
                                         </div>
                                     </div>
                                     <div className="w-full mx-auto flex justify-center" >
-                                        <button
-                                            onClick={() => {
-                                                setDirectDebitData([...directDebitData, payment]);
-                                                setShowPopup(false);
-                                                handleSubmit(payment);
-                                            }}
-                                            disabled={!payment.authorise} // disables button if authorise is false
-                                            className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold ${payment.authorise ? "bg-[#237FEA] cursor-pointer" : "bg-gray-400 cursor-not-allowed"
-                                                }`}
-                                        >
-                                            Set up Direct Debit
-                                        </button>
+                                     <button
+    type="button"
+    disabled={
+        isSubmitting || // disable while submitting
+        !payment.authorise ||
+        (payment.paymentType === "rrn" && !payment.referenceId) ||
+        (payment.paymentType === "card" &&
+            (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan))
+    }
+    onClick={async () => {
+        setIsSubmitting(true); // start loading
+        try {
+            setDirectDebitData([...directDebitData, payment]);
+            setShowPopup(false);
+            await handleSubmit(payment); // await if handleSubmit is async
+        } finally {
+            setIsSubmitting(false); // stop loading after submit
+        }
+    }}
+    className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold ${
+        isSubmitting ||
+        !payment.authorise ||
+        (payment.paymentType === "rrn" && !payment.referenceId) ||
+        (payment.paymentType === "card" &&
+            (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan))
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-[#237FEA] cursor-pointer"
+    }`}
+>
+    {isSubmitting ? "Submitting..." : "Set up Direct Debit"}
+</button>
 
                                     </div>
                                 </div>

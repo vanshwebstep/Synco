@@ -14,6 +14,10 @@ export const verifyToken = async (token) => {
     if (response.ok) {
       localStorage.setItem('adminInfo', JSON.stringify(result.admin));
       localStorage.setItem('role', (result.admin.role));
+         localStorage.setItem(
+          "hasPermission",
+          JSON.stringify(result.admin.hasPermission)
+        );
     
       return true;
     } else {

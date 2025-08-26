@@ -47,7 +47,7 @@ const PaymentPlanManagerList = () => {
 
 
 
-console.log('plan.HolidayCampPackage',groupByStudents[activeTab])
+console.log('plan.groupByStudents',groupByStudents[activeTab])
   const handleEdit = (id) => {
     console.log("Edit group with ID:", id);
     navigate(`/configuration/weekly-classes/add-subscription-plan-group?id=${id}`)
@@ -84,6 +84,17 @@ function unescapeHTML(escapedStr) {
   const doc = new DOMParser().parseFromString(escapedStr, "text/html");
   return doc.documentElement.textContent;
 }
+// Before rendering, sort the array
+const sortedPlans = [...groupByStudents[activeTab]].sort((a, b) => {
+  // Sort by duration ascending
+  if (a.interval === "Year" && b.interval !== "Year") return 1;
+  if (b.interval === "Year" && a.interval !== "Year") return -1;
+
+  // Optional: Sort by interval if needed (e.g., Month before Year)
+  const intervalOrder = ["Day", "Week", "Month", "Year"];
+  return intervalOrder.indexOf(a.interval) - intervalOrder.indexOf(b.interval);
+});
+
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
 
@@ -136,7 +147,7 @@ function unescapeHTML(escapedStr) {
 
                 {/* Plan Cards */}
                 <div className="grid pt-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {groupByStudents[activeTab]?.map((plan, idx) => (
+                  {sortedPlans?.map((plan, idx) => (
                     <div
                       key={plan?.id}
                       className="border border-[#E2E1E5] rounded-xl p-4 sm:p-5 flex flex-col justify-between shadow transition"

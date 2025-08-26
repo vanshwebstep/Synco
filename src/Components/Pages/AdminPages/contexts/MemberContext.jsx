@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback } from "react";
+import Swal from 'sweetalert2';
 
 const MemberContext = createContext();
 
@@ -73,17 +74,82 @@ export const MemberProvider = ({ children }) => {
             setLoading(false);
         }
     }, []);
+    const fetchPermission = useCallback(async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/role/permission`, {
+                method: "GET",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const result = await response.json();
+            const permissions = result.data || [];
+            console.log('permissions', permissions)
+            setPermissions(permissions);
+
+        } catch (error) {
+            console.error("Failed to fetch roles:", error);
+        }
+    }, [token]);
+    const handlePermissionCreate = useCallback(async (rolePermissions) => {
+        try {
+            // rolePermissions example:
+            // [
+            //   { roleId: 1, permissions: [1, 2] },
+            //   { roleId: 2, permissions: [2, 3] }
+            // ]
+
+            const response = await fetch(`${API_BASE_URL}/api/admin/role/permission`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(rolePermissions),
+            });
+
+            if (!response.ok) throw new Error("Failed to update role permissions");
+
+            const data = await response.json();
+            console.log("Updated role-permission mapping:", data);
+
+            // Refresh UI
+            await fetchPermission();
+            await fetchRoles();
+
+            // Dynamic SweetAlert2
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: `${rolePermissions.length} role(s) updated successfully!`,
+                showConfirmButton: true,
+                timer: 2500
+            });
+
+        } catch (error) {
+            console.error("Create role error:", error);
+
+            // Error alert
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops!',
+                text: error.message || "Something went wrong",
+            });
+        }
+    }, [token, fetchRoles, fetchPermission]);
+
 
     return (
-        <MemberContext.Provider value={{ members,activeTab, setActiveTab, setMembers, fetchMembers, loading ,roleOptions,
-        fetchRoles,
-        showRoleModal,
-        setShowRoleModal,
-        roleName,
-        setRoleName,
-        permissions,
-        setPermissions,
-        handleRoleCreate, }}>
+        <MemberContext.Provider value={{
+            members, activeTab, handlePermissionCreate, fetchPermission, setActiveTab, setMembers, fetchMembers, loading, roleOptions,
+            fetchRoles,
+            showRoleModal,
+            setShowRoleModal,
+            roleName,
+            setRoleName,
+            permissions,
+            setPermissions,
+            handleRoleCreate,
+        }}>
             {children}
         </MemberContext.Provider>
     );

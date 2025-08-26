@@ -370,12 +370,12 @@ const List = () => {
             ...prev,
             {
                 id: Date.now(),
-               parentFirstName: '',
-            parentLastName: '',
-            parentEmail: '',
-            parentPhoneNumber: '',
-            relationToChild: '',
-            howDidYouHear: ''
+                parentFirstName: '',
+                parentLastName: '',
+                parentEmail: '',
+                parentPhoneNumber: '',
+                relationToChild: '',
+                howDidYouHear: ''
             },
         ]);
     };
@@ -459,7 +459,7 @@ const List = () => {
         setIsSubmitting(true); // Start loading
 
         const payload = {
-            keyInformation:selectedKeyInfo,
+            keyInformation: selectedKeyInfo,
             venueId: singleClassSchedulesOnly?.venue?.id,
             classScheduleId: singleClassSchedulesOnly?.id,
             trialDate: selectedDate,
@@ -578,12 +578,12 @@ const List = () => {
         }
     }, [singleClassSchedulesOnly]); // ✅ now it runs when data is fetched
     console.log('singleClassSchedulesOnly?.venue?', singleClassSchedulesOnly)
-    
-const genderOptions = [
-  { value: "male", label: "Male" },
-  { value: "female", label: "Female" },
-  { value: "other", label: "Other" },
-];
+
+    const genderOptions = [
+        { value: "male", label: "Male" },
+        { value: "female", label: "Female" },
+        { value: "other", label: "Other" },
+    ];
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
@@ -896,16 +896,16 @@ const genderOptions = [
                                     <div className="flex gap-4">
                                         <div className="w-1/2">
                                             <label className="block text-[16px] font-semibold">Gender</label>
-                                           <Select
-  className="w-full mt-2 text-base"
-  classNamePrefix="react-select"
-  placeholder="Select gender"
-  value={genderOptions.find((option) => option.value === student.gender) || null}
-  onChange={(selectedOption) =>
-    handleInputChange(index, "gender", selectedOption ? selectedOption.value : "")
-  }
-  options={genderOptions}
-/>
+                                            <Select
+                                                className="w-full mt-2 text-base"
+                                                classNamePrefix="react-select"
+                                                placeholder="Select gender"
+                                                value={genderOptions.find((option) => option.value === student.gender) || null}
+                                                onChange={(selectedOption) =>
+                                                    handleInputChange(index, "gender", selectedOption ? selectedOption.value : "")
+                                                }
+                                                options={genderOptions}
+                                            />
                                         </div>
                                         <div className="w-1/2">
                                             <label className="block text-[16px] font-semibold">
@@ -966,8 +966,8 @@ const genderOptions = [
                                     initial={{ opacity: 0, y: 30 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.3, delay: index * 0.1 }}
-                                    className="bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6 relative"
-                                >
+                                    className={`bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6 relative ${students.length < 1 ? "" : "mt-10"
+                                        }`}                                >
                                     {/* Top Header Row */}
                                     <div className="flex justify-between  items-start">
                                         <h2 className="text-[20px] font-semibold">Parent information</h2>
@@ -1159,35 +1159,35 @@ const genderOptions = [
                         </div>
 
                         <div className="w-full my-10">
-  <Select
-    options={keyInfoOptions}
-    value={keyInfoOptions.find(option => option.value === selectedKeyInfo)}
-    onChange={(selectedOption) => setSelectedKeyInfo(selectedOption?.value || '')}
-    placeholder="Key Information"
-    className="react-select-container text-[20px]"
-    classNamePrefix="react-select"
-    styles={{
-      control: (base, state) => ({
-        ...base,
-        borderRadius: '1rem',
-        borderColor: state.isFocused ? '#ccc' : '#E5E7EB',
-        boxShadow: 'none',
-        padding: '8px 8px',
-        minHeight: '48px',
-      }),
-      placeholder: (base) => ({
-        ...base,
-        color: '#000000ff',
-        fontWeight: 600,
-      }),
-      dropdownIndicator: (base) => ({
-        ...base,
-        color: '#9CA3AF',
-      }),
-      indicatorSeparator: () => ({ display: 'none' }),
-    }}
-  />
-</div>
+                            <Select
+                                options={keyInfoOptions}
+                                value={keyInfoOptions.find(option => option.value === selectedKeyInfo)}
+                                onChange={(selectedOption) => setSelectedKeyInfo(selectedOption?.value || '')}
+                                placeholder="Key Information"
+                                className="react-select-container text-[20px]"
+                                classNamePrefix="react-select"
+                                styles={{
+                                    control: (base, state) => ({
+                                        ...base,
+                                        borderRadius: '1rem',
+                                        borderColor: state.isFocused ? '#ccc' : '#E5E7EB',
+                                        boxShadow: 'none',
+                                        padding: '8px 8px',
+                                        minHeight: '48px',
+                                    }),
+                                    placeholder: (base) => ({
+                                        ...base,
+                                        color: '#000000ff',
+                                        fontWeight: 600,
+                                    }),
+                                    dropdownIndicator: (base) => ({
+                                        ...base,
+                                        color: '#9CA3AF',
+                                    }),
+                                    indicatorSeparator: () => ({ display: 'none' }),
+                                }}
+                            />
+                        </div>
 
 
                         <div className="flex justify-end  mb-10 gap-4">

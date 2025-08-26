@@ -6,208 +6,173 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import { checkPermission } from '../Pages/AdminPages/Common/permission';
 
-const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
-
-const menuItems = [
+const menuItemsRaw = [
   {
     title: 'Dashboard',
     icon: '/demo/synco/SidebarLogos/Dashboard.png',
     iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
     link: '/',
-    role: commonRole
   },
   {
     title: 'Configuration',
     icon: '/demo/synco/SidebarLogos/config.png',
     iconHover: '/demo/synco/SidebarLogos/configH.png',
-    role: commonRole,
+    needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term-group', action: 'create' }, { module: 'venue', action: 'view-listing' }, { module: 'book-membership', action: 'view-listing' }, { module: 'book-free-trial', action: 'view-listing' }, { module: 'find-class', action: 'view-listing' }, { module: 'payment-plan', action: 'view-listing' }, { module: 'session-plan-group', action: 'view-listing' }, { module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }, { module: 'member', action: 'view-listing' }],
     subItems: [
       {
         title: 'Weekly Classes',
         icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
         iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
-        role: ['Admin', 'Call Agent'],
+        needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term-group', action: 'create' }, { module: 'venue', action: 'view-listing' }, { module: 'book-membership', action: 'view-listing' }, { module: 'book-free-trial', action: 'view-listing' }, { module: 'find-class', action: 'view-listing' }, { module: 'payment-plan', action: 'view-listing' }, { module: 'session-plan-group', action: 'view-listing' }],
         subItems: [
-          { title: 'Session Plan Library', link: '/configuration/weekly-classes/session-plan-list', role: ['Admin'] },
-          { title: 'Subscription Plan Manager', link: '/configuration/weekly-classes/subscription-planManager', role: ['Admin'] },
-          { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', role: ['Admin', 'Call Agent'] },
-          { title: 'Trials', link: '/configuration/weekly-classes/trial/list', role: ['Admin'] },
-          { title: 'All Members', link: '/configuration/weekly-classes/all-members/list', role: ['Admin'] },
-          { title: 'Venues', link: '/configuration/weekly-classes/venues', role: ['Admin'] },
-          { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', role: ['Admin'] }
+          { title: 'Session Plan Library', link: '/configuration/weekly-classes/session-plan-list', needPermissions: [{ module: 'session-plan-group', action: 'view-listing' }] },
+          { title: 'Subscription Plan Manager', link: '/configuration/weekly-classes/subscription-planManager', needPermissions: [{ module: 'payment-plan', action: 'view-listing' }] },
+          { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
+          { title: 'Trials', link: '/configuration/weekly-classes/trial/list', needPermissions: [{ module: 'book-free-trial', action: 'view-listing' }] },
+          { title: 'All Members', link: '/configuration/weekly-classes/all-members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+          { title: 'Venues', link: '/configuration/weekly-classes/venues', needPermissions: [{ module: 'venue', action: 'view-listing' }, { module: 'venue', action: 'create' }] },
+          { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term-group', action: 'create' }], }
         ]
       },
       {
         title: 'Holiday Camps',
         icon: '/demo/synco/SidebarLogos/Holiday.png',
         iconHover: '/demo/synco/SidebarLogos/HolidayH.png',
-        role: ['Admin'],
+        needPermissions: [{ module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }],
         subItems: [
-          { title: 'Discounts', link: '/configuration/holiday-camps/discounts/list', role: ['Admin'] }
+          { title: 'Discounts', link: '/configuration/holiday-camps/discounts/list', needPermissions: [{ module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }] }
         ]
       },
       {
         title: 'Administration',
         icon: '/demo/synco/SidebarLogos/Admistration.png',
         iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
-        role: ['Admin', 'Super Admin'],
+        needPermissions: [{ module: 'member', action: 'view-listing' }],
         subItems: [
-          { title: 'Admin Panel', link: '/configuration/members/List', role: ['Admin', 'Super Admin'] }
+          { title: 'Admin Panel', link: '/configuration/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] }
         ]
       }
     ]
-  }
-];
-const remainingTabs = [
+  },
   {
-    title: 'Dashboard',
+    title: 'Permission',
     icon: '/demo/synco/SidebarLogos/Dashboard.png',
     iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
-    link: '/',
-    role: commonRole
+    link: '/permission'
   },
-  {
-    title: 'One to One',
-    icon: '/demo/synco/SidebarLogos/OneTOOne.png',
-    iconHover: '/demo/synco/SidebarLogos/OneTOOneH.png',
-    role: commonRole,
-    subItems: [
-      {
-        title: 'Leads',
-        subItems: [
-          { title: 'Leads Database', link: '/notification-list', role: commonRole },
-          { title: 'Add New Lead', link: '#', role: commonRole }
-        ]
-      },
-      {
-        title: 'Sales',
-        subItems: [
-          { title: 'Sale X', link: '/one-to-one/sales/x', role: commonRole },
-          { title: 'Sale Y', link: '/one-to-one/sales/y', role: commonRole }
-        ]
-      }
-    ]
-  },
-  {
-    title: 'Birthday parties',
-    icon: '/demo/synco/SidebarLogos/Birthday.png',
-    iconHover: '/demo/synco/SidebarLogos/BirthdayH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Party 1', link: '#', role: commonRole },
-      { title: 'Party 2', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Club',
-    icon: '/demo/synco/SidebarLogos/Club.png',
-    iconHover: '/demo/synco/SidebarLogos/ClubH.png',
-    role: commonRole,
-    subItems: [
-      {
-        title: 'Session A',
-        subItems: [
-          { title: 'Slot 1', link: '#', role: commonRole },
-          { title: 'Slot 2', link: '#', role: commonRole }
-        ]
-      },
-      {
-        title: 'Session B',
-        subItems: [
-          { title: 'Slot 3', link: '#', role: commonRole },
-          { title: 'Slot 4', link: '#', role: commonRole }
-        ]
-      },
-      { title: 'Session C', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Merchandise',
-    icon: '/demo/synco/SidebarLogos/Merchandise.png',
-    iconHover: '/demo/synco/SidebarLogos/MerchandiseH.png',
-    link: '#',
-    role: commonRole
-  },
-  {
-    title: 'Email management',
-    icon: '/demo/synco/SidebarLogos/Management.png',
-    iconHover: '/demo/synco/SidebarLogos/ManagementH.png',
-    link: '#',
-    role: commonRole
-  },
-  {
-    title: 'Surveys',
-    icon: '/demo/synco/SidebarLogos/Survey.png',
-    iconHover: '/demo/synco/SidebarLogos/SurveyH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Survey 1', link: '#', role: commonRole },
-      { title: 'Survey 2', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Email marketing',
-    icon: '/demo/synco/SidebarLogos/Marketing.png',
-    iconHover: '/demo/synco/SidebarLogos/MarketingH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Campaign 1', link: '#', role: commonRole },
-      { title: 'Campaign 2', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Recruitment',
-    icon: '/demo/synco/SidebarLogos/Recruitment.png',
-    iconHover: '/demo/synco/SidebarLogos/RecruitmentH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Job 1', link: '#', role: commonRole },
-      { title: 'Job 2', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Reports',
-    icon: '/demo/synco/SidebarLogos/Reports.png',
-    iconHover: '/demo/synco/SidebarLogos/ReportsH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Report 1', link: '#', role: commonRole },
-      { title: 'Report 2', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Marketing reports',
-    icon: '/demo/synco/SidebarLogos/MarketingReports.png',
-    iconHover: '/demo/synco/SidebarLogos/MarketingReportsH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Report A', link: '#', role: commonRole },
-      { title: 'Report B', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Recruitment reports',
-    icon: '/demo/synco/SidebarLogos/ReqReports.png',
-    iconHover: '/demo/synco/SidebarLogos/ReqReportsH.png',
-    link: '#',
-    role: commonRole
-  },
-  {
-    title: 'Synco Chat',
-    icon: '/demo/synco/SidebarLogos/bubble-chat.png',
-    iconHover: '/demo/synco/SidebarLogos/bubble-chatH.png',
-    link: '#',
-    role: commonRole
-  },
-  {
-    title: 'Templates',
-    icon: '/demo/synco/SidebarLogos/Template.png',
-    iconHover: '/demo/synco/SidebarLogos/TemplateH.png',
-    link: '#',
-    role: commonRole
-  }
 ];
+
+let menuItems = [];
+menuItemsRaw.forEach(menuItem => {
+  console.log("Checking Menu Item:", menuItem.title);
+
+  let isMenuGranted = false;
+
+
+  if (!menuItem.needPermissions) {
+    console.log("-> No permissions needed for this menu.");
+    isMenuGranted = true;
+  } else {
+    console.log(`-> Checkings required permissions for this menu (${menuItem.title})...`);
+    menuItem.needPermissions.forEach(permission => {
+      if (checkPermission(permission)) {
+        console.log(`--> Permission denied:`, permission);
+        isMenuGranted = true;
+      } else {
+        console.log(`--> Permission denied:`, permission);
+      }
+    });
+  }
+
+  // Step 2: If main menu is allowed, check sub-items
+  if (isMenuGranted && menuItem.subItems && menuItem.subItems.length) {
+    console.log("-> Checking sub-items...");
+    let validSubs = [];
+
+    menuItem.subItems.forEach(sub => {
+      console.log("   Checking Sub-Item:", sub.title);
+
+      let isSubGranted = false;
+      let isChildPermissionGranted = false;
+
+      // Step 2.1: Check permissions for sub-item
+      if (!sub.needPermissions) {
+        console.log("   -> No permissions needed for this sub-item.");
+        isSubGranted = true;
+      } else {
+        console.log(`   -> Checking required permissions for this sub-item (${sub.title})...`);
+        sub.needPermissions.forEach(permission => {
+          if (checkPermission(permission)) {
+            console.log(`   --> Sub-item permission granted: ${permission}`);
+            isSubGranted = true;
+          } else {
+            console.log(`   --> Sub-item permission denied: ${permission}`);
+          }
+        });
+      }
+
+      // Step 2.2: Check children of sub-item
+      if (sub.subItems && sub.subItems.length) {
+        console.log("   -> Checking children of sub-item...");
+        let validChildren = [];
+
+        sub.subItems.forEach(child => {
+          console.log("      Checking Child Item:", child.title);
+
+          let isChildGranted = false;
+
+          if (!child.needPermissions) {
+            console.log("      -> No permissions needed for this child.");
+            isChildGranted = true;
+          } else {
+            console.log("      -> Checking required permissions for this child...");
+            child.needPermissions.forEach(permission => {
+              if (checkPermission(permission)) {
+                console.log(`      --> Child permission granted: ${permission}`);
+                isChildGranted = true;
+              } else {
+                console.log(`      --> Child permission denied: ${permission}`);
+              }
+            });
+          }
+
+          if (isChildGranted) {
+            console.log("      => Child granted access and added.");
+            validChildren.push(child);
+            isChildPermissionGranted = true;
+          } else {
+            console.log("      => Child denied access and skipped.");
+          }
+        });
+
+        sub.subItems = validChildren;
+      }
+
+      // Step 2.3: Decide if sub-item should be added
+      if (isSubGranted || isChildPermissionGranted) {
+        console.log("   => Sub-item granted access and added.");
+        validSubs.push(sub);
+      } else {
+        console.log("   => Sub-item denied access and skipped.");
+      }
+    });
+
+    menuItem.subItems = validSubs;
+  }
+
+  // Step 3: Add the menu item if granted or if any sub-items remain
+  if (isMenuGranted) {
+    console.log(`=> (${menuItem.title}) Menu item granted access and added to final list.\n`);
+    menuItems.push(menuItem);
+  } else {
+    console.log("=> Menu item denied access and skipped.\n");
+  }
+});
+
+console.log("✅ Final menuItems:", menuItems);
+
 const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const [openDropdowns, setOpenDropdowns] = useState({});
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -222,21 +187,14 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   };
   const renderMenuItems = (items, level = 0) => {
     const location = useLocation(); // hook inside render so it's scoped
-    const MyRole = localStorage.getItem("role");
-
-    const filteredItems = items.filter((item) => {
-      // If no role specified on item → show it
-      if (!item.role) return true;
-      // If role array includes MyRole → show it
-      return item.role.includes(MyRole);
-    });
+    console.log('localSgtorage', localStorage)
 
     return (
       <ul
         className={`${level === 0 ? 'px-4' : 'pl-10'} ${level === 2 ? 'list-disc' : 'list-none'
           } space-y-1`}
       >
-        {filteredItems.map((item) => {
+        {items.map((item) => {
           const hasSubItems = Array.isArray(item.subItems);
           const hasInnerSubItems = Array.isArray(item.innerSubItems);
           const itemTitle = typeof item === 'string' ? item : item.title;

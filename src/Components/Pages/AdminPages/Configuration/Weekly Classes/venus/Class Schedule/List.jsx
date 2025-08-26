@@ -291,7 +291,7 @@ const List = () => {
                                                     alt="Delete"
                                                 />
 
-                                                <button onClick={() => toggleSessions(index)} className="ml-4 flex font-semibold items-center gap-2 whitespace-nowrap px-4 pr-6 py-2 border rounded-xl text-[16px] font-medium text-blue-600 border-blue-500 hover:bg-blue-50">
+                                                <button onClick={() => toggleSessions(index)} className="ml-4 flex font-semibold items-center gap-2 whitespace-nowrap px-4 pr-6 py-2 border rounded-xl text-[16px] font-medium text-[#237FEA] border-blue-500 hover:bg-blue-50">
                                                     {openClassIndex === index ? 'Hide sessions' : 'View sessions'}  <img src="/demo/synco/icons/bluearrowup.png" className={`${openClassIndex === index ? '' : 'rotate-180'} transition-transform`} alt="" />
                                                 </button>
                                             </div>
@@ -404,7 +404,7 @@ const List = () => {
                                                                                     {/* Step 2: Show dropdown and view button */}
                                                                                     <button
                                                                                         onClick={() => handleToggleDropdown(session.id)}
-                                                                                        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
+                                                                                        className="px-6 py-3 bg-[#237FEA]  text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
                                                                                     >
                                                                                         View Session Plan
                                                                                     </button>
@@ -453,7 +453,7 @@ const List = () => {
                                                                                                     onClick={handleNavigate}
                                                                                                     disabled={!sessionState.selectedSessionMap}
                                                                                                     className={`w-full px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${sessionState.selectedSessionMap
-                                                                                                        ? 'bg-blue-600 text-white hover:bg-white hover:text-blue-600 border border-blue-600'
+                                                                                                        ? 'bg-[#237FEA] text-white hover:bg-white hover:text-[#237FEA] border border-[#237FEA]'
                                                                                                         : 'bg-gray-300 text-white cursor-not-allowed'
                                                                                                         }`}
                                                                                                 >
@@ -473,19 +473,23 @@ const List = () => {
                                                                                     <button
                                                                                         onClick={() =>
                                                                                             navigate(
-                                                                                                item.status === "cancelled"
-                                                                                                    ? "/configuration/weekly-classes/venues/class-schedule/Sessions/detail"
-                                                                                                    : "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
-                                                                                                { state: { schedule: item } } // Pass the entire item
+                                                                                                "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
+                                                                                                {
+                                                                                                    state: {
+                                                                                                        schedule: item,
+                                                                                                        canceled: item.status === "cancelled" // true if cancelled, false otherwise
+                                                                                                    }
+                                                                                                }
                                                                                             )
                                                                                         }
+
                                                                                         className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
         ${item.status === "cancelled"
                                                                                                 ? "bg-white text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
                                                                                                 : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
                                                                                             }`}
                                                                                     >
-                                                                                        {item.status === "cancelled" ? "See Detail" : "Cancel Session"}
+                                                                                        {item.status === "cancelled" ? "See details" : "Cancel Session"}
                                                                                     </button>
 
                                                                                 </div>
@@ -612,7 +616,7 @@ const List = () => {
                                         onChange={(e) => handleChange('allowFreeTrial', e.target.checked)}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 transition-all"></div>
+                                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#237FEA] peer-focus:ring-4 peer-focus:ring-blue-300 transition-all"></div>
                                     <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-md transform peer-checked:translate-x-5 transition-transform"></div>
                                 </label>
                             </div>
