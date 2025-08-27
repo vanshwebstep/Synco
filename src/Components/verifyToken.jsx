@@ -16,8 +16,9 @@ export const verifyToken = async (token) => {
       localStorage.setItem('role', (result.admin.role));
          localStorage.setItem(
           "hasPermission",
-          JSON.stringify(result.admin.hasPermission)
+          JSON.stringify(result.hasPermission)
         );
+          console.log('permission saved in verifytoken',result.hasPermission)
     
       return true;
     } else {

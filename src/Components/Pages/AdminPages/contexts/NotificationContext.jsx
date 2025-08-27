@@ -9,54 +9,61 @@ export const NotificationProvider = ({ children }) => {
   const [customNotification, setCustomNotification] = useState([]);
   const [customnotificationAll, setCustomnotificationAll] = useState([]);
   const navigate = useNavigate();
+const [stopFetching, setStopFetching] = useState(false);
 
   const [loadingNotification, setLoadingNotification] = useState(null);
   const [loadingCustomNotification, setLoadingCustomNotification] = useState(null);
+const fetchNotification = useCallback(async () => {
+  const token = localStorage.getItem("adminToken");
+  if (!token) return false;
 
-  const fetchNotification = useCallback(async () => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) return false;
+  setLoadingNotification(true);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/notification`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-    setLoadingNotification(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/notification`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    const resultRaw = await response.json();
+
+    // If account is suspended
+    if (resultRaw.status === false && resultRaw.code === "ACCOUNT_SUSPENDED") {
+      await Swal.fire({
+        icon: "error",
+        title: "Account Suspended",
+        text: resultRaw.message || "Your account is suspended. Please contact support.",
+        confirmButtonText: "OK",
       });
-
-      const resultRaw = await response.json();
-
-      // If account is suspended
-      if (resultRaw.status === false && resultRaw.code === "ACCOUNT_SUSPENDED") {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Account Suspended',
-          text: resultRaw.message || "Your account is suspended. Please contact support.",
-          confirmButtonText: 'OK'
-        });
-        localStorage.clear();
-        navigate('/admin-login');
-        return false; // ⛔ stop further processing
-      }
-
-      // If successful
-      const result = resultRaw.data?.notifications || [];
-console.log('finalresult',result)
-      setNotification(result);
-      if(result?.role){
-      localStorage.setItem('role', (result?.role));
-      }
-      setCustomnotificationAll(resultRaw.data?.customNotifications || []);
-      return true;
-    } catch (error) {
-      console.error("Failed to fetch notification:", error);
+      localStorage.clear();
+      navigate("/admin-login");
       return false;
-    } finally {
-      setLoadingNotification(false);
     }
-  }, [navigate]);
+
+    // If unauthorized → stop further fetching
+    if (resultRaw.code === "UNAUTHORIZED") {
+      console.warn("❌ Unauthorized, stopping notification polling.");
+      setStopFetching(true); // stop further calls
+      return false;
+    }
+
+    // If successful
+    const result = resultRaw.data?.notifications || [];
+    // console.log("finalresult", result);
+    setNotification(result);
+    if (result?.role) {
+      localStorage.setItem("role", result?.role);
+    }
+    setCustomnotificationAll(resultRaw.data?.customNotifications || []);
+    return true;
+  } catch (error) {
+    console.error("Failed to fetch notification:", error);
+    return false;
+  } finally {
+    setLoadingNotification(false);
+  }
+}, [navigate]);
 
 
   const fetchMarkAsRead = useCallback(async (category) => {
@@ -105,7 +112,7 @@ console.log('finalresult',result)
   }, []);
 
   return (
-    <NotificationContext.Provider value={{ fetchCustomNotification, fetchMarkAsRead, loadingCustomNotification, setLoadingCustomNotification, notification, setNotification, fetchNotification, loadingNotification, customnotificationAll, customNotification, setCustomnotificationAll, setCustomNotification }}>
+    <NotificationContext.Provider value={{ stopFetching,fetchCustomNotification, fetchMarkAsRead, loadingCustomNotification, setLoadingCustomNotification, notification, setNotification, fetchNotification, loadingNotification, customnotificationAll, customNotification, setCustomnotificationAll, setCustomNotification }}>
       {children}
     </NotificationContext.Provider>
   );

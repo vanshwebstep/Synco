@@ -4,6 +4,7 @@ import Loader from '../../../contexts/Loader';
 import TermCard from './TermCard';
 import { useNavigate } from 'react-router-dom';
 import { useTermContext } from '../../../contexts/TermDatesSessionContext';
+import { usePermission } from '../../../Common/permission';
 
 const formatDate = (iso) => {
   const d = new Date(iso);
@@ -149,7 +150,40 @@ const List = () => {
 
 
 
-  if (loading) return <Loader />;
+  const { checkPermission } = usePermission();
+  const canCreate =
+    checkPermission({ module: 'term-group', action: 'create' }) &&
+    checkPermission({ module: 'term', action: 'create' }) &&
+    checkPermission({ module: 'session-plan-group', action: 'view-listing' });
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  // Then check for missing data
+  if (!termGroup.length && !termData.length) {
+    return (
+      <div className="text-center p-4 border-dotted text-red-500 rounded-md text-sm md:text-base">
+        Missing Term Groups and Term Data
+      </div>
+    );
+  }
+
+  if (!termGroup.length) {
+    return (
+      <div className="text-center p-4 border-dotted text-red-500 rounded-md text-sm md:text-base">
+        Missing Term Groups
+      </div>
+    );
+  }
+
+  if (!termData.length) {
+    return (
+      <div className="text-center p-4 border-dotted text-red-500 rounded-md text-sm md:text-base">
+        Missing Term Data
+      </div>
+    );
+  }
 
   return (
     <div className="pt-1 bg-gray-50 min-h-screen px-4 md:px-6">
@@ -159,28 +193,27 @@ const List = () => {
           Term Dates & Session Plan Mapping
         </h2>
 
-        <button
-          onClick={() => navigate('/configuration/weekly-classes/term-dates/create')}
-          className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
-        >
-          <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-          Add New Term Group
-        </button>
+
+        {canCreate &&
+          <button
+            onClick={() => navigate('/configuration/weekly-classes/term-dates/create')}
+            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
+          >
+            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+            Add New Term Group
+          </button>
+        }
       </div>
 
       {/* Term Cards */}
       <div className="transition-all duration-300 h-full w-full">
-        {classList.length > 0 ? (
+        {classList.length > 0 &&
           <div className="rounded-3xl shadow">
             {classList.map((item, index) => (
               <TermCard item={item} sessionData={sessionDataList[index]} key={index} />
             ))}
           </div>
-        ) : (
-          <p className="text-center p-4 border-dotted border rounded-md text-sm md:text-base">
-            No Term Groups with Valid Terms Found
-          </p>
-        )}
+        }
       </div>
     </div>
   );

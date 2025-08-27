@@ -14,6 +14,7 @@ export const BookFreeTrialProvider = ({ children }) => {
   const [selectedVenue, setSelectedVenue] = useState(null);
   const [status, setStatus] = useState(null);
   const [statsMembership, setStatsMembership] = useState([]);
+  const [statsFreeTrial, setStatsFreeTrial] = useState([]);
   const [bookedByAdmin, setBookedByAdmin] = useState([]);
 
   const [loading, setLoading] = useState(false);
@@ -41,15 +42,17 @@ export const BookFreeTrialProvider = ({ children }) => {
     parkingNote: "",
     entryNote: "",
   });
+
+
   const fetchBookFreeTrials = useCallback(
     async (
       studentName = "",
       venueName = "",
       status1 = false,
       status2 = false,
-      dateofmembership = "",
-      dateoftrial = "",
-      forOtherDate = "",
+      otherDateRange = [],
+      dateoftrial = [],
+      forOtherDate = [],
       BookedBy = []
 
     ) => {
@@ -57,12 +60,12 @@ export const BookFreeTrialProvider = ({ children }) => {
       if (!token) return;
       console.log('status1', status1)
       console.log('satus2', status2)
-      console.log('dateofmembership', dateofmembership)
+      console.log('otherDateRange', otherDateRange)
       console.log('dateoftrial', dateoftrial)
       console.log('forOtherDate', forOtherDate)
 
-      const shouldShowLoader = studentName || venueName || status1 || status2 || dateofmembership || dateoftrial || forOtherDate;
-      if (shouldShowLoader) setLoading(true);
+      const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
+      // if (shouldShowLoader) setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
@@ -77,24 +80,39 @@ export const BookFreeTrialProvider = ({ children }) => {
         if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
           BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
         }
-        // CreatedAt dates (membership + other)
-        const createdDates = [dateofmembership, forOtherDate]
-          .filter(Boolean)
-          .map(d => {
-            const dt = new Date(d);
-            return isNaN(dt.getTime()) ? null : dt.toISOString();
-          })
-          .filter(Boolean);
 
-        createdDates.forEach(d => queryParams.append("createdAt", d));
 
+        if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
+          const [from, to] = dateoftrial;
+          if (from && to) {
+            queryParams.append("dateTrialFrom", formatLocalDate(from));
+            queryParams.append("dateTrialTo", formatLocalDate(to));
+          }
+        }
+
+        // 🔹 Handle general (createdAt range)
+        if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+          const [from, to] = otherDateRange;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+
+        if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
+          const [from, to] = forOtherDate;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
         // Trial dates (support array or single value)
-        const trialDates = Array.isArray(dateoftrial) ? dateoftrial : [dateoftrial];
-        trialDates
-          .filter(Boolean)
-          .map(d => formatLocalDate(d))
-          .filter(Boolean)
-          .forEach(d => queryParams.append("trialDate", d));
+        // const trialDates = Array.isArray(dateoftrial) ? dateoftrial : [dateoftrial];
+        // trialDates
+        //   .filter(Boolean)
+        //   .map(d => formatLocalDate(d))
+        //   .filter(Boolean)
+        //   .forEach(d => queryParams.append("trialDate", d));
 
         const url = `${API_BASE_URL}/api/admin/book/free-trials${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
         const response = await fetch(url, {
@@ -110,11 +128,12 @@ export const BookFreeTrialProvider = ({ children }) => {
         const bookedByAdmin = resultRaw.data.bookedByAdmin || []
         setBookedByAdmin(bookedByAdmin);
         setMyVenues(venues);
+        setStatsFreeTrial(resultRaw.data.stats)
         setBookFreeTrials(result);
       } catch (error) {
         console.error("Failed to fetch bookFreeTrials:", error);
       } finally {
-        if (shouldShowLoader) setLoading(false); // only stop loader if it was started
+        // if (shouldShowLoader) setLoading(false); // only stop loader if it was started
       }
     },
     []
@@ -329,6 +348,96 @@ export const BookFreeTrialProvider = ({ children }) => {
 
 
 
+
+  const fetchBookMemberships = useCallback(
+    async (
+      studentName = "",
+      venueName = "",
+      status1 = false,
+      status2 = false,
+      dateRangeMembership = [],   // 👉 will always be [fromDate, toDate] for trialDate
+      month1 = false,
+      month2 = false,
+      month3 = false,
+      otherDateRange = [],        // 👉 will always be [fromDate, toDate] for general
+      BookedBy = []
+    ) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
+
+      const shouldShowLoader =
+        studentName ||
+        venueName ||
+        status1 ||
+        status2 ||
+        dateRangeMembership.length ||
+        otherDateRange.length;
+
+      // if (shouldShowLoader) setLoading(true);
+
+      try {
+        const queryParams = new URLSearchParams();
+
+        if (studentName) queryParams.append("studentName", studentName);
+        if (venueName) queryParams.append("venueName", venueName);
+
+        if (status1) queryParams.append("status", "pending");
+        if (status2) queryParams.append("status", "active");
+
+        if (month1) queryParams.append("duration", "6");
+        if (month2) queryParams.append("duration", "3");
+        if (month3) queryParams.append("duration", "1");
+
+        if (Array.isArray(BookedBy) && BookedBy.length > 0) {
+          BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
+        }
+
+        // 🔹 Handle trialDate (dateBooked range)
+        if (Array.isArray(dateRangeMembership) && dateRangeMembership.length === 2) {
+          const [from, to] = dateRangeMembership;
+          if (from && to) {
+            queryParams.append("dateFrom", formatLocalDate(from));
+            queryParams.append("dateTo", formatLocalDate(to));
+          }
+        }
+
+        // 🔹 Handle general (createdAt range)
+        if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+          const [from, to] = otherDateRange;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+
+        const url = `${API_BASE_URL}/api/admin/book-membership${queryParams.toString() ? `?${queryParams.toString()}` : ""
+          }`;
+
+        const response = await fetch(url, {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const resultRaw = await response.json();
+        const result = resultRaw.data.membership || [];
+        const venues = resultRaw.data.venue || [];
+        const bookedByAdmin = resultRaw.data.bookedByAdmins || [];
+        const MyStats = resultRaw.stats || [];
+
+        setBookedByAdmin(bookedByAdmin);
+        setStatsMembership(MyStats);
+        setMyVenues(venues);
+        setBookMembership(result);
+      } catch (error) {
+        console.error("Failed to fetch bookMemberships:", error);
+      } finally {
+        // if (shouldShowLoader) setLoading(false);
+      }
+    },
+    [API_BASE_URL]
+  );
+
+
   const createBookMembership = async (bookFreeMembershipData) => {
     setLoading(true);
 
@@ -372,21 +481,262 @@ export const BookFreeTrialProvider = ({ children }) => {
       });
       throw error;
     } finally {
+      await fetchBookMemberships();
+      setLoading(false);
+    }
+  };
+  const sendFreeTrialmail = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/send-email`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          bookingIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
       await fetchBookFreeTrials();
       setLoading(false);
     }
   };
-  const fetchBookMemberships = useCallback(
+  const sendBookMembershipMail = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/send-email`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          bookingIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchBookMemberships();
+      setLoading(false);
+    }
+  };
+
+  const sendCancelFreeTrialmail = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/send-email`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          bookingIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      navigate(`/configuration/weekly-classes/trial/list`)
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchBookFreeTrials();
+      setLoading(false);
+    }
+  };
+  const cancelFreeTrial = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-freeTrial`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
+        ),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      navigate(`/configuration/weekly-classes/trial/list`)
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchBookFreeTrials();
+      setLoading(false);
+    }
+  };
+
+  const rebookFreeTrialsubmit = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/reebooking`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
+        ),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      }); navigate(`/configuration/weekly-classes/trial/list`)
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchBookFreeTrials();
+      setLoading(false);
+    }
+  };
+
+  const fetchMembershipSales = useCallback(
     async (
       studentName = "",
       venueName = "",
       status1 = false,
       status2 = false,
-      dateofmembership = [],
+      dateRangeMembership = [],   // 👉 will always be [fromDate, toDate] for trialDate
       month1 = false,
       month2 = false,
       month3 = false,
-      forOtherDate = [],
+      otherDateRange = [],        // 👉 will always be [fromDate, toDate] for general
       BookedBy = []
     ) => {
       const token = localStorage.getItem("adminToken");
@@ -397,13 +747,14 @@ export const BookFreeTrialProvider = ({ children }) => {
         venueName ||
         status1 ||
         status2 ||
-        dateofmembership.length ||
-        forOtherDate.length;
-      if (shouldShowLoader) setLoading(true);
+        dateRangeMembership.length ||
+        otherDateRange.length;
+
+      // if (shouldShowLoader) setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
-        console.log('BookedBy', BookedBy)
+
         if (studentName) queryParams.append("studentName", studentName);
         if (venueName) queryParams.append("venueName", venueName);
 
@@ -413,24 +764,30 @@ export const BookFreeTrialProvider = ({ children }) => {
         if (month1) queryParams.append("duration", "6");
         if (month2) queryParams.append("duration", "3");
         if (month3) queryParams.append("duration", "1");
-       if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
-    BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
-}
 
-        [...forOtherDate]
-          .filter(Boolean)
-          .map((d) => new Date(d))
-          .filter((d) => !isNaN(d.getTime()))
-          .forEach((d) => queryParams.append("createdAt", d.toISOString()));
+        if (Array.isArray(BookedBy) && BookedBy.length > 0) {
+          BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
+        }
 
-        (Array.isArray(dateofmembership) ? dateofmembership : [dateofmembership])
-          .filter(Boolean)
-          .map((d) => formatLocalDate(d))
-          .filter(Boolean)
-          .forEach((d) => queryParams.append("dateBooked", d));
+        // 🔹 Handle trialDate (dateBooked range)
+        if (Array.isArray(dateRangeMembership) && dateRangeMembership.length === 2) {
+          const [from, to] = dateRangeMembership;
+          if (from && to) {
+            queryParams.append("dateFrom", formatLocalDate(from));
+            queryParams.append("dateTo", formatLocalDate(to));
+          }
+        }
 
+        // 🔹 Handle general (createdAt range)
+        if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+          const [from, to] = otherDateRange;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
 
-        const url = `${API_BASE_URL}/api/admin/book-membership${queryParams.toString() ? `?${queryParams.toString()}` : ""
+        const url = `${API_BASE_URL}/api/admin/book-membership/active${queryParams.toString() ? `?${queryParams.toString()}` : ""
           }`;
 
         const response = await fetch(url, {
@@ -439,10 +796,11 @@ export const BookFreeTrialProvider = ({ children }) => {
         });
 
         const resultRaw = await response.json();
-        const result = resultRaw.data.membership || [];
+        const result = resultRaw.data.memberShipSales || [];
         const venues = resultRaw.data.venue || [];
-        const bookedByAdmin = resultRaw.data.bookedByAdmins || []
+        const bookedByAdmin = resultRaw.data.bookedByAdmins || [];
         const MyStats = resultRaw.stats || [];
+
         setBookedByAdmin(bookedByAdmin);
         setStatsMembership(MyStats);
         setMyVenues(venues);
@@ -450,17 +808,59 @@ export const BookFreeTrialProvider = ({ children }) => {
       } catch (error) {
         console.error("Failed to fetch bookMemberships:", error);
       } finally {
-        if (shouldShowLoader) setLoading(false);
+        // if (shouldShowLoader) setLoading(false);
       }
     },
-    []
+    [API_BASE_URL]
   );
+   const sendActiveBookMembershipMail = async (bookingIds) => {
+    setLoading(true);
 
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/send-email/active-selected`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          bookingIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
 
+      const result = await response.json();
 
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
 
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
 
+      return result;
 
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchMembershipSales();
+      setLoading(false);
+    }
+  };
 
   return (
     <BookFreeTrialContext.Provider
@@ -476,15 +876,20 @@ export const BookFreeTrialProvider = ({ children }) => {
         singleBookFreeTrialsOnly,
         setFormData,
         isEditBookFreeTrial,
+        fetchMembershipSales,
         setIsEditBookFreeTrial,
+        sendBookMembershipMail,
         setBookFreeTrials,
         fetchBookFreeTrials,
+        rebookFreeTrialsubmit,
         loading,
         serviceHistoryFetchById,
         setServiceHistory,
         serviceHistory,
+        cancelFreeTrial,
+        sendCancelFreeTrialmail,
         setSearchTerm, createBookMembership, bookMembership, setBookMembership, fetchBookMemberships,
-        searchTerm, setSelectedVenue, bookedByAdmin, statsMembership, selectedVenue, setMyVenues, myVenues, setStatus, status
+        searchTerm, setSelectedVenue, sendFreeTrialmail, sendActiveBookMembershipMail, statsFreeTrial, bookedByAdmin, statsMembership, selectedVenue, setMyVenues, myVenues, setStatus, status
       }}>
       {children}
     </BookFreeTrialContext.Provider>

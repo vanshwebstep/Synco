@@ -11,6 +11,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useClassSchedule } from '../../../../contexts/ClassScheduleContent';
 import { useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2"; // make sure it's installed
+import { usePermission } from '../../../../Common/permission';
 
 const List = () => {
     const navigate = useNavigate();
@@ -215,16 +216,31 @@ const List = () => {
     console.log('singleClassSchedules', singleClassSchedules)
     console.log("filteredSchedules", filteredSchedules)
     console.log('formData', formData)
+    const { checkPermission } = usePermission();
+
+    const canCreate =
+        checkPermission({ module: 'class-schedule', action: 'create' });
+
+    const canUpdate =
+        checkPermission({ module: 'class-schedule', action: 'update' });
+
+    const canDelete =
+        checkPermission({ module: 'class-schedule', action: 'delete' });
+
+    const cancelSession =
+        checkPermission({ module: 'cancel-session', action: 'view-listing' });
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`md:flex pe-4 justify-between items-center mb-4 w-full`}>
                 <h2 className="text-[28px] font-semibold">Class Schedule</h2>
-                <button
-                    onClick={() => handleAddNew()}
-                    className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
-                >
-                    <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add a Class
-                </button>
+                {canCreate &&
+                    <button
+                        onClick={() => handleAddNew()}
+                        className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
+                    >
+                        <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add a Class
+                    </button>
+                }
             </div>
 
             <div className="md:flex gap-6">
@@ -278,19 +294,23 @@ const List = () => {
 
                                             {/* Icons + Button */}
                                             <div className="flex items-center mt-4 md:mt-0 gap-4">
-                                                <img
-                                                    src="/demo/synco/icons/edit.png"
-                                                    alt="Edit"
-                                                    className="w-6 h-6 cursor-pointer"
-                                                    onClick={() => handleEditClick(item)}
-                                                />
-                                                <img
-                                                    className=" cursor-pointer"
-                                                    onClick={() => handleDeleteClick(item.id)}
-                                                    src="/demo/synco/icons/deleteIcon.png"
-                                                    alt="Delete"
-                                                />
+                                                {canUpdate &&
+                                                    <img
+                                                        src="/demo/synco/icons/edit.png"
+                                                        alt="Edit"
+                                                        className="w-6 h-6 cursor-pointer"
+                                                        onClick={() => handleEditClick(item)}
+                                                    />
+                                                }
+                                                {canDelete &&
 
+                                                    <img
+                                                        className=" cursor-pointer"
+                                                        onClick={() => handleDeleteClick(item.id)}
+                                                        src="/demo/synco/icons/deleteIcon.png"
+                                                        alt="Delete"
+                                                    />
+                                                }
                                                 <button onClick={() => toggleSessions(index)} className="ml-4 flex font-semibold items-center gap-2 whitespace-nowrap px-4 pr-6 py-2 border rounded-xl text-[16px] font-medium text-[#237FEA] border-blue-500 hover:bg-blue-50">
                                                     {openClassIndex === index ? 'Hide sessions' : 'View sessions'}  <img src="/demo/synco/icons/bluearrowup.png" className={`${openClassIndex === index ? '' : 'rotate-180'} transition-transform`} alt="" />
                                                 </button>
@@ -402,12 +422,15 @@ const List = () => {
 
 
                                                                                     {/* Step 2: Show dropdown and view button */}
-                                                                                    <button
-                                                                                        onClick={() => handleToggleDropdown(session.id)}
-                                                                                        className="px-6 py-3 bg-[#237FEA]  text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
-                                                                                    >
-                                                                                        View Session Plan
-                                                                                    </button>
+                                                                                    {sessionMaps && sessionMaps.some(map => map.sessionPlan && map.sessionPlan.length > 0) && (
+                                                                                        <button
+                                                                                            onClick={() => handleToggleDropdown(session.id)}
+                                                                                            className="px-6 py-3 bg-[#237FEA] text-white font-semibold rounded-xl shadow 
+                   hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
+                                                                                        >
+                                                                                            View Session Plan
+                                                                                        </button>
+                                                                                    )}
 
                                                                                     {/* Animated Dropdown (Drawer style) */}
                                                                                     <AnimatePresence>
@@ -469,29 +492,29 @@ const List = () => {
                                                                                     >
                                                                                         View Class Register
                                                                                     </button>
-
-                                                                                    <button
-                                                                                        onClick={() =>
-                                                                                            navigate(
-                                                                                                "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
-                                                                                                {
-                                                                                                    state: {
-                                                                                                        schedule: item,
-                                                                                                        canceled: item.status === "cancelled" // true if cancelled, false otherwise
+                                                                                    {cancelSession &&
+                                                                                        <button
+                                                                                            onClick={() =>
+                                                                                                navigate(
+                                                                                                    "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
+                                                                                                    {
+                                                                                                        state: {
+                                                                                                            schedule: item,
+                                                                                                            canceled: item.status === "cancelled" // true if cancelled, false otherwise
+                                                                                                        }
                                                                                                     }
-                                                                                                }
-                                                                                            )
-                                                                                        }
+                                                                                                )
+                                                                                            }
 
-                                                                                        className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
+                                                                                            className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
         ${item.status === "cancelled"
-                                                                                                ? "bg-white text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
-                                                                                                : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
-                                                                                            }`}
-                                                                                    >
-                                                                                        {item.status === "cancelled" ? "See details" : "Cancel Session"}
-                                                                                    </button>
-
+                                                                                                    ? "bg-white text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
+                                                                                                    : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
+                                                                                                }`}
+                                                                                        >
+                                                                                            {item.status === "cancelled" ? "See details" : "Cancel Session"}
+                                                                                        </button>
+                                                                                    }
                                                                                 </div>
                                                                             </div>
                                                                         )

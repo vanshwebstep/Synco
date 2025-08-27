@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children }) => {
   const [authStatus, setAuthStatus] = useState('checking'); // 'checking' | 'allowed' | 'denied'
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const navigate = useNavigate();
-
+ 
   useEffect(() => {
     const verifyToken = async () => {
       const token = localStorage.getItem('adminToken');
@@ -35,11 +35,12 @@ const ProtectedRoute = ({ children }) => {
           setAuthStatus('allowed');
           // Optional: Save admin info to localStorage
           localStorage.setItem('adminInfo', JSON.stringify(result.admin));
-          localStorage.setItem('role', (result.admin.role));
+          localStorage.setItem('role', (result.admin.role.role));
           localStorage.setItem(
             "hasPermission",
-            JSON.stringify(result.admin.hasPermission)
+            JSON.stringify(result.hasPermission)
           );
+          console.log('permission saved in protectedroute', result.admin.hasPermission)
         } else {
           console.warn('Token invalid or expired');
           localStorage.removeItem('adminToken');

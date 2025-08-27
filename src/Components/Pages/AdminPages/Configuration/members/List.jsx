@@ -5,10 +5,11 @@ import { Check } from "lucide-react";
 import { useMembers } from '../../contexts/MemberContext';
 import Loader from '../../contexts/Loader';
 import { formatDistanceToNow } from 'date-fns';
-import { checkPermission } from '../../Common/permission';
-
+import { usePermission } from "../../Common/permission";
 
 const List = () => {
+      const { checkPermission } = usePermission();
+  
   const MyRole = localStorage.getItem("role");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const { members, fetchMembers, loading } = useMembers();
@@ -56,10 +57,7 @@ const List = () => {
         <h2 className="text-2xl md:text-[28px] font-semibold">Admin panel</h2>
 
         {checkPermission(
-          { module: "member", action: "create" },
-          JSON.parse(localStorage.getItem("hasPermission") || "[]")
-        ) &&
-          MyRole === "Super Admin" && (
+          { module: "member", action: "create" } ) && (
             <button
               onClick={() => setOpenForm(true)}
               className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-blue-700 text-sm md:text-base font-semibold"

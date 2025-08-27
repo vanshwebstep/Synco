@@ -1,11 +1,13 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import Swal from 'sweetalert2';
+import { useNavigate } from "react-router-dom";
 
 const MemberContext = createContext();
 
 export const MemberProvider = ({ children }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+    const [authStatus, setAuthStatus] = useState('checking'); // 'checking' | 'allowed' | 'denied'
+    const navigate = useNavigate();
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [roleOptions, setRoleOptions] = useState([]);
@@ -15,6 +17,60 @@ export const MemberProvider = ({ children }) => {
     const [activeTab, setActiveTab] = useState("All");
 
     const token = localStorage.getItem("adminToken");
+
+    const verifyToken = async () => {
+        const token = localStorage.getItem("adminToken");
+
+        if (!token) {
+            console.warn("Token missing");
+            setAuthStatus("denied");
+            return false; // return false if no token
+        }
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/auth/login/verify`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const result = await response.json();
+
+            if (response.ok && result.status === true) {
+                setAuthStatus("allowed");
+
+                // Optional: Save admin info to localStorage
+                localStorage.setItem("adminInfo", JSON.stringify(result.admin));
+                localStorage.setItem("role", result.admin.role);
+                localStorage.setItem(
+                    "hasPermission",
+                    JSON.stringify(result.hasPermission)
+                );
+
+                console.log("permission saved in protectedroute", result.hasPermission);
+                return true; // ✅ success
+            } else {
+                console.warn("Token invalid or expired");
+                localStorage.removeItem("adminToken");
+                localStorage.removeItem("adminInfo");
+                navigate("/admin-login");
+                setAuthStatus("denied");
+                return false; // ❌ failure
+            }
+        } catch (error) {
+            console.error("Verification failed:", error);
+            localStorage.removeItem("adminToken");
+            localStorage.removeItem("adminInfo");
+            navigate("/admin-login");
+            setAuthStatus("denied");
+            return false; // ❌ failure
+        }
+    };
+
 
     const fetchRoles = useCallback(async () => {
         try {
@@ -149,6 +205,7 @@ export const MemberProvider = ({ children }) => {
             permissions,
             setPermissions,
             handleRoleCreate,
+            verifyToken,
         }}>
             {children}
         </MemberContext.Provider>

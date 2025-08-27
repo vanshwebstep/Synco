@@ -6,13 +6,53 @@ import { Check, } from "lucide-react";
 import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
 import { useNavigate } from "react-router-dom";
 import Loader from '../../../contexts/Loader';
-
+import { usePermission } from '../../../Common/permission';
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 const trialLists = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [fromDate, setFromDate] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 11));
+    const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
-        const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
-    
+    const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
+    const [selectedStudents, setSelectedStudents] = useState([]);
+    const toggleSelect = (studentId) => {
+        setSelectedStudents((prev) =>
+            prev.includes(studentId)
+                ? prev.filter((id) => id !== studentId) // remove if already selected
+                : [...prev, studentId] // add if not selected
+        );
+    };
+const exportFreeTrials = () => {
+  const dataToExport = [];
+
+  bookFreeTrials?.forEach((item) => {
+    if (selectedStudents.length > 0 && !selectedStudents.includes(item.id)) return;
+
+    item.students.forEach((student) => {
+      dataToExport.push({
+        Name: `${student.studentFirstName} ${student?.studentLastName}`,
+        Age: student.age,
+        Venue: item.venue?.name || "-",
+        'Date of Booking': new Date(item.createdAt || item.trialDate).toLocaleDateString(),
+        'Date of Trial': new Date(item.trialDate).toLocaleDateString(),
+        Source: item.parents?.[0]?.howDidYouHear || "-",
+        Attempts: "static",
+        Status: item.status,
+      });
+    });
+  });
+
+  if (!dataToExport.length) return alert('No data to export');
+
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'FreeTrials');
+
+  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+  const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
+  saveAs(data, 'FreeTrials.xlsx');
+};
+
     const [checkedStatuses, setCheckedStatuses] = useState({
         attended: false,
         notAttended: false,
@@ -38,14 +78,13 @@ const trialLists = () => {
         });
     };
     // const [selectedDate, setSelectedDate] = useState(null);
-    const { fetchBookFreeTrials, bookFreeTrials, setSearchTerm, bookedByAdmin, searchTerm, loading, selectedVenue, setStatus, status, setSelectedVenue, myVenues, setMyVenues } = useBookFreeTrial()
+    const { fetchBookFreeTrials, statsFreeTrial, bookFreeTrials, setSearchTerm, bookedByAdmin, searchTerm, loading, selectedVenue, setStatus, status, setSelectedVenue, myVenues, setMyVenues, sendFreeTrialmail } = useBookFreeTrial() || {};
 
-    const month = currentDate.getMonth();
-    const year = currentDate.getFullYear();
+
 
     const navigate = useNavigate();
 
-console.log('bookedByAdmin',bookedByAdmin)
+    console.log('bookedByAdmin', bookedByAdmin)
     useEffect(() => {
         if (selectedVenue) {
             fetchBookFreeTrials("", selectedVenue.label); // Using label as venueName
@@ -55,6 +94,9 @@ console.log('bookedByAdmin',bookedByAdmin)
             fetchBookFreeTrials(); // No filter
         }
     }, [selectedVenue, fetchBookFreeTrials]);
+
+    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear();
 
     const getDaysArray = () => {
         const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
@@ -88,13 +130,15 @@ console.log('bookedByAdmin',bookedByAdmin)
         setToDate(null);
     };
 
+    const isInRange = (date) => {
+        if (!fromDate || !toDate || !date) return false;
+        return date >= fromDate && date <= toDate;
+    };
+
     const isSameDate = (d1, d2) => {
         if (!d1 || !d2) return false;
-
-        // Ensure both are Date objects
         const date1 = d1 instanceof Date ? d1 : new Date(d1);
         const date2 = d2 instanceof Date ? d2 : new Date(d2);
-
         return (
             date1.getDate() === date2.getDate() &&
             date1.getMonth() === date2.getMonth() &&
@@ -102,13 +146,26 @@ console.log('bookedByAdmin',bookedByAdmin)
         );
     };
 
+
     const handleDateClick = (date) => {
         if (!date) return;
-        setSelectedDates((prev) => {
-            const exists = prev.find((d) => d.getTime() === date.getTime());
-            if (exists) return prev.filter((d) => d.getTime() !== date.getTime());
-            return [...prev, date];
-        });
+
+        if (!fromDate) {
+            setFromDate(date);
+            setToDate(null); // reset second date
+        } else if (!toDate) {
+            // Ensure order (from <= to)
+            if (date < fromDate) {
+                setToDate(fromDate);
+                setFromDate(date);
+            } else {
+                setToDate(date);
+            }
+        } else {
+            // If both already selected, reset
+            setFromDate(date);
+            setToDate(null);
+        }
     };
 
     const modalRef = useRef(null);
@@ -116,15 +173,17 @@ console.log('bookedByAdmin',bookedByAdmin)
     const stats = [
         {
             title: "Total Free Trials",
-            value: "1920",
+            value: statsFreeTrial?.totalFreeTrials?.value || "0",
             icon: "/demo/synco/DashboardIcons/totalFreeTrials.png", // Replace with actual SVG if needed
-            change: "+12%",
+            change: statsFreeTrial?.totalFreeTrials?.change != null
+                ? `${statsFreeTrial.totalFreeTrials.change}%`
+                : "0%",
             color: "text-green-500",
             bg: "bg-[#F3FAF5]"
         },
         {
             title: "Top performer",
-            value: "Abdul Ali",
+            value: `${statsFreeTrial?.topPerformer?.firstName} ${statsFreeTrial?.topPerformer?.lastName} ` || "0",
             subValue: "(456)",
             icon: "/demo/synco/DashboardIcons/topPerformer.png",
             color: "text-green-500",
@@ -132,69 +191,59 @@ console.log('bookedByAdmin',bookedByAdmin)
         },
         {
             title: "Free Trial Attendance Rate",
-            value: "120",
+            value: statsFreeTrial?.freeTrialAttendanceRate?.value || "0",
             icon: "/demo/synco/DashboardIcons/freeTrialAttendanceRate.png",
-            change: "35%",
+            change: statsFreeTrial?.freeTrialAttendanceRate?.change != null
+                ? `${statsFreeTrial.freeTrialAttendanceRate.change}%`
+                : "0%",
             color: "text-green-500",
             bg: "bg-[#FEF6FB]"
         },
         {
             title: "Trials to Members",
-            value: "57",
+            value: statsFreeTrial?.trialsToMembers?.value || "0",
             icon: "/demo/synco/DashboardIcons/trialsToMembers.png",
-            change: "45%",
+            change: statsFreeTrial?.trialsToMembers?.change != null
+                ? `${statsFreeTrial.trialsToMembers.change}%`
+                : "0%",
             color: "text-green-500",
             bg: "bg-[#F0F9F9]"
         }
     ];
-    const applyFilter = () => {
-        const forAttend = checkedStatuses.attended || "";
-        const forNotAttend = checkedStatuses.notAttended || "";
+const applyFilter = () => {
+    const forAttend = checkedStatuses.attended || "";
+    const forNotAttend = checkedStatuses.notAttended || "";
 
-        let forDateOkBookingTrial = "";
-        let forDateOfTrial = "";
-        let forOtherDate = "";
+    let forDateOkBookingTrial = "";
+    let forDateOfTrial = "";
+    let forOtherDate = "";
 
-        if (selectedDates.length) {
-            const dateBooked = checkedStatuses.dateBooked;
-            const dateOfTrial = checkedStatuses.dateOfTrial;
+    const bookedDatesChecked = checkedStatuses.dateBooked;
+    const trialDatesChecked = checkedStatuses.dateOfTrial;
 
-            const bookedDates = [];
-            const trialDates = [];
-            const otherDates = [];
-
-            selectedDates.forEach((date) => {
-                let added = false;
-
-                if (dateBooked) {
-                    bookedDates.push(date);
-                    added = true;
-                }
-                if (dateOfTrial) {
-                    trialDates.push(date);
-                    added = true;
-                }
-                if (!added) {
-                    otherDates.push(date);
-                }
-            });
-
-            if (bookedDates.length) forDateOkBookingTrial = bookedDates;
-            if (trialDates.length) forDateOfTrial = trialDates;
-            if (otherDates.length) forOtherDate = otherDates;
+    if (fromDate && toDate) {
+        if (bookedDatesChecked) {
+            forDateOkBookingTrial = [fromDate, toDate];
+        } else if (trialDatesChecked) {
+            forDateOfTrial = [fromDate, toDate];
+        } else {
+            forOtherDate = [fromDate, toDate];
         }
-const bookedByParams = savedAgent || []; 
-        fetchBookFreeTrials(
-            "",
-            "",
-            forAttend,
-            forNotAttend,
-            forDateOkBookingTrial,
-            forDateOfTrial,
-            forOtherDate,
-            bookedByParams 
-        );
-    };
+    }
+
+    const bookedByParams = savedAgent || [];
+
+    fetchBookFreeTrials(
+        "",
+        "",
+        forAttend,
+        forNotAttend,
+        forDateOkBookingTrial,
+        forDateOfTrial,
+        forOtherDate,
+        bookedByParams
+    );
+};
 
 
     const [showPopup, setShowPopup] = useState(false);
@@ -225,7 +274,7 @@ const bookedByParams = savedAgent || [];
         };
     }, [showPopup, savedAgent]);
 
-     const handleNext = () => {
+    const handleNext = () => {
         if (tempSelectedAgents.length > 0) {
             const selectedNames = tempSelectedAgents.map(
                 (agent) => `${agent.id}`
@@ -244,9 +293,12 @@ const bookedByParams = savedAgent || [];
         // Fetch data with search value (debounce optional)
         fetchBookFreeTrials(value);
     };
+    console.log('statsFreeTrial', statsFreeTrial)
+    const { checkPermission } = usePermission();
 
-
-    // if (loading) return <Loader />;
+    const canServicehistory =
+        checkPermission({ module: 'service-history', action: 'view-listing' })
+    if (loading) return <Loader />;
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
 
@@ -308,55 +360,71 @@ const bookedByParams = savedAgent || [];
                                     <th className="p-4 text-[#717073]">Status</th>
                                 </tr>
                             </thead>
-
                             <tbody>
-                                {bookFreeTrials.map((item, index) =>
-                                    item.students.map((student, studentIndex) => (
-                                        <tr
-                                            onClick={() =>
-                                                navigate(
-                                                    '/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list',
-                                                    { state: { itemId: item.id } }
-                                                )
-                                            } key={`${item.id}-${studentIndex}`}
-                                            className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
-                                        >
-                                            <td className="p-4 cursor-pointer">
-                                                <div className="flex items-center gap-3">
-                                                    <button className="lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-300" />
-                                                    <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
-                                                </div>
-                                            </td>
+                                {bookFreeTrials?.map((item, index) =>
+                                    item.students.map((student, studentIndex) => {
+                                        const isSelected = selectedStudents.includes(item.id);
 
-                                            <td className="p-4">{student.age}</td>
-                                            <td className="p-4">{item.venue?.name || '-'}</td>
-                                            <td className="p-4">
-                                                {new Date(item.createdAt || item.trialDate).toLocaleDateString()}
-                                            </td>
-                                            <td className="p-4">
-                                                {new Date(item.trialDate).toLocaleDateString()}
-                                            </td>
-                                            <td className="p-4">
-                                                {item.parents?.[0]?.howDidYouHear || '-'}
-                                            </td>
-                                            <td className="p-4 text-center">{'static '}</td>
-                                            <td className="p-4">
-                                                <div
-                                                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === 'attend'
-                                                        ? 'bg-green-100 text-green-600'
-                                                        : item.status.toLowerCase() === 'pending'
-                                                            ? 'bg-yellow-100 text-yellow-600'
-                                                            : 'bg-red-100 text-red-500'
-                                                        } capitalize`}
+                                        return (
+                                            <tr
+                                                key={`${item.id}-${studentIndex}`}
+                                                onClick={
+                                                    canServicehistory
+                                                        ? () =>
+                                                            navigate(
+                                                                "/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list",
+                                                                { state: { itemId: item.id } }
+                                                            )
+                                                        : undefined
+                                                }
+                                                className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
+                                            >
+
+                                                {/* Student cell – no row click here */}
+                                                <td
+                                                    className="p-4 cursor-pointer"
+                                                    onClick={(e) => e.stopPropagation()}
                                                 >
-                                                    {item.status}
-                                                </div>
-                                            </td>
+                                                    <div className="flex items-center gap-3">
+                                                        <button
+                                                            onClick={() => toggleSelect(item.id)}
+                                                            className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 
+                      ${isSelected ? "bg-blue-500 border-blue-500 text-white" : "border-gray-300 text-transparent"}`}
+                                                        >
+                                                            {isSelected && <Check size={14} />}
+                                                        </button>
+                                                        <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
+                                                    </div>
+                                                </td>
 
-                                        </tr>
-                                    ))
+                                                <td className="p-4">{student.age}</td>
+                                                <td className="p-4">{item.venue?.name || "-"}</td>
+                                                <td className="p-4">
+                                                    {new Date(item.createdAt || item.trialDate).toLocaleDateString()}
+                                                </td>
+                                                <td className="p-4">
+                                                    {new Date(item.trialDate).toLocaleDateString()}
+                                                </td>
+                                                <td className="p-4">{item.parents?.[0]?.howDidYouHear || "-"}</td>
+                                                <td className="p-4 text-center">{"static "}</td>
+                                                <td className="p-4">
+                                                    <div
+                                                        className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === "attend"
+                                                            ? "bg-green-100 text-green-600"
+                                                            : item.status.toLowerCase() === "pending"
+                                                                ? "bg-yellow-100 text-yellow-600"
+                                                                : "bg-red-100 text-red-500"
+                                                            } capitalize`}
+                                                    >
+                                                        {item.status}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
+
                         </table>
 
                     </div>
@@ -553,10 +621,12 @@ const bookedByParams = savedAgent || [];
                                 {/* Header */}
                                 <div className="flex justify-around items-center mb-3">
                                     <button
+                                        onClick={goToPreviousMonth}
                                         className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
                                     >
                                         <ChevronLeft className="w-5 h-5" />
                                     </button>
+
                                     <p className="font-semibold text-[20px]">
                                         {currentDate.toLocaleString("default", { month: "long" })} {year}
                                     </p>
@@ -586,25 +656,57 @@ const bookedByParams = savedAgent || [];
                                         return (
                                             <div
                                                 key={weekIndex}
-                                                className={`grid grid-cols-7 text-[18px] gap-1 py-1 rounded `}
+                                                className="grid grid-cols-7 text-[18px] h-12 py-1  rounded"
                                             >
                                                 {week.map((date, i) => {
-                                                    const isSelected = isSameDate(date, selectedDates);
+                                                    const isStart = isSameDate(date, fromDate);
+                                                    const isEnd = isSameDate(date, toDate);
+                                                    const isStartOrEnd = isStart || isEnd;
+                                                    const isInBetween = date && isInRange(date);
+                                                    const isExcluded = !date; // replace with your own excluded logic
+
+                                                    let className =
+                                                        " w-full h-12 aspect-square flex items-center justify-center transition-all duration-200 ";
+                                                    let innerDiv = null;
+
+                                                    if (!date) {
+                                                        className += "";
+                                                    } else if (isExcluded) {
+                                                        className +=
+                                                            "bg-gray-300 text-white opacity-60 cursor-not-allowed";
+                                                    } else if (isStartOrEnd) {
+                                                        // Outer pill connector background
+                                                        className += ` bg-sky-100 ${isStart ? "rounded-l-full" : ""} ${isEnd ? "rounded-r-full" : ""
+                                                            }`;
+                                                        // Inner circle but with left/right rounding
+                                                        innerDiv = (
+                                                            <div
+                                                                className={`bg-blue-700 rounded-full text-white w-12 h-12 flex items-center justify-center font-bold
+                                 
+                                 `}
+                                                            >
+                                                                {date.getDate()}
+                                                            </div>
+                                                        );
+                                                    } else if (isInBetween) {
+                                                        // Middle range connector
+                                                        className += "bg-sky-100 text-gray-800";
+                                                    } else {
+                                                        className += "hover:bg-gray-100 text-gray-800";
+                                                    }
+
                                                     return (
                                                         <div
                                                             key={i}
-                                                            onClick={() => date && handleDateClick(date)}
-                                                            className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full cursor-pointer
-  ${selectedDates.some(d => isSameDate(d, date))
-                                                                    ? "bg-blue-600 text-white font-bold"
-                                                                    : "text-gray-800"
-                                                                }`}
+                                                            onClick={() => date && !isExcluded && handleDateClick(date)}
+                                                            className={className}
                                                         >
-                                                            {date ? date.getDate() : ""}
+                                                            {innerDiv || (date ? date.getDate() : "")}
                                                         </div>
                                                     );
                                                 })}
                                             </div>
+
                                         );
                                     })}
                                 </div>
@@ -612,17 +714,25 @@ const bookedByParams = savedAgent || [];
                         </div>
                     </div>
                     <div className="flex gap-2 justify-between">
-                        <button className="flex gap-2 items-center justify-center  bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
-                            <img src='/demo/synco/icons/mail.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                        <button
+                            onClick={() => sendFreeTrialmail(selectedStudents)}
+                            className="flex gap-2 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]"
+                        >
+                            <img
+                                src="/demo/synco/icons/mail.png"
+                                className="w-4 h-4 sm:w-5 sm:h-5"
+                                alt="mail"
+                            />
                             Send Email
                         </button>
+
                         <button className="flex gap-2 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
                             <img src='/demo/synco/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
-                        <button onClick={applyFilter} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
+                        <button   onClick={exportFreeTrials} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
                             <img src='/demo/synco/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
-                            Apply filter
+                           Export Data
                         </button>
                     </div>
                 </div>

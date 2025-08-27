@@ -122,14 +122,13 @@ const createSessionExercise = useCallback(async (data) => {
     formdata.append("description", data.description);
     formdata.append("duration", data.duration);
 
-    // Append each file to "images"
     if (Array.isArray(data.images)) {
       data.images.forEach((file) => {
-        formdata.append("images", file); // ← this matches backend field name
+        formdata.append("images", file); // backend expects "images"
       });
     }
 
-    await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/`, {
+    const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -137,12 +136,24 @@ const createSessionExercise = useCallback(async (data) => {
       body: formdata,
     });
 
+    // Check for HTTP errors
+    const result = await response.json();
+
+    if (!response.ok) {
+      // Throw object for frontend to catch
+      throw result;
+    }
+
     console.log("✅ Exercise created");
     await fetchExercises();
+
+    return result; // return response if needed
   } catch (err) {
     console.error("❌ Failed to create exercise:", err);
+    throw err; // re-throw so caller can show dynamic alert
   }
 }, [token, fetchExercises]);
+
 
   const fetchExerciseById = useCallback(async (id) => {
     if (!token) return;

@@ -5,11 +5,12 @@ import { Check } from "lucide-react";
 import Loader from '../../../contexts/Loader';
 import { useVenue } from '../../../contexts/VenueContext';
 import { usePayments } from '../../../contexts/PaymentPlanContext';
-import { useTermContext } from '../../../contexts/termDatesSessionContext';
 import Swal from "sweetalert2"; // make sure it's installed
 import PlanTabs from '../../Weekly Classes/Find a class/PlanTabs';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { useTermContext } from '../../../contexts/TermDatesSessionContext';
+import { usePermission } from '../../../Common/permission';
 const List = () => {
   const navigate = useNavigate();
 
@@ -212,19 +213,19 @@ const List = () => {
     )
   }
 
-const formatDate = (dateStr) => {
-  if (!dateStr) return "";
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "";
 
-  const date = new Date(dateStr + "T00:00:00"); // force local midnight
-  if (isNaN(date.getTime())) return ""; // invalid date
+    const date = new Date(dateStr + "T00:00:00"); // force local midnight
+    if (isNaN(date.getTime())) return ""; // invalid date
 
-  return date.toLocaleDateString("en-GB", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-};
+    return date.toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
 
 
@@ -233,124 +234,144 @@ const formatDate = (dateStr) => {
   console.log('congestionNote', congestionNote)
 
 
-const formatShortDate = (iso) => {
-  const d = new Date(iso);
-  return `${d.toLocaleDateString('en-GB', {
-    weekday: 'short',
-  })} ${d.getDate()}/${String(d.getFullYear()).slice(2)}`;
-};
+  const formatShortDate = (iso) => {
+    const d = new Date(iso);
+    return `${d.toLocaleDateString('en-GB', {
+      weekday: 'short',
+    })} ${d.getDate()}/${String(d.getFullYear()).slice(2)}`;
+  };
   const detectSeason = (termName) => {
-      const name = termName?.toLowerCase();
-      if (name?.includes('autumn')) return 'autumn';
-      if (name?.includes('spring')) return 'spring';
-      return 'summer';
-    };
+    const name = termName?.toLowerCase();
+    if (name?.includes('autumn')) return 'autumn';
+    if (name?.includes('spring')) return 'spring';
+    return 'summer';
+  };
 
- const grouped = termGroup.map((group, groupIdx) => {
-      console.log(`\n📦 Processing Group #${groupIdx + 1}:`, group);
+  const grouped = termGroup.map((group, groupIdx) => {
+    console.log(`\n📦 Processing Group #${groupIdx + 1}:`, group);
 
-      // Use termGroup?.id to match correctly
-      const terms = termData.filter((t) => t.termGroup?.id === group.id);
-      if (!terms.length) {
-        console.log(`⚠️ No terms found for group ID ${group.id}`);
-        return null;
+    // Use termGroup?.id to match correctly
+    const terms = termData.filter((t) => t.termGroup?.id === group.id);
+    if (!terms.length) {
+      console.log(`⚠️ No terms found for group ID ${group.id}`);
+      return null;
+    }
+
+    console.log(`🔍 Matched ${terms.length} terms for group '${group.name}'`);
+
+    // Step 2: Map each term to sessionData
+    const sessionData = terms.map((term, termIdx) => {
+      const start = formatDate(term.startDate);
+      const end = formatDate(term.endDate);
+      const dateRange = `${start} - ${end}`;
+      console.log('terms', terms)
+      // Parse exclusionDates
+      let exclusionArr = [];
+      try {
+
+        if (Array.isArray(term.exclusionDates)) {
+          exclusionArr = term.exclusionDates;
+        } else if (typeof term.exclusionDates === 'string') {
+          try {
+            exclusionArr = JSON.parse(term.exclusionDates || '[]');
+          } catch (e) {
+            exclusionArr = [];
+          }
+        }
+      } catch (err) {
+        console.error(`❌ Failed to parse exclusions for term ${term.id}:`, err);
       }
 
-      console.log(`🔍 Matched ${terms.length} terms for group '${group.name}'`);
-
-      // Step 2: Map each term to sessionData
-      const sessionData = terms.map((term, termIdx) => {
-        const start = formatDate(term.startDate);
-        const end = formatDate(term.endDate);
-        const dateRange = `${start} - ${end}`;
-        console.log('terms', terms)
-        // Parse exclusionDates
-        let exclusionArr = [];
-        try {
-
-          if (Array.isArray(term.exclusionDates)) {
-            exclusionArr = term.exclusionDates;
-          } else if (typeof term.exclusionDates === 'string') {
-            try {
-              exclusionArr = JSON.parse(term.exclusionDates || '[]');
-            } catch (e) {
-              exclusionArr = [];
-            }
-          }
-        } catch (err) {
-          console.error(`❌ Failed to parse exclusions for term ${term.id}:`, err);
-        }
-
-        const exclusion = exclusionArr.length
-          ? exclusionArr.map((ex) => formatDate(ex)).join(', ')
-          : 'None';
-        const sessions = term.sessionsMap.map((session, idx) => ({
-          groupName: session?.sessionPlan?.groupName,
-          date: formatDate(session.sessionDate), // assuming you have a formatDate function
-        }));
+      const exclusion = exclusionArr.length
+        ? exclusionArr.map((ex) => formatDate(ex)).join(', ')
+        : 'None';
+      const sessions = term.sessionsMap.map((session, idx) => ({
+        groupName: session?.sessionPlan?.groupName,
+        date: formatDate(session.sessionDate), // assuming you have a formatDate function
+      }));
 
 
 
 
-        const season = detectSeason(term.termName);
+      const season = detectSeason(term.termName);
 
-        const sessionObj = {
+      const sessionObj = {
 
-          term: term.termName,
-          icon: `/demo/synco/icons/${season}.png`,
-          date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
-          exclusion,
-          sessions,
+        term: term.termName,
+        icon: `/demo/synco/icons/${season}.png`,
+        date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
+        exclusion,
+        sessions,
 
-        };
-
-        console.log(`📘 Term #${termIdx + 1} (${term.termName}):`, sessionObj);
-        return sessionObj;
-      });
-
-      console.log('📊 SessionData for this group:', sessionData);
-
-      // Step 3: Build the class card
-      const classCard = {
-        id: group.id,
-        name: group.name,
-        createdAt: group.createdAt,
-        endTime: '3:00 pm',
-        freeTrial: 'Yes',
-        facility: 'Indoor',
       };
 
-      sessionData.forEach((termData) => {
-        const key = detectSeason(termData.term);
-        classCard[key] = `${termData.date}`;
-      });
-
-      console.log(`🧾 Built classCard for group '${group.name}':`, classCard);
-
-      return { sessionData, classCard };
+      console.log(`📘 Term #${termIdx + 1} (${term.termName}):`, sessionObj);
+      return sessionObj;
     });
 
-const classCards = grouped
+    console.log('📊 SessionData for this group:', sessionData);
+
+    // Step 3: Build the class card
+    const classCard = {
+      id: group.id,
+      name: group.name,
+      createdAt: group.createdAt,
+      endTime: '3:00 pm',
+      freeTrial: 'Yes',
+      facility: 'Indoor',
+    };
+
+    sessionData.forEach((termData) => {
+      const key = detectSeason(termData.term);
+      classCard[key] = `${termData.date}`;
+    });
+
+    console.log(`🧾 Built classCard for group '${group.name}':`, classCard);
+
+    return { sessionData, classCard };
+  });
+
+  const classCards = grouped
     .filter(item => item && item.classCard)
     .map(item => item.classCard);
 
-console.log('sessionData',grouped)
-console.log('classCards',classCards)
-      
+  console.log('sessionData', grouped)
+  console.log('classCards', classCards)
+  const { checkPermission } = usePermission();
 
+  const canCreate =
+    checkPermission({ module: 'term-group', action: 'view-listing' }) &&
+    checkPermission({ module: 'term', action: 'view-listing' }) &&
+    checkPermission({ module: 'venue', action: 'create' }) &&
+    checkPermission({ module: 'payment-group', action: 'view-listing' })
+  const canUpdate =
+    checkPermission({ module: 'term-group', action: 'view-listing' }) &&
+    checkPermission({ module: 'term', action: 'view-listing' }) &&
+    checkPermission({ module: 'venue', action: 'update' }) &&
+    checkPermission({ module: 'payment-group', action: 'view-listing' })
+
+  const canDelete =
+    checkPermission({ module: 'term-group', action: 'view-listing' }) &&
+    checkPermission({ module: 'term', action: 'view-listing' }) &&
+    checkPermission({ module: 'venue', action: 'delete' }) &&
+    checkPermission({ module: 'payment-group', action: 'view-listing' })
+  const canViewClassSchedule =
+    checkPermission({ module: 'class-schedule', action: 'view-listing' })
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
       <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
         <h2 className="text-[28px] font-semibold">Venues</h2>
-        <button
-          onClick={() => setOpenForm(true)}
-          className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
-        >
-          <div className="flex items-center gap-2">
-            <img src="/demo/synco/members/add.png" className="w-5" alt="" />
-            <span>Add New Venue</span>
-          </div>
-        </button>
+        {canCreate &&
+          <button
+            onClick={() => setOpenForm(true)}
+            className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
+          >
+            <div className="flex items-center gap-2">
+              <img src="/demo/synco/members/add.png" className="w-5" alt="" />
+              <span>Add New Venue</span>
+            </div>
+          </button>
+        }
       </div>
 
       <div className="md:flex gap-6">
@@ -462,25 +483,32 @@ console.log('classCards',classCards)
                           </td>
                           <td className="p-4">
                             <div className="flex gap-2">
-                              <div><img onClick={() => {
-                                setIsEditVenue(true);
-                                setFormData(user);
-                                setOpenForm(true)
-                              }} src="/demo/synco/members/edit.png" className='min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90' alt="" /></div>
-                              <div>
-                                <img
-                                  onClick={() => handleDelete(user.id)}
-                                  src="/demo/synco/members/delete-02.png"
+                              {canUpdate &&
+                                <div><img onClick={() => {
+                                  setIsEditVenue(true);
+                                  setFormData(user);
+                                  setOpenForm(true)
+                                }} src="/demo/synco/members/edit.png" className='min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90' alt="" />
+                                </div>
+                              }
+                              {canDelete &&
+                                <div>
+                                  <img
+                                    onClick={() => handleDelete(user.id)}
+                                    src="/demo/synco/members/delete-02.png"
+                                    className="min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
+                                    alt=""
+                                  />
+                                </div>
+                              }
+                              {canViewClassSchedule &&
+                                <div>  <img
+                                  src="/demo/synco/members/Time-Circle.png"
                                   className="min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
-                                  alt=""
-                                />
-                              </div>
-                              <div>  <img
-                                src="/demo/synco/members/Time-Circle.png"
-                                className="min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
-                                alt="Navigate"
-                                onClick={() => navigate(`/configuration/weekly-classes/venues/class-schedule?id=${user.id}`)}
-                              /></div>
+                                  alt="Navigate"
+                                  onClick={() => navigate(`/configuration/weekly-classes/venues/class-schedule?id=${user.id}`)}
+                                /></div>
+                              }
                             </div>
 
                           </td>
@@ -559,11 +587,11 @@ console.log('classCards',classCards)
             <div className="flex justify-between items-center border-b  border-[#E2E1E5] pb-4 mb-4">
               <h2 className="text-[24px] font-semibold">Term Dates</h2>
               <button onClick={() => setShowModal(false)}>
-<img 
-  src="/demo/synco/icons/cross.png" 
-  alt="close" 
-    className="w-4 h-4 cursor-pointer transform transition-transform duration-200 hover:scale-110" 
-/>
+                <img
+                  src="/demo/synco/icons/cross.png"
+                  alt="close"
+                  className="w-4 h-4 cursor-pointer transform transition-transform duration-200 hover:scale-110"
+                />
               </button>
             </div>
 

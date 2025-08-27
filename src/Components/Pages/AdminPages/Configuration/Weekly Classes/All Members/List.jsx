@@ -6,15 +6,56 @@ import { Check, } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
 import Loader from '../../../contexts/Loader';
-
+import Swal from "sweetalert2";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 const trialLists = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [fromDate, setFromDate] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 11));
+    const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const navigate = useNavigate();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
+    const [selectedStudents, setSelectedStudents] = useState([]);
+    const toggleSelect = (studentId) => {
+        setSelectedStudents((prev) =>
+            prev.includes(studentId)
+                ? prev.filter((id) => id !== studentId) // remove if already selected
+                : [...prev, studentId] // add if not selected
+        );
+    };
+    const exportToExcel = () => {
+        // Prepare data
+        const dataToExport = [];
+
+        bookMembership.forEach((item) => {
+           if (selectedStudents.length > 0 && !selectedStudents.includes(item.id)) return;
+            item.students.forEach((student) => {
+                dataToExport.push({
+                    Name: `${student.studentFirstName} ${student.studentLastName}`,
+                    Age: student.age,
+                    Venue: item.venue?.name || '-',
+                    'Date of Booking': new Date(item.trialDate).toLocaleDateString(),
+                    'Who Booked?': 'Indoor Court', // or dynamic if available
+                    'Membership Plan': item.paymentPlan?.title || '-',
+                    'Life Cycle of Membership': `${item.paymentPlan?.duration} ${item.paymentPlan?.interval}${item.paymentPlan?.duration > 1 ? 's' : ''}`,
+                    Status: item.status,
+                });
+            });
+        });
+
+    if (!dataToExport.length) return alert('No data to export');
+    
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'FreeTrials');
+    
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(data, 'AllMembersData.xlsx');
+    };
+
 
     // ✅ Define all filters with dynamic API mapping
     const filterOptions = [
@@ -34,7 +75,7 @@ const trialLists = () => {
         setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
     };
     const [selectedDates, setSelectedDates] = useState([]);
-    const { fetchBookMemberships, bookMembership, setBookMembership, bookedByAdmin, setSearchTerm, searchTerm, status, loading, selectedVenue, setSelectedVenue, statsMembership, myVenues, setMyVenues } = useBookFreeTrial()
+    const { fetchBookMemberships, bookMembership, setBookMembership, sendBookMembershipMail, bookedByAdmin, setSearchTerm, searchTerm, status, loading, selectedVenue, setSelectedVenue, statsMembership, myVenues, setMyVenues } = useBookFreeTrial() || {};
 
     useEffect(() => {
         if (selectedVenue) {
@@ -78,13 +119,15 @@ const trialLists = () => {
         setToDate(null);
     };
 
+    const isInRange = (date) => {
+        if (!fromDate || !toDate || !date) return false;
+        return date >= fromDate && date <= toDate;
+    };
+
     const isSameDate = (d1, d2) => {
         if (!d1 || !d2) return false;
-
-        // Ensure both are Date objects
         const date1 = d1 instanceof Date ? d1 : new Date(d1);
         const date2 = d2 instanceof Date ? d2 : new Date(d2);
-
         return (
             date1.getDate() === date2.getDate() &&
             date1.getMonth() === date2.getMonth() &&
@@ -92,55 +135,55 @@ const trialLists = () => {
         );
     };
 
+
     const handleDateClick = (date) => {
         if (!date) return;
-        setSelectedDates((prev) => {
-            const exists = prev.find((d) => d.getTime() === date.getTime());
-            if (exists) return prev.filter((d) => d.getTime() !== date.getTime());
-            return [...prev, date];
-        });
-    };
-    const applyFilter = () => {
-        const forAttend = checkedStatuses.pending;
-        const forNotAttend = checkedStatuses.active;
-        const sixMonths = checkedStatuses.sixMonths;
-        const threeMonths = checkedStatuses.threeMonths;
-        const flexiPlan = checkedStatuses.flexiPlan;
 
-        let forDateOkBookingTrial = [];
-        let forOtherDate = [];
-
-        if (selectedDates.length) {
-            selectedDates.forEach((date) => {
-                let added = false;
-
-                if (checkedStatuses.trialDate) {
-                    forDateOkBookingTrial.push(date);
-                    added = true;
-                }
-
-                if (!added) {
-                    forOtherDate.push(date);
-                }
-            });
+        if (!fromDate) {
+            setFromDate(date);
+            setToDate(null); // reset second date
+        } else if (!toDate) {
+            // Ensure order (from <= to)
+            if (date < fromDate) {
+                setToDate(fromDate);
+                setFromDate(date);
+            } else {
+                setToDate(date);
+            }
+        } else {
+            // If both already selected, reset
+            setFromDate(date);
+            setToDate(null);
         }
-const bookedByParams = savedAgent || []; // savedAgent is already an array of IDs
+    };
 
-        // Prepare bookedBy parameter if agents are selected
+    const applyFilter = () => {
+        const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
+
+        const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+        const hasRange = isValidDate(fromDate) && isValidDate(toDate);
+        const range = hasRange ? [fromDate, toDate] : [];
+
+        // If trialDate is checked: send range as dateBookedFrom/To
+        // Else: send range as createdAtFrom/To
+        const dateRangeMembership = checkedStatuses.trialDate ? range : [];
+        const otherDateRange = checkedStatuses.trialDate ? [] : range;
 
         fetchBookMemberships(
-            "",
-            "",
-            forAttend,
-            forNotAttend,
-            forDateOkBookingTrial,
-            sixMonths,
-            threeMonths,
-            flexiPlan,
-            forOtherDate,
-            bookedByParams // add this at the end
+            "",                                  // studentName
+            "",                                  // venueName
+            checkedStatuses.pending,             // status1
+            checkedStatuses.active,              // status2
+            dateRangeMembership,                 // dateBooked range [from,to] OR []
+            checkedStatuses.sixMonths,           // month1 -> duration 6
+            checkedStatuses.threeMonths,         // month2 -> duration 3
+            checkedStatuses.flexiPlan,           // month3 -> duration 1 (flexi)
+            otherDateRange,                      // createdAt range [from,to] OR []
+            bookedByParams                       // bookedBy ids
         );
     };
+
+
 
 
 
@@ -157,14 +200,14 @@ const bookedByParams = savedAgent || []; // savedAgent is already an array of ID
         },
         {
             title: "Monthly revenue",
-            value: statsMembership?.totalRevenue?.toFixed(2) || "0.00",
+            value: Number(statsMembership?.totalRevenue)?.toFixed(2) || "0.00",
             icon: "/demo/synco/members/allmemberMonthlyRevenue.png",
             color: "text-green-500",
             bg: "bg-[#F3FAFD]"
         },
         {
             title: "AV. Monthly Fee",
-            value: statsMembership?.avgMonthlyFee?.toFixed(2) || "0.00",
+            value: Number(statsMembership?.avgMonthlyFee)?.toFixed(2) || "0.00",
             icon: "/demo/synco/members/allmemberMonthlyFee.png",
             change: "35%",
             color: "text-green-500",
@@ -172,7 +215,7 @@ const bookedByParams = savedAgent || []; // savedAgent is already an array of ID
         },
         {
             title: "AV. Life Cycle",
-            value: statsMembership?.avgLifeCycle?.toFixed(2) || "0.00",
+            value: Number(statsMembership?.avgLifeCycle)?.toFixed(2) || "0.00",
             icon: "/demo/synco/members/allmemberLifeCycle.png",
             change: "45%",
             color: "text-green-500",
@@ -239,7 +282,7 @@ const bookedByParams = savedAgent || []; // savedAgent is already an array of ID
         // Fetch data with search value (debounce optional)
         fetchBookMemberships(value);
     };
-    // if (loading) return <Loader />;
+    if (loading) return <Loader />;
 
     console.log('bookMembership', bookMembership)
     return (
@@ -311,37 +354,50 @@ const bookedByParams = savedAgent || []; // savedAgent is already an array of ID
 
                             <tbody>
                                 {bookMembership.map((item, index) =>
-                                    item.students.map((student, studentIndex) => (
-                                        <tr onClick={() => navigate('/configuration/weekly-classes/all-members/membership-sales')}
-                                            className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
-                                            <td className="p-4 cursor-pointer">
-                                                <div className="flex items-center gap-3">
-                                                    <button className="lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-300" />
-                                                    <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
-                                                </div>
-                                            </td>
-                                            <td className="p-4">{student.age}</td>
-                                            <td className="p-4">{item.venue?.name || '-'}</td>
-                                            <td className="p-4">{new Date(item.trialDate).toLocaleDateString()}</td>
-                                            <td className="p-4">Indoor Court</td>
-                                            <td className="p-4"> {item?.paymentPlan?.title}</td>
-                                            <td className="p-4 text-center">
-                                                {item?.paymentPlan?.duration} {item?.paymentPlan?.interval}{item?.paymentPlan?.duration > 1 ? 's' : ''}
-                                            </td>
-                                            <td className="p-4">
-                                                <div
-                                                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === 'attend'
-                                                        ? 'bg-green-100 text-green-600'
-                                                        : item.status.toLowerCase() === 'pending'
-                                                            ? 'bg-yellow-100 text-yellow-600'
-                                                            : 'bg-red-100 text-red-500'
-                                                        } capitalize`}
-                                                >
-                                                    {item.status}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
+                                    item.students.map((student, studentIndex) => {
+                                        const isSelected = selectedStudents.includes(item.id);
+
+                                        return (
+                                            <tr
+                                            //  onClick={() => navigate('/configuration/weekly-classes/all-members/membership-sales')}
+                                                className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
+                                                <td onClick={(e) => e.stopPropagation()} className="p-4 cursor-pointer">
+                                                    <div className="flex items-center gap-3">
+                                                        <button
+                                                            onClick={() => toggleSelect(item.id)}
+                                                            className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 
+                                                                        ${isSelected ? "bg-blue-500 border-blue-500 text-white" : "border-gray-300 text-transparent"}`}
+                                                        >
+                                                            {isSelected && <Check size={14} />}
+                                                        </button>
+                                                        <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4">{student.age}</td>
+                                                <td className="p-4">{item.venue?.name || '-'}</td>
+                                                <td className="p-4">{new Date(item.trialDate).toLocaleDateString()}</td>
+                                                <td className="p-4">Indoor Court</td>
+                                                <td className="p-4"> {item?.paymentPlan?.title}</td>
+                                                <td className="p-4 text-center">
+                                                    {item?.paymentPlan?.duration} {item?.paymentPlan?.interval}{item?.paymentPlan?.duration > 1 ? 's' : ''}
+                                                </td>
+                                                <td className="p-4">
+                                                    <div
+                                                        className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === 'attend' || item.status.toLowerCase() === 'active'
+                                                            ? 'bg-green-100 text-green-600'
+                                                            : item.status.toLowerCase() === 'pending'
+                                                                ? 'bg-yellow-100 text-yellow-600'
+                                                                : 'bg-red-100 text-red-500'
+                                                            } capitalize`}
+                                                    >
+                                                        {item.status}
+                                                    </div>
+
+                                                </td>
+                                            </tr>
+
+                                        );
+                                    })
                                 )}
 
                             </tbody>
@@ -536,10 +592,12 @@ const bookedByParams = savedAgent || []; // savedAgent is already an array of ID
                                 {/* Header */}
                                 <div className="flex justify-around items-center mb-3">
                                     <button
+                                        onClick={goToPreviousMonth}
                                         className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
                                     >
                                         <ChevronLeft className="w-5 h-5" />
                                     </button>
+
                                     <p className="font-semibold text-[20px]">
                                         {currentDate.toLocaleString("default", { month: "long" })} {year}
                                     </p>
@@ -569,25 +627,57 @@ const bookedByParams = savedAgent || []; // savedAgent is already an array of ID
                                         return (
                                             <div
                                                 key={weekIndex}
-                                                className={`grid grid-cols-7 text-[18px] gap-1 py-1 rounded `}
+                                                className="grid grid-cols-7 text-[18px] h-12 py-1  rounded"
                                             >
                                                 {week.map((date, i) => {
-                                                    const isSelected = isSameDate(date, selectedDates);
+                                                    const isStart = isSameDate(date, fromDate);
+                                                    const isEnd = isSameDate(date, toDate);
+                                                    const isStartOrEnd = isStart || isEnd;
+                                                    const isInBetween = date && isInRange(date);
+                                                    const isExcluded = !date; // replace with your own excluded logic
+
+                                                    let className =
+                                                        " w-full h-12 aspect-square flex items-center justify-center transition-all duration-200 ";
+                                                    let innerDiv = null;
+
+                                                    if (!date) {
+                                                        className += "";
+                                                    } else if (isExcluded) {
+                                                        className +=
+                                                            "bg-gray-300 text-white opacity-60 cursor-not-allowed";
+                                                    } else if (isStartOrEnd) {
+                                                        // Outer pill connector background
+                                                        className += ` bg-sky-100 ${isStart ? "rounded-l-full" : ""} ${isEnd ? "rounded-r-full" : ""
+                                                            }`;
+                                                        // Inner circle but with left/right rounding
+                                                        innerDiv = (
+                                                            <div
+                                                                className={`bg-blue-700 rounded-full text-white w-12 h-12 flex items-center justify-center font-bold
+          
+          `}
+                                                            >
+                                                                {date.getDate()}
+                                                            </div>
+                                                        );
+                                                    } else if (isInBetween) {
+                                                        // Middle range connector
+                                                        className += "bg-sky-100 text-gray-800";
+                                                    } else {
+                                                        className += "hover:bg-gray-100 text-gray-800";
+                                                    }
+
                                                     return (
                                                         <div
                                                             key={i}
-                                                            onClick={() => date && handleDateClick(date)}
-                                                            className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full cursor-pointer
-  ${selectedDates.some(d => isSameDate(d, date))
-                                                                    ? "bg-blue-600 text-white font-bold"
-                                                                    : "text-gray-800"
-                                                                }`}
+                                                            onClick={() => date && !isExcluded && handleDateClick(date)}
+                                                            className={className}
                                                         >
-                                                            {date ? date.getDate() : ""}
+                                                            {innerDiv || (date ? date.getDate() : "")}
                                                         </div>
                                                     );
                                                 })}
                                             </div>
+
                                         );
                                     })}
                                 </div>
@@ -595,17 +685,35 @@ const bookedByParams = savedAgent || []; // savedAgent is already an array of ID
                         </div>
                     </div>
                     <div className="flex gap-2 justify-between">
-                        <button className="flex gap-2 items-center justify-center  bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
-                            <img src='/demo/synco/icons/mail.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                        <button
+                            onClick={() => {
+                                if (selectedStudents && selectedStudents.length > 0) {
+                                    sendBookMembershipMail(selectedStudents);
+                                } else {
+                                    Swal.fire({
+                                        icon: "warning",
+                                        title: "No Students Selected",
+                                        text: "Please select at least one student before sending an email.",
+                                        confirmButtonText: "OK",
+                                    });
+                                }
+                            }}
+                            className="flex gap-2 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]"
+                        >
+                            <img
+                                src="/demo/synco/icons/mail.png"
+                                className="w-4 h-4 sm:w-5 sm:h-5"
+                                alt=""
+                            />
                             Send Email
                         </button>
                         <button className="flex gap-2 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
                             <img src='/demo/synco/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
-                        <button onClick={applyFilter} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
+                        <button   onClick={exportToExcel} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
                             <img src='/demo/synco/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
-                            Apply filter
+                            Export Data
                         </button>
                     </div>
                 </div>

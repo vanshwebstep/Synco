@@ -5,6 +5,7 @@ import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 import Swal from "sweetalert2";
 import Loader from '../../../contexts/Loader';
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { usePermission } from '../../../Common/permission';
 
 const List = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -217,7 +218,11 @@ const List = () => {
     setWeekList(newList);
     handleReorder(newList); // Save automatically
   };
+  const { checkPermission } = usePermission();
 
+  const canCreate = checkPermission({ module: 'session-plan-group', action: 'create' });
+  const canEdit = checkPermission({ module: 'session-plan-group', action: 'update' });
+  const canDelete = checkPermission({ module: 'session-plan-group', action: 'delete' });
 
   console.log(weekList)
   return (
@@ -307,32 +312,36 @@ const List = () => {
                             <p className="text-[14px] text-gray-500">{group.player}</p>
                           </div>
                           <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEditGroup(week.id, group.name)}
-                              className="text-gray-500 hover:text-blue-600"
-                            >
-                              <img
-                                src="/demo/synco/icons/edit.png"
-                                alt="Edit"
-                                className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
-                              />
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (week.groups?.length === 1) {
-                                  handleDeleteGroup(week.id);
-                                } else {
-                                  handleDeleteLevel(week.id, group.name);
-                                }
-                              }}
-                              className="text-gray-500 hover:text-red-500"
-                            >
-                              <img
-                                src="/demo/synco/icons/deleteIcon.png"
-                                alt="Delete"
-                                className="min-w-6 min-h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
-                              />
-                            </button>
+                            {canEdit &&
+                              <button
+                                onClick={() => handleEditGroup(week.id, group.name)}
+                                className="text-gray-500 hover:text-blue-600"
+                              >
+                                <img
+                                  src="/demo/synco/icons/edit.png"
+                                  alt="Edit"
+                                  className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                />
+                              </button>
+                            }
+                            {canDelete &&
+                              <button
+                                onClick={() => {
+                                  if (week.groups?.length === 1) {
+                                    handleDeleteGroup(week.id);
+                                  } else {
+                                    handleDeleteLevel(week.id, group.name);
+                                  }
+                                }}
+                                className="text-gray-500 hover:text-red-500"
+                              >
+                                <img
+                                  src="/demo/synco/icons/deleteIcon.png"
+                                  alt="Delete"
+                                  className="min-w-6 min-h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                />
+                              </button>
+                            }
                           </div>
                         </div>
                       ))}
@@ -341,7 +350,7 @@ const List = () => {
                 </Draggable>
               ))}
 
-              {!reorderMode && (
+              {!reorderMode && canCreate && (
                 <div
                   onClick={() => navigate('/configuration/weekly-classes/session-plan-create')}
                   className="border border-dashed border-gray-300 rounded-2xl min-w-[168px] max-w-xs items-center justify-center max-h-[100px] cursor-pointer text-gray-500 hover:text-black p-6 text-center text-[14px] font-semibold"
@@ -354,6 +363,7 @@ const List = () => {
                   Add Group
                 </div>
               )}
+
 
               {provided.placeholder}
             </div>

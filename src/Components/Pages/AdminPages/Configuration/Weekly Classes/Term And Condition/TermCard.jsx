@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTermContext } from '../../../contexts/TermDatesSessionContext';
 import Swal from "sweetalert2"; // make sure it's installed
 import { useNavigate } from 'react-router-dom';
+import { usePermission } from '../../../Common/permission';
 
 const TermCard = ({ item, sessionData }) => {
     const navigate = useNavigate();
@@ -33,6 +34,15 @@ const TermCard = ({ item, sessionData }) => {
     };
     console.log('sessionData', sessionData);
     console.log('item', item)
+    const { checkPermission } = usePermission();
+
+    const canEdit =
+        checkPermission({ module: 'term-group', action: 'update' }) &&
+        checkPermission({ module: 'term', action: 'update' }) &&
+        checkPermission({ module: 'session-plan-group', action: 'view-listing' })
+
+    const canDelete = checkPermission({ module: 'term-group', action: 'delete' }) && checkPermission({ module: 'term', action: 'delete' });;
+
     return (
         <div className="bg-white border border-gray-200 rounded-2xl mb-4 shadow hover:shadow-md transition">
             <div className="flex flex-col md:flex-row justify-between p-4 gap-4 text-sm">
@@ -52,7 +62,7 @@ const TermCard = ({ item, sessionData }) => {
                                 <div>
                                     <p className="text-[#717073]">{term}</p>
                                     <p className="whitespace-pre-line text-sm text-gray-600">{date}</p>
-{/* 
+                                    {/* 
                                     <p className="font-medium text-[#717073]">{item[term?.toLowerCase()]}</p> */}
                                 </div>
                             </div>
@@ -78,18 +88,21 @@ const TermCard = ({ item, sessionData }) => {
 
                 {/* Action buttons */}
                 <div className={`flex gap-3 mt-2 ${showSessions ? ' items-start' : 'items-center'}  md:mt-0 ml-auto`}>
-                    <button
-                        onClick={() => handleEdit(item.id)}
-                        className="text-gray-500 hover:text-blue-500">
-                        <img className="min-w-5" src="/demo/synco/icons/edit.png" alt="Edit" />
-                    </button>
-                    <button
-                        onClick={() => handleDelete(item.id)}
-                        className="text-gray-500 hover:text-red-500"
-                    >
-                        <img className="min-w-5" src="/demo/synco/icons/deleteIcon.png" alt="Delete" />
-                    </button>
-
+                    {canEdit &&
+                        <button
+                            onClick={() => handleEdit(item.id)}
+                            className="text-gray-500 hover:text-blue-500">
+                            <img className="min-w-5" src="/demo/synco/icons/edit.png" alt="Edit" />
+                        </button>
+                    }
+                    {canDelete &&
+                        <button
+                            onClick={() => handleDelete(item.id)}
+                            className="text-gray-500 hover:text-red-500"
+                        >
+                            <img className="min-w-5" src="/demo/synco/icons/deleteIcon.png" alt="Delete" />
+                        </button>
+                    }
                 </div>
             </div>
 

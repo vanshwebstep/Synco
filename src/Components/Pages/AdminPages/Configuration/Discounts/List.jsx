@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
 import { useDiscounts } from "../../contexts/DiscountContext";
 import Loader from '../../contexts/Loader';
+import { usePermission } from '../../Common/permission';
 
 const users = new Array(9).fill({
   id: 1,
@@ -44,11 +45,14 @@ const DiscountsList = () => {
       </>
     )
   }
+    const { checkPermission } = usePermission();
+    const canCreate = checkPermission({ module: 'discount', action: 'create' });
   return (
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
 
       <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 ${openForm ? 'md:w-3/4' : 'w-full md:w-[full]'}`}>
         <h2 className="text-2xl font-semibold">Discounts Table</h2>
+       {canCreate &&
         <button
            onClick={() => navigate(`/configuration/holiday-camps/discounts/create`)}
           // onClick={() => setOpenForm(true)}
@@ -56,6 +60,7 @@ const DiscountsList = () => {
         >
           <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add new discount
         </button>
+        }
       </div>
 
       <div className="flex flex-col md:flex-row gap-6">

@@ -380,73 +380,72 @@ const Create = () => {
         updated.splice(index, 1);
         setSelectedPlans(updated);
     };
-    const handleSavePlan = async () => {
-        if (!formData.title.trim() || !formData.duration.trim()) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Missing fields',
-                text: 'Please fill in both Title and Duration fields.',
-            });
-            return;
-        }
+const handleSavePlan = async () => {
+    const { title, duration, description, images } = formData;
 
-        // Safe image check
-        const images = Array.isArray(formData.images) ? formData.images : [];
-        const hasValidImage = images.some(file => file instanceof File);
-
-        if (!hasValidImage) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Missing image',
-                text: 'Please upload at least one image.',
-            });
-            return;
-        }
-
-        setPlanLoading(true); // Start loading
-
-        const data = new FormData();
-        data.append('title', formData.title);
-        data.append('duration', formData.duration);
-        data.append('description', formData.description);
-
-        images.forEach((file) => {
-            if (file instanceof File) {
-                data.append('images', file);
-            }
+    // ✅ Reusable dynamic SweetAlert
+    const showAlert = ({ type = 'info', message = '', title = '' }) => {
+        Swal.fire({
+            icon: type,
+            title: title || type.charAt(0).toUpperCase() + type.slice(1),
+            text: message,
+            timer: type === 'success' ? 1500 : undefined,
+            showConfirmButton: type !== 'success',
         });
-
-        try {
-            await createSessionExercise(formData);
-
-            // Reset form
-            setFormData({
-                title: '',
-                duration: '',
-                description: '',
-                images: [],
-            });
-
-            setOpenForm(false);
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Saved',
-                text: 'Exercise saved successfully!',
-                timer: 1500,
-                showConfirmButton: false
-            });
-        } catch (err) {
-            console.error('Error saving exercise:', err);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Something went wrong while saving the exercise.',
-            });
-        } finally {
-            setPlanLoading(false); // End loading
-        }
     };
+
+    // --- Frontend validation ---
+    if (!title.trim()) {
+        showAlert({ type: 'warning', message: 'Title is required', title: 'Missing Field' });
+        return;
+    }
+    if (!duration.trim()) {
+        showAlert({ type: 'warning', message: 'Duration is required', title: 'Missing Field' });
+        return;
+    }
+
+    const imageList = Array.isArray(images) ? images : [];
+    const hasValidImage = imageList.some(file => file instanceof File);
+    if (!hasValidImage) {
+        showAlert({ type: 'warning', message: 'Please upload at least one image', title: 'Missing Image' });
+        return;
+    }
+
+    setPlanLoading(true);
+
+    const data = new FormData();
+    data.append('title', title);
+    data.append('duration', duration);
+    data.append('description', description);
+    imageList.forEach(file => file instanceof File && data.append('images', file));
+
+    // --- API call ---
+    try {
+        await createSessionExercise(formData);
+
+        setFormData({ title: '', duration: '', description: '', images: [] });
+        setOpenForm(false);
+
+        showAlert({ type: 'success', message: 'Exercise saved successfully!', title: 'Saved' });
+
+    } catch (err) {
+        console.error('Error saving exercise:', err);
+
+        // Dynamic backend error handling
+        const message = err.message || 'Something went wrong';
+        const code = err.code;
+
+        if (code === 'UNAUTHORIZED') {
+            showAlert({ type: 'error', message, title: 'Permission Denied' });
+        } else {
+            showAlert({ type: 'error', message, title: 'Error' });
+        }
+
+    } finally {
+        setPlanLoading(false);
+    }
+};
+
 
 
 

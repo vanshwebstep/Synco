@@ -38,7 +38,7 @@ const List = () => {
     const popup3Ref = useRef(null);
 
     console.log('classId', classId)
-    const { fetchClassSchedulesByID, singleClassSchedulesOnly } = useClassSchedule()
+    const { fetchClassSchedulesByID, singleClassSchedulesOnly } = useClassSchedule() || {};
     const { createBookFreeTrials } = useBookFreeTrial()
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -110,7 +110,7 @@ const List = () => {
     const { fetchTermGroup, termGroup } = useTermContext()
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue()
+    const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue() || {};
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const toggleCheckbox = (userId) => {
         setSelectedUserIds((prev) =>
@@ -752,74 +752,73 @@ const List = () => {
                         </div>
                     </div>
 
-                    <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
-                        <div className="">
-                            <h2 className="text-[24px] font-semibold">Select trial Date </h2>
+                 <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
+  <div className="">
+    <h2 className="text-[24px] font-semibold">Select trial Date </h2>
 
-                            <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
-                                {/* Header */}
-                                <div className="flex justify-around items-center mb-3">
-                                    <button
-                                        onClick={goToPreviousMonth}
-                                        className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                                    >
-                                        <ChevronLeft className="w-5 h-5" />
-                                    </button>
-                                    <p className="font-semibold text-[20px]">
-                                        {currentDate.toLocaleString("default", { month: "long" })} {year}
-                                    </p>
-                                    <button
-                                        onClick={goToNextMonth}
-                                        className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                                    >
-                                        <ChevronRight className="w-5 h-5" />
-                                    </button>
-                                </div>
+    <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
+      {/* Header */}
+      <div className="flex justify-around items-center mb-3">
+        <button
+          onClick={goToPreviousMonth}
+          className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <p className="font-semibold text-[20px]">
+          {currentDate.toLocaleString("default", { month: "long" })} {year}
+        </p>
+        <button
+          onClick={goToNextMonth}
+          className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
 
-                                {/* Day Labels */}
-                                <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
-                                    {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
-                                        <div key={day} className="font-medium text-center">
-                                            {day}
-                                        </div>
-                                    ))}
-                                </div>
+      {/* Day Labels */}
+      <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
+        {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
+          <div key={day} className="font-medium text-center">
+            {day}
+          </div>
+        ))}
+      </div>
 
-                                {/* Calendar Weeks */}
-                                <div className="flex flex-col  gap-1">
-                                    {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
-                                        const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
+      {/* Calendar Weeks */}
+      <div className="flex flex-col gap-1">
+        {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
+          const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
 
+          return (
+            <div key={weekIndex} className="grid grid-cols-7 text-[18px] gap-1 py-1 rounded">
+              {week.map((date, i) => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // normalize today's date
+                const isSelected = isSameDate(date, selectedDate);
+                const isPast = date && date < today; // check if date is before today
 
-                                        return (
-                                            <div
-                                                key={weekIndex}
-                                                className={`grid grid-cols-7 text-[18px] gap-1 py-1 rounded `}
-                                            >
-                                                {week.map((date, i) => {
-                                                    const isSelected = isSameDate(date, selectedDate);
-                                                    return (
-                                                        <div
-                                                            key={i}
-                                                            onClick={() => date && handleDateClick(date)}
-                                                            className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full cursor-pointer
-                      ${isSelected
-                                                                    ? "bg-blue-600 text-white font-bold"
-                                                                    : "text-gray-800"
-                                                                }
+                return (
+                  <div
+                    key={i}
+                    onClick={() => !isPast && date && handleDateClick(date)}
+                    className={`w-8 h-8 flex items-center justify-center mx-auto text-base rounded-full 
+                      ${isSelected ? "bg-blue-600 text-white font-bold" : "text-gray-800"}
+                      ${isPast ? "text-gray-300 cursor-not-allowed" : "hover:bg-gray-200 cursor-pointer"}
                     `}
-                                                        >
-                                                            {date ? date.getDate() : ""}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                  >
+                    {date ? date.getDate() : ""}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</div>
+
                 </div>
 
                 <div className="flex-1 bg-white transition-all duration-300">

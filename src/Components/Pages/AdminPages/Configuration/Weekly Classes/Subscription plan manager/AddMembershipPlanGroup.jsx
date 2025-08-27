@@ -10,6 +10,7 @@ import Swal from 'sweetalert2'; // If not already imported
 
 import { usePayments } from '../../../contexts/PaymentPlanContext';
 import PlanTabs from "../Find a class/PlanTabs";
+import { usePermission } from "../../../Common/permission";
 
 const AddPaymentPlanGroup = () => {
     const [isSavePlan, setIsSavePlan] = useState(false);
@@ -242,7 +243,12 @@ const AddPaymentPlanGroup = () => {
             </>
         )
     }
-console.log('formData.HolidayCampPackage',formData.HolidayCampPackage)
+    const { checkPermission } = usePermission();
+
+    const canCreate =
+        checkPermission({ module: 'payment-plan', action: 'create' });
+
+    console.log('formData.HolidayCampPackage', formData.HolidayCampPackage)
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -263,7 +269,7 @@ console.log('formData.HolidayCampPackage',formData.HolidayCampPackage)
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
                     <span className="truncate">
-                        {previewShowModal ? `${selectedGroup?.name} `: 'Add Membership Plan Group'}
+                        {previewShowModal ? `${selectedGroup?.name} ` : 'Add Membership Plan Group'}
                     </span>
                 </h2>
 
@@ -418,15 +424,15 @@ console.log('formData.HolidayCampPackage',formData.HolidayCampPackage)
                                         </AnimatePresence>
                                     </div>
 
-                                    {/* Add Payment Plan Button */}
-                                    <button
-                                        type="button"
-                                        onClick={handleAddPlan}
-                                        className="w-full bg-[#237FEA] mb-8 text-white text-[16px] font-semibold py-2 rounded-lg hover:bg-blue-700"
-                                    >
-                                        Add Membership Plan
-                                    </button>
-
+                                    {canCreate &&
+                                        <button
+                                            type="button"
+                                            onClick={handleAddPlan}
+                                            className="w-full bg-[#237FEA] mb-8 text-white text-[16px] font-semibold py-2 rounded-lg hover:bg-blue-700"
+                                        >
+                                            Add Membership Plan
+                                        </button>
+                                    }
                                     {/* Footer Buttons */}
                                     <div className="flex flex-wrap flex-col-reverse gap-4 md:flex-row md:items-center md:justify-end md:gap-4">
 
@@ -573,19 +579,19 @@ console.log('formData.HolidayCampPackage',formData.HolidayCampPackage)
                                             Membership Package Details
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
-<Editor
-  apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
-  value={formData.HolidayCampPackage}
-  onEditorChange={(content) =>
-    setFormData({ ...formData, HolidayCampPackage: content })
-  }
-  init={{
-    menubar: false,
-    plugins: 'lists advlist',
-    toolbar: 'fontsizeselect capitalize bold italic underline alignleft aligncenter alignjustify',
-    height: 200,
-    branding: false,
-    content_style: `
+                                            <Editor
+                                                apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
+                                                value={formData.HolidayCampPackage}
+                                                onEditorChange={(content) =>
+                                                    setFormData({ ...formData, HolidayCampPackage: content })
+                                                }
+                                                init={{
+                                                    menubar: false,
+                                                    plugins: 'lists advlist',
+                                                    toolbar: 'fontsizeselect capitalize bold italic underline alignleft aligncenter alignjustify',
+                                                    height: 200,
+                                                    branding: false,
+                                                    content_style: `
       body {
         background-color: #f3f4f6;
         font-family: inherit;
@@ -594,38 +600,38 @@ console.log('formData.HolidayCampPackage',formData.HolidayCampPackage)
         color: #111827;
       }
     `,
-    setup: (editor) => {
-      // Custom capitalize button
-      editor.ui.registry.addIcon(
-        'capitalize-icon',
-        '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
-      );
-      editor.ui.registry.addButton('capitalize', {
-        icon: 'capitalize-icon',
-        tooltip: 'Capitalize Text',
-        onAction: () => {
-          editor.formatter.register('capitalize', {
-            inline: 'span',
-            styles: { textTransform: 'capitalize' },
-          });
-          editor.formatter.toggle('capitalize');
-        },
-      });
+                                                    setup: (editor) => {
+                                                        // Custom capitalize button
+                                                        editor.ui.registry.addIcon(
+                                                            'capitalize-icon',
+                                                            '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
+                                                        );
+                                                        editor.ui.registry.addButton('capitalize', {
+                                                            icon: 'capitalize-icon',
+                                                            tooltip: 'Capitalize Text',
+                                                            onAction: () => {
+                                                                editor.formatter.register('capitalize', {
+                                                                    inline: 'span',
+                                                                    styles: { textTransform: 'capitalize' },
+                                                                });
+                                                                editor.formatter.toggle('capitalize');
+                                                            },
+                                                        });
 
-      // Remove className from content on init
-      editor.on('BeforeSetContent', (e) => {
-        if (e.content) {
-          e.content = e.content.replace(/\sclass="[^"]*"/g, '');
-        }
-      });
+                                                        // Remove className from content on init
+                                                        editor.on('BeforeSetContent', (e) => {
+                                                            if (e.content) {
+                                                                e.content = e.content.replace(/\sclass="[^"]*"/g, '');
+                                                            }
+                                                        });
 
-      // Also clean pasted content
-      editor.on('PastePostProcess', (e) => {
-        e.node.innerHTML = e.node.innerHTML.replace(/\sclass="[^"]*"/g, '');
-      });
-    },
-  }}
-/>
+                                                        // Also clean pasted content
+                                                        editor.on('PastePostProcess', (e) => {
+                                                            e.node.innerHTML = e.node.innerHTML.replace(/\sclass="[^"]*"/g, '');
+                                                        });
+                                                    },
+                                                }}
+                                            />
 
 
                                         </div>

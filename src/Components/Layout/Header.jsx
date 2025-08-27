@@ -4,13 +4,14 @@ import { useNotification } from '../Pages/AdminPages/contexts/NotificationContex
 import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 import { useMembers } from "../Pages/AdminPages/contexts/MemberContext";
+import { usePermission } from '../Pages/AdminPages/Common/permission';
 
 const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpen }) => {
   const isFetchingRef = useRef(false);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [showNotificationPopup, setShowNotificationPopup] = useState(null);
-  const { notification,customnotificationAll, setNotification, fetchNotification } = useNotification();
+  const { notification, customnotificationAll, setNotification, stopFetching, fetchNotification } = useNotification();
   const currentDate = new Date();
   const [adminInfo, setAdminInfo] = useState({ firstName: "", lastName: "", role: "", profile: "" });
 
@@ -19,8 +20,8 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const weekday = currentDate.toLocaleString("default", { weekday: "long" }); // e.g., Monday
   const year = currentDate.getFullYear(); // e.g., 2024
   const { activeTab, setActiveTab } = useMembers();
-  
-  console.log('notificassstion',notification)
+
+  // console.log('notificassstion', notification)
 
   useEffect(() => {
     // ✅ Load adminInfo from localStorage
@@ -33,45 +34,46 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
         console.error("Invalid adminInfo JSON in localStorage:", e);
       }
     }
-  }, []);const mergedNotifications = [
-  ...(Array.isArray(notification?.notifications) ? notification.notifications : []),
-  ...(Array.isArray(customnotificationAll) ? customnotificationAll : [])
-].map(n => {
-  // check recipient read status
-  const recipientUnread = Array.isArray(n.recipients)
-    ? n.recipients.some(r => r.isRead === false) // at least one unread
-    : false;
+  }, []); const mergedNotifications = [
+    ...(Array.isArray(notification?.notifications) ? notification.notifications : []),
+    ...(Array.isArray(customnotificationAll) ? customnotificationAll : [])
+  ].map(n => {
+    // check recipient read status
+    const recipientUnread = Array.isArray(n.recipients)
+      ? n.recipients.some(r => r.isRead === false) // at least one unread
+      : false;
 
-  // normalize isRead
-  const normalizedIsRead = n.isRead !== undefined
-    ? n.isRead
-    : !recipientUnread; // if recipients exist, mark false if any unread
+    // normalize isRead
+    const normalizedIsRead = n.isRead !== undefined
+      ? n.isRead
+      : !recipientUnread; // if recipients exist, mark false if any unread
 
-  return {
-    ...n,
-    category: n.category?.trim() || "System",
-    isRead: normalizedIsRead
-  };
-});
+    return {
+      ...n,
+      category: n.category?.trim() || "System",
+      isRead: normalizedIsRead
+    };
+  });
 
-// filter by tab
-const filtered =
-  activeTab === "All"
-    ? mergedNotifications
-    : mergedNotifications.filter(n => n.category === activeTab);
+  // filter by tab
+  const filtered =
+    activeTab === "All"
+      ? mergedNotifications
+      : mergedNotifications.filter(n => n.category === activeTab);
 
-// unread only
-const unreadNotifications = mergedNotifications.filter(n => !n.isRead);
+  // unread only
+  const unreadNotifications = mergedNotifications.filter(n => !n.isRead);
 
-// unread count per category
-const totalUnreadCount = unreadNotifications.reduce((acc, curr) => {
-  const cat = curr.category;
-  acc[cat] = (acc[cat] || 0) + 1;
-  return acc;
-}, {});
+  // unread count per category
+  const totalUnreadCount = unreadNotifications.reduce((acc, curr) => {
+    const cat = curr.category;
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {});
 
-// 🔥 total unread count (if you need it)
-const notificationCount = unreadNotifications.length;
+  // 🔥 total unread count (if you need it)
+  const notificationCount = unreadNotifications.length;
+  const { checkPermission } = usePermission();
 
 
 
@@ -96,7 +98,7 @@ const notificationCount = unreadNotifications.length;
     'notification': { title: 'Notification' },
     'configuration/weekly-classes/all-members': { title: 'Members' },
     'configuration/weekly-classes/find-a-class/book-a-free-trial/account-info': { title: 'Account Information' },
-    
+
   };
   // Extract the part after `/demo/synco/`
   const subPath = location.pathname.split('/demo/synco/')[1] || '';
@@ -110,13 +112,12 @@ const notificationCount = unreadNotifications.length;
 
   const { title, icon: Icon } = routeInfo;
 
-
   useEffect(() => {
     const fetchAndMerge = async () => {
-      if (isFetchingRef.current) return;
+      if (isFetchingRef.current || stopFetching) return;
       isFetchingRef.current = true;
 
-      const success = await fetchNotification();
+      await fetchNotification();
 
       isFetchingRef.current = false;
     };
@@ -125,8 +126,7 @@ const notificationCount = unreadNotifications.length;
     const interval = setInterval(fetchAndMerge, 7000);
 
     return () => clearInterval(interval);
-  }, [fetchNotification]);
-
+  }, [fetchNotification, stopFetching]);
 
 
   const handleLogout = () => {
@@ -168,7 +168,7 @@ const notificationCount = unreadNotifications.length;
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showNotificationPopup, setShowNotificationPopup]);
-    const dropdownRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -185,6 +185,10 @@ const notificationCount = unreadNotifications.length;
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [profileOpen]);
+  const hasPermission =
+    checkPermission({ module: 'notification', action: 'view-listing' }) ||
+    checkPermission({ module: 'custom-notification', action: 'view-listing' });
+
 
   return (
     <>
@@ -251,23 +255,23 @@ const notificationCount = unreadNotifications.length;
             <img src="/demo/synco/icons/search.png" className="absolute right-3 top-1/2 left-2 max-w-[10px] transform -translate-y-1/2 text-black" alt="" />
 
           </div>
+          {hasPermission && (
 
-          {/* Notification Bell */}
-          <div
-            onClick={handleNotificationClick}
-            className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center cursor-pointer
+            <div
+              onClick={handleNotificationClick}
+              className={`relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center cursor-pointer
       ${notificationCount > 0 ? "bg-[#FF5A3C] text-white" : "bg-white border border-[#E2E1E5]"}`}
-          >
-            <img src="/demo/synco/DashboardIcons/notificationIcon.png" alt="" />
+            >
 
+              <img src="/demo/synco/DashboardIcons/notificationIcon.png" alt="" />
 
-            {/* Notification Badge */}
-            {notificationCount > 0 && (
-              <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white text-black text-sm font-semibold flex items-center justify-center shadow-md">
-                {notificationCount}
-              </span>
-            )}
-          </div>
+              {notificationCount > 0 && (
+                <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white text-black text-sm font-semibold flex items-center justify-center shadow-md">
+                  {notificationCount}
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Notification Popup */}
           {showNotificationPopup && notificationCount > 0 && latestUnread && (
@@ -324,7 +328,10 @@ const notificationCount = unreadNotifications.length;
                     </span>
                     {profileOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </div>
-                  <span className="text-sm text-gray-600 font-semibold"> {localStorage.getItem("role")}</span>
+                  <span className="text-sm text-gray-600 font-semibold">
+                    {localStorage.getItem("role") || adminInfo?.role?.role}
+                  </span>
+
                 </div>
               </div>
 

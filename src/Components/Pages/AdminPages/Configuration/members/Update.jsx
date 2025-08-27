@@ -8,6 +8,7 @@ import RoleModal from "./RoleModal";
 import { useLocation, useNavigate } from "react-router-dom";
 import Loader from '../../contexts/Loader'
 import { verifyToken } from '../../../../verifyToken';
+import { usePermission } from "../../Common/permission";
 
 const Update = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const Update = () => {
   const id = query.get("id");
   const [error, setError] = useState("");
   const MyRole = localStorage.getItem("role");
+      const { checkPermission } = usePermission();
 
   const [editPersonal, setEditPersonal] = useState(false);
   const [editAddress, setEditAddress] = useState(false);
@@ -198,9 +200,9 @@ const Update = () => {
       });
 
       const result = await response.json();
-  const verified = await verifyToken(token);
-  
-        console.log('🔍 Verification result:', verified);
+      const verified = await verifyToken(token);
+
+      console.log('🔍 Verification result:', verified);
       if (!response.ok) {
         Swal.fire({
           icon: "error",
@@ -654,24 +656,27 @@ const Update = () => {
       </div>
 
       <div className="flex justify-center  gap-2">
-        {MyRole === 'Super Admin' && (
-          <div className="flex gap-2">
+        <div className="flex gap-2">
+          {MyRole === 'Super Admin' && (
             <button
               onClick={() => handleSuspend(formData.status === 'suspend' ? 0 : 1)}
               className="btn border cursor-pointer border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
             >
               {formData.status === 'suspend' ? 'Activate' : 'Suspend'}
             </button>
+          )}
+          {checkPermission(
+            { module: "member", action: "delete" }) && (
+              <button
+                onClick={handleDelete}
+                className="btn cursor-pointer border border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
+              >
+                Delete
+              </button>
+            )}
+        </div>
 
-            <button
-              onClick={handleDelete}
-              className="btn cursor-pointer border border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
-            >
-              Delete
-            </button>
-          </div>
 
-        )}
 
         <button className="btn bg-[#237FEA] text-white cursor-pointer px-8 py-2 font-semibold rounded-lg text-[14px]" onClick={handleSubmit}>Save</button>
       </div>

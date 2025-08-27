@@ -8,19 +8,34 @@ import DatePicker from "react-datepicker";
 import Select from "react-select";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
+import { useBookFreeTrial } from '../../../../../contexts/BookAFreeTrialContext';
+import Loader from '../../../../../contexts/Loader';
+import { usePermission } from '../../../../../Common/permission';
 
 const ParentProfile = ({ ParentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [selectedDate, setSelectedDate] = useState(null);
 
+    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit } = useBookFreeTrial() || {};
+
+
     const [showRebookTrial, setshowRebookTrial] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
     const [selectedTime, setSelectedTime] = useState(null);
+    const [additionalNote, setAdditionalNote] = useState("");
+
     const [reason, setReason] = useState("");
     const reasonOptions = [
-        { value: "sick", label: "Student sick" },
-        { value: "other", label: "Other" },
+        { value: "Family emergency - cannot attend", label: "Family emergency - cannot attend" },
+        { value: "Health issue", label: "Health issue" },
+        { value: "Schedule conflict", label: "Schedule conflict" },
     ];
+
+    const handleCancel = () => {
+        console.log("Payload:", formData);
+        cancelFreeTrial(formData);
+    };
+
     const formatDate = (dateString, withTime = false) => {
         if (!dateString) return "-";
         const date = new Date(dateString);
@@ -40,22 +55,67 @@ const ParentProfile = ({ ParentProfile }) => {
     };
 
     const {
+        id,
         bookingId,
         trialDate,
         bookedBy,
         status,
         createdAt,
         students,
+        venueId,
         classSchedule,
         paymentPlans,
     } = ParentProfile;
-    console.log('parents', ParentProfile.emergency)
-    const parents = ParentProfile.parents;
 
+    const [rebookFreeTrial, setRebookFreeTrial] = useState({
+        bookingId: id || null,
+        trialDate: "",
+        reasonForNonAttendance: "",
+        additionalNote: "",
+    });
+
+    console.log('parents', ParentProfile)
+    const parents = ParentProfile.parents;
+    const [formData, setFormData] = useState({
+        bookingId: id,
+        cancelReason: "",
+        additionalNote: "",
+    });
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const emergency = ParentProfile.emergency;
     console.log('matchedPlan', matchedPlan)
+
+    const { checkPermission } = usePermission();
+
+    const canCancelTrial =
+        checkPermission({ module: 'cancel-free-trial', action: 'create' })
+    const canRebooking =
+        checkPermission({ module: 'rebooking', action: 'create' })
+    if (loading) return <Loader />;
+    const handleDateChange = (date) => {
+        setSelectedDate(date);
+        setRebookFreeTrial((prev) => ({
+            ...prev,
+            trialDate: date ? date.toISOString().split("T")[0] : "",
+        }));
+    };
+
+    const handleReasonChange = (selectedOption) => {
+        setReason(selectedOption);
+        setRebookFreeTrial((prev) => ({
+            ...prev,
+            reasonForNonAttendance: selectedOption ? selectedOption.value : "",
+        }));
+    };
+
+    const handleNoteChange = (e) => {
+        setAdditionalNote(e.target.value);
+        setRebookFreeTrial((prev) => ({
+            ...prev,
+            additionalNote: e.target.value,
+        }));
+    };
     return (
         <>
             <div className="md:flex w-full gap-4">
@@ -263,7 +323,7 @@ const ParentProfile = ({ ParentProfile }) => {
                             <div className="bg-[#343A40] flex items-center gap-2  text-white text-[14px] px-3 py-2 rounded-xl">
                                 <div className="flex items-center gap-2">
                                     {status === 'pending' && (
-                                        <img src="/demo/synco/icons/loadingWhite.png" alt="Loading" />
+                                        <img src="/demo/synco/icons/loadingWhite.png" alt="Pending" />
                                     )}
                                     {status === 'not attend' && (
                                         <img src="/demo/synco/icons/x-circle-contained.png" alt="Not Attended" />
@@ -271,6 +331,10 @@ const ParentProfile = ({ ParentProfile }) => {
                                     {status === 'attend' && (
                                         <img src="/demo/synco/icons/attendedicon.png" alt="Attended" />
                                     )}
+                                    {status === 'cancelled' && (
+                                        <img src="/demo/synco/icons/x-circle-contained.png" alt="Cancelled" />
+                                    )}
+
                                     {/* Fallback for any other or undefined status */}
                                     {!status && (
                                         <>
@@ -279,15 +343,18 @@ const ParentProfile = ({ ParentProfile }) => {
                                         </>
                                     )}
 
-                                    {/* Optional text next to the icon */}
+                                    {/* Status text */}
                                     <span>
                                         {status === 'pending'
                                             ? 'Pending'
                                             : status === 'attend'
                                                 ? 'Attended'
-                                                : 'Not Attended'}
+                                                : status === 'cancelled'
+                                                    ? 'Cancelled'
+                                                    : 'Not Attended'}
                                     </span>
                                 </div>
+
                             </div>
                         </div>
 
@@ -393,209 +460,145 @@ const ParentProfile = ({ ParentProfile }) => {
 
 
                     </div>
+                    {status !== 'cancelled' && (
+                            <>
                     <div className="bg-white rounded-3xl p-6  space-y-4">
+                      
+                                {/* Top Row: Email + Text */}
+                                <div className="flex gap-7">
 
-                        {/* Top Row: Email + Text */}
-                        <div className="flex gap-7">
+                                    <button onClick={() => sendCancelFreeTrialmail([id])} className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium">
+                                        <img src="/demo/synco/icons/mail.png" alt="" /> Send Email
+                                    </button>
 
-                            <button className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium">
-                                <img src="/demo/synco/icons/mail.png" alt="" /> Send Email
-                            </button>
+                                    <button className="flex-1 border border-[#717073] rounded-xl py-3 flex  text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-[#717073] font-medium">
+                                        <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
+                                    </button>
+                                </div>
 
-                            <button className="flex-1 border border-[#717073] rounded-xl py-3 flex  text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-[#717073] font-medium">
-                                <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
-                            </button>
+
+                                {status !== 'pending' && status !== 'attend' && canRebooking && (
+                                    <button
+                                        onClick={() => setshowRebookTrial(true)}
+                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                    >
+                                        Rebook FREE Trial
+                                    </button>
+                                )}
+
+                                {status !== 'attend' && canCancelTrial && (
+                                    <button
+                                        onClick={() => setshowCancelTrial(true)}
+                                        className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                    >
+                                        Cancel Trial
+                                    </button>
+                                )}
+
+                                {status !== 'pending' && status !== 'attend' && (
+                                    <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
+                                        Book a Membership
+                                    </button>
+                                )}
+
+                                {status === 'attend' && (
+                                    <div className="flex gap-7">
+                                        <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
+                                            No Membership
+                                        </button>
+
+                                        <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
+                                            Book a Membership
+                                        </button>
+                                    </div>
+                                )}
+                         
+
+                    </div>
+                       </>
+                        )}
+            </div>
+            {showRebookTrial && (
+                <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                    <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                        <button
+                            className="absolute top-4 left-4 p-2"
+                            onClick={() => setshowRebookTrial(false)}
+                        >
+                            <img src="/demo/synco/icons/cross.png" alt="Close" />
+                        </button>
+
+                        <div className="text-center py-6 border-b border-gray-300">
+                            <h2 className="font-semibold text-[24px]">Rebook Free Trial</h2>
                         </div>
 
-                        {status !== 'pending' && status !== 'attend' && (
-                            <button
-                                onClick={() => {
-                                    setshowRebookTrial(true);
-                                }}
-                                className="w-full bg-[#237FEA] text-white  rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700  hover:shadow-md transition-shadow duration-300 transition">
-                                Rebook FREE Trial
-                            </button>
-                        )}
-
-                        {status !== 'attend' && (
-                            <button
-                                onClick={() => {
-                                    setshowCancelTrial(true);
-                                }}
-                                className="w-full border border-gray-300 text-[#717073]  text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300  font-medium">
-                                Cancel Trial
-                            </button>
-                        )}
-                        {status !== 'pending' && status !== 'attend' && (
-                            <button className="w-full border border-gray-300 text-[#717073]  text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
-                                Book a Membership
-                            </button>
-                        )}
-                        {status == 'attend' && (
-                            <div className="flex gap-7">
-
-                                <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
-                                    No Membership
-                                </button>
-
-                                <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex  text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
-                                    Book a Membership
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-                {showRebookTrial && (
-                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
-                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
-                            <button
-                                className="absolute top-4 left-4 p-2"
-                                onClick={() => setshowRebookTrial(false)}
-                            >
-                                <img src="/demo/synco/icons/cross.png" alt="Close" />
-                            </button>
-
-                            <div className="text-center py-6 border-b border-gray-300">
-                                <h2 className="font-semibold text-[24px]">Rebook Free Trial</h2>
+                        <div className="space-y-4 px-6 pb-6 pt-4">
+                            {/* Venue */}
+                            <div>
+                                <label className="block text-[16px] font-semibold">Venue</label>
+                                <input
+                                    type="text"
+                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                    placeholder="Select Venue"
+                                    value={classSchedule?.venue?.name || "-"}
+                                    readOnly
+                                />
                             </div>
 
-                            <div className="space-y-4 px-6 pb-6 pt-4">
-                                {/* Venue */}
-                                <div>
-                                    <label className="block text-[16px] font-semibold">Venue</label>
-                                    <input
-                                        type="text"
-                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        placeholder="Select Venue"
-                                    />
-                                </div>
+                            {/* Class */}
+                            <div>
+                                <label className="block text-[16px] font-semibold">Class</label>
+                                <input
+                                    type="text"
+                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                    placeholder="Select Class"
+                                    value={classSchedule?.className || "-"}
+                                    readOnly
+                                />
+                            </div>
 
-                                {/* Class */}
-                                <div>
-                                    <label className="block text-[16px] font-semibold">Class</label>
-                                    <input
-                                        type="text"
-                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        placeholder="Select Class"
-                                    />
-                                </div>
+                            {/* Date */}
+                            <div>
+                                <label className="block text-[16px] font-semibold">Date</label>
+                                <DatePicker
+                                    selected={selectedDate}
+                                    onChange={handleDateChange}
+                                    dateFormat="EEEE, dd MMMM yyyy"
+                                    placeholderText="Select a date"
+                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                />
+                            </div>
 
-                                {/* Date */}
+                            {/* Time */}
+                            <div className="space-y-4">
                                 <div>
-                                    <label className="block text-[16px] font-semibold">Date</label>
+                                    <label className="block text-[16px] font-semibold">Time</label>
                                     <DatePicker
-                                        selected={selectedDate}
-                                        onChange={(date) => setSelectedDate(date)}
-                                        dateFormat="EEEE, dd MMMM yyyy" // Thursday, 26 November 2023
-                                        placeholderText="Select a date"
+                                        selected={selectedTime}
+                                        onChange={setSelectedTime}
+                                        showTimeSelect
+                                        showTimeSelectOnly
+                                        timeIntervals={60}
+                                        timeCaption="Time"
+                                        dateFormat="h:mm aa"
+                                        placeholderText="Select Time"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                     />
                                 </div>
-
-                                {/* Time */}
-                                <div className="space-y-4">
-                                    {/* Time Picker */}
-                                    <div>
-                                        <label className="block text-[16px] font-semibold">Time</label>
-                                        <DatePicker
-                                            selected={selectedTime}
-                                            onChange={(date) => setSelectedTime(date)}
-                                            showTimeSelect
-                                            showTimeSelectOnly
-                                            timeIntervals={60} // interval in minutes
-                                            timeCaption="Time"
-                                            dateFormat="h:mm aa"
-                                            placeholderText="Select Time"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        />
-                                    </div>
-
-                                    {/* Reason */}
-                                    <div>
-                                        <label className="block text-[16px] font-semibold">
-                                            Reason for Non-Attendance
-                                        </label>
-                                        <Select
-                                            value={reason}
-                                            onChange={setReason}
-                                            options={reasonOptions}
-                                            placeholder="Select Reason"
-                                            className=" rounded-lg mt-2"
-                                            styles={{
-                                                control: (base, state) => ({
-                                                    ...base,
-                                                    borderRadius: "0.7rem",
-                                                    boxShadow: "none",
-                                                    padding: "4px 8px",
-                                                    minHeight: "48px",
-                                                }),
-                                                placeholder: (base) => ({ ...base, fontWeight: 600 }),
-                                                dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
-                                                indicatorSeparator: () => ({ display: "none" }),
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Additional Notes */}
-                                <div>
-                                    <label className="block text-[16px] font-semibold">Additional Notes (Optional)</label>
-                                    <textarea
-                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        rows={3}
-                                        placeholder="Add any notes here..."
-                                    />
-                                </div>
-
-                                {/* Buttons */}
-                                <div className="flex gap-4 pt-4">
-                                    <button
-                                        className="flex-1 border border-gray-400 rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => setshowRebookTrial(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                    >
-                                        Rebook Trial
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                )}
-                {showCancelTrial && (
-                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
-                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
-                            <button
-                                className="absolute top-4 left-4 p-2"
-                                onClick={() => setshowCancelTrial(false)}
-                            >
-                                <img src="/demo/synco/icons/cross.png" alt="Close" />
-                            </button>
-
-                            <div className="text-center py-6 border-b border-gray-300">
-                                <h2 className="font-semibold text-[24px]">Cancel Free Trial</h2>
-                            </div>
-
-                            <div className="space-y-4 px-6 pb-6 pt-4">
-                                {/* Venue */}
 
                                 {/* Reason */}
                                 <div>
                                     <label className="block text-[16px] font-semibold">
-                                        Reason for Cancellation
+                                        Reason for Non-Attendance
                                     </label>
                                     <Select
                                         value={reason}
-                                        onChange={setReason}
+                                        onChange={handleReasonChange}
                                         options={reasonOptions}
-                                        placeholder=""
-                                        className=" rounded-lg mt-2"
+                                        placeholder="Select Reason"
+                                        className="rounded-lg mt-2"
                                         styles={{
-                                            control: (base, state) => ({
+                                            control: (base) => ({
                                                 ...base,
                                                 borderRadius: "0.7rem",
                                                 boxShadow: "none",
@@ -608,30 +611,115 @@ const ParentProfile = ({ ParentProfile }) => {
                                         }}
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-[16px] font-semibold">Additional Notes (Optional)</label>
-                                    <textarea
-                                        className="w-full bg-gray-100 mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        rows={3}
-                                        placeholder=""
-                                    />
-                                </div>
+                            </div>
 
-                                {/* Buttons */}
-                                <div className="flex justify-end gap-4 pt-4">
+                            {/* Additional Notes */}
+                            <div>
+                                <label className="block text-[16px] font-semibold">Additional Notes (Optional)</label>
+                                <textarea
+                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                    rows={3}
+                                    placeholder="Add any notes here..."
+                                    value={additionalNote}
+                                    onChange={handleNoteChange}
+                                />
+                            </div>
 
-                                    <button
-                                        className=" w-1/2 bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                    >
-                                        Cancel Trial
-                                    </button>
-                                </div>
+                            {/* Buttons */}
+                            <div className="flex gap-4 pt-4">
+                                <button
+                                    className="flex-1 border border-gray-400 rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                    onClick={() => console.log("Cancel clicked")}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                    onClick={() => rebookFreeTrialsubmit(rebookFreeTrial)}
+                                >
+                                    Rebook Trial
+                                </button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                )}
-            </div>
+            )}
+            {showCancelTrial && (
+                <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                    <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                        <button
+                            className="absolute top-4 left-4 p-2"
+                            onClick={() => setshowCancelTrial(false)}
+                        >
+                            <img src="/demo/synco/icons/cross.png" alt="Close" />
+                        </button>
+
+                        <div className="text-center py-6 border-b border-gray-300">
+                            <h2 className="font-semibold text-[24px]">Cancel Free Trial</h2>
+                        </div>
+
+                        <div className="space-y-4 px-6 pb-6 pt-4">
+                            {/* Reason */}
+                            <div>
+                                <label className="block text-[16px] font-semibold">
+                                    Reason for Cancellation
+                                </label>
+                                <Select
+                                    value={reasonOptions.find((opt) => opt.value === formData.cancelReason)}
+                                    onChange={(selected) =>
+                                        setFormData((prev) => ({ ...prev, cancelReason: selected.value }))
+                                    }
+                                    options={reasonOptions}
+                                    placeholder=""
+                                    className="rounded-lg mt-2"
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            borderRadius: "0.7rem",
+                                            boxShadow: "none",
+                                            padding: "4px 8px",
+                                            minHeight: "48px",
+                                        }),
+                                        placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                        dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                        indicatorSeparator: () => ({ display: "none" }),
+                                    }}
+                                />
+                            </div>
+
+                            {/* Notes */}
+                            <div>
+                                <label className="block text-[16px] font-semibold">
+                                    Additional Notes (Optional)
+                                </label>
+                                <textarea
+                                    className="w-full bg-gray-100 mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                    rows={3}
+                                    value={formData.additionalNote}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, additionalNote: e.target.value }))
+                                    }
+                                    placeholder=""
+                                />
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="flex justify-end gap-4 pt-4">
+                                <button
+                                    onClick={handleCancel}
+                                    className="w-1/2 bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                >
+                                    Cancel Trial
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            )}
+        </div >
         </>
     );
 };

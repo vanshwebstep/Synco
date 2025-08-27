@@ -55,7 +55,7 @@ const List = () => {
         authorise: false,
     });
     console.log('classId', classId)
-    const { fetchClassSchedulesByID, singleClassSchedulesOnly } = useClassSchedule()
+    const { fetchClassSchedulesByID, singleClassSchedulesOnly } = useClassSchedule() || {};
 
     useEffect(() => {
         const fetchData = async () => {
@@ -126,7 +126,7 @@ const List = () => {
     const { fetchTermGroup, termGroup } = useTermContext()
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const { venues, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue()
+    const { venues, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue() || {};
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const toggleCheckbox = (userId) => {
         setSelectedUserIds((prev) =>
@@ -1375,9 +1375,9 @@ const List = () => {
                                 onClick={() => {
                                     if (!membershipPlan || !selectedDate) {
                                         let msg = "";
-                                        if (!membershipPlan && !selectedDate) msg = "Please select Membership Plan and Trial Date";
+                                        if (!membershipPlan && !selectedDate) msg = "Please select Membership Plan and  Date";
                                         else if (!membershipPlan) msg = "Please select Membership Plan";
-                                        else if (!selectedDate) msg = "Please select Trial Date";
+                                        else if (!selectedDate) msg = "Please select  Date";
 
                                         Swal.fire({
                                             icon: "warning",

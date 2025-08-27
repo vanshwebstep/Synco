@@ -11,7 +11,12 @@ const PlanTabs = ({ selectedPlans }) => {
   const studentKeys = Object.keys(groupByStudents).sort(); // ["1", "2", "3"]
   const [activeTab, setActiveTab] = useState(studentKeys[0]);
 console.log('groupByStudents',groupByStudents[activeTab])
-const sortedPlans = [...groupByStudents[activeTab]].sort((a, b) => {
+  const sortedPlans = Array.isArray(groupByStudents[activeTab])
+    ? [...groupByStudents[activeTab]]
+    : groupByStudents[activeTab] && typeof groupByStudents[activeTab] === 'object'
+      ? Object.values(groupByStudents[activeTab])
+      : [];
+sortedPlans.sort((a, b) => {
   // Sort by duration ascending
   if (a.interval === "Year" && b.interval !== "Year") return 1;
   if (b.interval === "Year" && a.interval !== "Year") return -1;

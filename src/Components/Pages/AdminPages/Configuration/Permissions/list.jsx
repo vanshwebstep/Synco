@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { useMembers } from "../../contexts/MemberContext";
 import { Loader2 } from "lucide-react"; // spinner icon
 import Loader from '../../contexts/Loader';
+import { usePermission } from "../../Common/permission";
 
 const PermissionList = () => {
   const {
@@ -12,28 +13,29 @@ const PermissionList = () => {
     permissions,
     handlePermissionCreate,
   } = useMembers();
+  const { checkPermission } = usePermission();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
   // Selected permissions state
   const [selectedPermissions, setSelectedPermissions] = useState({});
   const [originalPermissions, setOriginalPermissions] = useState({}); // keep baseline
   const [submitLoading, setSubmitLoading] = useState(false);
 
-useEffect(() => {
-  setLoading(true);
+  useEffect(() => {
+    setLoading(true);
 
-  Promise.all([fetchPermission(), fetchRoles()])
-    .then(() => {
-      setLoading(false);
-    })
-    .catch((err) => {
-      console.error("Error fetching data:", err);
-      setLoading(false); // still stop loading even on error
-    });
-}, [fetchPermission, fetchRoles]);
+    Promise.all([fetchPermission(), fetchRoles()])
+      .then(() => {
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching data:", err);
+        setLoading(false); // still stop loading even on error
+      });
+  }, [fetchPermission, fetchRoles]);
 
   // Prefill selected permissions when roles data is available
   useEffect(() => {
@@ -54,9 +56,9 @@ useEffect(() => {
     roleOptions?.length > 0
       ? roleOptions
       : permissions?.roles?.map((r) => ({
-          value: r.id,
-          label: r.role,
-        })) || [];
+        value: r.id,
+        label: r.role,
+      })) || [];
 
   const toggleCheckbox = (permId, roleId) => {
     setSelectedPermissions((prev) => {
@@ -128,6 +130,15 @@ useEffect(() => {
     )
   }
 
+  // Check user permissions
+  const canView = checkPermission({ module: 'admin-role', action: 'view-listing' });
+  const canCreate = checkPermission({ module: 'admin-role', action: 'create' });
+  const canUpdate = checkPermission({ module: 'admin-role', action: 'update' });
+
+  // Determine global disable state
+// User can only view if they have view permission but cannot create or update
+const isViewOnly = canView && !(canCreate && canUpdate);
+
   return (
     <div>
       {/* Search */}
@@ -167,18 +178,23 @@ useEffect(() => {
                   {perm.module} - {perm.action}
                 </td>
                 {roles.map((role) => {
-                  const isChecked = selectedPermissions[role.value]?.has(
-                    perm.id
-                  );
+                  const isChecked = selectedPermissions[role.value]?.has(perm.id);
+
+                  // Super Admin lock
+                  const isSuperAdminLock =
+                    role.label === "Super Admin" && perm.module === "admin-role";
+
+                  // Global disable when user has only view
+                  const isDisabled = isSuperAdminLock || isViewOnly;
+
                   return (
                     <td key={role.value} className="p-4 text-center">
                       <button
-                        onClick={() => toggleCheckbox(perm.id, role.value)}
-                        className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${
-                          isChecked
-                            ? "border-gray-500 bg-blue-600"
-                            : "border-gray-300"
-                        }`}
+                        onClick={() => !isDisabled && toggleCheckbox(perm.id, role.value)}
+                        disabled={isDisabled}
+                        className={`w-5 h-5 flex items-center justify-center rounded-md border-2 
+          ${isChecked ? "border-gray-500 bg-blue-600" : "border-gray-300"} 
+          ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
                         {isChecked && (
                           <Check
@@ -191,6 +207,8 @@ useEffect(() => {
                     </td>
                   );
                 })}
+
+
               </tr>
             ))}
           </tbody>
@@ -224,22 +242,24 @@ useEffect(() => {
 
       {/* Save button */}
       <div className="flex justify-end mt-5">
-      <button
-      onClick={handleSave}
-      disabled={submitLoading}
-      className="bg-[#237FEA] flex items-center justify-center gap-2 cursor-pointer 
-                 text-white px-6 py-3 rounded-2xl hover:bg-blue-700 
-                 text-base md:text-lg font-semibold min-w-[140px] disabled:opacity-70"
-    >
-      {submitLoading ? (
-        <>
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Saving...
-        </>
-      ) : (
-        "SAVE"
-      )}
-    </button>
+        <button
+          onClick={handleSave}
+          disabled={submitLoading || isViewOnly}
+          className={`bg-[#237FEA] flex items-center justify-center gap-2 cursor-pointer 
+    text-white px-6 py-3 rounded-2xl hover:bg-blue-700 
+    ${isViewOnly ? 'opacity-50 cursor-not-allowed' : ''} 
+    text-base md:text-lg font-semibold min-w-[140px] disabled:opacity-70`}
+        >
+          {submitLoading ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Saving...
+            </span>
+          ) : (
+            "SAVE"
+          )}
+        </button>
+
       </div>
     </div>
   );

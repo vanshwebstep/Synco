@@ -4,9 +4,11 @@ import Swal from "sweetalert2";
 import { useMembers } from "../../contexts/MemberContext";
 import RoleModal from "./RoleModal";
 import { Eye, EyeOff } from "lucide-react"; // or use any icon library
-import { checkPermission } from "../../Common/permission";
+import { usePermission } from "../../Common/permission";
 
 const Create = () => {
+    const { checkPermission } = usePermission();
+
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [errors, setErrors] = useState({});
   const [phoneError, setPhoneError] = useState('');

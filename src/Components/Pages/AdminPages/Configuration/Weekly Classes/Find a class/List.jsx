@@ -15,6 +15,7 @@ import PlanTabs from './PlanTabs';
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { usePermission } from '../../../Common/permission';
 const customIcon = new L.Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   iconSize: [25, 41],
@@ -441,6 +442,19 @@ const List = () => {
       year: "numeric"
     });
   };
+  const { checkPermission } = usePermission();
+
+  const canBookFreeTrial =
+    checkPermission({ module: 'class-schedule', action: 'view-listing' }) &&
+    checkPermission({ module: 'book-free-trial', action: 'create' });
+
+  const canBookMembership =
+    checkPermission({ module: 'class-schedule', action: 'view-listing' }) &&
+    checkPermission({ module: 'book-membership', action: 'create' });
+
+    
+
+
 
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
@@ -654,7 +668,7 @@ const List = () => {
                                           </button>
                                         ) : (
                                           <>
-                                            {s.allowFreeTrial && (
+                                            {s.allowFreeTrial && canBookFreeTrial && (
                                               <button
                                                 onClick={() => handleBookFreeTrial(s.classId)}
                                                 className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium"
@@ -662,11 +676,13 @@ const List = () => {
                                                 Book a FREE Trial
                                               </button>
                                             )}
-                                            <button
-                                              onClick={() => handleBookMembership(s.classId)}
-                                              className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium">
-                                              Book a Membership
-                                            </button>
+                                            {canBookMembership &&
+                                              <button
+                                                onClick={() => handleBookMembership(s.classId)}
+                                                className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium">
+                                                Book a Membership
+                                              </button>
+                                            }
                                           </>
                                         )}
                                       </div>

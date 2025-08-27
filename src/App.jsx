@@ -41,8 +41,9 @@ import SessionPlanPreview from './Components/Pages/AdminPages/configuration/Week
 import TrialLists from './Components/Pages/AdminPages/Configuration/Weekly Classes/Trials/List.jsx';
 import AddMembers from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/List.jsx';
 import MembershipSales from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/membershipSales.jsx';
-import AccountInformation from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Book a free trial/Account Information/list.jsx';
+import AccountInformation from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Book a free trial/Account Information Book Free Trial/list.jsx';
 import PermissionRole from './Components/Pages/AdminPages/Configuration/Permissions/list.jsx';
+// import { AccountInformationMembership } from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/Account Information Book Membership/List.jsx';
 
 // Import all context providers
 import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberContext.jsx';
@@ -52,11 +53,12 @@ import { SessionPlanContextProvider } from './Components/Pages/AdminPages/contex
 import { NotificationProvider } from './Components/Pages/AdminPages/contexts/NotificationContext.jsx';
 import { VenueProvider } from './Components/Pages/AdminPages/contexts/VenueContext.jsx';
 import { ClassScheduleProvider } from './Components/Pages/AdminPages/contexts/ClassScheduleContent.jsx';
-import { TermDatesSessionProvider } from './Components/Pages/AdminPages/contexts/termDatesSessionContext.jsx';
+import { TermDatesSessionProvider } from './Components/Pages/AdminPages/contexts/TermDatesSessionContext.jsx';
 import { FindClassProvider } from './Components/Pages/AdminPages/contexts/FindClassContext.jsx';
 import { BookFreeTrialProvider } from './Components/Pages/AdminPages/contexts/BookAFreeTrialContext.jsx';
 
 import './App.css';
+import { PermissionProvider } from './Components/Pages/AdminPages/Common/permission.jsx';
 // Define roles
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -105,285 +107,285 @@ const AppRoutes = () => {
 
       {/* Role-based routes */}
       <Route path="/" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <Dashboard />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/dashboard" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <Dashboard />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/members/List" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <MemberList />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/members/update" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <Update />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/subscription-planManager" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <SubscriptiontPlanManagerList />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/add-subscription-plan-group" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <AddMembershipPlanGroup />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/notification" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <Notification />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/notification-list" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <NotificationList />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/holiday-camps/discounts/list" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <DiscountsList />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/holiday-camps/discounts/create" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <DiscountCreate />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/venues" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <List />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/find-a-class" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <FindAClass />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
       <Route path="/configuration/weekly-classes/find-a-class/book-a-free-trial/list" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <BookFreeTrial />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
       <Route path="/configuration/weekly-classes/find-a-class/book-a-membership/list" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <BookMembership />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
       <Route path="/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <AccountInformation />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
       <Route path="/configuration/weekly-classes/venues/class-schedule" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <ClassSchedule />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/venues/class-schedule/Sessions/pending" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <Pending />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/venues/class-schedule/Sessions/completed" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <Completed />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/venues/class-schedule/Sessions/cancel" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <Cancel />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/term-dates/list" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <TermDateList />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/term-dates/create" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <TermDateCreate />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/term-dates/update" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <TermDateUpdate />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/session-plan-list" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <SessionPlanList />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/session-plan-create" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <SessionPlanCreate />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
       <Route path="/configuration/weekly-classes/session-plan-preview" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <SessionPlanPreview />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
       <Route path="/configuration/weekly-classes/trial/list" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <TrialLists />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
       <Route path="/configuration/weekly-classes/all-members/list" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <AddMembers />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
       <Route path="/configuration/weekly-classes/all-members/membership-sales" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <MembershipSales />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
       <Route path="/permission" element={
-        <AdminLayout>
-          <ProtectedRoute>
+        <ProtectedRoute>
+          <AdminLayout>
             <RoleBasedRoute>
               <PermissionRole />
             </RoleBasedRoute>
-          </ProtectedRoute>
-        </AdminLayout>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
 
 
@@ -397,6 +399,7 @@ const AppRoutes = () => {
 function App() {
   return (
     <Router basename="/demo/synco/">
+
       <NotificationProvider>
         <VenueProvider>
           <MemberProvider>
@@ -407,9 +410,9 @@ function App() {
                     <ClassScheduleProvider>
                       <FindClassProvider>
                         <BookFreeTrialProvider>
-
-
-                          <AppRoutes />
+                          <PermissionProvider>
+                            <AppRoutes />
+                          </PermissionProvider>
                         </BookFreeTrialProvider>
                       </FindClassProvider>
                     </ClassScheduleProvider>
@@ -420,7 +423,7 @@ function App() {
           </MemberProvider>
         </VenueProvider>
       </NotificationProvider>
-    </Router>
+    </Router >
   );
 }
 
