@@ -1,4 +1,4 @@
-import React, {useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from "react-router-dom";
 
@@ -10,42 +10,53 @@ const tabs = [
   "Rewards",
   "Events",
 ];
-// import ServiceHistory from "./serviceHistory";
-// import ParentProfile from "./ParentProfile";
+import ServiceHistory from "./serviceHistory";
+import ParentProfile from "./ParentProfile";
 import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
 
-const list = () => {
-      const { serviceHistoryFetchById ,serviceHistory} = useBookFreeTrial()
-  
-    const navigate = useNavigate();
-     const location = useLocation();
+const AccountInfoBookMembership = () => {
+  const { serviceHistoryMembership, serviceHistory } = useBookFreeTrial()
+
+  const navigate = useNavigate();
+  const location = useLocation();
   const [itemId, setItemId] = useState(null);
-useEffect(() => {
+  const [memberInfo, setMemberInfo] = useState(null);
+
+  useEffect(() => {
     if (location.state?.itemId) {
       setItemId(location.state.itemId);
     }
+
+    if (location.state?.memberInfo) {
+      setMemberInfo(location.state.memberInfo);
+    }
   }, [location.state]);
 
-     useEffect(() => {
-          const fetchData = async () => {
-              if (itemId) {
-                  await serviceHistoryFetchById(itemId);
-              }
-          };
-          fetchData();
-      }, [itemId, serviceHistoryFetchById]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (itemId) {
+        await serviceHistoryMembership(itemId);
+      }
+    };
+    fetchData();
+  }, [itemId, serviceHistoryMembership]);
   const [activeTab, setActiveTab] = useState("Service History");
-console.log('serviceHistory',serviceHistory)
+  console.log('serviceHistory', serviceHistory)
 
 
   return (
     <>
       <div className=" flex items-end mb-5 gap-2 md:gap-3">
         <div className=" flex items-center gap-2 md:gap-3">
-          <h2 onClick={() => {
-                    navigate('/configuration/weekly-classes/trial/list');
-                }}
-
+          <h2
+            onClick={() => {
+              navigate(
+                memberInfo === 'allMembers'
+                  ? "/configuration/weekly-classes/all-members/list"
+                  : "/configuration/weekly-classes/all-members/membership-sales"
+              );
+            }}
             className="text-xl md:text-2xl font-semibold cursor-pointer hover:opacity-80 transition-opacity duration-200"
           >
             <img
@@ -55,20 +66,20 @@ console.log('serviceHistory',serviceHistory)
             />
           </h2>
           <div className="flex gap-0   p-1 rounded-xl flex-wrap bg-white">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-3 rounded-xl text-[16px] font-medium transition capitalize
-            ${activeTab === tab
-                    ? "bg-[#237FEA] text-white"
-                    : " hover:text-[#237FEA]"
-                  }`}
-              >
-                {tab}
-              </button>
-            ))}
+           {tabs.map((tab) => (
+    <button
+      key={tab}
+      type="button"
+      onClick={() => setActiveTab(tab)}
+      disabled={!serviceHistory || serviceHistory.length === 0} // disable if no serviceHistory
+      className={`px-4 py-3 rounded-xl text-[16px] font-medium transition capitalize
+        ${activeTab === tab ? "bg-[#237FEA] text-white" : "hover:text-[#237FEA]"}
+        ${!serviceHistory || serviceHistory.length === 0 ? "opacity-50 cursor-not-allowed" : ""}
+      `}
+    >
+      {tab}
+    </button>
+  ))}
           </div>
         </div>
         <div className=" flex items-start  gap-2 md:gap-3">
@@ -112,12 +123,13 @@ console.log('serviceHistory',serviceHistory)
             Add booking
           </button>
         </div>
-      </div>
-{/* {activeTab === "Service History" && <ServiceHistory serviceHistory={serviceHistory} />}
-      {activeTab === "Parent Profile" && <ParentProfile  ParentProfile={serviceHistory}  />} */}
+      </div >
+      {activeTab === "Service History" && <ServiceHistory serviceHistory={serviceHistory} />
+      }
+      {activeTab === "Parent Profile" && <ParentProfile ParentProfile={serviceHistory} />}
 
     </>
   )
 }
 
-export default list
+export default AccountInfoBookMembership

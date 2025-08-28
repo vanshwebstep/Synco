@@ -59,6 +59,7 @@ import { BookFreeTrialProvider } from './Components/Pages/AdminPages/contexts/Bo
 
 import './App.css';
 import { PermissionProvider } from './Components/Pages/AdminPages/Common/permission.jsx';
+import AccountInfoBookMembership from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/Account Information Book Membership/List.jsx';
 // Define roles
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -374,6 +375,15 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <MembershipSales />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+       <Route path="/configuration/weekly-classes/all-members/account-info" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <AccountInfoBookMembership />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

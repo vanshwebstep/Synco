@@ -30,7 +30,7 @@ const trialLists = () => {
         const dataToExport = [];
 
         bookMembership.forEach((item) => {
-           if (selectedStudents.length > 0 && !selectedStudents.includes(item.id)) return;
+            if (selectedStudents.length > 0 && !selectedStudents.includes(item.id)) return;
             item.students.forEach((student) => {
                 dataToExport.push({
                     Name: `${student.studentFirstName} ${student.studentLastName}`,
@@ -45,14 +45,14 @@ const trialLists = () => {
             });
         });
 
-    if (!dataToExport.length) return alert('No data to export');
-    
-      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'FreeTrials');
-    
-      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-      const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        if (!dataToExport.length) return alert('No data to export');
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'FreeTrials');
+
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
         saveAs(data, 'AllMembersData.xlsx');
     };
 
@@ -236,7 +236,7 @@ const trialLists = () => {
         }
         setSelectedAgents((prev) => [...prev, agentId]);
     };
-    const agents = bookedByAdmin.map((admin) => ({
+    const agents = bookedByAdmin?.map((admin) => ({
         name: `${admin.firstName} ${admin.lastName}`.trim(),
         avatar: admin.profile
             ? `${API_BASE_URL}${admin.profile}`
@@ -353,13 +353,23 @@ const trialLists = () => {
                             </thead>
 
                             <tbody>
-                                {bookMembership.map((item, index) =>
+                                {bookMembership?.map((item, index) =>
                                     item.students.map((student, studentIndex) => {
                                         const isSelected = selectedStudents.includes(item.id);
 
                                         return (
                                             <tr
-                                            //  onClick={() => navigate('/configuration/weekly-classes/all-members/membership-sales')}
+                                                onClick={() => {
+                                                    //   const memberInfo = allMembers.find(member => member.id === item.id);
+                                                    navigate("/configuration/weekly-classes/all-members/account-info", {
+                                                        state: {
+                                                            itemId: item.id,
+                                                            memberInfo: 'allMembers', // sending full member data
+                                                        },
+                                                    });
+                                                }
+                                                }
+
                                                 className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
                                                 <td onClick={(e) => e.stopPropagation()} className="p-4 cursor-pointer">
                                                     <div className="flex items-center gap-3">
@@ -381,19 +391,22 @@ const trialLists = () => {
                                                 <td className="p-4 text-center">
                                                     {item?.paymentPlan?.duration} {item?.paymentPlan?.interval}{item?.paymentPlan?.duration > 1 ? 's' : ''}
                                                 </td>
-                                                <td className="p-4">
-                                                    <div
-                                                        className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === 'attend' || item.status.toLowerCase() === 'active'
-                                                            ? 'bg-green-100 text-green-600'
-                                                            : item.status.toLowerCase() === 'pending'
-                                                                ? 'bg-yellow-100 text-yellow-600'
-                                                                : 'bg-red-100 text-red-500'
-                                                            } capitalize`}
-                                                    >
-                                                        {item.status}
-                                                    </div>
+                                               <td className="p-4">
+  <div
+    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${
+      item.status.toLowerCase() === 'attend' || item.status.toLowerCase() === 'active'
+        ? 'bg-green-100 text-green-600'
+        : item.status.toLowerCase() === 'pending'
+        ? 'bg-yellow-100 text-yellow-600'
+        : item.status.toLowerCase() === 'frozen'
+        ? 'bg-blue-100 text-blue-600'
+        : 'bg-red-100 text-red-500'
+    } capitalize`}
+  >
+    {item.status}
+  </div>
+</td>
 
-                                                </td>
                                             </tr>
 
                                         );
@@ -711,7 +724,7 @@ const trialLists = () => {
                             <img src='/demo/synco/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
-                        <button   onClick={exportToExcel} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
+                        <button onClick={exportToExcel} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
                             <img src='/demo/synco/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Export Data
                         </button>
@@ -722,7 +735,7 @@ const trialLists = () => {
 
             </div>
 
-        </div>
+        </div >
     )
 }
 
