@@ -44,6 +44,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             { title: 'All Members', link: '/configuration/weekly-classes/all-members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
             { title: 'Membership Sales', link: '/configuration/weekly-classes/all-members/membership-sales', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
             { title: 'Venues', link: '/configuration/weekly-classes/venues', needPermissions: [{ module: 'venue', action: 'view-listing' }, { module: 'venue', action: 'create' }] },
+            // { title: 'Add To Waiting List', link: '/configuration/weekly-classes/trial/list', needPermissions: [{ module: 'waiting-list', action: 'create' }] },
             { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term', action: 'view-listing' }], }
           ]
         },

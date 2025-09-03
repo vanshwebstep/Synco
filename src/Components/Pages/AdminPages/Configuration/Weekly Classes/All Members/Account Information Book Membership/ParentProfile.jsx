@@ -1,4 +1,4 @@
-// src/components/ParentProfile.jsx
+// src/components/profile.jsx
 
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -13,24 +13,29 @@ import Loader from '../../../../contexts/Loader';
 import { usePermission } from '../../../../Common/permission';
 import { addDays } from "date-fns";
 
-const ParentProfile = ({ ParentProfile }) => {
+const ParentProfile = ({ profile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const [selectedDate, setSelectedDate] = useState(null);
-
-    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, addtoWaitingListSubmit, cancelMembershipSubmit, transferMembershipSubmit, freezerMembershipSubmit, reactivateDataSubmit } = useBookFreeTrial() || {};
-
-
+    const {
+        loading,
+        addtoWaitingListSubmit, cancelMembershipSubmit,
+        sendBookMembershipMail, transferMembershipSubmit,
+        freezerMembershipSubmit, reactivateDataSubmit,cancelWaitingListSpot
+    } = useBookFreeTrial() || {};
+    const classSchedule = profile?.classSchedule;
+    const bookingId = profile?.bookingId;
+    const id = profile?.id;
+    const paymentPlans = profile?.paymentPlans;
+    const parentsList = profile?.parents || [];
+    const studentsList = profile?.students || [];
+    const bookedBy = profile?.bookedByAdmin;
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
+    const [removeWaiting, setRemoveWaiting] = useState(false);
+
     const [transferVenue, setTransferVenue] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-
     const [freezeMembership, setFreezeMembership] = useState(false);
-    const [selectedTime, setSelectedTime] = useState(null);
-    const [additionalNote, setAdditionalNote] = useState("");
-
-    const [reason, setReason] = useState("");
     const reasonOptions = [
         { value: "Family emergency - cannot attend", label: "Family emergency - cannot attend" },
         { value: "Health issue", label: "Health issue" },
@@ -40,71 +45,31 @@ const ParentProfile = ({ ParentProfile }) => {
         { value: "immediately", label: "Cancel Immediately" },
         { value: "request", label: "Request Cancel" },
     ];
-    const handleCancel = () => {
-        console.log("Payload:", formData);
-        cancelFreeTrial(formData);
-    };
+    const firstPayment = Array.isArray(profile?.payments)
+        ? profile.payments[0]
+        : profile?.payments;
+    const ID = firstPayment?.referenceId || firstPayment?.pan;
 
-    const formatDate = (dateString, withTime = false) => {
-        if (!dateString) return "-";
-        const date = new Date(dateString);
-        const options = {
-            year: "numeric",
-            month: "short",
-            day: "2-digit",
-        };
-        if (withTime) {
-            return (
-                date.toLocaleDateString("en-US", options) +
-                ", " +
-                date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
-            );
-        }
-        return date.toLocaleDateString("en-US", options);
-    };
 
-    const {
-        id,
-        bookingId,
-        trialDate,
-        createdAt,
-        students,
-        venueId,
-        classSchedule,
-        paymentPlans,
-    } = ParentProfile;
-    console.log('ParentProfile', ParentProfile)
+    console.log('profile', profile)
     const [rebookFreeTrial, setRebookFreeTrial] = useState({
         bookingId: id || null,
         trialDate: "",
         reasonForNonAttendance: "",
         additionalNote: "",
     });
-
-    console.log('parents', ParentProfile)
-    const parents = ParentProfile?.parents;
     const [formData, setFormData] = useState({
         bookingId: bookingId,
         cancelReason: "",
         additionalNote: "",
     });
-    console.log('bokingid', bookingId)
-    const newClasses = ParentProfile.newClasses.map((cls) => ({
-        value: cls.id, // use id for value
-        label: `${cls.className} - ${cls.day} (${cls.startTime} - ${cls.endTime})`, // readable label
-    }));
 
-    const emergency = ParentProfile.emergency;
-    const parentsList = ParentProfile.parents || [];
-    const emergencyList = ParentProfile.emergency || [];
-    const studentsList = ParentProfile.students || [];
-    const bookedBy = ParentProfile.bookedByAdmin;
-    console.log('bookedby', bookedBy.profile)
+    console.log('loading', loading)
 
     const studentCount = studentsList.length;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const { checkPermission } = usePermission();
-    const failedPayments = ParentProfile.payments?.filter(
+    const failedPayments = profile.payments?.filter(
         (payment) => payment.paymentStatus !== "success"
     ) || [];
 
@@ -112,7 +77,6 @@ const ParentProfile = ({ ParentProfile }) => {
         checkPermission({ module: 'cancel-free-trial', action: 'create' })
     const canRebooking =
         checkPermission({ module: 'rebooking', action: 'create' })
-    if (loading) return <Loader />;
 
     const [waitingListData, setWaitingListData] = useState({
         bookingId: bookingId,
@@ -126,6 +90,11 @@ const ParentProfile = ({ ParentProfile }) => {
         cancellationType: "",      // corresponds to selected radio
         cancelReason: "",          // corresponds to Select value
         cancelDate: null,          // corresponds to DatePicker
+        additionalNote: "",        // textarea
+    });
+    const [cancelWaitingList, setCancelWaitingList] = useState({
+        bookingId: bookingId,
+        reasonForCancelling: "",           // corresponds to DatePicker
         additionalNote: "",        // textarea
     });
     const [transferData, setTransferData] = useState({
@@ -150,8 +119,6 @@ const ParentProfile = ({ ParentProfile }) => {
         const { name, value } = e.target;
         stateSetter((prev) => ({ ...prev, [name]: value }));
     };
-
-    // Unified handler for Select
     const handleSelectChange = (selected, field, stateSetter) => {
         stateSetter((prev) => ({ ...prev, [field]: selected?.value || null }));
     };
@@ -174,24 +141,24 @@ const ParentProfile = ({ ParentProfile }) => {
 
 
 
+    const paymentPlan = profile?.paymentPlan;
     // Access the first booking's venue name
-    const venueName = ParentProfile.venue?.name;
-    const MembershipPlan = ParentProfile.paymentPlan?.title;
-    const MembershipPrice = ParentProfile.paymentPlan?.price;
-
-    const paymentPlan = ParentProfile.paymentPlan;
-
-    const duration = paymentPlan?.duration;
-    let interval = paymentPlan?.interval;
-
-    // Pluralize interval if duration > 1
-    if (duration > 1) {
+    const venueName = profile?.venue?.name;
+    const MembershipPlan = paymentPlan?.title;
+    const MembershipPrice = paymentPlan?.price;
+    const duration = paymentPlan?.duration ?? 0;
+    let interval = paymentPlan?.interval ?? "";
+    if (duration > 1 && interval) {
         interval += "s";
     }
+    const MembershipTenure = duration && interval
+        ? `${duration} ${interval}`
+        : "";
 
-    const MembershipTenure = `${duration} ${interval}`;
-    const dateBooked = ParentProfile.dateBooked;
-    console.log('Venue Name:', ParentProfile.dateBooked);
+    const dateBooked = profile?.dateBooked;
+    const status = profile?.status;
+
+    console.log('Venue Name:', profile.dateBooked);
 
     function formatISODate(isoDateString, toTimezone = null) {
         const date = new Date(isoDateString);
@@ -229,23 +196,19 @@ const ParentProfile = ({ ParentProfile }) => {
 
         return `${month} ${day} ${year}, ${hours}:${minutes}`;
     }
-    const ID = ParentProfile.payments.referenceId || ParentProfile.payments.pan;
-    const status = ParentProfile.status;
+
 
     const getStatusBgColor = (status) => {
         switch (status) {
-            case "active":
-                return "bg-[#43BE4F]";
-            case "frozen":
-                return "bg-[#509EF9]";
-            case "canceled":
-                return "bg-[#FC5D5D]";
-            case "waiting":
-                return "bg-[#A4A5A6]";
-            default:
-                return "bg-[#A4A5A6]";
+            case "active": return "bg-[#43BE4F]";
+            case "frozen": return "bg-[#509EF9]";
+            case "canceled": return "bg-[#FC5D5D]";
+            case "waiting list": return "bg-[#A4A5A6]";
+            default: return "bg-[#A4A5A6]";
         }
-    }; const monthOptions = [
+    };
+
+    const monthOptions = [
         { value: 1, label: "1 Month" },
         { value: 2, label: "2 Months" },
         { value: 3, label: "3 Months" },
@@ -254,13 +217,24 @@ const ParentProfile = ({ ParentProfile }) => {
         { value: 6, label: "6 Months" },
         { value: 12, label: "12 Months" },
     ];
+
     console.log('waitingListData', waitingListData)
     console.log('transferData', transferData)
     console.log('freezeData', freezeData)
     console.log('cancelData', cancelData)
-const selectedClass = newClasses.find(
-    (cls) => cls.value === waitingListData.classScheduleId
-);
+    console.log('cancelWaitingList', cancelWaitingList)
+
+    const newClasses = profile?.newClasses?.map((cls) => ({
+        value: cls.id,
+        label: `${cls.className} - ${cls.day} (${cls.startTime} - ${cls.endTime})`,
+    }));
+
+    const selectedClass = newClasses?.find(
+        (cls) => cls.value === waitingListData?.classScheduleId
+    );
+    if (loading) return <Loader />;
+
+
     return (
         <>
             <div className="md:flex w-full gap-4">
@@ -604,7 +578,7 @@ const selectedClass = newClasses.find(
                                 {/* Top Row: Email + Text */}
                                 <div className="flex gap-7">
 
-                                    <button onClick={() => sendCancelFreeTrialmail([id])} className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium">
+                                    <button onClick={() => sendBookMembershipMail([bookingId])} className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium">
                                         <img src="/demo/synco/icons/mail.png" alt="" /> Send Email
                                     </button>
 
@@ -649,6 +623,14 @@ const selectedClass = newClasses.find(
                                         className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
                                     >
                                         Transfer Class
+                                    </button>
+                                )}
+                                {status == 'waiting list' && canCancelTrial && (
+                                    <button
+                                        onClick={() => setRemoveWaiting(true)}
+                                        className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                    >
+                                        Remove Waiting List
                                     </button>
                                 )}
                                 {(status == 'active' || status == 'frozen') && canCancelTrial && (
@@ -1027,6 +1009,76 @@ const selectedClass = newClasses.find(
                     </div>
 
                 )}
+                {removeWaiting && (
+                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                            <button
+                                className="absolute top-4 left-4 p-2"
+                                onClick={() => setRemoveWaiting(false)}
+                            >
+                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                            </button>
+
+                            <div className="text-center py-6 border-b border-gray-300">
+                                <h2 className="font-semibold text-[24px]">Cancel Waiting List Spot </h2>
+                            </div>
+
+                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                <div>
+                                    <label className="block text-[16px] font-semibold">
+                                        Reason for Cancellation
+                                    </label>
+                                    <Select
+                                        value={reasonOptions.find((opt) => opt.value === cancelWaitingList.cancelReason)}
+                                        onChange={(selected) => handleSelectChange(selected, "reasonForCancelling", setCancelWaitingList)}
+                                        options={reasonOptions}
+                                        placeholder=""
+                                        className="rounded-lg mt-2"
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                borderRadius: "0.7rem",
+                                                boxShadow: "none",
+                                                padding: "6px 8px",
+                                                minHeight: "48px",
+                                            }),
+                                            placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                            dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                            indicatorSeparator: () => ({ display: "none" }),
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Notes */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">
+                                        Additional Notes (Optional)
+                                    </label>
+                                    <textarea
+                                        className="w-full bg-gray-100  mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        rows={6}
+                                        name="additionalNote"    // <-- MUST match state key
+                                        value={cancelWaitingList.additionalNote}
+                                        onChange={(e) => handleInputChange(e, setCancelWaitingList)}
+                                        placeholder=""
+                                    />
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex justify-end gap-4 pt-4">
+                                    <button
+                                        onClick={() => cancelWaitingListSpot(cancelWaitingList, 'allMembers')}
+
+                                        className="w-1/2  bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                    >
+                                        Cancel Spot on Waiting List
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                )}
                 {transferVenue && (
                     <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
                         <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
@@ -1066,21 +1118,21 @@ const selectedClass = newClasses.find(
 
                                 {/* Select New Class */}
                                 <div>
+
+
                                     <label className="block text-[16px] font-semibold">
                                         Select New Class
                                     </label>
 
                                     <Select
                                         value={
-                                            newClasses.classScheduleId
-                                                ? {
-                                                    value: newClasses.classScheduleId,
-                                                    label: selectedClass ? selectedClass.label : `Class ${newClasses.classScheduleId}`
-                                                }
+                                            transferData.classScheduleId
+                                                ? newClasses.find((cls) => cls.value === transferData.classScheduleId) || null
                                                 : null
                                         }
-
-                                        onChange={(selected) => handleSelectChange(selected, "classScheduleId", setTransferData)}
+                                        onChange={(selected) =>
+                                            handleSelectChange(selected, "classScheduleId", setTransferData)
+                                        }
                                         options={newClasses}
                                         placeholder="Select Class"
                                         className="rounded-lg mt-2"
@@ -1097,6 +1149,7 @@ const selectedClass = newClasses.find(
                                             indicatorSeparator: () => ({ display: "none" }),
                                         }}
                                     />
+
                                 </div>
 
                                 {/* Additional Notes */}

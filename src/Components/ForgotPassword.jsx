@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Swal from 'sweetalert2';
+import { Eye, EyeOff } from 'lucide-react';
 
 const StepModal = ({ isOpen, onClose, email }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -43,6 +44,7 @@ const StepModal = ({ isOpen, onClose, email }) => {
       setLoading(false);
     }
   };
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleRedirect = () => {
     onClose();
@@ -73,20 +75,49 @@ const StepModal = ({ isOpen, onClose, email }) => {
 
             {step === 1 && (
               <>
-                <input
-                  type="password"
-                  placeholder="New Password"
-                  className="w-full mb-3 p-3 border rounded-xl text-lg"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
-                <input
-                  type="password"
-                  placeholder="Confirm Password"
-                  className="w-full mb-4 p-3 border rounded-xl text-lg"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
+                <div className="relative mb-3">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="New Password"
+                    className="w-full p-3 border rounded-xl text-lg"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-4"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5 text-gray-600" />
+                    ) : (
+                      <Eye className="w-5 h-5 text-gray-600" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="relative mb-4">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Confirm Password"
+                    className="w-full p-3 border rounded-xl text-lg"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-4"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5 text-gray-600" />
+                    ) : (
+                      <Eye className="w-5 h-5 text-gray-600" />
+                    )}
+                  </button>
+                </div>
               </>
             )}
 
@@ -191,21 +222,21 @@ const ForgotPassword = () => {
       console.log('Response from server:', result);
 
       if (res.ok) {
-      Swal.fire({
-  icon: 'success',
-  title: result.message || 'Email Sent!',
-  html: `
+        Swal.fire({
+          icon: 'success',
+          title: result.message || 'Email Sent!',
+          html: `
     <p class="swal-subtext">Please check your inbox and follow the instructions.</p>
   `,
-  customClass: {
-    popup: 'rounded-xl p-6',
-    title: 'text-[20px] font-semibold text-green-600',
-    htmlContainer: 'text-[16px] text-gray-700',
-  },
-  confirmButtonText: 'OK',
-  confirmButtonColor: '#3085d6',
-  buttonsStyling: true,
-});
+          customClass: {
+            popup: 'rounded-xl p-6',
+            title: 'text-[20px] font-semibold text-green-600',
+            htmlContainer: 'text-[16px] text-gray-700',
+          },
+          confirmButtonText: 'OK',
+          confirmButtonColor: '#3085d6',
+          buttonsStyling: true,
+        });
 
       } else {
         Swal.fire({

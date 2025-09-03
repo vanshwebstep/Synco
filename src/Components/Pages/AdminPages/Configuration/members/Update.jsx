@@ -18,13 +18,14 @@ const Update = () => {
   const id = query.get("id");
   const [error, setError] = useState("");
   const MyRole = localStorage.getItem("role");
-      const { checkPermission } = usePermission();
+  const { checkPermission } = usePermission();
 
   const [editPersonal, setEditPersonal] = useState(false);
   const [editAddress, setEditAddress] = useState(false);
   const [loading, setLoading] = useState(false);
   const [country, setCountry] = useState([]);
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [isImageremove, setIsImageremove] = useState(false);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -128,7 +129,7 @@ const Update = () => {
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, image: file })); // this is the image to upload
+      setFormData((prev) => ({ ...prev, profile: file })); // this is the image to upload
       setPhotoPreview(URL.createObjectURL(file)); // this is the preview
     }
   };
@@ -160,7 +161,9 @@ const Update = () => {
 
     const data = new FormData();
     data.append("firstName", formData.firstName);
+    if (formData.lastName) {
     data.append("lastName", formData.lastName);
+     }
     data.append("country", formData?.countryId || formData.country);
     data.append("city", formData.city);
     data.append("postalCode", formData.postalCode);
@@ -169,8 +172,11 @@ const Update = () => {
     data.append("email", formData.email);
     data.append("role", formData.role?.id || formData.role?.value);
 
-    if (formData.image) {
-      data.append("profile", formData.image);
+    if (formData.profile) {
+      data.append("profile", formData.profile);
+    }
+    if (isImageremove == true) {
+      data.append("removedImage", true);
     }
     if (!formData.countryId) {
       Swal.fire({
@@ -350,37 +356,77 @@ const Update = () => {
   if (!id) return null;
   if (error) return <p className="text-red-500 text-center mt-5">{error}</p>;
 
-
+console.log('isImageremove',isImageremove)
   return (
     <div className="md:max-w-[1043px] w-full mx-auto md:p-4 space-y-8">
+      <h2
+        onClick={() => navigate('/configuration/members/List')}
+        className="text-2xl font-semibold flex items-center gap-2 cursor-pointer hover:opacity-80 mb-6"
+      >
+        <img src="/demo/synco/icons/arrow-left2.png" alt="Back" />
+        Go Back
+      </h2>
       <div className="md:flex items-center justify-between bg-white p-6 rounded-2xl border border-[#E2E1E5]">
         <div className="flex items-center gap-4">
-          <div className="relative cursor-pointer w-20 h-20 md:w-[113px] md:h-[113px]">
-            <img
-              src={
-                photoPreview
-                  ? photoPreview
-                  : formData.profile
-                    ? `${API_BASE_URL}/${formData.profile}`
-                    : '/demo/synco/SidebarLogos/OneTOOne.png'
-              }
-              alt="avatar"
-              className="w-full h-full rounded-full object-cover border"
-            />
+      <div className="relative cursor-pointer w-20 h-20 md:w-[113px] md:h-[113px]">
+  <img
+    src={
+      photoPreview
+        ? photoPreview
+        : formData.profile
+          ? `${API_BASE_URL}/${formData.profile}`
+          : '/demo/synco/SidebarLogos/OneTOOne.png'
+    }
+    alt="avatar"
+    className="w-full h-full rounded-full object-cover border"
+  />
 
-            {/* Always visible small circle for Edit */}
-            <div className="absolute bottom-1 md:right-0 bg-black bg-opacity-30 text-white text-xs px-2 py-0.5 whitespace-nowrap rounded-full">
-              Edit Image
-            </div>
+  {(photoPreview || formData.profile) && (
+  <img
+    src="/demo/synco/icons/cancel.png"
+    alt="Cross"
+    className="absolute top-[-15px] right-[-15px] rounded-full object-cover border cursor-pointer"
+    onClick={() => {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to remove your picture?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, remove it!',
+        cancelButtonText: 'Cancel'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          setFormData((prev) => ({ ...prev, profile: null }));
+          setPhotoPreview(null);
+          setIsImageremove(true);
+          Swal.fire(
+            'Removed!',
+            'Your picture has been removed.',
+            'success'
+          );
+        }
+      });
+    }}
+  />
+)}
 
-            {/* File input over the whole circle */}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handlePhotoUpload}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-            />
-          </div>
+
+  {/* Always visible small circle for Edit */}
+  <div className="absolute bottom-1 md:right-0 bg-black bg-opacity-30 text-white text-xs px-2 py-0.5 whitespace-nowrap rounded-full">
+    Edit Image
+  </div>
+
+  {/* File input over the whole circle */}
+  <input
+    type="file"
+    accept="image/*"
+    onChange={handlePhotoUpload}
+    className="absolute inset-0 opacity-0 cursor-pointer"
+  />
+</div>
+
 
 
 
@@ -563,6 +609,12 @@ const Update = () => {
                   value={formData.city}
                   required
                   onChange={handleChange}
+                  onKeyPress={(e) => {
+                    // Prevent numbers from being entered
+                    if (/\d/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                   placeholder="City"
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -571,6 +623,7 @@ const Update = () => {
               <div className="sm:col-span-2">
                 <label className="block text-sm font-semibold text-[#282829] mb-1">Postal Code</label>
                 <input
+                  type="number"
                   name="postalCode"
                   required
                   value={formData.postalCode}

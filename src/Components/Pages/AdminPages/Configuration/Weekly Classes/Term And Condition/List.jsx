@@ -163,24 +163,58 @@ const List = () => {
   // Then check for missing data
   if (!termGroup.length && !termData.length) {
     return (
-      <div className="text-center p-4 border-dotted text-red-500 rounded-md text-sm md:text-base">
-        Missing Term Groups and Term Data
+      <>  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
+        <h2 className="text-[22px] md:text-[28px] font-semibold">
+          Term Dates & Session Plan Mapping
+        </h2>
+
+
+        {canCreate &&
+          <button
+            onClick={() => navigate('/configuration/weekly-classes/term-dates/create')}
+            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
+          >
+            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+            Add New Term Group
+          </button>
+        }
       </div>
+        <div className="text-center p-4 border-dotted text-red-500 rounded-md text-sm md:text-base">
+          No Term Groups or Term Data Available
+        </div>
+      </>
     );
   }
 
   if (!termGroup.length) {
     return (
-      <div className="text-center p-4 border-dotted text-red-500 rounded-md text-sm md:text-base">
-        Missing Term Groups
+      <>  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
+        <h2 className="text-[22px] md:text-[28px] font-semibold">
+          Term Dates & Session Plan Mapping
+        </h2>
+
+
+        {canCreate &&
+          <button
+            onClick={() => navigate('/configuration/weekly-classes/term-dates/create')}
+            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
+          >
+            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+            Add New Term Group
+          </button>
+        }
       </div>
+        <div className="text-center p-4 border-dotted text-red-500 rounded-md text-sm md:text-base">
+         No Term Groups Available
+        </div>
+      </>
     );
   }
 
   if (!termData.length) {
     return (
       <div className="text-center p-4 border-dotted text-red-500 rounded-md text-sm md:text-base">
-        Missing Term Data
+        No Term Data Available
       </div>
     );
   }

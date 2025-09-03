@@ -36,21 +36,22 @@ const trialLists = () => {
                     Age: student.age,
                     Venue: item.venue?.name || '-',
                     'Date of Booking': new Date(item.trialDate).toLocaleDateString(),
-                    'Who Booked?': 'Indoor Court', // static or dynamic if available
+                    'Who Booked?': `${item?.bookedBy?.firstName || ''}
+                                                        ${item?.bookedBy?.lastName && item.bookedBy.lastName !== 'null' ? ` ${item.bookedBy.lastName}` : ''}`, // or dynamic if available
                     'Membership Plan': `${item?.paymentPlanData?.title || '-'} ${item?.paymentPlanData?.price || ''}`,
                     Status: item.status,
                 });
             });
         });
 
-       if (!dataToExport.length) return alert('No data to export');
-          
-            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'FreeTrials');
-          
-            const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-            const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        if (!dataToExport.length) return alert('No data to export');
+
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'FreeTrials');
+
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
         saveAs(data, 'MembershipSalesData.xlsx');
     };
     // ✅ Define all filters with dynamic API mapping
@@ -325,7 +326,8 @@ const trialLists = () => {
                     </div>
                     <div className="flex justify-end ">
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
-                            <img src="/demo/synco/DashboardIcons/user-add-02.png" alt="" />
+                            <img onClick={() => navigate("/configuration/weekly-classes/find-a-class")}
+                                src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
                         </div>
                     </div>
                     <div className="overflow-auto mt-5 rounded-4xl w-full">
@@ -348,51 +350,62 @@ const trialLists = () => {
                             </thead>
 
                             <tbody>
-                                {bookMembership.map((item, index) =>
-                                    item.students.map((student, studentIndex) => {
-                                        const isSelected = selectedStudents.includes(item.bookingId);
+                                {bookMembership && bookMembership.length > 0 ? (
+                                    bookMembership.map((item, index) =>
+                                        item.students.map((student, studentIndex) => {
+                                            const isSelected = selectedStudents.includes(item.bookingId);
 
-                                        return (
-                                            <tr onClick={() => navigate('/configuration/weekly-classes/all-members/membership-sales')}
-                                                className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
-                                                <td onClick={(e) => e.stopPropagation()} className="p-4 cursor-pointer">
-                                                    <div className="flex items-center gap-3">
-                                                        <button
-                                                            onClick={() => toggleSelect(item.bookingId)}
-                                                            className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 
-                                                                        ${isSelected ? "bg-blue-500 border-blue-500 text-white" : "border-gray-300 text-transparent"}`}
+                                            return (
+                                                <tr
+                                                    key={`${item.bookingId}-${studentIndex}`}
+                                                    onClick={() => navigate('/configuration/weekly-classes/all-members/membership-sales')}
+                                                    className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
+                                                >
+                                                    <td onClick={(e) => e.stopPropagation()} className="p-4 cursor-pointer">
+                                                        <div className="flex items-center gap-3">
+                                                            <button
+                                                                onClick={() => toggleSelect(item.bookingId)}
+                                                                className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 
+                    ${isSelected ? "bg-blue-500 border-blue-500 text-white" : "border-gray-300 text-transparent"}`}
+                                                            >
+                                                                {isSelected && <Check size={14} />}
+                                                            </button>
+                                                            <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-4">{student.age}</td>
+                                                    <td className="p-4">{item.venue?.name || '-'}</td>
+                                                    <td className="p-4">{new Date(item.trialDate).toLocaleDateString()}</td>
+                                                    <td className="p-4">
+                                                        {item?.bookedBy?.firstName}
+                                                        {item?.bookedBy?.lastName && item.bookedBy.lastName !== 'null' ? ` ${item.bookedBy.lastName}` : ''}
+                                                    </td>
+                                                    <td className="p-4">{item?.paymentPlanData?.title}{item?.paymentPlanData?.price}</td>
+                                                    <td className="p-4">
+                                                        <div
+                                                            className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === 'attend' || item.status.toLowerCase() === 'active'
+                                                                ? 'bg-green-100 text-green-600'
+                                                                : item.status.toLowerCase() === 'pending'
+                                                                    ? 'bg-yellow-100 text-yellow-600'
+                                                                    : 'bg-red-100 text-red-500'
+                                                                } capitalize`}
                                                         >
-                                                            {isSelected && <Check size={14} />}
-                                                        </button>
-                                                        <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="p-4">{student.age}</td>
-                                                <td className="p-4">{item.venue?.name || '-'}</td>
-                                                <td className="p-4">{new Date(item.trialDate).toLocaleDateString()}</td>
-                                                <td className="p-4">Indoor Court</td>
-                                                <td className="p-4"> {item?.paymentPlanData?.title}{item?.paymentPlanData?.price}</td>
-
-                                                <td className="p-4">
-                                                    <div
-                                                        className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === 'attend' || item.status.toLowerCase() === 'active'
-                                                            ? 'bg-green-100 text-green-600'
-                                                            : item.status.toLowerCase() === 'pending'
-                                                                ? 'bg-yellow-100 text-yellow-600'
-                                                                : 'bg-red-100 text-red-500'
-                                                            } capitalize`}
-                                                    >
-                                                        {item.status}
-                                                    </div>
-
-                                                </td>
-                                            </tr>
-
-                                        );
-                                    })
+                                                            {item.status}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    )
+                                ) : (
+                                    <tr>
+                                        <td colSpan={7} className="text-center p-4 text-gray-500">
+                                            Data not found
+                                        </td>
+                                    </tr>
                                 )}
-
                             </tbody>
+
                         </table>
                     </div>
 
@@ -559,10 +572,20 @@ const trialLists = () => {
                                                         </span>
                                                         <img
                                                             src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/demo/synco/members/dummyuser.png"}
-                                                            alt={`${admin.firstName} ${admin.lastName}`}
+                                                            alt={
+                                                                admin?.firstName || admin?.lastName
+                                                                    ? `${admin?.firstName ?? ""} ${admin?.lastName ?? ""}`.trim()
+                                                                    : "Unknown Admin"
+                                                            }
+
                                                             className="w-8 h-8 rounded-full"
                                                         />
-                                                        <span>{`${admin.firstName} ${admin.lastName}`}</span>
+                                                        <span>
+                                                            {admin?.firstName || admin?.lastName
+                                                                ? `${admin?.firstName ?? ""} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()
+                                                                : "N/A"}
+                                                        </span>
+
                                                     </label>
                                                 );
                                             })}

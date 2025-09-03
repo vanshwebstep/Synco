@@ -57,7 +57,7 @@ const List = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedPlans, setSelectedPlans] = useState([]);
     const [congestionNote, setCongestionNote] = useState(null);
-    const [numberOfStudents, setNumberOfStudents] = useState('')
+    const [numberOfStudents, setNumberOfStudents] = useState('1')
     const [selectedDate, setSelectedDate] = useState(null);
 
 

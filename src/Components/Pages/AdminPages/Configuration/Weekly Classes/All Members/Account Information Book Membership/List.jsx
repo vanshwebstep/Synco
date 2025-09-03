@@ -42,7 +42,7 @@ const AccountInfoBookMembership = () => {
     fetchData();
   }, [itemId, serviceHistoryMembership]);
   const [activeTab, setActiveTab] = useState("Service History");
-  console.log('serviceHistory', serviceHistory)
+
 
 
   return (
@@ -66,20 +66,20 @@ const AccountInfoBookMembership = () => {
             />
           </h2>
           <div className="flex gap-0   p-1 rounded-xl flex-wrap bg-white">
-           {tabs.map((tab) => (
-    <button
-      key={tab}
-      type="button"
-      onClick={() => setActiveTab(tab)}
-      disabled={!serviceHistory || serviceHistory.length === 0} // disable if no serviceHistory
-      className={`px-4 py-3 rounded-xl text-[16px] font-medium transition capitalize
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                disabled={!serviceHistory || serviceHistory.length === 0} // disable if no serviceHistory
+                className={`px-4 py-3 rounded-xl text-[16px] font-medium transition capitalize
         ${activeTab === tab ? "bg-[#237FEA] text-white" : "hover:text-[#237FEA]"}
         ${!serviceHistory || serviceHistory.length === 0 ? "opacity-50 cursor-not-allowed" : ""}
       `}
-    >
-      {tab}
-    </button>
-  ))}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
         </div>
         <div className=" flex items-start  gap-2 md:gap-3">
@@ -124,10 +124,12 @@ const AccountInfoBookMembership = () => {
           </button>
         </div>
       </div >
-      {activeTab === "Service History" && <ServiceHistory serviceHistory={serviceHistory} />
-      }
-      {activeTab === "Parent Profile" && <ParentProfile ParentProfile={serviceHistory} />}
-
+      {activeTab === "Service History" && (
+        <ServiceHistory serviceHistory={serviceHistory} />
+      )}
+      {activeTab === "Parent Profile" && (
+        <ParentProfile profile={serviceHistory} />
+      )}
     </>
   )
 }

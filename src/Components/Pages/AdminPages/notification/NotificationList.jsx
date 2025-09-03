@@ -166,13 +166,7 @@ const recipientOptions = [
     }
 
 
-    if (loading && loadingCustomNotification) {
-        return (
-            <>
-                <Loader />
-            </>
-        )
-    }
+ 
     const handleRecipientPopup = (recipients) => {
         const content = recipients.map(r =>
             `<li>${r.recipientEmail}</li>`
@@ -198,7 +192,13 @@ const recipientOptions = [
     });
 
     console.log('filteredNotifications', filteredNotifications)
-
+   if (loading && loadingCustomNotification) {
+        return (
+            <>
+                <Loader />
+            </>
+        )
+    }
     return (
         <>
             <div className="md:p-6 bg-gray-50 ">

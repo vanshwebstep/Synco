@@ -49,6 +49,12 @@ const RoleModal = () => {
           <input
             type="text"
             value={roleName}
+            onKeyPress={(e) => {
+              // Prevent numbers from being entered
+              if (/\d/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
             onChange={(e) => setRoleName(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter role name"
@@ -71,7 +77,7 @@ const RoleModal = () => {
                   />
                   {role.label}
                 </label>
-         
+
               ))}
             </div>
           </div>
@@ -84,7 +90,7 @@ const RoleModal = () => {
           Create
         </button>
       </div>
-     
+
     </div>
   );
 };

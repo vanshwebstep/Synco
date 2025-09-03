@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
 
 const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -60,6 +61,7 @@ const raw = JSON.stringify({
       setLoading(false);
     }
   };
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="w-full flex items-center justify-center min-h-screen bg-gray-100 px-4">
@@ -71,20 +73,50 @@ const raw = JSON.stringify({
       >
         <h2 className="text-2xl font-semibold mb-6 text-center">Reset Password</h2>
         <form onSubmit={handleReset} className="space-y-4">
-          <input
-            type="password"
-            placeholder="New Password"
-            className="w-full p-3 border rounded-xl text-lg"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            className="w-full p-3 border rounded-xl text-lg"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
+         <div className="relative mb-3">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="New Password"
+                    className="w-full p-3 border rounded-xl text-lg"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-4"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5 text-gray-600" />
+                    ) : (
+                      <Eye className="w-5 h-5 text-gray-600" />
+                    )}
+                  </button>
+                </div>
+
+                <div className="relative mb-4">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Confirm Password"
+                    className="w-full p-3 border rounded-xl text-lg"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-4"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5 text-gray-600" />
+                    ) : (
+                      <Eye className="w-5 h-5 text-gray-600" />
+                    )}
+                  </button>
+                </div>
+              
           <button
             type="submit"
             disabled={loading}

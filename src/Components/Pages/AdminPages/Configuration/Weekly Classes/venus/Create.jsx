@@ -88,7 +88,7 @@ const Create = ({ packages, termGroup, onClose }) => {
   const termOptions = termGroup.map((group) => {
     const date = new Date(group.createdAt);
     const dayName = date.toLocaleDateString("en-GB", { weekday: "long" }); // "Tuesday"
-    const label = `${dayName} 2025/2026 ${group.name.replace(/^(Saturday|Sunday|Tuesday)\s?/i, "")}`.trim();
+    const label = ` ${group.name.replace(/^(Saturday|Sunday|Tuesday)\s?/i, "")}`.trim();
 
     return {
       id: group.id,

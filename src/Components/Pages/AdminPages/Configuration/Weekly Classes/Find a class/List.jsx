@@ -407,6 +407,11 @@ const List = () => {
       state: { classId },
     });
   };
+   const handleAddToWaitingList = (classId) => {
+    navigate('/configuration/weekly-classes/find-a-class/add-to-waiting-list/list', {
+      state: { classId },
+    });
+  };
   const handleBookMembership = (classId) => {
     navigate('/configuration/weekly-classes/find-a-class/book-a-membership/list', {
       state: { classId },
@@ -452,7 +457,7 @@ const List = () => {
     checkPermission({ module: 'class-schedule', action: 'view-listing' }) &&
     checkPermission({ module: 'book-membership', action: 'create' });
 
-    
+
 
 
 
@@ -562,331 +567,337 @@ const List = () => {
 
               <div className={` rounded-4xl w-full`}>
                 <div className="space-y-5">
-                  {filteredClasses.map((venue, idx) => (
-                    <div
-                      key={idx}
-                      className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white " // ✅ min height
-                    >
-                      <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <img src="/demo/synco/icons/Location.png" alt="" />
-                          <span className="font-medium text-[16px]">{venue.address}</span>
-                        </div>
-                        <div ref={iconContainerRef} className="flex relative items-center gap-4">
-                          <img
-                            src="/demo/synco/icons/fcDollar.png"
-                            onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentPlans)}
-                            alt=""
-                            className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
-                          />
-
-                          <img
-                            src="/demo/synco/icons/fcCalendar.png"
-                            onClick={() => handleIconClick('team', venue.venueId, venue.terms)}
-                            alt=""
-                            className={`cursor-pointer w-6 h-6 rounded-full ${showteamModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
-                          />
-
-                          <img
-                            src="/demo/synco/icons/fcLocation.png"
-                            onClick={() => handleIconClick('location', venue.venueId)}
-                            alt=""
-                            className={`cursor-pointer w-6 h-6 rounded-full ${openMapId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
-                          />
-
-                          <img
-                            src="/demo/synco/icons/fcCicon.png"
-                            onClick={() => handleIconClick('congestion', venue?.venueId, venue?.congestionNote)}
-                            alt=""
-                            className={`cursor-pointer w-6 h-6 rounded-full ${activeCongestionVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
-                          />
-
-                          <img
-                            src="/demo/synco/icons/fcPIcon.png"
-                            onClick={() => handleIconClick('parking', venue?.venueId, venue?.parkingNote)}
-                            alt=""
-                            className={`cursor-pointer w-6 h-6 rounded-full ${activeParkingVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
-                          />
-                        </div>
-
-
-                      </div>
-
-                      <div className="flex items-center bg-[#FCF9F6] flex-col lg:flex-row"> {/* ✅ responsive layout */}
-                        {/* Meta Info */}
-                        <div className="flex items-start  w-1/12 text-sm text-[#555] px-4 py-2  border-b lg:border-b-0 my-6 border-gray-300 min-w-[250px]">
-                          <div>
-                            <div className="font-semibold text-[20px] text-black">{venue.venueName}</div>
-                            <div className="whitespace-nowrap font-semibold text-[14px]">
-                              {(venue.distanceMiles / 1609.34).toFixed(2)} miles
+                  {filteredClasses.length === 0 ? (
+                    <div className="text-center p-4 text-gray-500">Data not found</div>
+                  ) : (
+                      filteredClasses.map((venue, idx) => (
+                        <div
+                          key={idx}
+                          className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white " // ✅ min height
+                        >
+                          <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-2">
+                              <img src="/demo/synco/icons/Location.png" alt="" />
+                              <span className="font-medium text-[16px]">{venue.address}</span>
+                              {!venue.address.includes(venue.postal_code) && (
+                                <span className="font-medium text-[16px]">PostCode - {venue.postal_code}</span>
+                              )}
                             </div>
-                          </div>
-                          <div>
+                            <div ref={iconContainerRef} className="flex relative items-center gap-4">
+                              <img
+                                src="/demo/synco/icons/fcDollar.png"
+                                onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentPlans)}
+                                alt=""
+                                className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
+                              />
+
+                              <img
+                                src="/demo/synco/icons/fcCalendar.png"
+                                onClick={() => handleIconClick('team', venue.venueId, venue.terms)}
+                                alt=""
+                                className={`cursor-pointer w-6 h-6 rounded-full ${showteamModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
+                              />
+
+                              <img
+                                src="/demo/synco/icons/fcLocation.png"
+                                onClick={() => handleIconClick('location', venue.venueId)}
+                                alt=""
+                                className={`cursor-pointer w-6 h-6 rounded-full ${openMapId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
+                              />
+
+                              <img
+                                src="/demo/synco/icons/fcCicon.png"
+                                onClick={() => handleIconClick('congestion', venue?.venueId, venue?.congestionNote)}
+                                alt=""
+                                className={`cursor-pointer w-6 h-6 rounded-full ${activeCongestionVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
+                              />
+
+                              <img
+                                src="/demo/synco/icons/fcPIcon.png"
+                                onClick={() => handleIconClick('parking', venue?.venueId, venue?.parkingNote)}
+                                alt=""
+                                className={`cursor-pointer w-6 h-6 rounded-full ${activeParkingVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
+                              />
+                            </div>
+
 
                           </div>
-                        </div>
 
-                        {/* Classes */}
-                        <div className="px-4  w-11/12 py-2 flex-1 space-y-6">
-                          {venue.classes && Object.keys(venue.classes).length > 0 ? (
-                            Object.entries(venue.classes).map(([day, classList]) => (
-                              <div key={day} className="flex gap-6 items-center ">
-                                <div className="block border-r pr-3 border-[#b6b2ad] ">
-                                  <div className="text-[16px] font-semibold text-[#384455]">{day}</div>
-                                  <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
+                          <div className="flex items-center bg-[#FCF9F6] flex-col lg:flex-row"> {/* ✅ responsive layout */}
+                            {/* Meta Info */}
+                            <div className="flex items-start  w-1/12 text-sm text-[#555] px-4 py-2  border-b lg:border-b-0 my-6 border-gray-300 min-w-[250px]">
+                              <div>
+                                <div className="font-semibold text-[20px] text-black">{venue.venueName}</div>
+                                <div className="whitespace-nowrap font-semibold text-[14px]">
+                                  {(venue.distanceMiles / 1609.34).toFixed(2)} miles
                                 </div>
-                                <div className="flex flex-col w-full space-y-4">
-                                  {classList.map((s, i) => (
-                                    <div
-                                      key={s.classId}
-                                      className="grid grid-cols-7 items-center text-sm min-h-[60px]"
-                                    >
-                                      <div className="font-bold text-[16px] text-black">Class {i + 1}</div>
-                                      <div className="font-semibold text-[16px]">{s.className}</div>
-                                      <div className="font-semibold text-[16px] flex gap-2 items-center col-span-2">
-                                        <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />{s.time}
-                                      </div>
+                              </div>
+                              <div>
 
-                                      {/* Capacity */}
-                                      <div className="text-sm">
-                                        {s.capacity === 0 ? (
-                                          <span className="text-red-500 bg-red-50 p-2 rounded-xl text-[14px] font-semibold">
-                                            Fully booked
-                                          </span>
-                                        ) : (
-                                          <span className="text-green-600 bg-green-50 p-2 rounded-xl text-[14px] font-semibold">
-                                            +{s.capacity} spaces
-                                          </span>
-                                        )}
-                                      </div>
+                              </div>
+                            </div>
 
-                                      {/* Action Buttons */}
-                                      <div className="flex gap-2 col-span-2 flex-wrap justify-end">
-                                        {s.capacity === 0 ? (
-                                          <button className="bg-[#237FEA] text-white border border-[#237FEA] px-3 py-1 rounded-xl text-sm font-medium">
-                                            Add to Waiting List
-                                          </button>
-                                        ) : (
-                                          <>
-                                            {s.allowFreeTrial && canBookFreeTrial && (
-                                              <button
-                                                onClick={() => handleBookFreeTrial(s.classId)}
-                                                className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium"
-                                              >
-                                                Book a FREE Trial
-                                              </button>
+                            {/* Classes */}
+                            <div className="px-4  w-11/12 py-2 flex-1 space-y-6">
+                              {venue.classes && Object.keys(venue.classes).length > 0 ? (
+                                Object.entries(venue.classes).map(([day, classList]) => (
+                                  <div key={day} className="flex gap-6 items-center ">
+                                    <div className="block border-r pr-3 border-[#b6b2ad] ">
+                                      <div className="text-[16px] font-semibold text-[#384455]">{day}</div>
+                                      <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
+                                    </div>
+                                    <div className="flex flex-col w-full space-y-4">
+                                      {classList.map((s, i) => (
+                                        <div
+                                          key={s.classId}
+                                          className="grid grid-cols-7 items-center text-sm min-h-[60px]"
+                                        >
+                                          <div className="font-bold text-[16px] text-black">Class {i + 1}</div>
+                                          <div className="font-semibold text-[16px]">{s.className}</div>
+                                          <div className="font-semibold text-[16px] flex gap-2 items-center col-span-2">
+                                            <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />{s.time}
+                                          </div>
+
+                                          {/* Capacity */}
+                                          <div className="text-sm">
+                                            {s.capacity === 0 ? (
+                                              <span className="text-red-500 bg-red-50 p-2 rounded-xl text-[14px] font-semibold">
+                                                Fully booked
+                                              </span>
+                                            ) : (
+                                              <span className="text-green-600 bg-green-50 p-2 rounded-xl text-[14px] font-semibold">
+                                                +{s.capacity} spaces
+                                              </span>
                                             )}
-                                            {canBookMembership &&
-                                              <button
-                                                onClick={() => handleBookMembership(s.classId)}
-                                                className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium">
-                                                Book a Membership
+                                          </div>
+
+                                          {/* Action Buttons */}
+                                          <div className="flex gap-2 col-span-2 flex-wrap justify-end">
+                                            {s.capacity === 0 ? (
+                                              <button  onClick={() => handleAddToWaitingList(s.classId)} className="bg-[#237FEA] text-white border border-[#237FEA] px-3 py-1 rounded-xl text-sm font-medium">
+                                                Add to Waiting List
                                               </button>
-                                            }
-                                          </>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <div className="text-center text-gray-500 font-medium py-8">No classes available for this venue</div>
-                          )}
-                        </div>
-
-                        {activeCongestionVenueId === venue.venueId && (
-                          <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
-                            <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
-                              <div className="flex items-start justify-between">
-                                <h2 className="text-red-500 font-semibold text-[18px]">Congestion Information</h2>
-                                <img src="/demo/synco/icons/infoIcon.png" alt="" />
-                              </div>
-                              <div className="mt-2 text-[16px] text-gray-700 leading-snug">
-                                {notes ? (
-                                  notes
-                                ) : (
-                                  <>
-                                    <p>This venue has no parking facilities available.</p>
-                                    <p>Paid road parking is available.</p>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {activeParkingVenueId === venue.venueId && (
-                          <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
-                            <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
-                              <div className="flex items-start justify-between">
-                                <h2 className="text-red-500 font-semibold text-[18px]">Parking Information</h2>
-                                <img src="/demo/synco/icons/infoIcon.png" alt="" />
-                              </div>
-                              <div className="mt-2 text-[16px] text-gray-700 leading-snug">
-
-                                {notes ? (
-                                  notes
-                                ) : (
-                                  <>
-                                    <p>This venue has no parking facilities available.</p>
-                                    <p>Paid road parking is available.</p>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                        {showteamModal === venue.venueId && (
-                          <div ref={iconContainerRef} className="absolute bg-opacity-30 top-15 min-w-[489px] flex right-2 items-center justify-center z-50">
-                            <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
-                              {/* Header */}
-                              <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
-                                <h2 className="text-[24px]  font-semibold">Team Dates</h2>
-                                <button onClick={() => setShowteamModal(null)}>
-                                  <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
-                                </button>
-                              </div>
-
-                              {/* Term List */}
-                              <div className="space-y-6 text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
-                                {calendarData.map((term) => (
-                                  <div key={term.id}>
-                                    <h3 className="text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
-                                    <p className="text-[18px]">
-                                      {formatDate(term.startDate)} - {formatDate(term.endDate)}
-                                    </p>
-                                    <p className="text-[18px]">
-                                      Half term Exclusion:{" "}
-                                      {term.exclusionDates.map((ex, idx) => (
-                                        <span key={idx}>
-                                          {formatDate(ex)}{idx < term.exclusionDates.length - 1 ? ", " : ""}
-                                        </span>
-                                      ))}
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-
-                              {/* Calendar Section */}
-                              <div className="rounded p-4 mt-6 text-center text-sm w-full max-w-md mx-auto">
-                                {/* Header */}
-                                <div className="flex justify-around items-center mb-3">
-                                  <button
-                                    onClick={goToPreviousMonth}
-                                    className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                                  >
-                                    <ChevronLeft className="w-5 h-5" />
-                                  </button>
-                                  <p className="font-semibold text-[20px]">
-                                    {currentDate.toLocaleString("default", { month: "long" })} {year}
-                                  </p>
-                                  <button
-                                    onClick={goToNextMonth}
-                                    className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                                  >
-                                    <ChevronRight className="w-5 h-5" />
-                                  </button>
-                                </div>
-
-                                {/* Day Labels */}
-                                <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
-                                  {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
-                                    <div key={day} className="font-medium text-center">
-                                      {day}
-                                    </div>
-                                  ))}
-                                </div>
-
-                                {/* Calendar Weeks */}
-                                <div className="grid grid-cols-7 gap-0 text-[16px]">
-                                  {calendarDays.map((date, i) => {
-                                    const { isStartOrEnd, isInBetween, isExcluded } = getDateStatus(date);
-
-                                    let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
-                                    let innerDiv = null;
-
-                                    if (!date) {
-                                      className += "";
-                                    } else if (isExcluded) {
-                                      className += "bg-gray-300 text-white opacity-60 cursor-not-allowed";
-                                    } else if (isStartOrEnd) {
-                                      className += "bg-sky-100"; // Outer background
-                                      innerDiv = (
-                                        <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
-                                          {date.getDate()}
+                                            ) : (
+                                              <>
+                                                {s.allowFreeTrial && canBookFreeTrial && (
+                                                  <button
+                                                    onClick={() => handleBookFreeTrial(s.classId)}
+                                                    className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium"
+                                                  >
+                                                    Book a FREE Trial
+                                                  </button>
+                                                )}
+                                                {canBookMembership &&
+                                                  <button
+                                                    onClick={() => handleBookMembership(s.classId)}
+                                                    className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium">
+                                                    Book a Membership
+                                                  </button>
+                                                }
+                                              </>
+                                            )}
+                                          </div>
                                         </div>
-                                      );
-                                    } else if (isInBetween) {
-                                      className += "bg-sky-100 text-gray-800";
-                                    } else {
-                                      className += "hover:bg-gray-100 text-gray-800";
-                                    }
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-center text-gray-500 font-medium py-8">No classes available for this venue</div>
+                              )}
+                            </div>
 
-                                    return (
-                                      <div
-                                        key={i}
-                                        onClick={() => date && !isExcluded && handleDateClick(date)}
-                                        className={className}
-                                      >
-                                        {innerDiv || (date ? date.getDate() : "")}
+                            {activeCongestionVenueId === venue.venueId && (
+                              <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
+                                <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
+                                  <div className="flex items-start justify-between">
+                                    <h2 className="text-red-500 font-semibold text-[18px]">Congestion Information</h2>
+                                    <img src="/demo/synco/icons/infoIcon.png" alt="" />
+                                  </div>
+                                  <div className="mt-2 text-[16px] text-gray-700 leading-snug">
+                                    {notes ? (
+                                      notes
+                                    ) : (
+                                      <>
+                                        <p>This venue has no parking facilities available.</p>
+                                        <p>Paid road parking is available.</p>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {activeParkingVenueId === venue.venueId && (
+                              <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
+                                <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
+                                  <div className="flex items-start justify-between">
+                                    <h2 className="text-red-500 font-semibold text-[18px]">Parking Information</h2>
+                                    <img src="/demo/synco/icons/infoIcon.png" alt="" />
+                                  </div>
+                                  <div className="mt-2 text-[16px] text-gray-700 leading-snug">
+
+                                    {notes ? (
+                                      notes
+                                    ) : (
+                                      <>
+                                        <p>This venue has no parking facilities available.</p>
+                                        <p>Paid road parking is available.</p>
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {showteamModal === venue.venueId && (
+                              <div ref={iconContainerRef} className="absolute bg-opacity-30 top-15 min-w-[489px] flex right-2 items-center justify-center z-50">
+                                <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
+                                  {/* Header */}
+                                  <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
+                                    <h2 className="text-[24px]  font-semibold">Team Dates</h2>
+                                    <button onClick={() => setShowteamModal(null)}>
+                                      <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
+                                    </button>
+                                  </div>
+
+                                  {/* Term List */}
+                                  <div className="space-y-6 text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
+                                    {calendarData.map((term) => (
+                                      <div key={term.id}>
+                                        <h3 className="text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
+                                        <p className="text-[18px]">
+                                          {formatDate(term.startDate)} - {formatDate(term.endDate)}
+                                        </p>
+                                        <p className="text-[18px]">
+                                          Half term Exclusion:{" "}
+                                          {term.exclusionDates.map((ex, idx) => (
+                                            <span key={idx}>
+                                              {formatDate(ex)}{idx < term.exclusionDates.length - 1 ? ", " : ""}
+                                            </span>
+                                          ))}
+                                        </p>
                                       </div>
-                                    );
-                                  })}
+                                    ))}
+                                  </div>
+
+                                  {/* Calendar Section */}
+                                  <div className="rounded p-4 mt-6 text-center text-sm w-full max-w-md mx-auto">
+                                    {/* Header */}
+                                    <div className="flex justify-around items-center mb-3">
+                                      <button
+                                        onClick={goToPreviousMonth}
+                                        className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                                      >
+                                        <ChevronLeft className="w-5 h-5" />
+                                      </button>
+                                      <p className="font-semibold text-[20px]">
+                                        {currentDate.toLocaleString("default", { month: "long" })} {year}
+                                      </p>
+                                      <button
+                                        onClick={goToNextMonth}
+                                        className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                                      >
+                                        <ChevronRight className="w-5 h-5" />
+                                      </button>
+                                    </div>
+
+                                    {/* Day Labels */}
+                                    <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
+                                      {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
+                                        <div key={day} className="font-medium text-center">
+                                          {day}
+                                        </div>
+                                      ))}
+                                    </div>
+
+                                    {/* Calendar Weeks */}
+                                    <div className="grid grid-cols-7 gap-0 text-[16px]">
+                                      {calendarDays.map((date, i) => {
+                                        const { isStartOrEnd, isInBetween, isExcluded } = getDateStatus(date);
+
+                                        let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
+                                        let innerDiv = null;
+
+                                        if (!date) {
+                                          className += "";
+                                        } else if (isExcluded) {
+                                          className += "bg-gray-300 text-white opacity-60 cursor-not-allowed";
+                                        } else if (isStartOrEnd) {
+                                          className += "bg-sky-100"; // Outer background
+                                          innerDiv = (
+                                            <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
+                                              {date.getDate()}
+                                            </div>
+                                          );
+                                        } else if (isInBetween) {
+                                          className += "bg-sky-100 text-gray-800";
+                                        } else {
+                                          className += "hover:bg-gray-100 text-gray-800";
+                                        }
+
+                                        return (
+                                          <div
+                                            key={i}
+                                            onClick={() => date && !isExcluded && handleDateClick(date)}
+                                            className={className}
+                                          >
+                                            {innerDiv || (date ? date.getDate() : "")}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+
+                                  </div>
                                 </div>
-
                               </div>
-                            </div>
-                          </div>
 
-                        )}
-                        {showModal === venue.venueId && (
-                          <div ref={iconContainerRef} className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
-                            <div className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
-                              <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
-                                {/* Header */}
-                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-                                  <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
-                                  <button className="text-gray-400 hover:text-black text-xl font-bold">
-                                    <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
-                                  </button>
+                            )}
+                            {showModal === venue.venueId && (
+                              <div ref={iconContainerRef} className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
+                                <div className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
+                                  <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+                                    {/* Header */}
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
+                                      <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
+                                      <button className="text-gray-400 hover:text-black text-xl font-bold">
+                                        <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
+                                      </button>
+                                    </div>
+                                    <PlanTabs selectedPlans={selectedPlans} />
+                                  </div>
                                 </div>
-                                <PlanTabs selectedPlans={selectedPlans} />
                               </div>
-                            </div>
+                            )}
                           </div>
-                        )}
-                      </div>
-                      {openMapId === venue.venueId && (
-                        <div ref={iconContainerRef} className="mt-4 h-[450px] w-full rounded-lg overflow-hidden">
-                          <MapContainer
-                            center={[venue.latitude, venue.longitude]}
-                            zoom={13}
-                            scrollWheelZoom={false}
-                            zoomControl={false} // 🚫 disable top-left controls
-                            style={{ height: '100%', width: '100%' }}
-                          >
-                            <TileLayer
-                              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                              attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                            />
-                            <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
-                              <Popup>
-                                <strong>{venue.venueName}</strong><br />
-                                {venue.address}
-                              </Popup>
-                            </Marker>
+                          {openMapId === venue.venueId && (
+                            <div ref={iconContainerRef} className="mt-4 h-[450px] w-full rounded-lg overflow-hidden">
+                              <MapContainer
+                                center={[venue.latitude, venue.longitude]}
+                                zoom={13}
+                                scrollWheelZoom={false}
+                                zoomControl={false} // 🚫 disable top-left controls
+                                style={{ height: '100%', width: '100%' }}
+                              >
+                                <TileLayer
+                                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                  attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                                />
+                                <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
+                                  <Popup>
+                                    <strong>{venue.venueName}</strong><br />
+                                    {venue.address}
+                                  </Popup>
+                                </Marker>
 
-                            <ZoomControl position="bottomright" /> {/* ✅ This puts it where you want */}
-                          </MapContainer>
+                                <ZoomControl position="bottomright" /> {/* ✅ This puts it where you want */}
+                              </MapContainer>
+                            </div>
+                          )}
+
                         </div>
-                      )}
 
-                    </div>
-
-                  ))}
-
+                      ))
+                  )}
                 </div>
 
               </div>

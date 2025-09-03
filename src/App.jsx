@@ -60,6 +60,8 @@ import { BookFreeTrialProvider } from './Components/Pages/AdminPages/contexts/Bo
 import './App.css';
 import { PermissionProvider } from './Components/Pages/AdminPages/Common/permission.jsx';
 import AccountInfoBookMembership from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/Account Information Book Membership/List.jsx';
+import SeeDetails from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/See Details/list.jsx';
+import AddtoWaitingList from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Add to Waiting List/List.jsx';
 // Define roles
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -235,6 +237,15 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
+       <Route path="/configuration/weekly-classes/find-a-class/add-to-waiting-list/list" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <AddtoWaitingList />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
       <Route path="/configuration/weekly-classes/find-a-class/book-a-membership/list" element={
         <ProtectedRoute>
           <AdminLayout>
@@ -384,6 +395,15 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <AccountInfoBookMembership />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+        <Route path="/configuration/weekly-classes/all-members/see-details" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SeeDetails />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

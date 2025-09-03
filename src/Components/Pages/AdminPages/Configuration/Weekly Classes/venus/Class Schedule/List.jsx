@@ -112,6 +112,13 @@ const List = () => {
             ...formData,
             venueId: venueId
         };
+        if (formData.startTime === formData.endTime) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Start time and end time cannot be the same.',
+            }); return; // Prevent saving
+        }
         createClassSchedules(payload);
         setFormData({})
 
@@ -422,7 +429,7 @@ const List = () => {
 
 
                                                                                     {/* Step 2: Show dropdown and view button */}
-                                                                                    {sessionMaps && sessionMaps.some(map => map.sessionPlan && map.sessionPlan.length > 0) && (
+                                                                                    {sessionMaps && (
                                                                                         <button
                                                                                             onClick={() => handleToggleDropdown(session.id)}
                                                                                             className="px-6 py-3 bg-[#237FEA] text-white font-semibold rounded-xl shadow 
@@ -541,134 +548,144 @@ const List = () => {
 
 
             {openForm && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-3xl w-[90%] md:w-[900px] p-6 relative shadow-xl">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-[24px] font-semibold">
-                                {isEditing ? 'Edit Class' : 'Add a Class'}
-                            </h2>
-                            <button
-                                onClick={() => setOpenForm(false)}
-                                className="text-gray-500 hover:text-gray-800 text-xl"
-                            >
-                                <img src="/demo/synco/icons/cross.png" alt="" />
-                            </button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="flex gap-4">
-                                <div className='block w-1/2'>
-                                    <label htmlFor="" className='text-base'>Class 1 Name </label>
-                                    <input
-                                        type="text"
-                                        value={formData.className}
-                                        onChange={(e) => handleChange('className', e.target.value)}
-                                        className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
-                                    />
-                                </div>
-                                <div className='block w-1/2'>
-                                    <label htmlFor="">Capacity</label>
-                                    <input
-                                        type="number"
-                                        value={formData.capacity}
-                                        onChange={(e) => handleChange('capacity', e.target.value)}
-                                        className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
-                                    />
-                                </div>
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    if (isEditing) {
+                        handleEdit(formData.id);
+                    } else {
+                        handleSave();
+                    }
+                }}>
+                    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-3xl w-[90%] md:w-[900px] p-6 relative shadow-xl">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-[24px] font-semibold">
+                                    {isEditing ? 'Edit Class' : 'Add a Class'}
+                                </h2>
+                                <button
+                                    onClick={() => setOpenForm(false)}
+                                    className="text-gray-500 hover:text-gray-800 text-xl"
+                                >
+                                    <img src="/demo/synco/icons/cross.png" alt="" />
+                                </button>
                             </div>
-                            <div className="flex gap-4">
-                                <div className='w-1/2'>
-                                    <label htmlFor="">Day</label>
-                                    <select
-                                        value={formData.day}
-                                        onChange={(e) => handleChange('day', e.target.value)}
-                                        className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
-                                    >
-                                        <option value="">Day</option>
-                                        {days.map((day) => (
-                                            <option key={day} value={day}>{day}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className='flex w-1/2 gap-4'>
-                                    <div className='w-1/2'>
-                                        <label>Start Time</label>
-                                        <DatePicker
-                                            selected={parseTimeStringToDate(formData?.startTime)}
-                                            onChange={(date) =>
-                                                handleChange('startTime', formatDateToTimeString(date))
-                                            }
-                                            showTimeSelect
-                                            showTimeSelectOnly
-                                            timeIntervals={15}
-                                            dateFormat="h:mm aa"
-                                            timeCaption="Time"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+
+                            <div className="space-y-4">
+                                <div className="flex gap-4">
+                                    <div className='block w-1/2'>
+                                        <label htmlFor="" className='text-base'>Class 1 Name </label>
+                                        <input
+                                            type="text"
+                                            value={formData.className}
+                                            required
+                                            onChange={(e) => handleChange('className', e.target.value)}
+                                            className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
                                         />
                                     </div>
-
-                                    <div className='w-1/2'>
-                                        <label>End Time</label>
-                                        <DatePicker
-                                            selected={parseTimeStringToDate(formData?.endTime)}
-                                            onChange={(date) =>
-                                                handleChange('endTime', formatDateToTimeString(date))
-                                            }
-                                            showTimeSelect
-                                            showTimeSelectOnly
-                                            timeIntervals={15}
-                                            dateFormat="h:mm aa"
-                                            timeCaption="Time"
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-
+                                    <div className='block w-1/2'>
+                                        <label htmlFor="">Capacity</label>
+                                        <input
+                                            type="number"
+                                            required
+                                            value={formData.capacity}
+                                            onChange={(e) => handleChange('capacity', e.target.value)}
+                                            className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
                                         />
                                     </div>
                                 </div>
+                                <div className="flex gap-4">
+                                    <div className='w-1/2'>
+                                        <label htmlFor="">Day</label>
+                                        <select
+                                            value={formData.day}
+                                            required
+                                            onChange={(e) => handleChange('day', e.target.value)}
+                                            className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
+                                        >
+                                            <option value="">Day</option>
+                                            {days.map((day) => (
+                                                <option key={day} value={day}>{day}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className='flex w-1/2 gap-4'>
+                                        <div className='w-1/2'>
+                                            <label>Start Time</label>
+                                            <DatePicker
+                                                selected={parseTimeStringToDate(formData?.startTime)}
+                                                onChange={(date) =>
+                                                    handleChange('startTime', formatDateToTimeString(date))
+                                                }
+                                                required
+                                                showTimeSelect
+                                                showTimeSelectOnly
+                                                timeIntervals={15}
+                                                dateFormat="h:mm aa"
+                                                timeCaption="Time"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                            />
+                                        </div>
+
+                                        <div className='w-1/2'>
+                                            <label>End Time</label>
+                                            <DatePicker
+                                                selected={parseTimeStringToDate(formData?.endTime)}
+                                                onChange={(date) =>
+                                                    handleChange('endTime', formatDateToTimeString(date))
+                                                }
+                                                showTimeSelect
+                                                required
+                                                showTimeSelectOnly
+                                                timeIntervals={15}
+                                                dateFormat="h:mm aa"
+                                                timeCaption="Time"
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+
+                                            />
+                                        </div>
+                                    </div>
 
 
+                                </div>
+
+
+                                <div className="block items-center gap-3 mt-2">
+                                    <label className="text-base  font-medium">Allow Free Trial?</label>
+                                    <br />
+                                    <label className="inline-flex mt-2 relative items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.allowFreeTrial}
+                                            onChange={(e) => handleChange('allowFreeTrial', e.target.checked)}
+                                            className="sr-only peer"
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#237FEA] peer-focus:ring-4 peer-focus:ring-blue-300 transition-all"></div>
+                                        <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-md transform peer-checked:translate-x-5 transition-transform"></div>
+                                    </label>
+                                </div>
                             </div>
 
 
-                            <div className="block items-center gap-3 mt-2">
-                                <label className="text-base  font-medium">Allow Free Trial?</label>
-                                <br />
-                                <label className="inline-flex mt-2 relative items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.allowFreeTrial}
-                                        onChange={(e) => handleChange('allowFreeTrial', e.target.checked)}
-                                        className="sr-only peer"
-                                    />
-                                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#237FEA] peer-focus:ring-4 peer-focus:ring-blue-300 transition-all"></div>
-                                    <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-md transform peer-checked:translate-x-5 transition-transform"></div>
-                                </label>
+                            <div className="flex justify-start gap-5 mt-6">
+                                <button
+                                    type='button'
+                                    onClick={() => setOpenForm(false)}
+                                    className="px-20 py-4 bg-none hover:bg-gray-200 text-gray-500 border border-gray-300 rounded-lg mt-2"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+
+                                    className="px-20 py-4 bg-[#237FEA] hover:bg-blue-700 text-white rounded-lg mt-2"
+                                >
+                                    {isEditing ? 'Update' : 'Save'}
+                                </button>
+
                             </div>
-                        </div>
-
-
-                        <div className="flex justify-start gap-5 mt-6">
-                            <button
-                                onClick={() => setOpenForm(false)}
-                                className="px-20 py-4 bg-none hover:bg-gray-200 text-gray-500 border border-gray-300 rounded-lg mt-2"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={() => {
-                                    if (isEditing) {
-                                        handleEdit(formData.id);
-                                    } else {
-                                        handleSave();
-                                    }
-                                }}
-                                className="px-20 py-4 bg-[#237FEA] hover:bg-blue-700 text-white rounded-lg mt-2"
-                            >
-                                {isEditing ? 'Update' : 'Save'}
-                            </button>
-
                         </div>
                     </div>
-                </div>
+                </form>
             )}
         </div>
     );

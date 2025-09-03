@@ -8,14 +8,18 @@ import { usePermission } from "../Common/permission";
 export default function Notification() {
   const { fetchMarkAsRead } = useNotification();
   const navigate = useNavigate();
-    const { checkPermission } = usePermission();
-  
+  const { checkPermission } = usePermission();
+
   const { activeTab, setActiveTab } = useMembers();
   console.log('activeTabssdsdsds', activeTab)
-    const hasPermission =
+  const hasPermission =
     checkPermission({ module: 'custom-notification', action: 'create' }) &&
     checkPermission({ module: 'custom-notification', action: 'view-listing' });
 
+  const hasMarkAsRead =
+    checkPermission({ module: 'notification ', action: 'read' })
+
+    console.log('hasMarkAsRead',hasMarkAsRead)
   return (
     <>
       <div className="md:flex justify-between items-center mb-4">
@@ -31,7 +35,9 @@ export default function Notification() {
           )}
 
 
-          < button className="text-[#717073] underline cursor-pointer" onClick={() => fetchMarkAsRead(activeTab)}>Mark as read</button>
+          {hasPermission && (
+            < button className="text-[#717073] underline cursor-pointer" onClick={() => fetchMarkAsRead(activeTab)}>Mark as read</button>
+            )}
         </div> </div >
       <div className="md:flex gap-5 bg-gray-50">
         <Sidebar />

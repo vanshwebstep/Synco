@@ -22,36 +22,36 @@ const trialLists = () => {
                 : [...prev, studentId] // add if not selected
         );
     };
-const exportFreeTrials = () => {
-  const dataToExport = [];
+    const exportFreeTrials = () => {
+        const dataToExport = [];
 
-  bookFreeTrials?.forEach((item) => {
-    if (selectedStudents.length > 0 && !selectedStudents.includes(item.id)) return;
+        bookFreeTrials?.forEach((item) => {
+            if (selectedStudents.length > 0 && !selectedStudents.includes(item.id)) return;
 
-    item.students.forEach((student) => {
-      dataToExport.push({
-        Name: `${student.studentFirstName} ${student?.studentLastName}`,
-        Age: student.age,
-        Venue: item.venue?.name || "-",
-        'Date of Booking': new Date(item.createdAt || item.trialDate).toLocaleDateString(),
-        'Date of Trial': new Date(item.trialDate).toLocaleDateString(),
-        Source: item.parents?.[0]?.howDidYouHear || "-",
-        Attempts: "static",
-        Status: item.status,
-      });
-    });
-  });
+            item.students.forEach((student) => {
+                dataToExport.push({
+                    Name: `${student.studentFirstName} ${student?.studentLastName}`,
+                    Age: student.age,
+                    Venue: item.venue?.name || "-",
+                    'Date of Booking': new Date(item.createdAt || item.trialDate).toLocaleDateString(),
+                    'Date of Trial': new Date(item.trialDate).toLocaleDateString(),
+                    Source: item.parents?.[0]?.howDidYouHear || "-",
+                    Attempts: "static",
+                    Status: item.status,
+                });
+            });
+        });
 
-  if (!dataToExport.length) return alert('No data to export');
+        if (!dataToExport.length) return alert('No data to export');
 
-  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'FreeTrials');
+        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'FreeTrials');
 
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-  const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
-  saveAs(data, 'FreeTrials.xlsx');
-};
+        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
+        saveAs(data, 'FreeTrials.xlsx');
+    };
 
     const [checkedStatuses, setCheckedStatuses] = useState({
         attended: false,
@@ -183,7 +183,10 @@ const exportFreeTrials = () => {
         },
         {
             title: "Top performer",
-            value: `${statsFreeTrial?.topPerformer?.firstName} ${statsFreeTrial?.topPerformer?.lastName} ` || "0",
+            value:
+                statsFreeTrial?.topPerformer?.firstName || statsFreeTrial?.topPerformer?.lastName
+                    ? `${statsFreeTrial?.topPerformer?.firstName ?? ""} ${statsFreeTrial?.topPerformer?.lastName ?? ""}`.trim()
+                    : "0",
             subValue: "(456)",
             icon: "/demo/synco/DashboardIcons/topPerformer.png",
             color: "text-green-500",
@@ -210,40 +213,40 @@ const exportFreeTrials = () => {
             bg: "bg-[#F0F9F9]"
         }
     ];
-const applyFilter = () => {
-    const forAttend = checkedStatuses.attended || "";
-    const forNotAttend = checkedStatuses.notAttended || "";
+    const applyFilter = () => {
+        const forAttend = checkedStatuses.attended || "";
+        const forNotAttend = checkedStatuses.notAttended || "";
 
-    let forDateOkBookingTrial = "";
-    let forDateOfTrial = "";
-    let forOtherDate = "";
+        let forDateOkBookingTrial = "";
+        let forDateOfTrial = "";
+        let forOtherDate = "";
 
-    const bookedDatesChecked = checkedStatuses.dateBooked;
-    const trialDatesChecked = checkedStatuses.dateOfTrial;
+        const bookedDatesChecked = checkedStatuses.dateBooked;
+        const trialDatesChecked = checkedStatuses.dateOfTrial;
 
-    if (fromDate && toDate) {
-        if (bookedDatesChecked) {
-            forDateOkBookingTrial = [fromDate, toDate];
-        } else if (trialDatesChecked) {
-            forDateOfTrial = [fromDate, toDate];
-        } else {
-            forOtherDate = [fromDate, toDate];
+        if (fromDate && toDate) {
+            if (bookedDatesChecked) {
+                forDateOkBookingTrial = [fromDate, toDate];
+            } else if (trialDatesChecked) {
+                forDateOfTrial = [fromDate, toDate];
+            } else {
+                forOtherDate = [fromDate, toDate];
+            }
         }
-    }
 
-    const bookedByParams = savedAgent || [];
+        const bookedByParams = savedAgent || [];
 
-    fetchBookFreeTrials(
-        "",
-        "",
-        forAttend,
-        forNotAttend,
-        forDateOkBookingTrial,
-        forDateOfTrial,
-        forOtherDate,
-        bookedByParams
-    );
-};
+        fetchBookFreeTrials(
+            "",
+            "",
+            forAttend,
+            forNotAttend,
+            forDateOkBookingTrial,
+            forDateOfTrial,
+            forOtherDate,
+            bookedByParams
+        );
+    };
 
 
     const [showPopup, setShowPopup] = useState(false);
@@ -343,7 +346,8 @@ const applyFilter = () => {
                     </div>
                     <div className="flex justify-end ">
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
-                            <img src="/demo/synco/DashboardIcons/user-add-02.png" alt="" />
+                            <img            onClick={() => navigate("/configuration/weekly-classes/find-a-class")} 
+                            src="/demo/synco/DashboardIcons/user-add-02.png" alt=""  className="cursor-pointer"/>
                         </div>
                     </div>
                     <div className="overflow-auto mt-5 rounded-4xl w-full">
@@ -361,69 +365,77 @@ const applyFilter = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {bookFreeTrials?.map((item, index) =>
-                                    item.students.map((student, studentIndex) => {
-                                        const isSelected = selectedStudents.includes(item.id);
+                                {bookFreeTrials && bookFreeTrials.length > 0 ? (
+                                    bookFreeTrials.map((item, index) =>
+                                        item.students.map((student, studentIndex) => {
+                                            const isSelected = selectedStudents.includes(item.id);
 
-                                        return (
-                                            <tr
-                                                key={`${item.id}-${studentIndex}`}
-                                                onClick={
-                                                    canServicehistory
-                                                        ? () =>
-                                                            navigate(
-                                                                "/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list",
-                                                                { state: { itemId: item.id } }
-                                                            )
-                                                        : undefined
-                                                }
-                                                className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
-                                            >
-
-                                                {/* Student cell – no row click here */}
-                                                <td
-                                                    className="p-4 cursor-pointer"
-                                                    onClick={(e) => e.stopPropagation()}
+                                            return (
+                                                <tr
+                                                    key={`${item.id}-${studentIndex}`}
+                                                    onClick={
+                                                        canServicehistory
+                                                            ? () =>
+                                                                navigate(
+                                                                    "/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list",
+                                                                    { state: { itemId: item.id } }
+                                                                )
+                                                            : undefined
+                                                    }
+                                                    className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
                                                 >
-                                                    <div className="flex items-center gap-3">
-                                                        <button
-                                                            onClick={() => toggleSelect(item.id)}
-                                                            className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 
-                      ${isSelected ? "bg-blue-500 border-blue-500 text-white" : "border-gray-300 text-transparent"}`}
-                                                        >
-                                                            {isSelected && <Check size={14} />}
-                                                        </button>
-                                                        <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
-                                                    </div>
-                                                </td>
-
-                                                <td className="p-4">{student.age}</td>
-                                                <td className="p-4">{item.venue?.name || "-"}</td>
-                                                <td className="p-4">
-                                                    {new Date(item.createdAt || item.trialDate).toLocaleDateString()}
-                                                </td>
-                                                <td className="p-4">
-                                                    {new Date(item.trialDate).toLocaleDateString()}
-                                                </td>
-                                                <td className="p-4">{item.parents?.[0]?.howDidYouHear || "-"}</td>
-                                                <td className="p-4 text-center">{"static "}</td>
-                                                <td className="p-4">
-                                                    <div
-                                                        className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === "attend"
-                                                            ? "bg-green-100 text-green-600"
-                                                            : item.status.toLowerCase() === "pending"
-                                                                ? "bg-yellow-100 text-yellow-600"
-                                                                : "bg-red-100 text-red-500"
-                                                            } capitalize`}
+                                                    {/* Student cell – no row click here */}
+                                                    <td
+                                                        className="p-4 cursor-pointer"
+                                                        onClick={(e) => e.stopPropagation()}
                                                     >
-                                                        {item.status}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })
+                                                        <div className="flex items-center gap-3">
+                                                            <button
+                                                                onClick={() => toggleSelect(item.id)}
+                                                                className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 
+                    ${isSelected ? "bg-blue-500 border-blue-500 text-white" : "border-gray-300 text-transparent"}`}
+                                                            >
+                                                                {isSelected && <Check size={14} />}
+                                                            </button>
+                                                            <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
+                                                        </div>
+                                                    </td>
+
+                                                    <td className="p-4">{student.age}</td>
+                                                    <td className="p-4">{item.venue?.name || "-"}</td>
+                                                    <td className="p-4">
+                                                        {new Date(item.createdAt || item.trialDate).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="p-4">
+                                                        {new Date(item.trialDate).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="p-4">{item.parents?.[0]?.howDidYouHear || "-"}</td>
+                                                    <td className="p-4 text-center">{"static "}</td>
+                                                    <td className="p-4">
+                                                        <div
+                                                            className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === "attend"
+                                                                    ? "bg-green-100 text-green-600"
+                                                                    : item.status.toLowerCase() === "pending"
+                                                                        ? "bg-yellow-100 text-yellow-600"
+                                                                        : "bg-red-100 text-red-500"
+                                                                } capitalize`}
+                                                        >
+                                                            {item.status}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    )
+                                ) : (
+                                    <tr>
+                                        <td colSpan={8} className="text-center p-4 text-gray-500">
+                                            Data not found
+                                        </td>
+                                    </tr>
                                 )}
                             </tbody>
+
 
                         </table>
 
@@ -598,10 +610,14 @@ const applyFilter = () => {
                                                         </span>
                                                         <img
                                                             src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/demo/synco/members/dummyuser.png"}
-                                                            alt={`${admin.firstName} ${admin.lastName}`}
+                                                            alt={`${admin.firstName} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`}
                                                             className="w-8 h-8 rounded-full"
                                                         />
-                                                        <span>{`${admin.firstName} ${admin.lastName}`}</span>
+                                                        <span>
+                                                            {admin?.firstName || admin?.lastName
+                                                                ? `${admin?.firstName ?? ""}${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()
+                                                                : "N/A"}
+                                                        </span>
                                                     </label>
                                                 );
                                             })}
@@ -730,9 +746,9 @@ const applyFilter = () => {
                             <img src='/demo/synco/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
-                        <button   onClick={exportFreeTrials} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
+                        <button onClick={exportFreeTrials} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
                             <img src='/demo/synco/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
-                           Export Data
+                            Export Data
                         </button>
                     </div>
                 </div>
