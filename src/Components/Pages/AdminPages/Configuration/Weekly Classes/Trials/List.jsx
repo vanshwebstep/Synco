@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import Loader from '../../../contexts/Loader';
 import { usePermission } from '../../../Common/permission';
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
+
 import { saveAs } from "file-saver";
 const trialLists = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -731,7 +733,19 @@ const trialLists = () => {
                     </div>
                     <div className="flex gap-2 justify-between">
                         <button
-                            onClick={() => sendFreeTrialmail(selectedStudents)}
+                           
+                             onClick={() => {
+                                                           if (!selectedStudents || selectedStudents.length === 0) {
+                                                               Swal.fire({
+                                                                   icon: "warning",
+                                                                   title: "No students selected",
+                                                                   text: "Please select at least one student before sending an email.",
+                                                               });
+                                                               return;
+                                                           }
+                           
+                                                           sendFreeTrialmail(selectedStudents);
+                                                       }}
                             className="flex gap-2 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]"
                         >
                             <img

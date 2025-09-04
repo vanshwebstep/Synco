@@ -31,6 +31,9 @@ const routeTitleMap = {
   '/configuration/weekly-classes/find-a-class/book-a-membership': { title: 'Book a Membership', icon: '/demo/synco/members/bookMembership.png' },
   '/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
   '/configuration/weekly-classes/all-members/membership-sales': { title: 'Membership Sales', icon: '/demo/synco/members/Profile.png' },
+  '/configuration/weekly-classes/find-a-class/add-to-waiting-list': { title: 'Add to Waiting List', icon: '/demo/synco/members/waiting.png' },
+  '/configuration/weekly-classes/find-a-class/add-to-waiting-list/list': { title: ' Waiting List', icon: '/demo/synco/members/waiting.png' },
+  '/configuration/weekly-classes/capacity': { title: 'Capacity', icon: '/demo/synco/members/Capacity.png' },
 
 };
 

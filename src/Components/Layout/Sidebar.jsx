@@ -37,6 +37,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
           needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term-group', action: 'create' }, { module: 'venue', action: 'view-listing' }, { module: 'book-membership', action: 'view-listing' }, { module: 'book-free-trial', action: 'view-listing' }, { module: 'find-class', action: 'view-listing' }, { module: 'payment-group', action: 'view-listing' }, { module: 'session-plan-group', action: 'view-listing' }],
           subItems: [
+            { title: 'Capacity', link: '/configuration/weekly-classes/capacity', needPermissions: [{ module: 'term-group', action: 'view-listing' }], },
             { title: 'Session Plan Library', link: '/configuration/weekly-classes/session-plan-list', needPermissions: [{ module: 'session-plan-group', action: 'view-listing' }] },
             { title: 'Subscription Plan Manager', link: '/configuration/weekly-classes/subscription-planManager', needPermissions: [{ module: 'payment-group', action: 'view-listing' }] },
             { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
@@ -44,7 +45,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             { title: 'All Members', link: '/configuration/weekly-classes/all-members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
             { title: 'Membership Sales', link: '/configuration/weekly-classes/all-members/membership-sales', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
             { title: 'Venues', link: '/configuration/weekly-classes/venues', needPermissions: [{ module: 'venue', action: 'view-listing' }, { module: 'venue', action: 'create' }] },
-            // { title: 'Add To Waiting List', link: '/configuration/weekly-classes/trial/list', needPermissions: [{ module: 'waiting-list', action: 'create' }] },
+            { title: 'Waiting List', link: '/configuration/weekly-classes/find-a-class/add-to-waiting-list/list', needPermissions: [{ module: 'waiting-list', action: 'view-listing' }] },
             { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term', action: 'view-listing' }], }
           ]
         },
