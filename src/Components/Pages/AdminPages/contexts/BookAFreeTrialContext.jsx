@@ -18,8 +18,11 @@ export const BookFreeTrialProvider = ({ children }) => {
   const [bookedByAdmin, setBookedByAdmin] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+
   const [isEditBookFreeTrial, setIsEditBookFreeTrial] = useState(false);
   const [singleBookFreeTrials, setSingleBookFreeTrials] = useState([]);
+  const [capacityData, setCapacityData] = useState([]);
   const [singleBookFreeTrialsOnly, setSingleBookFreeTrialsOnly] = useState([]);
   const [serviceHistory, setServiceHistory] = useState([]);
   const [myVenues, setMyVenues] = useState([]);
@@ -1143,7 +1146,7 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
-   const fetchAddtoWaitingList = useCallback(
+  const fetchAddtoWaitingList = useCallback(
     async (
       studentName = "",
       venueName = "",
@@ -1283,7 +1286,7 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
-    const sendWaitingListMail = async (bookingIds) => {
+  const sendWaitingListMail = async (bookingIds) => {
     setLoading(true);
 
     const headers = {
@@ -1331,7 +1334,7 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
-    const serviceHistoryWaitingList = useCallback(async (ID) => {
+  const serviceHistoryWaitingList = useCallback(async (ID) => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
 
@@ -1354,6 +1357,64 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+
+  const fetchCapacity = useCallback(async (venueName = "") => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    const queryParams = new URLSearchParams();
+    if (venueName) queryParams.append("venueName", venueName);
+
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/admin/capacity${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const result = await res.json();
+      setCapacityData(result?.data ?? []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  const fetchCapacitySearch = useCallback(async (
+    venueName = "",
+    otherDateRange = []
+  ) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+setSearchLoading(true);
+    const queryParams = new URLSearchParams();
+    if (venueName) queryParams.append("venueName", venueName);
+    if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+      const [from, to] = otherDateRange;
+      if (from && to) {
+        queryParams.append("fromDate", formatLocalDate(from));
+        queryParams.append("toDate", formatLocalDate(to));
+      }
+    }
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/admin/capacity${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const result = await res.json();
+      setCapacityData(result?.data ?? []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSearchLoading(false)
+    }
+  }, []);
+
+
+
   return (
     <BookFreeTrialContext.Provider
       value={{// Free Trials
@@ -1424,7 +1485,14 @@ export const BookFreeTrialProvider = ({ children }) => {
         // Misc
         loading,
         setBookFreeTrials,
-        setBookMembership
+        setBookMembership,
+
+        // Capacity
+        fetchCapacitySearch,
+        fetchCapacity,
+        capacityData,
+        setCapacityData,
+        searchLoading,
       }}>
       {children}
     </BookFreeTrialContext.Provider>

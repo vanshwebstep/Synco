@@ -37,7 +37,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
           needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term-group', action: 'create' }, { module: 'venue', action: 'view-listing' }, { module: 'book-membership', action: 'view-listing' }, { module: 'book-free-trial', action: 'view-listing' }, { module: 'find-class', action: 'view-listing' }, { module: 'payment-group', action: 'view-listing' }, { module: 'session-plan-group', action: 'view-listing' }],
           subItems: [
-            { title: 'Capacity', link: '/configuration/weekly-classes/capacity', needPermissions: [{ module: 'term-group', action: 'view-listing' }], },
+            { title: 'Capacity', link: '/configuration/weekly-classes/capacity', needPermissions: [{ module: 'capacity', action: 'view-listing' }], },
             { title: 'Session Plan Library', link: '/configuration/weekly-classes/session-plan-list', needPermissions: [{ module: 'session-plan-group', action: 'view-listing' }] },
             { title: 'Subscription Plan Manager', link: '/configuration/weekly-classes/subscription-planManager', needPermissions: [{ module: 'payment-group', action: 'view-listing' }] },
             { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },

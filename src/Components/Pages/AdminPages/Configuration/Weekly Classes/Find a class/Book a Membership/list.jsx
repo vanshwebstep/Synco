@@ -500,7 +500,7 @@ const List = () => {
         const payload = {
             venueId: singleClassSchedulesOnly?.venue?.id,
             classScheduleId: singleClassSchedulesOnly?.id,
-            trialDate: selectedDate,
+            startDate: selectedDate,
             totalStudents: students.length,
             keyInformation: selectedKeyInfo,
             students,
