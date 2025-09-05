@@ -155,15 +155,25 @@ const Update = () => {
     setPermissions([]);
     setShowRoleModal(true);
   };
-  const handleSubmit = async (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
+    const requiredFields = ["firstName", "lastName", "email", "city", "postalCode"];
+    const missing = requiredFields.filter((f) => !formData[f]);
 
+    if (missing.length > 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Fields",
+        text: `Please fill in: ${missing.join(", ")}`,
+      });
+      return;
+    }
     const data = new FormData();
     data.append("firstName", formData.firstName);
     if (formData.lastName) {
-    data.append("lastName", formData.lastName);
-     }
+      data.append("lastName", formData.lastName);
+    }
     data.append("country", formData?.countryId || formData.country);
     data.append("city", formData.city);
     data.append("postalCode", formData.postalCode);
@@ -356,7 +366,7 @@ const Update = () => {
   if (!id) return null;
   if (error) return <p className="text-red-500 text-center mt-5">{error}</p>;
 
-console.log('isImageremove',isImageremove)
+  console.log('isImageremove', isImageremove)
   return (
     <div className="md:max-w-[1043px] w-full mx-auto md:p-4 space-y-8">
       <h2
@@ -366,373 +376,378 @@ console.log('isImageremove',isImageremove)
         <img src="/demo/synco/icons/arrow-left2.png" alt="Back" />
         Go Back
       </h2>
-      <div className="md:flex items-center justify-between bg-white p-6 rounded-2xl border border-[#E2E1E5]">
-        <div className="flex items-center gap-4">
-      <div className="relative cursor-pointer w-20 h-20 md:w-[113px] md:h-[113px]">
-  <img
-    src={
-      photoPreview
-        ? photoPreview
-        : formData.profile
-          ? `${API_BASE_URL}/${formData.profile}`
-          : '/demo/synco/SidebarLogos/OneTOOne.png'
-    }
-    alt="avatar"
-    className="w-full h-full rounded-full object-cover border"
-  />
 
-  {(photoPreview || formData.profile) && (
-  <img
-    src="/demo/synco/icons/cancel.png"
-    alt="Cross"
-    className="absolute top-[-15px] right-[-15px] rounded-full object-cover border cursor-pointer"
-    onClick={() => {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: "Do you want to remove your picture?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, remove it!',
-        cancelButtonText: 'Cancel'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          setFormData((prev) => ({ ...prev, profile: null }));
-          setPhotoPreview(null);
-          setIsImageremove(true);
-          Swal.fire(
-            'Removed!',
-            'Your picture has been removed.',
-            'success'
-          );
-        }
-      });
-    }}
-  />
-)}
+      <form className="space-y-8"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
+        <div className="md:flex items-center justify-between bg-white p-6 rounded-2xl border border-[#E2E1E5]">
+          <div className="flex items-center gap-4">
+            <div className="relative cursor-pointer w-20 h-20 md:w-[113px] md:h-[113px]">
+              <img
+                src={
+                  photoPreview
+                    ? photoPreview
+                    : formData.profile
+                      ? `${API_BASE_URL}/${formData.profile}`
+                      : '/demo/synco/SidebarLogos/OneTOOne.png'
+                }
+                alt="avatar"
+                className="w-full h-full rounded-full object-cover border"
+              />
 
-
-  {/* Always visible small circle for Edit */}
-  <div className="absolute bottom-1 md:right-0 bg-black bg-opacity-30 text-white text-xs px-2 py-0.5 whitespace-nowrap rounded-full">
-    Edit Image
-  </div>
-
-  {/* File input over the whole circle */}
-  <input
-    type="file"
-    accept="image/*"
-    onChange={handlePhotoUpload}
-    className="absolute inset-0 opacity-0 cursor-pointer"
-  />
-</div>
+              {(photoPreview || formData.profile) && (
+                <img
+                  src="/demo/synco/icons/cancel.png"
+                  alt="Cross"
+                  className="absolute top-[-15px] right-[-15px] rounded-full object-cover border cursor-pointer"
+                  onClick={() => {
+                    Swal.fire({
+                      title: 'Are you sure?',
+                      text: "Do you want to remove your picture?",
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonColor: '#3085d6',
+                      cancelButtonColor: '#d33',
+                      confirmButtonText: 'Yes, remove it!',
+                      cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        setFormData((prev) => ({ ...prev, profile: null }));
+                        setPhotoPreview(null);
+                        setIsImageremove(true);
+                        Swal.fire(
+                          'Removed!',
+                          'Your picture has been removed.',
+                          'success'
+                        );
+                      }
+                    });
+                  }}
+                />
+              )}
 
 
+              {/* Always visible small circle for Edit */}
+              <div className="absolute bottom-1 md:right-0 bg-black bg-opacity-30 text-white text-xs px-2 py-0.5 whitespace-nowrap rounded-full">
+                Edit Image
+              </div>
+
+              {/* File input over the whole circle */}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoUpload}
+                className="absolute inset-0 opacity-0 cursor-pointer"
+              />
+            </div>
 
 
 
-          <div>
-            <h2 className="text-[28px] font-semibold pb-1">
-              {formData.firstName || formData.name || 'NIL'} {formData.lastName}
-            </h2>
-            <p className="text-[#717073] font-medium md:text-[18px] text-sm">
-              {formData.email || 'NIL'}
-              <br />
-              {formData.role?.role || '-'} | {formData.position || 'NIL'}
-            </p>
+
+
+            <div>
+              <h2 className="text-[28px] font-semibold pb-1">
+                {formData.firstName || formData.name || 'NIL'} {formData.lastName}
+              </h2>
+              <p className="text-[#717073] font-medium md:text-[18px] text-sm">
+                {formData.email || 'NIL'}
+                <br />
+                {formData.role?.role || '-'} | {formData.position || 'NIL'}
+              </p>
+            </div>
           </div>
-        </div>
-        <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
-          onClick={() => setEditPersonal(!editPersonal)}
-        >
-          {editPersonal ? "Cancel" : "Edit Profile"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
-        </button>
-      </div>
-
-      <div className="bg-white p-6 rounded-2xl border border-[#E2E1E5]">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="font-semibold text-[24px]">Personal Information</h3>
           <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
             onClick={() => setEditPersonal(!editPersonal)}
           >
-            {editPersonal ? "Cancel" : "Edit"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
+            {editPersonal ? "Cancel" : "Edit Profile"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
           </button>
         </div>
-        <div className="md:grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {editPersonal ? (
-            <>
-              <div>
-                <label className="block text-sm font-semibold text-[#282829]">First Name</label>
-                <input
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  placeholder="First Name"
-                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-[#282829]">Last Name</label>
-                <input
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  placeholder="Last Name"
-                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#282829]">Email</label>
-                <input
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Email"
-                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#282829]">Phone Number</label>
-                <input
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={(e) => {
-                    const onlyNums = e.target.value.replace(/\D/g, ''); // Remove all non-digits
-                    setFormData((prev) => ({ ...prev, phoneNumber: onlyNums }));
-                  }}
-                  placeholder="Phone"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-
-              <div>
-                <label className="block text-sm font-semibold text-[#282829]">Position</label>
-                <input
-                  name="position"
-                  value={formData.position}
-                  onChange={handleChange}
-                  placeholder="Position"
-                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#282829]">Password Hint</label>
-                <input
-                  name="passwordHint"
-                  readOnly
-                  value={formData.passwordHint}
-                  placeholder="Password"
-                  type="text"
-                  className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <div>
-                <span className="block text-[#717073] font-medium text-sm">First Name:</span>
-                <span className="font-medium text-[#282829] text-[20px]">{formData.firstName || 'Enter First Name'}</span>
-              </div>
-              <div>
-                <span className="block text-[#717073] font-medium text-sm">Last Name:</span>
-                <span className="font-medium text-[#282829] text-[20px]">{formData.lastName || 'Enter Last Name'}</span>
-              </div>
-              <div>
-                <span className="block text-[#717073] font-medium text-sm">Email:</span>
-                <span className="font-medium text-[#282829] text-[20px]">{formData.email || 'Enter Your Email'}</span>
-              </div>
-              <div>
-                <span className="block text-[#717073] font-medium text-sm">Phone:</span>
-                <span className="font-medium text-[#282829] text-[20px]">{formData.phoneNumber || 'Enter Your Mobile Number'}</span>
-              </div>
-              <div>
-                <span className="block text-[#717073] font-medium text-sm">Bio:</span>
-                <span className="font-medium text-[#282829] text-[20px]">
-                  {formData.role?.role || '-'} <br />
-                  {formData.position || 'Enter Your Bio'}
-                </span>
-              </div>
-              <div>
-                <span className="block text-[#717073] font-medium text-sm">Password:</span>
-                <span className="font-medium text-[#282829] text-[20px]">{formData.passwordHint}</span>
-              </div>
-            </>
-          )}
-
-        </div>
-      </div>
-
-      <div className="bg-white p-6 rounded-2xl border border-[#E2E1E5]">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="font-semibold text-[24px]">Address</h3>
-          <button
-            className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full hover:bg-blue-50"
-            onClick={() => setEditAddress(!editAddress)}
-          >
-            {editAddress ? "Cancel" : "Edit"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
-          </button>
-        </div>
-        <div className="md:grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {editAddress ? (
-            <>
-              <div>
-                <label className="block text-sm font-semibold text-[#282829] mb-1">Country</label>
-                <Select
-                  name="country"
-                  value={countryOptions.find(option => option.value === formData.countryId) || null}
-                  onChange={(selectedOption) =>
-                    handleChange({
-                      target: {
-                        name: 'countryId',
-                        value: selectedOption ? selectedOption.value : null
-                      }
-                    })
-                  }
-                  options={countryOptions}
-                  placeholder="Select Country"
-                  className="mt-0"
-                  classNamePrefix="react-select"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#282829] mb-1">City</label>
-                <input
-                  name="city"
-                  value={formData.city}
-                  required
-                  onChange={handleChange}
-                  onKeyPress={(e) => {
-                    // Prevent numbers from being entered
-                    if (/\d/.test(e.key)) {
-                      e.preventDefault();
-                    }
-                  }}
-                  placeholder="City"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block text-sm font-semibold text-[#282829] mb-1">Postal Code</label>
-                <input
-                  type="number"
-                  name="postalCode"
-                  required
-                  value={formData.postalCode}
-                  onChange={handleChange}
-                  placeholder="Postal Code"
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </>
-          ) : (
-            <>
-              <div>
-                <span className="block text-[#717073] font-medium text-sm">Country:</span>
-                <span className="font-medium text-[#282829] text-[20px]">
-                  {formData.country?.name || 'Enter Country Name'}
-                </span>
-              </div>
-
-              <div>
-                <span className="block text-[#717073] font-medium text-sm">City:</span>
-                <span className="font-medium text-[#282829] text-[20px]">
-                  {formData.city || 'Enter City Name'}
-                </span>
-              </div>
-
-              <div className="sm:col-span-2">
-                <span className="block text-[#717073] font-medium text-sm">Postal Code:</span>
-                <span className="font-medium text-[#282829] text-[20px]">
-                  {formData.postalCode || 'Enter Postal Code'}
-                </span>
-              </div>
-            </>
-          )}
-        </div>
-
-      </div>
-
-
-
-      <div className="bg-white p-6 rounded-2xl border border-[#E2E1E5]">
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="font-semibold text-[24px]">Permissions</h3>
-        </div>
-        <div className="mb-4 md:w-4/12">
-          <label className="block text-[14px] font-semibold mb-2">Role Name</label>
-
-          {MyRole === 'Super Admin' ? (
-            <CreatableSelect
-              options={roleOptions}
-              value={
-                formData.role
-                  ? {
-                    label: formData.role.label || formData.role.role,
-                    value: formData.role.value || formData.role.id,
-                  }
-                  : null
-              }
-              onChange={handleRoleChange}
-              onCreateOption={handleRoleCreateModal}
-              formatCreateLabel={(inputValue) => (
-                <span className="text-blue-600">
-                  Create role: <strong>{inputValue}</strong>
-                </span>
-              )}
-              placeholder="Select or create role"
-              classNamePrefix="react-select"
-            />
-          ) : (
-            <input
-              type="text"
-              value={
-                formData.role?.label ||
-                formData.role?.role ||
-                formData.role?.value ||
-                formData.role?.id || ''
-              }
-              readOnly
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
-            />
-          )}
-        </div>
-
-      </div>
-
-      <div className="flex justify-center  gap-2">
-        <div className="flex gap-2">
-          {MyRole === 'Super Admin' && (
-            <button
-              onClick={() => handleSuspend(formData.status === 'suspend' ? 0 : 1)}
-              className="btn border cursor-pointer border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
+        <div className="bg-white p-6 rounded-2xl border border-[#E2E1E5]">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-[24px]">Personal Information</h3>
+            <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
+              onClick={() => setEditPersonal(!editPersonal)}
             >
-              {formData.status === 'suspend' ? 'Activate' : 'Suspend'}
+              {editPersonal ? "Cancel" : "Edit"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
             </button>
-          )}
-          {checkPermission(
-            { module: "member", action: "delete" }) && (
+          </div>
+          <div className="md:grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {editPersonal ? (
+              <>
+                {[
+                  {
+                    name: "firstName",
+                    label: "First Name",
+                    placeholder: "First Name",
+                    preventNumbers: true,
+                  },
+                  {
+                    name: "lastName",
+                    label: "Last Name",
+                    placeholder: "Last Name",
+                    preventNumbers: true,
+                  },
+                  {
+                    name: "email",
+                    label: "Email",
+                    placeholder: "Email",
+                  },
+                  {
+                    name: "phoneNumber",
+                    label: "Phone Number",
+                    placeholder: "Phone",
+                    numeric: true,
+                  },
+                  {
+                    name: "position",
+                    label: "Position",
+                    placeholder: "Position",
+                    preventNumbers: true,
+                  },
+                  {
+                    name: "passwordHint",
+                    label: "Password Hint",
+                    placeholder: "Password",
+                    readOnly: true,
+                  },
+                ].map(({ name, label, placeholder, preventNumbers, numeric, readOnly }) => (
+                  <div key={name}>
+                    <label className="block text-sm font-semibold text-[#282829]">{label}</label>
+                    <input
+                      name={name}
+                      value={formData[name] || ""}
+                      onChange={(e) => {
+                        if (numeric) {
+                          const onlyNums = e.target.value.replace(/\D/g, "");
+                          setFormData((prev) => ({ ...prev, [name]: onlyNums }));
+                        } else {
+                          handleChange(e);
+                        }
+                      }}
+                      onKeyPress={(e) => {
+                        if (preventNumbers && /\d/.test(e.key)) e.preventDefault();
+                      }}
+                      readOnly={readOnly}
+                      placeholder={placeholder}
+                      inputMode={numeric ? "numeric" : undefined}
+                      pattern={numeric ? "[0-9]*" : undefined}
+                      className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                {[
+                  { label: "First Name:", value: formData.firstName || "Enter First Name" },
+                  { label: "Last Name:", value: formData.lastName || "Enter Last Name" },
+                  { label: "Email:", value: formData.email || "Enter Your Email" },
+                  { label: "Phone:", value: formData.phoneNumber || "Enter Your Mobile Number" },
+                  {
+                    label: "Bio:",
+                    value: (
+                      <>
+                        {formData.role?.role || "-"} <br />
+                        {formData.position || "Enter Your Bio"}
+                      </>
+                    ),
+                  },
+                  { label: "Password:", value: formData.passwordHint },
+                ].map(({ label, value }, idx) => (
+                  <div key={idx}>
+                    <span className="block text-[#717073] font-medium text-sm">{label}</span>
+                    <span className="font-medium text-[#282829] text-[20px]">{value}</span>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl border border-[#E2E1E5]">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-[24px]">Address</h3>
+            <button
+              className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full hover:bg-blue-50"
+              onClick={() => setEditAddress(!editAddress)}
+            >
+              {editAddress ? "Cancel" : "Edit"}{" "}
+              <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="md:grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {editAddress ? (
+              <>
+                {/* Country (react-select, handled separately) */}
+                <div>
+                  <label className="block text-sm font-semibold text-[#282829] mb-1">
+                    Country
+                  </label>
+                  <Select
+                    name="country"
+                    value={
+                      countryOptions.find(
+                        (option) => option.value === formData.countryId
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      handleChange({
+                        target: {
+                          name: "countryId",
+                          value: selectedOption ? selectedOption.value : null,
+                        },
+                      })
+                    }
+                    options={countryOptions}
+                    placeholder="Select Country"
+                    className="mt-0"
+                    classNamePrefix="react-select"
+                  />
+                </div>
+
+                {[
+                  {
+                    name: "city",
+                    label: "City",
+                    placeholder: "City",
+                    preventNumbers: true,
+                  },
+                  {
+                    name: "postalCode",
+                    label: "Postal Code",
+                    placeholder: "Postal Code",
+                    type: "number",
+                    fullWidth: true,
+                  },
+                ].map(({ name, label, placeholder, preventNumbers, type, fullWidth }) => (
+                  <div key={name} className={fullWidth ? "sm:col-span-2" : ""}>
+                    <label className="block text-sm font-semibold text-[#282829] mb-1">
+                      {label}
+                    </label>
+                    <input
+                      name={name}
+                      type={type || "text"}
+                      value={formData[name] || ""}
+                      required
+                      onChange={handleChange}
+                      onKeyPress={(e) => {
+                        if (preventNumbers && /\d/.test(e.key)) e.preventDefault();
+                      }}
+                      placeholder={placeholder}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                ))}
+              </>
+            ) : (
+              <>
+                {[
+                  {
+                    label: "Country:",
+                    value: formData.country?.name || "Enter Country Name",
+                  },
+                  {
+                    label: "City:",
+                    value: formData.city || "Enter City Name",
+                  },
+                  {
+                    label: "Postal Code:",
+                    value: formData.postalCode || "Enter Postal Code",
+                    fullWidth: true,
+                  },
+                ].map(({ label, value, fullWidth }, idx) => (
+                  <div key={idx} className={fullWidth ? "sm:col-span-2" : ""}>
+                    <span className="block text-[#717073] font-medium text-sm">
+                      {label}
+                    </span>
+                    <span className="font-medium text-[#282829] text-[20px]">
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-2xl border border-[#E2E1E5]">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-semibold text-[24px]">Permissions</h3>
+          </div>
+          <div className="mb-4 md:w-4/12">
+            <label className="block text-[14px] font-semibold mb-2">Role Name</label>
+
+            {MyRole === 'Super Admin' ? (
+              <CreatableSelect
+                options={roleOptions}
+                value={
+                  formData.role
+                    ? {
+                      label: formData.role.label || formData.role.role,
+                      value: formData.role.value || formData.role.id,
+                    }
+                    : null
+                }
+                onChange={handleRoleChange}
+                onCreateOption={handleRoleCreateModal}
+                formatCreateLabel={(inputValue) => (
+                  <span className="text-blue-600">
+                    Create role: <strong>{inputValue}</strong>
+                  </span>
+                )}
+                placeholder="Select or create role"
+                classNamePrefix="react-select"
+              />
+            ) : (
+              <input
+                type="text"
+                value={
+                  formData.role?.label ||
+                  formData.role?.role ||
+                  formData.role?.value ||
+                  formData.role?.id || ''
+                }
+                readOnly
+                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+              />
+            )}
+          </div>
+
+        </div>
+
+        <div className="flex justify-center  gap-2">
+          <div className="flex gap-2">
+            {MyRole === 'Super Admin' && (
               <button
-                onClick={handleDelete}
-                className="btn cursor-pointer border border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
+                onClick={() => handleSuspend(formData.status === 'suspend' ? 0 : 1)}
+                className="btn border cursor-pointer border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
               >
-                Delete
+                {formData.status === 'suspend' ? 'Activate' : 'Suspend'}
               </button>
             )}
+            {checkPermission(
+              { module: "member", action: "delete" }) && (
+                <button
+                  onClick={handleDelete}
+                  className="btn cursor-pointer border border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
+                >
+                  Delete
+                </button>
+              )}
+          </div>
+
+
+
+          <button type="submit" className="btn bg-[#237FEA] text-white cursor-pointer px-8 py-2 font-semibold rounded-lg text-[14px]" >Save</button>
         </div>
-
-
-
-        <button className="btn bg-[#237FEA] text-white cursor-pointer px-8 py-2 font-semibold rounded-lg text-[14px]" onClick={handleSubmit}>Save</button>
-      </div>
+      </form>
       {showRoleModal && (
         <RoleModal
           visible={showRoleModal}

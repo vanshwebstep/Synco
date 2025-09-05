@@ -26,6 +26,8 @@ export const BookFreeTrialProvider = ({ children }) => {
   const [singleBookFreeTrialsOnly, setSingleBookFreeTrialsOnly] = useState([]);
   const [serviceHistory, setServiceHistory] = useState([]);
   const [myVenues, setMyVenues] = useState([]);
+  const [error, setError] = useState(null); // ✅ Add error state
+
   function formatLocalDate(dateString) {
     const d = new Date(dateString);
     if (isNaN(d.getTime())) return null;
@@ -620,29 +622,44 @@ export const BookFreeTrialProvider = ({ children }) => {
     },
     [API_BASE_URL]
   );
-  const serviceHistoryMembership = useCallback(async (ID) => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
 
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/account-information/${ID}`, {
+
+const serviceHistoryMembership = useCallback(async (ID) => {
+  const token = localStorage.getItem("adminToken");
+  if (!token) return;
+
+  setLoading(true);
+  setError(null);
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/book-membership/account-information/${ID}`,
+      {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      });
+      }
+    );
 
-      const resultRaw = await response.json();
-      const result = resultRaw.data || [];
-      setServiceHistory(result);
-    } catch (error) {
-      console.error("Failed to fetch bookFreeTrials:", error);
-    } finally {
-      setLoading(false);
+    const resultRaw = await response.json();
+
+    // Check API-level error
+    if (!resultRaw.status) {
+      throw new Error(resultRaw.message || "Failed to fetch booking info");
     }
-  }, []);
+
+    const result = resultRaw.data || [];
+    setServiceHistory(result);
+  } catch (err) {
+    console.error("Failed to fetch booking info:", err);
+    setError(err.message || "Something went wrong");
+    setServiceHistory([]); // clear previous data if error
+  } finally {
+    setLoading(false);
+  }
+}, []);
   const createBookMembership = async (bookFreeMembershipData) => {
     setLoading(true);
 
@@ -1387,7 +1404,7 @@ export const BookFreeTrialProvider = ({ children }) => {
   ) => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
-setSearchLoading(true);
+    setSearchLoading(true);
     const queryParams = new URLSearchParams();
     if (venueName) queryParams.append("venueName", venueName);
     if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
@@ -1486,6 +1503,7 @@ setSearchLoading(true);
         loading,
         setBookFreeTrials,
         setBookMembership,
+        error,
 
         // Capacity
         fetchCapacitySearch,
@@ -1493,6 +1511,7 @@ setSearchLoading(true);
         capacityData,
         setCapacityData,
         searchLoading,
+
       }}>
       {children}
     </BookFreeTrialContext.Provider>

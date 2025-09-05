@@ -15,7 +15,7 @@ import ParentProfile from "./ParentProfile";
 import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
 
 const AccountInfoBookMembership = () => {
-  const { serviceHistoryMembership, serviceHistory } = useBookFreeTrial()
+  const { serviceHistoryMembership, serviceHistory ,error } = useBookFreeTrial()
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,7 +43,7 @@ const AccountInfoBookMembership = () => {
   }, [itemId, serviceHistoryMembership]);
   const [activeTab, setActiveTab] = useState("Service History");
 
-
+console.log('error',error)
 
   return (
     <>
