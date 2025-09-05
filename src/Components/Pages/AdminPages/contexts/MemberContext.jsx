@@ -14,10 +14,10 @@ export const MemberProvider = ({ children }) => {
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [roleName, setRoleName] = useState("");
     const [permissions, setPermissions] = useState([]);
+    const [dashboardData, setDashboardData] = useState([]);
+
     const [activeTab, setActiveTab] = useState("All");
-
     const token = localStorage.getItem("adminToken");
-
     const verifyToken = async () => {
         const token = localStorage.getItem("adminToken");
 
@@ -70,8 +70,6 @@ export const MemberProvider = ({ children }) => {
             return false; // ❌ failure
         }
     };
-
-
     const fetchRoles = useCallback(async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/admin/role`, {
@@ -90,7 +88,6 @@ export const MemberProvider = ({ children }) => {
             console.error("Failed to fetch roles:", error);
         }
     }, [token]);
-
     const handleRoleCreate = useCallback(async (name, perms) => {
         try {
             await fetch(`${API_BASE_URL}/api/admin/role`, {
@@ -193,6 +190,28 @@ export const MemberProvider = ({ children }) => {
         }
     }, [token, fetchRoles, fetchPermission]);
 
+    const fetchDashboard = useCallback(async () => {
+        const token = localStorage.getItem("adminToken");
+        if (!token) return;
+
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/dashboard/stats`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const resultRaw = await response.json();
+            const result = resultRaw.data || [];
+            setDashboardData(result);
+        } catch (error) {
+            console.error("Failed to fetch members:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     return (
         <MemberContext.Provider value={{
@@ -206,6 +225,8 @@ export const MemberProvider = ({ children }) => {
             setPermissions,
             handleRoleCreate,
             verifyToken,
+            fetchDashboard,
+            dashboardData
         }}>
             {children}
         </MemberContext.Provider>

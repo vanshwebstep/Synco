@@ -319,8 +319,13 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
                     }
                     alt="profile"
                     className="object-cover w-full h-full"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null; // prevent infinite loop
+                      e.currentTarget.src = '/demo/synco/SidebarLogos/OneTOOne.png';
+                    }}
                   />
                 </div>
+
                 <div className="block text-start">
                   <div className="flex items-center gap-1">
                     <span className="text-base font-semibold leading-[1px]">

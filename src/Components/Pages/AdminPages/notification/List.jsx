@@ -65,14 +65,18 @@ export default function List() {
           >
             <div className="flex gap-4">
               <img
-src={
-  item?.admin?.profile
-    ? `${API_BASE_URL}${item.admin.profile}`
-    : item?.createdBy?.profile
-    ? `${API_BASE_URL}${item.createdBy.profile}`
-    : '/demo/synco/members/dummyuser.png'
-}
+                src={
+                  item?.admin?.profile
+                    ? `${API_BASE_URL}${item.admin.profile}`
+                    : item?.createdBy?.profile
+                      ? `${API_BASE_URL}${item.createdBy.profile}`
+                      : '/demo/synco/members/dummyuser.png'
+                }
                 alt={item.name || "avatar"}
+                onError={(e) => {
+                  e.currentTarget.onerror = null; // prevent infinite loop
+                  e.currentTarget.src = '/demo/synco/SidebarLogos/OneTOOne.png';
+                }}
                 className="w-12 h-12 rounded-full object-cover"
               />
               <div>

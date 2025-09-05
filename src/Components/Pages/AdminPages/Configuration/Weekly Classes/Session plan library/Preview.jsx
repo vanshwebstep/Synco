@@ -128,6 +128,7 @@ const Preview = ({ item, sessionData }) => {
                     src={currentContent.bannerUrl}
                     alt="Play like Pele"
                     className="rounded-xl max-h-50  mb-2"
+                   
                   />
                 )}
                 <h2 className="font-semibold text-[28px] mb-0">

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 import Loader from '../../../contexts/Loader';
 
-const BASE_URL = 'http://localhost:5000/';
+const BASE_URL = 'https://synconode.onrender.com/';
 
 const Preview = () => {
   const [activeTab, setActiveTab] = useState('');

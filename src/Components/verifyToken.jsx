@@ -1,7 +1,7 @@
 export const verifyToken = async (token) => {
   try {
     console.log('🔍 Verifying token...');
-    const response = await fetch(`http://localhost:5000/api/admin/auth/login/verify`, {
+    const response = await fetch(`https://synconode.onrender.com/api/admin/auth/login/verify`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,

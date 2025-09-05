@@ -135,6 +135,11 @@ const Update = () => {
   };
 
 
+  console.log('localStorageRole',localStorage.role)
+  console.log('localStorageId',JSON.parse(localStorage.adminInfo).id)
+  console.log('MyID',formData.id)
+  console.log('MyIDOptions',roleOptions)
+
   const handleRoleChange = (selected) => {
     if (!selected) return;
 
@@ -356,7 +361,14 @@ const Update = () => {
 
 
 
+const localStorageRole = localStorage.role; // e.g., "Super Admin"
+const localStorageId = JSON.parse(localStorage.adminInfo).id; // e.g., 7
 
+// Filter role options
+const filteredRoleOptions =
+  localStorageId === formData.id
+    ? roleOptions.filter((role) => role.label !== localStorageRole)
+    : roleOptions;
   const countryOptions = country.map(item => ({
     value: item.id,
     label: item.name // <-- make sure this is a string!
@@ -378,10 +390,8 @@ const Update = () => {
       </h2>
 
       <form className="space-y-8"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
+         onSubmit={(e) => handleSubmit(e)}
+
       >
         <div className="md:flex items-center justify-between bg-white p-6 rounded-2xl border border-[#E2E1E5]">
           <div className="flex items-center gap-4">
@@ -396,12 +406,20 @@ const Update = () => {
                 }
                 alt="avatar"
                 className="w-full h-full rounded-full object-cover border"
+                          onError={(e) => {
+                      e.currentTarget.onerror = null; // prevent infinite loop
+                      e.currentTarget.src = '/demo/synco/SidebarLogos/OneTOOne.png';
+                    }}
               />
 
               {(photoPreview || formData.profile) && (
                 <img
                   src="/demo/synco/icons/cancel.png"
                   alt="Cross"
+                            onError={(e) => {
+                      e.currentTarget.onerror = null; // prevent infinite loop
+                      e.currentTarget.src = '/demo/synco/SidebarLogos/OneTOOne.png';
+                    }}
                   className="absolute top-[-15px] right-[-15px] rounded-full object-cover border cursor-pointer"
                   onClick={() => {
                     Swal.fire({
@@ -459,7 +477,7 @@ const Update = () => {
               </p>
             </div>
           </div>
-          <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
+          <button type="button" className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
             onClick={() => setEditPersonal(!editPersonal)}
           >
             {editPersonal ? "Cancel" : "Edit Profile"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
@@ -469,7 +487,7 @@ const Update = () => {
         <div className="bg-white p-6 rounded-2xl border border-[#E2E1E5]">
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-[24px]">Personal Information</h3>
-            <button className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
+            <button type="button" className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
               onClick={() => setEditPersonal(!editPersonal)}
             >
               {editPersonal ? "Cancel" : "Edit"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
@@ -574,6 +592,7 @@ const Update = () => {
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-[24px]">Address</h3>
             <button
+            type="button"
               className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full hover:bg-blue-50"
               onClick={() => setEditAddress(!editAddress)}
             >
@@ -686,7 +705,7 @@ const Update = () => {
 
             {MyRole === 'Super Admin' ? (
               <CreatableSelect
-                options={roleOptions}
+  options={filteredRoleOptions}
                 value={
                   formData.role
                     ? {
@@ -726,6 +745,7 @@ const Update = () => {
           <div className="flex gap-2">
             {MyRole === 'Super Admin' && (
               <button
+              type="button"
                 onClick={() => handleSuspend(formData.status === 'suspend' ? 0 : 1)}
                 className="btn border cursor-pointer border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
               >
@@ -735,6 +755,7 @@ const Update = () => {
             {checkPermission(
               { module: "member", action: "delete" }) && (
                 <button
+                type="button"
                   onClick={handleDelete}
                   className="btn cursor-pointer border border-[#E2E1E5] text-[#717073] px-8 py-2 font-semibold rounded-lg text-[14px]"
                 >

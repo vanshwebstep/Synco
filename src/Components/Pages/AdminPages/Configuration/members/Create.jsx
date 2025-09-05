@@ -7,7 +7,7 @@ import { Eye, EyeOff } from "lucide-react"; // or use any icon library
 import { usePermission } from "../../Common/permission";
 
 const Create = () => {
-    const { checkPermission } = usePermission();
+  const { checkPermission } = usePermission();
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [errors, setErrors] = useState({});
@@ -23,7 +23,8 @@ const Create = () => {
     setPermissions } = useMembers();
   const [photoPreview, setPhotoPreview] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: '',
+  lastName: '',
     position: "",
     phoneNumber: "",
     email: "",
@@ -38,25 +39,28 @@ const Create = () => {
     if (token) fetchRoles();
   }, [token]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+const handleInputChange = (e) => {
+  const { name, value } = e.target;
 
-    let newValue = value;
+  if (name === 'phoneNumber') {
+    setFormData(prev => ({ ...prev, [name]: value.replace(/\D/g, '') }));
+  } else if (name === 'fullName') {
+    setFormData(prev => ({ ...prev, fullName: value }));
+  } else {
+    setFormData(prev => ({ ...prev, [name]: value }));
+  }
+};
 
-    // Phone number specific logic
-    if (name === 'phoneNumber') {
-      // Allow only digits
-      newValue = value.replace(/\D/g, '');
+// On form submit or blur, split fullName
+const handleFullNameSplit = () => {
+  const parts = formData.fullName.trim().split(' ');
+  const lastName = parts.length > 1 ? parts.pop() : '';
+  const firstName = parts.join(' ');
+  setFormData(prev => ({ ...prev, firstName, lastName }));
+};
 
 
-    } else {
-      // Clear error for other fields
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
 
-    // Update form data
-    setFormData((prev) => ({ ...prev, [name]: newValue }));
-  };
 
 
   const handlePhotoUpload = (e) => {
@@ -96,7 +100,7 @@ const Create = () => {
     e.preventDefault();
     if (validate()) {
       if (
-        !formData.name ||
+        !formData.firstName ||
         !formData.position ||
         !formData.phoneNumber ||
         !formData.email ||
@@ -112,7 +116,11 @@ const Create = () => {
       }
 
       const data = new FormData();
-      data.append("name", formData.name);
+      data.append("firstName", formData.firstName);
+ if (formData.lastName) {
+  data.append("lastName", formData.lastName);
+}
+
       data.append("position", formData.position);
       data.append("phoneNumber", formData.phoneNumber);
       data.append("email", formData.email);
@@ -208,20 +216,30 @@ const Create = () => {
 
           <div>
             <label className="block text-sm font-semibold text-[#282829]">Full Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+    <input
+  type="text"
+  name="fullName"
+  value={formData.fullName}
+  onChange={handleInputChange}
+  onBlur={handleFullNameSplit} // split when user leaves the field
+  className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+/>
+
+
           </div>
+
 
           <div>
             <label className="block text-sm font-semibold text-[#282829]">Position</label>
             <input
               type="text"
               name="position"
+                 onKeyPress={(e) => {
+                    // Prevent numbers from being entered
+                    if (/\d/.test(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
               value={formData.position}
               onChange={handleInputChange}
               className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -261,6 +279,7 @@ const Create = () => {
               options={roleOptions}
               value={formData.role}
               onChange={handleRoleChange}
+
               onCreateOption={handleRoleCreateModal}
               formatCreateLabel={(inputValue) => (
                 <span className="text-blue-600">
@@ -308,7 +327,10 @@ const Create = () => {
             <label className="block text-sm font-semibold text-[#282829] mb-1">Profile Picture</label>
             <div className="w-full rounded-lg bg-[#F5F5F5] h-32 flex items-center flex-col gap-3 justify-center cursor-pointer relative overflow-hidden">
               {photoPreview ? (
-                <img src={photoPreview} alt="Uploaded" className="h-full object-cover" />
+                <img src={photoPreview} alt="Uploaded" className="h-full object-cover"           onError={(e) => {
+                      e.currentTarget.onerror = null; // prevent infinite loop
+                      e.currentTarget.src = '/demo/synco/SidebarLogos/OneTOOne.png';
+                    }}/>
               ) : (
                 <>
                   <img src="/demo/synco/members/addblack.png" className="w-4 block" alt="" />
