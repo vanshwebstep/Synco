@@ -11,6 +11,8 @@ import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
 
 import { saveAs } from "file-saver";
+import StatsGrid from '../../../Common/StatsGrid';
+import DynamicTable from '../../../Common/DynamicTable';
 const trialLists = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [fromDate, setFromDate] = useState(null);
@@ -61,6 +63,24 @@ const trialLists = () => {
         dateBooked: false,
         dateOfTrial: false,
     });
+const getStatusBadge = (status) => {
+  const s = status.toLowerCase();
+  let styles =
+    "bg-red-100 text-red-500"; // default fallback
+  if (s === "attend" || s === "active")
+    styles = "bg-green-100 text-green-600";
+  else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
+  else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
+  else if (s === "waiting list") styles = "bg-gray-200 text-gray-700";
+
+  return (
+    <div
+      className={`flex text-center justify-center rounded-lg p-1 gap-2 ${styles} capitalize`}
+    >
+      {status}
+    </div>
+  );
+};
 
     const [selectedDates, setSelectedDates] = useState([]);
     const handleCheckboxChange = (label) => {
@@ -303,145 +323,76 @@ const trialLists = () => {
 
     const canServicehistory =
         checkPermission({ module: 'service-history', action: 'view-listing' })
+        const freeTrialColumns = [
+  { header: "Name", key: "name", selectable: true }, // ✅ checkbox + student name
+  { header: "Age", render: (item, student) => student.age },
+  { header: "Venue", render: (item) => item.venue?.name || "-" },
+  {
+    header: "Date of Booking",
+    render: (item) => new Date(item.createdAt || item.trialDate).toLocaleDateString(),
+  },
+  {
+    header: "Date of Trial",
+    render: (item) => new Date(item.trialDate).toLocaleDateString(),
+  },
+  {
+    header: "Source",
+    render: (item) => item.parents?.[0]?.howDidYouHear || "-",
+  },
+  {
+    header: "Attempts",
+    render: () => "static", // replace with real attempts later if needed
+  },
+  {
+    header: "Status",
+    render: (item) => (
+      <div
+        className={`flex text-center justify-center rounded-lg p-1 gap-2 ${
+          item.status.toLowerCase() === "attend"
+            ? "bg-green-100 text-green-600"
+            : item.status.toLowerCase() === "pending"
+            ? "bg-yellow-100 text-yellow-600"
+            : "bg-red-100 text-red-500"
+        } capitalize`}
+      >
+        {item.status}
+      </div>
+    ),
+  },
+];
+
     if (loading) return <Loader />;
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
 
             <div className="md:flex w-full gap-4">
                 <div className="flex-1 transition-all duration-300">
-                    <div className="grid grid-cols-1 mb-5 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        {stats.map((item, idx) => (
-                            <div
-                                key={idx}
-                                className="bg-white rounded-2xl shadow-sm px-4 py-3 flex items-center gap-4 w-full max-w-full"
-                            >
-                                {/* Icon Section */}
-                                <div className={`min-w-[50px] min-h-[50px] p-3 rounded-full flex items-center justify-center ${item.bg}`}>
-                                    <img src={item.icon} className="w-6 h-6 object-contain" alt="icon" />
-                                </div>
-
-                                {/* Content */}
-                                <div className="flex flex-col w-full">
-                                    {/* Title */}
-                                    <p className="text-sm text-gray-500 leading-tight">{item.title}</p>
-
-                                    {/* Main Value */}
-                                    <div className="text-lg font-semibold text-gray-900 flex items-center gap-1 flex-wrap">
-                                        {item.value}
-                                        {item.subValue && (
-                                            <span className="text-sm font-normal text-green-500 whitespace-nowrap">
-                                                {item.subValue}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Change Tag */}
-                                    {item.change && (
-                                        <span className={`text-xs font-medium mt-1 ${item.color}`}>
-                                            {item.change}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-
-                        ))}
-                    </div>
+                      <StatsGrid stats={stats} variant="B" />
+                 
                     <div className="flex justify-end ">
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
                             <img            onClick={() => navigate("/configuration/weekly-classes/find-a-class")} 
                             src="/demo/synco/DashboardIcons/user-add-02.png" alt=""  className="cursor-pointer"/>
                         </div>
                     </div>
-                    <div className="overflow-auto mt-5 rounded-4xl w-full">
-                        <table className="min-w-full rounded-4xl bg-white text-sm border border-[#E2E1E5]">
-                            <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
-                                <tr className="font-semibold">
-                                    <th className="p-4 text-[#717073]">Name</th>
-                                    <th className="p-4 text-[#717073]">Age</th>
-                                    <th className="p-4 text-[#717073]">Venue</th>
-                                    <th className="p-4 text-[#717073]">Date of Booking</th>
-                                    <th className="p-4 text-[#717073]">Date of Trial</th>
-                                    <th className="p-4 text-[#717073]">Source</th>
-                                    <th className="p-4 text-[#717073]">Attempts</th>
-                                    <th className="p-4 text-[#717073]">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {bookFreeTrials && bookFreeTrials.length > 0 ? (
-                                    bookFreeTrials.map((item, index) =>
-                                        item.students.map((student, studentIndex) => {
-                                            const isSelected = selectedStudents.includes(item.id);
+                    
+                    <DynamicTable
+  columns={freeTrialColumns}
+  data={bookFreeTrials}
+  from={'freetrial'}
+  selectedIds={selectedStudents}
+   setSelectedStudents={setSelectedStudents}
+  onRowClick={
+    canServicehistory
+      ? (item) =>
+          navigate(
+            "/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list",
+            { state: { itemId: item.id } }
+          )
+      : undefined
+  }
+/>
 
-                                            return (
-                                                <tr
-                                                    key={`${item.id}-${studentIndex}`}
-                                                    onClick={
-                                                        canServicehistory
-                                                            ? () =>
-                                                                navigate(
-                                                                    "/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list",
-                                                                    { state: { itemId: item.id } }
-                                                                )
-                                                            : undefined
-                                                    }
-                                                    className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
-                                                >
-                                                    {/* Student cell – no row click here */}
-                                                    <td
-                                                        className="p-4 cursor-pointer"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <button
-                                                                onClick={() => toggleSelect(item.id)}
-                                                                className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 
-                    ${isSelected ? "bg-blue-500 border-blue-500 text-white" : "border-gray-300 text-transparent"}`}
-                                                            >
-                                                                {isSelected && <Check size={14} />}
-                                                            </button>
-                                                            <span>{`${student.studentFirstName} ${student?.studentLastName}`}</span>
-                                                        </div>
-                                                    </td>
-
-                                                    <td className="p-4">{student.age}</td>
-                                                    <td className="p-4">{item.venue?.name || "-"}</td>
-                                                    <td className="p-4">
-                                                        {new Date(item.createdAt || item.trialDate).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="p-4">
-                                                        {new Date(item.trialDate).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="p-4">{item.parents?.[0]?.howDidYouHear || "-"}</td>
-                                                    <td className="p-4 text-center">{"static "}</td>
-                                                    <td className="p-4">
-                                                        <div
-                                                            className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === "attend"
-                                                                    ? "bg-green-100 text-green-600"
-                                                                    : item.status.toLowerCase() === "pending"
-                                                                        ? "bg-yellow-100 text-yellow-600"
-                                                                        : "bg-red-100 text-red-500"
-                                                                } capitalize`}
-                                                        >
-                                                            {item.status}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
-                                    )
-                                ) : (
-                                    <tr>
-                                        <td colSpan={8} className="text-center p-4 text-gray-500">
-                                            Data not found
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-
-
-                        </table>
-
-                    </div>
 
                 </div>
 

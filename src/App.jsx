@@ -65,6 +65,8 @@ import AddtoWaitingList from './Components/Pages/AdminPages/Configuration/Weekly
 import WaitingList from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Add to Waiting List/List.jsx';
 import AccountInfoWaitingList from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Add to Waiting List/Account Information Waiting List/List.jsx';
 import Capacity from './Components/Pages/AdminPages/Configuration/Weekly Classes/Capacity/list.jsx';
+import CancellationList from './Components/Pages/AdminPages/Configuration/Weekly Classes/Cancellation/list.jsx';
+import AccountInfoCancellation from './Components/Pages/AdminPages/Configuration/Weekly Classes/Cancellation/Account Information Cancellation/list.jsx';
 // Define roles
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -272,6 +274,24 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <AccountInformation />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+       <Route path="/configuration/weekly-classes/cancellation/account-info/list" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <AccountInfoCancellation />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/weekly-classes/cancellation" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <CancellationList />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

@@ -200,7 +200,10 @@ const handleFullNameSplit = () => {
     setRoleName(inputValue);
     setPermissions([]);
     setShowRoleModal(true);
-  };
+  };const customComponents = {
+  DropdownIndicator: () => null,
+  IndicatorSeparator: () => null,
+};
 
   return (
 
@@ -275,27 +278,27 @@ const handleFullNameSplit = () => {
 
           <div>
             <label className="block text-sm font-semibold text-[#282829] mb-1">Role</label>
-            <CreatableSelect
-              options={roleOptions}
-              value={formData.role}
-              onChange={handleRoleChange}
-
-              onCreateOption={handleRoleCreateModal}
-              formatCreateLabel={(inputValue) => (
-                <span className="text-blue-600">
-                  Create role: <strong>{inputValue}</strong>
-                </span>
-              )}
-              // 👇 hide create option if no permission
-              isValidNewOption={(inputValue) => {
-                const hasPermission = checkPermission(
-                  { module: "admin-role", action: "create" }
-                );
-                return hasPermission && inputValue.trim() !== "";
-              }}
-              placeholder="Select or create role"
-              classNamePrefix="react-select"
-            />
+           <CreatableSelect
+  options={roleOptions}
+  value={formData.role}
+  onChange={handleRoleChange}
+  onCreateOption={handleRoleCreateModal}
+  formatCreateLabel={(inputValue) => (
+    <span className="text-blue-600">
+      Create role: <strong>{inputValue}</strong>
+    </span>
+  )}
+  isValidNewOption={(inputValue) => {
+    const hasPermission = checkPermission({
+      module: "admin-role",
+      action: "create",
+    });
+    return hasPermission && inputValue.trim() !== "";
+  }}
+  placeholder=""
+  classNamePrefix="react-select"
+  components={customComponents} // 👈 apply custom components
+/>
 
           </div>
           <div className="relative">

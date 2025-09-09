@@ -190,28 +190,48 @@ export const MemberProvider = ({ children }) => {
         }
     }, [token, fetchRoles, fetchPermission]);
 
-    const fetchDashboard = useCallback(async () => {
-        const token = localStorage.getItem("adminToken");
-        if (!token) return;
+  const fetchDashboard = useCallback(async (params = {}) => {
+  const token = localStorage.getItem("adminToken");
+  if (!token) return;
 
-        setLoading(true);
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/dashboard/stats`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+  const { studentName, venueName, filterTypes = [], fromDate, toDate } = params;
 
-            const resultRaw = await response.json();
-            const result = resultRaw.data || [];
-            setDashboardData(result);
-        } catch (error) {
-            console.error("Failed to fetch members:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+  // build query params
+  const searchParams = new URLSearchParams();
+
+  if (studentName) searchParams.append("studentName", studentName);
+  if (venueName) searchParams.append("venueName", venueName);
+
+  // support multiple filterTypes
+  filterTypes.forEach((ft) => searchParams.append("filterType", ft));
+
+  if (fromDate) searchParams.append("fromDate", fromDate);
+  if (toDate) searchParams.append("toDate", toDate);
+
+  const query = searchParams.toString();
+  const url = `${API_BASE_URL}/api/admin/dashboard/stats${query ? `?${query}` : ""}`;
+
+  console.log("🚀 Fetching:", url);
+
+  setLoading(true);
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const resultRaw = await response.json();
+    const result = resultRaw.data || [];
+    setDashboardData(result);
+  } catch (error) {
+    console.error("Failed to fetch dashboard:", error);
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
     return (
         <MemberContext.Provider value={{

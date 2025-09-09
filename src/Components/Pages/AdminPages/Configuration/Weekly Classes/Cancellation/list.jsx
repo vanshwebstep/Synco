@@ -1,25 +1,33 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { FiSearch } from "react-icons/fi";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Select from "react-select";
 import { Check, } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
 import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
+import { useNavigate } from "react-router-dom";
 import Loader from '../../../contexts/Loader';
+import { usePermission } from '../../../Common/permission';
+import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
+
+import { saveAs } from "file-saver";
 import StatsGrid from '../../../Common/StatsGrid';
 import DynamicTable from '../../../Common/DynamicTable';
-const trialLists = () => {
+const CancellationList = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
-    const [selectedDate, setSelectedDate] = useState(null);
-    const navigate = useNavigate();
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
     const [selectedStudents, setSelectedStudents] = useState([]);
+    const [active, setActive] = useState("request"); // default selected
+
+    const buttons = [
+        { key: "request", label: "Request to Cancel" },
+        { key: "full", label: "Full Cancellation" },
+        { key: "all", label: "All" },
+    ];
+    const { fetchFullCancellations, fetchRequestToCancellations, fetchAllCancellations, statsFreeTrial, bookFreeTrials, setSearchTerm, bookedByAdmin, searchTerm, loading, selectedVenue, setSelectedVenue, myVenues, sendRequestTomail, sendAllmail, sendFullTomail } = useBookFreeTrial() || {};
+
     const toggleSelect = (studentId) => {
         setSelectedStudents((prev) =>
             prev.includes(studentId)
@@ -27,41 +35,21 @@ const trialLists = () => {
                 : [...prev, studentId] // add if not selected
         );
     };
-    const getStatusBadge = (status) => {
-        const s = status.toLowerCase();
-        let styles =
-            "bg-red-100 text-red-500"; // default fallback
-        if (s === "attend" || s === "active")
-            styles = "bg-green-100 text-green-600";
-        else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
-        else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
-        else if (s === "waiting list") styles = "bg-gray-200 text-gray-700";
-
-        return (
-            <div
-                className={`flex text-center justify-center rounded-lg p-1 gap-2 ${styles} capitalize`}
-            >
-                {status}
-            </div>
-        );
-    };
-
-    const exportToExcel = () => {
-        // Prepare data
+    const exportFreeTrials = () => {
         const dataToExport = [];
 
-        bookMembership.forEach((item) => {
+        bookFreeTrials?.forEach((item) => {
             if (selectedStudents.length > 0 && !selectedStudents.includes(item.id)) return;
+
             item.students.forEach((student) => {
                 dataToExport.push({
-                    Name: `${student.studentFirstName} ${student.studentLastName}`,
+                    Name: `${student.studentFirstName} ${student?.studentLastName}`,
                     Age: student.age,
-                    Venue: item.venue?.name || '-',
-                    'Date of Booking': new Date(item.trialDate).toLocaleDateString(),
-                    'Who Booked?': `${item?.bookedByAdmin?.firstName || ''}
-                                                        ${item?.bookedByAdmin?.lastName && item.bookedByAdmin.lastName !== 'null' ? ` ${item.bookedByAdmin.lastName}` : ''}`, // or dynamic if available
-                    'Membership Plan': item.paymentPlan?.title || '-',
-                    'Life Cycle of Membership': `${item.paymentPlan?.duration} ${item.paymentPlan?.interval}${item.paymentPlan?.duration > 1 ? 's' : ''}`,
+                    Venue: item.venue?.name || "-",
+                    'Date of Booking': new Date(item.createdAt || item.trialDate).toLocaleDateString(),
+                    'Date of Trial': new Date(item.trialDate).toLocaleDateString(),
+                    Source: item.parents?.[0]?.howDidYouHear || "-",
+                    Attempts: "static",
                     Status: item.status,
                 });
             });
@@ -75,37 +63,56 @@ const trialLists = () => {
 
         const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
         const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
-        saveAs(data, 'AllMembersData.xlsx');
+        saveAs(data, 'Cancellations.xlsx');
     };
 
+    const [checkedStatuses, setCheckedStatuses] = useState({
+        request_to_cancel: false,
+        cancelled: false,
+        dateBooked: false,
+        dateOfTrial: false,
+    });
 
-    // ✅ Define all filters with dynamic API mapping
-    const filterOptions = [
-        { label: "Pending", key: "pending", apiParam: "status", apiValue: "pending" },
-        { label: "Active", key: "active", apiParam: "status", apiValue: "active" },
-        { label: "Date Booked", key: "trialDate", apiParam: "trialDate" },
-        { label: "6 Months", key: "sixMonths", apiParam: "month", apiValue: "sixMonths" },
-        { label: "3 Months", key: "threeMonths", apiParam: "month", apiValue: "threeMonths" },
-        { label: "flexi Plan", key: "flexiPlan", apiParam: "month", apiValue: "flexiPlan" },
-    ]
-    const [checkedStatuses, setCheckedStatuses] = useState(
-        filterOptions.reduce((acc, option) => ({ ...acc, [option.key]: false }), {})
-    );
-
-    // ✅ Generic checkbox change handler
-    const handleCheckboxChange = (key) => {
-        setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
-    };
     const [selectedDates, setSelectedDates] = useState([]);
-    const { fetchBookMemberships, bookMembership, setBookMembership, sendBookMembershipMail, bookedByAdmin, setSearchTerm, searchTerm, status, loading, selectedVenue, setSelectedVenue, statsMembership, myVenues, setMyVenues } = useBookFreeTrial() || {};
+    const handleCheckboxChange = (label) => {
+        setCheckedStatuses((prev) => {
+            switch (label) {
+                case "Request to cancel":
+                    return { ...prev, request_to_cancel: !prev.request_to_cancel };
+                case "Cancelled":
+                    return { ...prev, cancelled: !prev.cancelled };
+                case "Date Booked":
+                    return { ...prev, dateBooked: !prev.dateBooked };
+                case "Date of Trial":
+                    return { ...prev, dateOfTrial: !prev.dateOfTrial };
+                default:
+                    return prev;
+            }
+        });
+    };
+    // const [selectedDate, setSelectedDate] = useState(null);
+
+
+
+    const navigate = useNavigate();
+
+    console.log('bookedByAdmin', bookedByAdmin)
 
     useEffect(() => {
-        if (selectedVenue) {
-            fetchBookMemberships("", selectedVenue.label); // Using label as venueName
+        const venueName = selectedVenue?.label || "";
+
+        if (active === "request") {
+            fetchRequestToCancellations("", venueName);
+        } else if (active === "full") {
+            fetchFullCancellations("", venueName);
+        } else if (active === "all") {
+            fetchAllCancellations("", venueName);
         } else {
-            fetchBookMemberships(); // No filter
+            // fallback
+            fetchFullCancellations();
         }
-    }, [selectedVenue, fetchBookMemberships]);
+    }, [selectedVenue, active]);
+
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
 
@@ -179,91 +186,150 @@ const trialLists = () => {
         }
     };
 
-    const applyFilter = () => {
-        const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
-
-        const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
-        const hasRange = isValidDate(fromDate) && isValidDate(toDate);
-        const range = hasRange ? [fromDate, toDate] : [];
-
-        // If trialDate is checked: send range as dateBookedFrom/To
-        // Else: send range as createdAtFrom/To
-        const dateRangeMembership = checkedStatuses.trialDate ? range : [];
-        const otherDateRange = checkedStatuses.trialDate ? [] : range;
-
-        fetchBookMemberships(
-            "",                                  // studentName
-            "",                                  // venueName
-            checkedStatuses.pending,             // status1
-            checkedStatuses.active,              // status2
-            dateRangeMembership,                 // dateBooked range [from,to] OR []
-            checkedStatuses.sixMonths,           // month1 -> duration 6
-            checkedStatuses.threeMonths,         // month2 -> duration 3
-            checkedStatuses.flexiPlan,           // month3 -> duration 1 (flexi)
-            otherDateRange,                      // createdAt range [from,to] OR []
-            bookedByParams                       // bookedBy ids
-        );
-    };
-
-
-
-
-
     const modalRef = useRef(null);
     const PRef = useRef(null);
     const stats = [
         {
-            title: "Total Students",
-            value: statsMembership?.totalStudents?.toString() || "0",
-            icon: "/demo/synco/members/allmemberTotalRevenue.png",
-            change: "+12%",
+            title: "Total Request",
+            value: statsFreeTrial?.totalRequests?.value || "0",
+            icon: "/demo/synco/DashboardIcons/🔢.png", // Replace with actual SVG if needed
+            change: statsFreeTrial?.totalRequests?.change != null
+                ? `${statsFreeTrial.totalRequests.change}`
+                : "0%",
             color: "text-green-500",
             bg: "bg-[#F3FAF5]"
         },
         {
-            title: "Monthly revenue",
-            value: Number(statsMembership?.totalRevenue)?.toFixed(2) || "0.00",
-            icon: "/demo/synco/members/allmemberMonthlyRevenue.png",
+            title: "Avg.Tenure",
+            value:
+                statsFreeTrial?.avgTenure?.value || statsFreeTrial?.avgTenure?.value
+                    ? `${statsFreeTrial?.avgTenure?.value ?? ""} `.trim()
+                    : "0",
+            subValue: `${statsFreeTrial?.avgTenure?.change ?? ""} `,
+            icon: "/demo/synco/DashboardIcons/📊.png",
             color: "text-green-500",
             bg: "bg-[#F3FAFD]"
         },
         {
-            title: "AV. Monthly Fee",
-            value: Number(statsMembership?.avgMonthlyFee)?.toFixed(2) || "0.00",
-            icon: "/demo/synco/members/allmemberMonthlyFee.png",
-            change: "35%",
+            title: "Most Request venue",
+            value: statsFreeTrial?.mostRequestedVenue?.value || "0",
+            icon: "/demo/synco/DashboardIcons/📍.png",
+            change: statsFreeTrial?.mostRequestedVenue?.change != null
+                ? `${statsFreeTrial.mostRequestedVenue.change}`
+                : "0%",
+            color: "text-green-500",
+            bg: "bg-[#F0F9F9]"
+        }, {
+            title: "Common Reason",
+            value: statsFreeTrial?.commonReason?.value || "0",
+            icon: "/demo/synco/DashboardIcons/💬.png",
+            subValue: statsFreeTrial?.commonReason?.change != null
+                ? `${statsFreeTrial.commonReason.change}`
+                : "0%",
             color: "text-green-500",
             bg: "bg-[#FEF6FB]"
         },
-        {
-            title: "AV. Life Cycle",
-            value: Number(statsMembership?.avgLifeCycle)?.toFixed(2) || "0.00",
-            icon: "/demo/synco/members/allmemberLifeCycle.png",
-            change: "45%",
-            color: "text-green-500",
-            bg: "bg-[#F0F9F9]"
-        }
-    ];
 
+        {
+            title: "High Risk Age Group ",
+            value:
+                statsFreeTrial?.highestRiskAgeGroup?.value ? `${statsFreeTrial?.highestRiskAgeGroup?.value ?? ""}`.trim()
+                    : "0",
+            subValue: statsFreeTrial?.highestRiskAgeGroup?.change != null
+                ? `${statsFreeTrial.highestRiskAgeGroup.change}`
+                : "0%",
+            icon: "/demo/synco/DashboardIcons/🎯.png",
+            color: "text-green-500",
+            bg: "bg-[#F3FAFD]"
+        },
+    ];
+    const applyFilter = () => {
+        const forAttend = checkedStatuses.request_to_cancel || "";
+        const forNotAttend = checkedStatuses.cancelled || "";
+
+        let forDateOkBookingTrial = "";
+        let forDateOfTrial = "";
+        let forOtherDate = "";
+
+        const bookedDatesChecked = checkedStatuses.dateBooked;
+        const trialDatesChecked = checkedStatuses.dateOfTrial;
+
+        if (fromDate && toDate) {
+            if (bookedDatesChecked) {
+                forDateOkBookingTrial = [fromDate, toDate];
+            } else if (trialDatesChecked) {
+                forDateOfTrial = [fromDate, toDate];
+            } else {
+                forOtherDate = [fromDate, toDate];
+            }
+        }
+
+        const bookedByParams = savedAgent || [];
+        if (active === "request") {
+            fetchRequestToCancellations(
+                "",
+                "",
+                forAttend,
+                forNotAttend,
+                forDateOkBookingTrial,
+                forDateOfTrial,
+                forOtherDate,
+                bookedByParams
+            );
+        } else if (active === "full") {
+            fetchFullCancellations(
+                "",
+                "",
+                forAttend,
+                forNotAttend,
+                forDateOkBookingTrial,
+                forDateOfTrial,
+                forOtherDate,
+                bookedByParams
+            );
+        } else if (active === "all") {
+            fetchAllCancellations(
+                "",
+                "",
+                forAttend,
+                forNotAttend,
+                forDateOkBookingTrial,
+                forDateOfTrial,
+                forOtherDate,
+                bookedByParams
+            );
+        }
+    };
+
+    const getStatusBadge = (status) => {
+        const s = status.toLowerCase();
+        let styles =
+            "bg-red-100 text-red-500"; // default fallback
+        if (s === "attend" || s === "active")
+            styles = "bg-green-100 text-green-600";
+        else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
+        else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
+        else if (s === "waiting list") styles = "bg-gray-200 text-gray-700";
+
+        return (
+            <div
+                className={`flex text-center justify-center rounded-lg p-1 gap-2 ${styles} capitalize`}
+            >
+                {status}
+            </div>
+        );
+    };
 
     const [showPopup, setShowPopup] = useState(false);
     const [tempSelectedAgent, setTempSelectedAgent] = useState(null);
     const [savedAgent, setSavedAgent] = useState([]);
     const popupRef = useRef(null);
-    const [selectedAgents, setSelectedAgents] = useState([]);
-    const toggleAgent = (agentId) => {
-        if (selectedAgents.includes(agentId)) {
-            // 👉 prevent unselecting (disable once checked)
-            return;
-        }
-        setSelectedAgents((prev) => [...prev, agentId]);
-    };
-    const agents = bookedByAdmin?.map((admin) => ({
-        name: `${admin.firstName} ${admin.lastName}`.trim(),
-        avatar: admin.profile
-            ? `${API_BASE_URL}${admin.profile}`
-            : "/demo/synco/members/dummyuser.png", // fallback image
-    }));
+
+    const agents = Array(6).fill({
+        name: "Jaffar",
+        avatar: "https://i.ibb.co/ZVPd9vJ/jaffar.png", // Replace with real image or asset
+    });
+
     // Close popup if clicked outside
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -294,79 +360,250 @@ const trialLists = () => {
         }
         setShowPopup(false);
     };
-
-
-
     const handleSearch = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
 
         // Fetch data with search value (debounce optional)
-        fetchBookMemberships(value);
+        if (active === "request") {
+            fetchRequestToCancellations(value);
+        } else if (active === "full") {
+            fetchFullCancellations(value);
+        } else if (active === "all") {
+            fetchAllCancellations(value);
+        }
     };
+    console.log('statsFreeTrial', statsFreeTrial)
+    const { checkPermission } = usePermission();
 
-    if (loading) return <Loader />;
+    const canServicehistory =
+        checkPermission({ module: 'service-history', action: 'view-listing' })
 
-    const membershipData = bookMembership?.flatMap((item) =>
-        item.students.map((student) => ({
-            ...item,          // keep membership-level info
-            student,          // nest student info
-        }))
-    );
-    const membershipColumns = [
-        { header: "Name", key: "name", selectable: true }, // <-- checkbox + student name
-        { header: "Age", key: "age", render: (item, student) => student.age },
-        { header: "Venue", render: (item) => item.venue?.name || "-" },
+    const fullCancellationTable = [
         {
-            header: "Date of Booking",
-            render: (item) => new Date(item.trialDate).toLocaleDateString(),
-        },
-        {
-            header: "Who Booked?",
+            header: "Parent Name",
+            key: "name",
+            selectable: true, // ✅ checkbox + parent name
             render: (item) =>
-                `${item?.bookedByAdmin?.firstName || ""} ${item?.bookedByAdmin?.lastName !== "null" ? item?.bookedByAdmin?.lastName : ""
-                }`,
+                `${item.parents?.[0]?.parentFirstName || ""} ${item.parents?.[0]?.parentLastName || ""}`,
         },
-        { header: "Membership Plan", render: (item) => item?.paymentPlan?.title },
         {
-            header: "Life Cycle of membership",
-            render: (item) =>
-                `${item?.paymentPlan?.duration} ${item?.paymentPlan?.interval}${item?.paymentPlan?.duration > 1 ? "s" : ""
-                }`,
+            header: "No. Of Students",
+            render: (item) => item.totalStudents || item.students?.length || 0,
         },
-        { header: "Status", render: (item) => getStatusBadge(item.status) },
+        {
+            header: "Venue",
+            render: (item) => item.venue?.name || "-",
+        },
+        {
+            header: "Membership Start Date",
+            render: (item) =>
+                item.startDate ? new Date(item.startDate).toLocaleDateString() : "-",
+        },
+        {
+            header: "Request Date",
+            render: (item) =>
+                item.cancelDate ? new Date(item.cancelDate).toLocaleDateString() : "-",
+        },
+        {
+            header: "Membership Plan",
+            render: (item) => item.paymentPlan?.title || "-",
+        },
+        {
+            header: "Tenure",
+            render: (item) => {
+                if (!item.paymentPlan) return "-";
+                const { duration, interval } = item.paymentPlan;
+                const intervalLabel = duration === 1 ? interval : `${interval}s`; // singular or plural
+                return `${duration} ${intervalLabel}`;
+            },
+        },
+        {
+            header: "Reason",
+            render: (item) => (
+                <div
+                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status?.toLowerCase() === "cancelled"
+                        ? "bg-[#eda6001f] text-[#EDA600]"
+                        : item.status?.toLowerCase() === "pending"
+                            ? "bg-[#eda6001f] text-[#EDA600]"
+                            : "bg-green-100 text-green-600"
+                        } capitalize`}
+                >
+                    {item.cancelReason || item.status}
+                </div>
+            ),
+        },
+    ];
+    const requestCancellationTable = [
+        {
+            header: "Parent Name",
+            key: "name",
+            selectable: true, // ✅ checkbox + parent name
+            render: (item) =>
+                `${item.parents?.[0]?.parentFirstName || ""} ${item.parents?.[0]?.parentLastName || ""}`,
+        },
+        {
+            header: "No. Of Students",
+            render: (item) => item.totalStudents || item.students?.length || 0,
+        },
+        {
+            header: "Venue",
+            render: (item) => item.venue?.name || "-",
+        },
+        {
+            header: "Membership Start Date",
+            render: (item) =>
+                item.startDate
+                    ? new Date(item.startDate).toLocaleDateString()
+                    : new Date(item.createdAt).toLocaleDateString(),
+        },
+        {
+            header: "Request Date",
+            render: (item) =>
+                item.cancelDate ? new Date(item.cancelDate).toLocaleDateString() : "-",
+        },
+        {
+            header: "Membership Plan",
+            render: (item) => item.paymentPlan?.title || "-",
+        },
+        {
+            header: "Tenure",
+            render: (item) => {
+                if (!item.paymentPlan) return "-";
+                const { duration, interval } = item.paymentPlan;
+                const intervalLabel = duration === 1 ? interval : `${interval}s`; // singular or plural
+                return `${duration} ${intervalLabel}`;
+            },
+        },
+        {
+            header: "Reason",
+            render: (item) => (
+                <div
+                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status?.toLowerCase() === "cancelled"
+                        ? "bg-[#eda6001f] text-[#EDA600]"
+                        : item.status?.toLowerCase() === "pending"
+                            ? "bg-[#eda6001f] text-[#EDA600]"
+                            : "bg-green-100 text-green-600"
+                        } capitalize`}
+                >
+                    {item.cancelReason || item.status}
+                </div>
+            ),
+        },
+    ];
+    const allCancellationTable = [
+        {
+            header: "Parent Name",
+            key: "name",
+            selectable: true, // ✅ checkbox + parent name
+            render: (item) =>
+                `${item.parents?.[0]?.parentFirstName || ""} ${item.parents?.[0]?.parentLastName || ""}`,
+        },
+        {
+            header: "No. Of Students",
+            render: (item) => item.totalStudents || item.students?.length || 0,
+        },
+        {
+            header: "Venue",
+            render: (item) => item.venue?.name || "-",
+        },
+        {
+            header: "Membership Start Date",
+            render: (item) =>
+                item.startDate
+                    ? new Date(item.startDate).toLocaleDateString()
+                    : new Date(item.createdAt).toLocaleDateString(),
+        },
+        {
+            header: "Request Date",
+            render: (item) =>
+                item.cancelDate ? new Date(item.cancelDate).toLocaleDateString() : "-",
+        },
+        {
+            header: "Membership Plan",
+            render: (item) => item.paymentPlan?.title || "-",
+        },
+        {
+            header: "Tenure",
+            render: (item) => {
+                if (!item.paymentPlan) return "-";
+                const { duration, interval } = item.paymentPlan;
+                const intervalLabel = duration === 1 ? interval : `${interval}s`; // singular or plural
+                return `${duration} ${intervalLabel}`;
+            },
+        },
+        {
+            header: "Reason",
+            render: (item) => (
+                <div
+                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status?.toLowerCase() === "cancelled"
+                        ? "bg-[#eda6001f] text-[#EDA600]"
+                        : item.status?.toLowerCase() === "pending"
+                            ? "bg-[#eda6001f] text-[#EDA600]"
+                            : "bg-green-100 text-green-600"
+                        } capitalize`}
+                >
+                    {item.cancelReason || item.status}
+                </div>
+            ),
+        },
     ];
 
 
-    console.log('bookMembership', bookMembership)
+    const currentColumns = useMemo(() => {
+        if (active === "request") return requestCancellationTable;
+        if (active === "full") return fullCancellationTable;
+        if (active === "all") return allCancellationTable;
+        return fullCancellationTable; // fallback
+    }, [active]);
+    if (loading) return <Loader />;
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
 
             <div className="md:flex w-full gap-4">
                 <div className="flex-1 transition-all duration-300">
-                    <StatsGrid stats={stats} variant="B" />
+                    <div className="flex py-6 pb-10 gap-4">
+                        {buttons.map((btn) => (
+                            <button
+                                key={btn.key}
+                                onClick={() => {
+                                    setActive(btn.key);
+                                    setSelectedStudents([]); // if you want null
+                                }}
+                                className={`flex gap-2 items-center px-3 py-2 rounded-xl text-sm sm:text-[16px] transition ${active === btn.key
+                                    ? "bg-[#237FEA] text-white" // active
+                                    : "text-gray-700 font-semibold border border-gray-300" // inactive
+                                    }`}
+                            >
+                                {btn.label}
+                            </button>
+                        ))}
+                    </div>
 
+                    <StatsGrid stats={stats} variant="A" />
                     <div className="flex justify-end ">
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
-                            <img
-                                onClick={() => navigate("/configuration/weekly-classes/find-a-class")}
+                            <img onClick={() => navigate("/configuration/weekly-classes/find-a-class")}
                                 src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
                         </div>
                     </div>
-
                     <DynamicTable
-                        columns={membershipColumns}
-                        data={membershipData}   // 👈 use flattened data
+                        columns={currentColumns}
+                        data={bookFreeTrials}
                         selectedIds={selectedStudents}
-                         setSelectedStudents={setSelectedStudents}
-                          from={'membership'}
-                        onRowClick={(row) =>
-                            navigate("/configuration/weekly-classes/all-members/account-info", {
-                                state: { itemId: row.id, memberInfo: "allMembers" },
-                            })
+                        setSelectedStudents={setSelectedStudents}
+                        from={'cancellation'}
+                        onRowClick={
+                            canServicehistory
+                                ? (item) =>
+                                    navigate(
+                                        "/configuration/weekly-classes/cancellation/account-info/list",
+                                        { state: { itemId: item.id || item.bookingId } }
+                                    )
+                                : undefined
                         }
                     />
-                
+
 
                 </div>
 
@@ -375,7 +612,7 @@ const trialLists = () => {
                         <h2 className="text-[24px] font-semibold">Search Now </h2>
                         <div className="">
                             <label htmlFor="" className="text-base font-semibold">Search Student</label>
-                            <div className="relative mt-2 ">
+                            <div className="relative mt-2">
                                 <input
                                     type="text"
                                     placeholder="Search by student name"
@@ -390,7 +627,7 @@ const trialLists = () => {
                             <label htmlFor="" className="text-base font-semibold">Venue</label>
                             <div className="relative mt-2 ">
                                 <Select
-                                    options={myVenues.map((venue) => ({
+                                    options={myVenues?.map((venue) => ({
                                         label: venue?.name, // or `${venue.name} (${venue.area})`
                                         value: venue?.id,
                                     }))}
@@ -417,6 +654,7 @@ const trialLists = () => {
 
 
 
+
                             </div>
                         </div>
                     </div>
@@ -430,17 +668,26 @@ const trialLists = () => {
                                     Apply filter
                                 </button>
                             </div>
+
                             <div className="bg-gray-50 p-4 rounded-lg w-full">
                                 <div className="font-semibold mb-2 text-[18px]">Choose type</div>
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-2 font-semibold text-[16px]">
 
-                                    {filterOptions.map(({ label, key }) => (
-                                        <label key={key} className="flex items-center gap-2">
+                                    {["Request to cancel", "Cancelled"].map((label, i) => (
+                                        <label key={i} className="flex items-center gap-2">
                                             <input
                                                 type="checkbox"
                                                 className="peer hidden"
-                                                checked={checkedStatuses[key]}
-                                                onChange={() => handleCheckboxChange(key)}
+                                                checked={
+                                                    label === "Request to cancel"
+                                                        ? checkedStatuses.request_to_cancel
+                                                        : label === "Cancelled"
+                                                            ? checkedStatuses.cancelled
+                                                            : label === "Date Booked"
+                                                                ? checkedStatuses.dateBooked
+                                                                : checkedStatuses.dateOfTrial
+                                                }
+                                                onChange={() => handleCheckboxChange(label)}
                                             />
                                             <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
                                                 <Check className="w-4 h-4 transition-all" strokeWidth={3} />
@@ -448,30 +695,6 @@ const trialLists = () => {
                                             <span>{label}</span>
                                         </label>
                                     ))}
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={savedAgent?.length > 0} // checked if some agents are saved
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    fetchBookMemberships();
-                                                    setShowPopup(true); // open popup
-                                                } else {
-                                                    // Clear everything if unchecked
-                                                    setSavedAgent([]);
-                                                    setTempSelectedAgents([]);
-                                                }
-                                            }}
-                                            className="peer hidden"
-                                        />
-                                        <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
-                                            <Check className="w-4 h-4 transition-all" strokeWidth={3} />
-                                        </span>
-                                        <span>Agent</span>
-                                    </label>
-
-
-
 
                                 </div>
                             </div>
@@ -531,20 +754,14 @@ const trialLists = () => {
                                                         </span>
                                                         <img
                                                             src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/demo/synco/members/dummyuser.png"}
-                                                            alt={
-                                                                admin?.firstName || admin?.lastName
-                                                                    ? `${admin?.firstName ?? ""} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()
-                                                                    : "Unknown Admin"
-                                                            }
-
+                                                            alt={`${admin.firstName} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`}
                                                             className="w-8 h-8 rounded-full"
                                                         />
                                                         <span>
                                                             {admin?.firstName || admin?.lastName
-                                                                ? `${admin?.firstName ?? ""} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()
+                                                                ? `${admin?.firstName ?? ""}${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()
                                                                 : "N/A"}
                                                         </span>
-
                                                     </label>
                                                 );
                                             })}
@@ -560,8 +777,6 @@ const trialLists = () => {
                                     </div>
                                 </div>
                             )}
-
-
                             <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
                                 {/* Header */}
                                 <div className="flex justify-around items-center mb-3">
@@ -627,8 +842,8 @@ const trialLists = () => {
                                                         innerDiv = (
                                                             <div
                                                                 className={`bg-blue-700 rounded-full text-white w-12 h-12 flex items-center justify-center font-bold
-          
-          `}
+                                 
+                                 `}
                                                             >
                                                                 {date.getDate()}
                                                             </div>
@@ -660,16 +875,25 @@ const trialLists = () => {
                     </div>
                     <div className="flex gap-2 justify-between">
                         <button
+
                             onClick={() => {
-                                if (selectedStudents && selectedStudents.length > 0) {
-                                    sendBookMembershipMail(selectedStudents);
-                                } else {
+                                if (!selectedStudents || selectedStudents.length === 0) {
                                     Swal.fire({
                                         icon: "warning",
-                                        title: "No Students Selected",
+                                        title: "No students selected",
                                         text: "Please select at least one student before sending an email.",
-                                        confirmButtonText: "OK",
                                     });
+                                    return;
+                                }
+                                if (active === "full") {
+                                    sendFullTomail(selectedStudents);
+                                    setSelectedStudents([]);
+                                } else if (active === "request") {
+                                    sendRequestTomail(selectedStudents);
+                                    setSelectedStudents([]);
+                                } else if (active === "all") {
+                                    sendAllmail(selectedStudents);
+                                    setSelectedStudents([]);
                                 }
                             }}
                             className="flex gap-2 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]"
@@ -677,15 +901,16 @@ const trialLists = () => {
                             <img
                                 src="/demo/synco/icons/mail.png"
                                 className="w-4 h-4 sm:w-5 sm:h-5"
-                                alt=""
+                                alt="mail"
                             />
                             Send Email
                         </button>
+
                         <button className="flex gap-2 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
                             <img src='/demo/synco/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
-                        <button onClick={exportToExcel} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
+                        <button onClick={exportFreeTrials} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]">
                             <img src='/demo/synco/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Export Data
                         </button>
@@ -700,4 +925,4 @@ const trialLists = () => {
     )
 }
 
-export default trialLists
+export default CancellationList

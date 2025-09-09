@@ -192,6 +192,7 @@ const recipientOptions = [
     });
 
     console.log('filteredNotifications', filteredNotifications)
+    
    if (loading && loadingCustomNotification) {
         return (
             <>

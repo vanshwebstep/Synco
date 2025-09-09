@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FiSearch } from "react-icons/fi";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Select from "react-select";
+import Select, { components } from "react-select";
 import { Check, } from "lucide-react";
 import { PieChart, Pie, Cell } from "recharts";
 import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
@@ -10,6 +10,19 @@ import Loader from '../../../contexts/Loader';
 import { usePermission } from '../../../Common/permission';
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
+const CheckboxOption = (props) => {
+    return (
+        <components.Option {...props}>
+            <input
+                type="checkbox"
+                checked={props.isSelected}
+                onChange={() => null}
+                style={{ marginRight: 8 }}
+            />
+            <label>{props.label}</label>
+        </components.Option>
+    );
+};
 const Capacity = () => {
     const navigate = useNavigate();
     const popupRef = useRef(null);
@@ -51,12 +64,13 @@ const Capacity = () => {
         { label: "Spaces Available", color: "#34AE56", borderColor: "#34AE56", type: "capacity" },
         { label: "No Spaces", color: "#FE7058", borderColor: "#FE7058" },
     ];
-    const handleVenueChange = (venue) => {
-        console.log("Selected venue:", venue);
-        setSelectedVenue(venue);
-        fetchCapacitySearch(venue?.value || "");
-        // You can also do other logic here
-        // e.g., fetchCapacity(venue.value) or any API call
+    const handleVenueChange = (venues) => {
+        console.log("Selected venues:", venues);
+        setSelectedVenue(venues);
+
+        // pass all selected venue names as array
+        const selectedNames = venues?.map((v) => v.value) || [];
+        fetchCapacitySearch(selectedNames);
     };
     const applyFilter = () => {
         let forOtherDate = "";
@@ -174,20 +188,25 @@ const Capacity = () => {
                 <div className="flex gap-5 py-5 items-center a ">
                     <div className="relative w-100">
                         <Select
-                            options={capacityData?.venues?.map((venue) => ({
-                                value: venue.name,
-                                label: venue.name,
-                            })) || []}
-                            placeholder="Search venue"
-                            className=" "
+                            options={
+                                capacityData?.venues?.map((venue) => ({
+                                    value: venue.name,
+                                    label: venue.name,
+                                })) || []
+                            }
+                            placeholder="Search Venue"
                             value={selectedVenue}
-                            onChange={handleVenueChange} // triggers fetchCapacity
-                            classNamePrefix="react-select"
-                            isClearable={true}
+                            onChange={handleVenueChange}
+                            isMulti
+                            closeMenuOnSelect={false}
+                            hideSelectedOptions={false}
+                            components={{
+                                Option: CheckboxOption,
+                            }}
                             styles={{
                                 control: (base, state) => ({
                                     ...base,
-                                    borderRadius: "1.5rem",
+                                    borderRadius: "1rem",
                                     borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
                                     boxShadow: "none",
                                     padding: "4px 8px",
@@ -198,6 +217,7 @@ const Capacity = () => {
                                 indicatorSeparator: () => ({ display: "none" }),
                             }}
                         />
+
 
                     </div>
                     <button onClick={handleTogglePopup} className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-3 rounded-lg text-sm sm:text-[16px]">
@@ -362,151 +382,151 @@ const Capacity = () => {
                 </div>
             </div>
             <div className="transition-all duration-300 flex-1 bg-white space-y-6">
-             {searchLoading ? (
-    <div className="text-center py-6 text-gray-500">Loading venues...</div>
-) :
-                capacityData && capacityData.venues ? (
-                    capacityData.venues.length > 0 ? (
-                        capacityData.venues.map((venue) => (
-                            <div
-                                key={venue.id}
-                                className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white"
-                            >
-                                {/* Header */}
-                                <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <img src="/demo/synco/icons/crown.png" alt="" />
-                                        <span className="font-medium text-[20px]">
-                                            {venue.address || "Unnamed Address"}
-                                        </span>
+                {searchLoading ? (
+                    <div className="text-center py-6 text-gray-500">Loading venues...</div>
+                ) :
+                    capacityData && capacityData.venues ? (
+                        capacityData.venues.length > 0 ? (
+                            capacityData.venues.map((venue) => (
+                                <div
+                                    key={venue.id}
+                                    className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white"
+                                >
+                                    {/* Header */}
+                                    <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
+                                        <div className="flex items-center gap-2">
+                                            <img src="/demo/synco/icons/crown.png" alt="" />
+                                            <span className="font-medium text-[20px]">
+                                                {venue.address || "Unnamed Address"}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="flex items-center flex-col lg:flex-row">
-                                    <div className="px-4 w-full py-2 flex-1 space-y-6">
-                                        <div className="flex gap-4 justify-between items-center flex-wrap">
-                                            {/* Venue Info */}
-                                            <div>
-                                                <div className="font-semibold text-[16px] text-black">
-                                                    {venue.name}
+                                    <div className="flex items-center flex-col lg:flex-row">
+                                        <div className="px-4 w-full py-2 flex-1 space-y-6">
+                                            <div className="flex gap-4 justify-between items-center flex-wrap">
+                                                {/* Venue Info */}
+                                                <div>
+                                                    <div className="font-semibold text-[16px] text-black">
+                                                        {venue.name}
+                                                    </div>
+                                                    <div className="whitespace-nowrap text-[#717073] font-semibold text-[14px]">
+                                                        {new Date(venue.createdAt).toLocaleDateString("en-GB", {
+                                                            weekday: "long",
+                                                            year: "numeric",
+                                                            month: "short",
+                                                            day: "2-digit",
+                                                        })}
+                                                    </div>
                                                 </div>
-                                                <div className="whitespace-nowrap text-[#717073] font-semibold text-[14px]">
-                                                    {new Date(venue.createdAt).toLocaleDateString("en-GB", {
-                                                        weekday: "long",
-                                                        year: "numeric",
-                                                        month: "short",
-                                                        day: "2-digit",
-                                                    })}
-                                                </div>
-                                            </div>
 
-                                            {venue.classes && venue.classes.length > 0 ? (
-                                                venue.classes.map((cls) => {
-                                                    const { totalCapacity, totalBooked, availableSpaces, members, freeTrials } = venue.stats;
+                                                {venue.classes && venue.classes.length > 0 ? (
+                                                    venue.classes.map((cls) => {
+                                                        const { totalCapacity, totalBooked, availableSpaces, members, freeTrials } = venue.stats;
 
-                                                    const statsItems = [
-                                                        { label: "Total Students", color: "#F9FAFB", borderColor: "#ccc", value: totalBooked, textColor: "#414141" },
-                                                        { label: "Members", color: "#237FEA", borderColor: "#237FEA", value: members, textColor: "#fff" },
-                                                        { label: "Free Trials", color: "#EEAA1F", borderColor: "#EEAA1F", value: freeTrials, textColor: "#fff" },
-                                                        {
-                                                            label: "Spaces Available",
-                                                            color: availableSpaces > 0 ? "#34AE56" : "#FE7058", // green if >0, red if 0
-                                                            borderColor: availableSpaces > 0 ? "#34AE56" : "#FE7058",
-                                                            value: availableSpaces,
-                                                            textColor: "#fff"
-                                                        },
-                                                        { label: "No Spaces", color: "#FE7058", borderColor: "#FE7058", value: totalCapacity - totalBooked - availableSpaces, textColor: "#fff" },
-                                                    ];
+                                                        const statsItems = [
+                                                            { label: "Total Students", color: "#F9FAFB", borderColor: "#ccc", value: totalBooked, textColor: "#414141" },
+                                                            { label: "Members", color: "#237FEA", borderColor: "#237FEA", value: members, textColor: "#fff" },
+                                                            { label: "Free Trials", color: "#EEAA1F", borderColor: "#EEAA1F", value: freeTrials, textColor: "#fff" },
+                                                            {
+                                                                label: "Spaces Available",
+                                                                color: availableSpaces > 0 ? "#34AE56" : "#FE7058", // green if >0, red if 0
+                                                                borderColor: availableSpaces > 0 ? "#34AE56" : "#FE7058",
+                                                                value: availableSpaces,
+                                                                textColor: "#fff"
+                                                            },
+                                                            { label: "No Spaces", color: "#FE7058", borderColor: "#FE7058", value: totalCapacity - totalBooked - availableSpaces, textColor: "#fff" },
+                                                        ];
 
-                                                    return (
-                                                        <div
-                                                            key={cls.id}
-                                                            className="block text-center pr-10 border-r border-[#ccc]"
-                                                        >
-                                                            <div className="whitespace-nowrap font-semibold text-[14px]">
-                                                                {`Class: ${cls.day}, ${cls.startTime} - ${cls.endTime}`}
-                                                            </div>
-                                                            <div className="text-[16px] py-4 font-semibold text-[#384455]">
-                                                                <div className="flex items-center gap-3">
-                                                                    {statsItems
-                                                                        .filter(item => item.value > 0)
-                                                                        .map((item, idx) => (
-                                                                            <div
-                                                                                key={idx}
-                                                                                className="w-10  h-10 rounded-md border flex items-center justify-center"
-                                                                                style={{ backgroundColor: item.color, borderColor: item.borderColor, color: item.textColor }}
-                                                                                title={`${item.label}: ${item.value}`}
-                                                                            >
-                                                                                <span className="text-[18px] font-semibold">{item.value}</span>
-                                                                            </div>
-                                                                        ))
-                                                                    }
+                                                        return (
+                                                            <div
+                                                                key={cls.id}
+                                                                className="block text-center pr-10 border-r border-[#ccc]"
+                                                            >
+                                                                <div className="whitespace-nowrap font-semibold text-[14px]">
+                                                                    {`Class: ${cls.day}, ${cls.startTime} - ${cls.endTime}`}
+                                                                </div>
+                                                                <div className="text-[16px] py-4 font-semibold text-[#384455]">
+                                                                    <div className="flex items-center gap-3">
+                                                                        {statsItems
+                                                                            .filter(item => item.value > 0)
+                                                                            .map((item, idx) => (
+                                                                                <div
+                                                                                    key={idx}
+                                                                                    className="w-10  h-10 rounded-md border flex items-center justify-center"
+                                                                                    style={{ backgroundColor: item.color, borderColor: item.borderColor, color: item.textColor }}
+                                                                                    title={`${item.label}: ${item.value}`}
+                                                                                >
+                                                                                    <span className="text-[18px] font-semibold">{item.value}</span>
+                                                                                </div>
+                                                                            ))
+                                                                        }
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    );
-                                                })
-                                            ) : (
-                                                <div className="text-gray-500 text-sm">
-                                                    No classes available
-                                                </div>
-                                            )}
+                                                        );
+                                                    })
+                                                ) : (
+                                                    <div className="text-gray-500 text-sm">
+                                                        No classes available
+                                                    </div>
+                                                )}
 
 
 
 
-                                            {/* Stats with Pie */}
-                                            <div className="bg-[#F2ECE6] border border-[#ccc] text-black rounded-3xl shadow-md px-6 py-4 flex items-center">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[16px] font-semibold">Total</span>
-                                                    <span className="text-[14px] text-[#717073]">
-                                                        <span>{venue.stats.totalBooked} Booked of </span>
-                                                        <span>{venue.stats.totalCapacity} Spaces</span>
-                                                    </span>
-                                                </div>
+                                                {/* Stats with Pie */}
+                                                <div className="bg-[#F2ECE6] border border-[#ccc] text-black rounded-3xl shadow-md px-6 py-4 flex items-center">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[16px] font-semibold">Total</span>
+                                                        <span className="text-[14px] text-[#717073]">
+                                                            <span>{venue.stats.totalBooked} Booked of </span>
+                                                            <span>{venue.stats.totalCapacity} Spaces</span>
+                                                        </span>
+                                                    </div>
 
-                                                <div className="ml-6 relative">
-                                                    <PieChart width={80} height={80}>
-                                                        <Pie
-                                                            data={[
-                                                                { value: venue.stats.totalBooked },
-                                                                {
-                                                                    value:
-                                                                        venue.stats.totalCapacity -
-                                                                        venue.stats.totalBooked,
-                                                                },
-                                                            ]}
-                                                            cx="50%"
-                                                            cy="50%"
-                                                            startAngle={90}
-                                                            endAngle={-270}
-                                                            innerRadius={32}
-                                                            outerRadius={38}
-                                                            dataKey="value"
-                                                            stroke="none"
-                                                        >
-                                                            {[0, 1].map((i) => (
-                                                                <Cell key={i} fill={COLORS[i]} />
-                                                            ))}
-                                                        </Pie>
-                                                    </PieChart>
-                                                    <span className="absolute inset-0 flex items-center justify-center text-[18px] font-semibold">
-                                                        {venue.stats.occupancyRate}%
-                                                    </span>
+                                                    <div className="ml-6 relative">
+                                                        <PieChart width={80} height={80}>
+                                                            <Pie
+                                                                data={[
+                                                                    { value: venue.stats.totalBooked },
+                                                                    {
+                                                                        value:
+                                                                            venue.stats.totalCapacity -
+                                                                            venue.stats.totalBooked,
+                                                                    },
+                                                                ]}
+                                                                cx="50%"
+                                                                cy="50%"
+                                                                startAngle={90}
+                                                                endAngle={-270}
+                                                                innerRadius={32}
+                                                                outerRadius={38}
+                                                                dataKey="value"
+                                                                stroke="none"
+                                                            >
+                                                                {[0, 1].map((i) => (
+                                                                    <Cell key={i} fill={COLORS[i]} />
+                                                                ))}
+                                                            </Pie>
+                                                        </PieChart>
+                                                        <span className="absolute inset-0 flex items-center justify-center text-[18px] font-semibold">
+                                                            {venue.stats.occupancyRate}%
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                        ))
+                            ))
+                        ) : (
+                            <div className="text-center py-6 text-gray-500">No data available</div>
+                        )
                     ) : (
                         <div className="text-center py-6 text-gray-500">No data available</div>
-                    )
-                ) : (
-    <div className="text-center py-6 text-gray-500">No data available</div>
-)}
+                    )}
             </div>
 
 

@@ -34,6 +34,7 @@ const routeTitleMap = {
   '/configuration/weekly-classes/find-a-class/add-to-waiting-list': { title: 'Add to Waiting List', icon: '/demo/synco/members/waiting.png' },
   '/configuration/weekly-classes/find-a-class/add-to-waiting-list/list': { title: ' Waiting List', icon: '/demo/synco/members/waiting.png' },
   '/configuration/weekly-classes/capacity': { title: 'Capacity', icon: '/demo/synco/members/Capacity.png' },
+  '/configuration/weekly-classes/cancellation': { title: 'Cancellations', icon: '/demo/synco/members/Cancellations.png' },
 
 };
 

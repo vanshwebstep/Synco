@@ -36,57 +36,73 @@ const AdminLogin = () => {
   }, []);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const handleNext = async (e) => {
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    if (newPassword !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-    if (!newPassword || !confirmPassword) {
-      alert('Both fields are required.');
-      return;
-    }
-    e.preventDefault();
+const handleNext = async (e) => {
+  e.preventDefault();
 
-    const raw = JSON.stringify({
-      token,
-      newPassword,
-      confirmPassword
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+
+  if (newPassword !== confirmPassword) {
+    Swal.fire({
+      icon: "error",
+      title: "Passwords do not match",
     });
-    setLoading(true);
-    try {
+    return;
+  }
+  if (!newPassword || !confirmPassword) {
+    Swal.fire({
+      icon: "warning",
+      title: "Both fields are required",
+    });
+    return;
+  }
 
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/auth/password/reset`,
-        {
-          method: 'POST',
-          headers: myHeaders,
-          body: raw
-        }
-      );
+  const raw = JSON.stringify({
+    token,
+    newPassword,
+    confirmPassword,
+  });
 
-      const result = await response.json();
-
-      if (response.ok) {
-        Swal.fire({
-          icon: 'success',
-          title: result.message || `Password successfully reset.`,
-          showConfirmButton: false,
-        })
-        setIsResetCome(false)
-      } else {
-        alert(result.message || 'Reset failed');
+  setLoading(true);
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/auth/password/reset`,
+      {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
       }
-    } catch (err) {
-      console.error(err);
-      alert('Server error');
-    } finally {
-      setLoading(false);
-    }
-    console.log("Ready to submit:", { token, newPassword });
+    );
 
-  };
+    const result = await response.json();
+
+    if (response.ok) {
+      Swal.fire({
+        icon: "success",
+        title: result.message || `Password successfully reset.`,
+        showConfirmButton: false,
+        timer: 2000, // auto close after 2s
+      });
+      setIsResetCome(false);
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: result.message || "Reset failed",
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: "error",
+      title: "Server error. Please try again later.",
+    });
+  } finally {
+    setLoading(false);
+  }
+
+  console.log("Ready to submit:", { token, newPassword });
+};
+
 
 
   const validateEmail = (email) => {

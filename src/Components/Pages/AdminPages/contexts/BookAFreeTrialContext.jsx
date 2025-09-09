@@ -624,42 +624,42 @@ export const BookFreeTrialProvider = ({ children }) => {
   );
 
 
-const serviceHistoryMembership = useCallback(async (ID) => {
-  const token = localStorage.getItem("adminToken");
-  if (!token) return;
+  const serviceHistoryMembership = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
 
-  setLoading(true);
-  setError(null);
+    setLoading(true);
+    setError(null);
 
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/admin/book-membership/account-information/${ID}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/book-membership/account-information/${ID}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const resultRaw = await response.json();
+
+      // Check API-level error
+      if (!resultRaw.status) {
+        throw new Error(resultRaw.message || "Failed to fetch booking info");
       }
-    );
 
-    const resultRaw = await response.json();
-
-    // Check API-level error
-    if (!resultRaw.status) {
-      throw new Error(resultRaw.message || "Failed to fetch booking info");
+      const result = resultRaw.data || [];
+      setServiceHistory(result);
+    } catch (err) {
+      console.error("Failed to fetch booking info:", err);
+      setError(err.message || "Something went wrong");
+      setServiceHistory([]); // clear previous data if error
+    } finally {
+      setLoading(false);
     }
-
-    const result = resultRaw.data || [];
-    setServiceHistory(result);
-  } catch (err) {
-    console.error("Failed to fetch booking info:", err);
-    setError(err.message || "Something went wrong");
-    setServiceHistory([]); // clear previous data if error
-  } finally {
-    setLoading(false);
-  }
-}, []);
+  }, []);
   const createBookMembership = async (bookFreeMembershipData) => {
     setLoading(true);
 
@@ -1399,14 +1399,19 @@ const serviceHistoryMembership = useCallback(async (ID) => {
     }
   }, []);
   const fetchCapacitySearch = useCallback(async (
-    venueName = "",
+    venueNames = [],   // now array instead of string
     otherDateRange = []
   ) => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
     setSearchLoading(true);
+
     const queryParams = new URLSearchParams();
-    if (venueName) queryParams.append("venueName", venueName);
+
+    if (Array.isArray(venueNames) && venueNames.length > 0) {
+      venueNames.forEach((name) => queryParams.append("venueName", name));
+    }
+
     if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
       const [from, to] = otherDateRange;
       if (from && to) {
@@ -1414,6 +1419,7 @@ const serviceHistoryMembership = useCallback(async (ID) => {
         queryParams.append("toDate", formatLocalDate(to));
       }
     }
+
     try {
       const res = await fetch(
         `${API_BASE_URL}/api/admin/capacity${queryParams.toString() ? `?${queryParams.toString()}` : ""}`,
@@ -1426,12 +1432,466 @@ const serviceHistoryMembership = useCallback(async (ID) => {
     } catch (err) {
       console.error(err);
     } finally {
-      setSearchLoading(false)
+      setSearchLoading(false);
     }
   }, []);
 
 
 
+
+  // Cancellation 
+  const fetchFullCancellations = useCallback(
+    async (
+      studentName = "",
+      venueName = "",
+      status1 = false,
+      status2 = false,
+      otherDateRange = [],
+      dateoftrial = [],
+      forOtherDate = [],
+      BookedBy = []
+
+    ) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
+      console.log('status1', status1)
+      console.log('satus2', status2)
+      console.log('otherDateRange', otherDateRange)
+      console.log('dateoftrial', dateoftrial)
+      console.log('forOtherDate', forOtherDate)
+
+      const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
+      // if (shouldShowLoader) setLoading(true);
+
+      try {
+        const queryParams = new URLSearchParams();
+
+        // Student & Venue filters
+        if (studentName) queryParams.append("studentName", studentName);
+        if (venueName) queryParams.append("venueName", venueName);
+
+        // Status filters
+     if (status1) queryParams.append("status", "request_to_cancel");
+        if (status2) queryParams.append("status", "cancelled");
+        if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
+          BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
+        }
+
+
+        if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
+          const [from, to] = dateoftrial;
+          if (from && to) {
+            queryParams.append("dateTrialFrom", formatLocalDate(from));
+            queryParams.append("dateTrialTo", formatLocalDate(to));
+          }
+        }
+
+        // 🔹 Handle general (createdAt range)
+        if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+          const [from, to] = otherDateRange;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+
+        if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
+          const [from, to] = forOtherDate;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+        // Trial dates (support array or single value)
+        // const trialDates = Array.isArray(dateoftrial) ? dateoftrial : [dateoftrial];
+        // trialDates
+        //   .filter(Boolean)
+        //   .map(d => formatLocalDate(d))
+        //   .filter(Boolean)
+        //   .forEach(d => queryParams.append("trialDate", d));
+
+        const url = `${API_BASE_URL}/api/admin/cancellation/full-cancellation/${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const resultRaw = await response.json();
+        const result = resultRaw.data.cancellationData || [];
+        const venues = resultRaw.data.allVenue || [];
+        const bookedByAdmin = resultRaw.data.bookedByAdmin || []
+        setBookedByAdmin(bookedByAdmin);
+        setMyVenues(venues || []);
+        setStatsFreeTrial(resultRaw.data.stats)
+        setBookFreeTrials(result);
+      } catch (error) {
+        console.error("Failed to fetch bookFreeTrials:", error);
+      } finally {
+        // if (shouldShowLoader) setLoading(false); // only stop loader if it was started
+      }
+    },
+    []
+  );
+  const fetchRequestToCancellations = useCallback(
+    async (
+      studentName = "",
+      venueName = "",
+      status1 = false,
+      status2 = false,
+      otherDateRange = [],
+      dateoftrial = [],
+      forOtherDate = [],
+      BookedBy = []
+
+    ) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
+      console.log('status1', status1)
+      console.log('satus2', status2)
+      console.log('otherDateRange', otherDateRange)
+      console.log('dateoftrial', dateoftrial)
+      console.log('forOtherDate', forOtherDate)
+
+      const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
+      // if (shouldShowLoader) setLoading(true);
+
+      try {
+        const queryParams = new URLSearchParams();
+
+        // Student & Venue filters
+        if (studentName) queryParams.append("studentName", studentName);
+        if (venueName) queryParams.append("venueName", venueName);
+
+        // Status filters
+     if (status1) queryParams.append("status", "request_to_cancel");
+        if (status2) queryParams.append("status", "cancelled");
+        if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
+          BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
+        }
+
+
+        if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
+          const [from, to] = dateoftrial;
+          if (from && to) {
+            queryParams.append("dateTrialFrom", formatLocalDate(from));
+            queryParams.append("dateTrialTo", formatLocalDate(to));
+          }
+        }
+
+        // 🔹 Handle general (createdAt range)
+        if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+          const [from, to] = otherDateRange;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+
+        if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
+          const [from, to] = forOtherDate;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+        // Trial dates (support array or single value)
+        // const trialDates = Array.isArray(dateoftrial) ? dateoftrial : [dateoftrial];
+        // trialDates
+        //   .filter(Boolean)
+        //   .map(d => formatLocalDate(d))
+        //   .filter(Boolean)
+        //   .forEach(d => queryParams.append("trialDate", d));
+
+        const url = `${API_BASE_URL}/api/admin/cancellation/request-to-cancel/${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const resultRaw = await response.json();
+        const result = resultRaw.data.cancellationData || [];
+        const venues = resultRaw.data.allVenue || [];
+        const bookedByAdmin = resultRaw.data.bookedByAdmin || []
+        setBookedByAdmin(bookedByAdmin);
+        setMyVenues(venues || []);
+        setStatsFreeTrial(resultRaw.data.stats)
+        setBookFreeTrials(result);
+      } catch (error) {
+        console.error("Failed to fetch bookFreeTrials:", error);
+      } finally {
+        // if (shouldShowLoader) setLoading(false); // only stop loader if it was started
+      }
+    },
+    []
+  );
+  const fetchAllCancellations = useCallback(
+    async (
+      studentName = "",
+      venueName = "",
+      status1 = false,
+      status2 = false,
+      otherDateRange = [],
+      dateoftrial = [],
+      forOtherDate = [],
+      BookedBy = []
+
+    ) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
+      console.log('status1', status1)
+      console.log('satus2', status2)
+      console.log('otherDateRange', otherDateRange)
+      console.log('dateoftrial', dateoftrial)
+      console.log('forOtherDate', forOtherDate)
+
+      const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
+      // if (shouldShowLoader) setLoading(true);
+
+      try {
+        const queryParams = new URLSearchParams();
+
+        // Student & Venue filters
+        if (studentName) queryParams.append("studentName", studentName);
+        if (venueName) queryParams.append("venueName", venueName);
+
+        // Status filters
+     if (status1) queryParams.append("status", "request_to_cancel");
+        if (status2) queryParams.append("status", "cancelled");
+        if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
+          BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
+        }
+
+
+        if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
+          const [from, to] = dateoftrial;
+          if (from && to) {
+            queryParams.append("dateTrialFrom", formatLocalDate(from));
+            queryParams.append("dateTrialTo", formatLocalDate(to));
+          }
+        }
+
+        // 🔹 Handle general (createdAt range)
+        if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+          const [from, to] = otherDateRange;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+
+        if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
+          const [from, to] = forOtherDate;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+        // Trial dates (support array or single value)
+        // const trialDates = Array.isArray(dateoftrial) ? dateoftrial : [dateoftrial];
+        // trialDates
+        //   .filter(Boolean)
+        //   .map(d => formatLocalDate(d))
+        //   .filter(Boolean)
+        //   .forEach(d => queryParams.append("trialDate", d));
+
+        const url = `${API_BASE_URL}/api/admin/cancellation/all/${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const resultRaw = await response.json();
+        const result = resultRaw.data.cancellationData || [];
+        const venues = resultRaw.data.allVenue || [];
+        const bookedByAdmin = resultRaw.data.bookedByAdmin || []
+        setBookedByAdmin(bookedByAdmin);
+        setMyVenues(venues || []);
+        setStatsFreeTrial(resultRaw.data.stats)
+        setBookFreeTrials(result);
+      } catch (error) {
+        console.error("Failed to fetch bookFreeTrials:", error);
+      } finally {
+        // if (shouldShowLoader) setLoading(false); // only stop loader if it was started
+      }
+    },
+    []
+  );
+
+    const sendRequestTomail = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/request-to-cancel/send-email`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          bookingIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchRequestToCancellations();
+      setLoading(false);
+    }
+  };
+      const sendAllmail = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/all/send-email`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          bookingIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchAllCancellations();
+      setLoading(false);
+    }
+  };
+     const sendFullTomail = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/full-cancellation/send-email`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          bookingIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchFullCancellations();
+      setLoading(false);
+    }
+  };
+
+
+  const ServiceHistoryRequestto = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/request-to-cancel/service-history/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setServiceHistory(result);
+    } catch (error) {
+      console.error("Failed to fetch bookFreeTrials:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   return (
     <BookFreeTrialContext.Provider
       value={{// Free Trials
@@ -1512,6 +1972,14 @@ const serviceHistoryMembership = useCallback(async (ID) => {
         setCapacityData,
         searchLoading,
 
+        // Cancellations
+        fetchFullCancellations,
+        fetchRequestToCancellations,
+        fetchAllCancellations,
+        sendRequestTomail,
+        sendFullTomail,
+        sendAllmail,
+        ServiceHistoryRequestto,
       }}>
       {children}
     </BookFreeTrialContext.Provider>

@@ -9,15 +9,31 @@ import { AlertOctagon } from 'lucide-react';
 import { useMembers } from './AdminPages/contexts/MemberContext';
 import CountUp from "react-countup";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import Loader from "./AdminPages/contexts/Loader";
 
 
 
 const Dashboard = () => {
-  const { fetchDashboard, dashboardData } = useMembers();
+  const { fetchDashboard, dashboardData, loading } = useMembers();
   const [hasChanges, setHasChanges] = useState(false);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("adminToken");
+;
 
+  const [adminInfo, setAdminInfo] = useState({ firstName: "", lastName: "", role: "", profile: "" });
+
+  useEffect(() => {
+    // ✅ Load adminInfo from localStorage
+    const storedAdmin = localStorage.getItem("adminInfo");
+    if (storedAdmin) {
+      try {
+        const parsedAdmin = JSON.parse(storedAdmin);
+        setAdminInfo(parsedAdmin);
+      } catch (e) {
+        console.error("Invalid adminInfo JSON in localStorage:", e);
+      }
+    }
+  }, []);
   useEffect(() => {
     fetchDashboard();
   }, [fetchDashboard]);
@@ -43,7 +59,21 @@ const Dashboard = () => {
   ];
 
   const [metricsList, setMetricsList] = useState([]);
+  const filterOptions = [
+    { label: "This Year", key: "thisyear", apiParam: "period", apiValue: "thisyear" },
+    { label: "This Month", key: "thismonth", apiParam: "period", apiValue: "thismonth" },
+    { label: "This Week", key: "thisweek", apiParam: "period", apiValue: "thisweek" },
+    { label: "Last Year", key: "lastyear", apiParam: "period", apiValue: "lastyear" },
+    { label: "Last Month", key: "lastmonth", apiParam: "period", apiValue: "lastmonth" },
+    { label: "Last Week", key: "lastweek", apiParam: "period", apiValue: "lastweek" },
+  ];
 
+  const [checkedStatuses, setCheckedStatuses] = useState(
+    filterOptions.reduce((acc, option) => ({ ...acc, [option.key]: false }), {})
+  );
+     const handleCheckboxChange = (key) => {
+        setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
   useEffect(() => {
     if (dashboardData) {
       const updatedMetrics = metricDefinitions
@@ -76,7 +106,6 @@ const Dashboard = () => {
 
   const MyRole = localStorage.getItem("role");
 
-
   const handleReorder = async () => {
     if (!token) return;
 
@@ -94,7 +123,7 @@ const Dashboard = () => {
           "Content-Type": "text/plain",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ widgets: payload }),
+        body: JSON.stringify(payload),
       });
       console.log("Reordered:", payload);
       setOriginalData(dashboardData); // update original order
@@ -109,8 +138,14 @@ const Dashboard = () => {
 
 
   const today = new Date();
+    const formattedDate = today.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [fromDate, setFromDate] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 11));
+  const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
 
   const month = currentDate.getMonth();
@@ -170,7 +205,41 @@ const Dashboard = () => {
       }
     }
   };
+const applyFilter = () => {
+  console.log("▶️ applyFilter called");
 
+  // validate custom date range
+  const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+  const hasRange = isValidDate(fromDate) && isValidDate(toDate);
+  const range = hasRange ? [fromDate, toDate] : [];
+
+  console.log("📅 final range:", range);
+
+  // collect selected filters (can be multiple)
+  const selectedFilters = Object.keys(checkedStatuses).filter(
+    (key) => checkedStatuses[key]
+  );
+  console.log("🔎 selectedFilters:", selectedFilters);
+
+  // call fetchDashboard with params
+  fetchDashboard({
+    studentName: "",
+    venueName: "",
+    filterTypes: selectedFilters,  // array
+    fromDate: hasRange ? fromDate.toISOString().split("T")[0] : null,
+    toDate: hasRange ? toDate.toISOString().split("T")[0] : null,
+  });
+};
+
+
+
+  if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    )
+  }
   return (
     <>
       {(MyRole === 'Super Admin' || MyRole === 'franchisee' || MyRole === 'Admin') ? (
@@ -185,8 +254,9 @@ const Dashboard = () => {
              bg-no-repeat bg-left bg-contain"
               >
                 <div className="text-center sm:text-end w-full">
-                  <h2 className="text-[18px] sm:text-[24px] font-semibold text-black z-10">Monday 3rd June 2025</h2>
-                  <h5 className="text-[22px] sm:text-[28px] font-bold text-black z-10">Welcome to your dashboard, Nilio</h5>
+                  <h2 className="text-[18px] sm:text-[24px] font-semibold text-black z-10">        {formattedDate}
+</h2>
+                  <h5 className="text-[22px] sm:text-[28px] font-bold text-black z-10">Welcome to your dashboard, {adminInfo.firstName}</h5>
                 </div>
                 <div className="absolute inset-0 opacity-80 rounded-xl" />
               </div>
@@ -389,77 +459,124 @@ const Dashboard = () => {
               <div className="bg-white rounded-xl p-4">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter by date</h3>
-                  <button className="flex gap-2 items-center bg-blue-500 text-white px-3 py-2 rounded-lg text-sm sm:text-[16px]">
-                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
-                    Apply filter
+                  <button onClick={applyFilter} className="flex gap-2 items-center bg-blue-500 text-white px-3 py-2 rounded-lg text-sm sm:text-[16px]">
+                    <img  src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                    Apply fil ster
                   </button>
                 </div>
 
                 <div className="gap-2 text-sm bg-gray-100 p-4 my-6 rounded">
                   <label className="font-semibold text-[16px] sm:text-[18px] block mb-3">Choose type</label>
                   <div className="flex flex-wrap gap-3">
-                    {["This Year", "This Month", "This Week", "Last Year", "Last Month", "Last Week"].map((label, i) => (
-                      <label
-                        key={i}
-                        className="flex items-center w-full sm:w-[45%] text-[16px] font-semibold gap-3 cursor-pointer"
-                      >
-                        <input type="checkbox" className="peer hidden" id={`checkbox-${i}`} />
-                        <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-gray-400 rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
+                   
+                    {filterOptions.map(({ label, key }) => (
+                      <label key={key} className="flex items-center w-full sm:w-[45%] text-[16px] font-semibold gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          className="peer hidden"
+                          checked={checkedStatuses[key]}
+                          onChange={() => handleCheckboxChange(key)}
+                        />
+                        <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
                           <Check className="w-4 h-4 transition-all" strokeWidth={3} />
                         </span>
-                        <span className="text-sm text-gray-800">{label}</span>
+                        <span>{label}</span>
                       </label>
                     ))}
                   </div>
                 </div>
 
                 {/* Calendar */}
-                <div className="rounded p-4 text-center text-sm w-full max-w-md mx-auto">
+                <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
+                  {/* Header */}
                   <div className="flex justify-around items-center mb-3">
-                    <button onClick={goToPreviousMonth} className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center">
+                    <button
+                      onClick={goToPreviousMonth}
+                      className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                    >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <p className="font-semibold text-lg">
+
+                    <p className="font-semibold text-[20px]">
                       {currentDate.toLocaleString("default", { month: "long" })} {year}
                     </p>
-                    <button onClick={goToNextMonth} className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center">
+                    <button
+                      onClick={goToNextMonth}
+                      className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                    >
                       <ChevronRight className="w-5 h-5" />
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-7 text-xs gap-1 text-gray-500 mb-1">
+                  {/* Day Labels */}
+                  <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
                     {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
-                      <div key={day} className="font-medium text-center">{day}</div>
+                      <div key={day} className="font-medium text-center">
+                        {day}
+                      </div>
                     ))}
                   </div>
 
-                  <div className="flex flex-col gap-1">
+                  {/* Calendar Weeks */}
+                  <div className="flex flex-col  gap-1">
                     {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
                       const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
-                      const highlightRow = week.some((date) => isInRange(date));
+
 
                       return (
                         <div
                           key={weekIndex}
-                          className={`grid grid-cols-7 gap-1 py-1 rounded ${highlightRow ? "bg-sky-100" : ""}`}
+                          className="grid grid-cols-7 text-[18px] h-12 py-1  rounded"
                         >
                           {week.map((date, i) => {
-                            const isFrom = isSameDate(date, fromDate);
-                            const isTo = isSameDate(date, toDate);
+                            const isStart = isSameDate(date, fromDate);
+                            const isEnd = isSameDate(date, toDate);
+                            const isStartOrEnd = isStart || isEnd;
+                            const isInBetween = date && isInRange(date);
+                            const isExcluded = !date; // replace with your own excluded logic
+
+                            let className =
+                              " w-full h-12 aspect-square flex items-center justify-center transition-all duration-200 ";
+                            let innerDiv = null;
+
+                            if (!date) {
+                              className += "";
+                            } else if (isExcluded) {
+                              className +=
+                                "bg-gray-300 text-white opacity-60 cursor-not-allowed";
+                            } else if (isStartOrEnd) {
+                              // Outer pill connector background
+                              className += ` bg-sky-100 ${isStart ? "rounded-l-full" : ""} ${isEnd ? "rounded-r-full" : ""
+                                }`;
+                              // Inner circle but with left/right rounding
+                              innerDiv = (
+                                <div
+                                  className={`bg-blue-700 rounded-full text-white w-12 h-12 flex items-center justify-center font-bold
+                         
+                         `}
+                                >
+                                  {date.getDate()}
+                                </div>
+                              );
+                            } else if (isInBetween) {
+                              // Middle range connector
+                              className += "bg-sky-100 text-gray-800";
+                            } else {
+                              className += "hover:bg-gray-100 text-gray-800";
+                            }
 
                             return (
                               <div
                                 key={i}
-                                onClick={() => date && handleDateClick(date)}
-                                className={`w-8 h-8 flex items-center justify-center mx-auto text-sm rounded-full cursor-pointer
-                          ${isFrom || isTo ? "bg-blue-600 text-white font-bold" : "text-gray-800"}
-                        `}
+                                onClick={() => date && !isExcluded && handleDateClick(date)}
+                                className={className}
                               >
-                                {date ? date.getDate() : ""}
+                                {innerDiv || (date ? date.getDate() : "")}
                               </div>
                             );
                           })}
                         </div>
+
                       );
                     })}
                   </div>
@@ -540,7 +657,7 @@ const Dashboard = () => {
               <div className="bg-white rounded-xl p-4 ">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <h3 className="font-semibold text-[24px]">Filter by date</h3>
-                  <button className="flex gap-2 items-center bg-blue-500 text-white p-2 rounded-lg text-[16px]">
+                  <button onClick={applyFilter} className="flex gap-2 items-center bg-blue-500 text-white p-2 rounded-lg text-[16px]">
                     <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-5 h-5' alt="" />  Apply filter
                   </button>
                 </div>
