@@ -110,20 +110,56 @@ const List = () => {
     const handleSave = () => {
         const payload = {
             ...formData,
-            venueId: venueId
+            venueId: venueId,
         };
-        if (formData.startTime === formData.endTime) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Start time and end time cannot be the same.',
-            }); return; // Prevent saving
+
+        // --- Validation ---
+        if (!formData.className?.trim()) {
+            Swal.fire("Validation Error", "Class Name is required", "error");
+            return;
         }
+
+        if (!formData.capacity || isNaN(formData.capacity) || Number(formData.capacity) <= 0) {
+            Swal.fire("Validation Error", "Capacity must be a positive number", "error");
+            return;
+        }
+
+        if (!formData.day) {
+            Swal.fire("Validation Error", "Please select a day", "error");
+            return;
+        }
+
+        if (!formData.startTime || !formData.endTime) {
+            Swal.fire("Validation Error", "Please select both start and end times", "error");
+            return;
+        }
+
+        if (formData.startTime === formData.endTime) {
+            Swal.fire("Validation Error", "Start and End time cannot be the same", "error");
+            return;
+        }
+
+        if (formData.startTime > formData.endTime) {
+            Swal.fire("Validation Error", "End time must be after start time", "error");
+            return;
+        }
+
+        // --- Save ---
         createClassSchedules(payload);
-        setFormData({})
+
+        // reset fields (make sure default values match your form shape)
+        setFormData({
+            className: "",
+            capacity: "",
+            day: "",
+            startTime: "",
+            endTime: "",
+            allowFreeTrial: false,
+        });
 
         setOpenForm(false);
     };
+
     const handleEdit = (id) => {
         const payload = {
             ...formData,
@@ -239,7 +275,7 @@ const List = () => {
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`md:flex pe-4 justify-between items-center mb-4 w-full`}>
-                <h2 className="text-[28px] font-semibold">Class Schedule</h2>
+                <h2 onClick={() => navigate('/configuration/weekly-classes/venues/')} className="md:text-[28px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center  p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" /> Edit Class Schedule</h2>
                 {canCreate &&
                     <button
                         onClick={() => handleAddNew()}
@@ -577,7 +613,7 @@ const List = () => {
                                         <input
                                             type="text"
                                             value={formData.className}
-                                            required
+
                                             onChange={(e) => handleChange('className', e.target.value)}
                                             className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
                                         />
@@ -586,7 +622,7 @@ const List = () => {
                                         <label htmlFor="">Capacity</label>
                                         <input
                                             type="number"
-                                            required
+
                                             value={formData.capacity}
                                             onChange={(e) => handleChange('capacity', e.target.value)}
                                             className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
@@ -598,7 +634,7 @@ const List = () => {
                                         <label htmlFor="">Day</label>
                                         <select
                                             value={formData.day}
-                                            required
+
                                             onChange={(e) => handleChange('day', e.target.value)}
                                             className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
                                         >
@@ -616,7 +652,7 @@ const List = () => {
                                                 onChange={(date) =>
                                                     handleChange('startTime', formatDateToTimeString(date))
                                                 }
-                                                required
+
                                                 showTimeSelect
                                                 showTimeSelectOnly
                                                 timeIntervals={15}
@@ -634,7 +670,7 @@ const List = () => {
                                                     handleChange('endTime', formatDateToTimeString(date))
                                                 }
                                                 showTimeSelect
-                                                required
+
                                                 showTimeSelectOnly
                                                 timeIntervals={15}
                                                 dateFormat="h:mm aa"

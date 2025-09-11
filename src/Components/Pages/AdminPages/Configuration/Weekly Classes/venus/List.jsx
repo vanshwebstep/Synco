@@ -359,7 +359,7 @@ const List = () => {
     checkPermission({ module: 'class-schedule', action: 'view-listing' })
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
-      <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
+      <div className={`flex flex-wrap pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
         <h2 className="text-[28px] font-semibold">Venues</h2>
         {canCreate &&
           <button
@@ -368,7 +368,7 @@ const List = () => {
           >
             <div className="flex items-center gap-2">
               <img src="/demo/synco/members/add.png" className="w-5" alt="" />
-              <span>Add New Venue</span>
+              <span>Add a New Venue</span>
             </div>
           </button>
         }
@@ -386,7 +386,7 @@ const List = () => {
                   <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
                     <tr className="font-semibold ">
                       <th className="p-4 text-[#717073]">
-                        <div className="flex gap-2 items-center">
+                        <div className="flex gap-3 items-center">
                           <button
                             onClick={toggleSelectAll}
                             className="w-5 h-5 flex items-center justify-center rounded-md border-2 border-gray-500 focus:outline-none"
@@ -412,13 +412,15 @@ const List = () => {
                         <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
                           <td className="p-4 cursor-pointer">
                             <div className="flex items-center gap-3">
-                              <button
-                                onClick={() => toggleCheckbox(user.id)}
-                                className={`lg:w-5 lg:h-5 w-full  me-2 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-700' : 'border-gray-300'
-                                  } transition-colors focus:outline-none`}
-                              >
-                                {isChecked && <Check size={16} strokeWidth={3} className="text-gray-700" />}
-                              </button>
+                             <button
+  onClick={() => toggleCheckbox(user.id)}
+  className={`w-6 h-6 sm:w-5 sm:h-5 flex items-center justify-center rounded-md border-2 ${
+    isChecked ? 'border-gray-700' : 'border-gray-300'
+  } transition-colors focus:outline-none`}
+>
+  {isChecked && <Check size={16} strokeWidth={3} className="text-gray-700" />}
+</button>
+
                               <span>{user.area || "-"}</span>
                             </div>
                           </td>
@@ -483,6 +485,14 @@ const List = () => {
                           </td>
                           <td className="p-4">
                             <div className="flex gap-2">
+                              {canViewClassSchedule &&
+                                <div>  <img
+                                  src="/demo/synco/members/Time-Circle.png"
+                                  className="min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
+                                  alt="Navigate"
+                                  onClick={() => navigate(`/configuration/weekly-classes/venues/class-schedule?id=${user.id}`)}
+                                /></div>
+                              }
                               {canUpdate &&
                                 <div><img onClick={() => {
                                   setIsEditVenue(true);
@@ -501,14 +511,7 @@ const List = () => {
                                   />
                                 </div>
                               }
-                              {canViewClassSchedule &&
-                                <div>  <img
-                                  src="/demo/synco/members/Time-Circle.png"
-                                  className="min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
-                                  alt="Navigate"
-                                  onClick={() => navigate(`/configuration/weekly-classes/venues/class-schedule?id=${user.id}`)}
-                                /></div>
-                              }
+                              
                             </div>
 
                           </td>
@@ -549,9 +552,8 @@ const List = () => {
               className="absolute top-4 right-6 text-gray-400 hover:text-gray-700 text-xl"
               title="Close"
             >
-              &times;
             </button>
-            <Create packages={packages} termGroup={classCards} onClose={() => setOpenForm(false)} />
+            <Create  packages={packages} termGroup={classCards} onClose={() => setOpenForm(false)} />
 
 
           </div>

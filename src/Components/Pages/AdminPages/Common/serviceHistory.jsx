@@ -4,11 +4,7 @@ import React from "react";
 const formatDate = (dateString, withTime = false) => {
   if (!dateString) return "-";
   const date = new Date(dateString);
-  const options = {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  };
+  const options = { year: "numeric", month: "short", day: "2-digit" };
   if (withTime) {
     return (
       date.toLocaleDateString("en-US", options) +
@@ -19,203 +15,268 @@ const formatDate = (dateString, withTime = false) => {
   return date.toLocaleDateString("en-US", options);
 };
 
-const ServiceHistory = ({ serviceHistory }) => {
+const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
   if (!serviceHistory) return null;
 
   const {
     bookingId,
-    trialDate,
     bookedBy,
+    paymentData,
     status,
     createdAt,
     students,
     classSchedule,
     paymentPlan,
+    bookedByAdmin,
+    dateBooked,
+    title,   // header title
+    icon,    // header icon
+    progress // e.g. "6/12 months"
   } = serviceHistory;
-                const statusStyles = {
-  attended: "bg-green-500 text-white",
-  pending: "bg-yellow-500 text-black",
-  cancelled: "bg-red-500 text-white",
-  request_to_cancel: "bg-white text-red-500 border ",
-};
-  console.log('serviceHistory', serviceHistory)
+
+  const statusStyles = {
+    attend: "bg-green-500 text-white",
+    active: "bg-green-500 text-white",
+    pending: "bg-yellow-500 text-white",
+    cancelled: "bg-red-500 text-white",
+    request_to_cancel: "bg-white text-red-500 border",
+  };
+  console.log('comesFrom,cancellation', serviceHistory)
   return (
     <div className="transition-all duration-300 flex-1 bg-white">
       <div className="rounded-4xl w-full">
         <div className="space-y-5">
           <div className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white">
+
             {/* Header */}
             <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
-                <img src="/demo/synco/icons/crown.png" alt="" />
+                {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                  <img src={icon || "/demo/synco/icons/crown.png"} alt="icon" />
+                )}
+
                 <span className="font-medium text-[20px]">
-                  Weekly Classes Trial
+                  {title || labels.header || "Service History"}
                 </span>
               </div>
+
               <div className="flex relative items-center gap-4">
                 {/* Student Count */}
-                <div className="flex gap-2 items-center text-black p-2 rounded-xl flex-wrap bg-white">
-                  <img
-                    src="/demo/synco/images/accountInfoCount.png"
-                    alt="Back"
-                  />
-                  <div className="block pr-3">
-                    <div className="whitespace-nowrap font-semibold text-[#717073] text-[16px]">
-                      {students?.length || 0}
+                {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                  <div className="flex gap-2 items-center text-black p-2 rounded-xl flex-wrap bg-white">
+                    <img
+                      src="/demo/synco/images/accountInfoCount.png"
+                      alt="student count"
+                    />
+                    <div className="block pr-3">
+                      <div className="whitespace-nowrap font-semibold text-[#717073] text-[16px]">
+                        {students?.length || 0}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
                 {/* Status */}
-
-
-<div
-  className={`flex gap-2 items-center p-2 rounded-xl flex-wrap shadow-sm ${
-    statusStyles[status] || "bg-gray-300 text-black"
-  }`}
->
-  <div className="block">
-    <div className="whitespace-nowrap font-semibold capitalize text-[14px]">
-      {status ? status.replaceAll("_", " ") : "Unknown"}
-    </div>
-  </div>
-</div>
-
+                {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                  <div
+                    className={`flex gap-2 items-center p-2 rounded-xl flex-wrap shadow-sm ${statusStyles[status] || "bg-gray-300 text-black"
+                      }`}
+                  >
+                    <div className="block">
+                      <div className="whitespace-nowrap font-semibold capitalize text-[14px]">
+                        {status ? status.replaceAll("_", " ") : "Unknown"}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Venue Content */}
+            {/* Content */}
             <div className="flex items-center bg-[#FCF9F6] flex-col lg:flex-row">
               <div className="px-4 w-full py-2 flex-1 space-y-6">
                 <div className="flex gap-6 justify-between items-center flex-wrap">
-                  {/* Trial Date */}
-                  <div>
-                    <div className="whitespace-nowrap font-semibold text-[14px]">
-                      Memberhsip Plan
-                    </div>
-                    <div className="font-semibold text-[16px] text-black">
-                      {paymentPlan?.title}
-                    </div>
-                  </div>
 
+                  {/* Membership Plan */}
+                  {(comesFrom === "cancellation" || comesFrom === "membership") && (
+                    <div>
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.membershipPlan || "Membership Plan"}
+                      </div>
+                      <div className="font-semibold text-[16px] text-black">
+                        {paymentPlan?.title || "-"}
+                      </div>
+                    </div>
+                  )}
+                  {comesFrom === "freeTrial" && (
+                    <div>
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.dateOfTrial || "Date of "}
+                      </div>
+                      <div className="font-semibold text-[16px] text-black">
+                        {formatDate(serviceHistory?.trialDate) || "-"}
+                      </div>
+                    </div>
+                  )}
                   {/* Students */}
-                  <div className="block pr-3">
-                    <div className="whitespace-nowrap font-semibold text-[14px]">
-                      Students
+                  {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                    <div className="block pr-3">
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.students || "Students"}
+                      </div>
+                      <div className="text-[16px] font-semibold text-[#384455]">
+                        {students?.length || 0}
+                      </div>
                     </div>
-                    <div className="text-[16px] font-semibold text-[#384455]">
-                      {students?.length || 0}
-                    </div>
-                  </div>
+                  )}
+
+
 
                   {/* Venue */}
-                  <div className="block pr-3">
-                    <div className="whitespace-nowrap font-semibold text-[14px]">
-                      Venue
+                  {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                    <div className="block pr-3">
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.venue || "Venue"}
+                      </div>
+                      <div className="text-[16px] font-semibold text-[#384455]">
+                        {classSchedule?.venue?.name || "-"}
+                      </div>
                     </div>
-                    <div className="text-[16px] font-semibold text-[#384455]">
-                      {classSchedule?.venue?.name || "-"}
-                    </div>
-                  </div>
+                  )}
+
 
                   {/* Booking ID */}
-                  <div className="block pr-3">
-                    <div className="whitespace-nowrap font-semibold text-[14px]">
-                      KGoCardless ID
+                  {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                    <div className="block pr-3">
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.bookingId || "Booking ID"}
+                      </div>
+                      <div className="text-[16px] font-semibold text-[#384455]">
+                        {bookingId || "-"}
+                      </div>
                     </div>
-                    <div className="text-[16px] font-semibold text-[#384455]">
-                      {bookingId}
+                  )}
+                  {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                    <div className="block pr-3">
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.dateOfBooking || "Date of Booking"}
+                      </div>
+                      <div className="text-[16px] font-semibold text-[#384455]">
+                        {formatDate(dateBooked, true) || formatDate(createdAt, true)}
+                      </div>
                     </div>
-                  </div>
+                  )}
+                  {(comesFrom === "freeTrial") && (
+                    <div className="block pr-3">
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.trialAttempt || "Trial Attempt"}
+                      </div>
+                      <div className="text-[16px] font-semibold text-[#384455]">
+                        {'1' || "-"}
+                      </div>
+                    </div>
+                  )}
 
-                  <div className="block pr-3">
-                    <div className="whitespace-nowrap font-semibold text-[14px]">
-                      {paymentPlan?.interval === "Month"
-                        ? "Monthly Price"
-                        : paymentPlan?.interval === "Year"
-                          ? "Yearly Price"
-                          : paymentPlan?.interval === "Annual"
-                            ? "Annually Price"
-                            : "Price"}
+                  {(comesFrom === "cancellation" || comesFrom === "membership") && (
+                    <div className="block pr-3">
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.price || "Price"}
+                      </div>
+                      <div className="text-[16px] font-semibold text-[#384455]">
+                        £
+                        {paymentPlan?.interval === "Month"
+                          ? paymentPlan?.price / paymentPlan?.duration
+                          : paymentPlan?.interval === "Year"
+                            ? paymentPlan?.price / (paymentPlan?.duration / 12)
+                            : paymentPlan?.interval === "Annual"
+                              ? paymentPlan?.price
+                              : paymentPlan?.price}
+                      </div>
                     </div>
+                  )}
 
-                    <div className="text-[16px] font-semibold text-[#384455]">
-                      £{paymentPlan?.interval === "Month"
-                        ? paymentPlan?.price / paymentPlan?.duration // monthly
-                        : paymentPlan?.interval === "Year"
-                          ? paymentPlan?.price / (paymentPlan?.duration / 12) // yearly
-                          : paymentPlan?.interval === "Annual"
-                            ? paymentPlan?.price // annual total
-                            : paymentPlan?.price}
-                    </div>
-                  </div>
 
 
                   {/* Date of Booking */}
-                  <div className="block pr-3">
-                    <div className="whitespace-nowrap font-semibold text-[14px]">
-                      Date of Booking
-                    </div>
-                    <div className="text-[16px] font-semibold text-[#384455]">
-                      {formatDate(createdAt, true)}
-                    </div>
-                  </div>
 
 
-                  <div>
-                    <div className="whitespace-nowrap font-semibold text-[14px]">
-                      Progress
-                    </div>
-                    <div className="text-[16px] font-semibold text-[#384455]">
-                      6/12 month (static)
-                    </div>
-                  </div>
-                  <div>
 
-                  </div>
 
-                  {/* Booking Source */}
-                  <div className="block flex items-center">
+                  {/* Progress */}
+                  {(comesFrom === "cancellation") && (
                     <div>
                       <div className="whitespace-nowrap font-semibold text-[14px]">
-                        Booking Source
+                        {labels.progress || "Progress"}
                       </div>
                       <div className="text-[16px] font-semibold text-[#384455]">
-                        {bookedBy?.firstName} {bookedBy?.lastName}
+                        {progress || "-"}
                       </div>
                     </div>
+                  )}
+                  {(comesFrom === "membership") && (
                     <div>
-                      <img
-                        src="/demo/synco/icons/threeDot.png"
-                        alt=""
-                        className="pl-4"
-                      />
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.coach || "Coach"}
+                      </div>
+                      <div className="text-[16px] font-semibold text-[#384455]">
+                        {bookedByAdmin?.firstName} {bookedByAdmin?.lastName}
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+
+                  {/* Booking Source */}
+                  {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                    <div className="block flex items-center">
+                      <div>
+                        <div className="whitespace-nowrap font-semibold text-[14px]">
+                          {labels.bookingSource || "Booking Source"}
+                        </div>
+                       <div className="text-[16px] font-semibold text-[#384455]">
+  {bookedBy?.firstName && bookedBy?.lastName ? `${bookedBy.firstName} ${bookedBy.lastName}` : ""}
+  {bookedBy && paymentData ? " || " : ""}
+  {paymentData?.firstName && paymentData?.lastName ? `${paymentData.firstName} ${paymentData.lastName}` : ""}
+</div>
+
+                      </div>
+                      <div>
+                        <img
+                          src="/demo/synco/icons/threeDot.png"
+                          alt="options"
+                          className="pl-4"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+
                 </div>
 
                 {/* Buttons */}
                 <div className="flex flex-col w-full space-y-4">
                   <div className="flex gap-2 flex-wrap justify-start">
-                    <button className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[15px] font-medium">
-                      See Details
-                    </button>
-                    <button className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[15px] font-medium">
-                      Credits
-                    </button>
-                       <button className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[15px] font-medium">
-                      Attendance
-                    </button>   <button className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[15px] font-medium">
-                      See payments
-                    </button>
+                    {(labels.buttons || [
+                      "See Details",
+                      "Credits",
+                      "Attendance",
+                      "See Payments",
+                    ]).map((btn, i) => (
+                      <button
+                        key={i}
+                        className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[15px] font-medium"
+                      >
+                        {btn}
+                      </button>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
-            {/* End Venue */}
+            {/* End Content */}
           </div>
         </div>
       </div>
     </div>
+
   );
 };
 

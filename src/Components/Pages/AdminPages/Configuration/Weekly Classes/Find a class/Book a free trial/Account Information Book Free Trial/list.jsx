@@ -10,9 +10,10 @@ const tabs = [
   "Rewards",
   "Events",
 ];
-import ServiceHistory from "./serviceHistory";
+
 import ParentProfile from "./ParentProfile";
 import { useBookFreeTrial } from '../../../../../contexts/BookAFreeTrialContext';
+import ServiceHistory from "../../../../../Common/serviceHistory";
 
 const list = () => {
       const { serviceHistoryFetchById ,serviceHistory} = useBookFreeTrial()
@@ -113,7 +114,23 @@ console.log('serviceHistory',serviceHistory)
           </button>
         </div>
       </div>
-{activeTab === "Service History" && <ServiceHistory serviceHistory={serviceHistory} />}
+{activeTab === "Service History" &&   <ServiceHistory
+          serviceHistory={serviceHistory}
+          labels={{
+            header: "Weekly Classes Trial",
+            dateOfTrial: "Date of Trial ",
+            students: "Students",
+            venue: "  Venue",
+            bookingId: "ID",
+            price: "Monthly Price",
+            dateOfBooking: "Date of  Booking ",
+            progress: "Progress",
+            trialAttempt: "Trial Attempt",
+            bookingSource: "Booking Source",
+            buttons: ["See details","Attendance"],
+          }}
+          comesFrom={'freeTrial'}
+        /> }
       {activeTab === "Parent Profile" && <ParentProfile  ParentProfile={serviceHistory}  />}
 
     </>

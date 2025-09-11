@@ -24,6 +24,8 @@ const Create = () => {
     const [activeTab, setActiveTab] = useState('beginner');
     const fileInputRef = useRef(null);
     const [page, setPage] = useState(1);
+      const [photoPreview, setPhotoPreview] = useState([]);
+
     const [groupName, setGroupName] = useState('');
     const [groupNameSection, setGroupNameSection] = useState('');
     const [player, setPlayer] = useState('');
@@ -515,7 +517,7 @@ const handleSavePlan = async () => {
 
                 <>
                     <div className={`transition-all duration-300 md:w-1/2`}>
-                        <div className="rounded-2xl  md:p-12 ">
+                        <div className="rounded-2xl  md:p-10 ">
                             <form className="mx-auto  space-y-4">
                                 {/* Group Name */}
                                 <div className="flex gap-4   border w-full border-gray-300 p-1 rounded-xl  flex-wrap">
@@ -698,7 +700,7 @@ const handleSavePlan = async () => {
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="text-gray-400 italic">No Exercise selected</div>
+                                            <div className="text-gray-400 italic py-3">  </div>
                                         )}
                                     </div>
 
@@ -774,7 +776,7 @@ const handleSavePlan = async () => {
                                     animate={{ x: 0, opacity: 1 }}
                                     exit={{ x: '100%', opacity: 0 }}
                                     transition={{ duration: 0.4 }}
-                                    className="bg-white rounded-3xl p-6  shadow-2xl relative "
+                                    className="bg-white rounded-3xl p-6 my-8  shadow-2xl relative "
                                 >
                                     <button
                                         onClick={() => setOpenForm(false)}
@@ -859,29 +861,45 @@ const handleSavePlan = async () => {
                                     </div>
 
                                     <div>
-                                        <div>
-                                            <input
-                                                type="file"
-                                                accept="image/*"
-                                                multiple
-                                                ref={fileInputRef}
-                                                onChange={(e) => {
-                                                    const files = Array.from(e.target.files);
-                                                    setFormData((prev) => ({ ...prev, images: files }));
-                                                }}
-                                                style={{ display: 'none' }}
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() => fileInputRef.current?.click()}
-                                                className="flex w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
-                                            >
-                                                Upload images
-                                            </button>
-                                        </div>
+                                    <div>
+  <input
+    type="file"
+    accept="image/*"
+    multiple
+    ref={fileInputRef}
+    onChange={(e) => {
+      const files = Array.from(e.target.files);
+      // Create URLs for each file
+      const previews = files.map((file) => URL.createObjectURL(file));
+      setPhotoPreview(previews);
+      setFormData((prev) => ({ ...prev, images: files }));
+    }}
+    style={{ display: 'none' }}
+  />
+  <button
+    type="button"
+    onClick={() => fileInputRef.current?.click()}
+    className="flex w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
+  >
+    Upload images
+  </button>
+
+  {/* Render multiple previews */}
+  <div className="flex flex-wrap gap-2 mt-2">
+    {photoPreview?.map((src, index) => (
+      <img
+        key={index}
+        src={src}
+        alt={`preview-${index}`}
+        className="w-24 h-24 object-cover rounded-md"
+      />
+    ))}
+  </div>
+</div>
+
 
                                     </div>
-                                    <div className="text-right">
+                                    <div className="text-right flex justify-end">
                                         <button
                                             onClick={handleSavePlan}
                                             disabled={planLoading}

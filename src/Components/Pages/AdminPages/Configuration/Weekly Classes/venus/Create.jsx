@@ -22,9 +22,39 @@ const Create = ({ packages, termGroup, onClose }) => {
   const [selectedSubs, setSelectedSubs] = useState([]);
   const [selectedTermIds, setSelectedTermIds] = useState([]);
   const [selectedLabels, setSelectedLabels] = useState([]);
+  const validateForm = () => {
+    if (!formData.area || !formData.area.trim()) return 'Area is required';
+    if (!formData.name || !formData.name.trim()) return 'Name of Venue is required';
+    if (!formData.address || !formData.address.trim()) return 'Address is required';
+    if (!formData.facility || formData.facility === '') return 'Please select Facility (Indoor/Outdoor)';
 
+    // if user selected parking, they must add a parking note (optional rule — adjust if you prefer)
+    if (formData.hasParking && (!formData.parkingNote || !formData.parkingNote.trim()))
+      return 'Please add a Parking Note or toggle off Parking';
+
+    // if congestion toggle is on, require a note
+    if (formData.isCongested && (!formData.congestionNote || !formData.congestionNote.trim()))
+      return 'Please add a Congestion Note or toggle off Congestion';
+
+    // require at least one term linkage (if that is a must — remove this block if optional)
+    if (selectedTermIds?.length === 0) return 'Please select at least one Term Date Linkage';
+
+    // require at least one subscription plan if business rule says so (optional)
+    // if (selectedSubs?.length === 0) return 'Please select at least one Subscription Plan';
+
+    return null; // valid
+  };
   const handleSubmit = () => {
-
+  const err = validateForm();
+  if (err) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: err,
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
+    return;
+  }
     console.log("Venue Submitted:", formData);
     createVenues(formData);
     setFormData({
@@ -53,6 +83,16 @@ const Create = ({ packages, termGroup, onClose }) => {
     );
   };
   const handleUpdate = (id) => {
+    const err = validateForm();
+      if (err) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: err,
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
+    return;
+  }
     updateVenues(id, formData);
     setFormData({
       area: "", name: "", address: "", facility: "",
@@ -157,7 +197,22 @@ const Create = ({ packages, termGroup, onClose }) => {
 
   return (
     <div className="max-w-md mx-auto">
-      <h2 className="md:text-[24px] font-semibold mb-4 flex gap-2 items-center border-[#E2E1E5] border-b p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" />{isEditVenue ? 'Edit Venue' : 'Add New Venue'}</h2>
+      <h2 onClick={() => {
+        onClose(); // ✅ call the function
+        setIsEditVenue(false);
+        setFormData({
+          area: "",
+          name: "",
+          address: "",
+          facility: "",
+          parking: false,
+          congestion: false,
+          parkingNote: "",
+          entryNote: "",
+          termDateLinkage: "",
+          subscriptionLinkage: ""
+        });
+      }} className="md:text-[24px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center border-[#E2E1E5] border-b p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" />{isEditVenue ? 'Edit Venue' : 'Add New Venue'}</h2>
       <form className="space-y-2  p-5 pt-1">
 
         <div>
@@ -207,85 +262,85 @@ const Create = ({ packages, termGroup, onClose }) => {
           </select>
         </div>
 
-       <div className="flex py-2 items-center justify-between gap-6">
-  {/* Parking Toggle */}
-  <label className="flex items-center gap-2 cursor-pointer">
-    <span className="block font-semibold text-[16px]">Parking</span>
-    <input
-      type="checkbox"
-      name="hasParking"
-      checked={formData.hasParking}
-      onChange={(e) => {
-        const { checked } = e.target;
-        setFormData((prev) => ({
-          ...prev,
-          hasParking: checked,
-          parkingNote: checked ? prev.parkingNote : '',
-        }));
-      }}
-      className="sr-only"
-    />
-    <div
-      className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
+        <div className="flex py-2 items-center justify-between gap-6">
+          {/* Parking Toggle */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <span className="block font-semibold text-[16px]">Parking</span>
+            <input
+              type="checkbox"
+              name="hasParking"
+              checked={formData.hasParking}
+              onChange={(e) => {
+                const { checked } = e.target;
+                setFormData((prev) => ({
+                  ...prev,
+                  hasParking: checked,
+                  parkingNote: checked ? prev.parkingNote : '',
+                }));
+              }}
+              className="sr-only"
+            />
+            <div
+              className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
       ${formData.hasParking ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
-    >
-      <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
-    </div>
-  </label>
+            >
+              <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
+            </div>
+          </label>
 
-  {/* Congestion Toggle */}
-  <label className="flex items-center gap-2 cursor-pointer">
-    <span className="block font-semibold text-[16px]">Congestion</span>
-    <input
-      type="checkbox"
-      name="isCongested"
-      checked={formData.isCongested}
-      onChange={(e) => {
-        const { checked } = e.target;
-        setFormData((prev) => ({
-          ...prev,
-          isCongested: checked,
-          congestionNote: checked ? prev.congestionNote : '',
-        }));
-      }}
-      className="sr-only"
-    />
-    <div
-      className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
+          {/* Congestion Toggle */}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <span className="block font-semibold text-[16px]">Congestion</span>
+            <input
+              type="checkbox"
+              name="isCongested"
+              checked={formData.isCongested}
+              onChange={(e) => {
+                const { checked } = e.target;
+                setFormData((prev) => ({
+                  ...prev,
+                  isCongested: checked,
+                  congestionNote: checked ? prev.congestionNote : '',
+                }));
+              }}
+              className="sr-only"
+            />
+            <div
+              className={`w-10 h-6 flex items-center rounded-full p-1 transition-all duration-300
       ${formData.isCongested ? 'bg-[#5372FF] justify-end' : 'bg-gray-300 justify-start'}`}
-    >
-      <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
-    </div>
-  </label>
-</div>
+            >
+              <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
+            </div>
+          </label>
+        </div>
 
-{/* Conditionally Render Textareas */}
-{formData.hasParking && (
-  <div>
-    <textarea
-      rows={3}
-      name="parkingNote"
-      value={formData.parkingNote}
-      onChange={handleInputChange}
-      placeholder="Add a parking note"
-      className="w-full border bg-[#FAFAFA] border-[#E2E1E5] rounded-xl p-4 text-sm"
-    />
-  </div>
-)}
+        {/* Conditionally Render Textareas */}
+        {formData.hasParking && (
+          <div>
+            <textarea
+              rows={3}
+              name="parkingNote"
+              value={formData.parkingNote}
+              onChange={handleInputChange}
+              placeholder="Add a parking note"
+              className="w-full border bg-[#FAFAFA] border-[#E2E1E5] rounded-xl p-4 text-sm"
+            />
+          </div>
+        )}
 
-{formData.isCongested && (
-  <div>
-    <label className="block font-semibold text-[16px] pb-2">How to enter facility</label>
-    <textarea
-      name="congestionNote"
-      value={formData.congestionNote}
-      onChange={handleInputChange}
-      className="w-full border bg-[#FAFAFA] border-[#E2E1E5] rounded-xl p-4 text-sm"
-      rows={3}
-      placeholder="Add notes"
-    />
-  </div>
-)}
+        {formData.isCongested && (
+          <div>
+            <label className="block font-semibold text-[16px] pb-2">How to enter facility</label>
+            <textarea
+              name="congestionNote"
+              value={formData.congestionNote}
+              onChange={handleInputChange}
+              className="w-full border bg-[#FAFAFA] border-[#E2E1E5] rounded-xl p-4 text-sm"
+              rows={3}
+              placeholder="Add notes"
+            />
+          </div>
+        )}
 
 
         <div className="space-y-6 max-w-md">

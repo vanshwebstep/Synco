@@ -10,9 +10,10 @@ const tabs = [
   "Rewards",
   "Events",
 ];
-import ServiceHistory from "./serviceHistory";
+
 import ParentProfile from "./ParentProfile";
 import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
+import ServiceHistory from "../../../../Common/serviceHistory";
 
 const AccountInfoBookMembership = () => {
   const { serviceHistoryMembership, serviceHistory ,error } = useBookFreeTrial()
@@ -125,7 +126,23 @@ console.log('error',error)
         </div>
       </div >
       {activeTab === "Service History" && (
-        <ServiceHistory serviceHistory={serviceHistory} />
+          <ServiceHistory
+          serviceHistory={serviceHistory}
+          labels={{
+            header: "Weekly Classes Membership",
+            membershipPlan: "Membership Plan ",
+            students: "Students",
+            venue: "  Venue",
+            bookingId: "KGoCardless ID",
+            price: "Monthly Price",
+            coach:"Coach",
+            dateOfBooking: "Date of  Booking ",
+            progress: "Progress",
+            bookingSource: "Booking Source",
+            buttons: ["See details", "Attendance"],
+          }}
+          comesFrom={'membership'}
+        />
       )}
       {activeTab === "Parent Profile" && (
         <ParentProfile profile={serviceHistory} />

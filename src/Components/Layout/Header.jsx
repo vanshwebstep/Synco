@@ -97,6 +97,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'holiday-camps/session-plan': { title: 'Configuration', },
     'notification': { title: 'Notification' },
     'configuration/weekly-classes/all-members': { title: 'Members' },
+    'configuration/weekly-classes/venues': { title: 'Configuration', },
     'configuration/weekly-classes/find-a-class/book-a-free-trial/account-info': { title: 'Account Information' },
 
   };

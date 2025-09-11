@@ -349,7 +349,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:w-2/12 lg:flex w-72 h-screen bg-white border-r border-gray-100 flex-col shadow-lg">
+      <aside className="hidden md:w-2/12 lg:flex w-72 bg-white border-r border-gray-100 flex-col shadow-lg">
         <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
           <img src='/demo/synco/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
         </div>

@@ -44,7 +44,7 @@ const AccountInfoCancellation = () => {
       <div className=" flex items-end mb-5 gap-2 md:gap-3">
         <div className=" flex items-center gap-2 md:gap-3">
           <h2 onClick={() => {
-            navigate('/configuration/weekly-classes/trial/list');
+            navigate('/configuration/weekly-classes/cancellation');
           }}
 
             className="text-xl md:text-2xl font-semibold cursor-pointer hover:opacity-80 transition-opacity duration-200"
@@ -118,17 +118,18 @@ const AccountInfoCancellation = () => {
         <ServiceHistory
           serviceHistory={serviceHistory}
           labels={{
-            header: "Trial Service History",
-            membershipPlan: "Chosen Plan",
-            students: "Enrolled Students",
-            venue: "Training Venue",
-            bookingId: "Booking Ref ID",
-            price: "Calculated Fee",
-            dateOfBooking: "Booked On",
-            progress: "Current Progress",
-            bookingSource: "Registered By",
-            buttons: ["More Info", "Credits Used", "Attendance Log", "Payments"],
+            header: "Weekly Classes Membership",
+            membershipPlan: "Membership Plan ",
+            students: "Students",
+            venue: "  Venue",
+            bookingId: "KGoCardless ID",
+            price: "Monthly Price",
+            dateOfBooking: "Date of  Booking ",
+            progress: "Progress",
+            bookingSource: "Booking Source",
+            buttons: ["See details", "Credits", "Attendance", "See Payments"],
           }}
+          comesFrom={'cancellation'}
         />
       )}
       {activeTab === "Parent Profile" && <ParentProfile ParentProfile={serviceHistory} />}

@@ -227,7 +227,7 @@ const List = () => {
   console.log(weekList)
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
-      <div className="flex pe-4 justify-between items-center mb-4 w-full">
+      <div className="md:flex pe-4 justify-between items-center mb-4 w-full">
         <h2 className="text-[28px] font-semibold">Session Plan Library</h2>
 
         {reorderMode ? (

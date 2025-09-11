@@ -864,32 +864,37 @@ const List = () => {
                                     </div>
 
                                     {/* Row 2 */}
-                                    <div className="flex gap-4">
-                                        <div className="w-1/2">
-                                            <label className="block text-[16px] font-semibold">
-                                                Date of birth
-                                            </label>
-                                            <DatePicker
-                                                selected={student.dateOfBirth}
-                                                onChange={(date) => handleDOBChange(index, date)}
-                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                showYearDropdown
-                                                scrollableYearDropdown
-                                                yearDropdownItemNumber={100}
-                                                dateFormat="dd/MM/yyyy"
-                                            />
-                                        </div>
-                                        <div className="w-1/2">
-                                            <label className="block text-[16px] font-semibold">Age</label>
-                                            <input
-                                                type="text"
-                                                value={student.age}
-                                                readOnly
-                                                className="w-full  mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                placeholder="Automatic entry"
-                                            />
-                                        </div>
-                                    </div>
+                                  <div className="flex gap-4">
+  <div className="w-1/2">
+    <label className="block text-[16px] font-semibold">
+      Date of birth
+    </label>
+    <DatePicker
+      selected={student.dateOfBirth}
+      onChange={(date) => handleDOBChange(index, date)}
+      className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+      showYearDropdown
+      scrollableYearDropdown
+      yearDropdownItemNumber={100}
+      dateFormat="dd/MM/yyyy"
+      maxDate={new Date(new Date().setFullYear(new Date().getFullYear() - 3))} // Minimum age: 3 years
+      minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))} // Maximum age: 100 years
+      placeholderText="Select date of birth"
+      isClearable
+    />
+  </div>
+  <div className="w-1/2">
+    <label className="block text-[16px] font-semibold">Age</label>
+    <input
+      type="text"
+      value={student.age}
+      readOnly
+      className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+      placeholder="Automatic entry"
+    />
+  </div>
+</div>
+
 
                                     {/* Row 3 */}
                                     <div className="flex gap-4">
@@ -924,7 +929,7 @@ const List = () => {
                                                 onChange={(option) =>
                                                     handleInputChange(index, 'medicalInformation', option.value)
                                                 }
-                                                placeholder="Select medical info"
+                                                placeholder="Enter medical info"
                                                 className="mt-2"
                                                 classNamePrefix="react-select"
                                             />

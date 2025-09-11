@@ -11,16 +11,22 @@ import { format } from "date-fns";
 import { useBookFreeTrial } from '../../../../../contexts/BookAFreeTrialContext';
 import Loader from '../../../../../contexts/Loader';
 import { usePermission } from '../../../../../Common/permission';
+import List from '../../Book a Membership/list';
+import Swal from "sweetalert2"; // make sure it's installed
+import { useNavigate } from 'react-router-dom';
 
 const ParentProfile = ({ ParentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [selectedDate, setSelectedDate] = useState(null);
+    const navigate = useNavigate();
 
-    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit } = useBookFreeTrial() || {};
+    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit, noMembershipSubmit } = useBookFreeTrial() || {};
 
 
     const [showRebookTrial, setshowRebookTrial] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
+    const [noMembershipSelect, setNoMembershipSelect] = useState(false);
+
     const [selectedTime, setSelectedTime] = useState(null);
     const [additionalNote, setAdditionalNote] = useState("");
 
@@ -67,6 +73,12 @@ const ParentProfile = ({ ParentProfile }) => {
         paymentPlans,
     } = ParentProfile;
 
+
+    const [cancelWaitingList, setCancelWaitingList] = useState({
+        bookingId: id,
+        noMembershipReason: "",           // corresponds to DatePicker
+        noMembershipNotes: "",        // textarea
+    });
     const [rebookFreeTrial, setRebookFreeTrial] = useState({
         bookingId: id || null,
         trialDate: "",
@@ -116,6 +128,39 @@ const ParentProfile = ({ ParentProfile }) => {
             additionalNote: e.target.value,
         }));
     };
+    const handleInputChange = (e, stateSetter) => {
+        const { name, value } = e.target;
+        stateSetter((prev) => ({ ...prev, [name]: value }));
+    };
+    const handleSelectChange = (selected, field, stateSetter) => {
+        stateSetter((prev) => ({ ...prev, [field]: selected?.value || null }));
+    };
+    const formatStatus = (status) => {
+        if (!status) return "-";
+        return status
+            .split("_")           // split by underscore
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
+            .join(" ");           // join with space
+    };
+    const handleBookMembership = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to book a membership?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#237FEA",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, Book it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Navigate to your component/route
+        navigate("/configuration/weekly-classes/find-a-class/book-a-membership", {
+          state: { TrialData: ParentProfile },
+        });
+      }
+    });
+  };
     return (
         <>
             <div className="md:flex w-full gap-4">
@@ -344,14 +389,8 @@ const ParentProfile = ({ ParentProfile }) => {
                                     )}
 
                                     {/* Status text */}
-                                    <span>
-                                        {status === 'pending'
-                                            ? 'Pending'
-                                            : status === 'attend'
-                                                ? 'Attended'
-                                                : status === 'cancelled'
-                                                    ? 'Cancelled'
-                                                    : 'Not Attended'}
+                                    <span className="capitalize">
+                                        {formatStatus(status)}
                                     </span>
                                 </div>
 
@@ -461,9 +500,9 @@ const ParentProfile = ({ ParentProfile }) => {
 
                     </div>
                     {status !== 'cancelled' && (
-                            <>
-                    <div className="bg-white rounded-3xl p-6  space-y-4">
-                      
+                        <>
+                            <div className="bg-white rounded-3xl p-6  space-y-4">
+
                                 {/* Top Row: Email + Text */}
                                 <div className="flex gap-7">
 
@@ -477,14 +516,17 @@ const ParentProfile = ({ ParentProfile }) => {
                                 </div>
 
 
-                                {status !== 'pending' && status !== 'attend' && canRebooking && (
-                                    <button
-                                        onClick={() => setshowRebookTrial(true)}
-                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
-                                    >
-                                        Rebook FREE Trial
-                                    </button>
-                                )}
+                                {status?.trim().toLowerCase() !== "pending" &&
+                                    status?.trim().toLowerCase() !== "attend" &&
+                                    status?.trim().toLowerCase() !== "no_membersip" &&
+                                    canRebooking && (
+                                        <button
+                                            onClick={() => setshowRebookTrial(true)}
+                                            className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                        >
+                                            Rebook FREE Trial
+                                        </button>
+                                    )}
 
                                 {status !== 'attend' && canCancelTrial && (
                                     <button
@@ -496,106 +538,186 @@ const ParentProfile = ({ ParentProfile }) => {
                                 )}
 
                                 {status !== 'pending' && status !== 'attend' && (
-                                    <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
+                                    <button
+                                        onClick={handleBookMembership}
+                                        className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                    >
                                         Book a Membership
                                     </button>
                                 )}
 
                                 {status === 'attend' && (
                                     <div className="flex gap-7">
-                                        <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
+                                        <button onClick={() => setNoMembershipSelect(true)} className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
                                             No Membership
                                         </button>
 
-                                        <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
+                                        <button onClick={handleBookMembership} className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
                                             Book a Membership
                                         </button>
                                     </div>
                                 )}
-                         
 
-                    </div>
-                       </>
-                        )}
-            </div>
-            {showRebookTrial && (
-                <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
-                    <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
-                        <button
-                            className="absolute top-4 left-4 p-2"
-                            onClick={() => setshowRebookTrial(false)}
-                        >
-                            <img src="/demo/synco/icons/cross.png" alt="Close" />
-                        </button>
 
-                        <div className="text-center py-6 border-b border-gray-300">
-                            <h2 className="font-semibold text-[24px]">Rebook Free Trial</h2>
-                        </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+                {showRebookTrial && (
+                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                            <button
+                                className="absolute top-4 left-4 p-2"
+                                onClick={() => setshowRebookTrial(false)}
+                            >
+                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                            </button>
 
-                        <div className="space-y-4 px-6 pb-6 pt-4">
-                            {/* Venue */}
-                            <div>
-                                <label className="block text-[16px] font-semibold">Venue</label>
-                                <input
-                                    type="text"
-                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                    placeholder="Select Venue"
-                                    value={classSchedule?.venue?.name || "-"}
-                                    readOnly
-                                />
+                            <div className="text-center py-6 border-b border-gray-300">
+                                <h2 className="font-semibold text-[24px]">Rebook Free Trial</h2>
                             </div>
 
-                            {/* Class */}
-                            <div>
-                                <label className="block text-[16px] font-semibold">Class</label>
-                                <input
-                                    type="text"
-                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                    placeholder="Select Class"
-                                    value={classSchedule?.className || "-"}
-                                    readOnly
-                                />
-                            </div>
-
-                            {/* Date */}
-                            <div>
-                                <label className="block text-[16px] font-semibold">Date</label>
-                                <DatePicker
-                                    selected={selectedDate}
-                                    onChange={handleDateChange}
-                                    dateFormat="EEEE, dd MMMM yyyy"
-                                    placeholderText="Select a date"
-                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                />
-                            </div>
-
-                            {/* Time */}
-                            <div className="space-y-4">
+                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                {/* Venue */}
                                 <div>
-                                    <label className="block text-[16px] font-semibold">Time</label>
+                                    <label className="block text-[16px] font-semibold">Venue</label>
+                                    <input
+                                        type="text"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        placeholder="Select Venue"
+                                        value={classSchedule?.venue?.name || "-"}
+                                        readOnly
+                                    />
+                                </div>
+
+                                {/* Class */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Class</label>
+                                    <input
+                                        type="text"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        placeholder="Select Class"
+                                        value={classSchedule?.className || "-"}
+                                        readOnly
+                                    />
+                                </div>
+
+                                {/* Date */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Date</label>
                                     <DatePicker
-                                        selected={selectedTime}
-                                        onChange={setSelectedTime}
-                                        showTimeSelect
-                                        showTimeSelectOnly
-                                        timeIntervals={60}
-                                        timeCaption="Time"
-                                        dateFormat="h:mm aa"
-                                        placeholderText="Select Time"
+                                        selected={selectedDate}
+                                        onChange={handleDateChange}
+                                        dateFormat="EEEE, dd MMMM yyyy"
+                                        placeholderText="Select a date"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                     />
                                 </div>
 
+                                {/* Time */}
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-[16px] font-semibold">Time</label>
+                                        <DatePicker
+                                            selected={selectedTime}
+                                            onChange={setSelectedTime}
+                                            showTimeSelect
+                                            showTimeSelectOnly
+                                            timeIntervals={60}
+                                            timeCaption="Time"
+                                            dateFormat="h:mm aa"
+                                            placeholderText="Select Time"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        />
+                                    </div>
+
+                                    {/* Reason */}
+                                    <div>
+                                        <label className="block text-[16px] font-semibold">
+                                            Reason for Non-Attendance
+                                        </label>
+                                        <Select
+                                            value={reason}
+                                            onChange={handleReasonChange}
+                                            options={reasonOptions}
+                                            placeholder="Select Reason"
+                                            className="rounded-lg mt-2"
+                                            styles={{
+                                                control: (base) => ({
+                                                    ...base,
+                                                    borderRadius: "0.7rem",
+                                                    boxShadow: "none",
+                                                    padding: "4px 8px",
+                                                    minHeight: "48px",
+                                                }),
+                                                placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                                dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                                indicatorSeparator: () => ({ display: "none" }),
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Additional Notes */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Additional Notes (Optional)</label>
+                                    <textarea
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        rows={3}
+                                        placeholder="Add any notes here..."
+                                        value={additionalNote}
+                                        onChange={handleNoteChange}
+                                    />
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex gap-4 pt-4">
+                                    <button
+                                        className="flex-1 border border-gray-400 rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        onClick={() => console.log("Cancel clicked")}
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        onClick={() => rebookFreeTrialsubmit(rebookFreeTrial)}
+                                    >
+                                        Rebook Trial
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                )}
+                {showCancelTrial && (
+                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                            <button
+                                className="absolute top-4 left-4 p-2"
+                                onClick={() => setshowCancelTrial(false)}
+                            >
+                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                            </button>
+
+                            <div className="text-center py-6 border-b border-gray-300">
+                                <h2 className="font-semibold text-[24px]">Cancel Free Trial</h2>
+                            </div>
+
+                            <div className="space-y-4 px-6 pb-6 pt-4">
                                 {/* Reason */}
                                 <div>
                                     <label className="block text-[16px] font-semibold">
-                                        Reason for Non-Attendance
+                                        Reason for Cancellation
                                     </label>
                                     <Select
-                                        value={reason}
-                                        onChange={handleReasonChange}
+                                        value={reasonOptions.find((opt) => opt.value === formData.cancelReason)}
+                                        onChange={(selected) =>
+                                            setFormData((prev) => ({ ...prev, cancelReason: selected.value }))
+                                        }
                                         options={reasonOptions}
-                                        placeholder="Select Reason"
+                                        placeholder=""
                                         className="rounded-lg mt-2"
                                         styles={{
                                             control: (base) => ({
@@ -611,115 +733,108 @@ const ParentProfile = ({ ParentProfile }) => {
                                         }}
                                     />
                                 </div>
-                            </div>
 
-                            {/* Additional Notes */}
-                            <div>
-                                <label className="block text-[16px] font-semibold">Additional Notes (Optional)</label>
-                                <textarea
-                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                    rows={3}
-                                    placeholder="Add any notes here..."
-                                    value={additionalNote}
-                                    onChange={handleNoteChange}
-                                />
-                            </div>
+                                {/* Notes */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">
+                                        Additional Notes (Optional)
+                                    </label>
+                                    <textarea
+                                        className="w-full bg-gray-100 mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        rows={3}
+                                        value={formData.additionalNote}
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({ ...prev, additionalNote: e.target.value }))
+                                        }
+                                        placeholder=""
+                                    />
+                                </div>
 
-                            {/* Buttons */}
-                            <div className="flex gap-4 pt-4">
-                                <button
-                                    className="flex-1 border border-gray-400 rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                    onClick={() => console.log("Cancel clicked")}
-                                >
-                                    Cancel
-                                </button>
-
-                                <button
-                                    className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                    onClick={() => rebookFreeTrialsubmit(rebookFreeTrial)}
-                                >
-                                    Rebook Trial
-                                </button>
+                                {/* Buttons */}
+                                <div className="flex justify-end gap-4 pt-4">
+                                    <button
+                                        onClick={handleCancel}
+                                        className="w-1/2 bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                    >
+                                        Cancel Trial
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-            )}
-            {showCancelTrial && (
-                <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
-                    <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
-                        <button
-                            className="absolute top-4 left-4 p-2"
-                            onClick={() => setshowCancelTrial(false)}
-                        >
-                            <img src="/demo/synco/icons/cross.png" alt="Close" />
-                        </button>
+                )}
+                {noMembershipSelect && (
+                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                            <button
+                                className="absolute top-4 left-4 p-2"
+                                onClick={() => setNoMembershipSelect(false)}
+                            >
+                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                            </button>
 
-                        <div className="text-center py-6 border-b border-gray-300">
-                            <h2 className="font-semibold text-[24px]">Cancel Free Trial</h2>
-                        </div>
-
-                        <div className="space-y-4 px-6 pb-6 pt-4">
-                            {/* Reason */}
-                            <div>
-                                <label className="block text-[16px] font-semibold">
-                                    Reason for Cancellation
-                                </label>
-                                <Select
-                                    value={reasonOptions.find((opt) => opt.value === formData.cancelReason)}
-                                    onChange={(selected) =>
-                                        setFormData((prev) => ({ ...prev, cancelReason: selected.value }))
-                                    }
-                                    options={reasonOptions}
-                                    placeholder=""
-                                    className="rounded-lg mt-2"
-                                    styles={{
-                                        control: (base) => ({
-                                            ...base,
-                                            borderRadius: "0.7rem",
-                                            boxShadow: "none",
-                                            padding: "4px 8px",
-                                            minHeight: "48px",
-                                        }),
-                                        placeholder: (base) => ({ ...base, fontWeight: 600 }),
-                                        dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
-                                        indicatorSeparator: () => ({ display: "none" }),
-                                    }}
-                                />
+                            <div className="text-center py-6 border-b border-gray-300">
+                                <h2 className="font-semibold text-[24px]">No Membership Selected  </h2>
                             </div>
 
-                            {/* Notes */}
-                            <div>
-                                <label className="block text-[16px] font-semibold">
-                                    Additional Notes (Optional)
-                                </label>
-                                <textarea
-                                    className="w-full bg-gray-100 mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                    rows={3}
-                                    value={formData.additionalNote}
-                                    onChange={(e) =>
-                                        setFormData((prev) => ({ ...prev, additionalNote: e.target.value }))
-                                    }
-                                    placeholder=""
-                                />
-                            </div>
+                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                <div>
+                                    <label className="block text-[16px] font-semibold">
+                                        Reason for Not Proceeding
+                                    </label>
+                                    <Select
+                                        value={reasonOptions.find((opt) => opt.value === cancelWaitingList.noMembershipReason)}
+                                        onChange={(selected) => handleSelectChange(selected, "noMembershipReason", setCancelWaitingList)}
+                                        options={reasonOptions}
+                                        placeholder=""
+                                        className="rounded-lg mt-2"
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                borderRadius: "0.7rem",
+                                                boxShadow: "none",
+                                                padding: "6px 8px",
+                                                minHeight: "48px",
+                                            }),
+                                            placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                            dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                            indicatorSeparator: () => ({ display: "none" }),
+                                        }}
+                                    />
+                                </div>
 
-                            {/* Buttons */}
-                            <div className="flex justify-end gap-4 pt-4">
-                                <button
-                                    onClick={handleCancel}
-                                    className="w-1/2 bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                >
-                                    Cancel Trial
-                                </button>
+                                {/* Notes */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">
+                                        Additional Notes (Optional)
+                                    </label>
+                                    <textarea
+                                        className="w-full bg-gray-100  mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        rows={6}
+                                        name="noMembershipNotes"    // <-- MUST match state key
+                                        value={cancelWaitingList.noMembershipNotes}
+                                        onChange={(e) => handleInputChange(e, setCancelWaitingList)}
+                                        placeholder=""
+                                    />
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex justify-end gap-4 pt-4">
+                                    <button
+                                        onClick={() => noMembershipSubmit(cancelWaitingList, 'allMembers')}
+
+                                        className="w-1/2  bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                    >
+                                        Cancel Spot on Waiting List
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-            )}
-        </div >
+                )}
+            </div >
         </>
     );
 };

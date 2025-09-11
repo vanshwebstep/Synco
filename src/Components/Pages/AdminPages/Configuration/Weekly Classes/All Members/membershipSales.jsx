@@ -375,7 +375,7 @@ const trialLists = () => {
                                                     </td>
                                                     <td className="p-4">{student.age}</td>
                                                     <td className="p-4">{item.venue?.name || '-'}</td>
-                                                    <td className="p-4">{new Date(item.trialDate).toLocaleDateString()}</td>
+                                                    <td className="p-4">{new Date(item.dateBooked).toLocaleDateString()}</td>
                                                     <td className="p-4">
                                                         {item?.bookedBy?.firstName}
                                                         {item?.bookedBy?.lastName && item.bookedBy.lastName !== 'null' ? ` ${item.bookedBy.lastName}` : ''}
@@ -698,7 +698,7 @@ const trialLists = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-2 justify-between">
+                    <div className="flex flex-col md:flex-row gap-2 justify-between">
                         <button
                             onClick={() => {
                                 if (selectedStudents && selectedStudents.length > 0) {

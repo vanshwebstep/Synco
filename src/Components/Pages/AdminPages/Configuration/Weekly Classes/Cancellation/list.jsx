@@ -562,23 +562,25 @@ const CancellationList = () => {
 
             <div className="md:flex w-full gap-4">
                 <div className="flex-1 transition-all duration-300">
-                    <div className="flex py-6 pb-10 gap-4">
-                        {buttons.map((btn) => (
-                            <button
-                                key={btn.key}
-                                onClick={() => {
-                                    setActive(btn.key);
-                                    setSelectedStudents([]); // if you want null
-                                }}
-                                className={`flex gap-2 items-center px-3 py-2 rounded-xl text-sm sm:text-[16px] transition ${active === btn.key
-                                    ? "bg-[#237FEA] text-white" // active
-                                    : "text-gray-700 font-semibold border border-gray-300" // inactive
-                                    }`}
-                            >
-                                {btn.label}
-                            </button>
-                        ))}
-                    </div>
+              <div className="flex flex-col md:flex-row py-6 pb-10 gap-4">
+  {buttons.map((btn) => (
+    <button
+      key={btn.key}
+      onClick={() => {
+        setActive(btn.key);
+        setSelectedStudents([]);
+      }}
+      className={`w-full md:w-auto flex gap-2 items-center px-3 py-2 rounded-xl text-sm sm:text-[16px] transition ${
+        active === btn.key
+          ? "bg-[#237FEA] text-white" // active
+          : "text-gray-700 font-semibold border border-gray-300" // inactive
+      }`}
+    >
+      {btn.label}
+    </button>
+  ))}
+</div>
+
 
                     <StatsGrid stats={stats} variant="A" />
                     <div className="flex justify-end ">
@@ -873,7 +875,7 @@ const CancellationList = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-2 justify-between">
+                    <div className="flex flex-col md:flex-row gap-2 justify-between">
                         <button
 
                             onClick={() => {

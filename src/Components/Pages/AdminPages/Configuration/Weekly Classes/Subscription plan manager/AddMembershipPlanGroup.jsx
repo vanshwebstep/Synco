@@ -303,14 +303,29 @@ const AddPaymentPlanGroup = () => {
                     <>
                         <div className={`transition-all duration-300 md:w-1/2`}>
                             <div className="rounded-2xl w-full md:p-12 ">
-                                <form onSubmit={(e) => {
-                                    e.preventDefault(); // prevents page refresh
-                                    if (id && selectedGroup) {
-                                        handleUpdateGroup();
-                                    } else {
-                                        handleCreateGroup();
-                                    }
-                                }} className="mx-auto space-y-4">
+                                <form
+                                    onSubmit={(e) => {
+                                        e.preventDefault(); // prevents page refresh
+
+                                        // ✅ Check if at least one plan is selected
+                                        if (selectedPlans.length === 0) {
+                                            Swal.fire({
+                                                icon: "warning",
+                                                title: "No Plans Selected",
+                                                text: "Please select at least one Membership Plan.",
+                                                confirmButtonText: "OK",
+                                            });
+                                            return;
+                                        }
+
+                                        if (id && selectedGroup) {
+                                            handleUpdateGroup();
+                                        } else {
+                                            handleCreateGroup();
+                                        }
+                                    }}
+                                    className="mx-auto space-y-4"
+                                >
                                     {/* Group Name */}
                                     <div>
                                         <label className="block text-base  font-semibold text-gray-700 mb-2">
@@ -436,15 +451,17 @@ const AddPaymentPlanGroup = () => {
                                     {/* Footer Buttons */}
                                     <div className="flex flex-wrap flex-col-reverse gap-4 md:flex-row md:items-center md:justify-end md:gap-4">
 
+                                        {selectedPlans.length > 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setPreviewShowModal(true)}
+                                                className="flex items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 w-full md:w-auto"
+                                            >
+                                                Preview Membership Plans
+                                                <Eye size={16} />
+                                            </button>
+                                        )}
 
-                                        <button
-                                            type="button"
-                                            onClick={() => setPreviewShowModal(true)}
-                                            className="flex items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 w-full md:w-auto"
-                                        >
-                                            Preview Membership Plans
-                                            <Eye size={16} />
-                                        </button>
                                         <button
                                             type="submit"
                                             disabled={submitloading}
@@ -480,97 +497,117 @@ const AddPaymentPlanGroup = () => {
                                     </button>
                                     {/* Add your form content here */}
                                     <div className="text-[24px] font-semibold mb-4">Membership Plan</div>
-                                    {[
-                                        { label: "Title", name: "title", type: "text" },
-                                        { label: "Price (€)", name: "price", type: "number" },
-                                        { label: "Price per lesson(€)", name: "priceLesson", type: "number" },
-                                        {
-                                            label: "Interval",
-                                            name: "interval",
-                                            type: "dropdown",
-                                            options: ["Month", "Quarter", "Year"]
-                                        },
-                                        { label: "Duration", name: "duration", type: "number" },
-                                        { label: "Number of Students", name: "students", type: "number" },
-                                        { label: "Joining Fee (€)", name: "joiningFee", type: "number" }
-                                    ].map((field) => {
-                                        // Duration options for dropdown
-                                        let durationOptions = [];
-                                        if (field.name === "duration") {
-                                            if (formData.interval === "Month") {
-                                                durationOptions = Array.from({ length: 12 }, (_, i) => ({
-                                                    label: `${i + 1} month${i + 1 > 1 ? "s" : ""}`,
-                                                    value: i + 1
-                                                }));
-                                            } else if (formData.interval === "Year") {
-                                                durationOptions = Array.from({ length: 20 }, (_, i) => ({
-                                                    label: `${i + 1} year${i + 1 > 1 ? "s" : ""}`,
-                                                    value: i + 1
-                                                }));
-                                            } else if (formData.interval === "Quarter") {
-                                                durationOptions = Array.from({ length: 8 }, (_, i) => ({
-                                                    label: `${i + 1} quarter${i + 1 > 1 ? "s" : ""}`,
-                                                    value: i + 1
-                                                }));
-                                            }
+                                 {[
+  { label: "Title", name: "title", type: "text" },
+  { label: "Price (€)", name: "price", type: "number" },
+  { label: "Price per lesson(€)", name: "priceLesson", type: "number" },
+  {
+    label: "Interval",
+    name: "interval",
+    type: "dropdown",
+    options: ["Month", "Quarter", "Year"]
+  },
+  { label: "Duration", name: "duration", type: "number" },
+  { label: "Number of Students", name: "students", type: "number" },
+  { label: "Joining Fee (€)", name: "joiningFee", type: "number" }
+].map((field) => {
+  // Duration options for dropdown
+  let durationOptions = [];
+  if (field.name === "duration") {
+    if (formData.interval === "Month") {
+      durationOptions = Array.from({ length: 12 }, (_, i) => ({
+        label: `${i + 1} month${i + 1 > 1 ? "s" : ""}`,
+        value: i + 1
+      }));
+    } else if (formData.interval === "Year") {
+      durationOptions = Array.from({ length: 20 }, (_, i) => ({
+        label: `${i + 1} year${i + 1 > 1 ? "s" : ""}`,
+        value: i + 1
+      }));
+    } else if (formData.interval === "Quarter") {
+      durationOptions = Array.from({ length: 8 }, (_, i) => ({
+        label: `${i + 1} quarter${i + 1 > 1 ? "s" : ""}`,
+        value: i + 1
+      }));
+    }
+  }
 
-                                        }
+  return (
+    <div key={field.name} className="mb-4">
+      <label className="block text-base font-semibold text-gray-700 mb-2">
+        {field.label}
+      </label>
 
-                                        return (
-                                            <div key={field.name} className="mb-4">
-                                                <label className="block text-base font-semibold text-gray-700 mb-2">
-                                                    {field.label}
-                                                </label>
+      {field.name === "interval" ? (
+        <Select
+          options={field.options.map((opt) => ({ label: opt, value: opt }))}
+          value={
+            formData.interval
+              ? { label: formData.interval, value: formData.interval }
+              : null
+          }
+          onChange={(selected) =>
+            setFormData({ ...formData, interval: selected.value })
+          }
+          className="text-base font-semibold"
+          classNamePrefix="react-select"
+          styles={{
+            control: (provided) => ({
+              ...provided,
+              borderRadius: "0.5rem",
+              padding: "4px",
+              borderColor: "#E5E7EB", // gray-200
+              boxShadow: "none",
+              "&:hover": { borderColor: "#3B82F6" } // blue-500
+            }),
+            dropdownIndicator: (provided) => ({
+              ...provided,
+              display: "none" // hides arrow icon
+            }),
+            indicatorSeparator: () => ({ display: "none" })
+          }}
+          placeholder=""
+        />
+      ) : field.name === "duration" && formData.interval ? (
+        <select
+          value={formData.duration}
+          onChange={(e) =>
+            setFormData({ ...formData, duration: e.target.value })
+          }
+          className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
+        >
+          <option value="" disabled>
+            Select Duration
+          </option>
+          {durationOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          type={field.type}
+          value={formData[field.name]}
+          onChange={(e) => {
+            let value = e.target.value;
 
-                                                {field.type === "dropdown" ? (
-                                                    <select
-                                                        value={formData[field.name]}
-                                                        onChange={(e) =>
-                                                            setFormData({ ...formData, [field.name]: e.target.value })
-                                                        }
-                                                        className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    >
-                                                        <option value="" disabled>Select {field.label}</option>
-                                                        {field.options.map((option) => (
-                                                            <option key={option} value={option}>{option}</option>
-                                                        ))}
-                                                    </select>
-                                                ) : field.name === "duration" && formData.interval ? (
-                                                    <select
-                                                        value={formData.duration}
-                                                        onChange={(e) =>
-                                                            setFormData({ ...formData, duration: parseInt(e.target.value) })
-                                                        }
-                                                        className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    >
-                                                        <option value="" disabled>Select Duration</option>
-                                                        {durationOptions.map((opt) => (
-                                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                                        ))}
-                                                    </select>
-                                                ) : (
-                                                    <input
-                                                        type={field.type}
-                                                        value={formData[field.name]}
-                                                        onChange={(e) => {
-                                                            let value = e.target.value;
-                                                            if (field.type === "number") {
-                                                                value = Number(value);
-                                                                if (field.name === "students" && value > 3) value = 3;
-                                                            }
-                                                            setFormData({ ...formData, [field.name]: value });
-                                                        }}
-                                                        className={`w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 
-            ${field.name === "price" ? "appearance-none bg-transparent" : ""}`}
-                                                        step={field.type === "number" ? "0.01" : undefined}
-                                                        min={field.type === "number" ? 1 : undefined}
-                                                        max={field.name === "students" ? 3 : undefined}
-                                                    />
-                                                )}
-                                            </div>
-                                        );
-                                    })}
+            // Restrict max for students
+            if (field.name === "students" && Number(value) > 3) {
+              value = "3";
+            }
 
+            setFormData({ ...formData, [field.name]: value });
+          }}
+          className={`w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent`}
+          step={field.type === "number" ? "0.01" : undefined}
+          min={field.type === "number" ? 0 : undefined}
+          max={field.name === "students" ? 3 : undefined}
+        />
+      )}
+    </div>
+  );
+})}
 
 
 

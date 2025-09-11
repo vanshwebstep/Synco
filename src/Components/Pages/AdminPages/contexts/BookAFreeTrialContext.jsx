@@ -533,6 +533,55 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  const noMembershipSubmit = async (bookingIds, comesfrom) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/no-membership/`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
+        ),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to Cancel Waiting List");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+        navigate(`/configuration/weekly-classes/trial/list`);
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
   // Book a Membership
   const fetchBookMemberships = useCallback(
@@ -1909,7 +1958,7 @@ export const BookFreeTrialProvider = ({ children }) => {
         sendFreeTrialmail,
         sendCancelFreeTrialmail,
         sendBookMembershipMail,
-
+noMembershipSubmit,
         // Membership
         bookMembership,
         createBookMembership,

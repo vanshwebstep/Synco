@@ -1,42 +1,37 @@
-import React, { useEffect, useRef, useState } from 'react';
-// import Create from './Create';
-import { useNavigate } from 'react-router-dom';
-import { Check } from "lucide-react";
-import PlanTabs from '../PlanTabs';
-
-import Loader from '../../../../contexts/Loader';
-import { useVenue } from '../../../../contexts/VenueContext';
-import { usePayments } from '../../../../contexts/PaymentPlanContext';
-import { useTermContext } from '../../../../contexts/termDatesSessionContext';
-import Swal from "sweetalert2"; // make sure it's installed
-import { format, parseISO } from "date-fns";
-import { motion } from "framer-motion";
-import { X } from "lucide-react"; // Optional: Use any icon or ✖️ if no icon lib
-
-import { evaluate } from 'mathjs';
-
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { FiSearch } from "react-icons/fi";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
+import Swal from "sweetalert2";
+import { format } from "date-fns";
+import { evaluate } from "mathjs";
 import PhoneInput from "react-phone-input-2";
-import 'react-phone-input-2/lib/style.css';
 import DatePicker from "react-datepicker";
 import Select from "react-select";
-import { useLocation } from 'react-router-dom';
-import { useClassSchedule } from '../../../../contexts/ClassScheduleContent';
-import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
 
-import 'react-datepicker/dist/react-datepicker.css';
-import 'react-phone-input-2/lib/style.css';
+import PlanTabs from "../PlanTabs";
+import Loader from "../../../../contexts/Loader";
+import { useVenue } from "../../../../contexts/VenueContext";
+import { usePayments } from "../../../../contexts/PaymentPlanContext";
+import { useTermContext } from "../../../../contexts/termDatesSessionContext";
+import { useClassSchedule } from "../../../../contexts/ClassScheduleContent";
+import { useBookFreeTrial } from "../../../../contexts/BookAFreeTrialContext";
+
+import "react-datepicker/dist/react-datepicker.css";
+import "react-phone-input-2/lib/style.css";
+
 const List = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { createBookMembership } = useBookFreeTrial()
-
     const [expression, setExpression] = useState('');
+    const [numberOfStudents, setNumberOfStudents] = useState('1')
+
     const [result, setResult] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
-    const { classId } = location.state || {};
+    const { classId, TrialData } = location.state || {};
     const popup1Ref = useRef(null);
     const popup2Ref = useRef(null);
     const popup3Ref = useRef(null);
@@ -54,89 +49,153 @@ const List = () => {
         pan: "",
         authorise: false,
     });
+    console.log('TrialData', TrialData)
     console.log('classId', classId)
     const { fetchClassSchedulesByID, singleClassSchedulesOnly } = useClassSchedule() || {};
+    const [students, setStudents] = useState([
+        {
+            studentFirstName: '',
+            studentLastName: '',
+            dateOfBirth: null,
+            age: '',
+            gender: '',
+            medicalInformation: '',
+            // Add other fields if needed
+        },
+    ]);
+    const [emergency, setEmergency] = useState({
+        sameAsAbove: false,
+        emergencyFirstName: "",
+        emergencyLastName: "",
+        emergencyPhoneNumber: "",
+        emergencyRelation: "",
+    });
+    const [parents, setParents] = useState([
+        {
+            id: Date.now(),
+            parentFirstName: '',
+            parentLastName: '',
+            parentEmail: '',
+            parentPhoneNumber: '',
+            relationToChild: '',
+            howDidYouHear: ''
+
+        }
+    ]);
+    const finalClassId = classId || TrialData?.classScheduleId;
+    const allPaymentPlans =
+        singleClassSchedulesOnly?.venue?.paymentPlans?.map((plan) => ({
+            label: `${plan.title} (${plan.students} student${plan.students > 1 ? "s" : ""})`,
+            value: plan.id,
+            joiningFee: plan.joiningFee,
+            all: plan,
+        })) || [];
+    const paymentPlanOptions = numberOfStudents
+        ? allPaymentPlans.filter((plan) => plan.all.students === Number(numberOfStudents))
+        : allPaymentPlans;
+
+
+    const handleNumberChange = (e) => {
+        const val = e.target.value === "" ? "" : Number(e.target.value);
+        if (val === "" || [1, 2, 3].includes(val)) {
+            setNumberOfStudents(val);
+
+            // If currently selected plan doesn't match new number, reset it
+            if (membershipPlan && membershipPlan.all.students !== val) {
+                setMembershipPlan(null);
+            }
+        }
+    };
+    const handlePlanChange = (plan) => {
+        setMembershipPlan(plan);
+        if (plan) {
+            setNumberOfStudents(plan.all.students); // Update numberOfStudents to match plan
+        }
+    };
+    useEffect(() => {
+        const newStudents = Array.from({ length: numberOfStudents }).map(() => ({
+            studentFirstName: "",
+            studentLastName: "",
+            dateOfBirth: null,
+            age: "",
+            gender: "",
+            medicalInformation: null,
+            class: singleClassSchedulesOnly?.className,
+            time: singleClassSchedulesOnly?.startTime,
+        }));
+        setStudents(newStudents);
+    }, [numberOfStudents]);
+    useEffect(() => {
+        if (paymentPlanOptions.length) {
+            setMembershipPlan(paymentPlanOptions[0]);
+        }
+    }, [singleClassSchedulesOnly]);
+
+    useEffect(() => {
+        if (TrialData) {
+            console.log('stp1')
+            if (Array.isArray(TrialData.students) && TrialData.students.length > 0) {
+                console.log('stp2')
+                setStudents(TrialData.students);
+            }
+            console.log('stp3')
+            if (Array.isArray(TrialData.parents) && TrialData.parents.length > 0) {
+                setParents(
+                    TrialData.parents.map((p, idx) => ({
+                        id: idx + 1,
+                        ...p,
+                    }))
+                );
+            }
+            if (Array.isArray(TrialData.emergency) && TrialData.emergency.length > 0) {
+                setEmergency({
+                    sameAsAbove: false,
+                    ...TrialData.emergency[0],
+                });
+            }
+        }
+    }, [TrialData]);
+    console.log('TrialData', students)
+
+    useEffect(() => {
+        if (!finalClassId) {
+            navigate("/configuration/weekly-classes/find-a-class", { replace: true });
+        }
+    }, [finalClassId, navigate]);
 
     useEffect(() => {
         const fetchData = async () => {
-            if (classId) {
-                await fetchClassSchedulesByID(classId);
+            if (finalClassId) {
+                await fetchClassSchedulesByID(finalClassId);
             }
         };
         fetchData();
-    }, [classId, fetchClassSchedulesByID]);
+    }, [finalClassId, fetchClassSchedulesByID]);
     const [activePopup, setActivePopup] = useState(null);
     const togglePopup = (id) => {
         setActivePopup((prev) => (prev === id ? null : id));
     };
+    const [openForm, setOpenForm] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedPlans, setSelectedPlans] = useState([]);
     const [congestionNote, setCongestionNote] = useState(null);
-    const [numberOfStudents, setNumberOfStudents] = useState('1')
     const [selectedDate, setSelectedDate] = useState(null);
     const [membershipPlan, setMembershipPlan] = useState(null);
+    const today = new Date();
+    const [currentDate, setCurrentDate] = useState(new Date());
+    const [fromDate, setFromDate] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 11));
+    const [toDate, setToDate] = useState(null);
+
+    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear();
 
 
-    const relationOptions = [
-        { value: "Mother", label: "Mother" },
-        { value: "Father", label: "Father" },
-        { value: "Guardian", label: "Guardian" },
-    ];
-    const ClassOptions = [
-        { value: "4–7 years", label: "4–7 years" },
-        { value: "7–10 years", label: "7-10 years" },
-        { value: "10-12 years ", label: "10-12 years" },
-    ];
-
-    const hearOptions = [
-        { value: "social", label: "Social Media" },
-        { value: "friend", label: "Friend" },
-        { value: "flyer", label: "Flyer" },
-    ];
-    const keyInfoOptions = [
-        { value: "keyInfo 1", label: "keyInfo 1" },
-        { value: "keyInfo 2", label: "keyInfo 2" },
-        { value: "keyInfo 3", label: "keyInfo 3" },
-    ];
     const [clickedIcon, setClickedIcon] = useState(null);
-    const [selectedRelation, setSelectedRelation] = useState(null);
     const [selectedKeyInfo, setSelectedKeyInfo] = useState(null);
-    const [selectedHearOptions, setSelectedHearOptions] = useState(null);
-
-    const handleIconClick = (icon, plan = null) => {
-        setClickedIcon(icon);
-        setCongestionNote(null)
-        if (icon === 'currency') {
-            setSelectedPlans(plan || []); // default to empty array
-        }
-        else if (icon == 'group') {
-            setCongestionNote(plan)
-        }
-        else if (icon == 'p') {
-            setCongestionNote(plan)
-        }
-        else if (icon == 'calendar') {
-            setCongestionNote(plan)
-        }
-        setShowModal(true);
-    };
-
-
-    const { fetchPackages, packages } = usePayments()
-    const { fetchTermGroup, termGroup } = useTermContext()
-
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const { venues, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue() || {};
     const [selectedUserIds, setSelectedUserIds] = useState([]);
-    const toggleCheckbox = (userId) => {
-        setSelectedUserIds((prev) =>
-            prev.includes(userId)
-                ? prev.filter((id) => id !== userId)
-                : [...prev, userId]
-        );
-    };
     const isAllSelected = venues.length > 0 && selectedUserIds.length === venues.length;
-
     const toggleSelectAll = () => {
         if (isAllSelected) {
             setSelectedUserIds([]);
@@ -145,8 +204,6 @@ const List = () => {
             setSelectedUserIds(allIds);
         }
     };
-
-
     const handleDelete = (id) => {
         Swal.fire({
             title: 'Are you sure?',
@@ -167,22 +224,6 @@ const List = () => {
         });
     };
 
-    const [openForm, setOpenForm] = useState(false);
-
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    // useEffect(() => {
-    //     fetchVenues();
-    //     fetchPackages();
-    //     fetchTermGroup();
-    // }, [fetchVenues, fetchPackages, fetchTermGroup]);
-
-    const today = new Date();
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const [fromDate, setFromDate] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 11));
-    const [toDate, setToDate] = useState(null);
-
-    const month = currentDate.getMonth();
-    const year = currentDate.getFullYear();
     const formatLocalDate = (date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
@@ -208,7 +249,6 @@ const List = () => {
 
         return days;
     };
-
     const calendarDays = getDaysArray();
 
     const goToPreviousMonth = () => {
@@ -246,11 +286,9 @@ const List = () => {
             setSelectedDate(formattedDate);
         }
     };
-
-
-
     const modalRef = useRef(null);
     const PRef = useRef(null);
+
     useEffect(() => {
         function handleClickOutside(event) {
             const activeRef = clickedIcon === "group" ? modalRef : PRef;
@@ -271,16 +309,6 @@ const List = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [showModal, clickedIcon, setShowModal]);
-
-    const [selectedClass, setSelectedClass] = useState();
-
-    if (loading) {
-        return (
-            <>
-                <Loader />
-            </>
-        )
-    }
 
 
     const allTermRanges = Array.isArray(congestionNote)
@@ -336,17 +364,7 @@ const List = () => {
 
     // 🔁 Sync Emergency Contact
 
-    const [students, setStudents] = useState([
-        {
-            studentFirstName: '',
-            studentLastName: '',
-            dateOfBirth: null,
-            age: '',
-            gender: '',
-            medicalInformation: '',
-            // Add other fields if needed
-        },
-    ]);
+
 
     const handleInputChange = (index, field, value) => {
         const updatedStudents = [...students];
@@ -354,33 +372,10 @@ const List = () => {
         setStudents(updatedStudents);
     };
 
-    useEffect(() => {
-        const newStudents = Array.from({ length: numberOfStudents }).map(() => ({
-            studentFirstName: "",
-            studentLastName: "",
-            dateOfBirth: null,
-            age: "",
-            gender: "",
-            medicalInformation: null,
-            class: singleClassSchedulesOnly?.className,
-            time: singleClassSchedulesOnly?.startTime,
-        }));
-        setStudents(newStudents);
-    }, [numberOfStudents]);
 
 
-    const [parents, setParents] = useState([
-        {
-            id: Date.now(),
-            parentFirstName: '',
-            parentLastName: '',
-            parentEmail: '',
-            parentPhoneNumber: '',
-            relationToChild: '',
-            howDidYouHear: ''
 
-        }
-    ]);
+
     const handleAddParent = () => {
         setParents((prev) => [
             ...prev,
@@ -445,13 +440,7 @@ const List = () => {
         setParents(updated);
     };
 
-    const [emergency, setEmergency] = useState({
-        sameAsAbove: false,
-        emergencyFirstName: "",
-        emergencyLastName: "",
-        emergencyPhoneNumber: "",
-        emergencyRelation: "",
-    });
+
     useEffect(() => {
         if (emergency.sameAsAbove && parents.length > 0) {
             const firstParent = parents[0];
@@ -573,17 +562,6 @@ const List = () => {
             );
         });
     };
-
-    console.log('"2025-08-01"', selectedDate)
-
-    const buttons = [
-        ['AC', '±', '%', '÷',],
-        ["7", "8", "9", "×"],
-        ["4", "5", "6", "−"],
-        ["1", "2", "3", "+"],
-        ["", "0", ".", "="],
-
-    ];
     const handleClickOutside = (e) => {
         if (
             activePopup === 1 && popup1Ref.current && !popup1Ref.current.contains(e.target)
@@ -593,7 +571,6 @@ const List = () => {
             togglePopup(null);
         }
     };
-
     useEffect(() => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
@@ -618,43 +595,35 @@ const List = () => {
         } else {
             console.log('cleanedPlans not found');
         }
-    }, [singleClassSchedulesOnly]); // ✅ now it runs when data is fetched
-    console.log('singleClassSchedulesOnly?.venue?', singleClassSchedulesOnly)
-    const allPaymentPlans =
-        singleClassSchedulesOnly?.venue?.paymentPlans?.map((plan) => ({
-            label: `${plan.title} (${plan.students} student${plan.students > 1 ? "s" : ""})`,
-            value: plan.id,
-            joiningFee: plan.joiningFee,
-            all: plan,
-        })) || [];
-    const paymentPlanOptions = numberOfStudents
-        ? allPaymentPlans.filter((plan) => plan.all.students === Number(numberOfStudents))
-        : allPaymentPlans;
-
-
-    const handleNumberChange = (e) => {
-        const val = e.target.value === "" ? "" : Number(e.target.value);
-        if (val === "" || [1, 2, 3].includes(val)) {
-            setNumberOfStudents(val);
-
-            // If currently selected plan doesn't match new number, reset it
-            if (membershipPlan && membershipPlan.all.students !== val) {
-                setMembershipPlan(null);
-            }
-        }
-    };
-    const handlePlanChange = (plan) => {
-        setMembershipPlan(plan);
-        if (plan) {
-            setNumberOfStudents(plan.all.students); // Update numberOfStudents to match plan
-        }
-    };
-    // Prefill first plan (or specific one)
-    useEffect(() => {
-        if (paymentPlanOptions.length) {
-            setMembershipPlan(paymentPlanOptions[0]);
-        }
     }, [singleClassSchedulesOnly]);
+
+    // ✅ now it runs when data is fetched
+
+
+    const buttons = [
+        ['AC', '±', '%', '÷',],
+        ["7", "8", "9", "×"],
+        ["4", "5", "6", "−"],
+        ["1", "2", "3", "+"],
+        ["", "0", ".", "="],
+
+    ];
+    const relationOptions = [
+        { value: "Mother", label: "Mother" },
+        { value: "Father", label: "Father" },
+        { value: "Guardian", label: "Guardian" },
+    ];
+
+    const hearOptions = [
+        { value: "social", label: "Social Media" },
+        { value: "friend", label: "Friend" },
+        { value: "flyer", label: "Flyer" },
+    ];
+    const keyInfoOptions = [
+        { value: "keyInfo 1", label: "keyInfo 1" },
+        { value: "keyInfo 2", label: "keyInfo 2" },
+        { value: "keyInfo 3", label: "keyInfo 3" },
+    ];
     const genderOptions = [
         { value: "male", label: "Male" },
         { value: "female", label: "Female" },
@@ -662,7 +631,6 @@ const List = () => {
     ];
     if (loading) return <Loader />;
 
-    console.log('membershipPlan', membershipPlan)
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
@@ -826,7 +794,7 @@ const List = () => {
                         <div className="mb-5">
                             <label htmlFor="" className="text-base font-semibold">Membership Plan </label>
                             <div className="relative mt-2 ">
-   
+
                                 <Select
                                     options={paymentPlanOptions}
                                     value={membershipPlan}
@@ -835,7 +803,7 @@ const List = () => {
                                     className="mt-2"
                                     classNamePrefix="react-select"
                                     isClearable
-                                     isDisabled={!numberOfStudents} 
+                                    isDisabled={!numberOfStudents}
                                 />
 
                             </div>
@@ -1037,7 +1005,7 @@ const List = () => {
                                     <div className="flex gap-4">
                                         <div className="w-1/2">
                                             <label className="block text-[16px] font-semibold">
-                                                Date of birth
+                                                Date of Birth
                                             </label>
                                             <DatePicker
                                                 selected={student.dateOfBirth}
@@ -1047,6 +1015,10 @@ const List = () => {
                                                 scrollableYearDropdown
                                                 yearDropdownItemNumber={100}
                                                 dateFormat="dd/MM/yyyy"
+                                                maxDate={new Date(new Date().setFullYear(new Date().getFullYear() - 3))} // Minimum age: 3 years
+                                                minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))} // Max age: 100 years
+                                                placeholderText="Select date of birth"
+
                                             />
                                         </div>
                                         <div className="w-1/2">
@@ -1060,6 +1032,7 @@ const List = () => {
                                             />
                                         </div>
                                     </div>
+
 
                                     {/* Row 3 */}
                                     <div className="flex gap-4">
@@ -1390,12 +1363,12 @@ const List = () => {
                                     // If both are selected, proceed
                                     setShowPopup(true);
                                 }}
-                                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${ isSubmitting || membershipPlan && selectedDate
+                                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${isSubmitting || membershipPlan && selectedDate
                                     ? "bg-[#237FEA] border border-[#237FEA]"
                                     : "bg-gray-400 border-gray-400 cursor-not-allowed"
                                     }`}
                             >
-                                 {isSubmitting ? "Submitting..." : "Setup Direct Debit"}
+                                {isSubmitting ? "Submitting..." : "Setup Direct Debit"}
                             </button>
 
 
@@ -1657,37 +1630,36 @@ const List = () => {
                                         </div>
                                     </div>
                                     <div className="w-full mx-auto flex justify-center" >
-                                     <button
-    type="button"
-    disabled={
-        isSubmitting || // disable while submitting
-        !payment.authorise ||
-        (payment.paymentType === "rrn" && !payment.referenceId) ||
-        (payment.paymentType === "card" &&
-            (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan))
-    }
-    onClick={async () => {
-        setIsSubmitting(true); // start loading
-        try {
-            setDirectDebitData([...directDebitData, payment]);
-            setShowPopup(false);
-            await handleSubmit(payment); // await if handleSubmit is async
-        } finally {
-            setIsSubmitting(false); // stop loading after submit
-        }
-    }}
-    className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold ${
-        isSubmitting ||
-        !payment.authorise ||
-        (payment.paymentType === "rrn" && !payment.referenceId) ||
-        (payment.paymentType === "card" &&
-            (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan))
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-[#237FEA] cursor-pointer"
-    }`}
->
-    {isSubmitting ? "Submitting..." : "Set up Direct Debit"}
-</button>
+                                        <button
+                                            type="button"
+                                            disabled={
+                                                isSubmitting || // disable while submitting
+                                                !payment.authorise ||
+                                                (payment.paymentType === "rrn" && !payment.referenceId) ||
+                                                (payment.paymentType === "card" &&
+                                                    (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan))
+                                            }
+                                            onClick={async () => {
+                                                setIsSubmitting(true); // start loading
+                                                try {
+                                                    setDirectDebitData([...directDebitData, payment]);
+                                                    setShowPopup(false);
+                                                    await handleSubmit(payment); // await if handleSubmit is async
+                                                } finally {
+                                                    setIsSubmitting(false); // stop loading after submit
+                                                }
+                                            }}
+                                            className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold ${isSubmitting ||
+                                                !payment.authorise ||
+                                                (payment.paymentType === "rrn" && !payment.referenceId) ||
+                                                (payment.paymentType === "card" &&
+                                                    (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan))
+                                                ? "bg-gray-400 cursor-not-allowed"
+                                                : "bg-[#237FEA] cursor-pointer"
+                                                }`}
+                                        >
+                                            {isSubmitting ? "Submitting..." : "Set up Direct Debit"}
+                                        </button>
 
                                     </div>
                                 </div>

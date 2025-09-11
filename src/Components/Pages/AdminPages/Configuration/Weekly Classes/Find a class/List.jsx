@@ -580,15 +580,20 @@ const List = () => {
                         key={idx}
                         className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white " // ✅ min height
                       >
-                        <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
+                        <div className="bg-[#2E2F3E] text-white p-4 rounded-xl md:flex items-center justify-between text-sm">
                           <div className="flex items-center gap-2">
                             <img src="/demo/synco/icons/Location.png" alt="" />
-                            <span className="font-medium text-[16px]">{venue.address}</span>
-                            {!venue.address.includes(venue.postal_code) && (
-                              <span className="font-medium text-[16px]">PostCode - {venue.postal_code}</span>
-                            )}
+                            <div className="flex">
+<span className="font-medium text-[16px]">
+  {venue.address}
+  {venue.postal_code && !venue.address.includes(venue.postal_code) && (
+    <span> PostCode - {venue.postal_code}</span>
+  )}
+</span>
+                           
+                              </div>
                           </div>
-                          <div ref={iconContainerRef} className="flex relative items-center gap-4">
+                          <div ref={iconContainerRef} className=" md:mt-0 mt-5 flex relative items-center gap-4">
                             <img
                               src="/demo/synco/icons/fcDollar.png"
                               onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentPlans)}
@@ -646,7 +651,7 @@ const List = () => {
                           <div className="px-4  w-11/12 py-2 flex-1 space-y-6">
                             {venue.classes && Object.keys(venue.classes).length > 0 ? (
                               Object.entries(venue.classes).map(([day, classList]) => (
-                                <div key={day} className="flex gap-6 items-center ">
+                                <div key={day} className="md:flex gap-6 items-center ">
                                   <div className="block border-r pr-3 border-[#b6b2ad] ">
                                     <div className="text-[16px] font-semibold text-[#384455]">{day}</div>
                                     <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
@@ -655,7 +660,7 @@ const List = () => {
                                     {classList.map((s, i) => (
                                       <div
                                         key={s.classId}
-                                        className="grid grid-cols-7 items-center text-sm min-h-[60px]"
+                                        className="md:grid md:grid-cols-7 mt-10 md:mt-0 items-center text-sm min-h-[60px]"
                                       >
                                         <div className="font-bold text-[16px] text-black">Class {i + 1}</div>
                                         <div className="font-semibold text-[16px]">{s.className}</div>
@@ -664,7 +669,7 @@ const List = () => {
                                         </div>
 
                                         {/* Capacity */}
-                                        <div className="text-sm">
+                                        <div className="mt-5 md:mt-0 text-sm">
                                           {s.capacity === 0 ? (
                                             <span className="text-red-500 bg-red-50 p-2 rounded-xl text-[14px] font-semibold">
                                               Fully booked
@@ -677,7 +682,7 @@ const List = () => {
                                         </div>
 
                                         {/* Action Buttons */}
-                                        <div className="flex gap-2 col-span-2 flex-wrap justify-end">
+                                        <div className="mt-5 md:mt-0 flex gap-2 col-span-2 flex-wrap md:justify-end">
                                           {s.capacity === 0 && canAddToWaitingList ? (
                                             <button
                                               onClick={() => handleAddToWaitingList(s.classId)}
@@ -760,7 +765,15 @@ const List = () => {
                             </div>
                           )}
                           {showteamModal === venue.venueId && (
-                            <div ref={iconContainerRef} className="absolute bg-opacity-30 top-15 min-w-[489px] flex right-2 items-center justify-center z-50">
+<div 
+  ref={iconContainerRef} 
+  className="
+    absolute bg-opacity-30 top-15 flex items-center justify-center z-50
+    min-w-[200px] sm:min-w-[489px]
+    left-2 sm:left-auto right-2
+    px-2 sm:px-0
+  "
+>
                               <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
                                 {/* Header */}
                                 <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
@@ -774,11 +787,11 @@ const List = () => {
                                 <div className="space-y-6 text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
                                   {calendarData.map((term) => (
                                     <div key={term.id}>
-                                      <h3 className="text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
-                                      <p className="text-[18px]">
+                                      <h3 className="md:text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
+                                      <p className="md:text-[18px]">
                                         {formatDate(term.startDate)} - {formatDate(term.endDate)}
                                       </p>
-                                      <p className="text-[18px]">
+                                      <p className="md:text-[18px]">
                                         Half term Exclusion:{" "}
                                         {term.exclusionDates.map((ex, idx) => (
                                           <span key={idx}>
@@ -791,7 +804,7 @@ const List = () => {
                                 </div>
 
                                 {/* Calendar Section */}
-                                <div className="rounded p-4 mt-6 text-center text-sm w-full max-w-md mx-auto">
+                                <div className="rounded p-4 mt-6 text-center md:text-sm w-full max-w-md mx-auto">
                                   {/* Header */}
                                   <div className="flex justify-around items-center mb-3">
                                     <button
@@ -800,7 +813,7 @@ const List = () => {
                                     >
                                       <ChevronLeft className="w-5 h-5" />
                                     </button>
-                                    <p className="font-semibold text-[20px]">
+                                    <p className="font-semibold md:text-[20px]">
                                       {currentDate.toLocaleString("default", { month: "long" })} {year}
                                     </p>
                                     <button
@@ -812,7 +825,7 @@ const List = () => {
                                   </div>
 
                                   {/* Day Labels */}
-                                  <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
+                                  <div className="grid grid-cols-7 text-xs gap-1 md:text-[18px] text-gray-500 mb-1">
                                     {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
                                       <div key={day} className="font-medium text-center">
                                         {day}

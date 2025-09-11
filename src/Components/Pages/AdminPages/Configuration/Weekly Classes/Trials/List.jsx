@@ -63,24 +63,24 @@ const trialLists = () => {
         dateBooked: false,
         dateOfTrial: false,
     });
-const getStatusBadge = (status) => {
-  const s = status.toLowerCase();
-  let styles =
-    "bg-red-100 text-red-500"; // default fallback
-  if (s === "attend" || s === "active")
-    styles = "bg-green-100 text-green-600";
-  else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
-  else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
-  else if (s === "waiting list") styles = "bg-gray-200 text-gray-700";
+    const getStatusBadge = (status) => {
+        const s = status.toLowerCase();
+        let styles =
+            "bg-red-100 text-red-500"; // default fallback
+        if (s == "attend" || s == "active")
+            styles = "bg-green-100 text-green-600";
+        else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
+        else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
+        else if (s === "waiting list") styles = "bg-gray-200 text-gray-700";
 
-  return (
-    <div
-      className={`flex text-center justify-center rounded-lg p-1 gap-2 ${styles} capitalize`}
-    >
-      {status}
-    </div>
-  );
-};
+        return (
+            <div
+                className={`flex text-center justify-center rounded-lg p-1 gap-2 ${styles} capitalize`}
+            >
+                {formatStatus(status)}
+            </div>
+        );
+    };
 
     const [selectedDates, setSelectedDates] = useState([]);
     const handleCheckboxChange = (label) => {
@@ -320,46 +320,51 @@ const getStatusBadge = (status) => {
     };
     console.log('statsFreeTrial', statsFreeTrial)
     const { checkPermission } = usePermission();
-
+const formatStatus = (status) => {
+  if (!status) return "-";
+  return status
+    .split("_")           // split by underscore
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
+    .join(" ");           // join with space
+};
     const canServicehistory =
         checkPermission({ module: 'service-history', action: 'view-listing' })
-        const freeTrialColumns = [
-  { header: "Name", key: "name", selectable: true }, // ✅ checkbox + student name
-  { header: "Age", render: (item, student) => student.age },
-  { header: "Venue", render: (item) => item.venue?.name || "-" },
-  {
-    header: "Date of Booking",
-    render: (item) => new Date(item.createdAt || item.trialDate).toLocaleDateString(),
-  },
-  {
-    header: "Date of Trial",
-    render: (item) => new Date(item.trialDate).toLocaleDateString(),
-  },
-  {
-    header: "Source",
-    render: (item) => item.parents?.[0]?.howDidYouHear || "-",
-  },
-  {
-    header: "Attempts",
-    render: () => "static", // replace with real attempts later if needed
-  },
-  {
-    header: "Status",
-    render: (item) => (
-      <div
-        className={`flex text-center justify-center rounded-lg p-1 gap-2 ${
-          item.status.toLowerCase() === "attend"
-            ? "bg-green-100 text-green-600"
-            : item.status.toLowerCase() === "pending"
-            ? "bg-yellow-100 text-yellow-600"
-            : "bg-red-100 text-red-500"
-        } capitalize`}
-      >
-        {item.status}
-      </div>
-    ),
-  },
-];
+    const freeTrialColumns = [
+        { header: "Name", key: "name", selectable: true }, // ✅ checkbox + student name
+        { header: "Age", render: (item, student) => student.age },
+        { header: "Venue", render: (item) => item.venue?.name || "-" },
+        {
+            header: "Date of Booking",
+            render: (item) => new Date(item.createdAt || item.trialDate).toLocaleDateString(),
+        },
+        {
+            header: "Date of Trial",
+            render: (item) => new Date(item.trialDate).toLocaleDateString(),
+        },
+        {
+            header: "Source",
+            render: (item) => item.parents?.[0]?.howDidYouHear || "-",
+        },
+        {
+            header: "Attempts",
+            render: () => "static", // replace with real attempts later if needed
+        },
+        {
+            header: "Status",
+            render: (item) => (
+                <div
+                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === "attend"
+                            ? "bg-green-100 text-green-600"
+                            : item.status.toLowerCase() === "pending"
+                                ? "bg-yellow-100 text-yellow-600"
+                                : "bg-red-100 text-red-500"
+                        } capitalize`}
+                >
+                   {formatStatus(item.status)}
+                </div>
+            ),
+        },
+    ];
 
     if (loading) return <Loader />;
     return (
@@ -367,31 +372,31 @@ const getStatusBadge = (status) => {
 
             <div className="md:flex w-full gap-4">
                 <div className="flex-1 transition-all duration-300">
-                      <StatsGrid stats={stats} variant="B" />
-                 
+                    <StatsGrid stats={stats} variant="B" />
+
                     <div className="flex justify-end ">
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
-                            <img            onClick={() => navigate("/configuration/weekly-classes/find-a-class")} 
-                            src="/demo/synco/DashboardIcons/user-add-02.png" alt=""  className="cursor-pointer"/>
+                            <img onClick={() => navigate("/configuration/weekly-classes/find-a-class")}
+                                src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
                         </div>
                     </div>
-                    
+
                     <DynamicTable
-  columns={freeTrialColumns}
-  data={bookFreeTrials}
-  from={'freetrial'}
-  selectedIds={selectedStudents}
-   setSelectedStudents={setSelectedStudents}
-  onRowClick={
-    canServicehistory
-      ? (item) =>
-          navigate(
-            "/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list",
-            { state: { itemId: item.id } }
-          )
-      : undefined
-  }
-/>
+                        columns={freeTrialColumns}
+                        data={bookFreeTrials}
+                        from={'freetrial'}
+                        selectedIds={selectedStudents}
+                        setSelectedStudents={setSelectedStudents}
+                        onRowClick={
+                            canServicehistory
+                                ? (item) =>
+                                    navigate(
+                                        "/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list",
+                                        { state: { itemId: item.id } }
+                                    )
+                                : undefined
+                        }
+                    />
 
 
                 </div>
@@ -682,21 +687,21 @@ const getStatusBadge = (status) => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-2 justify-between">
+                    <div className="flex flex-col md:flex-row gap-2 justify-between">
                         <button
-                           
-                             onClick={() => {
-                                                           if (!selectedStudents || selectedStudents.length === 0) {
-                                                               Swal.fire({
-                                                                   icon: "warning",
-                                                                   title: "No students selected",
-                                                                   text: "Please select at least one student before sending an email.",
-                                                               });
-                                                               return;
-                                                           }
-                           
-                                                           sendFreeTrialmail(selectedStudents);
-                                                       }}
+
+                            onClick={() => {
+                                if (!selectedStudents || selectedStudents.length === 0) {
+                                    Swal.fire({
+                                        icon: "warning",
+                                        title: "No students selected",
+                                        text: "Please select at least one student before sending an email.",
+                                    });
+                                    return;
+                                }
+
+                                sendFreeTrialmail(selectedStudents);
+                            }}
                             className="flex gap-2 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl md:min-w-[160px] sm:text-[16px]"
                         >
                             <img

@@ -709,7 +709,7 @@ const WaitingList = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-0 justify-between">
+                    <div className="flex flex-col md:flex-row gap-2 justify-between">
                         <button
                             onClick={() => {
                                 if (!selectedStudents || selectedStudents.length === 0) {

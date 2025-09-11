@@ -121,7 +121,7 @@ const List = () => {
                       e.currentTarget.src = '/demo/synco/SidebarLogos/OneTOOne.png';
                     }}
                               />
-                              <span onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}>{user.firstName || '-'}</span>
+                              <span onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}>{user.firstName || '-'} {user.lastName || ''}</span>
                             </div>
                           </td>
                           <td className="p-4" onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}>{user.role?.role || '-'}</td>

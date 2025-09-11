@@ -47,7 +47,7 @@ const TermCard = ({ item, sessionData }) => {
         <div className="bg-white border border-gray-200 rounded-2xl mb-4 shadow hover:shadow-md transition">
             <div className="flex flex-col md:flex-row justify-between p-4 gap-4 text-sm">
                 {/* Left block */}
-                <div className="min-w-40">
+                <div className="min-w-60 max-w-60">
                     <p className="font-semibold whitespace-nowrap">{item.name}</p>
                     <p className="text-xs text-[#717073]">{item.Date}</p>
                 </div>

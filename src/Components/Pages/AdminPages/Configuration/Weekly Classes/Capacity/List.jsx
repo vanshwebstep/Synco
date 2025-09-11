@@ -434,10 +434,11 @@ const Capacity = () => {
                                                                 borderColor: availableSpaces > 0 ? "#34AE56" : "#FE7058",
                                                                 value: availableSpaces,
                                                                 textColor: "#fff"
+                                                                , icon:'+' 
                                                             },
                                                             { label: "No Spaces", color: "#FE7058", borderColor: "#FE7058", value: totalCapacity - totalBooked - availableSpaces, textColor: "#fff" },
                                                         ];
-
+                                                        console.log('statsItems', statsItems)
                                                         return (
                                                             <div
                                                                 key={cls.id}
@@ -449,18 +450,26 @@ const Capacity = () => {
                                                                 <div className="text-[16px] py-4 font-semibold text-[#384455]">
                                                                     <div className="flex items-center gap-3">
                                                                         {statsItems
-                                                                            .filter(item => item.value > 0)
+                                                                            .filter(item =>
+                                                                                item.value > 0 || (item.label === "No Spaces" && venue.stats.occupancyRate === 0)
+                                                                            )
                                                                             .map((item, idx) => (
                                                                                 <div
                                                                                     key={idx}
-                                                                                    className="w-10  h-10 rounded-md border flex items-center justify-center"
-                                                                                    style={{ backgroundColor: item.color, borderColor: item.borderColor, color: item.textColor }}
+                                                                                    className="w-10 h-10 rounded-md border flex items-center justify-center"
+                                                                                    style={{
+                                                                                        backgroundColor: item.color,
+                                                                                        borderColor: item.borderColor,
+                                                                                        color: item.textColor
+                                                                                    }}
                                                                                     title={`${item.label}: ${item.value}`}
                                                                                 >
-                                                                                    <span className="text-[18px] font-semibold">{item.value}</span>
+                                                                                    <span className="text-[18px] font-semibold flex">    {item.icon}    {item.value > 0 ? item.value : "N/A"}
+</span>
                                                                                 </div>
                                                                             ))
                                                                         }
+
                                                                     </div>
                                                                 </div>
                                                             </div>

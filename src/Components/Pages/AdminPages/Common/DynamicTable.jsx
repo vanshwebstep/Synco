@@ -10,7 +10,7 @@ const DynamicTable = ({ columns, data,from, selectedIds, setSelectedStudents, on
         : [...prev, studentId]
     );
   };
-console.log('fonRowClick',onRowClick) 
+console.log('data',data) 
  return (
   <div className="overflow-auto mt-5 rounded-4xl w-full">
     <table className="min-w-full rounded-4xl bg-white text-sm border border-[#E2E1E5]">
@@ -68,10 +68,10 @@ console.log('fonRowClick',onRowClick)
                               {col.header === "Parent Name"
                                 ? `${item.parents?.[0]?.parentFirstName || ""} ${
                                     item.parents?.[0]?.parentLastName || ""
-                                  }`.trim() || "-"
+                                  }`.trim() || "null"
                                 : `${student.studentFirstName || ""} ${
                                     student.studentLastName || ""
-                                  }`.trim() || "-"}
+                                  }`.trim() || "null"}
                             </span>
                           </div>
                         </td>

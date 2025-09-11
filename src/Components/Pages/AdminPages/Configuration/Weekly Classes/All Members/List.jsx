@@ -306,7 +306,7 @@ const trialLists = () => {
     };
 
     if (loading) return <Loader />;
-
+console.log('bookMembership',bookMembership)
     const membershipData = bookMembership?.flatMap((item) =>
         item.students.map((student) => ({
             ...item,          // keep membership-level info
@@ -356,7 +356,7 @@ const trialLists = () => {
 
                     <DynamicTable
                         columns={membershipColumns}
-                        data={membershipData}   // 👈 use flattened data
+                        data={bookMembership}   // 👈 use flattened data
                         selectedIds={selectedStudents}
                          setSelectedStudents={setSelectedStudents}
                           from={'membership'}
@@ -658,7 +658,7 @@ const trialLists = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="flex gap-2 justify-between">
+                    <div className="flex flex-col md:flex-row gap-2 justify-between">
                         <button
                             onClick={() => {
                                 if (selectedStudents && selectedStudents.length > 0) {

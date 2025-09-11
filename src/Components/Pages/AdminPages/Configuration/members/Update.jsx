@@ -400,7 +400,7 @@ const Update = () => {
 
       >
         <div className="md:flex items-center justify-between bg-white p-6 rounded-2xl border border-[#E2E1E5]">
-          <div className="flex items-center gap-4">
+          <div className="md:flex items-center gap-4">
             <div className="relative cursor-pointer w-20 h-20 md:w-[113px] md:h-[113px]">
               <img
                 src={
@@ -419,37 +419,37 @@ const Update = () => {
                   setIsImageValid(false); // mark image as invalid
                 }}
               />
- {editPersonal && (
-  <>
-              {(photoPreview || formData.profile) && isImageValid && (
-                <img
-                  src="/demo/synco/icons/cancel.png"
-                  alt="Cross"
-                  className="absolute top-[-15px] right-[-15px] rounded-full object-cover border cursor-pointer"
-                  onClick={() => {
-                    Swal.fire({
-                      title: 'Are you sure?',
-                      text: "Do you want to remove your picture?",
-                      icon: 'warning',
-                      showCancelButton: true,
-                      confirmButtonColor: '#3085d6',
-                      cancelButtonColor: '#d33',
-                      confirmButtonText: 'Yes, remove it!',
-                      cancelButtonText: 'Cancel'
-                    }).then((result) => {
-                      if (result.isConfirmed) {
-                        setFormData((prev) => ({ ...prev, profile: null }));
-                        setPhotoPreview(null);
-                        setIsImageremove(true);
-                        setIsImageValid(false); // hide cross after removal
-                        Swal.fire('Removed!', 'Your picture has been removed.', 'success');
-                      }
-                    });
-                  }}
-                />
+              {editPersonal && (
+                <>
+                  {(photoPreview || formData.profile) && isImageValid && (
+                    <img
+                      src="/demo/synco/icons/cancel.png"
+                      alt="Cross"
+                      className="absolute top-[-15px] right-[-15px] rounded-full object-cover border cursor-pointer"
+                      onClick={() => {
+                        Swal.fire({
+                          title: 'Are you sure?',
+                          text: "Do you want to remove your picture?",
+                          icon: 'warning',
+                          showCancelButton: true,
+                          confirmButtonColor: '#3085d6',
+                          cancelButtonColor: '#d33',
+                          confirmButtonText: 'Yes, remove it!',
+                          cancelButtonText: 'Cancel'
+                        }).then((result) => {
+                          if (result.isConfirmed) {
+                            setFormData((prev) => ({ ...prev, profile: null }));
+                            setPhotoPreview(null);
+                            setIsImageremove(true);
+                            setIsImageValid(false); // hide cross after removal
+                            Swal.fire('Removed!', 'Your picture has been removed.', 'success');
+                          }
+                        });
+                      }}
+                    />
+                  )}
+                </>
               )}
-              </>
-           )}
 
               {editPersonal && (
                 <>
@@ -470,15 +470,18 @@ const Update = () => {
 
 
 
-
             <div>
-              <h2 className="text-[28px] font-semibold pb-1">
-                {formData.firstName || formData.name || 'NIL'} {formData.lastName}
+              <h2
+                className="text-[28px] font-semibold pb-1 truncate max-w-[250px] block"
+                title={`${formData.firstName || formData.name || ''} ${formData.lastName || ''}`}
+              >
+                {formData.firstName || formData.name || ''} {formData.lastName}
               </h2>
-              <p className="text-[#717073] font-medium md:text-[18px] text-sm">
-                {formData.email || 'NIL'}
+
+              <p className="text-[#717073] font-medium md:text-[18px] text-sm truncate md:max-w-[600px] max-w-[200px] block">
+                {formData.email || ''}
                 <br />
-                {formData.role?.role || '-'} | {formData.position || 'NIL'}
+                {formData.role?.role || '-'} | {formData.position || ''}
               </p>
             </div>
           </div>

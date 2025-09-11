@@ -43,54 +43,70 @@ export const VenueProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
-  const createVenues = async (venueData) => {
-    setLoading(true);
+const createVenues = async (venueData) => {
+  setLoading(true);
 
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    if (token) {
-      myHeaders.append("Authorization", `Bearer ${token}`);
-    }
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  if (token) {
+    myHeaders.append("Authorization", `Bearer ${token}`);
+  }
 
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: JSON.stringify(venueData),
-      redirect: "follow",
-    };
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: JSON.stringify(venueData),
+    redirect: "follow",
+  };
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/venue/`, requestOptions);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/venue/`, requestOptions);
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to create venue");
+    if (!response.ok) {
+      const errorData = await response.json();
+
+      let errorMessage = '';
+
+      if (errorData.error) {
+        // Wrap each error in a <div> so each appears on a separate line
+        const fieldErrors = Object.values(errorData.error)
+          .map((msg, index) => `<div>${index + 1}. ${msg}</div>`)
+          .join('');
+        errorMessage = fieldErrors;
+      } else if (errorData.message) {
+        errorMessage = `<div>${errorData.message}</div>`;
       }
 
-      const result = await response.json();
-
-      await Swal.fire({
-        title: "Success!",
-        text: result.message || "Venue has been created successfully.",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-
-      fetchVenues();
-      return result;
-    } catch (error) {
-      console.error("Error creating venue:", error);
-      await Swal.fire({
-        title: "Error",
-        text: error.message || "Something went wrong while creating venue.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-      throw error;
-    } finally {
-      setLoading(false);
+      throw new Error(errorMessage);
     }
-  };
+
+    const result = await response.json();
+
+    await Swal.fire({
+      title: "Success!",
+      text: result.message || "Venue has been created successfully.",
+      icon: "success",
+      confirmButtonText: "OK",
+    });
+
+    fetchVenues();
+    return result;
+  } catch (error) {
+    console.error("Error creating venue:", error);
+
+    await Swal.fire({
+      title: "Error",
+      html: error.message, // use html to render <div> properly
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // UPDATE VENUE
   const updateVenues = async (venueId, updatedVenueData) => {

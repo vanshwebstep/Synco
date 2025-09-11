@@ -11,13 +11,16 @@ import { format } from "date-fns";
 import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
 import Loader from '../../../../contexts/Loader';
 import { usePermission } from '../../../../Common/permission';
-
+import { addDays } from "date-fns";
 const ParentProfile = ({ ParentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [selectedDate, setSelectedDate] = useState(null);
 
-    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit } = useBookFreeTrial() || {};
-
+    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit,reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit } = useBookFreeTrial() || {};
+    const [addToWaitingList, setaddToWaitingList] = useState(false);
+    const [freezeMembership, setFreezeMembership] = useState(false);
+    const [reactivateMembership, setReactivateMembership] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
     const [showRebookTrial, setshowRebookTrial] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
@@ -76,6 +79,43 @@ const ParentProfile = ({ ParentProfile }) => {
         additionalNote: "",
     });
 
+    const [waitingListData, setWaitingListData] = useState({
+        bookingId: id,
+        classScheduleId: null,
+        venueId: classSchedule?.venue?.id || null,
+        preferredStartDate: null,
+        notes: "",
+    });
+    const [cancelData, setCancelData] = useState({
+        bookingId: id,
+        cancellationType: "",      // corresponds to selected radio
+        cancelReason: "",          // corresponds to Select value
+        cancelDate: null,          // corresponds to DatePicker
+        additionalNote: "",        // textarea
+    });
+    const [cancelWaitingList, setCancelWaitingList] = useState({
+        bookingId: id,
+        reasonForCancelling: "",           // corresponds to DatePicker
+        additionalNote: "",        // textarea
+    });
+    const [transferData, setTransferData] = useState({
+        bookingId: id || null,
+        venueId: classSchedule?.venue?.id || null,
+        transferReasonClass: "", // optional notes
+        classScheduleId: null,        // selected new class
+    });
+    const [freezeData, setFreezeData] = useState({
+        bookingId: id || null,
+        freezeStartDate: null,
+        freezeDurationMonths: null,
+        reactivateOn: null, // optional if you want to capture explicitly
+        reasonForFreezing: "",
+    });
+    const [reactivateData, setReactivateData] = useState({
+        bookingId: id || null,
+        reactivateOn: null,
+        additionalNote: "",
+    });
     console.log('parents', ParentProfile)
     const studentsList = ParentProfile?.students || [];
     const parents = ParentProfile.parents || [];
@@ -96,14 +136,24 @@ const ParentProfile = ({ ParentProfile }) => {
     const canRebooking =
         checkPermission({ module: 'rebooking', action: 'create' })
     if (loading) return <Loader />;
-    const handleDateChange = (date) => {
-        setSelectedDate(date);
-        setRebookFreeTrial((prev) => ({
-            ...prev,
-            trialDate: date ? date.toISOString().split("T")[0] : "",
-        }));
+
+    const handleInputChange = (e, stateSetter) => {
+        const { name, value } = e.target;
+        stateSetter((prev) => ({ ...prev, [name]: value }));
+    };
+    const handleSelectChange = (selected, field, stateSetter) => {
+        stateSetter((prev) => ({ ...prev, [field]: selected?.value || null }));
     };
 
+    // Unified handler for DatePicker
+    const handleDateChange = (date, field, stateSetter) => {
+        if (!date) {
+            stateSetter((prev) => ({ ...prev, [field]: null }));
+            return;
+        }
+        const formatted = date.toLocaleDateString("en-CA"); // gives YYYY-MM-DD without timezone shift
+        stateSetter((prev) => ({ ...prev, [field]: formatted }));
+    };
     const handleReasonChange = (selectedOption) => {
         setReason(selectedOption);
         setRebookFreeTrial((prev) => ({
@@ -119,6 +169,34 @@ const ParentProfile = ({ ParentProfile }) => {
             additionalNote: e.target.value,
         }));
     };
+
+    const newClasses = ParentProfile?.newClasses?.map((cls) => ({
+        value: cls.id,
+        label: `${cls.className} - ${cls.day} (${cls.startTime} - ${cls.endTime})`,
+    }));
+
+    const selectedClass = newClasses?.find(
+        (cls) => cls.value === waitingListData?.classScheduleId
+    );
+    const getStatusBgColor = (status) => {
+        switch (status) {
+            case "active": return "bg-[#43BE4F]";
+            case "frozen": return "bg-[#509EF9]";
+            case "canceled": return "bg-[#FC5D5D]";
+            case "waiting list": return "bg-[#A4A5A6]";
+            default: return "bg-[#A4A5A6]";
+        }
+    };
+
+    const monthOptions = [
+        { value: 1, label: "1 Month" },
+        { value: 2, label: "2 Months" },
+        { value: 3, label: "3 Months" },
+        { value: 4, label: "4 Months" },
+        { value: 5, label: "5 Months" },
+        { value: 6, label: "6 Months" },
+        { value: 12, label: "12 Months" },
+    ];
     return (
         <>
             <div className="md:flex w-full gap-4">
@@ -407,9 +485,17 @@ const ParentProfile = ({ ParentProfile }) => {
                         <div
                             className="m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center"
                             style={{
-                                backgroundImage: status === "cancelled"
-                                    ? "url('/demo/synco/frames/Cancelled.png')"
-                                    : "url('/demo/synco/frames/reqCancel.png')",
+                            backgroundImage: status === "cancelled"
+  ? "url('/demo/synco/frames/Cancelled.png')"
+  : status === "frozen"
+  ? "url('/demo/synco/frames/Frozen.png')"
+  : status === "active"
+  ? "url('/demo/synco/frames/Active.png')"
+  : status === "waiting"
+  ? "url('/demo/synco/frames/Waiting.png')"
+  : "url('/demo/synco/frames/reqCancel.png')",
+
+
                                 backgroundSize: "contain",
                             }}
                         >
@@ -562,53 +648,103 @@ const ParentProfile = ({ ParentProfile }) => {
                                         <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
                                     </button>
                                 </div>
+                                {status !== 'cancelled' && (
+                                    <>
+                                        {status !== 'cancelled' && (
+                                            <>
+                                                <div className="bg-white rounded-3xl   space-y-4">
+
+                                                    {/* Top Row: Email + Text */}
+
+                                                    {(status === "frozen" || status === "cancelled") && canRebooking && (
+                                                        <button
+                                                            onClick={() => setReactivateMembership(true)}
+                                                            className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                                        >
+                                                            Reactivate Membership
+                                                        </button>
+                                                    )}
+
+                                                    {(status === "active" || status === "frozen" || status === "cancelled") && (
+                                                        <button
+                                                            onClick={() => setaddToWaitingList(true)}
+                                                            className={`w-full rounded-xl py-3 text-[18px] font-medium transition-shadow duration-300 
+            ${addToWaitingList
+                                                                    ? "bg-[#237FEA] text-white shadow-md"   // Active state
+                                                                    : "bg-white  border border-gray-300  hover:bg-blue-700 text-[#717073] hover:text-white hover:shadow-md"
+                                                                }`}
+                                                        >
+                                                            Add to the waiting list
+                                                        </button>
+                                                    )}
 
 
-                                {status == 'cancelled' && (
-                                    <button
-                                        onClick={() => setshowRebookTrial(true)}
-                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
-                                    >
-                                        Reactivate Membership
-                                    </button>
-                                )}
-                                <button
-                                    onClick={() => setshowCancelTrial(true)}
-                                    className="w-full hover:bg-[#237FEA] border border-gray-300 text-[#717073] hover:text-white text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                >
-                                    Add to the waiting list
-                                </button>
-                          
-                                {status !== 'cancelled'&&(
-                                          <>
-                                <button
-                                    onClick={() => setshowCancelTrial(true)}
-                                    className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                >
-                                    Freeze Membership
-                                </button>
-                                <button
-                                    onClick={() => setshowCancelTrial(true)}
-                                    className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                >
-                                    Transfer Class
-                                </button>
-                                    
-                                {status !== 'cancelled' && canCancelTrial && (
-                                    <button
-                                        onClick={() => setshowCancelTrial(true)}
-                                        className="w-full  hover:bg-[#FF6C6C] hover:text-white border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                    >
-                                        Cancel Membership
-                                    </button>
-                                )}
+                                                    {status == 'active' && canCancelTrial && (
+                                                        <button
+                                                            onClick={() => setFreezeMembership(true)}
+                                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                                        >
+                                                            Freeze Membership
+                                                        </button>
+                                                    )}
+                                                    {status == 'active' && canCancelTrial && (
+                                                        <button
+                                                            onClick={() => setTransferVenue(true)}
+                                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                                        >
+                                                            Transfer Class
+                                                        </button>
+                                                    )}
+                                                    {status == 'waiting list' && canCancelTrial && (
+                                                        <button
+                                                            onClick={() => setRemoveWaiting(true)}
+                                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                                        >
+                                                            Remove Waiting List
+                                                        </button>
+                                                    )}
+                                                    {(status == 'active' || status == 'frozen') && canCancelTrial && (
+                                                        <button
+                                                            onClick={() => setshowCancelTrial(true)}
+                                                            className={`w-full border text-[18px] rounded-xl py-3 font-medium transition-shadow duration-300
+    ${showCancelTrial
+                                                                    ? "bg-[#FF6C6C] text-white shadow-md border-transparent"
+                                                                    : "border-gray-300 text-[#717073] hover:bg-[#FF6C6C] hover:text-white hover:shadow-md"
+                                                                }`}
+                                                        >
+                                                            Cancel Membership
+                                                        </button>
 
-                                {status !== 'request_to_cancel' && status !== 'cancelled' && (
+                                                    )}
+
+                                                    {/* {status !== 'pending' && status !== 'attend' && (
                                     <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
                                         Book a Membership
                                     </button>
-                                )}
+                                )} */}
 
+                                                    {status === 'attend' && (
+                                                        <div className="flex gap-7">
+                                                            <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
+                                                                No Membership
+                                                            </button>
+
+                                                            <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
+                                                                Book a Membership
+                                                            </button>
+                                                        </div>
+                                                    )}
+
+
+                                                </div>
+                                            </>
+                                        )}
+
+
+
+
+                                    </>
+                                )}
                                 {status === 'cancelled' && (
                                     <div className="flex gap-7">
                                         <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
@@ -620,8 +756,6 @@ const ParentProfile = ({ ParentProfile }) => {
                                         </button>
                                     </div>
                                 )}
-                                </>
-)}
 
                             </div>
                         </>
@@ -828,6 +962,319 @@ const ParentProfile = ({ ParentProfile }) => {
                     </div>
 
                 )}
+                {addToWaitingList && (
+                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                            <button
+                                className="absolute top-4 left-4 p-2"
+                                onClick={() => setaddToWaitingList(false)}
+                            >
+                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                            </button>
+
+                            <div className="text-center py-6 border-b border-gray-300">
+                                <h2 className="font-semibold text-[24px]">Add to Waiting List Form</h2>
+                            </div>
+
+                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                {/* Current Class */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Current Class</label>
+                                    <input
+                                        type="text"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        value={classSchedule?.className || "-"}
+                                        readOnly
+                                    />
+                                </div>
+
+                                {/* Venue */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Venue</label>
+                                    <input
+                                        type="text"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        value={classSchedule?.venue?.name || "-"}
+                                        readOnly
+                                    />
+                                </div>
+
+                                {/* New Class */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Select New Class</label>
+                                    <Select
+                                        value={
+                                            waitingListData.classScheduleId
+                                                ? {
+                                                    value: waitingListData.classScheduleId,
+                                                    label: selectedClass ? selectedClass.label : `Class ${waitingListData.classScheduleId}`
+                                                }
+                                                : null
+                                        } onChange={(selected) => handleSelectChange(selected, "classScheduleId", setWaitingListData)}
+                                        options={newClasses}
+                                        placeholder="Select Class"
+                                        className="rounded-lg mt-2"
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                borderRadius: "0.7rem",
+                                                boxShadow: "none",
+                                                padding: "4px 8px",
+                                                minHeight: "48px",
+                                            }),
+                                            placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                            dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                            indicatorSeparator: () => ({ display: "none" }),
+                                        }}
+                                    />
+
+                                </div>
+
+                                {/* Preferred Date */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Preferred Start Date (Optional)</label>
+                                    <DatePicker
+                                        minDate={addDays(new Date(), 1)} // disables today and all past dates
+                                        selected={waitingListData.preferredStartDate ? new Date(waitingListData.preferredStartDate) : null}
+                                        onChange={(date) => handleDateChange(date, "preferredStartDate", setWaitingListData)}
+                                        dateFormat="EEEE, dd MMMM yyyy"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                    />
+
+                                </div>
+
+                                {/* Notes */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Notes (Optional)</label>
+                                    <textarea
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        rows={6}
+                                        name="notes"
+
+                                        value={waitingListData.notes}
+                                        onChange={(e) => handleInputChange(e, setWaitingListData)}
+                                    />
+
+                                </div>
+
+                                {/* Button */}
+                                <div className="flex gap-4 pt-4">
+                                    <button
+                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        onClick={() => addtoWaitingListSubmit(waitingListData, 'allMembers')}
+                                    >
+                                        Join Waiting List
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                )}
+                {freezeMembership && (
+                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                            <button
+                                className="absolute top-4 left-4 p-2"
+                                onClick={() => setFreezeMembership(false)}
+                            >
+                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                            </button>
+
+                            <div className="text-center py-6 border-b border-gray-300">
+                                <h2 className="font-semibold text-[24px]">Freeze Membership Form</h2>
+                            </div>
+
+                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                {/* Freeze Start Date */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Freeze Start Date</label>
+                                    <DatePicker
+                                        minDate={addDays(new Date(), 1)} // disables today and all past dates
+                                        selected={freezeData.freezeStartDate ? new Date(freezeData.freezeStartDate) : null}
+                                        onChange={(date) => handleDateChange(date, "freezeStartDate", setFreezeData)}
+                                        dateFormat="EEEE, dd MMMM yyyy"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Freeze Duration (Months)</label>
+                                    <Select
+                                        value={monthOptions.find((opt) => opt.value === freezeData.freezeDurationMonths) || null}
+                                        onChange={(selected) => handleSelectChange(selected, "freezeDurationMonths", setFreezeData)}
+                                        options={monthOptions}
+                                        placeholder="Select Duration"
+                                        className="rounded-lg mt-2"
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                borderRadius: "0.7rem",
+                                                boxShadow: "none",
+                                                padding: "4px 8px",
+                                                minHeight: "48px",
+                                            }),
+                                            placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                            dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                            indicatorSeparator: () => ({ display: "none" }),
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Reactivate On */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Reactivate On</label>
+                                    <DatePicker
+                                        minDate={addDays(new Date(), 1)} // disables today and all past dates
+                                        selected={freezeData.reactivateOn ? new Date(freezeData.reactivateOn) : null}
+                                        onChange={(date) => handleDateChange(date, "reactivateOn", setFreezeData)}
+                                        dateFormat="EEEE, dd MMMM yyyy"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                    />
+                                </div>
+
+                                {/* Reason */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">
+                                        Reason for Freezing (Optional)
+                                    </label>
+                                    <textarea
+                                        name="reasonForFreezing"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        rows={6}
+                                        value={freezeData.reasonForFreezing}
+                                        onChange={(e) => handleInputChange(e, setFreezeData)}
+                                    />
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex w-full justify-end gap-4 pt-4">
+                                    <button
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        onClick={() => freezerMembershipSubmit(freezeData, 'allMembers')}
+                                    >
+                                        Freeze Membership
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+                {reactivateMembership && (
+                                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                                            <button
+                                                className="absolute top-4 left-4 p-2"
+                                                onClick={() => setReactivateMembership(false)}
+                                            >
+                                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                                            </button>
+                
+                                            <div className="text-center py-6 border-b border-gray-300">
+                                                <h2 className="font-semibold text-[24px]">Reactivate Membership</h2>
+                                            </div>
+                
+                                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                                {/* Reactivate On */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">Reactivate On</label>
+                                                    <DatePicker
+                                                        minDate={addDays(new Date(), 1)} // disable today & past dates
+                                                        selected={
+                                                            reactivateData?.reactivateOn
+                                                                ? new Date(reactivateData.reactivateOn)
+                                                                : null
+                                                        }
+                                                        onChange={(date) => handleDateChange(date, "reactivateOn", setReactivateData)}
+                                                        dateFormat="EEEE, dd MMMM yyyy"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                    />
+                                                </div>
+                
+                                                {/* Confirm Class */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">Confirm Class</label>
+                                                    <input
+                                                        type="text"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        value={classSchedule?.className || "-"}
+                                                        readOnly
+                                                    />
+                                                </div>
+                
+                                                <div className="w-full max-w-xl mx-auto">
+                                                    <button
+                                                        type="button"
+                                                        disabled={!paymentPlan}
+                                                        onClick={() => setIsOpen(!isOpen)}
+                                                        className={`bg-[#237FEA] text-white text-[18px]  font-semibold border w-full border-[#237FEA] px-6 py-3 rounded-lg flex items-center justify-center  ${paymentPlan
+                                                            ? "bg-[#237FEA] border border-[#237FEA]"
+                                                            : "bg-gray-400 border-gray-400 cursor-not-allowed"
+                                                            }`}
+                                                    >
+                                                        Review Membership Plan
+                
+                                                        <img
+                                                            src={isOpen ? "/demo/synco/icons/whiteArrowDown.png" : "/demo/synco/icons/whiteArrowUp.png"}
+                                                            alt={isOpen ? "Collapse" : "Expand"}
+                                                            className="ml-2 inline-block"
+                                                        />
+                
+                                                    </button>
+                
+                                                    {isOpen && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: "auto" }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            transition={{ duration: 0.3 }}
+                                                            className="bg-white mt-4 rounded-2xl shadow-lg p-6   font-semibold  space-y-4 text-[16px]"
+                                                        >
+                                                            <div className="flex justify-between text-[#333]">
+                                                                <span>Membership Plan</span>
+                                                                <span>
+                                                                    {paymentPlan.duration} {paymentPlan.interval}
+                                                                    {paymentPlan.duration > 1 ? 's' : ''}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between text-[#333]">
+                                                                <span>Monthly Subscription Fee</span>
+                                                                <span>£{paymentPlan.price} p/m</span>
+                                                            </div>
+                                                            <div className="flex justify-between text-[#333]">
+                                                                <span>Price per class per child</span>
+                                                                <span>£{paymentPlan.price}</span>
+                                                            </div>
+                
+                                                        </motion.div>
+                                                    )}
+                                                </div>
+                                                {/* Notes */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">Additional Notes (Optional)</label>
+                                                    <textarea
+                                                        name="additionalNote"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        rows={6}
+                                                        value={reactivateData.additionalNote}
+                                                        onChange={(e) => handleInputChange(e, setReactivateData)}
+                                                    />
+                                                </div>
+                
+                                                {/* Button */}
+                                                <div className="flex gap-4 pt-4">
+                                                    <button
+                                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                                        onClick={() => reactivateDataSubmit(reactivateData, 'allMembers')}
+                
+                                                    >
+                                                        Reactivate Membership
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
             </div >
         </>
     );
