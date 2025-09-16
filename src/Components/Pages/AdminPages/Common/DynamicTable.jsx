@@ -11,6 +11,9 @@ const DynamicTable = ({ columns, data,from, selectedIds, setSelectedStudents, on
     );
   };
 console.log('data',data) 
+// ✅ Utility function
+
+
  return (
   <div className="overflow-auto mt-5 rounded-4xl w-full">
     <table className="min-w-full rounded-4xl bg-white text-sm border border-[#E2E1E5]">

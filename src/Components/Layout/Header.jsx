@@ -91,7 +91,18 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'configuration/weekly-classes/find-a-class/': { title: 'Weekly Classes', },
     'synco-chat': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'members': { title: 'Admin Panel' },
+    'configuration/weekly-classes/session-plan-list': { title: 'Configuration' },
+    'configuration/weekly-classes/term-dates': { title: 'Configuration' },
+
+    'configuration/weekly-classes/session-plan-create': { title: 'Configuration' },
+    'configuration/weekly-classes/session-plan-preview': { title: 'Configuration' },
+    'configuration/weekly-classes/subscription-planManager': { title: 'Configuration' },
+    'configuration/weekly-classes/add-subscription-plan-group': { title: 'Configuration' },
+    'configuration/weekly-classes/find-a-class': { title: 'Configuration' },
+
     'holiday-camps/payment-planManager': { title: 'Configuration' },
+    'configuration/weekly-classes/trial/list': { title: 'Trials Information' },
+
     'holiday-camps/add-subscription-plan-group': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'holiday-camps/discounts': { title: 'Discounts' },
     'holiday-camps/session-plan': { title: 'Configuration', },
@@ -99,6 +110,11 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'configuration/weekly-classes/all-members': { title: 'Members' },
     'configuration/weekly-classes/venues': { title: 'Configuration', },
     'configuration/weekly-classes/find-a-class/book-a-free-trial/account-info': { title: 'Account Information' },
+    'configuration/weekly-classes/all-members/account-info': { title: 'Account Information' },
+    
+    'configuration/weekly-classes/cancellation': { title: 'Cancellation' },
+    'configuration/weekly-classes/capacity': { title: 'Capacity' },
+
 
   };
   // Extract the part after `/demo/synco/`
@@ -109,7 +125,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     Object.entries(routeTitleMap)
       .sort((a, b) => b[0].length - a[0].length)
       .find(([route]) => subPath.startsWith(route))?.[1]
-    || { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' };
+    || { title: 'Configuration', icon: '/demo/synco/images/Welcomeback.png' };
 
   const { title, icon: Icon } = routeInfo;
 
@@ -316,13 +332,13 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
                     src={
                       adminInfo?.profile
                         ? `${API_BASE_URL}/${adminInfo.profile}`
-                        : '/demo/synco/SidebarLogos/OneTOOne.png'
+                        : '/demo/synco/members/dummyuser.png'
                     }
                     alt="profile"
                     className="object-cover w-full h-full"
                     onError={(e) => {
                       e.currentTarget.onerror = null; // prevent infinite loop
-                      e.currentTarget.src = '/demo/synco/SidebarLogos/OneTOOne.png';
+                      e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                     }}
                   />
                 </div>

@@ -196,14 +196,14 @@ const handleNext = async (e) => {
 
   return (
     <>
-      <div className="w-full flex flex-col md:flex-row min-h-screen">
+      <div className="w-full md:flex flex-col md:flex-row min-h-screen">
         {/* Left Side */}
-        <div className="w-full md:w-1/2 flex justify-center items-center relative overflow-hidden min-h-[200px] md:min-h-0">
+        <div className="w-full md:w-1/2 flex justify-center min-h-1/2 items-center relative overflow-hidden min-h-[200px] dynamic-height  md:min-h-0">
           {/* Optional: Add AdminLoginImage here */}
         </div>
 
         {/* Right Side */}
-        <div className="w-full md:w-1/2 flex flex-col justify-center px-6 md:px-12 py-10 md:py-0">
+        <div className="w-full md:w-1/2 flex flex-col justify-center min-h-1/2  px-6 md:px-12 py-10  dynamicpadding md:py-0">
           <div>
             <div className="mb-6">
               <img
@@ -214,22 +214,22 @@ const handleNext = async (e) => {
             </div>
 
             {/* Welcome Text */}
-            <h2 className="text-[51px] font-bold text-center  mb-2">
+            <h2 className="md:text-[51px] text-[32px] font-bold text-center  mb-2">
               Welcome Back
             </h2>
-            <p className=" text-center text-[20px] mb-8 font-semibold">
+            <p className=" text-center md:text-[20px] text-[16px] mb-8 font-semibold">
               Seize the day and make it extraordinary!
             </p>
 
             {/* Form */}
-            <form className="w-full m-auto max-w-lg " onSubmit={handleLogin} autoComplete="on">
+            <form className="w-full md:text-[16px] text-[13px]  m-auto max-w-lg " onSubmit={handleLogin} autoComplete="on">
               <div className="mb-4">
                 <label className="block text-gray-900 mb-2 font-semibold" htmlFor="email">
                   Email
                 </label>
                 <input
                   id="email"
-                  type="email"
+                  type="text"
                   autoComplete="email"
                   name="email"
                   placeholder="Enter email"
@@ -286,7 +286,7 @@ const handleNext = async (e) => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-3 text-[22px] font-semibold text-white rounded-xl transition-colors ${loading
+                className={`w-full py-3 md:text-[22px] text-[16px] font-semibold text-white rounded-xl transition-colors ${loading
                   ? 'bg-blue-400 cursor-not-allowed'
                   : 'bg-blue-600 hover:bg-blue-700'
                   }`}

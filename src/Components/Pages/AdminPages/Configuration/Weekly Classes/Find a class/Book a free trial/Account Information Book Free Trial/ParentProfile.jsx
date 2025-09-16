@@ -73,6 +73,8 @@ const ParentProfile = ({ ParentProfile }) => {
         paymentPlans,
     } = ParentProfile;
 
+    const studentsList = ParentProfile?.students || [];
+
 
     const [cancelWaitingList, setCancelWaitingList] = useState({
         bookingId: id,
@@ -143,28 +145,129 @@ const ParentProfile = ({ ParentProfile }) => {
             .join(" ");           // join with space
     };
     const handleBookMembership = () => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Do you want to book a membership?",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonColor: "#237FEA",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Book it!",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Navigate to your component/route
-        navigate("/configuration/weekly-classes/find-a-class/book-a-membership", {
-          state: { TrialData: ParentProfile },
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to book a membership?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#237FEA",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Book it!",
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Navigate to your component/route
+                navigate("/configuration/weekly-classes/find-a-class/book-a-membership", {
+                    state: { TrialData: ParentProfile },
+                });
+            }
         });
-      }
-    });
-  };
+    };
     return (
         <>
             <div className="md:flex w-full gap-4">
                 <div className="transition-all duration-300 flex-1 ">
+                    <div className="space-y-6">
+                        {studentsList?.map((student, index) => (
+                            <div
+                                key={student.studentFirstName || index}
+                                className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
+                            >
+                                {/* Top Header Row */}
+                                <div className="flex justify-between items-start">
+                                    <h2 className="text-[20px] font-semibold">Student information</h2>
+
+                                </div>
+
+                                {/* Row 1 */}
+                                <div className="flex gap-4">
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">First name</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter first name"
+                                            value={student.studentFirstName}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Last name</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter last name"
+                                            value={student.studentLastName}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Row 2 */}
+                                <div className="flex gap-4">
+
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Date of Birth</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            value={student.dateOfBirth}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Age</label>
+                                        <input
+                                            type="email"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter email address"
+                                            value={student.age}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Gender</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            value={student.gender}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Medical information</label>
+                                        <input
+                                            type="email"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter email address"
+                                            value={student.medicalInformation}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Row 3 */}
+                                <div className="flex gap-4">
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Class</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            value={classSchedule.className}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Time </label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            value={classSchedule.startTime}
+                                            readOnly
+                                        />
+
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                     <div className="space-y-6">
                         {parents.map((parent, index) => (
                             <div
@@ -360,7 +463,21 @@ const ParentProfile = ({ ParentProfile }) => {
                     {/* Card Wrapper */}
                     <div className="rounded-3xl bg-[#2E2F3E] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
-                        <div className="bg-[#FECF2F] m-2 px-6 rounded-3xl py-3 flex items-center justify-between">
+                        <div className="] m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center"
+                            style={{
+                                backgroundImage: status === "cancelled"
+                                    ? "url('/demo/synco/frames/Cancelled.png')"
+                                    : status === "frozen"
+                                        ? "url('/demo/synco/frames/Frozen.png')"
+                                        : status === "active"
+                                            ? "url('/demo/synco/frames/Active.png')"
+                                            : status === "waiting list"
+                                                ? "url('/demo/synco/frames/Waiting.png')"
+                                                : "url('/demo/synco/frames/Pending.png')",
+
+
+                                backgroundSize: "contain",
+                            }}>
                             <div>
                                 <div className="text-[20px] font-bold text-[#1F2937]">Account Status</div>
                                 <div className="text-[16px] font-semibold text-[#1F2937]">Trials</div>
@@ -373,7 +490,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                     {status === 'not attend' && (
                                         <img src="/demo/synco/icons/x-circle-contained.png" alt="Not Attended" />
                                     )}
-                                    {status === 'attend' && (
+                                    {status === 'attended' && (
                                         <img src="/demo/synco/icons/attendedicon.png" alt="Attended" />
                                     )}
                                     {status === 'cancelled' && (
@@ -403,7 +520,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 <div className="flex items-center gap-4">
                                     <img
                                         src={
-                                            (status === 'pending' || status === 'attend') && bookedBy?.profile
+                                            (status === 'pending' || status === 'attended') && bookedBy?.profile
                                                 ? `${API_BASE_URL}/${bookedBy.profile}`
                                                 : "https://cdn-icons-png.flaticon.com/512/147/147144.png"
                                         }
@@ -415,12 +532,12 @@ const ParentProfile = ({ ParentProfile }) => {
                                     />
                                     <div>
                                         <div className="text-[24px] font-semibold leading-tight">
-                                            {status === 'pending' || status === 'attend'
+                                            {status === 'pending' || status === 'attended'
                                                 ? 'Booked By'
                                                 : 'Account Holder'}
                                         </div>
                                         <div className="text-[16px] text-gray-300">
-                                            {status === 'pending' || status === 'attend'
+                                            {status === 'pending' || status === 'attended'
                                                 ? `${bookedBy.firstName} ${bookedBy.lastName}`
                                                 : `${parent.parentFirstName} / ${parent.relationToChild}`}
                                         </div>
@@ -437,27 +554,17 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </div>
 
                                     <div className="border-t border-[#495362] py-5">
-                                        {status === 'pending' || status === 'attend' ? (
-                                            <>
-                                                <div className="text-[20px] text-white">Membership Plan</div>
-
-                                                {matchedPlan && (
-                                                    <div className="text-[16px] mt-1 text-gray-400">
-                                                        {matchedPlan.duration} {matchedPlan.interval} Plan
-                                                    </div>
-                                                )}
-                                            </>
-                                        ) : (
+                            
                                             <>
                                                 <div className="text-[20px] text-white">Students</div>
                                                 <div className="text-[16px] mt-1 text-gray-400">{students?.length || 0}</div>
                                             </>
-                                        )}
+                                        
 
                                     </div>
 
                                     <div className="border-t border-[#495362] py-5">
-                                        {status === 'pending' || status === 'attend' ? (
+                                        {status === 'pending' || status === 'attended' ? (
                                             <>
                                                 <div className=" text-[20px] text-white">Booking Date</div>
                                                 <div className="text-[16px]  mt-1 text-gray-400"> {formatDate(createdAt, true)}</div>
@@ -477,22 +584,14 @@ const ParentProfile = ({ ParentProfile }) => {
                                         <div className=" text-[20px] text-white">Date of Trial</div>
                                         <div className="text-[16px]  mt-1 text-gray-400">{formatDate(trialDate)}</div>
                                     </div>
-                                    {status === 'pending' || status === 'attend' ? (
-                                        <>
-                                            <div className="border-t border-[#495362] py-5">
-                                                <div className=" text-[20px] text-white">Price</div>
-                                                <div className="text-[16px]  mt-1 text-gray-400"> £{matchedPlan?.price} </div>
-                                            </div>
-
-                                        </>
-                                    ) : (
+                                  
                                         <>
                                             <div className="border-t border-[#495362] py-5">
                                                 <div className=" text-[20px] text-white">Booking Source</div>
                                                 <div className="text-[16px]  mt-1 text-gray-400"> {bookedBy?.firstName} {bookedBy?.lastName}</div>
                                             </div>
                                         </>
-                                    )}
+                                    
                                 </div>
                             </div>
                         ))}
@@ -517,8 +616,9 @@ const ParentProfile = ({ ParentProfile }) => {
 
 
                                 {status?.trim().toLowerCase() !== "pending" &&
-                                    status?.trim().toLowerCase() !== "attend" &&
+                                    status?.trim().toLowerCase() !== "attended" &&
                                     status?.trim().toLowerCase() !== "no_membersip" &&
+                                    status?.trim().toLowerCase() !== "rebooked" &&
                                     canRebooking && (
                                         <button
                                             onClick={() => setshowRebookTrial(true)}
@@ -528,7 +628,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                         </button>
                                     )}
 
-                                {status !== 'attend' && canCancelTrial && (
+                                {status !== 'attended' && canCancelTrial && (
                                     <button
                                         onClick={() => setshowCancelTrial(true)}
                                         className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
@@ -537,7 +637,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </button>
                                 )}
 
-                                {status !== 'pending' && status !== 'attend' && (
+                                {status !== 'pending' && status !== 'attended' && (
                                     <button
                                         onClick={handleBookMembership}
                                         className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
@@ -546,7 +646,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </button>
                                 )}
 
-                                {status === 'attend' && (
+                                {status === 'attended' && (
                                     <div className="flex gap-7">
                                         <button onClick={() => setNoMembershipSelect(true)} className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
                                             No Membership
@@ -562,6 +662,12 @@ const ParentProfile = ({ ParentProfile }) => {
                             </div>
                         </>
                     )}
+                    {status == 'cancelled' && (<button
+                        onClick={() => setshowRebookTrial(true)}
+                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                    >
+                        Rebook FREE Trial
+                    </button>)}
                 </div>
                 {showRebookTrial && (
                     <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
@@ -674,7 +780,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 <div className="flex gap-4 pt-4">
                                     <button
                                         className="flex-1 border border-gray-400 rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => console.log("Cancel clicked")}
+                                      onClick={() => setshowRebookTrial(false)}
                                     >
                                         Cancel
                                     </button>

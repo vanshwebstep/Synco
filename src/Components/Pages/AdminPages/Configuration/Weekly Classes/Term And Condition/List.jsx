@@ -159,7 +159,7 @@ const List = () => {
   if (loading) {
     return <Loader />;
   }
-
+console.log('classList',classList)
   // Then check for missing data
   if (!termGroup.length && !termData.length) {
     return (
@@ -240,15 +240,24 @@ const List = () => {
       </div>
 
       {/* Term Cards */}
-      <div className="transition-all duration-300 h-full w-full">
-        {classList.length > 0 &&
-          <div className="rounded-3xl shadow">
-            {classList.map((item, index) => (
-              <TermCard item={item} sessionData={sessionDataList[index]} key={index} />
-            ))}
-          </div>
-        }
-      </div>
+    <div className="transition-all duration-300 h-full w-full">
+  {classList.length > 0 ? (
+    <div className="rounded-3xl shadow">
+      {classList.map((item, index) => (
+        <TermCard
+          key={index}
+          item={item}
+          sessionData={sessionDataList[index]}
+        />
+      ))}
+    </div>
+  ) : (
+    <div className="flex items-center justify-center h-40 text-[#717073] font-medium">
+      No data available
+    </div>
+  )}
+</div>
+
     </div>
   );
 };

@@ -19,7 +19,7 @@ const ParentProfile = ({ profile }) => {
         loading,
         addtoWaitingListSubmit, cancelMembershipSubmit,
         sendBookMembershipMail, transferMembershipSubmit,
-        freezerMembershipSubmit, reactivateDataSubmit,cancelWaitingListSpot
+        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot
     } = useBookFreeTrial() || {};
     const classSchedule = profile?.classSchedule;
     const bookingId = profile?.bookingId;
@@ -465,7 +465,21 @@ const ParentProfile = ({ profile }) => {
                     {/* Card Wrapper */}
                     <div className="rounded-3xl bg-[#363E49] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
-                        <div className={`m-2 px-6 rounded-3xl py-3 flex items-center justify-between ${getStatusBgColor(status)}`}>
+                        <div className={`m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center `}
+                            style={{
+                                backgroundImage: status === "cancelled"
+                                    ? "url('/demo/synco/frames/Cancelled.png')"
+                                    : status === "frozen"
+                                        ? "url('/demo/synco/frames/Frozen.png')"
+                                        : status === "active"
+                                            ? "url('/demo/synco/frames/Active.png')"
+                                            : status === "waiting list"
+                                                ? "url('/demo/synco/frames/Waiting.png')"
+                                                : "url('/demo/synco/frames/Pending.png')",
+
+
+                                backgroundSize: "contain",
+                            }}>
                             <div>
                                 <div className="text-[20px] font-bold text-[#1F2937]">Account Status</div>
                                 <div className="text-[16px] font-semibold capitalize text-[#1F2937]">      <span>
@@ -647,13 +661,13 @@ const ParentProfile = ({ profile }) => {
 
                                 )}
 
-                                {/* {status !== 'pending' && status !== 'attend' && (
+                                {/* {status !== 'pending' && status !== 'attended' && (
                                     <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
                                         Book a Membership
                                     </button>
                                 )} */}
 
-                                {status === 'attend' && (
+                                {status === 'attended' && (
                                     <div className="flex gap-7">
                                         <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
                                             No Membership
@@ -943,17 +957,23 @@ const ParentProfile = ({ profile }) => {
                                         </label>
                                     ))}
                                 </div>
-                                <div>
-                                    <label className="block text-[16px] font-semibold">Cancellation Effective Date</label>
-                                    <DatePicker
-                                        minDate={addDays(new Date(), 1)} // disables today and all past dates
-                                        dateFormat="EEEE, dd MMMM yyyy"
-                                        selected={cancelData.cancelDate ? new Date(cancelData.cancelDate) : null}
-                                        onChange={(date) => handleDateChange(date, "cancelDate", setCancelData)}
-                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                {cancelData.cancellationType !== 'immediately' && (
+                                    <>
+                                        <div>
 
-                                    />
-                                </div>
+                                            <label className="block text-[16px] font-semibold">Cancellation Effective Date</label>
+                                            <DatePicker
+                                                minDate={addDays(new Date(), 1)} // disables today and all past dates
+                                                dateFormat="EEEE, dd MMMM yyyy"
+                                                selected={cancelData.cancelDate ? new Date(cancelData.cancelDate) : null}
+                                                onChange={(date) => handleDateChange(date, "cancelDate", setCancelData)}
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+
+                                            />
+
+                                        </div>
+                                    </>
+                                )}
                                 <div>
                                     <label className="block text-[16px] font-semibold">
                                         Reason for Cancellation

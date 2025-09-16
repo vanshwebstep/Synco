@@ -112,13 +112,13 @@ const List = () => {
                               </button>
 
                               <img
-                                src={user.profile ? `${API_BASE_URL}/${user.profile}` : '/demo/synco/SidebarLogos/OneTOOne.png'}
+                                src={user.profile ? `${API_BASE_URL}/${user.profile}` : '/demo/synco/members/dummyuser.png'}
                                 alt={user.firstName || 'Profile Image'}
                                 onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}
                                 className="w-10 h-10 rounded-full object-contain"
                                  onError={(e) => {
                       e.currentTarget.onerror = null; // prevent infinite loop
-                      e.currentTarget.src = '/demo/synco/SidebarLogos/OneTOOne.png';
+                      e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                     }}
                               />
                               <span onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}>{user.firstName || '-'} {user.lastName || ''}</span>

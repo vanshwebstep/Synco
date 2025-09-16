@@ -9,6 +9,8 @@ import Loader from '../../../contexts/Loader';
 import Swal from "sweetalert2";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import StatsGrid from '../../../Common/StatsGrid';
+import DynamicTable from '../../../Common/DynamicTable';
 const trialLists = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [fromDate, setFromDate] = useState(null);
@@ -72,15 +74,15 @@ const trialLists = () => {
         setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
     };
     const [selectedDates, setSelectedDates] = useState([]);
-    const { fetchMembershipSales, bookMembership, setBookMembership, sendActiveBookMembershipMail, bookedByAdmin, setSearchTerm, searchTerm, status, loading, selectedVenue, setSelectedVenue, statsMembership, myVenues, setMyVenues } = useBookFreeTrial() || {};
+    const { fetchMembershipSales, fetchMembershipSalesLoading, bookMembership, setBookMembership, sendActiveBookMembershipMail, bookedByAdmin, setSearchTerm, searchTerm, status, loading, selectedVenue, setSelectedVenue, statsMembership, myVenues, setMyVenues } = useBookFreeTrial() || {};
 
     useEffect(() => {
         if (selectedVenue) {
             fetchMembershipSales("", selectedVenue.label); // Using label as venueName
         } else {
-            fetchMembershipSales(); // No filter
+            fetchMembershipSalesLoading(); // No filter
         }
-    }, [selectedVenue, fetchMembershipSales]);
+    }, [selectedVenue, fetchMembershipSales,fetchMembershipSalesLoading]);
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
 
@@ -114,7 +116,15 @@ const trialLists = () => {
         setFromDate(null);
         setToDate(null);
     };
+    const formatLabel = (str) => {
+  if (!str) return "-";
 
+  return str
+    .replace(/_/g, " ")                  // snake_case → snake case
+    .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase → camel Case
+    .toLowerCase()                       // everything lowercase first
+    .replace(/\b\w/g, (c) => c.toUpperCase()); // capitalize each word
+};
     const isInRange = (date) => {
         if (!fromDate || !toDate || !date) return false;
         return date >= fromDate && date <= toDate;
@@ -220,7 +230,24 @@ const trialLists = () => {
         }
     ];
 
+const getStatusBadge = (status) => {
+        const s = status.toLowerCase();
+        let styles =
+            "bg-red-100 text-red-500"; // default fallback
+        if (s === "attended" || s === "active")
+            styles = "bg-green-100 text-green-600";
+        else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
+        else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
+        else if (s === "waiting list") styles = "bg-gray-200 text-gray-700";
 
+        return (
+            <div
+                className={`flex text-center justify-center rounded-lg p-1 gap-2 ${styles} capitalize`}
+            >
+                {formatLabel(status)}
+            </div>
+        );
+    };
     const [showPopup, setShowPopup] = useState(false);
     const [tempSelectedAgent, setTempSelectedAgent] = useState(null);
     const [savedAgent, setSavedAgent] = useState([]);
@@ -279,6 +306,65 @@ const trialLists = () => {
         // Fetch data with search value (debounce optional)
         fetchMembershipSales(value);
     };
+    // 📌 Utility function
+const formatDate = (dateString) => {
+  if (!dateString) return "-";
+  const date = new Date(dateString);
+
+  const day = date.toLocaleDateString("en-US", { weekday: "short" }); // Sat
+  const dayNum = date.getDate(); // 12
+  const month = date.toLocaleDateString("en-US", { month: "short" }); // Sep
+  const year = date.getFullYear().toString().slice(-2); // 25
+
+  // Add ordinal suffix (st, nd, rd, th)
+  const suffix =
+    dayNum % 10 === 1 && dayNum !== 11
+      ? "st"
+      : dayNum % 10 === 2 && dayNum !== 12
+      ? "nd"
+      : dayNum % 10 === 3 && dayNum !== 13
+      ? "rd"
+      : "th";
+
+  return `${day} ${dayNum}${suffix} ${month} ${year}`;
+};
+const membershipColumns = [
+        { header: "Name", key: "name", selectable: true }, // <-- checkbox + student name
+        { header: "Age", key: "age", render: (item, student) => student.age },
+        { header: "Venue", render: (item) => item.venue?.name || "-" },
+   {
+  header: "Date of Booking",
+  render: (item) => {
+    const date = new Date(item.startDate);
+
+    const day = date.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+        ? "rd"
+        : "th";
+
+    const weekday = date.toLocaleDateString("en-GB", { weekday: "short" }); // Sat
+    const month = date.toLocaleDateString("en-GB", { month: "short" });     // Sep
+    const year = date.getFullYear();                                        // 2025
+
+    return `${weekday} ${day}${suffix} ${month} ${year}`;
+  },
+},
+
+        {
+            header: "Who Booked?",
+            render: (item) =>
+                `${item?.bookedBy?.firstName || ""} ${item?.bookedBy?.lastName !== "null" ? item?.bookedBy?.lastName : ""
+                }`,
+        },
+        { header: "Membership Plan", render: (item) => item?.paymentPlanData?.title },
+       
+        { header: "Status", render: (item) => getStatusBadge(item.status) },
+    ];
     if (loading) return <Loader />;
 
     console.log('bookMembership', bookMembership)
@@ -287,50 +373,26 @@ const trialLists = () => {
 
             <div className="md:flex w-full gap-4">
                 <div className="flex-1 transition-all duration-300">
-                    <div className="grid grid-cols-1 mb-5 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        {stats.map((item, idx) => (
-                            <div
-                                key={idx}
-                                className="bg-white rounded-2xl shadow-sm px-4 py-3 flex items-center gap-4 w-full max-w-full"
-                            >
-                                {/* Icon Section */}
-                                <div className={`min-w-[50px] min-h-[50px] p-3 rounded-full flex items-center justify-center ${item.bg}`}>
-                                    <img src={item.icon} className="w-6 h-6 object-contain" alt="icon" />
-                                </div>
-
-                                {/* Content */}
-                                <div className="flex flex-col w-full">
-                                    {/* Title */}
-                                    <p className="text-sm text-gray-500 leading-tight">{item.title}</p>
-
-                                    {/* Main Value */}
-                                    <div className="text-lg font-semibold text-gray-900 flex items-center gap-1 flex-wrap">
-                                        {item.value}
-                                        {item.subValue && (
-                                            <span className="text-sm font-normal text-green-500 whitespace-nowrap">
-                                                {item.subValue}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Change Tag */}
-                                    {item.change && (
-                                        <span className={`text-xs font-medium mt-1 ${item.color}`}>
-                                            {item.change}
-                                        </span>
-                                    )}
-                                </div>
-                            </div>
-
-                        ))}
-                    </div>
+                   <StatsGrid stats={stats} variant="B" />
                     <div className="flex justify-end ">
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
                             <img onClick={() => navigate("/configuration/weekly-classes/find-a-class")}
                                 src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
                         </div>
                     </div>
-                    <div className="overflow-auto mt-5 rounded-4xl w-full">
+                    <DynamicTable
+                                            columns={membershipColumns}
+                                            data={bookMembership}   // 👈 use flattened data
+                                            selectedIds={selectedStudents}
+                                             setSelectedStudents={setSelectedStudents}
+                                              from={'membership'}
+                                            onRowClick={(row) =>
+                                                navigate("/configuration/weekly-classes/all-members/account-info", {
+                                                    state: { itemId: row.bookingId, memberInfo: "allMembers" },
+                                                })
+                                            }
+                                        />
+                    {/* <div className="overflow-auto mt-5 rounded-4xl w-full">
                         <table className="min-w-full rounded-4xl bg-white text-sm border border-[#E2E1E5]">
                             <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
                                 <tr className="font-semibold">
@@ -375,7 +437,11 @@ const trialLists = () => {
                                                     </td>
                                                     <td className="p-4">{student.age}</td>
                                                     <td className="p-4">{item.venue?.name || '-'}</td>
-                                                    <td className="p-4">{new Date(item.dateBooked).toLocaleDateString()}</td>
+<td className="p-4">
+  {formatDate(item.dateBooked)}
+</td>
+
+
                                                     <td className="p-4">
                                                         {item?.bookedBy?.firstName}
                                                         {item?.bookedBy?.lastName && item.bookedBy.lastName !== 'null' ? ` ${item.bookedBy.lastName}` : ''}
@@ -383,7 +449,7 @@ const trialLists = () => {
                                                     <td className="p-4">{item?.paymentPlanData?.title}{item?.paymentPlanData?.price}</td>
                                                     <td className="p-4">
                                                         <div
-                                                            className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === 'attend' || item.status.toLowerCase() === 'active'
+                                                            className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === 'attended' || item.status.toLowerCase() === 'active'
                                                                 ? 'bg-green-100 text-green-600'
                                                                 : item.status.toLowerCase() === 'pending'
                                                                     ? 'bg-yellow-100 text-yellow-600'
@@ -407,7 +473,7 @@ const trialLists = () => {
                             </tbody>
 
                         </table>
-                    </div>
+                    </div> */}
 
                 </div>
 
@@ -737,6 +803,8 @@ const trialLists = () => {
             </div>
 
         </div>
+                            
+        
     )
 }
 

@@ -58,6 +58,7 @@ const ParentProfile = ({ ParentProfile }) => {
         id,
         bookingId,
         trialDate,
+        cancelData,
         bookedBy,
         status,
         createdAt,
@@ -75,7 +76,7 @@ const ParentProfile = ({ ParentProfile }) => {
         reasonForNonAttendance: "",
         additionalNote: "",
     });
-
+console.log('cancelData',cancelData)
     console.log('parents', ParentProfile)
     const studentsList = ParentProfile?.students || [];
     const parents = ParentProfile.parents || [];
@@ -406,10 +407,18 @@ const ParentProfile = ({ ParentProfile }) => {
                         {/* Header */}
                         <div
                             className="m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center"
-                            style={{
+                                style={{
                                 backgroundImage: status === "cancelled"
                                     ? "url('/demo/synco/frames/Cancelled.png')"
-                                    : "url('/demo/synco/frames/reqCancel.png')",
+                                    : status === "frozen"
+                                        ? "url('/demo/synco/frames/Frozen.png')"
+                                        : status === "active"
+                                            ? "url('/demo/synco/frames/Active.png')"
+                                            : status === "waiting list"
+                                                ? "url('/demo/synco/frames/Waiting.png')"
+                                                : "url('/demo/synco/frames/Pending.png')",
+
+
                                 backgroundSize: "contain",
                             }}
                         >
@@ -516,7 +525,7 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                     <div className="border-t border-[#495362] py-5">
                                         <div className=" text-[20px] text-white">Request to Cancel Date </div>
-                                        <div className="text-[16px]  mt-1 text-gray-400">{formatDate(trialDate)}</div>
+                                        <div className="text-[16px]  mt-1 text-gray-400">{ formatDate(cancelData.cancelDate)||formatDate(trialDate) }</div>
                                     </div>
 
                                     <div className="border-t border-[#495362] py-5">

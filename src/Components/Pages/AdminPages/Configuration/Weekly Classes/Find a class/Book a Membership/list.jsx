@@ -24,7 +24,7 @@ import "react-phone-input-2/lib/style.css";
 const List = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { createBookMembership } = useBookFreeTrial()
+    const { createBookMembership , createBookMembershipByfreeTrial } = useBookFreeTrial()
     const [expression, setExpression] = useState('');
     const [numberOfStudents, setNumberOfStudents] = useState('1')
 
@@ -51,7 +51,7 @@ const List = () => {
     });
     console.log('TrialData', TrialData)
     console.log('classId', classId)
-    const { fetchClassSchedulesByID, singleClassSchedulesOnly } = useClassSchedule() || {};
+    const { fetchFindClassID, singleClassSchedulesOnly } = useClassSchedule() || {};
     const [students, setStudents] = useState([
         {
             studentFirstName: '',
@@ -166,11 +166,11 @@ const List = () => {
     useEffect(() => {
         const fetchData = async () => {
             if (finalClassId) {
-                await fetchClassSchedulesByID(finalClassId);
+                await fetchFindClassID(finalClassId);
             }
         };
         fetchData();
-    }, [finalClassId, fetchClassSchedulesByID]);
+    }, [finalClassId, fetchFindClassID]);
     const [activePopup, setActivePopup] = useState(null);
     const togglePopup = (id) => {
         setActivePopup((prev) => (prev === id ? null : id));
@@ -275,7 +275,22 @@ const List = () => {
             date1.getFullYear() === date2.getFullYear()
         );
     };
-
+ const handleCancel = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Your changes will not be saved!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, leave",
+      cancelButtonText: "Stay here",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        navigate("/configuration/weekly-classes/find-a-class");
+      }
+    });
+  };
 
     const handleDateClick = (date) => {
         const formattedDate = formatLocalDate(date); // safe from timezone issues
@@ -462,6 +477,7 @@ const List = () => {
             });
             return;
         }
+      
         const filteredPayment = Object.fromEntries(
             Object.entries(payment || {}).filter(
                 ([, value]) => value !== null && value !== "" && value !== undefined
@@ -500,7 +516,11 @@ const List = () => {
             ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
         };
         try {
-            await createBookMembership(payload); // assume it's a promise
+              if (TrialData){
+            await createBookMembershipByfreeTrial(payload , TrialData.id);
+            } else{
+                await createBookMembership(payload);
+            }
             console.log("Final Payload:", JSON.stringify(payload, null, 2));
             // Optionally show success alert or reset form
         } catch (error) {
@@ -615,9 +635,9 @@ const List = () => {
     ];
 
     const hearOptions = [
-        { value: "social", label: "Social Media" },
-        { value: "friend", label: "Friend" },
-        { value: "flyer", label: "Flyer" },
+        { value: "Social Media", label: "Social Media" },
+        { value: "Friend", label: "Friend" },
+        { value: "Flyer", label: "Flyer" },
     ];
     const keyInfoOptions = [
         { value: "keyInfo 1", label: "keyInfo 1" },
@@ -1146,19 +1166,35 @@ const List = () => {
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Enter first name"
                                                 value={parent.parentFirstName}
-                                                onChange={(e) => handleParentChange(index, "parentFirstName", e.target.value)}
+                                                onChange={(e) => {
+                                                    // Allow only alphabets and spaces
+                                                    const value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                                                    handleParentChange(index, "parentFirstName", value);
+                                                }}
+                                                onKeyPress={(e) => {
+                                                    if (!/[A-Za-z\s]/.test(e.key)) e.preventDefault(); // block numbers & special chars
+                                                }}
                                             />
                                         </div>
+
                                         <div className="w-1/2">
                                             <label className="block text-[16px] font-semibold">Last name</label>
                                             <input
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                 placeholder="Enter last name"
                                                 value={parent.parentLastName}
-                                                onChange={(e) => handleParentChange(index, "parentLastName", e.target.value)}
+                                                onChange={(e) => {
+                                                    // Allow only alphabets and spaces
+                                                    const value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                                                    handleParentChange(index, "parentLastName", value);
+                                                }}
+                                                onKeyPress={(e) => {
+                                                    if (!/[A-Za-z\s]/.test(e.key)) e.preventDefault(); // block numbers & special chars
+                                                }}
                                             />
                                         </div>
                                     </div>
+
 
                                     {/* Row 2 */}
                                     <div className="flex gap-4">
@@ -1336,6 +1372,8 @@ const List = () => {
 
                         <div className="flex justify-end gap-4">
                             <button
+                      onClick={handleCancel}
+
                                 type="button"
                                 className="flex items-center justify-center gap-1 border border-[#717073] text-[#717073] px-12 text-[18px]  py-2 rounded-lg font-semibold bg-none"
                             >
@@ -1506,7 +1544,7 @@ const List = () => {
                                                     checked={payment.paymentType === "rrn"}
                                                     onChange={(e) => setPayment({ ...payment, paymentType: e.target.value })}
                                                 />
-                                                <span>RRN</span>
+                                                <span>Gocardless</span>
                                             </label>
                                             <label className="flex items-center gap-2">
                                                 <input
@@ -1516,7 +1554,7 @@ const List = () => {
                                                     checked={payment.paymentType === "card"}
                                                     onChange={(e) => setPayment({ ...payment, paymentType: e.target.value })}
                                                 />
-                                                <span>Card</span>
+                                                <span>Access Pay Suite</span>
                                             </label>
                                         </div>
 
@@ -1533,7 +1571,7 @@ const List = () => {
                                                     onChange={(e) =>
                                                         setPayment({
                                                             ...payment,
-                                                            referenceId: e.target.value.replace(/\D/g, ""), // only digits
+                                                            referenceId: e.target.value, // ✅ allow all input
                                                         })
                                                     }
                                                 />
@@ -1549,12 +1587,12 @@ const List = () => {
                                                         placeholder=""
                                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                         value={payment.cardHolderName}
-                                                        onChange={(e) =>
-                                                            setPayment({
-                                                                ...payment,
-                                                                cardHolderName: e.target.value.replace(/[^a-zA-Z\s]/g, ""), // only letters & spaces
-                                                            })
-                                                        }
+                                                       onChange={(e) =>
+          setPayment({
+            ...payment,
+            cardHolderName: e.target.value, // ✅ no filtering
+          })
+        }
                                                     />
                                                 </div>
                                                 <div class="flex gap-4">

@@ -652,7 +652,7 @@ const List = () => {
                             {venue.classes && Object.keys(venue.classes).length > 0 ? (
                               Object.entries(venue.classes).map(([day, classList]) => (
                                 <div key={day} className="md:flex gap-6 items-center ">
-                                  <div className="block border-r pr-3 border-[#b6b2ad] ">
+                                  <div className="block border-r pr-3 min-w-25 border-[#b6b2ad] ">
                                     <div className="text-[16px] font-semibold text-[#384455]">{day}</div>
                                     <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
                                   </div>
@@ -671,11 +671,11 @@ const List = () => {
                                         {/* Capacity */}
                                         <div className="mt-5 md:mt-0 text-sm">
                                           {s.capacity === 0 ? (
-                                            <span className="text-red-500 bg-red-50 p-2 rounded-xl text-[14px] font-semibold">
+                                            <span className="text-red-500 whitespace-nowrap bg-red-50 p-2 rounded-xl text-[14px] font-semibold">
                                               Fully booked
                                             </span>
                                           ) : (
-                                            <span className="text-green-600 bg-green-50 p-2 rounded-xl text-[14px] font-semibold">
+                                            <span className="text-green-600 whitespace-nowrap bg-green-50 p-2 rounded-xl text-[14px] font-semibold">
                                               +{s.capacity} spaces
                                             </span>
                                           )}

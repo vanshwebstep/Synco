@@ -38,18 +38,18 @@ const List = () => {
     const popup3Ref = useRef(null);
 
     console.log('classId', classId)
-    const { fetchClassSchedulesByID, singleClassSchedulesOnly } = useClassSchedule() || {};
+    const { fetchFindClassID, singleClassSchedulesOnly } = useClassSchedule() || {};
     const { createBookFreeTrials } = useBookFreeTrial()
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             if (classId) {
-                await fetchClassSchedulesByID(classId);
+                await fetchFindClassID(classId);
             }
         };
         fetchData();
-    }, [classId, fetchClassSchedulesByID]);
+    }, [classId, fetchFindClassID]);
     const [activePopup, setActivePopup] = useState(null);
     const togglePopup = (id) => {
         setActivePopup((prev) => (prev === id ? null : id));
@@ -73,7 +73,7 @@ const List = () => {
     ];
 
     const hearOptions = [
-        { value: "Social Media ", label: "Social Media" },
+        { value: "Social Media", label: "Social Media" },
         { value: "Friend", label: "Friend" },
         { value: "Flyer", label: "Flyer" },
     ];
@@ -998,26 +998,42 @@ const List = () => {
                                     </div>
 
                                     {/* Row 1 */}
-                                    <div className="flex gap-4">
-                                        <div className="w-1/2">
-                                            <label className="block text-[16px] font-semibold">First name</label>
-                                            <input
-                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                placeholder="Enter first name"
-                                                value={parent.parentFirstName}
-                                                onChange={(e) => handleParentChange(index, "parentFirstName", e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="w-1/2">
-                                            <label className="block text-[16px] font-semibold">Last name</label>
-                                            <input
-                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                placeholder="Enter last name"
-                                                value={parent.parentLastName}
-                                                onChange={(e) => handleParentChange(index, "parentLastName", e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
+                              <div className="flex gap-4">
+  <div className="w-1/2">
+    <label className="block text-[16px] font-semibold">First name</label>
+    <input
+      className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+      placeholder="Enter first name"
+      value={parent.parentFirstName}
+      onChange={(e) => {
+        // Remove numbers if typed or pasted
+        const value = e.target.value.replace(/\d/g, "");
+        handleParentChange(index, "parentFirstName", value);
+      }}
+      onKeyPress={(e) => {
+        if (/\d/.test(e.key)) e.preventDefault(); // block typing numbers
+      }}
+    />
+  </div>
+
+  <div className="w-1/2">
+    <label className="block text-[16px] font-semibold">Last name</label>
+    <input
+      className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+      placeholder="Enter last name"
+      value={parent.parentLastName}
+      onChange={(e) => {
+        // Remove numbers if typed or pasted
+        const value = e.target.value.replace(/\d/g, "");
+        handleParentChange(index, "parentLastName", value);
+      }}
+      onKeyPress={(e) => {
+        if (/\d/.test(e.key)) e.preventDefault(); // block typing numbers
+      }}
+    />
+  </div>
+</div>
+
 
                                     {/* Row 2 */}
                                     <div className="flex gap-4">

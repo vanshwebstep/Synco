@@ -105,7 +105,7 @@ const ViewSessions = () => {
 
 
   return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 md:p-6 bg-gray-50 ">
       <div className="flex justify-between items-start md:items-center mb-6">
         <h2
           onClick={() => navigate(`/configuration/weekly-classes/venues/class-schedule?id=${schedule.venueId}`)}

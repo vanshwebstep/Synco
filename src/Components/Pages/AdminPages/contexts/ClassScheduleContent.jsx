@@ -93,7 +93,29 @@ export const ClassScheduleProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+  const fetchFindClassID = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
 
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/find-class/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setSingleClassSchedulesOnly(result);
+    } catch (error) {
+      console.error("Failed to fetch classSchedules:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   const createClassSchedules = async (classScheduleData) => {
     setLoading(true);
 
@@ -283,6 +305,7 @@ export const ClassScheduleProvider = ({ children }) => {
         deleteClassSchedule,
         fetchClassSchedulesID,
         fetchClassSchedulesByID,
+        fetchFindClassID,
         singleClassSchedules,
         formData,
         singleClassSchedulesOnly,

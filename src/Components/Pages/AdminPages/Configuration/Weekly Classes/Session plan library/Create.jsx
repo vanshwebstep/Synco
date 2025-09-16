@@ -82,7 +82,7 @@ const Create = () => {
     const handleCreateSession = (finalSubmit = false) => {
         if (isProcessing) return;
 
-        if (!finalSubmit) {
+    
             if (!groupNameSection || !player || !skillOfTheDay || !descriptionSession || selectedPlans.length === 0) {
                 Swal.fire({
                     icon: 'warning',
@@ -90,7 +90,7 @@ const Create = () => {
                 });
                 return;
             }
-        }
+        
         setIsProcessing(true);
 
         if (tabRef.current) {

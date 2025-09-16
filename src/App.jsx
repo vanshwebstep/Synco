@@ -67,6 +67,7 @@ import AccountInfoWaitingList from './Components/Pages/AdminPages/Configuration/
 import Capacity from './Components/Pages/AdminPages/Configuration/Weekly Classes/Capacity/list.jsx';
 import CancellationList from './Components/Pages/AdminPages/Configuration/Weekly Classes/Cancellation/list.jsx';
 import AccountInfoCancellation from './Components/Pages/AdminPages/Configuration/Weekly Classes/Cancellation/Account Information Cancellation/list.jsx';
+import { BookFreeTrialLoaderProvider } from './Components/Pages/AdminPages/contexts/BookAFreeTrialLoaderContext.jsx';
 // Define roles
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -242,7 +243,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-       <Route path="/configuration/weekly-classes/find-a-class/add-to-waiting-list" element={
+      <Route path="/configuration/weekly-classes/find-a-class/add-to-waiting-list" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -251,7 +252,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-         <Route path="/configuration/weekly-classes/find-a-class/add-to-waiting-list/list" element={
+      <Route path="/configuration/weekly-classes/find-a-class/add-to-waiting-list/list" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -278,7 +279,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-       <Route path="/configuration/weekly-classes/cancellation/account-info/list" element={
+      <Route path="/configuration/weekly-classes/cancellation/account-info/list" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -404,7 +405,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-    
+
       <Route path="/configuration/weekly-classes/all-members/list" element={
         <ProtectedRoute>
           <AdminLayout>
@@ -423,7 +424,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-       <Route path="/configuration/weekly-classes/all-members/account-info" element={
+      <Route path="/configuration/weekly-classes/all-members/account-info" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -432,7 +433,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-        <Route path="/configuration/weekly-classes/add-to-waiting-list/account-info" element={
+      <Route path="/configuration/weekly-classes/add-to-waiting-list/account-info" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -441,7 +442,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-       <Route path="/configuration/weekly-classes/capacity" element={
+      <Route path="/configuration/weekly-classes/capacity" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -450,7 +451,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-        <Route path="/configuration/weekly-classes/all-members/see-details" element={
+      <Route path="/configuration/weekly-classes/all-members/see-details" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -491,9 +492,11 @@ function App() {
                     <ClassScheduleProvider>
                       <FindClassProvider>
                         <BookFreeTrialProvider>
-                          <PermissionProvider>
-                            <AppRoutes />
-                          </PermissionProvider>
+                          <BookFreeTrialLoaderProvider>
+                            <PermissionProvider>
+                              <AppRoutes />
+                            </PermissionProvider>
+                          </BookFreeTrialLoaderProvider>
                         </BookFreeTrialProvider>
                       </FindClassProvider>
                     </ClassScheduleProvider>

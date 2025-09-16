@@ -13,29 +13,76 @@ import { useTermContext } from '../../../contexts/TermDatesSessionContext';
 import { usePermission } from '../../../Common/permission';
 const List = () => {
   const navigate = useNavigate();
+  const formRef = useRef(null);
 
   const [showModal, setShowModal] = useState(false);
   const [selectedPlans, setSelectedPlans] = useState([]);
   const [congestionNote, setCongestionNote] = useState(null);
 
   const [clickedIcon, setClickedIcon] = useState(null);
-  const handleIconClick = (icon, plan = null) => {
-    setClickedIcon(icon);
-    setCongestionNote(null)
-    if (icon === 'currency') {
-      setSelectedPlans(plan || []); // default to empty array
-    }
-    else if (icon == 'group') {
-      setCongestionNote(plan)
-    }
-    else if (icon == 'p') {
-      setCongestionNote(plan)
-    }
-    else if (icon == 'calendar') {
-      setCongestionNote(plan)
-    }
-    setShowModal(true);
-  };
+
+const handleIconClick = (icon, plan = null) => {
+  console.log("🔵 handleIconClick triggered");
+  console.log("👉 Received icon:", icon);
+
+  if (Array.isArray(plan)) {
+    console.log("📦 Plan is an array with length:", plan.length);
+    console.table(plan);
+  } else {
+    console.log("📦 Plan is not an array, value:", plan);
+  }
+
+  // 🔴 Validation checks with Swal alerts
+  if (!icon) {
+    Swal.fire({
+      icon: "error",
+      title: "Missing Icon",
+      text: "❌ Icon is missing!",
+    });
+    console.error("❌ Icon is missing!");
+    return;
+  }
+
+  if (
+    (icon === "currency" && (!plan || plan.length === 0)) ||
+    (icon === "group" && !plan) ||
+    (icon === "p" && !plan) ||
+    (icon === "calendar" && !plan)
+  ) {
+    Swal.fire({
+      icon: "error",
+      title: "Missing Data",
+      text: `❌ Required plan data is missing `,
+    });
+    console.error(`❌ Required plan data is missing for icon: ${icon}`);
+    return;
+  }
+
+  // 🟢 Normal flow
+  setClickedIcon(icon);
+  console.log("✅ setClickedIcon:", icon);
+
+  setCongestionNote(null);
+  console.log("✅ congestionNote reset to null");
+
+  if (icon === "currency") {
+    setSelectedPlans(plan || []);
+    console.log("💰 setSelectedPlans:", plan || []);
+  } else if (icon === "group") {
+    setCongestionNote(plan);
+    console.log("👥 setCongestionNote (group):", plan);
+  } else if (icon === "p") {
+    setCongestionNote(plan);
+    console.log("🅿️ setCongestionNote (p):", plan);
+  } else if (icon === "calendar") {
+    setCongestionNote(plan);
+    console.log("📅 setCongestionNote (calendar):", plan);
+  }
+
+  setShowModal(true);
+  console.log("🟢 setShowModal set to true");
+};
+
 
 
   const { fetchPackages, packages } = usePayments()
@@ -182,6 +229,36 @@ const List = () => {
       }
     }
   };
+    useEffect(() => {
+    function handleClickOutside(e) {
+      if (formRef.current && !formRef.current.contains(e.target)) {
+        setOpenForm(false);
+        setIsEditVenue(false);
+        setFormData({
+          area: "",
+          name: "",
+          address: "",
+          facility: "",
+          parking: false,
+          congestion: false,
+          parkingNote: "",
+          entryNote: "",
+          termDateLinkage: "",
+          subscriptionLinkage: ""
+        });
+      }
+    }
+
+    if (openForm) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openForm]);
   const modalRef = useRef(null);
   const PRef = useRef(null);
   useEffect(() => {
@@ -530,7 +607,7 @@ const List = () => {
         </div>
 
         {openForm && (
-          <div className="md:w-1/4 bg-white  rounded-4xl relative">
+          <div   ref={formRef} className="md:w-1/4 bg-white  rounded-4xl relative">
 
             <button
               onClick={() => {
@@ -553,8 +630,11 @@ const List = () => {
               title="Close"
             >
             </button>
-            <Create  packages={packages} termGroup={classCards} onClose={() => setOpenForm(false)} />
-
+<Create
+  packages={packages}
+  termGroup={classCards}
+  onClose={() => setOpenForm(false)}
+/>
 
           </div>
         )}

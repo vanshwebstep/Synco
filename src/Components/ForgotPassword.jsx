@@ -184,7 +184,10 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
   const fetchWithTimeout = (url, options, timeout = 10000) => {
     return Promise.race([
@@ -198,10 +201,14 @@ const ForgotPassword = () => {
   const handleForgotPassword = async (e) => {
     e.preventDefault();
 
-    if (!email || !validateEmail(email)) {
-      alert('Please enter a valid email.');
-      return;
-    }
+ if (!email || !validateEmail(email)) {
+    Swal.fire({
+      icon: "error",
+      title: "Invalid Email",
+      text: "Please enter a valid email address.",
+    });
+    return;
+  }
 
     setLoading(true);
 
@@ -272,7 +279,7 @@ const ForgotPassword = () => {
               <label htmlFor="email" className="block text-gray-900 mb-2 text-[22px] font-semibold">Email</label>
               <input
                 id="email"
-                type="email"
+                type="text" // <
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg bg-white text-[22px] placeholder-gray-500 focus:outline-none border border-gray-300"

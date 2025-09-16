@@ -27,11 +27,20 @@ const trialLists = () => {
                 : [...prev, studentId] // add if not selected
         );
     };
+    const formatLabel = (str) => {
+  if (!str) return "-";
+
+  return str
+    .replace(/_/g, " ")                  // snake_case → snake case
+    .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase → camel Case
+    .toLowerCase()                       // everything lowercase first
+    .replace(/\b\w/g, (c) => c.toUpperCase()); // capitalize each word
+};
     const getStatusBadge = (status) => {
         const s = status.toLowerCase();
         let styles =
             "bg-red-100 text-red-500"; // default fallback
-        if (s === "attend" || s === "active")
+        if (s === "attended" || s === "active")
             styles = "bg-green-100 text-green-600";
         else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
         else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
@@ -41,7 +50,7 @@ const trialLists = () => {
             <div
                 className={`flex text-center justify-center rounded-lg p-1 gap-2 ${styles} capitalize`}
             >
-                {status}
+                {formatLabel(status)}
             </div>
         );
     };
@@ -97,15 +106,15 @@ const trialLists = () => {
         setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
     };
     const [selectedDates, setSelectedDates] = useState([]);
-    const { fetchBookMemberships, bookMembership, setBookMembership, sendBookMembershipMail, bookedByAdmin, setSearchTerm, searchTerm, status, loading, selectedVenue, setSelectedVenue, statsMembership, myVenues, setMyVenues } = useBookFreeTrial() || {};
+    const { fetchBookMemberships,fetchBookMembershipsLoading, bookMembership, setBookMembership, sendBookMembershipMail, bookedByAdmin, setSearchTerm, searchTerm, status, loading, selectedVenue, setSelectedVenue, statsMembership, myVenues, setMyVenues } = useBookFreeTrial() || {};
 
     useEffect(() => {
         if (selectedVenue) {
             fetchBookMemberships("", selectedVenue.label); // Using label as venueName
         } else {
-            fetchBookMemberships(); // No filter
+            fetchBookMembershipsLoading(); // No filter
         }
-    }, [selectedVenue, fetchBookMemberships]);
+    }, [selectedVenue, fetchBookMemberships, fetchBookMembershipsLoading]);
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
 
@@ -307,20 +316,34 @@ const trialLists = () => {
 
     if (loading) return <Loader />;
 console.log('bookMembership',bookMembership)
-    const membershipData = bookMembership?.flatMap((item) =>
-        item.students.map((student) => ({
-            ...item,          // keep membership-level info
-            student,          // nest student info
-        }))
-    );
+
     const membershipColumns = [
         { header: "Name", key: "name", selectable: true }, // <-- checkbox + student name
         { header: "Age", key: "age", render: (item, student) => student.age },
         { header: "Venue", render: (item) => item.venue?.name || "-" },
-        {
-            header: "Date of Booking",
-            render: (item) => new Date(item.trialDate).toLocaleDateString(),
-        },
+   {
+  header: "Date of Booking",
+  render: (item) => {
+    const date = new Date(item.startDate);
+
+    const day = date.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+        ? "rd"
+        : "th";
+
+    const weekday = date.toLocaleDateString("en-GB", { weekday: "short" }); // Sat
+    const month = date.toLocaleDateString("en-GB", { month: "short" });     // Sep
+    const year = date.getFullYear();                                        // 2025
+
+    return `${weekday} ${day}${suffix} ${month} ${year}`;
+  },
+},
+
         {
             header: "Who Booked?",
             render: (item) =>

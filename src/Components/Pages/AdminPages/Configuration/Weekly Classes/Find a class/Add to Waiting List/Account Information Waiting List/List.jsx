@@ -82,6 +82,7 @@ const AccountInfoWaitingList = () => {
             ))}
           </div>
         </div>
+           {activeTab === "Service History" && (
         <div className=" flex items-start  gap-2 md:gap-3">
           <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
@@ -123,6 +124,7 @@ const AccountInfoWaitingList = () => {
             Add booking
           </button>
         </div>
+           )}
       </div >
       {activeTab === "Service History" && (
         <ServiceHistory serviceHistory={serviceHistory} />

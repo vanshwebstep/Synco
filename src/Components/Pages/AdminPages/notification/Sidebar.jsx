@@ -26,20 +26,24 @@ export default function Sidebar() {
   const { notification, customnotificationAll } = useNotification();
 
 const mergedNotifications = [
-  ...(Array.isArray(notification) ? notification : []),
+  ...(Array.isArray(notification?.notifications) ? notification.notifications : []),
   ...(Array.isArray(customnotificationAll) ? customnotificationAll : [])
 ].map(n => {
   // Check recipient read status (if exists)
   const recipientIsRead = Array.isArray(n.recipients)
-    ? n.recipients.every(r => r.isRead) // all recipients read → true
+    ? n.recipients.every(r => r.isRead)
     : false;
+
+  console.log("notification", notification);
+  console.log("customnotificationAll", customnotificationAll);
 
   return {
     ...n,
     category: n.category?.trim() || "System",
-    isRead: n.isRead ?? recipientIsRead // ✅ normalize isRead at top level
+    isRead: n.isRead ?? recipientIsRead // normalize isRead at top level
   };
 });
+
 
 
   const filtered =
@@ -56,7 +60,7 @@ const mergedNotifications = [
     acc[cat] = (acc[cat] || 0) + 1;
     return acc;
   }, {});
-  console.log("mergedNotifications", mergedNotifications)
+  console.log("unreadNotifications", unreadNotifications)
   // Optional: Sort categories with unread items first
   // const sortedTabs = [...allTabs].sort((a, b) => (categoryCounts[b] || 0) - (categoryCounts[a] || 0));
   const tabsToDisplay = allTabs; // or use sortedTabs for sorting

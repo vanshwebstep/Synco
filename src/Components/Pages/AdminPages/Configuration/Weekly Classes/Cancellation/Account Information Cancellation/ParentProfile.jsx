@@ -16,7 +16,7 @@ const ParentProfile = ({ ParentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [selectedDate, setSelectedDate] = useState(null);
 
-    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit,reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit } = useBookFreeTrial() || {};
+    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit, reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit } = useBookFreeTrial() || {};
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [freezeMembership, setFreezeMembership] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);
@@ -33,7 +33,9 @@ const ParentProfile = ({ ParentProfile }) => {
         { value: "Health issue", label: "Health issue" },
         { value: "Schedule conflict", label: "Schedule conflict" },
     ];
-
+    const cancelType = [
+        { value: "immediately", label: "Cancel Immediately" },
+    ];
     const handleCancel = () => {
         console.log("Payload:", formData);
         cancelFreeTrial(formData);
@@ -144,6 +146,10 @@ const ParentProfile = ({ ParentProfile }) => {
     const handleSelectChange = (selected, field, stateSetter) => {
         stateSetter((prev) => ({ ...prev, [field]: selected?.value || null }));
     };
+     const handleRadioChange = (value, field, stateSetter) => {
+        stateSetter((prev) => ({ ...prev, [field]: value }));
+    };
+
 
     // Unified handler for DatePicker
     const handleDateChange = (date, field, stateSetter) => {
@@ -484,16 +490,18 @@ const ParentProfile = ({ ParentProfile }) => {
                         {/* Header */}
                         <div
                             className="m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center"
-                            style={{
-                            backgroundImage: status === "cancelled"
-  ? "url('/demo/synco/frames/Cancelled.png')"
-  : status === "frozen"
-  ? "url('/demo/synco/frames/Frozen.png')"
-  : status === "active"
-  ? "url('/demo/synco/frames/Active.png')"
-  : status === "waiting"
-  ? "url('/demo/synco/frames/Waiting.png')"
-  : "url('/demo/synco/frames/reqCancel.png')",
+                              style={{
+                                backgroundImage: status === "cancelled"
+                                    ? "url('/demo/synco/frames/Cancelled.png')"
+                                    : status === "frozen"
+                                        ? "url('/demo/synco/frames/Frozen.png')"
+                                        : status === "active"
+                                            ? "url('/demo/synco/frames/Active.png')"
+                                             : status === "request_to_cancel"
+                                            ? "url('/demo/synco/frames/reqCancel.png')"
+                                            : status === "waiting list"
+                                                ? "url('/demo/synco/frames/Waiting.png')"
+                                                : "url('/demo/synco/frames/Pending.png')",
 
 
                                 backgroundSize: "contain",
@@ -665,7 +673,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                                         </button>
                                                     )}
 
-                                                    {(status === "active" || status === "frozen" || status === "cancelled") && (
+                                                    {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel" ) && (
                                                         <button
                                                             onClick={() => setaddToWaitingList(true)}
                                                             className={`w-full rounded-xl py-3 text-[18px] font-medium transition-shadow duration-300 
@@ -679,7 +687,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                                     )}
 
 
-                                                    {status == 'active' && canCancelTrial && (
+                                                    {(status === "active" || status === "request_to_cancel" ) && canCancelTrial && (
                                                         <button
                                                             onClick={() => setFreezeMembership(true)}
                                                             className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
@@ -687,7 +695,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                                             Freeze Membership
                                                         </button>
                                                     )}
-                                                    {status == 'active' && canCancelTrial && (
+                                                    {(status === "active" ||  status === "request_to_cancel" ) && canCancelTrial && (
                                                         <button
                                                             onClick={() => setTransferVenue(true)}
                                                             className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
@@ -703,7 +711,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                                             Remove Waiting List
                                                         </button>
                                                     )}
-                                                    {(status == 'active' || status == 'frozen') && canCancelTrial && (
+                                                    {(status === "active" || status === "frozen"  || status === "request_to_cancel" ) && canCancelTrial && (
                                                         <button
                                                             onClick={() => setshowCancelTrial(true)}
                                                             className={`w-full border text-[18px] rounded-xl py-3 font-medium transition-shadow duration-300
@@ -717,13 +725,13 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                                     )}
 
-                                                    {/* {status !== 'pending' && status !== 'attend' && (
+                                                    {/* {status !== 'pending' && status !== 'attended' && (
                                     <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
                                         Book a Membership
                                     </button>
                                 )} */}
 
-                                                    {status === 'attend' && (
+                                                    {status === 'attended' && (
                                                         <div className="flex gap-7">
                                                             <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
                                                                 No Membership
@@ -889,79 +897,127 @@ const ParentProfile = ({ ParentProfile }) => {
                     </div>
 
                 )}
-                {showCancelTrial && (
-                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
-                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
-                            <button
-                                className="absolute top-4 left-4 p-2"
-                                onClick={() => setshowCancelTrial(false)}
-                            >
-                                <img src="/demo/synco/icons/cross.png" alt="Close" />
-                            </button>
+              {showCancelTrial && (
+                                 <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                                     <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                                         <button
+                                             className="absolute top-4 left-4 p-2"
+                                             onClick={() => setshowCancelTrial(false)}
+                                         >
+                                             <img src="/demo/synco/icons/cross.png" alt="Close" />
+                                         </button>
+             
+                                         <div className="text-center py-6 border-b border-gray-300">
+                                             <h2 className="font-semibold text-[24px]">Cancel Membership </h2>
+                                         </div>
+             
+                                         <div className="space-y-4 px-6 pb-6 pt-4">
+                                             <div>
+                                                 <label className="block text-[16px] font-semibold">
+                                                     Cancellation Type
+                                                 </label>
+             
+                                                 {cancelType.map((option) => (
+                                                     <label key={option.value} className="flex mt-4  items-center mb-2 cursor-pointer">
+                                                         <label className="flex items-center cursor-pointer space-x-2">
+                                                             <input
+                                                                 type="radio"
+                                                                 name="cancelType"
+                                                                 value={option.value}
+                                                                 checked={cancelData.cancellationType === option.value}
+                                                                 onChange={() => handleRadioChange(option.value, "cancellationType", setCancelData)}
+                                                                 className="hidden peer"
+                                                             />
+                                                             <span className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-400 peer-checked:bg-blue-500 peer-checked:border-blue-500">
+                                                                 {/* Tick icon */}
+                                                                 <svg
+                                                                     className=" w-3 h-3 text-white peer-checked:block"
+                                                                     fill="none"
+                                                                     stroke="currentColor"
+                                                                     strokeWidth="3"
+                                                                     viewBox="0 0 24 24"
+                                                                 >
+                                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                                 </svg>
+                                                             </span>
+                                                             <span className="text-gray-800 text-[16px]">{option.label}</span>
+                                                         </label>
+             
+                                                     </label>
+                                                 ))}
+                                             </div>
+                                           <div>
+  {cancelData.cancellationType !== 'immediately' && (
+    <>
+      <label className="block text-[16px] font-semibold">
+        Cancellation Effective Date
+      </label>
+      <DatePicker
+        minDate={addDays(new Date(), 1)} // disables today and all past dates
+        dateFormat="EEEE, dd MMMM yyyy"
+        selected={cancelData.cancelDate ? new Date(cancelData.cancelDate) : null}
+        onChange={(date) => handleDateChange(date, "cancelDate", setCancelData)}
+        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+      />
+    </>
+  )}
+</div>
 
-                            <div className="text-center py-6 border-b border-gray-300">
-                                <h2 className="font-semibold text-[24px]">Cancel Free Trial</h2>
-                            </div>
-
-                            <div className="space-y-4 px-6 pb-6 pt-4">
-                                {/* Reason */}
-                                <div>
-                                    <label className="block text-[16px] font-semibold">
-                                        Reason for Cancellation
-                                    </label>
-                                    <Select
-                                        value={reasonOptions.find((opt) => opt.value === formData.cancelReason)}
-                                        onChange={(selected) =>
-                                            setFormData((prev) => ({ ...prev, cancelReason: selected.value }))
-                                        }
-                                        options={reasonOptions}
-                                        placeholder=""
-                                        className="rounded-lg mt-2"
-                                        styles={{
-                                            control: (base) => ({
-                                                ...base,
-                                                borderRadius: "0.7rem",
-                                                boxShadow: "none",
-                                                padding: "4px 8px",
-                                                minHeight: "48px",
-                                            }),
-                                            placeholder: (base) => ({ ...base, fontWeight: 600 }),
-                                            dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
-                                            indicatorSeparator: () => ({ display: "none" }),
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Notes */}
-                                <div>
-                                    <label className="block text-[16px] font-semibold">
-                                        Additional Notes (Optional)
-                                    </label>
-                                    <textarea
-                                        className="w-full bg-gray-100 mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        rows={3}
-                                        value={formData.additionalNote}
-                                        onChange={(e) =>
-                                            setFormData((prev) => ({ ...prev, additionalNote: e.target.value }))
-                                        }
-                                        placeholder=""
-                                    />
-                                </div>
-
-                                {/* Buttons */}
-                                <div className="flex justify-end gap-4 pt-4">
-                                    <button
-                                        onClick={handleCancel}
-                                        className="w-1/2 bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                    >
-                                        Cancel Trial
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                )}
+                                             <div>
+                                                 <label className="block text-[16px] font-semibold">
+                                                     Reason for Cancellation
+                                                 </label>
+                                                 <Select
+                                                     value={reasonOptions.find((opt) => opt.value === cancelData.cancelReason)}
+                                                     onChange={(selected) => handleSelectChange(selected, "cancelReason", setCancelData)}
+                                                     options={reasonOptions}
+                                                     placeholder=""
+                                                     className="rounded-lg mt-2"
+                                                     styles={{
+                                                         control: (base) => ({
+                                                             ...base,
+                                                             borderRadius: "0.7rem",
+                                                             boxShadow: "none",
+                                                             padding: "6px 8px",
+                                                             minHeight: "48px",
+                                                         }),
+                                                         placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                                         dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                                         indicatorSeparator: () => ({ display: "none" }),
+                                                     }}
+                                                 />
+                                             </div>
+             
+                                             {/* Notes */}
+                                             <div>
+                                                 <label className="block text-[16px] font-semibold">
+                                                     Additional Notes (Optional)
+                                                 </label>
+                                                 <textarea
+                                                     className="w-full bg-gray-100  mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                     rows={3}
+                                                     name="additionalNote"    // <-- MUST match state key
+                                                     value={cancelData.additionalNote}
+                                                     onChange={(e) => handleInputChange(e, setCancelData)}
+                                                     placeholder=""
+                                                 />
+                                             </div>
+             
+                                             {/* Buttons */}
+                                             <div className="flex justify-end gap-4 pt-4">
+                                                 <button
+                                                     onClick={() => cancelMembershipSubmit(cancelData, 'allMembers')}
+             
+                                                     className="w-1/2  bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                                 >
+                                                     Cancel Membership
+                                                 </button>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+             
+                             )}
                 {addToWaitingList && (
                     <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
                         <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
@@ -1161,120 +1217,120 @@ const ParentProfile = ({ ParentProfile }) => {
                     </div>
                 )}
                 {reactivateMembership && (
-                                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
-                                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
-                                            <button
-                                                className="absolute top-4 left-4 p-2"
-                                                onClick={() => setReactivateMembership(false)}
-                                            >
-                                                <img src="/demo/synco/icons/cross.png" alt="Close" />
-                                            </button>
-                
-                                            <div className="text-center py-6 border-b border-gray-300">
-                                                <h2 className="font-semibold text-[24px]">Reactivate Membership</h2>
+                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                            <button
+                                className="absolute top-4 left-4 p-2"
+                                onClick={() => setReactivateMembership(false)}
+                            >
+                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                            </button>
+
+                            <div className="text-center py-6 border-b border-gray-300">
+                                <h2 className="font-semibold text-[24px]">Reactivate Membership</h2>
+                            </div>
+
+                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                {/* Reactivate On */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Reactivate On</label>
+                                    <DatePicker
+                                        minDate={addDays(new Date(), 1)} // disable today & past dates
+                                        selected={
+                                            reactivateData?.reactivateOn
+                                                ? new Date(reactivateData.reactivateOn)
+                                                : null
+                                        }
+                                        onChange={(date) => handleDateChange(date, "reactivateOn", setReactivateData)}
+                                        dateFormat="EEEE, dd MMMM yyyy"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                    />
+                                </div>
+
+                                {/* Confirm Class */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Confirm Class</label>
+                                    <input
+                                        type="text"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        value={classSchedule?.className || "-"}
+                                        readOnly
+                                    />
+                                </div>
+
+                                <div className="w-full max-w-xl mx-auto">
+                                    <button
+                                        type="button"
+                                        disabled={!paymentPlan}
+                                        onClick={() => setIsOpen(!isOpen)}
+                                        className={`bg-[#237FEA] text-white text-[18px]  font-semibold border w-full border-[#237FEA] px-6 py-3 rounded-lg flex items-center justify-center  ${paymentPlan
+                                            ? "bg-[#237FEA] border border-[#237FEA]"
+                                            : "bg-gray-400 border-gray-400 cursor-not-allowed"
+                                            }`}
+                                    >
+                                        Review Membership Plan
+
+                                        <img
+                                            src={isOpen ? "/demo/synco/icons/whiteArrowDown.png" : "/demo/synco/icons/whiteArrowUp.png"}
+                                            alt={isOpen ? "Collapse" : "Expand"}
+                                            className="ml-2 inline-block"
+                                        />
+
+                                    </button>
+
+                                    {isOpen && (
+                                        <motion.div
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: "auto" }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="bg-white mt-4 rounded-2xl shadow-lg p-6   font-semibold  space-y-4 text-[16px]"
+                                        >
+                                            <div className="flex justify-between text-[#333]">
+                                                <span>Membership Plan</span>
+                                                <span>
+                                                    {paymentPlan.duration} {paymentPlan.interval}
+                                                    {paymentPlan.duration > 1 ? 's' : ''}
+                                                </span>
                                             </div>
-                
-                                            <div className="space-y-4 px-6 pb-6 pt-4">
-                                                {/* Reactivate On */}
-                                                <div>
-                                                    <label className="block text-[16px] font-semibold">Reactivate On</label>
-                                                    <DatePicker
-                                                        minDate={addDays(new Date(), 1)} // disable today & past dates
-                                                        selected={
-                                                            reactivateData?.reactivateOn
-                                                                ? new Date(reactivateData.reactivateOn)
-                                                                : null
-                                                        }
-                                                        onChange={(date) => handleDateChange(date, "reactivateOn", setReactivateData)}
-                                                        dateFormat="EEEE, dd MMMM yyyy"
-                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                    />
-                                                </div>
-                
-                                                {/* Confirm Class */}
-                                                <div>
-                                                    <label className="block text-[16px] font-semibold">Confirm Class</label>
-                                                    <input
-                                                        type="text"
-                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                        value={classSchedule?.className || "-"}
-                                                        readOnly
-                                                    />
-                                                </div>
-                
-                                                <div className="w-full max-w-xl mx-auto">
-                                                    <button
-                                                        type="button"
-                                                        disabled={!paymentPlan}
-                                                        onClick={() => setIsOpen(!isOpen)}
-                                                        className={`bg-[#237FEA] text-white text-[18px]  font-semibold border w-full border-[#237FEA] px-6 py-3 rounded-lg flex items-center justify-center  ${paymentPlan
-                                                            ? "bg-[#237FEA] border border-[#237FEA]"
-                                                            : "bg-gray-400 border-gray-400 cursor-not-allowed"
-                                                            }`}
-                                                    >
-                                                        Review Membership Plan
-                
-                                                        <img
-                                                            src={isOpen ? "/demo/synco/icons/whiteArrowDown.png" : "/demo/synco/icons/whiteArrowUp.png"}
-                                                            alt={isOpen ? "Collapse" : "Expand"}
-                                                            className="ml-2 inline-block"
-                                                        />
-                
-                                                    </button>
-                
-                                                    {isOpen && (
-                                                        <motion.div
-                                                            initial={{ opacity: 0, height: 0 }}
-                                                            animate={{ opacity: 1, height: "auto" }}
-                                                            exit={{ opacity: 0, height: 0 }}
-                                                            transition={{ duration: 0.3 }}
-                                                            className="bg-white mt-4 rounded-2xl shadow-lg p-6   font-semibold  space-y-4 text-[16px]"
-                                                        >
-                                                            <div className="flex justify-between text-[#333]">
-                                                                <span>Membership Plan</span>
-                                                                <span>
-                                                                    {paymentPlan.duration} {paymentPlan.interval}
-                                                                    {paymentPlan.duration > 1 ? 's' : ''}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex justify-between text-[#333]">
-                                                                <span>Monthly Subscription Fee</span>
-                                                                <span>£{paymentPlan.price} p/m</span>
-                                                            </div>
-                                                            <div className="flex justify-between text-[#333]">
-                                                                <span>Price per class per child</span>
-                                                                <span>£{paymentPlan.price}</span>
-                                                            </div>
-                
-                                                        </motion.div>
-                                                    )}
-                                                </div>
-                                                {/* Notes */}
-                                                <div>
-                                                    <label className="block text-[16px] font-semibold">Additional Notes (Optional)</label>
-                                                    <textarea
-                                                        name="additionalNote"
-                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                        rows={6}
-                                                        value={reactivateData.additionalNote}
-                                                        onChange={(e) => handleInputChange(e, setReactivateData)}
-                                                    />
-                                                </div>
-                
-                                                {/* Button */}
-                                                <div className="flex gap-4 pt-4">
-                                                    <button
-                                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                                        onClick={() => reactivateDataSubmit(reactivateData, 'allMembers')}
-                
-                                                    >
-                                                        Reactivate Membership
-                                                    </button>
-                                                </div>
+                                            <div className="flex justify-between text-[#333]">
+                                                <span>Monthly Subscription Fee</span>
+                                                <span>£{paymentPlan.price} p/m</span>
                                             </div>
-                                        </div>
-                                    </div>
-                                )}
+                                            <div className="flex justify-between text-[#333]">
+                                                <span>Price per class per child</span>
+                                                <span>£{paymentPlan.price}</span>
+                                            </div>
+
+                                        </motion.div>
+                                    )}
+                                </div>
+                                {/* Notes */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Additional Notes (Optional)</label>
+                                    <textarea
+                                        name="additionalNote"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        rows={6}
+                                        value={reactivateData.additionalNote}
+                                        onChange={(e) => handleInputChange(e, setReactivateData)}
+                                    />
+                                </div>
+
+                                {/* Button */}
+                                <div className="flex gap-4 pt-4">
+                                    <button
+                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        onClick={() => reactivateDataSubmit(reactivateData, 'allMembers')}
+
+                                    >
+                                        Reactivate Membership
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div >
         </>
     );

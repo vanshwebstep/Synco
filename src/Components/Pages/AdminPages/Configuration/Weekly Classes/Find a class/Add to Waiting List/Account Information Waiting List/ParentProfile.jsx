@@ -557,7 +557,21 @@ const ParentProfile = ({ profile }) => {
                     {/* Card Wrapper */}
                     <div className="rounded-3xl bg-[#363E49] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
-                        <div className={`m-2 px-6 rounded-3xl py-3 flex items-center justify-between ${getStatusBgColor(status)}`}>
+                        <div className={`m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center `}
+                         style={{
+                                backgroundImage: status === "cancelled"
+                                    ? "url('/demo/synco/frames/Cancelled.png')"
+                                    : status === "frozen"
+                                        ? "url('/demo/synco/frames/Frozen.png')"
+                                        : status === "active"
+                                            ? "url('/demo/synco/frames/Active.png')"
+                                            : status === "waiting list"
+                                                ? "url('/demo/synco/frames/Waiting.png')"
+                                                : "url('/demo/synco/frames/Pending.png')",
+
+
+                                backgroundSize: "contain",
+                            }}>
                             <div>
                                 <div className="text-[20px] font-bold text-[#1F2937]">Account Status</div>
                                 <div className="text-[16px] font-semibold capitalize text-[#1F2937]">      <span>
@@ -717,11 +731,11 @@ const ParentProfile = ({ profile }) => {
                                         Transfer Class
                                     </button>
                                 )}
-                                 {status !== 'pending' && status !== 'attend' && (
+                                 {/* {status !== 'pending' && status !== 'attended' && (
                                     <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md hover:bg-[#237FEA] hover:text-white transition-shadow duration-300 font-medium">
                                         Book a Membership
                                     </button>
-                                )}
+                                )} */}
                                 {status == 'waiting list' && canCancelTrial && (
                                     <button
                                         onClick={() => setRemoveWaiting(true)}
@@ -746,7 +760,7 @@ const ParentProfile = ({ profile }) => {
 
                                
 
-                                {status === 'attend' && (
+                                {status === 'attended' && (
                                     <div className="flex gap-7">
                                         <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
                                             No Membership

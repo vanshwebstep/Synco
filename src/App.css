@@ -282,3 +282,38 @@ button {
 .react-select__control {
     padding: 8px 5px;
 }
+ul.pl-10.list-disc.space-y-1 li.mb-2.text-lg a {
+	display: block;
+}
+/* For mobile screens only */
+@media screen and (max-width: 768px) {
+  .login-container {
+    border-radius: 0;
+  }
+  .dynamicpadding {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+}
+
+@media (min-width: 620px) and (max-width: 998px) {
+  .dynamic-height {
+    min-height: 500px;
+  }
+}
+
+
+.fixerhe {
+    overflow: hidden;
+    max-height: 100%;
+    height: 100vh;
+}
+
+aside.hidden.md\:w-2\/12.lg\:flex.w-72.bg-white.border-r.border-gray-100.flex-col.shadow-lg {
+    max-height: 100%;
+    height: 100vh;
+}
+
+.leftEnd {
+  margin: 0 0 0  auto;
+}

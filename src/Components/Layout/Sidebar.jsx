@@ -353,7 +353,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
           <img src='/demo/synco/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
         </div>
-        <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500">
+        <nav className="flex-1 overflow-y-auto scrollbar-hide scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500">
           {renderMenuItems(menuItems)}
         </nav>
       </aside>

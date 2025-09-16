@@ -13,14 +13,16 @@ import Swal from "sweetalert2";
 const CheckboxOption = (props) => {
     return (
         <components.Option {...props}>
-            <input
-                type="checkbox"
-                checked={props.isSelected}
-                onChange={() => null}
-                style={{ marginRight: 8 }}
-            />
-            <label>{props.label}</label>
-        </components.Option>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <input
+          type="checkbox"
+          checked={props.isSelected}
+          onChange={() => null}
+          style={{ marginRight: '10px' }}
+        />
+        {props.label}
+      </div>
+    </components.Option>
     );
 };
 const Capacity = () => {
@@ -187,36 +189,61 @@ const Capacity = () => {
             <div className="flex items-end justify-between">
                 <div className="flex gap-5 py-5 items-center a ">
                     <div className="relative w-100">
-                        <Select
-                            options={
-                                capacityData?.venues?.map((venue) => ({
-                                    value: venue.name,
-                                    label: venue.name,
-                                })) || []
-                            }
-                            placeholder="Search Venue"
-                            value={selectedVenue}
-                            onChange={handleVenueChange}
-                            isMulti
-                            closeMenuOnSelect={false}
-                            hideSelectedOptions={false}
-                            components={{
-                                Option: CheckboxOption,
-                            }}
-                            styles={{
-                                control: (base, state) => ({
-                                    ...base,
-                                    borderRadius: "1rem",
-                                    borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
-                                    boxShadow: "none",
-                                    padding: "4px 8px",
-                                    minHeight: "48px",
-                                }),
-                                placeholder: (base) => ({ ...base, fontWeight: 600 }),
-                                dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
-                                indicatorSeparator: () => ({ display: "none" }),
-                            }}
-                        />
+                       <Select
+  options={
+    capacityData?.searchVenue?.map((venue) => ({
+      value: venue.venueName,
+      label: venue.venueName,
+    })) || []
+  }
+  placeholder="Choose Venue"
+  value={selectedVenue}
+  onChange={handleVenueChange}
+  isMulti
+  closeMenuOnSelect={false}
+  hideSelectedOptions={false}
+  components={{
+    Option: CheckboxOption,
+    // Add DropdownIndicator and IndicatorSeparator to remove default icons
+    DropdownIndicator: null, 
+    IndicatorSeparator: null
+  }}
+  styles={{
+    control: (base, state) => ({
+      ...base,
+      borderRadius: "1rem",
+      borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
+      boxShadow: "none",
+      padding: "4px 8px",
+      minHeight: "48px",
+    }),
+    placeholder: (base) => ({ 
+      ...base, 
+      fontWeight: 600,
+      marginLeft: '10px' 
+    }),
+    // Adjust menu styling to match the card look
+    menu: (base) => ({
+      ...base,
+      borderRadius: '1rem', // Match the control's border radius
+      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow
+      border: '1px solid #E5E7EB', // Border for the card
+      marginTop: '8px', // Space between the control and the dropdown
+    }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isSelected ? '#e0f2fe' : 'white', // Light blue background for selected options
+      color: 'black', // Ensure text color is black
+      // Hover effect to match the image
+      '&:hover': {
+        backgroundColor: '#e5e7eb',
+      },
+    }),
+    // Remove indicator and separator
+    dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                indicatorSeparator: () => ({ display: "none" }),    
+  }}
+/>
 
 
                     </div>
@@ -326,11 +353,11 @@ const Capacity = () => {
                     )}
 
                 </div>
-                <div className="flex justify-end flex-wrap items-center w-full mt-6">
+                <div className="block justify-end flex-wrap items-center w-full mt-6">
 
 
                     {/* Total Box with Circular Progress */}
-                    <div className="bg-[#237FEA] text-white rounded-3xl shadow-md px-6 py-4 flex items-center">
+                    <div className="bg-[#237FEA] leftEnd w-full max-w-fit text-white rounded-3xl shadow-md px-6 py-4 flex items-center">
                         {/* Text Section */}
                         <div className="flex flex-col">
                             <span className="text-[16px] font-semibold">Total</span>
@@ -364,7 +391,7 @@ const Capacity = () => {
                         </div>
                     </div>
                     {/* Legend Section */}
-                    <div className="flex my-5 items-center gap-6">
+                    <div className="flex flex-wrap my-5  items-center gap-6 justify-end">
                         {legendItems.map((item, idx) => (
                             <div key={idx} className="flex items-center gap-3">
 
@@ -395,7 +422,7 @@ const Capacity = () => {
                                     {/* Header */}
                                     <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
                                         <div className="flex items-center gap-2">
-                                            <img src="/demo/synco/icons/crown.png" alt="" />
+                                            <img src="/demo/synco/icons/Location.png" alt="" />
                                             <span className="font-medium text-[20px]">
                                                 {venue.address || "Unnamed Address"}
                                             </span>

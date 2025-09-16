@@ -4,16 +4,22 @@ import React from "react";
 const formatDate = (dateString, withTime = false) => {
   if (!dateString) return "-";
   const date = new Date(dateString);
-  const options = { year: "numeric", month: "short", day: "2-digit" };
+
+  const dateOptions = { year: "numeric", month: "short", day: "2-digit" };
+
   if (withTime) {
-    return (
-      date.toLocaleDateString("en-US", options) +
-      ", " +
-      date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
-    );
+    const formattedDate = date.toLocaleDateString("en-GB", dateOptions); // "20 Sep 2025"
+    const formattedTime = date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false, // ✅ 24-hour format
+    });
+    return `${formattedDate}, ${formattedTime}`;
   }
-  return date.toLocaleDateString("en-US", options);
+
+  return date.toLocaleDateString("en-GB", dateOptions); // "20 Sep 2025"
 };
+
 
 const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
   if (!serviceHistory) return null;
@@ -35,8 +41,9 @@ const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
   } = serviceHistory;
 
   const statusStyles = {
-    attend: "bg-green-500 text-white",
+    attended: "bg-green-500 text-white",
     active: "bg-green-500 text-white",
+    rebooked: "bg-blue-500 text-white",
     pending: "bg-yellow-500 text-white",
     cancelled: "bg-red-500 text-white",
     request_to_cancel: "bg-white text-red-500 border",
@@ -155,16 +162,6 @@ const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
                       </div>
                     </div>
                   )}
-                  {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
-                    <div className="block pr-3">
-                      <div className="whitespace-nowrap font-semibold text-[14px]">
-                        {labels.dateOfBooking || "Date of Booking"}
-                      </div>
-                      <div className="text-[16px] font-semibold text-[#384455]">
-                        {formatDate(dateBooked, true) || formatDate(createdAt, true)}
-                      </div>
-                    </div>
-                  )}
                   {(comesFrom === "freeTrial") && (
                     <div className="block pr-3">
                       <div className="whitespace-nowrap font-semibold text-[14px]">
@@ -175,6 +172,17 @@ const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
                       </div>
                     </div>
                   )}
+                  {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                    <div className="block pr-3">
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.dateOfBooking || "Date of Booking"}
+                      </div>
+                <div className="text-[16px] font-semibold text-[#384455]">
+  {dateBooked ? formatDate(dateBooked, true) : createdAt ? formatDate(createdAt, true) : "—"}
+</div>
+                    </div>
+                  )}
+                  
 
                   {(comesFrom === "cancellation" || comesFrom === "membership") && (
                     <div className="block pr-3">

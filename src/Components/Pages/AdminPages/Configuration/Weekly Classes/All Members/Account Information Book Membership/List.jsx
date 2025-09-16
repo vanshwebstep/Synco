@@ -83,6 +83,7 @@ console.log('error',error)
             ))}
           </div>
         </div>
+           {activeTab === "Service History" && (
         <div className=" flex items-start  gap-2 md:gap-3">
           <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
@@ -124,6 +125,7 @@ console.log('error',error)
             Add booking
           </button>
         </div>
+           )}
       </div >
       {activeTab === "Service History" && (
           <ServiceHistory
@@ -136,7 +138,7 @@ console.log('error',error)
             bookingId: "KGoCardless ID",
             price: "Monthly Price",
             coach:"Coach",
-            dateOfBooking: "Date of  Booking ",
+            dateOfBooking: "Date of Booking ",
             progress: "Progress",
             bookingSource: "Booking Source",
             buttons: ["See details", "Attendance"],

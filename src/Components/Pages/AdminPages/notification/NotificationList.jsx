@@ -253,7 +253,7 @@ const recipientOptions = [
                                                     {item.recipients?.slice(0, 4).map((recipient, i) => (
                                                         <img
                                                             key={i}
-                                                            src={recipient?.profileImage || "/demo/synco/SidebarLogos/OneTOOne.png"}
+                                                            src={recipient?.profileImage || "/demo/synco/members/dummyuser.png"}
                                                             alt={recipient?.recipientEmail}
                                                             title={recipient?.recipientEmail}
                                                             className="w-8 h-8 rounded-full border-2 border-white object-cover"

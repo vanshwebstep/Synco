@@ -35,7 +35,6 @@ export default function List() {
 
   useEffect(() => {
     fetchNotification();
-    fetchMarkAsRead();
   }, [fetchNotification]);
   console.log('allNotifications', allNotifications)
   function formatDateTime(dateStr) {
@@ -75,7 +74,7 @@ export default function List() {
                 alt={item.name || "avatar"}
                 onError={(e) => {
                   e.currentTarget.onerror = null; // prevent infinite loop
-                  e.currentTarget.src = '/demo/synco/SidebarLogos/OneTOOne.png';
+                  e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                 }}
                 className="w-12 h-12 rounded-full object-cover"
               />

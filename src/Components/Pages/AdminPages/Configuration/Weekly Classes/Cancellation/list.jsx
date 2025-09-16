@@ -100,14 +100,20 @@ const CancellationList = () => {
 
     useEffect(() => {
         const venueName = selectedVenue?.label || "";
-
+        console.log('venueName', venueName)
         if (active === "request") {
             fetchRequestToCancellations("", venueName);
+            console.log('1')
         } else if (active === "full") {
             fetchFullCancellations("", venueName);
+            console.log('2')
+
         } else if (active === "all") {
+
+            console.log('3')
             fetchAllCancellations("", venueName);
         } else {
+            console.log('4')
             // fallback
             fetchFullCancellations();
         }
@@ -305,7 +311,7 @@ const CancellationList = () => {
         const s = status.toLowerCase();
         let styles =
             "bg-red-100 text-red-500"; // default fallback
-        if (s === "attend" || s === "active")
+        if (s === "attended" || s === "active")
             styles = "bg-green-100 text-green-600";
         else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
         else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
@@ -556,56 +562,58 @@ const CancellationList = () => {
         if (active === "all") return allCancellationTable;
         return fullCancellationTable; // fallback
     }, [active]);
-    if (loading) return <Loader />;
+
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
 
             <div className="md:flex w-full gap-4">
                 <div className="flex-1 transition-all duration-300">
-              <div className="flex flex-col md:flex-row py-6 pb-10 gap-4">
-  {buttons.map((btn) => (
-    <button
-      key={btn.key}
-      onClick={() => {
-        setActive(btn.key);
-        setSelectedStudents([]);
-      }}
-      className={`w-full md:w-auto flex gap-2 items-center px-3 py-2 rounded-xl text-sm sm:text-[16px] transition ${
-        active === btn.key
-          ? "bg-[#237FEA] text-white" // active
-          : "text-gray-700 font-semibold border border-gray-300" // inactive
-      }`}
-    >
-      {btn.label}
-    </button>
-  ))}
-</div>
-
-
-                    <StatsGrid stats={stats} variant="A" />
-                    <div className="flex justify-end ">
-                        <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
-                            <img onClick={() => navigate("/configuration/weekly-classes/find-a-class")}
-                                src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
-                        </div>
+                    <div className="flex flex-col md:flex-row py-6 pb-10 gap-4">
+                        {buttons.map((btn) => (
+                            <button
+                                key={btn.key}
+                                onClick={() => {
+                                    setActive(btn.key);
+                                    setSelectedStudents([]);
+                                }}
+                                className={`w-full md:w-auto flex gap-2 items-center px-3 py-2 rounded-xl text-sm sm:text-[16px] transition ${active === btn.key
+                                        ? "bg-[#237FEA] text-white" // active
+                                        : "text-gray-700 font-semibold border border-gray-300" // inactive
+                                    }`}
+                            >
+                                {btn.label}
+                            </button>
+                        ))}
                     </div>
-                    <DynamicTable
-                        columns={currentColumns}
-                        data={bookFreeTrials}
-                        selectedIds={selectedStudents}
-                        setSelectedStudents={setSelectedStudents}
-                        from={'cancellation'}
-                        onRowClick={
-                            canServicehistory
-                                ? (item) =>
-                                    navigate(
-                                        "/configuration/weekly-classes/cancellation/account-info/list",
-                                        { state: { itemId: item.id || item.bookingId } }
-                                    )
-                                : undefined
-                        }
-                    />
-
+                    {loading ? (
+                        <Loader />
+                    ) : (
+                        <>
+                            <StatsGrid stats={stats} variant="A" />
+                            <div className="flex justify-end ">
+                                <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
+                                    <img onClick={() => navigate("/configuration/weekly-classes/find-a-class")}
+                                        src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
+                                </div>
+                            </div>
+                            <DynamicTable
+                                columns={currentColumns}
+                                data={bookFreeTrials}
+                                selectedIds={selectedStudents}
+                                setSelectedStudents={setSelectedStudents}
+                                from={'cancellation'}
+                                onRowClick={
+                                    canServicehistory
+                                        ? (item) =>
+                                            navigate(
+                                                "/configuration/weekly-classes/cancellation/account-info/list",
+                                                { state: { itemId: item.id || item.bookingId } }
+                                            )
+                                        : undefined
+                                }
+                            />
+                        </>
+                    )}
 
                 </div>
 

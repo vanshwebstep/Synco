@@ -105,7 +105,7 @@ const PaymentPlanManagerList = () => {
   const canEdit = checkPermission({ module: 'payment-group', action: 'update' });
   const canDelete = checkPermission({ module: 'payment-group', action: 'delete' });
   return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 md:p-6 bg-gray-50 ">
 
       {previewShowModal && (
         <>
@@ -223,79 +223,112 @@ const PaymentPlanManagerList = () => {
           <div className="flex flex-col md:flex-row gap-6">
             <div className={`transition-all duration-300 w-full ${openForm ? 'md:w-3/4' : 'md:w-[55%]'}`}>
               <div className="overflow-x-auto w-full rounded-2xl border border-gray-200">
-                <table className="hidden md:table w-full bg-white text-sm">
-                  <thead className="bg-[#F5F5F5] text-left">
-                    <tr className='font-semibold'>
-                      <th className="p-4 text-[14px] text-[#717073]">Name</th>
-                      <th className="p-4 text-[#717073] text-center">No. of Plans</th>
-                      <th className="p-4 text-[#717073]">Date Created</th>
-                      <th className="p-4 text-[#717073] text-center">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {groups.map((user, idx) => (
-                      <tr key={idx} className="border-t font-semibold text-[#282829] border-gray-200 hover:bg-gray-50">
-                        <td className="p-4">
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => {
-                                const updated = checkedIds.includes(user.id)
-                                  ? checkedIds.filter((id) => id !== user.id)
-                                  : [...checkedIds, user.id];
-                                setCheckedIds(updated);
-                              }}
-                              className={`w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-500 transition-colors focus:outline-none`}
-                            >
-                              {checkedIds.includes(user.id) && <Check size={16} strokeWidth={3} className="text-gray-500" />}
-                            </button>
-                            <span>{user.name}</span>
-                          </div>
-                        </td>
-                        <td className="p-4 text-center">{user.paymentPlans?.length || '0'}</td>
-                        <td className="p-4">
-                          {new Date(user.createdAt).toLocaleDateString("en-GB", {
-                            weekday: "short",
-                            day: "numeric",
-                            month: "short",
-                          })}
-                        </td>
-                        <td className="p-4">
-                          <div className="flex gap-4 items-center justify-center">
-                            <button
-                              onClick={() => handleShow(user.id)}
-                              disabled={!user.paymentPlans?.length}
-                              className={`group ${!user.paymentPlans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
-                            >
-                              <img
-                                src="/demo/synco/icons/Show.png"
-                                alt="Show"
-                                className="w-5 h-4 transition-transform duration-200 group-hover:scale-110"
-                              />
-                            </button>
-                            {canEdit &&
-                              <button onClick={() => handleEdit(user.id)} className="group">
-                                <img
-                                  src="/demo/synco/icons/edit.png"
-                                  alt="Edit"
-                                  className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
-                                />
-                              </button>
-                            }
-                            {canDelete &&
-                              <button onClick={() => handleDelete(user.id)} className="group flex items-center text-red-600 hover:underline">
-                                <img
-                                  src="/demo/synco/icons/deleteIcon.png"
-                                  alt="Delete"
-                                  className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
-                                />
-                              </button>
-                              }
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <table className="hidden md:table w-full bg-white text-sm">
+  <thead className="bg-[#F5F5F5] text-left">
+    <tr className="font-semibold">
+      <th className="p-4 text-[14px] text-[#717073]">Name</th>
+      <th className="p-4 text-[#717073] text-center">No. of Plans</th>
+      <th className="p-4 text-[#717073]">Date Created</th>
+      <th className="p-4 text-[#717073] text-center">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {groups.length === 0 ? (
+      <tr>
+        <td
+          colSpan={4}
+          className="p-6 text-center text-[#717073] font-medium"
+        >
+          No data available
+        </td>
+      </tr>
+    ) : (
+      groups.map((user, idx) => (
+        <tr
+          key={idx}
+          className="border-t font-semibold text-[#282829] border-gray-200 hover:bg-gray-50"
+        >
+          <td className="p-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  const updated = checkedIds.includes(user.id)
+                    ? checkedIds.filter((id) => id !== user.id)
+                    : [...checkedIds, user.id];
+                  setCheckedIds(updated);
+                }}
+                className={`w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-500 transition-colors focus:outline-none`}
+              >
+                {checkedIds.includes(user.id) && (
+                  <Check
+                    size={16}
+                    strokeWidth={3}
+                    className="text-gray-500"
+                  />
+                )}
+              </button>
+              <span>{user.name}</span>
+            </div>
+          </td>
+          <td className="p-4 text-center">
+            {user.paymentPlans?.length || "0"}
+          </td>
+          <td className="p-4">
+            {new Date(user.createdAt).toLocaleDateString("en-GB", {
+              weekday: "short",
+              day: "numeric",
+              month: "short",
+            })}
+          </td>
+          <td className="p-4">
+            <div className="flex gap-4 items-center justify-center">
+              <button
+                onClick={() => handleShow(user.id)}
+                disabled={!user.paymentPlans?.length}
+                className={`group ${
+                  !user.paymentPlans?.length
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+              >
+                <img
+                  src="/demo/synco/icons/Show.png"
+                  alt="Show"
+                  className="w-5 h-4 transition-transform duration-200 group-hover:scale-110"
+                />
+              </button>
+              {canEdit && (
+                <button
+                  onClick={() => handleEdit(user.id)}
+                  className="group"
+                >
+                  <img
+                    src="/demo/synco/icons/edit.png"
+                    alt="Edit"
+                    className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
+                  />
+                </button>
+              )}
+              {canDelete && (
+                <button
+                  onClick={() => handleDelete(user.id)}
+                  className="group flex items-center text-red-600 hover:underline"
+                >
+                  <img
+                    src="/demo/synco/icons/deleteIcon.png"
+                    alt="Delete"
+                    className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
+                  />
+                </button>
+              )}
+            </div>
+          </td>
+        </tr>
+      ))
+    )}
+  </tbody>
+</table>
+
 
                 {/* Mobile Version */}
                 <div className="md:hidden space-y-4">

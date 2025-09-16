@@ -242,7 +242,7 @@ const applyFilter = () => {
   }
   return (
     <>
-      {(MyRole === 'Super Admin' || MyRole === 'franchisee' || MyRole === 'Admin') ? (
+      {(MyRole === 'Super Admin' || MyRole === 'Franchise' || MyRole === 'Admin') ? (
         <div className="bg-gray-100 min-h-screen p-4 sm:p-6 font-sans">
           <div className="flex flex-col lg:flex-row mt-6 gap-6">
             {/* Main Content */}

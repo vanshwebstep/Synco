@@ -33,7 +33,7 @@ const WaitingList = () => {
         const s = status.toLowerCase();
         let styles =
             "bg-red-100 text-red-500"; // default fallback
-        if (s === "attend" || s === "active")
+        if (s === "attended" || s === "active")
             styles = "bg-green-100 text-green-600";
         else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
         else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
@@ -64,7 +64,7 @@ const WaitingList = () => {
                             ? item.bookedByAdmin.lastName
                             : ""
                         }`.trim(),
-                    "Days Waiting": item.waitingDays || "From Akshay pending",
+                    "Days Waiting": item.waitingDays || "undefined",
                     "Interest level": item.interest || "-",
                     Status: item.status || "-",
                 });
@@ -345,11 +345,29 @@ const WaitingList = () => {
         { header: "Name", key: "name", selectable: true }, // ✅ checkbox + student name
         { header: "Age", render: (item, student) => student.age },
         { header: "Venue", render: (item) => item.venue?.name || "-" },
+     
         {
-            header: "Date Added",
-            render: (item) =>
-                new Date(item.createdAt || item.createdAt).toLocaleDateString(),
-        },
+  header: "Date Added",
+  render: (item) => {
+    const date = new Date(item.updatedAt);
+
+    const day = date.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+        ? "rd"
+        : "th";
+
+    const weekday = date.toLocaleDateString("en-GB", { weekday: "short" }); // Sat
+    const month = date.toLocaleDateString("en-GB", { month: "short" });     // Sep
+    const year = date.getFullYear();                                        // 2025
+
+    return `${weekday} ${day}${suffix} ${month} ${year}`;
+  },
+},
         {
             header: "Added By",
             render: (item) =>
@@ -371,7 +389,7 @@ const WaitingList = () => {
             header: "Status",
             render: (item) => (
                 <div
-                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === "attend" ||
+                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === "attended" ||
                             item.status.toLowerCase() === "active"
                             ? "bg-green-100 text-green-600"
                             : item.status.toLowerCase() === "pending"

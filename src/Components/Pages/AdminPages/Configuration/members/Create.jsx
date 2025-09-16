@@ -24,7 +24,7 @@ const Create = () => {
   const [photoPreview, setPhotoPreview] = useState(null);
   const [formData, setFormData] = useState({
     firstName: '',
-  lastName: '',
+    lastName: '',
     position: "",
     phoneNumber: "",
     email: "",
@@ -39,25 +39,25 @@ const Create = () => {
     if (token) fetchRoles();
   }, [token]);
 
-const handleInputChange = (e) => {
-  const { name, value } = e.target;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
 
-  if (name === 'phoneNumber') {
-    setFormData(prev => ({ ...prev, [name]: value.replace(/\D/g, '') }));
-  } else if (name === 'fullName') {
-    setFormData(prev => ({ ...prev, fullName: value }));
-  } else {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  }
-};
+    if (name === 'phoneNumber') {
+      setFormData(prev => ({ ...prev, [name]: value.replace(/\D/g, '') }));
+    } else if (name === 'fullName') {
+      setFormData(prev => ({ ...prev, fullName: value }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
 
-// On form submit or blur, split fullName
-const handleFullNameSplit = () => {
-  const parts = formData.fullName.trim().split(' ');
-  const lastName = parts.length > 1 ? parts.pop() : '';
-  const firstName = parts.join(' ');
-  setFormData(prev => ({ ...prev, firstName, lastName }));
-};
+  // On form submit or blur, split fullName
+  const handleFullNameSplit = () => {
+    const parts = formData.fullName.trim().split(' ');
+    const lastName = parts.length > 1 ? parts.pop() : '';
+    const firstName = parts.join(' ');
+    setFormData(prev => ({ ...prev, firstName, lastName }));
+  };
 
 
 
@@ -70,23 +70,7 @@ const handleFullNameSplit = () => {
       setPhotoPreview(URL.createObjectURL(file));
     }
   };
-  const validate = () => {
-    const newErrors = {};
-    const password = formData.password;
 
-    if (!password) {
-      newErrors.password = 'Password is required.';
-    } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters.';
-    } else if (!/[A-Z]/.test(password)) {
-      newErrors.password = 'Password must contain at least one uppercase letter.';
-    } else if (!/\d/.test(password)) {
-      newErrors.password = 'Password must contain at least one number.';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleRoleChange = (selected) => {
     if (selected?.isCreate) {
@@ -98,7 +82,24 @@ const handleFullNameSplit = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    console.log("❌ Missing fisselds:", formData);
+    // Email validation
+    if (!formData.email || !emailRegex.test(formData.email)) {
+      console.log("❌ Missing fields:", formData);
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Email",
+        text: "Please enter a valid email address.",
+      });
+      return;
+    }
+    console.log("❌ Misdss:", formData);
+
     if (validate()) {
+      console.log("❌ Misdsdsdsss:", formData);
+
       if (
         !formData.firstName ||
         !formData.position ||
@@ -107,6 +108,8 @@ const handleFullNameSplit = () => {
         !formData.password ||
         !formData.role?.value
       ) {
+        console.log("❌ Missing fields:", formData);
+
         Swal.fire({
           icon: "warning",
           title: "Missing Information",
@@ -117,9 +120,10 @@ const handleFullNameSplit = () => {
 
       const data = new FormData();
       data.append("firstName", formData.firstName);
- if (formData.lastName) {
-  data.append("lastName", formData.lastName);
-}
+
+      if (formData.lastName) {
+        data.append("lastName", formData.lastName);
+      }
 
       data.append("position", formData.position);
       data.append("phoneNumber", formData.phoneNumber);
@@ -158,24 +162,28 @@ const handleFullNameSplit = () => {
           });
           return;
         }
+
         let additionalMessage = "";
-        if (result.data.emailSent === 1) {
-          additionalMessage = " A reset password link has been sent to your registered email address.";
+        if (result.data?.emailSent === 1) {
+          additionalMessage =
+            " A reset password link has been sent to your registered email address.";
         }
 
         Swal.fire({
           icon: "success",
           title: result.message || "Member Created",
-          text: (result.message || "New member was added successfully!") + additionalMessage,
+          text:
+            (result.message || "New member was added successfully!") +
+            additionalMessage,
           timer: 10000,
           showConfirmButton: false,
         });
 
-
         fetchMembers();
 
         setFormData({
-          name: "",
+          firstName: "",
+          lastName: "",
           position: "",
           phoneNumber: "",
           email: "",
@@ -184,26 +192,45 @@ const handleFullNameSplit = () => {
           photo: null,
         });
         setPhotoPreview(null);
-
       } catch (error) {
         console.error("Error creating member:", error);
         Swal.fire({
           icon: "error",
           title: "Network Error",
-          text: error.message || "An error occurred while submitting the form.",
+          text:
+            error.message || "An error occurred while submitting the form.",
         });
       }
     }
   };
 
+  const validate = () => {
+    const newErrors = {};
+    const password = formData.password;
+
+    if (!password) {
+      newErrors.password = "Password is required.";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters.";
+    } else if (!/[A-Z]/.test(password)) {
+      newErrors.password = "Password must contain at least one uppercase letter.";
+    } else if (!/\d/.test(password)) {
+      newErrors.password = "Password must contain at least one number.";
+    }
+    console.log('newErrors', newErrors)
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+
   const handleRoleCreateModal = (inputValue) => {
     setRoleName(inputValue);
     setPermissions([]);
     setShowRoleModal(true);
-  };const customComponents = {
-  DropdownIndicator: () => null,
-  IndicatorSeparator: () => null,
-};
+  }; const customComponents = {
+    DropdownIndicator: () => null,
+    IndicatorSeparator: () => null,
+  };
 
   return (
 
@@ -219,14 +246,14 @@ const handleFullNameSplit = () => {
 
           <div>
             <label className="block text-sm font-semibold text-[#282829]">Full Name</label>
-    <input
-  type="text"
-  name="fullName"
-  value={formData.fullName}
-  onChange={handleInputChange}
-  onBlur={handleFullNameSplit} // split when user leaves the field
-  className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-/>
+            <input
+              type="text"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleInputChange}
+              onBlur={handleFullNameSplit} // split when user leaves the field
+              className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
 
 
           </div>
@@ -237,12 +264,12 @@ const handleFullNameSplit = () => {
             <input
               type="text"
               name="position"
-                 onKeyPress={(e) => {
-                    // Prevent numbers from being entered
-                    if (/\d/.test(e.key)) {
-                      e.preventDefault();
-                    }
-                  }}
+              onKeyPress={(e) => {
+                // Prevent numbers from being entered
+                if (/\d/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
               value={formData.position}
               onChange={handleInputChange}
               className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -268,7 +295,7 @@ const handleFullNameSplit = () => {
           <div>
             <label className="block text-sm font-semibold text-[#282829]">Email</label>
             <input
-              type="email"
+              type="text"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
@@ -278,27 +305,27 @@ const handleFullNameSplit = () => {
 
           <div>
             <label className="block text-sm font-semibold text-[#282829] mb-1">Role</label>
-           <CreatableSelect
-  options={roleOptions}
-  value={formData.role}
-  onChange={handleRoleChange}
-  onCreateOption={handleRoleCreateModal}
-  formatCreateLabel={(inputValue) => (
-    <span className="text-blue-600">
-      Create role: <strong>{inputValue}</strong>
-    </span>
-  )}
-  isValidNewOption={(inputValue) => {
-    const hasPermission = checkPermission({
-      module: "admin-role",
-      action: "create",
-    });
-    return hasPermission && inputValue.trim() !== "";
-  }}
-  placeholder=""
-  classNamePrefix="react-select"
-  components={customComponents} // 👈 apply custom components
-/>
+            <CreatableSelect
+              options={roleOptions}
+              value={formData.role}
+              onChange={handleRoleChange}
+              onCreateOption={handleRoleCreateModal}
+              formatCreateLabel={(inputValue) => (
+                <span className="text-blue-600">
+                  Create role: <strong>{inputValue}</strong>
+                </span>
+              )}
+              isValidNewOption={(inputValue) => {
+                const hasPermission = checkPermission({
+                  module: "admin-role",
+                  action: "create",
+                });
+                return hasPermission && inputValue.trim() !== "";
+              }}
+              placeholder=""
+              classNamePrefix="react-select"
+              components={customComponents} // 👈 apply custom components
+            />
 
           </div>
           <div className="relative">
@@ -330,10 +357,10 @@ const handleFullNameSplit = () => {
             <label className="block text-sm font-semibold text-[#282829] mb-1">Profile Picture</label>
             <div className="w-full rounded-lg bg-[#F5F5F5] h-32 flex items-center flex-col gap-3 justify-center cursor-pointer relative overflow-hidden">
               {photoPreview ? (
-                <img src={photoPreview} alt="Uploaded" className="h-full object-cover"           onError={(e) => {
-                      e.currentTarget.onerror = null; // prevent infinite loop
-                      e.currentTarget.src = '/demo/synco/SidebarLogos/OneTOOne.png';
-                    }}/>
+                <img src={photoPreview} alt="Uploaded" className="h-full object-cover" onError={(e) => {
+                  e.currentTarget.onerror = null; // prevent infinite loop
+                  e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                }} />
               ) : (
                 <>
                   <img src="/demo/synco/members/addblack.png" className="w-4 block" alt="" />

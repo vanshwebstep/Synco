@@ -19,17 +19,7 @@ const Update = () => {
   const [error, setError] = useState("");
   const MyRole = localStorage.getItem("role");
   const { checkPermission } = usePermission();
-
-  const [editPersonal, setEditPersonal] = useState(false);
-  const [editAddress, setEditAddress] = useState(false);
-  const [fileuploaded, setFileuploaded] = useState(false);
-
-  const [loading, setLoading] = useState(false);
-  const [country, setCountry] = useState([]);
-  const [photoPreview, setPhotoPreview] = useState(null);
-  const [isImageremove, setIsImageremove] = useState(false);
-
-  const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
@@ -44,9 +34,20 @@ const Update = () => {
     profile: null,
     countryId: "",
   });
+  const [editAddress, setEditAddress] = useState(false);
+  const [fileuploaded, setFileuploaded] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [country, setCountry] = useState([]);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [isImageremove, setIsImageremove] = useState(false);
+
+
+  const [originalData, setOriginalData] = useState(formData); 
+  const [editPersonal, setEditPersonal] = useState(false);
   console.log('formData', formData)
   const [isImageValid, setIsImageValid] = useState(false);
-  const FALLBACK = "/demo/synco/SidebarLogos/OneTOOne.png";
+  const FALLBACK = "/demo/synco/members/dummyuser.png";
   const {
     roleOptions,
     fetchRoles,
@@ -166,7 +167,9 @@ const Update = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  setOriginalData(formData); // update backup on save
+  setEditPersonal(false);
+  setEditAddress(false);
     const requiredFields = ["firstName", "lastName", "email", "city", "postalCode"];
     const missing = requiredFields.filter((f) => !formData[f]);
 
@@ -307,7 +310,24 @@ const Update = () => {
       console.error("Delete error:", error);
     }
   };
-
+  const handleTogglePersonal = () => {
+  if (!editPersonal) {
+    setOriginalData(formData); // backup
+    setEditPersonal(true);
+  } else {
+    setFormData(originalData); // restore
+    setEditPersonal(false);
+  }
+};
+const handleToggleAddress = () => {
+  if (!editAddress) {
+    setOriginalData(formData); // backup
+    setEditAddress(true);
+  } else {
+    setFormData(originalData); // restore
+    setEditAddress(false);
+  }
+};
   const handleSuspend = async (status) => {
     const isSuspending = status === 1; // 1 = suspend, 0 = activate
     const statusText = isSuspending ? 'suspend' : 'active';
@@ -486,7 +506,7 @@ const Update = () => {
             </div>
           </div>
           <button type="button" className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
-            onClick={() => setEditPersonal(!editPersonal)}
+  onClick={handleTogglePersonal}
           >
             {editPersonal ? "Cancel" : "Edit Profile"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
           </button>
@@ -496,7 +516,7 @@ const Update = () => {
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-[24px]">Personal Information</h3>
             <button type="button" className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
-              onClick={() => setEditPersonal(!editPersonal)}
+  onClick={handleTogglePersonal}
             >
               {editPersonal ? "Cancel" : "Edit"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
             </button>
@@ -547,12 +567,17 @@ const Update = () => {
                       name={name}
                       value={formData[name] || ""}
                       onChange={(e) => {
+                        let value = e.target.value;
+
                         if (numeric) {
-                          const onlyNums = e.target.value.replace(/\D/g, "");
-                          setFormData((prev) => ({ ...prev, [name]: onlyNums }));
-                        } else {
-                          handleChange(e);
+                          // Only allow digits
+                          value = value.replace(/\D/g, "");
+                        } else if (preventNumbers) {
+                          // Remove any digits (also handles paste)
+                          value = value.replace(/\d/g, "");
                         }
+
+                        setFormData((prev) => ({ ...prev, [name]: value }));
                       }}
                       onKeyPress={(e) => {
                         if (preventNumbers && /\d/.test(e.key)) e.preventDefault();
@@ -563,6 +588,7 @@ const Update = () => {
                       pattern={numeric ? "[0-9]*" : undefined}
                       className="w-full mt-2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+
                   </div>
                 ))}
               </>
@@ -604,9 +630,10 @@ const Update = () => {
             <button
               type="button"
               className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full hover:bg-blue-50"
-              onClick={() => setEditAddress(!editAddress)}
+  onClick={handleToggleAddress}
             >
-              {editAddress ? "Cancel" : "Edit"}{" "}
+                {editAddress ? "Cancel" : "Edit"}
+
               <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
             </button>
           </div>
@@ -666,13 +693,25 @@ const Update = () => {
                       type={type || "text"}
                       value={formData[name] || ""}
                       required
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        let val = e.target.value;
+                        if (preventNumbers) {
+                          // Remove everything except letters and spaces
+                          val = val.replace(/[^a-zA-Z\s]/g, "");
+                        }
+                        handleChange({
+                          target: { name, value: val }
+                        });
+                      }}
                       onKeyPress={(e) => {
-                        if (preventNumbers && /\d/.test(e.key)) e.preventDefault();
+                        if (preventNumbers && /[^a-zA-Z\s]/.test(e.key)) {
+                          e.preventDefault(); // prevent typing numbers/special chars
+                        }
                       }}
                       placeholder={placeholder}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+
                   </div>
                 ))}
               </>

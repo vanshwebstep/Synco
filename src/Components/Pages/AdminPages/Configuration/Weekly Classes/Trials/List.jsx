@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 import { saveAs } from "file-saver";
 import StatsGrid from '../../../Common/StatsGrid';
 import DynamicTable from '../../../Common/DynamicTable';
+import { useBookFreeTrialLoader } from '../../../contexts/BookAFreeTrialLoaderContext';
 const trialLists = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [fromDate, setFromDate] = useState(null);
@@ -65,13 +66,16 @@ const trialLists = () => {
     });
     const getStatusBadge = (status) => {
         const s = status.toLowerCase();
+
         let styles =
             "bg-red-100 text-red-500"; // default fallback
-        if (s == "attend" || s == "active")
+        if (s == "attended" || s == "active")
             styles = "bg-green-100 text-green-600";
         else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
         else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
         else if (s === "waiting list") styles = "bg-gray-200 text-gray-700";
+        else if (s === "Rebooked") styles = "bg-blue-100 text-blue-600";
+
 
         return (
             <div
@@ -100,7 +104,7 @@ const trialLists = () => {
         });
     };
     // const [selectedDate, setSelectedDate] = useState(null);
-    const { fetchBookFreeTrials, statsFreeTrial, bookFreeTrials, setSearchTerm, bookedByAdmin, searchTerm, loading, selectedVenue, setStatus, status, setSelectedVenue, myVenues, setMyVenues, sendFreeTrialmail } = useBookFreeTrial() || {};
+    const { fetchBookFreeTrials, fetchBookFreeTrialsLoading, statsFreeTrial, bookFreeTrials, setSearchTerm, bookedByAdmin, searchTerm, loading, selectedVenue, setStatus, status, setSelectedVenue, myVenues, setMyVenues, sendFreeTrialmail } = useBookFreeTrial() || {};
 
 
 
@@ -113,9 +117,9 @@ const trialLists = () => {
         } else if (status) {
             fetchBookFreeTrials("", "", status); // Using label as venueName
         } else {
-            fetchBookFreeTrials(); // No filter
+            fetchBookFreeTrialsLoading(); // No filter
         }
-    }, [selectedVenue, fetchBookFreeTrials]);
+    }, [selectedVenue, fetchBookFreeTrials, fetchBookFreeTrialsLoading]);
 
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
@@ -320,13 +324,13 @@ const trialLists = () => {
     };
     console.log('statsFreeTrial', statsFreeTrial)
     const { checkPermission } = usePermission();
-const formatStatus = (status) => {
-  if (!status) return "-";
-  return status
-    .split("_")           // split by underscore
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
-    .join(" ");           // join with space
-};
+    const formatStatus = (status) => {
+        if (!status) return "-";
+        return status
+            .split("_")           // split by underscore
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
+            .join(" ");           // join with space
+    };
     const canServicehistory =
         checkPermission({ module: 'service-history', action: 'view-listing' })
     const freeTrialColumns = [
@@ -334,13 +338,49 @@ const formatStatus = (status) => {
         { header: "Age", render: (item, student) => student.age },
         { header: "Venue", render: (item) => item.venue?.name || "-" },
         {
-            header: "Date of Booking",
-            render: (item) => new Date(item.createdAt || item.trialDate).toLocaleDateString(),
-        },
-        {
-            header: "Date of Trial",
-            render: (item) => new Date(item.trialDate).toLocaleDateString(),
-        },
+  header: "Date of Booking",
+  render: (item) => {
+    const date = new Date(item.createdAt);
+
+    const day = date.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+        ? "rd"
+        : "th";
+
+    const weekday = date.toLocaleDateString("en-GB", { weekday: "short" }); // Sat
+    const month = date.toLocaleDateString("en-GB", { month: "short" });     // Sep
+    const year = date.getFullYear();                                        // 2025
+
+    return `${weekday} ${day}${suffix} ${month} ${year}`;
+  },
+},
+                {
+  header: "Date of Trial",
+  render: (item) => {
+    const date = new Date(item.trialDate);
+
+    const day = date.getDate();
+    const suffix =
+      day % 10 === 1 && day !== 11
+        ? "st"
+        : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+        ? "rd"
+        : "th";
+
+    const weekday = date.toLocaleDateString("en-GB", { weekday: "short" }); // Sat
+    const month = date.toLocaleDateString("en-GB", { month: "short" });     // Sep
+    const year = date.getFullYear();                                        // 2025
+
+    return `${weekday} ${day}${suffix} ${month} ${year}`;
+  },
+},
         {
             header: "Source",
             render: (item) => item.parents?.[0]?.howDidYouHear || "-",
@@ -353,14 +393,17 @@ const formatStatus = (status) => {
             header: "Status",
             render: (item) => (
                 <div
-                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === "attend"
+                    className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === "attended"
                             ? "bg-green-100 text-green-600"
                             : item.status.toLowerCase() === "pending"
                                 ? "bg-yellow-100 text-yellow-600"
-                                : "bg-red-100 text-red-500"
+                                : item.status.toLowerCase() === "rebooked"
+                                    ? "bg-blue-100 text-blue-600"
+                                    : "bg-red-100 text-red-500"
                         } capitalize`}
+
                 >
-                   {formatStatus(item.status)}
+                    {formatStatus(item.status)}
                 </div>
             ),
         },

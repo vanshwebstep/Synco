@@ -56,21 +56,22 @@ const AdminLayout = ({ children }) => {
   return (
     <div className="flex">
       <Sidebar isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
-      <div className="flex-1 w-full flex flex-col px-6 bg-gray-50 md:w-10/12">
+      <div className="flex-1 w-full flex flex-col px-6 bg-gray-50 md:w-10/12 fixerhe">
         <Header
           profileOpen={profileOpen}
           setProfileOpen={setProfileOpen}
           toggleMobileMenu={toggleMobileMenu}
           isMobileMenuOpen={isMobileMenuOpen}
         />
-
+<div className="overflow-y-auto scrollbar-hide">
   {!['/', '/configuration/holiday-camps/discounts/create'].includes(location.pathname) && (
           <HeaderBanner title={title} icon={Icon} />
         )}
 
-        <main className="flex-1 overflow-y-auto py-4">
+        <main className="flex-1  py-4">
           {children}
         </main>
+        </div>
       </div>
     </div>
   );

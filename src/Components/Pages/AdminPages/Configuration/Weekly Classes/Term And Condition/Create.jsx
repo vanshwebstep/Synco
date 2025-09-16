@@ -263,53 +263,61 @@ const Create = () => {
             )
         );
     };
+    console.log('myGroupData',myGroupData)
     const deleteTerm = useCallback(async (id) => {
-        if (!token) return;
+    if (!token) return;
 
-        const willDelete = await Swal.fire({
-            title: "Are you sure?",
-            text: "This action will permanently delete the term.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "Cancel",
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
+    const willDelete = await Swal.fire({
+        title: "Are you sure?",
+        text: "This action will permanently delete the term.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+    });
+
+    if (!willDelete.isConfirmed) return;
+
+    // Check if term is saved (has real backend ID)
+    const isSaved = savedTermIds.has(id);
+
+    if (!isSaved) {
+        // Just remove it locally
+        setTerms(prev => prev.filter(term => term.id !== id));
+        setSessionMappings([]);
+        Swal.fire("Deleted!", "The unsaved term was removed.", "success");
+        return;
+    }
+
+    // Otherwise delete from backend
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!willDelete.isConfirmed) return;
+        if (response.ok) {
+            Swal.fire("Deleted!", "The term was deleted successfully.", "success");
 
-        // Check if term is saved (has real backend ID)
-        const isSaved = savedTermIds.has(id);
-
-        if (!isSaved) {
-            // Just remove it locally
-            setTerms(prev => prev.filter(term => term.id !== id));
-            // Optionally, clear sessionMappings if it was the open one
-            setSessionMappings([]);
-            Swal.fire("Deleted!", "The unsaved term was removed.", "success");
-            return;
-        }
-
-        // Otherwise delete from backend
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (response.ok) {
-                Swal.fire("Deleted!", "The term was deleted successfully.", "success");
-                fetchTerm();
+            if (myGroupData) {
+                fetchTermGroupById(myGroupData.id);
             } else {
-                const errorData = await response.json();
-                Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
+                navigate('/configuration/weekly-classes/term-dates/list');
             }
-        } catch (err) {
-            console.error("Failed to delete term:", err);
-            Swal.fire("Error", "Something went wrong. Please try again.", "error");
+
+            fetchTerm();
+        } else {
+            const errorData = await response.json();
+            Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
         }
-    }, [token, savedTermIds, fetchTerm]);
+    } catch (err) {
+        console.error("Failed to delete term:", err);
+        Swal.fire("Error", "Something went wrong. Please try again.", "error");
+    }
+}, [token, savedTermIds, fetchTerm, myGroupData, fetchTermGroupById, navigate]);
+
 
     const removeExclusionDate = (termId, indexToRemove) => {
         setTerms((prev) =>
@@ -547,7 +555,9 @@ const Create = () => {
             });
             return;
         }
-
+  setIsEditMode(false);
+    setSavedTermIds(null);
+    setMyGroupData(null)
         // Success - navigate away or show success message
         Swal.fire({
             icon: 'success',
@@ -573,9 +583,12 @@ const Create = () => {
         <div className="md:p-6 bg-gray-50 min-h-screen">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
                 <h2
-                    onClick={() => {
-                        navigate('/configuration/weekly-classes/term-dates/list');
-                    }}
+               onClick={() => {
+    navigate('/configuration/weekly-classes/term-dates/list');
+    setIsEditMode(false);
+    // setSavedTermIds(null);
+    setMyGroupData(null)
+  }}
                     className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
                     <img
                         src="/demo/synco/icons/arrow-left.png"
@@ -587,7 +600,7 @@ const Create = () => {
             </div>
             <div className="flex flex-col gap-8 md:flex-row rounded-3xl w-full">
                 <div className="transition-all duration-300 md:w-1/2">
-                    <h3 className="font-semibold   text-[24px]"> <b>Step 1: </b>Add term Dates </h3>
+                    <h3 className="font-semibold  mb-4 text-[24px]"> <b>Step 1: </b>Add term Dates </h3>
                     <div className="rounded-2xl mb-5 bg-white md:p-6">
                         <div className="border border-gray-200 rounded-3xl px-4 py-3">
                             <div className="flex items-center justify-between">
@@ -680,7 +693,7 @@ const Create = () => {
                                                     className="md:w-1/2 px-4 mb-5 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 />
 
-                                                <div className="md:flex gap-4 mb-5 justify-between">
+                                                <div className="md:flex gap-4 px-2 mb-5 justify-between">
                                                     <div className="w-full">
                                                         <label className="block text-base font-semibold text-gray-700 mb-2">
                                                             Start Date
@@ -721,7 +734,7 @@ const Create = () => {
                                                     </div>
                                                 </div>
 
-                                                <div className="md:flex gap-4 mb-5 justify-between">
+                                                <div className="md:flex gap-4 px-2 mb-5 justify-between">
                                                     <div className="w-full">
                                                         <label className="block text-base font-semibold text-gray-700 mb-2">
                                                             Exclusion Date(s)
