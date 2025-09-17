@@ -22,7 +22,7 @@ const List = () => {
     const [openDropdownSessionId, setOpenDropdownSessionId] = useState(null);
 
 
-
+    console.log('openDropdownSessionId', openDropdownSessionId)
     const { fetchClassSchedules, createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
     useEffect(() => {
         const fetchData = async () => {
@@ -106,6 +106,16 @@ const List = () => {
     const handleChange = (field, value) => {
         setFormData({ ...formData, [field]: value });
     };
+    const parseTimeToMinutes = (timeStr) => {
+        // timeStr example: "06:00 AM" or "01:15 PM"
+        const [time, modifier] = timeStr.split(" ");
+        let [hours, minutes] = time.split(":").map(Number);
+
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        if (modifier === "AM" && hours === 12) hours = 0;
+
+        return hours * 60 + minutes;
+    };
 
     const handleSave = () => {
         const payload = {
@@ -139,10 +149,19 @@ const List = () => {
             return;
         }
 
-        if (formData.startTime > formData.endTime) {
+        const startMinutes = parseTimeToMinutes(formData.startTime);
+        const endMinutes = parseTimeToMinutes(formData.endTime);
+
+        if (startMinutes === endMinutes) {
+            Swal.fire("Validation Error", "Start and End time cannot be the same", "error");
+            return;
+        }
+
+        if (startMinutes > endMinutes) {
             Swal.fire("Validation Error", "End time must be after start time", "error");
             return;
         }
+
 
         // --- Save ---
         createClassSchedules(payload);
@@ -379,8 +398,17 @@ const List = () => {
 
                                                                     <div className='flex mb-4 items-center gap-4 justify-start'>
                                                                         <div><img src="/demo/synco/icons/blackarrowup.png" className={`${openTerms[term.id] ? "" : "rotate-180"} transition-transform`} alt="" /></div>
-                                                                        <div> <p className="font-semibold text-[16px] ">{term.name}</p>
-                                                                            <p className="text-[14px] ">{term.date}</p>
+                                                                        <div> <p className="font-semibold text-[16px] ">{term.terms[0].termName}</p>
+                                                                            <p className="text-[14px]">
+                                                                                {term.terms[0].startDate
+                                                                                    ? new Date(term.terms[0].startDate).toLocaleDateString("en-US", {
+                                                                                        weekday: "short", // Sat, Sun, etc.
+                                                                                        month: "2-digit", // 09
+                                                                                        day: "2-digit",   // 07
+                                                                                    })
+                                                                                    : ""}
+                                                                            </p>
+
                                                                         </div>
                                                                     </div>
 
@@ -391,53 +419,82 @@ const List = () => {
                                                                     className={`transition-all duration-300 overflow-hidden ${openTerms[term.id] ? "max-h-[1000px]" : "max-h-0"
                                                                         }`}
                                                                 >
-                                                                    {term.terms.map((session) => {
-                                                                        const sessionMaps = session.sessionsMap || [];
-
-                                                                        const sessionState = sessionStates[session.id] || {};
+                                                                    {term.terms[0].sessionsMap.map((session) => {
+                                                                        const sessionMaps = session.sessionPlan || [];
+                                                                        console.log('session', session)
+                                                                        const sessionState = sessionStates[session.sessionPlanId] || {};
 
                                                                         const handleToggleDropdown = (sessionId) => {
-                                                                            setSessionStates((prev) => ({
-                                                                                ...prev,
-                                                                                [sessionId]: {
-                                                                                    ...prev[sessionId],
-                                                                                    selectedKey: '',
-                                                                                    selectedSessionMap: null,
-                                                                                },
-                                                                            }));
+                                                                            console.log('---handleToggleDropdown called---');
+                                                                            console.log('Previous sessionStates:', sessionStates);
+                                                                            console.log('Toggling sessionId:', sessionId);
 
-                                                                            setOpenDropdownSessionId((prevId) =>
-                                                                                prevId === sessionId ? null : sessionId
-                                                                            );
+                                                                            setSessionStates((prev) => {
+                                                                                const newState = {
+                                                                                    ...prev,
+                                                                                    [sessionId]: {
+                                                                                        ...prev[sessionId],
+                                                                                        selectedKey: '',
+                                                                                        selectedSessionMap: null,
+                                                                                    },
+                                                                                };
+                                                                                console.log('New sessionStates:', newState);
+                                                                                return newState;
+                                                                            });
+
+                                                                            setOpenDropdownSessionId((prevId) => {
+                                                                                const newId = prevId === sessionId ? null : sessionId;
+                                                                                console.log('Open dropdown sessionId changed:', newId);
+                                                                                return newId;
+                                                                            });
                                                                         };
-
-
+console.log('itemitem',item)
                                                                         const handleSessionMapChange = (value) => {
-                                                                            const [date, groupName] = value.split('|||');
-                                                                            const matched = sessionMaps.find(
-                                                                                (s) => s.sessionDate === date && s.sessionPlan.groupName === groupName
-                                                                            );
+                                                                            console.log('---handleSessionMapChange called---');
+                                                                            console.log('Value received:', value);
 
-                                                                            setSessionStates((prev) => ({
-                                                                                ...prev,
-                                                                                [session.id]: {
-                                                                                    ...prev[session.id],
-                                                                                    selectedKey: value,
-                                                                                    selectedSessionMap: matched,
-                                                                                },
-                                                                            }));
+                                                                            const [date, groupName] = value.split('|||');
+                                                                            console.log('Parsed date:', date, 'groupName:', groupName);
+
+                                                                            const { sessionDate, sessionPlan } = sessionMaps;
+
+                                                                            if (sessionDate === date && sessionPlan.groupName === groupName) {
+                                                                                const levels = sessionPlan.levels;
+                                                                                console.log(levels);
+                                                                            }
+                                                                            console.log('Matched sessionMap:', item);
+
+                                                                            setSessionStates((prev) => {
+                                                                                const newState = {
+                                                                                    ...prev,
+                                                                                    [session.id]: {
+                                                                                        ...prev[session.id],
+                                                                                        selectedKey: value,
+                                                                                        selectedSessionMap: matched,
+                                                                                    },
+                                                                                };
+                                                                                console.log('Updated sessionStates:', newState);
+                                                                                return newState;
+                                                                            });
                                                                         };
+                                                                        console.log('singleClassSchedules', singleClassSchedules)
+                                                                        // console.log('sessionPlan',sessionPlan)
 
                                                                         const handleNavigate = () => {
+                                                                            console.log('---handleNavigate called---');
+
                                                                             const selected = sessionStates[session.id]?.selectedSessionMap;
+                                                                            console.log('Selected sessionMap for navigation:', selected);
+
                                                                             if (selected) {
-                                                                                navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/pending', {
-                                                                                    state: {
-                                                                                        singleClassSchedules: singleClassSchedules,
-                                                                                        sessionMap: selected,
-                                                                                        sessionId: selected.sessionPlanId,
-                                                                                    },
+                                                                                console.log('Navigating with state:', {
+                                                                                    singleClassSchedules: singleClassSchedules,
+                                                                                    sessionMap: selected,
+                                                                                    sessionId: selected.sessionPlanId,
                                                                                 });
+
+                                                                            } else {
+                                                                                console.log('No sessionMap selected, navigation skipped');
                                                                             }
                                                                         };
 
@@ -448,15 +505,22 @@ const List = () => {
                                                                             >
                                                                                 {/* Title and Date */}
                                                                                 <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm w-full md:w-auto">
-                                                                                    <span className="text-[15px] font-semibold min-w-0 md:min-w-[200px]">{session.termName}</span>
-                                                                                    <span className="text-[15px] min-w-0 md:min-w-[200px] text-gray-600">{session.startDate}</span>
+                                                                                    <span className="text-[15px] font-semibold min-w-0 md:min-w-[200px]">{session.sessionPlan.groupName}</span>
+                                                                                    <span className="text-[15px] min-w-0 md:min-w-[200px] text-gray-600">
+                                                                                        {new Date(session.sessionDate).toLocaleDateString("en-US", {
+                                                                                            weekday: "long",   // full day name
+                                                                                            day: "2-digit",    // two-digit day
+                                                                                            month: "2-digit",  // two-digit month
+                                                                                            year: "numeric",   // full year
+                                                                                        })}
+                                                                                    </span>
                                                                                 </div>
 
                                                                                 {/* Status */}
                                                                                 <div className="flex items-center gap-2 text-sm mt-2 md:mt-0 w-full md:w-auto">
                                                                                     <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
                                                                                         <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="" />
-                                                                                        {session.status || "Completed"}
+                                                                                        {session.sessionPlanId || "Completed"}
                                                                                     </span>
                                                                                 </div>
 
@@ -467,66 +531,75 @@ const List = () => {
                                                                                     {/* Step 2: Show dropdown and view button */}
                                                                                     {sessionMaps && (
                                                                                         <button
-                                                                                            onClick={() => handleToggleDropdown(session.id)}
-                                                                                            className="px-6 py-3 bg-[#237FEA] text-white font-semibold rounded-xl shadow 
-                   hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
+                                                                                            onClick={() =>
+                                                                                                navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/pending', {
+                                                                                                    state: {
+                                                                                                        singleClassSchedules: singleClassSchedules,
+                                                                                                        sessionMap: session.sessionPlan,
+                                                                                                        sessionId: session.sessionPlanId,
+                                                                                                        venueId:venueId,
+                                                                                                        sessionDate:session.sessionDate,
+                                                                                                        classname:item,
+                                                                                                    },
+                                                                                                })
+                                                                                            }
+                                                                                            className="px-6 py-3 bg-[#237FEA] text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
                                                                                         >
                                                                                             View Session Plan
                                                                                         </button>
+
                                                                                     )}
 
                                                                                     {/* Animated Dropdown (Drawer style) */}
                                                                                     <AnimatePresence>
-                                                                                        {openDropdownSessionId === session.id && (
-                                                                                            <motion.div
-                                                                                                initial={{ opacity: 0, y: -10 }}
-                                                                                                animate={{ opacity: 1, y: 0 }}
-                                                                                                exit={{ opacity: 0, y: -10 }}
-                                                                                                transition={{ duration: 0.3 }}
-                                                                                                style={{
-                                                                                                    position: "absolute",
-                                                                                                    opacity: 1,
-                                                                                                    transform: "none",
-                                                                                                    maxWidth: "400px"
-                                                                                                }}
-                                                                                                className="absolute z-50 mt-2  w-full md:w-1/3 bg-white border border-gray-200 rounded-xl shadow-xl p-4 space-y-4"
-                                                                                            >
-                                                                                                {/* Dropdown */}
-                                                                                                <div>
-                                                                                                    <div className="flex mb-4 justify-between">
-                                                                                                        <label className="block text-sm font-medium text-gray-700 mb-1">Select {session.termName} Plan</label>
 
-                                                                                                        <button onClick={handleToggleDropdown}>X</button></div>
-                                                                                                    <select
-                                                                                                        value={sessionState.selectedKey || ''}
-                                                                                                        onChange={(e) => handleSessionMapChange(e.target.value)}
-                                                                                                        className="border p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                                                                                    >
-                                                                                                        <option value="">-- Select --</option>
-                                                                                                        {sessionMaps.map((s, i) => (
-                                                                                                            <option
-                                                                                                                key={i}
-                                                                                                                value={`${s.sessionDate}|||${s.sessionPlan?.groupName}`}
-                                                                                                            >
-                                                                                                                {s.sessionDate} - {s.sessionPlan?.groupName}
-                                                                                                            </option>
-                                                                                                        ))}
-                                                                                                    </select>
-                                                                                                </div>
+                                                                                        <motion.div
+                                                                                            initial={{ opacity: 0, y: -10 }}
+                                                                                            animate={{ opacity: 1, y: 0 }}
+                                                                                            exit={{ opacity: 0, y: -10 }}
+                                                                                            transition={{ duration: 0.3 }}
+                                                                                            style={{
+                                                                                                position: "absolute",
+                                                                                                opacity: 1,
+                                                                                                transform: "none",
+                                                                                                maxWidth: "400px"
+                                                                                            }}
+                                                                                            className="absolute z-50 mt-2  w-full md:w-1/3 bg-white border border-gray-200 rounded-xl shadow-xl p-4 space-y-4"
+                                                                                        >
+                                                                                            {/* Dropdown */}
+                                                                                            <div>
+                                                                                                <div className="flex mb-4 justify-between">
+                                                                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Select {session.termName} Plan</label>
 
-                                                                                                {/* View Button */}
-                                                                                                <button
-                                                                                                    onClick={handleNavigate}
-                                                                                                    disabled={!sessionState.selectedSessionMap}
-                                                                                                    className={`w-full px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${sessionState.selectedSessionMap
-                                                                                                        ? 'bg-[#237FEA] text-white hover:bg-white hover:text-[#237FEA] border border-[#237FEA]'
-                                                                                                        : 'bg-gray-300 text-white cursor-not-allowed'
-                                                                                                        }`}
+                                                                                                    <button onClick={handleToggleDropdown}>X</button></div>
+                                                                                                <select
+                                                                                                    value={sessionState.selectedKey || ''}
+                                                                                                    onChange={(e) => handleSessionMapChange(e.target.value)}
+                                                                                                    className="border p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
                                                                                                 >
-                                                                                                    View
-                                                                                                </button>
-                                                                                            </motion.div>
-                                                                                        )}
+                                                                                                    <option value="">-- Select --</option>
+                                                                                                    <option
+                                                                                                        value={`${sessionMaps.sessionDate}|||${sessionMaps.sessionPlan?.groupName}`}
+                                                                                                    >
+                                                                                                        {sessionMaps.sessionDate} - {sessionMaps.sessionPlan?.groupName}
+                                                                                                    </option>
+                                                                                                </select>
+
+                                                                                            </div>
+
+                                                                                            {/* View Button */}
+                                                                                            <button
+                                                                                                onClick={handleNavigate}
+                                                                                                disabled={!sessionState.selectedSessionMap}
+                                                                                                className={`w-full px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${sessionState.selectedSessionMap
+                                                                                                    ? 'bg-[#237FEA] text-white hover:bg-white hover:text-[#237FEA] border border-[#237FEA]'
+                                                                                                    : 'bg-gray-300 text-white cursor-not-allowed'
+                                                                                                    }`}
+                                                                                            >
+                                                                                                View
+                                                                                            </button>
+                                                                                        </motion.div>
+
                                                                                     </AnimatePresence>
 
                                                                                     <button
@@ -569,7 +642,7 @@ const List = () => {
                                                     </div>
                                                 </motion.div>
                                             )}
-                                        </AnimatePresence>
+                                        </AnimatePresence >
                                     </>
                                 ))}
                             </div>
@@ -583,147 +656,151 @@ const List = () => {
             </div>
 
 
-            {openForm && (
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    if (isEditing) {
-                        handleEdit(formData.id);
-                    } else {
-                        handleSave();
-                    }
-                }}>
-                    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-                        <div className="bg-white rounded-3xl w-[90%] md:w-[900px] p-6 relative shadow-xl">
-                            <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-[24px] font-semibold">
-                                    {isEditing ? 'Edit Class' : 'Add a Class'}
-                                </h2>
-                                <button
-                                    onClick={() => setOpenForm(false)}
-                                    className="text-gray-500 hover:text-gray-800 text-xl"
-                                >
-                                    <img src="/demo/synco/icons/cross.png" alt="" />
-                                </button>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="flex gap-4">
-                                    <div className='block w-1/2'>
-                                        <label htmlFor="" className='text-base'>Class 1 Name </label>
-                                        <input
-                                            type="text"
-                                            value={formData.className}
-
-                                            onChange={(e) => handleChange('className', e.target.value)}
-                                            className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
-                                        />
-                                    </div>
-                                    <div className='block w-1/2'>
-                                        <label htmlFor="">Capacity</label>
-                                        <input
-                                            type="number"
-
-                                            value={formData.capacity}
-                                            onChange={(e) => handleChange('capacity', e.target.value)}
-                                            className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
-                                        />
-                                    </div>
+            {
+                openForm && (
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        if (isEditing) {
+                            handleEdit(formData.id);
+                        } else {
+                            handleSave();
+                        }
+                    }}>
+                        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-3xl w-[90%] md:w-[900px] p-6 relative shadow-xl">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-[24px] font-semibold">
+                                        {isEditing ? 'Edit Class' : 'Add a Class'}
+                                    </h2>
+                                    <button
+                                        onClick={() => setOpenForm(false)}
+                                        className="text-gray-500 hover:text-gray-800 text-xl"
+                                    >
+                                        <img src="/demo/synco/icons/cross.png" alt="" />
+                                    </button>
                                 </div>
-                                <div className="flex gap-4">
-                                    <div className='w-1/2'>
-                                        <label htmlFor="">Day</label>
-                                        <select
-                                            value={formData.day}
 
-                                            onChange={(e) => handleChange('day', e.target.value)}
-                                            className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
-                                        >
-                                            <option value="">Day</option>
-                                            {days.map((day) => (
-                                                <option key={day} value={day}>{day}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div className='flex w-1/2 gap-4'>
-                                        <div className='w-1/2'>
-                                            <label>Start Time</label>
-                                            <DatePicker
-                                                selected={parseTimeStringToDate(formData?.startTime)}
-                                                onChange={(date) =>
-                                                    handleChange('startTime', formatDateToTimeString(date))
-                                                }
+                                <div className="space-y-4">
+                                    <div className="flex gap-4">
+                                        <div className='block w-1/2'>
+                                            <label htmlFor="" className='text-base'>Class 1 Name </label>
+                                            <input
+                                                type="text"
+                                                value={formData.className}
 
-                                                showTimeSelect
-                                                showTimeSelectOnly
-                                                timeIntervals={15}
-                                                dateFormat="h:mm aa"
-                                                timeCaption="Time"
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                                onChange={(e) => handleChange('className', e.target.value)}
+                                                className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
                                             />
                                         </div>
+                                        <div className='block w-1/2'>
+                                            <label htmlFor="">Capacity</label>
+                                            <input
+                                                type="number"
 
-                                        <div className='w-1/2'>
-                                            <label>End Time</label>
-                                            <DatePicker
-                                                selected={parseTimeStringToDate(formData?.endTime)}
-                                                onChange={(date) =>
-                                                    handleChange('endTime', formatDateToTimeString(date))
-                                                }
-                                                showTimeSelect
-
-                                                showTimeSelectOnly
-                                                timeIntervals={15}
-                                                dateFormat="h:mm aa"
-                                                timeCaption="Time"
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-
+                                                value={formData.capacity}
+                                                onChange={(e) => handleChange('capacity', e.target.value)}
+                                                className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
                                             />
                                         </div>
                                     </div>
+                                    <div className="flex gap-4">
+                                        <div className='w-1/2'>
+                                            <label htmlFor="">Day</label>
+                                            <select
+                                                value={formData.day}
+
+                                                onChange={(e) => handleChange('day', e.target.value)}
+                                                className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
+                                            >
+                                                <option value="">Day</option>
+                                                {days.map((day) => (
+                                                    <option key={day} value={day}>{day}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className='flex w-1/2 gap-4'>
+                                            <div className='w-1/2'>
+                                                <label>Start Time</label>
+                                                <DatePicker
+                                                    withPortal
+                                                    selected={parseTimeStringToDate(formData?.startTime)}
+                                                    onChange={(date) =>
+                                                        handleChange('startTime', formatDateToTimeString(date))
+                                                    }
+
+                                                    showTimeSelect
+                                                    showTimeSelectOnly
+                                                    timeIntervals={15}
+                                                    dateFormat="h:mm aa"
+                                                    timeCaption="Time"
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                                />
+                                            </div>
+
+                                            <div className='w-1/2'>
+                                                <label>End Time</label>
+                                                <DatePicker
+                                                    withPortal
+                                                    selected={parseTimeStringToDate(formData?.endTime)}
+                                                    onChange={(date) =>
+                                                        handleChange('endTime', formatDateToTimeString(date))
+                                                    }
+                                                    showTimeSelect
+
+                                                    showTimeSelectOnly
+                                                    timeIntervals={15}
+                                                    dateFormat="h:mm aa"
+                                                    timeCaption="Time"
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+
+                                                />
+                                            </div>
+                                        </div>
 
 
+                                    </div>
+
+
+                                    <div className="block items-center gap-3 mt-2">
+                                        <label className="text-base  font-medium">Allow Free Trial?</label>
+                                        <br />
+                                        <label className="inline-flex mt-2 relative items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.allowFreeTrial}
+                                                onChange={(e) => handleChange('allowFreeTrial', e.target.checked)}
+                                                className="sr-only peer"
+                                            />
+                                            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#237FEA] peer-focus:ring-4 peer-focus:ring-blue-300 transition-all"></div>
+                                            <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-md transform peer-checked:translate-x-5 transition-transform"></div>
+                                        </label>
+                                    </div>
                                 </div>
 
 
-                                <div className="block items-center gap-3 mt-2">
-                                    <label className="text-base  font-medium">Allow Free Trial?</label>
-                                    <br />
-                                    <label className="inline-flex mt-2 relative items-center cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={formData.allowFreeTrial}
-                                            onChange={(e) => handleChange('allowFreeTrial', e.target.checked)}
-                                            className="sr-only peer"
-                                        />
-                                        <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#237FEA] peer-focus:ring-4 peer-focus:ring-blue-300 transition-all"></div>
-                                        <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-md transform peer-checked:translate-x-5 transition-transform"></div>
-                                    </label>
+                                <div className="flex justify-start gap-5 mt-6">
+                                    <button
+                                        type='button'
+                                        onClick={() => setOpenForm(false)}
+                                        className="px-20 py-4 bg-none hover:bg-gray-200 text-gray-500 border border-gray-300 rounded-lg mt-2"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+
+                                        className="px-20 py-4 bg-[#237FEA] hover:bg-blue-700 text-white rounded-lg mt-2"
+                                    >
+                                        {isEditing ? 'Update' : 'Save'}
+                                    </button>
+
                                 </div>
-                            </div>
-
-
-                            <div className="flex justify-start gap-5 mt-6">
-                                <button
-                                    type='button'
-                                    onClick={() => setOpenForm(false)}
-                                    className="px-20 py-4 bg-none hover:bg-gray-200 text-gray-500 border border-gray-300 rounded-lg mt-2"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-
-                                    className="px-20 py-4 bg-[#237FEA] hover:bg-blue-700 text-white rounded-lg mt-2"
-                                >
-                                    {isEditing ? 'Update' : 'Save'}
-                                </button>
-
                             </div>
                         </div>
-                    </div>
-                </form>
-            )}
-        </div>
+                    </form>
+                )
+            }
+        </div >
     );
 };
 

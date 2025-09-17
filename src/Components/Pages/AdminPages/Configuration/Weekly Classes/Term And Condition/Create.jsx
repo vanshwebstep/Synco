@@ -263,60 +263,60 @@ const Create = () => {
             )
         );
     };
-    console.log('myGroupData',myGroupData)
+    console.log('myGroupData', myGroupData)
     const deleteTerm = useCallback(async (id) => {
-    if (!token) return;
+        if (!token) return;
 
-    const willDelete = await Swal.fire({
-        title: "Are you sure?",
-        text: "This action will permanently delete the term.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, delete it!",
-        cancelButtonText: "Cancel",
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-    });
-
-    if (!willDelete.isConfirmed) return;
-
-    // Check if term is saved (has real backend ID)
-    const isSaved = savedTermIds.has(id);
-
-    if (!isSaved) {
-        // Just remove it locally
-        setTerms(prev => prev.filter(term => term.id !== id));
-        setSessionMappings([]);
-        Swal.fire("Deleted!", "The unsaved term was removed.", "success");
-        return;
-    }
-
-    // Otherwise delete from backend
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
+        const willDelete = await Swal.fire({
+            title: "Are you sure?",
+            text: "This action will permanently delete the term.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
         });
 
-        if (response.ok) {
-            Swal.fire("Deleted!", "The term was deleted successfully.", "success");
+        if (!willDelete.isConfirmed) return;
 
-            if (myGroupData) {
-                fetchTermGroupById(myGroupData.id);
-            } else {
-                navigate('/configuration/weekly-classes/term-dates/list');
-            }
+        // Check if term is saved (has real backend ID)
+        const isSaved = savedTermIds.has(id);
 
-            fetchTerm();
-        } else {
-            const errorData = await response.json();
-            Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
+        if (!isSaved) {
+            // Just remove it locally
+            setTerms(prev => prev.filter(term => term.id !== id));
+            setSessionMappings([]);
+            Swal.fire("Deleted!", "The unsaved term was removed.", "success");
+            return;
         }
-    } catch (err) {
-        console.error("Failed to delete term:", err);
-        Swal.fire("Error", "Something went wrong. Please try again.", "error");
-    }
-}, [token, savedTermIds, fetchTerm, myGroupData, fetchTermGroupById, navigate]);
+
+        // Otherwise delete from backend
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.ok) {
+                Swal.fire("Deleted!", "The term was deleted successfully.", "success");
+
+                if (myGroupData) {
+                    fetchTermGroupById(myGroupData.id);
+                } else {
+                    navigate('/configuration/weekly-classes/term-dates/list');
+                }
+
+                fetchTerm();
+            } else {
+                const errorData = await response.json();
+                Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
+            }
+        } catch (err) {
+            console.error("Failed to delete term:", err);
+            Swal.fire("Error", "Something went wrong. Please try again.", "error");
+        }
+    }, [token, savedTermIds, fetchTerm, myGroupData, fetchTermGroupById, navigate]);
 
 
     const removeExclusionDate = (termId, indexToRemove) => {
@@ -555,9 +555,9 @@ const Create = () => {
             });
             return;
         }
-  setIsEditMode(false);
-    setSavedTermIds(null);
-    setMyGroupData(null)
+        setIsEditMode(false);
+        setSavedTermIds(null);
+        setMyGroupData(null)
         // Success - navigate away or show success message
         Swal.fire({
             icon: 'success',
@@ -583,12 +583,12 @@ const Create = () => {
         <div className="md:p-6 bg-gray-50 min-h-screen">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
                 <h2
-               onClick={() => {
-    navigate('/configuration/weekly-classes/term-dates/list');
-    setIsEditMode(false);
-    // setSavedTermIds(null);
-    setMyGroupData(null)
-  }}
+                    onClick={() => {
+                        navigate('/configuration/weekly-classes/term-dates/list');
+                        setIsEditMode(false);
+                        // setSavedTermIds(null);
+                        setMyGroupData(null)
+                    }}
                     className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
                     <img
                         src="/demo/synco/icons/arrow-left.png"
@@ -699,16 +699,18 @@ const Create = () => {
                                                             Start Date
                                                         </label>
                                                         <DatePicker
-      placeholderText="Enter Start Date"
-      selected={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
-      onChange={(date) => {
-        const localDate = date ? date.toLocaleDateString("en-CA") : "";
-        handleInputChange(term.id, "startDate", localDate);
-      }}
-      dateFormat="EEEE, dd MMM"
-      maxDate={term.endDate ? new Date(term.endDate + "T00:00:00") : null} 
-      className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
+                                                            placeholderText="Enter Start Date"
+                                                            selected={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
+                                                            onChange={(date) => {
+                                                                const localDate = date ? date.toLocaleDateString("en-CA") : "";
+                                                                handleInputChange(term.id, "startDate", localDate);
+                                                            }}
+                                                            dateFormat="EEEE, dd MMM"
+                                                            maxDate={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
+                                                            className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            withPortal // this renders the calendar in a portal, fixed on screen
+                                                        />
+
 
 
 
@@ -719,16 +721,18 @@ const Create = () => {
                                                             End Date
                                                         </label>
                                                         <DatePicker
-      placeholderText="Enter End Date"
-      selected={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
-      onChange={(date) => {
-        const localDate = date ? date.toLocaleDateString("en-CA") : "";
-        handleInputChange(term.id, "endDate", localDate);
-      }}
-      dateFormat="EEEE, dd MMM"
-      minDate={term.startDate ? new Date(term.startDate + "T00:00:00") : null} 
-      className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
+                                                            placeholderText="Enter End Date"
+                                                            selected={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
+                                                            onChange={(date) => {
+                                                                const localDate = date ? date.toLocaleDateString("en-CA") : "";
+                                                                handleInputChange(term.id, "endDate", localDate);
+                                                            }}
+                                                            dateFormat="EEEE, dd MMM"
+                                                            minDate={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
+                                                            className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            withPortal // this renders the calendar in a portal, fixed on screen
+
+                                                        />
 
 
                                                     </div>
@@ -739,36 +743,38 @@ const Create = () => {
                                                         <label className="block text-base font-semibold text-gray-700 mb-2">
                                                             Exclusion Date(s)
                                                         </label>
-                                                       {term.exclusions.map((ex, idx) => (
-    <div key={idx} className="flex gap-2 mb-2 items-center">
-      <DatePicker
-        placeholderText={`Exclusion Date ${idx + 1}`}
-        selected={ex ? new Date(ex + "T00:00:00") : null}
-        onChange={(date) =>
-          handleExclusionChange(
-            term.id,
-            idx,
-            date ? date.toLocaleDateString("en-CA") : ""
-          )
-        }
-        dateFormat="EEEE, dd MMM"
-        minDate={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
-        maxDate={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
-        className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
+                                                        {term.exclusions.map((ex, idx) => (
+                                                            <div key={idx} className="flex gap-2 mb-2 items-center">
+                                                                <DatePicker
+                                                                    placeholderText={`Exclusion Date ${idx + 1}`}
+                                                                    selected={ex ? new Date(ex + "T00:00:00") : null}
+                                                                    onChange={(date) =>
+                                                                        handleExclusionChange(
+                                                                            term.id,
+                                                                            idx,
+                                                                            date ? date.toLocaleDateString("en-CA") : ""
+                                                                        )
+                                                                    }
+                                                                    dateFormat="EEEE, dd MMM"
+                                                                    minDate={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
+                                                                    maxDate={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
+                                                                    className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                                    withPortal // this renders the calendar in a portal, fixed on screen
 
-      {term.exclusions.length > 1 && (
-        <button
-          onClick={() => removeExclusionDate(term.id, idx)}
-          type="button"
-          className="text-red-500 hover:text-red-700 font-bold text-xl"
-          title="Remove"
-        >
-          &times;
-        </button>
-      )}
-    </div>
-  ))}
+                                                                />
+
+                                                                {term.exclusions.length > 1 && (
+                                                                    <button
+                                                                        onClick={() => removeExclusionDate(term.id, idx)}
+                                                                        type="button"
+                                                                        className="text-red-500 hover:text-red-700 font-bold text-xl"
+                                                                        title="Remove"
+                                                                    >
+                                                                        &times;
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        ))}
 
 
                                                         <button
@@ -913,6 +919,7 @@ const Create = () => {
                                                         dateFormat="EEEE, dd MMM"
                                                         className="text-[#717073] text-[15px] font-semibold bg-transparent focus:outline-none"
                                                         placeholderText="Select date"
+                                                        withPortal
                                                     />
 
                                                 </div>
@@ -931,6 +938,7 @@ const Create = () => {
                                                         idx={index}
                                                         value={sessionMappings[index]?.sessionPlanId}
                                                         onChange={handleMappingChange}
+
                                                     />
 
 

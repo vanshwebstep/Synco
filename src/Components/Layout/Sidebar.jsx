@@ -331,12 +331,14 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               transition={{ type: 'tween' }}
               className="fixed top-0 left-0 w-72 h-full bg-white z-50 shadow-lg border-r lg:hidden flex flex-col"
             >
-              <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
+              <div className="p-6 font-semibold text-2xl text-center flex items-center gap-1 justify-center">
                 <img
                   src="/demo/synco/images/synco-text.png"
                   alt="Logo"
                   className="h-10 w-auto object-contain"
                 />
+                          <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className="h-10 w-auto object-contain" />
+
               </div>
 
               <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 px-2 pb-6">
@@ -350,8 +352,9 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
       {/* Desktop Sidebar */}
       <aside className="hidden md:w-2/12 lg:flex w-72 bg-white border-r border-gray-100 flex-col shadow-lg">
-        <div className="p-6 font-semibold text-2xl text-center flex items-center justify-center">
+        <div className="p-6 font-semibold text-2xl text-center flex items-center gap-0.5 justify-center">
           <img src='/demo/synco/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
+        <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className="h-10 w-auto object-contain mb-0.5 animate-spin [animation-duration:4s] " />
         </div>
         <nav className="flex-1 overflow-y-auto scrollbar-hide scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500">
           {renderMenuItems(menuItems)}

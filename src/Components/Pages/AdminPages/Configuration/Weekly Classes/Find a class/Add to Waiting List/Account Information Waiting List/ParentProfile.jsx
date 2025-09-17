@@ -849,6 +849,7 @@ const ParentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Preferred Start Date (Optional)</label>
                                     <DatePicker
+                                    withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={waitingListData.preferredStartDate ? new Date(waitingListData.preferredStartDate) : null}
                                         onChange={(date) => handleDateChange(date, "preferredStartDate", setWaitingListData)}
@@ -905,6 +906,7 @@ const ParentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Reactivate On</label>
                                     <DatePicker
+                                    withPortal
                                         minDate={addDays(new Date(), 1)} // disable today & past dates
                                         selected={
                                             reactivateData?.reactivateOn
@@ -1053,6 +1055,7 @@ const ParentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Cancellation Effective Date</label>
                                     <DatePicker
+                                    withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         selected={cancelData.cancelDate ? new Date(cancelData.cancelDate) : null}
@@ -1308,6 +1311,7 @@ const ParentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Freeze Start Date</label>
                                     <DatePicker
+                                    withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={freezeData.freezeStartDate ? new Date(freezeData.freezeStartDate) : null}
                                         onChange={(date) => handleDateChange(date, "freezeStartDate", setFreezeData)}
@@ -1343,6 +1347,7 @@ const ParentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Reactivate On</label>
                                     <DatePicker
+                                    withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={freezeData.reactivateOn ? new Date(freezeData.reactivateOn) : null}
                                         onChange={(date) => handleDateChange(date, "reactivateOn", setFreezeData)}

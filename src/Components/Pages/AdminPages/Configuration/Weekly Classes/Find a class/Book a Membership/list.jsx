@@ -24,7 +24,7 @@ import "react-phone-input-2/lib/style.css";
 const List = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { createBookMembership , createBookMembershipByfreeTrial } = useBookFreeTrial()
+    const { createBookMembership, createBookMembershipByfreeTrial } = useBookFreeTrial()
     const [expression, setExpression] = useState('');
     const [numberOfStudents, setNumberOfStudents] = useState('1')
 
@@ -275,22 +275,22 @@ const List = () => {
             date1.getFullYear() === date2.getFullYear()
         );
     };
- const handleCancel = () => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "Your changes will not be saved!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, leave",
-      cancelButtonText: "Stay here",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        navigate("/configuration/weekly-classes/find-a-class");
-      }
-    });
-  };
+    const handleCancel = () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Your changes will not be saved!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, leave",
+            cancelButtonText: "Stay here",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate("/configuration/weekly-classes/find-a-class");
+            }
+        });
+    };
 
     const handleDateClick = (date) => {
         const formattedDate = formatLocalDate(date); // safe from timezone issues
@@ -477,7 +477,7 @@ const List = () => {
             });
             return;
         }
-      
+
         const filteredPayment = Object.fromEntries(
             Object.entries(payment || {}).filter(
                 ([, value]) => value !== null && value !== "" && value !== undefined
@@ -516,9 +516,9 @@ const List = () => {
             ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
         };
         try {
-              if (TrialData){
-            await createBookMembershipByfreeTrial(payload , TrialData.id);
-            } else{
+            if (TrialData) {
+                await createBookMembershipByfreeTrial(payload, TrialData.id);
+            } else {
                 await createBookMembership(payload);
             }
             console.log("Final Payload:", JSON.stringify(payload, null, 2));
@@ -1028,6 +1028,7 @@ const List = () => {
                                                 Date of Birth
                                             </label>
                                             <DatePicker
+                                                withPortal
                                                 selected={student.dateOfBirth}
                                                 onChange={(date) => handleDOBChange(index, date)}
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
@@ -1372,7 +1373,7 @@ const List = () => {
 
                         <div className="flex justify-end gap-4">
                             <button
-                      onClick={handleCancel}
+                                onClick={handleCancel}
 
                                 type="button"
                                 className="flex items-center justify-center gap-1 border border-[#717073] text-[#717073] px-12 text-[18px]  py-2 rounded-lg font-semibold bg-none"
@@ -1587,12 +1588,12 @@ const List = () => {
                                                         placeholder=""
                                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                         value={payment.cardHolderName}
-                                                       onChange={(e) =>
-          setPayment({
-            ...payment,
-            cardHolderName: e.target.value, // ✅ no filtering
-          })
-        }
+                                                        onChange={(e) =>
+                                                            setPayment({
+                                                                ...payment,
+                                                                cardHolderName: e.target.value, // ✅ no filtering
+                                                            })
+                                                        }
                                                     />
                                                 </div>
                                                 <div class="flex gap-4">

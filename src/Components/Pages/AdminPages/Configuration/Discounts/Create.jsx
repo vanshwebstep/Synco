@@ -466,6 +466,7 @@ const Create = () => {
                                     dateFormat="P"
                                     minDate={new Date()}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                withPortal
                                 />
                             </div>
                             <div className="flex flex-col w-full md:w-3/12">
@@ -479,6 +480,7 @@ const Create = () => {
                                     dateFormat="h:mm aa"
                                     timeCaption="Time"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                withPortal
                                 />
                             </div>
                         </div>
@@ -513,6 +515,7 @@ const Create = () => {
                                                 minDate={formData.startDate || new Date()}
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-xl"
                                                 disabled={!formData.startDate}
+                                            withPortal
                                             />
                                         </div>
                                         <div className="flex flex-col w-full md:w-3/12">
@@ -527,6 +530,7 @@ const Create = () => {
                                                 timeCaption="Time"
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-xl"
                                                 x disabled={!formData.endDate}
+                                            withPortal
                                             />
                                         </div>
                                     </div>

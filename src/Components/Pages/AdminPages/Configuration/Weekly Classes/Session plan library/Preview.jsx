@@ -188,12 +188,12 @@ const Preview = ({ item, sessionData }) => {
                         </div>
                         <div>
                           <h6 className="text-[18px] w-7/12 font-semibold">{exercise.title}</h6>
-                          <div
+                          {/* <div
                             className="text-[16px] text-gray-700"
                             dangerouslySetInnerHTML={{
                               __html: exercise.description || '<p>No description available.</p>',
                             }}
-                          />
+                          /> */}
                           <span className="text-[14px] text-gray-500">
                             {exercise.duration || '—'}
                           </span>

@@ -33,7 +33,7 @@ const Create = ({ packages, termGroup, onClose }) => {
       return 'Please add a Parking Note or toggle off Parking';
 
     // if congestion toggle is on, require a note
-    if (formData.isCongested && (!formData.congestionNote || !formData.congestionNote.trim()))
+    if (formData.isCongested && (!formData.howToEnterFacility || !formData.howToEnterFacility.trim()))
       return 'Please add a Congestion Note or toggle off Congestion';
 
     // require at least one term linkage (if that is a must — remove this block if optional)
@@ -60,7 +60,7 @@ const Create = ({ packages, termGroup, onClose }) => {
     setFormData({
       area: "", name: "", address: "", facility: "",
       hasParking: false, isCongested: false, parkingNote: "",
-      congestionNote: "", termGroupId: "", paymentPlanId: ""
+      howToEnterFacility: "", termGroupId: "", paymentPlanId: ""
     });
     onClose(); // close form on success
 
@@ -70,7 +70,7 @@ const Create = ({ packages, termGroup, onClose }) => {
     setFormData({
       area: "", name: "", address: "", facility: "",
       hasParking: false, isCongested: false, parkingNote: "",
-      congestionNote: "", termGroupId: "", paymentPlanId: ""
+      howToEnterFacility: "", termGroupId: "", paymentPlanId: ""
     });
     onClose();
 
@@ -97,7 +97,7 @@ const Create = ({ packages, termGroup, onClose }) => {
     setFormData({
       area: "", name: "", address: "", facility: "",
       hasParking: false, isCongested: false, parkingNote: "",
-      congestionNote: "", termGroupId: "", paymentPlanId: ""
+      howToEnterFacility: "", termGroupId: "", paymentPlanId: ""
     });
     onClose(); // close form on success
 
@@ -300,7 +300,7 @@ const Create = ({ packages, termGroup, onClose }) => {
                 setFormData((prev) => ({
                   ...prev,
                   isCongested: checked,
-                  congestionNote: checked ? prev.congestionNote : '',
+                  howToEnterFacility: checked ? prev.howToEnterFacility : '',
                 }));
               }}
               className="sr-only"
@@ -328,19 +328,19 @@ const Create = ({ packages, termGroup, onClose }) => {
           </div>
         )}
 
-        {formData.isCongested && (
+    
           <div>
             <label className="block font-semibold text-[16px] pb-2">How to enter facility</label>
             <textarea
-              name="congestionNote"
-              value={formData.congestionNote}
+              name="howToEnterFacility"
+              value={formData.howToEnterFacility}
               onChange={handleInputChange}
               className="w-full border bg-[#FAFAFA] border-[#E2E1E5] rounded-xl p-4 text-sm"
               rows={3}
               placeholder="Add notes"
             />
           </div>
-        )}
+   
 
 
     <div className="space-y-6 max-w-md">

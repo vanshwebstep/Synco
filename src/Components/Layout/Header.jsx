@@ -230,8 +230,10 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
             {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
 
-          {/* Welcome Image Centered */}
-          <img src='/demo/synco/images/synco-text.png' alt="Welcome" className="w-25 h-10" />
+       <div className="flex items-center justify-center gap-0.5">
+          <img src='/demo/synco/images/synco-text.png' alt="Welcome" className="  h-10" />
+          <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className=" h-10 mb-0.5 animate-spin [animation-duration:5s]" />
+</div>
 
           {/* Profile Image */}
           <div className="relative">

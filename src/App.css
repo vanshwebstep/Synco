@@ -317,3 +317,11 @@ aside.hidden.md\:w-2\/12.lg\:flex.w-72.bg-white.border-r.border-gray-100.flex-co
 .leftEnd {
   margin: 0 0 0  auto;
 }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.spin-slow {
+  animation: spin 10s linear infinite;
+}

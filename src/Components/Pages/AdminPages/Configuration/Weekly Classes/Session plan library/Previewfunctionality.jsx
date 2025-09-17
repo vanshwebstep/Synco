@@ -121,7 +121,7 @@ const Preview = () => {
                       />
                       <div>
                         <h6 className="text-[18px] font-semibold">{exercise.title}</h6>
-                        <p className="text-[16px]">{exercise.description}</p>
+                        {/* <p className="text-[16px]">{exercise.description}</p> */}
                         <span className="text-[14px]">{exercise.duration}</span>
                       </div>
                     </div>

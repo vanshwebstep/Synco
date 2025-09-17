@@ -126,66 +126,74 @@ const Create = () => {
         setIsProcessing(false);
     };
 
-    const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
-        const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
-        const isLastTab = nextIndex >= tabs.length;
+const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
+    const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
+    const isLastTab = nextIndex >= tabs.length;
 
-        const transformed = {
-            groupName: groupNameSection,
-            levels: {},
-        };
+    // ✅ Only send the activeTab when editing
+    const levelsToSend = (isEditMode && id && level)
+        ? updatedLevels.filter(item => item.level === activeTab) // filter only activeTab
+        : updatedLevels;
 
-        const allMediaFiles = {};
-
-        updatedLevels.forEach((item) => {
-            const levelKey = item.level.replace(/s$/i, '').toLowerCase();
-
-            if (!transformed.levels[levelKey]) {
-                transformed.levels[levelKey] = [];
-            }
-
-            transformed.levels[levelKey].push({
-                player: item.player,
-                skillOfTheDay: item.skillOfTheDay,
-                description: item.descriptionSession,
-                sessionExerciseId: item.sessionExerciseIds,
-            });
-
-            allMediaFiles[levelKey] = {
-                banner: item.bannerFile,
-                video: item.videoFile,
-            };
-        });
-
-        Object.entries(allMediaFiles).forEach(([levelKey, media]) => {
-            if (media.video instanceof File) {
-                transformed[`${levelKey}_video`] = media.video;
-            }
-            if (media.banner instanceof File) {
-                transformed[`${levelKey}_banner`] = media.banner;
-            }
-        });
-
-        // ✅ Final submission only if last tab or forceSubmit=true
-        if ((isEditMode && id && level) || isLastTab || forceSubmit) {
-            if (isEditMode && id && level) {
-                updateDiscount(id, transformed);
-            } else {
-                createSessionGroup(transformed);
-            }
-        } else {
-            // Move to next tab
-            setActiveTab(tabs[nextIndex]);
-            setPage(1);
-            setPlayer('');
-            setSkillOfTheDay('');
-            setDescriptionSession('');
-            setBannerFile('');
-            setVideoFile('');
-            if (videoInputRef.current) videoInputRef.current.value = null;
-            if (bannerInputRef.current) bannerInputRef.current.value = null;
-        }
+    const transformed = {
+        groupName: groupNameSection,
+        levels: {},
     };
+
+    const allMediaFiles = {};
+
+    levelsToSend.forEach((item) => {
+        // levelKey is lowercase singular version of activeTab
+        const levelKey = item.level.replace(/s$/i, '').toLowerCase();
+
+        // ✅ Only include the active level
+        if (!transformed.levels[levelKey]) {
+            transformed.levels[levelKey] = [];
+        }
+
+        transformed.levels[levelKey].push({
+            player: item.player,
+            skillOfTheDay: item.skillOfTheDay,
+            description: item.descriptionSession,
+            sessionExerciseId: item.sessionExerciseIds,
+        });
+
+        allMediaFiles[levelKey] = {
+            banner: item.bannerFile,
+            video: item.videoFile,
+        };
+    });
+
+    Object.entries(allMediaFiles).forEach(([levelKey, media]) => {
+        if (media.video instanceof File) {
+            transformed[`${levelKey}_video`] = media.video;
+        }
+        if (media.banner instanceof File) {
+            transformed[`${levelKey}_banner`] = media.banner;
+        }
+    });
+
+    if ((isEditMode && id && level) || isLastTab || forceSubmit) {
+        if (isEditMode && id && level) {
+            // ✅ Send only the active level data
+            updateDiscount(id, transformed);
+        } else {
+            createSessionGroup(transformed);
+        }
+    } else {
+        // Move to next tab
+        setActiveTab(tabs[nextIndex]);
+        setPage(1);
+        setPlayer('');
+        setSkillOfTheDay('');
+        setDescriptionSession('');
+        setBannerFile('');
+        setVideoFile('');
+        if (videoInputRef.current) videoInputRef.current.value = null;
+        if (bannerInputRef.current) bannerInputRef.current.value = null;
+    }
+};
+
 
 
     useEffect(() => {
@@ -714,20 +722,32 @@ const handleSavePlan = async () => {
                                                 className="transition-all" // remove "overflow-hidden"
                                             >
                                                 <div className="w-full mb-4">
-                                                    <Select
-                                                        options={planOptions}
-                                                        value={selectedOptions}
-                                                        onChange={handleSelectChange}
-                                                        isMulti
-                                                        placeholder="Select Exercises..."
-                                                        className="react-select-container"
-                                                        classNamePrefix="react-select"
+                                                  <Select
+  options={planOptions}
+  value={selectedOptions}
+  onChange={handleSelectChange}
+  isMulti
+  placeholder="Select Exercises..."
+  className="react-select-container"
+  classNamePrefix="react-select"
+  menuPortalTarget={document.body}
+  styles={{
+    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+    option: (base, state) => ({
+      ...base,
+      backgroundColor: state.isFocused
+        ? "#f1f1f1" // 👈 grayish hover
+        : state.isSelected
+        ? "#c4c0c0ff" // 👈 slightly darker when selected
+        : "white",
+      color: "black",
+      cursor: "pointer",
+    }),
+  }}
+  closeMenuOnSelect={false}
+  hideSelectedOptions={false}
+/>
 
-                                                        menuPortalTarget={document.body} // 🔥 THIS FIXES OVERFLOW
-                                                        styles={{
-                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Ensure it's on top
-                                                        }}
-                                                    />
 
 
                                                 </div>

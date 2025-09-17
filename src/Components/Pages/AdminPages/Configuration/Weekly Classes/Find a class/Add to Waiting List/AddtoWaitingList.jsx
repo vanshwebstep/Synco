@@ -307,20 +307,20 @@ const AddtoWaitingList = () => {
   const [sameAsAbove, setSameAsAbove] = useState(false);
 
   // 🔁 Calculate Age Automatically
-const handleDOBChange = (index, date) => {
-        const today = new Date();
-        let ageNow = today.getFullYear() - date.getFullYear();
-        const m = today.getMonth() - date.getMonth();
+  const handleDOBChange = (index, date) => {
+    const today = new Date();
+    let ageNow = today.getFullYear() - date.getFullYear();
+    const m = today.getMonth() - date.getMonth();
 
-        if (m < 0 || (m === 0 && today.getDate() < date.getDate())) {
-            ageNow--;
-        }
+    if (m < 0 || (m === 0 && today.getDate() < date.getDate())) {
+      ageNow--;
+    }
 
-        const updatedStudents = [...students];
-        updatedStudents[index].dateOfBirth = date;
-        updatedStudents[index].age = ageNow;
-        setStudents(updatedStudents);
-    };
+    const updatedStudents = [...students];
+    updatedStudents[index].dateOfBirth = date;
+    updatedStudents[index].age = ageNow;
+    setStudents(updatedStudents);
+  };
 
 
   // 🔁 Sync Emergency Contact
@@ -871,35 +871,35 @@ const handleDOBChange = (index, date) => {
 
                   {/* Row 2 */}
                   <div className="flex gap-4">
-                                                        <div className="w-1/2">
-                                                            <label className="block text-[16px] font-semibold">
-                                                                Date of Birth
-                                                            </label>
-                                                            <DatePicker
-                                                                selected={student.dateOfBirth}
-                                                                onChange={(date) => handleDOBChange(index, date)}
-                                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                                showYearDropdown
-                                                                scrollableYearDropdown
-                                                                yearDropdownItemNumber={100}
-                                                                dateFormat="dd/MM/yyyy"
-                                                                maxDate={new Date(new Date().setFullYear(new Date().getFullYear() - 3))} // Minimum age: 3 years
-                                                                minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))} // Max age: 100 years
-                                                                placeholderText="Select date of birth"
-                
-                                                            />
-                                                        </div>
-                                                        <div className="w-1/2">
-                                                            <label className="block text-[16px] font-semibold">Age</label>
-                                                            <input
-                                                                type="text"
-                                                                value={student.age}
-                                                                readOnly
-                                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                                placeholder="Automatic entry"
-                                                            />
-                                                        </div>
-                                                    </div>
+                    <div className="w-1/2">
+                      <label className="block text-[16px] font-semibold">
+                        Date of Birth
+                      </label>
+                      <DatePicker
+                        selected={student.dateOfBirth}
+                        onChange={(date) => handleDOBChange(index, date)}
+                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                        showYearDropdown
+                        scrollableYearDropdown
+                        yearDropdownItemNumber={100}
+                        dateFormat="dd/MM/yyyy"
+                        maxDate={new Date(new Date().setFullYear(new Date().getFullYear() - 3))} // Minimum age: 3 years
+                        minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))} // Max age: 100 years
+                        placeholderText="Select date of birth"
+                        withPortal
+                      />
+                    </div>
+                    <div className="w-1/2">
+                      <label className="block text-[16px] font-semibold">Age</label>
+                      <input
+                        type="text"
+                        value={student.age}
+                        readOnly
+                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                        placeholder="Automatic entry"
+                      />
+                    </div>
+                  </div>
 
                   {/* Row 3 */}
                   <div className="flex gap-4">
@@ -1003,41 +1003,41 @@ const handleDOBChange = (index, date) => {
                   </div>
 
                   {/* Row 1 */}
-            <div className="flex gap-4">
-  <div className="w-1/2">
-    <label className="block text-[16px] font-semibold">First name</label>
-    <input
-      className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-      placeholder="Enter first name"
-      value={parent.parentFirstName}
-      onChange={(e) => {
-        // Allow only alphabets and spaces
-        const value = e.target.value.replace(/[^A-Za-z\s]/g, "");
-        handleParentChange(index, "parentFirstName", value);
-      }}
-      onKeyPress={(e) => {
-        if (!/[A-Za-z\s]/.test(e.key)) e.preventDefault();
-      }}
-    />
-  </div>
+                  <div className="flex gap-4">
+                    <div className="w-1/2">
+                      <label className="block text-[16px] font-semibold">First name</label>
+                      <input
+                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                        placeholder="Enter first name"
+                        value={parent.parentFirstName}
+                        onChange={(e) => {
+                          // Allow only alphabets and spaces
+                          const value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                          handleParentChange(index, "parentFirstName", value);
+                        }}
+                        onKeyPress={(e) => {
+                          if (!/[A-Za-z\s]/.test(e.key)) e.preventDefault();
+                        }}
+                      />
+                    </div>
 
-  <div className="w-1/2">
-    <label className="block text-[16px] font-semibold">Last name</label>
-    <input
-      className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-      placeholder="Enter last name"
-      value={parent.parentLastName}
-      onChange={(e) => {
-        // Allow only alphabets and spaces
-        const value = e.target.value.replace(/[^A-Za-z\s]/g, "");
-        handleParentChange(index, "parentLastName", value);
-      }}
-      onKeyPress={(e) => {
-        if (!/[A-Za-z\s]/.test(e.key)) e.preventDefault();
-      }}
-    />
-  </div>
-</div>
+                    <div className="w-1/2">
+                      <label className="block text-[16px] font-semibold">Last name</label>
+                      <input
+                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                        placeholder="Enter last name"
+                        value={parent.parentLastName}
+                        onChange={(e) => {
+                          // Allow only alphabets and spaces
+                          const value = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                          handleParentChange(index, "parentLastName", value);
+                        }}
+                        onKeyPress={(e) => {
+                          if (!/[A-Za-z\s]/.test(e.key)) e.preventDefault();
+                        }}
+                      />
+                    </div>
+                  </div>
 
 
                   {/* Row 2 */}

@@ -761,6 +761,7 @@ const ParentProfile = ({ profile }) => {
                                         onChange={(date) => handleDateChange(date, "preferredStartDate", setWaitingListData)}
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        withPortal
                                     />
 
                                 </div>
@@ -821,6 +822,7 @@ const ParentProfile = ({ profile }) => {
                                         onChange={(date) => handleDateChange(date, "reactivateOn", setReactivateData)}
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        withPortal
                                     />
                                 </div>
 
@@ -968,7 +970,7 @@ const ParentProfile = ({ profile }) => {
                                                 selected={cancelData.cancelDate ? new Date(cancelData.cancelDate) : null}
                                                 onChange={(date) => handleDateChange(date, "cancelDate", setCancelData)}
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-
+                                                withPortal
                                             />
 
                                         </div>
@@ -1226,6 +1228,7 @@ const ParentProfile = ({ profile }) => {
                                         onChange={(date) => handleDateChange(date, "freezeStartDate", setFreezeData)}
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        withPortal
                                     />
                                 </div>
 
@@ -1261,6 +1264,7 @@ const ParentProfile = ({ profile }) => {
                                         onChange={(date) => handleDateChange(date, "reactivateOn", setFreezeData)}
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        withPortal
                                     />
                                 </div>
 

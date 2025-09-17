@@ -870,6 +870,7 @@ const List = () => {
       Date of birth
     </label>
     <DatePicker
+    withPortal
       selected={student.dateOfBirth}
       onChange={(date) => handleDOBChange(index, date)}
       className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"

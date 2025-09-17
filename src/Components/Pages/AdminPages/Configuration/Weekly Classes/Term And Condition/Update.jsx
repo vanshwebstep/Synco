@@ -233,40 +233,40 @@ const Create = () => {
         );
     };
 
-  const deleteTerm = useCallback(async (id) => {
-    if (!token) return;
+    const deleteTerm = useCallback(async (id) => {
+        if (!token) return;
 
-    const willDelete = await Swal.fire({
-        title: "Are you sure?",
-        text: "This action will permanently delete the term.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, delete it!",
-        cancelButtonText: "Cancel",
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-    });
-
-    if (!willDelete.isConfirmed) return; // Exit if user cancels
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
+        const willDelete = await Swal.fire({
+            title: "Are you sure?",
+            text: "This action will permanently delete the term.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it!",
+            cancelButtonText: "Cancel",
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
         });
 
-        if (response.ok) {
-            Swal.fire("Deleted!", "The term was deleted successfully.", "success");
-            fetchTerm()
-        } else {
-            const errorData = await response.json();
-            Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
+        if (!willDelete.isConfirmed) return; // Exit if user cancels
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (response.ok) {
+                Swal.fire("Deleted!", "The term was deleted successfully.", "success");
+                fetchTerm()
+            } else {
+                const errorData = await response.json();
+                Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
+            }
+        } catch (err) {
+            console.error("Failed to delete term:", err);
+            Swal.fire("Error", "Something went wrong. Please try again.", "error");
         }
-    } catch (err) {
-        console.error("Failed to delete term:", err);
-        Swal.fire("Error", "Something went wrong. Please try again.", "error");
-    }
-}, [token]);
+    }, [token]);
 
 
     const removeExclusionDate = (termId, indexToRemove) => {
@@ -491,6 +491,7 @@ const Create = () => {
                                                         Start Date
                                                     </label>
                                                     <DatePicker
+                                                        withPortal
                                                         placeholderText="Enter Start Date"
                                                         selected={term.startDate ? new Date(term.startDate) : null}
                                                         onChange={(date) =>
@@ -504,6 +505,7 @@ const Create = () => {
                                                         End Date
                                                     </label>
                                                     <DatePicker
+                                                        withPortal
                                                         placeholderText="Enter End Date"
                                                         selected={term.endDate ? new Date(term.endDate) : null}
                                                         onChange={(date) =>
@@ -523,6 +525,7 @@ const Create = () => {
                                                     {term.exclusions.map((ex, idx) => (
                                                         <div key={idx} className="flex gap-2 mb-2 items-center">
                                                             <DatePicker
+                                                                withPortal
                                                                 placeholderText={`Exclusion Date ${idx + 1}`}
                                                                 selected={ex ? new Date(ex) : null}
                                                                 onChange={(date) =>
@@ -721,6 +724,7 @@ const Create = () => {
                                                     transition={{ delay: idx * 0.05 }}
                                                 >
                                                     <DatePicker
+                                                        withPortal
                                                         placeholderText={`Session Date ${idx + 1}`}
                                                         selected={
                                                             filteredMappings[idx]?.date

@@ -57,7 +57,7 @@ const Create = () => {
 
     const [termGroupName, setTermGroupName] = useState("");
     const [termGroupId, setTermGroupId] = useState(null); // store ID after creation
-        const { createTermGroup, updateTermGroup, myGroupData, selectedTermGroup, fetchTerm, termData, fetchTermGroupById, } = useTermContext();
+    const { createTermGroup, updateTermGroup, myGroupData, selectedTermGroup, fetchTerm, termData, fetchTermGroupById, } = useTermContext();
     const [mapSession, setMapSession] = useState([]);
 
     const [terms, setTerms] = useState(initialTerms);
@@ -403,6 +403,7 @@ const Create = () => {
                                                         Start Date
                                                     </label>
                                                     <DatePicker
+                                                        withPortal
                                                         placeholderText="Enter Start Date"
                                                         selected={term.startDate ? new Date(term.startDate) : null}
                                                         onChange={(date) =>
@@ -416,6 +417,7 @@ const Create = () => {
                                                         End Date
                                                     </label>
                                                     <DatePicker
+                                                        withPortal
                                                         placeholderText="Enter End Date"
                                                         selected={term.endDate ? new Date(term.endDate) : null}
                                                         onChange={(date) =>
@@ -435,6 +437,7 @@ const Create = () => {
                                                     {term.exclusions.map((ex, idx) => (
                                                         <div key={idx} className="flex gap-2 mb-2 items-center">
                                                             <DatePicker
+                                                                withPortal
                                                                 placeholderText={`Exclusion Date ${idx + 1}`}
                                                                 selected={ex ? new Date(ex) : null}
                                                                 onChange={(date) =>
@@ -637,6 +640,7 @@ const Create = () => {
                                                     transition={{ delay: idx * 0.05 }}
                                                 >
                                                     <DatePicker
+                                                        withPortal
                                                         placeholderText={`Session Date ${idx + 1}`}
                                                         selected={
                                                             sessionMappings[idx]?.date

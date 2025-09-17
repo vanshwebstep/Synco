@@ -146,7 +146,7 @@ const ParentProfile = ({ ParentProfile }) => {
     const handleSelectChange = (selected, field, stateSetter) => {
         stateSetter((prev) => ({ ...prev, [field]: selected?.value || null }));
     };
-     const handleRadioChange = (value, field, stateSetter) => {
+    const handleRadioChange = (value, field, stateSetter) => {
         stateSetter((prev) => ({ ...prev, [field]: value }));
     };
 
@@ -490,18 +490,18 @@ const ParentProfile = ({ ParentProfile }) => {
                         {/* Header */}
                         <div
                             className="m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center"
-                              style={{
+                            style={{
                                 backgroundImage: status === "cancelled"
                                     ? "url('/demo/synco/frames/Cancelled.png')"
                                     : status === "frozen"
                                         ? "url('/demo/synco/frames/Frozen.png')"
                                         : status === "active"
                                             ? "url('/demo/synco/frames/Active.png')"
-                                             : status === "request_to_cancel"
-                                            ? "url('/demo/synco/frames/reqCancel.png')"
-                                            : status === "waiting list"
-                                                ? "url('/demo/synco/frames/Waiting.png')"
-                                                : "url('/demo/synco/frames/Pending.png')",
+                                            : status === "request_to_cancel"
+                                                ? "url('/demo/synco/frames/reqCancel.png')"
+                                                : status === "waiting list"
+                                                    ? "url('/demo/synco/frames/Waiting.png')"
+                                                    : "url('/demo/synco/frames/Pending.png')",
 
 
                                 backgroundSize: "contain",
@@ -673,7 +673,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                                         </button>
                                                     )}
 
-                                                    {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel" ) && (
+                                                    {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel") && (
                                                         <button
                                                             onClick={() => setaddToWaitingList(true)}
                                                             className={`w-full rounded-xl py-3 text-[18px] font-medium transition-shadow duration-300 
@@ -687,7 +687,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                                     )}
 
 
-                                                    {(status === "active" || status === "request_to_cancel" ) && canCancelTrial && (
+                                                    {(status === "active" || status === "request_to_cancel") && canCancelTrial && (
                                                         <button
                                                             onClick={() => setFreezeMembership(true)}
                                                             className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
@@ -695,7 +695,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                                             Freeze Membership
                                                         </button>
                                                     )}
-                                                    {(status === "active" ||  status === "request_to_cancel" ) && canCancelTrial && (
+                                                    {(status === "active" || status === "request_to_cancel") && canCancelTrial && (
                                                         <button
                                                             onClick={() => setTransferVenue(true)}
                                                             className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
@@ -711,7 +711,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                                             Remove Waiting List
                                                         </button>
                                                     )}
-                                                    {(status === "active" || status === "frozen"  || status === "request_to_cancel" ) && canCancelTrial && (
+                                                    {(status === "active" || status === "frozen" || status === "request_to_cancel") && canCancelTrial && (
                                                         <button
                                                             onClick={() => setshowCancelTrial(true)}
                                                             className={`w-full border text-[18px] rounded-xl py-3 font-medium transition-shadow duration-300
@@ -817,6 +817,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         placeholderText="Select a date"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        withPortal
                                     />
                                 </div>
 
@@ -834,6 +835,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                             dateFormat="h:mm aa"
                                             placeholderText="Select Time"
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            withPortal
                                         />
                                     </div>
 
@@ -897,127 +899,128 @@ const ParentProfile = ({ ParentProfile }) => {
                     </div>
 
                 )}
-              {showCancelTrial && (
-                                 <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
-                                     <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
-                                         <button
-                                             className="absolute top-4 left-4 p-2"
-                                             onClick={() => setshowCancelTrial(false)}
-                                         >
-                                             <img src="/demo/synco/icons/cross.png" alt="Close" />
-                                         </button>
-             
-                                         <div className="text-center py-6 border-b border-gray-300">
-                                             <h2 className="font-semibold text-[24px]">Cancel Membership </h2>
-                                         </div>
-             
-                                         <div className="space-y-4 px-6 pb-6 pt-4">
-                                             <div>
-                                                 <label className="block text-[16px] font-semibold">
-                                                     Cancellation Type
-                                                 </label>
-             
-                                                 {cancelType.map((option) => (
-                                                     <label key={option.value} className="flex mt-4  items-center mb-2 cursor-pointer">
-                                                         <label className="flex items-center cursor-pointer space-x-2">
-                                                             <input
-                                                                 type="radio"
-                                                                 name="cancelType"
-                                                                 value={option.value}
-                                                                 checked={cancelData.cancellationType === option.value}
-                                                                 onChange={() => handleRadioChange(option.value, "cancellationType", setCancelData)}
-                                                                 className="hidden peer"
-                                                             />
-                                                             <span className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-400 peer-checked:bg-blue-500 peer-checked:border-blue-500">
-                                                                 {/* Tick icon */}
-                                                                 <svg
-                                                                     className=" w-3 h-3 text-white peer-checked:block"
-                                                                     fill="none"
-                                                                     stroke="currentColor"
-                                                                     strokeWidth="3"
-                                                                     viewBox="0 0 24 24"
-                                                                 >
-                                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                                 </svg>
-                                                             </span>
-                                                             <span className="text-gray-800 text-[16px]">{option.label}</span>
-                                                         </label>
-             
-                                                     </label>
-                                                 ))}
-                                             </div>
-                                           <div>
-  {cancelData.cancellationType !== 'immediately' && (
-    <>
-      <label className="block text-[16px] font-semibold">
-        Cancellation Effective Date
-      </label>
-      <DatePicker
-        minDate={addDays(new Date(), 1)} // disables today and all past dates
-        dateFormat="EEEE, dd MMMM yyyy"
-        selected={cancelData.cancelDate ? new Date(cancelData.cancelDate) : null}
-        onChange={(date) => handleDateChange(date, "cancelDate", setCancelData)}
-        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-      />
-    </>
-  )}
-</div>
+                {showCancelTrial && (
+                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                            <button
+                                className="absolute top-4 left-4 p-2"
+                                onClick={() => setshowCancelTrial(false)}
+                            >
+                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                            </button>
 
-                                             <div>
-                                                 <label className="block text-[16px] font-semibold">
-                                                     Reason for Cancellation
-                                                 </label>
-                                                 <Select
-                                                     value={reasonOptions.find((opt) => opt.value === cancelData.cancelReason)}
-                                                     onChange={(selected) => handleSelectChange(selected, "cancelReason", setCancelData)}
-                                                     options={reasonOptions}
-                                                     placeholder=""
-                                                     className="rounded-lg mt-2"
-                                                     styles={{
-                                                         control: (base) => ({
-                                                             ...base,
-                                                             borderRadius: "0.7rem",
-                                                             boxShadow: "none",
-                                                             padding: "6px 8px",
-                                                             minHeight: "48px",
-                                                         }),
-                                                         placeholder: (base) => ({ ...base, fontWeight: 600 }),
-                                                         dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
-                                                         indicatorSeparator: () => ({ display: "none" }),
-                                                     }}
-                                                 />
-                                             </div>
-             
-                                             {/* Notes */}
-                                             <div>
-                                                 <label className="block text-[16px] font-semibold">
-                                                     Additional Notes (Optional)
-                                                 </label>
-                                                 <textarea
-                                                     className="w-full bg-gray-100  mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                     rows={3}
-                                                     name="additionalNote"    // <-- MUST match state key
-                                                     value={cancelData.additionalNote}
-                                                     onChange={(e) => handleInputChange(e, setCancelData)}
-                                                     placeholder=""
-                                                 />
-                                             </div>
-             
-                                             {/* Buttons */}
-                                             <div className="flex justify-end gap-4 pt-4">
-                                                 <button
-                                                     onClick={() => cancelMembershipSubmit(cancelData, 'allMembers')}
-             
-                                                     className="w-1/2  bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                                 >
-                                                     Cancel Membership
-                                                 </button>
-                                             </div>
-                                         </div>
-                                     </div>
-                                 </div>
-             
-                             )}
+                            <div className="text-center py-6 border-b border-gray-300">
+                                <h2 className="font-semibold text-[24px]">Cancel Membership </h2>
+                            </div>
+
+                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                <div>
+                                    <label className="block text-[16px] font-semibold">
+                                        Cancellation Type
+                                    </label>
+
+                                    {cancelType.map((option) => (
+                                        <label key={option.value} className="flex mt-4  items-center mb-2 cursor-pointer">
+                                            <label className="flex items-center cursor-pointer space-x-2">
+                                                <input
+                                                    type="radio"
+                                                    name="cancelType"
+                                                    value={option.value}
+                                                    checked={cancelData.cancellationType === option.value}
+                                                    onChange={() => handleRadioChange(option.value, "cancellationType", setCancelData)}
+                                                    className="hidden peer"
+                                                />
+                                                <span className="w-5 h-5 flex items-center justify-center rounded-full border border-gray-400 peer-checked:bg-blue-500 peer-checked:border-blue-500">
+                                                    {/* Tick icon */}
+                                                    <svg
+                                                        className=" w-3 h-3 text-white peer-checked:block"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="3"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                </span>
+                                                <span className="text-gray-800 text-[16px]">{option.label}</span>
+                                            </label>
+
+                                        </label>
+                                    ))}
+                                </div>
+                                <div>
+                                    {cancelData.cancellationType !== 'immediately' && (
+                                        <>
+                                            <label className="block text-[16px] font-semibold">
+                                                Cancellation Effective Date
+                                            </label>
+                                            <DatePicker
+                                                withPortal
+                                                minDate={addDays(new Date(), 1)} // disables today and all past dates
+                                                dateFormat="EEEE, dd MMMM yyyy"
+                                                selected={cancelData.cancelDate ? new Date(cancelData.cancelDate) : null}
+                                                onChange={(date) => handleDateChange(date, "cancelDate", setCancelData)}
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            />
+                                        </>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-[16px] font-semibold">
+                                        Reason for Cancellation
+                                    </label>
+                                    <Select
+                                        value={reasonOptions.find((opt) => opt.value === cancelData.cancelReason)}
+                                        onChange={(selected) => handleSelectChange(selected, "cancelReason", setCancelData)}
+                                        options={reasonOptions}
+                                        placeholder=""
+                                        className="rounded-lg mt-2"
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                borderRadius: "0.7rem",
+                                                boxShadow: "none",
+                                                padding: "6px 8px",
+                                                minHeight: "48px",
+                                            }),
+                                            placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                            dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                            indicatorSeparator: () => ({ display: "none" }),
+                                        }}
+                                    />
+                                </div>
+
+                                {/* Notes */}
+                                <div>
+                                    <label className="block text-[16px] font-semibold">
+                                        Additional Notes (Optional)
+                                    </label>
+                                    <textarea
+                                        className="w-full bg-gray-100  mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        rows={3}
+                                        name="additionalNote"    // <-- MUST match state key
+                                        value={cancelData.additionalNote}
+                                        onChange={(e) => handleInputChange(e, setCancelData)}
+                                        placeholder=""
+                                    />
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex justify-end gap-4 pt-4">
+                                    <button
+                                        onClick={() => cancelMembershipSubmit(cancelData, 'allMembers')}
+
+                                        className="w-1/2  bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                    >
+                                        Cancel Membership
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                )}
                 {addToWaitingList && (
                     <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
                         <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
@@ -1090,6 +1093,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Preferred Start Date (Optional)</label>
                                     <DatePicker
+                                        withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={waitingListData.preferredStartDate ? new Date(waitingListData.preferredStartDate) : null}
                                         onChange={(date) => handleDateChange(date, "preferredStartDate", setWaitingListData)}
@@ -1146,6 +1150,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Freeze Start Date</label>
                                     <DatePicker
+                                        withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={freezeData.freezeStartDate ? new Date(freezeData.freezeStartDate) : null}
                                         onChange={(date) => handleDateChange(date, "freezeStartDate", setFreezeData)}
@@ -1181,6 +1186,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Reactivate On</label>
                                     <DatePicker
+                                        withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={freezeData.reactivateOn ? new Date(freezeData.reactivateOn) : null}
                                         onChange={(date) => handleDateChange(date, "reactivateOn", setFreezeData)}
@@ -1235,6 +1241,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Reactivate On</label>
                                     <DatePicker
+                                        withPortal
                                         minDate={addDays(new Date(), 1)} // disable today & past dates
                                         selected={
                                             reactivateData?.reactivateOn

@@ -44,79 +44,67 @@ const TermCard = ({ item, sessionData }) => {
     const canDelete = checkPermission({ module: 'term-group', action: 'delete' }) && checkPermission({ module: 'term', action: 'delete' });;
 
     return (
-        <div className="bg-white border border-gray-200 rounded-2xl mb-4 shadow hover:shadow-md transition">
-            <div className="flex flex-col md:flex-row justify-between p-4 gap-4 text-sm">
-                {/* Left block */}
-                <div className="min-w-60 max-w-60">
-                    <p className="font-semibold whitespace-nowrap">{item.name}</p>
-                    <p className="text-xs text-[#717073]">{item.Date}</p>
-                </div>
+     <div className="bg-white border border-gray-200 rounded-2xl mb-4 shadow hover:shadow-md transition">
+  <div className="flex flex-col md:flex-row justify-between p-4 gap-4 text-sm">
+    {/* Left block */}
+    <div className="flex-shrink-0 w-full md:w-48">
+      <p className="font-semibold line-clamp-2">{item.name}</p>
+      <p className="text-xs text-[#717073]">{item.Date}</p>
+    </div>
 
-                {/* Term summary & sessions */}
-                <div className="md:flex  gap-8 flex-1">
-                    {sessionData.map(({ id, term, icon, date, sessions, sessionDate }) => (
-                        <div key={term} className="flex flex-col gap-2 min-w-[120px]">
-
-                            <div className="flex items-start gap-3">
-                                <img src={icon} alt={term} className="w-5 h-5 mt-1" />
-                                <div>
-                                    <p className="text-[#717073]">{term}</p>
-                                    <p className="whitespace-pre-line text-sm text-gray-600">{date}</p>
-                                    {/* 
-                                    <p className="font-medium text-[#717073]">{item[term?.toLowerCase()]}</p> */}
-                                </div>
-                            </div>
-
-                            {/* Sessions inside each column */}
-                            <div className={`transition-all duration-500 overflow-hidden ${showSessions ? 'max-h-[1000px]' : 'max-h-0'}`}>
-                                <ul className="space-y-1 text-xs mt-1">
-                                    {sessions.map((session, i) => (
-                                        <li key={i}>
-                                            <div className={`flex justify-between max-w-11/12 m-auto ${i >= 6 ? 'font-semibold' : ''}`}>
-                                                <span className='font-semibold'>Session {i + 1}: Plan #{session.groupName}</span>
-                                                <span className="text-[#717073]">{session.date}</span>
-                                            </div>
-                                        </li>
-                                    ))}
-
-
-                                </ul>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Action buttons */}
-                <div className={`flex gap-3 mt-2 ${showSessions ? ' items-start' : 'items-center'}  md:mt-0 ml-auto`}>
-                    {canEdit &&
-                        <button
-                            onClick={() => handleEdit(item.id)}
-                            className="text-gray-500 hover:text-blue-500">
-                            <img className="min-w-5" src="/demo/synco/icons/edit.png" alt="Edit" />
-                        </button>
-                    }
-                    {canDelete &&
-                        <button
-                            onClick={() => handleDelete(item.id)}
-                            className="text-gray-500 hover:text-red-500"
-                        >
-                            <img className="min-w-5" src="/demo/synco/icons/deleteIcon.png" alt="Delete" />
-                        </button>
-                    }
-                </div>
+    {/* Term summary & sessions */}
+    <div className="flex-1 flex flex-col md:flex-row gap-4 md:gap-8 overflow-x-auto scrollbar-hide">
+      {sessionData.map(({ id, term, icon, date, sessions }) => (
+        <div key={term} className="flex-shrink-0 w-full sm:w-[250px] md:w-[320px] flex flex-col gap-2">
+          <div className="flex items-start gap-3">
+            <img src={icon} alt={term} className="w-5 h-5 mt-1 flex-shrink-0" />
+            <div>
+              <p className="text-[#717073]">{term}</p>
+              <p className="whitespace-pre-line text-sm text-gray-600">{date}</p>
             </div>
+          </div>
 
-            {/* Toggle sessions */}
-            <div
-                className="bg-gray-100 px-4 py-2 cursor-pointer"
-                onClick={() => setShowSessions(!showSessions)}
-            >
-                <div className="text-center text-[#237FEA] flex justify-center items-center gap-2">
-                    {showSessions ? 'Hide all session dates' : 'Show all session dates'}
-                    <img className="w-4" src="/demo/synco/icons/bluearrowup.png" alt="Toggle" />
-                </div>
-            </div>
+          {/* Sessions inside each column */}
+          <div className={`transition-all duration-500 overflow-hidden ${showSessions ? 'max-h-[1000px]' : 'max-h-0'}`}>
+            <ul className="space-y-1 text-xs mt-1">
+              {sessions.map((session, i) => (
+                <li key={i}>
+                  <div className={`flex justify-between items-start ${i >= 6 ? 'font-semibold' : ''}`}>
+                    <span className="font-semibold truncate">{`Session ${i + 1}: Plan #${session.groupName}`}</span>
+                    <span className="text-[#717073]">{session.date}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
+      ))}
+    </div>
+
+    {/* Action buttons */}
+    <div className={`flex gap-3 mt-2 md:mt-0 ${showSessions ? 'items-start' : 'items-center'} ml-auto`}>
+      {canEdit && (
+        <button onClick={() => handleEdit(item.id)} className="text-gray-500 hover:text-blue-500">
+          <img className="w-5 h-5" src="/demo/synco/icons/edit.png" alt="Edit" />
+        </button>
+      )}
+      {canDelete && (
+        <button onClick={() => handleDelete(item.id)} className="text-gray-500 hover:text-red-500">
+          <img className="w-5 h-5" src="/demo/synco/icons/deleteIcon.png" alt="Delete" />
+        </button>
+      )}
+    </div>
+  </div>
+
+  {/* Toggle sessions */}
+  <div className="bg-gray-100 px-4 py-2 cursor-pointer" onClick={() => setShowSessions(!showSessions)}>
+    <div className="text-center text-[#237FEA] flex justify-center items-center gap-2">
+      {showSessions ? 'Hide all session dates' : 'Show all session dates'}
+      <img className={`w-4 transition-transform ${showSessions ? 'rotate-180' : ''}`} src="/demo/synco/icons/bluearrowup.png" alt="Toggle" />
+    </div>
+  </div>
+</div>
+
     );
 };
 

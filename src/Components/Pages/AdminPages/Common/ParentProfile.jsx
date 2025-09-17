@@ -76,7 +76,7 @@ const ParentProfile = ({ ParentProfile }) => {
         reasonForNonAttendance: "",
         additionalNote: "",
     });
-console.log('cancelData',cancelData)
+    console.log('cancelData', cancelData)
     console.log('parents', ParentProfile)
     const studentsList = ParentProfile?.students || [];
     const parents = ParentProfile.parents || [];
@@ -407,7 +407,7 @@ console.log('cancelData',cancelData)
                         {/* Header */}
                         <div
                             className="m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center"
-                                style={{
+                            style={{
                                 backgroundImage: status === "cancelled"
                                     ? "url('/demo/synco/frames/Cancelled.png')"
                                     : status === "frozen"
@@ -438,7 +438,7 @@ console.log('cancelData',cancelData)
                                     <img
                                         src={
                                             (status === 'request_to_cancel' || status === 'cancelled') && bookedBy?.profile
-                                                ? `${API_BASE_URL}/${bookedBy.profile}`
+                                                ? `${bookedBy.profile}`
                                                 : "https://cdn-icons-png.flaticon.com/512/147/147144.png"
                                         }
                                         alt="avatar"
@@ -525,7 +525,7 @@ console.log('cancelData',cancelData)
 
                                     <div className="border-t border-[#495362] py-5">
                                         <div className=" text-[20px] text-white">Request to Cancel Date </div>
-                                        <div className="text-[16px]  mt-1 text-gray-400">{ formatDate(cancelData.cancelDate)||formatDate(trialDate) }</div>
+                                        <div className="text-[16px]  mt-1 text-gray-400">{formatDate(cancelData.cancelDate) || formatDate(trialDate)}</div>
                                     </div>
 
                                     <div className="border-t border-[#495362] py-5">
@@ -587,50 +587,50 @@ console.log('cancelData',cancelData)
                                 >
                                     Add to the waiting list
                                 </button>
-                          
-                                {status !== 'cancelled'&&(
-                                          <>
-                                <button
-                                    onClick={() => setshowCancelTrial(true)}
-                                    className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                >
-                                    Freeze Membership
-                                </button>
-                                <button
-                                    onClick={() => setshowCancelTrial(true)}
-                                    className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                >
-                                    Transfer Class
-                                </button>
-                                    
-                                {status !== 'cancelled' && canCancelTrial && (
-                                    <button
-                                        onClick={() => setshowCancelTrial(true)}
-                                        className="w-full  hover:bg-[#FF6C6C] hover:text-white border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                    >
-                                        Cancel Membership
-                                    </button>
-                                )}
 
-                                {status !== 'request_to_cancel' && status !== 'cancelled' && (
-                                    <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
-                                        Book a Membership
-                                    </button>
-                                )}
-
-                                {status === 'cancelled' && (
-                                    <div className="flex gap-7">
-                                        <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
-                                            No Membership
+                                {status !== 'cancelled' && (
+                                    <>
+                                        <button
+                                            onClick={() => setshowCancelTrial(true)}
+                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                        >
+                                            Freeze Membership
+                                        </button>
+                                        <button
+                                            onClick={() => setshowCancelTrial(true)}
+                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                        >
+                                            Transfer Class
                                         </button>
 
-                                        <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
-                                            Book a Membership
-                                        </button>
-                                    </div>
+                                        {status !== 'cancelled' && canCancelTrial && (
+                                            <button
+                                                onClick={() => setshowCancelTrial(true)}
+                                                className="w-full  hover:bg-[#FF6C6C] hover:text-white border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                            >
+                                                Cancel Membership
+                                            </button>
+                                        )}
+
+                                        {status !== 'request_to_cancel' && status !== 'cancelled' && (
+                                            <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
+                                                Book a Membership
+                                            </button>
+                                        )}
+
+                                        {status === 'cancelled' && (
+                                            <div className="flex gap-7">
+                                                <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
+                                                    No Membership
+                                                </button>
+
+                                                <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
+                                                    Book a Membership
+                                                </button>
+                                            </div>
+                                        )}
+                                    </>
                                 )}
-                                </>
-)}
 
                             </div>
                         </>
@@ -684,6 +684,7 @@ console.log('cancelData',cancelData)
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         placeholderText="Select a date"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        withPortal
                                     />
                                 </div>
 
@@ -701,6 +702,7 @@ console.log('cancelData',cancelData)
                                             dateFormat="h:mm aa"
                                             placeholderText="Select Time"
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            withPortal
                                         />
                                     </div>
 

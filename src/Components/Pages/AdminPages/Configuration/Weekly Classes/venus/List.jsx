@@ -45,8 +45,6 @@ const handleIconClick = (icon, plan = null) => {
 
   if (
     (icon === "currency" && (!plan || plan.length === 0)) ||
-    (icon === "group" && !plan) ||
-    (icon === "p" && !plan) ||
     (icon === "calendar" && !plan)
   ) {
     Swal.fire({
@@ -434,8 +432,10 @@ const handleIconClick = (icon, plan = null) => {
     checkPermission({ module: 'payment-group', action: 'view-listing' })
   const canViewClassSchedule =
     checkPermission({ module: 'class-schedule', action: 'view-listing' })
+
+    // ref={formRef}
   return (
-    <div className="pt-1 bg-gray-50 min-h-screen">
+    <div ref={formRef}  className=" pt-1 bg-gray-50 min-h-screen">
       <div className={`flex flex-wrap pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
         <h2 className="text-[28px] font-semibold">Venues</h2>
         {canCreate &&
@@ -530,7 +530,7 @@ const handleIconClick = (icon, plan = null) => {
                               <div
                                 onClick={() =>
                                   user.isCongested
-                                    ? handleIconClick("group", user.congestionNote)
+                                    ? handleIconClick("group", user.howToEnterFacility)
                                     : handleIconClick("group")
                                 }
                                 className="cursor-pointer"
@@ -607,7 +607,7 @@ const handleIconClick = (icon, plan = null) => {
         </div>
 
         {openForm && (
-          <div   ref={formRef} className="md:w-1/4 bg-white  rounded-4xl relative">
+          <div    className="md:w-1/4 bg-white  rounded-4xl relative">
 
             <button
               onClick={() => {
@@ -644,7 +644,7 @@ const handleIconClick = (icon, plan = null) => {
       {showModal && clickedIcon === "currency" && selectedPlans.length > 0 && (
         <div className="fixed inset-0 z-50 bg-black/60 flex  max-h-full items-center justify-center">
           <div className="flex items-center    justify-center w-full px-4 py-6 sm:px-6 md:py-10">
-            <div className="bg-white rounded-3xl overflow-y-auto max-h-[500px] scrollbar-hide p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+            <div className="bg-white rounded-3xl overflow-y-auto max-h-[700px] scrollbar-hide p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
               {/* Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
                 <h2 className="font-semibold text-[20px] sm:text-[24px]">Subscription Plan Preview</h2>
@@ -784,11 +784,10 @@ const handleIconClick = (icon, plan = null) => {
 
             <div className="mt-2 text-[16px] text-gray-700 leading-snug">
               {congestionNote ? (
-                <p>{congestionNote}</p>
+                <p>This venue is inside of the congestion zone.</p>
               ) : (
                 <>
-                  <p>This venue has no parking facilities available.</p>
-                  <p>Paid road parking is available.</p>
+                  <p>There is no congestion charges at this venue.</p>
                 </>
               )}
             </div>
@@ -814,7 +813,7 @@ const handleIconClick = (icon, plan = null) => {
               ) : (
                 <>
                   <p>This venue has no parking facilities available.</p>
-                  <p>Paid road parking is available.</p>
+                  <p>Roadside parking is available.</p>
                 </>
               )}
             </div>

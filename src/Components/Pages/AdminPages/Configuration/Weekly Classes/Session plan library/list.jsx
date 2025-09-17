@@ -20,8 +20,8 @@ const List = () => {
     Advanced: "8-9 Years",
     Pro: "10-12 Years",
   };
-
-  const [weekList, setWeekList] = useState([]); // pass your original weeks here
+  const [weekList, setWeekList] = useState([]);
+  const [tempList, setTempList] = useState([]); // holds the working reorder
   const [reorderMode, setReorderMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   useEffect(() => {
@@ -37,6 +37,10 @@ const List = () => {
     getPackages();
   }, [fetchSessionGroup]);
   // with empty conditon 
+
+  useEffect(() => {
+    setTempList(weekList); // initialize tempList with server list
+  }, [weekList]);
   useEffect(() => {
     if (sessionGroup?.length > 0) {
       const transformedWeeks = sessionGroup
@@ -211,12 +215,11 @@ const List = () => {
   const handleDragEnd = (result) => {
     if (!result.destination) return;
 
-    const newList = Array.from(weekList);
+    const newList = Array.from(tempList);
     const [movedItem] = newList.splice(result.source.index, 1);
     newList.splice(result.destination.index, 0, movedItem);
 
-    setWeekList(newList);
-    handleReorder(newList); // Save automatically
+    setTempList(newList); // just update local reorder, not server
   };
   const { checkPermission } = usePermission();
 
@@ -231,12 +234,29 @@ const List = () => {
         <h2 className="text-[28px] font-semibold">Session Plan Library</h2>
 
         {reorderMode ? (
-          <button
-            onClick={() => setReorderMode(false)}
-            className="bg-gray-300 text-black px-4 py-2 rounded-xl hover:bg-gray-400 font-semibold"
-          >
-            Cancel
-          </button>
+          <>
+            <div className="flex gap-5 items-center">
+              <button
+                onClick={() => {
+                  handleReorder(tempList); // save reordered list
+                  setWeekList(tempList);   // commit changes
+                  setReorderMode(false);
+                }}
+                className="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 font-semibold"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => {
+                  setTempList(weekList);  // reset back to original order
+                  setReorderMode(false);
+                }}
+                className="bg-gray-400 text-white px-4 py-2 rounded-xl hover:bg-gray-500 font-semibold"
+              >
+                Cancel
+              </button>
+            </div>
+          </>
         ) : weekList.length > 0 ? (
           <button
             onClick={() => setReorderMode(true)}
@@ -257,11 +277,11 @@ const List = () => {
         <Droppable droppableId="weekList" direction="horizontal">
           {(provided) => (
             <div
-              className="md:flex bg-white flex-wrap rounded-3xl p-6 shadow gap-6"
+              className="md:flex bg-white flex-wrap rounded-3xl p-6 shadow gap-6 relative"
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
-              {weekList.map((week, index) => (
+              {tempList.map((week, index) => (
                 <Draggable
                   key={week.id}
                   draggableId={String(week.id)}
@@ -273,7 +293,7 @@ const List = () => {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className={`bg-gray-100 rounded-2xl p-4 md:min-w-[374px] max-w-xs transform transition-transform duration-300 ${snapshot.isDragging ? 'scale-105 shadow-xl' : ''
+                      className={`bg-gray-100 rounded-2xl p-4 md:min-w-[374px] max-w-xs transform ${snapshot.isDragging ? 'scale-105 shadow-xl transition-transform duration-200' : ''
                         }`}
                     >
                       <div className="flex items-center justify-between p-2">

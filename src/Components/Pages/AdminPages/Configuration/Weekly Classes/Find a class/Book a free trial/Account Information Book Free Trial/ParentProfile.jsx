@@ -554,12 +554,12 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </div>
 
                                     <div className="border-t border-[#495362] py-5">
-                            
-                                            <>
-                                                <div className="text-[20px] text-white">Students</div>
-                                                <div className="text-[16px] mt-1 text-gray-400">{students?.length || 0}</div>
-                                            </>
-                                        
+
+                                        <>
+                                            <div className="text-[20px] text-white">Students</div>
+                                            <div className="text-[16px] mt-1 text-gray-400">{students?.length || 0}</div>
+                                        </>
+
 
                                     </div>
 
@@ -584,14 +584,14 @@ const ParentProfile = ({ ParentProfile }) => {
                                         <div className=" text-[20px] text-white">Date of Trial</div>
                                         <div className="text-[16px]  mt-1 text-gray-400">{formatDate(trialDate)}</div>
                                     </div>
-                                  
-                                        <>
-                                            <div className="border-t border-[#495362] py-5">
-                                                <div className=" text-[20px] text-white">Booking Source</div>
-                                                <div className="text-[16px]  mt-1 text-gray-400"> {bookedBy?.firstName} {bookedBy?.lastName}</div>
-                                            </div>
-                                        </>
-                                    
+
+                                    <>
+                                        <div className="border-t border-[#495362] py-5">
+                                            <div className=" text-[20px] text-white">Booking Source</div>
+                                            <div className="text-[16px]  mt-1 text-gray-400"> {bookedBy?.firstName} {bookedBy?.lastName}</div>
+                                        </div>
+                                    </>
+
                                 </div>
                             </div>
                         ))}
@@ -712,6 +712,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Date</label>
                                     <DatePicker
+                                        withPortal
                                         selected={selectedDate}
                                         onChange={handleDateChange}
                                         dateFormat="EEEE, dd MMMM yyyy"
@@ -725,6 +726,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                     <div>
                                         <label className="block text-[16px] font-semibold">Time</label>
                                         <DatePicker
+                                            withPortal
                                             selected={selectedTime}
                                             onChange={setSelectedTime}
                                             showTimeSelect
@@ -780,7 +782,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 <div className="flex gap-4 pt-4">
                                     <button
                                         className="flex-1 border border-gray-400 rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                      onClick={() => setshowRebookTrial(false)}
+                                        onClick={() => setshowRebookTrial(false)}
                                     >
                                         Cancel
                                     </button>

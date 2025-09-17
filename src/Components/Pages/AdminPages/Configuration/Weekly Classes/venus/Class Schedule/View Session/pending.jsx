@@ -9,14 +9,17 @@ const ViewSessions = ({ item, sessionData }) => {
   const [page, setPage] = useState(1);
   const location = useLocation();
   const sessionMap = location.state?.sessionMap;
+    const venueId = location.state?.venueId;
   const sessionId = location.state?.sessionId;
   const singleClassSchedules = location.state?.singleClassSchedules;
+  const sessionDate = location.state?.sessionDate;
+  const className = location.state?.classname;
 
   console.log(
-    'sessionMap',
-    sessionMap.sessionPlan
+    'className',
+    className
   );
-  const selectedGroup = sessionMap.sessionPlan;
+  const selectedGroup = sessionMap;
   const levelKeyToLabel = {
     beginner: "Beginners",
     intermediate: "Intermediate",
@@ -74,65 +77,57 @@ const ViewSessions = ({ item, sessionData }) => {
   const navigate = useNavigate();
   console.log('sessionId', selectedGroup)
 
-  useEffect(() => {
-    if (selectedGroup?.levels) {
-      const buildContentMap = () => {
-        const content = {};
-        const exerciseMap = {};
+useEffect(() => {
+  if (selectedGroup?.levels) {
+    const buildContentMap = () => {
+      const content = {};
 
-        // Create a map of exercise ID to full exercise object
-        selectedGroup.exercises?.forEach((exercise) => {
-          exerciseMap[exercise.id] = exercise;
-        });
-        let levelsData = selectedGroup?.levels;
-        if (typeof levelsData === 'string') {
-          try {
-            levelsData = JSON.parse(levelsData);
-          } catch (e) {
-            console.error('Invalid JSON format in selectedGroup.levels:', e);
-            levelsData = {}; // fallback to empty object
-          }
+      let levelsData = selectedGroup.levels;
+      if (typeof levelsData === 'string') {
+        try {
+          levelsData = JSON.parse(levelsData);
+        } catch (e) {
+          console.error('Invalid JSON format in selectedGroup.levels:', e);
+          levelsData = {};
         }
-        Object.entries(levelsData).forEach(([levelKey, items]) => {
-          console.log('levelKey', levelKey)
-          const label = levelKeyToLabel[levelKey];
-          const banner = selectedGroup[`${levelKey}_banner`] || null;
-          const video = selectedGroup[`${levelKey}_video`] || null;
+      }
 
-          content[label] = items.map((entry, index) => {
-            const sessionExercises = entry.sessionExerciseId?.map(
-              (id) => exerciseMap[id]
-            ).filter(Boolean); // Remove nulls if any ID doesn't match
+      Object.entries(levelsData).forEach(([levelKey, items]) => {
+        const label = levelKeyToLabel[levelKey] || levelKey;
+        const banner = selectedGroup[`${levelKey}_banner`] || null;
+        const video = selectedGroup[`${levelKey}_video`] || null;
 
-            return {
-              title: `${label} – Page ${index + 1}`,
-              heading: entry.skillOfTheDay || 'No Skill',
-              player: entry.player || 'player',
-              videoUrl: video ? `${API_BASE_URL}/${video}` : '',
-              bannerUrl: banner ? `${API_BASE_URL}/${banner}` : '',
-              description: entry.description || '',
-              sessionExercises,
-            };
-          });
+        content[label] = items.map((entry, index) => {
+          return {
+            title: `${label} – Page ${index + 1}`,
+            heading: entry.skillOfTheDay || 'No Skill',
+            player: entry.player || 'player',
+            videoUrl: video || '',
+            bannerUrl: banner || '',
+            description: entry.description || '',
+            // Use the sessionExercises directly from the entry
+            sessionExercises: entry.sessionExercises || [],
+          };
         });
+      });
 
-        return content;
-      };
+      return content;
+    };
 
-      const dynamicContent = buildContentMap();
-      setMyData(dynamicContent);
+    const dynamicContent = buildContentMap();
+    setMyData(dynamicContent);
+    console.log('dynamicContent', dynamicContent);
 
-      const firstTab = Object.keys(dynamicContent)[0];
-      setActiveTab(firstTab);
-      setPage(1);
-    }
-  }, [selectedGroup]);
-  ;
+    const firstTab = Object.keys(dynamicContent)[0];
+    setActiveTab(firstTab);
+    setPage(1);
+  }
+}, [selectedGroup]);
+
 
   const dynamicTabs = Object.keys(myData);
   const currentContent = myData[activeTab]?.[page - 1] || {};
   const totalPages = myData[activeTab]?.length || 0;
-  console.log('currentContent', dynamicTabs)
   const [selectedExercise, setSelectedExercise] = useState(
     currentContent.sessionExercises?.[0] || null
   );
@@ -141,6 +136,7 @@ const ViewSessions = ({ item, sessionData }) => {
       setSelectedExercise(currentContent.sessionExercises[0]);
     }
   }, [currentContent]);
+  console.log('currentContent', currentContent)
   console.log('singleClassSchedules', singleClassSchedules)
   const ageGroups = {
     "Beginners": "4–5 Years",
@@ -181,9 +177,10 @@ const ViewSessions = ({ item, sessionData }) => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
         <h2
-          onClick={() => {
-            navigate('/configuration/weekly-classes/venues/class-schedule');
-          }}
+         onClick={() => {
+    navigate(`/configuration/weekly-classes/venues/class-schedule?id=${venueId}`);
+}}
+
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
             src="/demo/synco/icons/arrow-left.png"
@@ -193,7 +190,7 @@ const ViewSessions = ({ item, sessionData }) => {
           <span className="truncate">View Session Plans</span>
         </h2>
       </div>
-      <div className="bg-white rounded-3xl shadow p-6 flex flex-col md:flex-row gap-6">
+      <div className="bg-white  rounded-3xl shadow p-6 flex flex-col md:flex-row gap-6">
         {/* Left Sidebar */}
         <div className="w-full md:w-2/12 bg-[#F4F2EC] py-6  rounded-2xl  text-center">
           <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
@@ -202,9 +199,9 @@ const ViewSessions = ({ item, sessionData }) => {
           <p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4">Pending</p>
           <div className="text-sm  p-6 text-gray-700 space-y-3 text-left">
             <p><span className="font-semibold">Venue</span><br /> {singleClassSchedules.name}</p>
-            <p><span className="font-semibold">Class</span><br />   {ageGroups[activeTab]}</p>
-            <p><span className="font-semibold">Date:</span> <br />{formatDateWithSuffix(singleClassSchedules.createdAt)} </p>
-            <p><span className="font-semibold">Time:</span> <br />11:00am – 12:00pm</p>
+            <p><span className="font-semibold">Class</span><br />   {className.className}</p>
+            <p><span className="font-semibold">Date:</span> <br />{formatDateWithSuffix(sessionDate)} </p>
+            <p><span className="font-semibold">Time:</span> <br />{className.startTime} – {className.endTime}</p>
           </div>
         </div>
 
@@ -288,7 +285,7 @@ const ViewSessions = ({ item, sessionData }) => {
                               <img
                                 key={index}
                                 className="rounded object-cover mr-2 mb-2"
-                                src={`${API_BASE_URL}/${imgUrl}`}
+                                src={`${imgUrl}`}
                                 alt={`${exercise.title} ${index + 1}`}
                               />
                             ))
@@ -298,12 +295,12 @@ const ViewSessions = ({ item, sessionData }) => {
                         </div>
                         <div>
                           <h6 className="text-[18px] w-7/12 font-semibold">{exercise.title}</h6>
-                          <div
+                          {/* <div
                             className="text-[16px] text-gray-700"
                             dangerouslySetInnerHTML={{
                               __html: exercise.description || '<p>No description available.</p>',
                             }}
-                          />
+                          /> */}
                           <span className="text-[14px] text-gray-500">
                             {exercise.duration || '—'}
                           </span>
