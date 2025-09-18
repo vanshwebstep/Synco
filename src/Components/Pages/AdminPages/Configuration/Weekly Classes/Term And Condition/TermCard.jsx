@@ -66,16 +66,23 @@ const TermCard = ({ item, sessionData }) => {
 
           {/* Sessions inside each column */}
           <div className={`transition-all duration-500 overflow-hidden ${showSessions ? 'max-h-[1000px]' : 'max-h-0'}`}>
-            <ul className="space-y-1 text-xs mt-1">
-              {sessions.map((session, i) => (
-                <li key={i}>
-                  <div className={`flex justify-between items-start ${i >= 6 ? 'font-semibold' : ''}`}>
-                    <span className="font-semibold truncate">{`Session ${i + 1}: Plan #${session.groupName}`}</span>
-                    <span className="text-[#717073]">{session.date}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
+          <ul className="space-y-1 text-xs mt-1">
+  {sessions.map((session, i) => (
+    <li key={i}>
+      <div
+        className={`grid grid-cols-[1fr_120px] items-start ${
+          i >= 6 ? 'font-semibold' : ''
+        }`}
+      >
+        <span className="font-semibold truncate">
+          {`Session ${i + 1}: Plan #${session.groupName}`}
+        </span>
+        <span className="text-[#717073] text-left">{session.date}</span>
+      </div>
+    </li>
+  ))}
+</ul>
+
           </div>
         </div>
       ))}

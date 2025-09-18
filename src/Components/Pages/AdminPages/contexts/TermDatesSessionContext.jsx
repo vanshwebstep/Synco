@@ -71,7 +71,6 @@ const createTermGroup = useCallback(
     };
 
     try {
-      setLoading(true);
 
       const response = await fetch(`${API_BASE_URL}/api/admin/term-group`, requestOptions);
       const data = await response.json();
@@ -80,12 +79,12 @@ setMyGroupData(data.data);
       console.log("data", data.data);
 
       if (response.ok && data.status === true) {
-        await Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: data.message || 'Group created successfully.',
-          confirmButtonColor: '#237FEA'
-        });
+        // await Swal.fire({
+        //   icon: 'success',
+        //   title: 'Success',
+        //   text: data.message || 'Group created successfully.',
+        //   confirmButtonColor: '#237FEA'
+        // });
 
       
       } else {
@@ -94,7 +93,6 @@ setMyGroupData(data.data);
     } catch (err) {
       console.error("Failed to create session group:", err);
     } finally {
-      setLoading(false);
     }
   },
   [token, navigate]

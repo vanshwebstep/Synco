@@ -265,58 +265,75 @@ const Create = () => {
     };
     console.log('myGroupData', myGroupData)
     const deleteTerm = useCallback(async (id) => {
-        if (!token) return;
+    if (!token) return;
 
-        const willDelete = await Swal.fire({
-            title: "Are you sure?",
-            text: "This action will permanently delete the term.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "Cancel",
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
+    const willDelete = await Swal.fire({
+        title: "Are you sure?",
+        text: "This action will permanently delete the term.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+    });
+
+    if (!willDelete.isConfirmed) return;
+
+    // Check if term is saved (has real backend ID)
+    const isSaved = savedTermIds.has(id);
+
+    if (!isSaved) {
+        // Just remove it locally
+        setTerms(prev => prev.filter(term => term.id !== id));
+        setSessionMappings([]);
+        Swal.fire("Deleted!", "The unsaved term was removed.", "success");
+        return;
+    }
+
+    // Otherwise delete from backend
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!willDelete.isConfirmed) return;
+        if (response.ok) {
+            Swal.fire("Deleted!", "The term was deleted successfully.", "success");
 
-        // Check if term is saved (has real backend ID)
-        const isSaved = savedTermIds.has(id);
-
-        if (!isSaved) {
-            // Just remove it locally
+            // 🔹 Update terms locally
             setTerms(prev => prev.filter(term => term.id !== id));
-            setSessionMappings([]);
-            Swal.fire("Deleted!", "The unsaved term was removed.", "success");
-            return;
-        }
 
-        // Otherwise delete from backend
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
+            // 🔹 Update session mappings (remove sessions of that term)
+            setSessionMappings(prev =>
+                prev.filter(mapping => mapping.termId !== id)
+            );
+
+            // 🔹 Update saved term IDs set
+            setSavedTermIds(prev => {
+                const updated = new Set(prev);
+                updated.delete(id);
+                return updated;
             });
 
-            if (response.ok) {
-                Swal.fire("Deleted!", "The term was deleted successfully.", "success");
-
-                if (myGroupData) {
-                    fetchTermGroupById(myGroupData.id);
-                } else {
-                    navigate('/configuration/weekly-classes/term-dates/list');
-                }
-
-                fetchTerm();
+            // 🔹 If you still want to refresh backend data
+            if (myGroupData) {
+                fetchTermGroupById(myGroupData.id);
             } else {
-                const errorData = await response.json();
-                Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
+                navigate('/configuration/weekly-classes/term-dates/list');
             }
-        } catch (err) {
-            console.error("Failed to delete term:", err);
-            Swal.fire("Error", "Something went wrong. Please try again.", "error");
+
+            fetchTerm();
+        } else {
+            const errorData = await response.json();
+            Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
         }
-    }, [token, savedTermIds, fetchTerm, myGroupData, fetchTermGroupById, navigate]);
+    } catch (err) {
+        console.error("Failed to delete term:", err);
+        Swal.fire("Error", "Something went wrong. Please try again.", "error");
+    }
+}, [token, savedTermIds, fetchTerm, myGroupData, fetchTermGroupById, navigate]);
+
 
 
     const removeExclusionDate = (termId, indexToRemove) => {
@@ -344,32 +361,45 @@ const Create = () => {
 
 
 
-    const handleSaveMappings = async () => {
-        if (!sessionMappings.length) {
-            alert('Please add at least one session mapping');
-            return;
-        }
-        console.log('sessionMappings', sessionMappings)
-        // Validate all mappings have both date and plan
-        const isValid = sessionMappings.every(mapping =>
-            mapping.sessionDate && mapping.sessionPlanId
-        );
-
-        if (!isValid) {
-            alert('Please fill all session mappings completely');
-            return;
-        }
-        console.log('sessionMappings', sessionMappings)
-
-        setSessionsMap(sessionMappings);
-        setIsMapping(false);
+  const handleSaveMappings = async () => {
+    if (!sessionMappings.length) {
         Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: 'Session mappings saved successfully',
-            confirmButtonColor: '#3085d6',
+            icon: 'warning',
+            title: 'No Session Mappings',
+            text: 'Please add at least one session mapping',
+            confirmButtonColor: '#e03a10',
         });
-    };
+        return;
+    }
+
+    // Validate all mappings have both date and plan
+    const isValid = sessionMappings.every(mapping =>
+        mapping.sessionDate && mapping.sessionPlanId
+    );
+
+    if (!isValid) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Incomplete Mappings',
+            text: 'Please fill all session mappings completely',
+            confirmButtonColor: '#e03a10',
+        });
+        return;
+    }
+
+    // If everything is valid
+    console.log('sessionMappings', sessionMappings);
+    setSessionsMap(sessionMappings);
+    setIsMapping(false);
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Session mappings saved successfully',
+        confirmButtonColor: '#3085d6',
+    });
+};
+
     const handleSaveTerm = async (term) => {
         console.log('selectedTermGroup', selectedTermGroup)
         console.log('myGroupData', myGroupData)
@@ -568,7 +598,10 @@ const Create = () => {
             navigate('/configuration/weekly-classes/term-dates/list');
         });
     };
-    const isSaveDisabled = !terms.length || terms.some(t => !savedTermIds.has(t.id));
+    console.log('terms', terms)
+    console.log('savedTermIds', savedTermIds)
+
+    // const isSaveDisabled = !terms.length || terms.some(t => !savedTermIds.has(t.id));
 
     console.log('selectedTermGroup', selectedTermGroup)
     console.log("myGroupData", myGroupData)
@@ -625,7 +658,7 @@ const Create = () => {
                                 className="md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 disabled={isGroupSaved && !isEditMode}
                             />
-                            {!isGroupSaved && (
+                            {!isGroupSaved && myGroupData?.id && (
                                 <button
                                     onClick={handleGroupNameSave}
                                     disabled={isLoading}
@@ -853,9 +886,9 @@ const Create = () => {
                                 </button>
                                 <button
                                     className={`min-w-40 font-semibold px-6 py-3 rounded-lg text-[14px] w-full md:w-auto 
-        ${isSaveDisabled ? 'bg-gray-400 cursor-not-allowed text-white' : 'bg-[#237FEA] hover:bg-blue-700 text-white'}`}
+        ${!isGroupSaved ? 'bg-gray-400 cursor-not-allowed text-white' : 'bg-[#237FEA] hover:bg-blue-700 text-white'}`}
                                     onClick={handleSaveAll}
-                                    disabled={isSaveDisabled || isLoading}
+                                    disabled={!isGroupSaved || isLoading}
                                 >
                                     {'Save All'}
                                 </button>
@@ -920,7 +953,17 @@ const Create = () => {
                                                         className="text-[#717073] text-[15px] font-semibold bg-transparent focus:outline-none"
                                                         placeholderText="Select date"
                                                         withPortal
+                                                        minDate={activeTerm?.startDate ? new Date(activeTerm.startDate + "T00:00:00") : null}   // ✅ restrict start
+                                                        maxDate={activeTerm?.endDate ? new Date(activeTerm.endDate + "T00:00:00") : null}       // ✅ restrict end
+                                                        excludeDates={
+                                                            activeTerm?.exclusions?.length
+                                                                ? activeTerm.exclusions.map(
+                                                                    (ex) => new Date(ex + "T00:00:00") // ✅ convert exclusion strings to Date objects
+                                                                )
+                                                                : []
+                                                        }
                                                     />
+
 
                                                 </div>
 

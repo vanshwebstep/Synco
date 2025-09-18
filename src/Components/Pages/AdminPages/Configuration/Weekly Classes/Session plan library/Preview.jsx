@@ -36,15 +36,15 @@ const Preview = ({ item, sessionData }) => {
         const content = {};
         Object.entries(selectedGroup.levels).forEach(([levelKey, items]) => {
           const label = levelKeyToLabel[levelKey];
-          const banner = selectedGroup[`${levelKey}_banner`] || null;
-          const video = selectedGroup[`${levelKey}_video`] || null;
+          const banner = selectedGroup.banner  || null;
+          const video = selectedGroup.video || null;
 
           content[label] = items.map((entry, index) => ({
             title: `${label} – Page ${index + 1}`,
             heading: entry.skillOfTheDay || 'No Skill',
             player: entry.player || 'player',
-            videoUrl: video ? `${API_BASE_URL}/${video}` : '',
-            bannerUrl: banner ? `${API_BASE_URL}/${banner}` : '',
+            videoUrl: video ? `${video}` : '',
+            bannerUrl: banner ? `${banner}` : '',
             description: entry.description || '',
             sessionExercises: entry.sessionExercises || [],
           }));
@@ -62,7 +62,7 @@ const Preview = ({ item, sessionData }) => {
     }
   }, [selectedGroup]);
 
-  console.log('myData', myData)
+  console.log('selectedGroup', selectedGroup)
   const dynamicTabs = Object.keys(myData);
   const currentContent = myData[activeTab]?.[page - 1] || {};
   const totalPages = myData[activeTab]?.length || 0;
@@ -178,7 +178,7 @@ const Preview = ({ item, sessionData }) => {
                               <img
                                 key={index}
                                 className="rounded  min-w-30 object-cover mr-2 mb-2"
-                                src={`${API_BASE_URL}/${imgUrl}`}
+                                src={`${imgUrl}`}
                                 alt={`${exercise.title} ${index + 1}`}
                               />
                             ))
@@ -216,7 +216,7 @@ const Preview = ({ item, sessionData }) => {
                         <img
                           key={index}
                           className="rounded object-cover mr-2 min-h-50 max-h-50 mb-2"
-                          src={`${API_BASE_URL}/${imgUrl}`}
+                          src={`${imgUrl}`}
                           alt={`${selectedExercise.title} ${index + 1}`}
                         />
                       ))

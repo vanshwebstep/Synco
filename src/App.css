@@ -325,3 +325,8 @@ aside.hidden.md\:w-2\/12.lg\:flex.w-72.bg-white.border-r.border-gray-100.flex-co
 .spin-slow {
   animation: spin 10s linear infinite;
 }
+
+
+.react-datepicker__month {
+  min-height: 320px !important;
+}

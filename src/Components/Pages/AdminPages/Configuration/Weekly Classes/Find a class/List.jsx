@@ -3,8 +3,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
 import Loader from '../../../contexts/Loader';
+import { FiSearch, FiFilter } from "react-icons/fi";
 import { Switch } from "@headlessui/react";
-import { FiSearch } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { evaluate } from 'mathjs';
 import { Info } from "lucide-react"; // or use a custom icon if needed
@@ -27,7 +29,7 @@ const List = () => {
   const { fetchFindClasses, findClasses, loading } = useFindClass();
   const [openMapId, setOpenMapId] = useState(null);
   const navigate = useNavigate();
-
+  const [isOpen, setIsOpen] = useState(true);
   useEffect(() => {
     fetchFindClasses()
   }, [fetchFindClasses]);
@@ -195,7 +197,8 @@ const List = () => {
     let isStartOrEnd = false;
     let isInBetween = false;
     let isExcluded = false;
-
+    let isSessionDate = false;
+    console.log('calendarData', calendarData)
     calendarData.forEach((term) => {
       const start = new Date(term.startDate);
       const end = new Date(term.endDate);
@@ -214,9 +217,15 @@ const List = () => {
           isExcluded = true;
         }
       });
+      term.sessionsMap?.forEach((session) => {
+        const sessionDate = new Date(session.sessionDate);
+        if (isSameDate(date, sessionDate)) {
+          isSessionDate = true;
+        }
+      });
     });
 
-    return { isStartOrEnd, isInBetween, isExcluded };
+    return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
   };
 
   const isSameDate = (d1, d2) =>
@@ -470,100 +479,120 @@ const List = () => {
     <div className="pt-1 bg-gray-50 min-h-screen">
 
       <div className="md:flex w-full gap-4">
+        <div>
+          {/* Toggle Button */}
+          {/* <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl mb-4"
+          >
+            <FiFilter className="text-lg" />
+            {isOpen ? "Hide Filters" : "Show Filters"}
+          </button> */}
 
-        <div className="md:min-w-[322px] md:max-w-[322px] bg-white p-6 rounded-3xl shadow-sm text-sm space-y-5">
-          {/* Search */}
-          <div className="space-y-3">
-            <h2 className="text-[24px] font-semibold">Search by filter</h2>
+          <AnimatePresence>
+            {isOpen && (
+              <motion.div className="md:min-w-[322px] md:max-w-[322px] bg-white p-6 rounded-3xl shadow-sm text-sm space-y-5 transition-all duration-300" initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}>
+                {/* Search */}
+                <div className="space-y-3">
+                  <h2 className="text-[24px] font-semibold">Search by filter</h2>
 
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search venue"
-                className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 pl-9 focus:outline-none"
-                value={searchVenue}
-                onChange={(e) => setSearchVenue(e.target.value)}
-              />
-              <FiSearch className="absolute left-3 top-4 text-[20px]" />
-            </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search venue"
+                      className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 pl-9 focus:outline-none"
+                      value={searchVenue}
+                      onChange={(e) => setSearchVenue(e.target.value)}
+                    />
+                    <FiSearch className="absolute left-3 top-4 text-[20px]" />
+                  </div>
 
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search by postcode"
-                className="w-full border border-gray-300 text-[16px] rounded-xl px-3 py-3 pl-9 focus:outline-none"
-                value={searchPostcode}
-                onChange={(e) => setSearchPostcode(e.target.value)}
-              />
-              <FiSearch className="absolute left-3 top-4 text-[20px]" />
-            </div>
-          </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Search by postcode"
+                      className="w-full border border-gray-300 text-[16px] rounded-xl px-3 py-3 pl-9 focus:outline-none"
+                      value={searchPostcode}
+                      onChange={(e) => setSearchPostcode(e.target.value)}
+                    />
+                    <FiSearch className="absolute left-3 top-4 text-[20px]" />
+                  </div>
+                </div>
 
-          {/* Venues */}
-          <div>
-            <h3 className="text-[20px] font-medium mb-2 border-b border-gray-300 pb-2 text-semibold">Venues</h3>
-            <div className="space-y-2 pt-2">
-              {visibleVenues.map((venue) => (
-                <label key={venue} className="flex text-[16px] items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedVenues.includes(venue)}
-                    onChange={() => toggleVenue(venue)}
-                    className="accent-blue-600 p-2 text-[20px]"
-                  />
-                  {venue}
-                </label>
-              ))}
+                {/* Venues */}
+                <div>
+                  <h3 className="text-[20px] font-medium mb-2 border-b border-gray-300 pb-2">
+                    Venues
+                  </h3>
+                  <div className="space-y-2 pt-2">
+                    {visibleVenues.map((venue) => (
+                      <label key={venue} className="flex text-[16px] items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedVenues.includes(venue)}
+                          onChange={() => toggleVenue(venue)}
+                          className="accent-blue-600 p-2 text-[20px]"
+                        />
+                        {venue}
+                      </label>
+                    ))}
 
-              {venues.length > 5 && (
-                <button
-                  type="button"
-                  onClick={() => setShowAll(!showAll)}
-                  className="text-blue-600 text-[16px] mt-1"
-                >
-                  {showAll ? "Show less" : "Show more"}
-                </button>
-              )}            </div>
-          </div>
+                    {venues.length > 5 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAll(!showAll)}
+                        className="text-blue-600 text-[16px] mt-1"
+                      >
+                        {showAll ? "Show less" : "Show more"}
+                      </button>
+                    )}
+                  </div>
+                </div>
 
-          {/* Days */}
-          <div>
-            <h3 className="text-[20px] font-medium mb-2 border-b border-gray-300 pb-2 text-semibold">Days</h3>
-            <div className="space-y-2 pt-2">
-              {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
-                <label key={day} className="flex text-[16px] items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedDays.includes(day)}
-                    onChange={() => toggleDay(day)}
-                    className="accent-blue-600"
-                  />
-                  {day}
-                </label>
-              ))}
-            </div>
-          </div>
+                {/* Days */}
+                <div>
+                  <h3 className="text-[20px] font-medium mb-2 border-b border-gray-300 pb-2">
+                    Days
+                  </h3>
+                  <div className="space-y-2 pt-2">
+                    {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map((day) => (
+                      <label key={day} className="flex text-[16px] items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedDays.includes(day)}
+                          onChange={() => toggleDay(day)}
+                          className="accent-blue-600"
+                        />
+                        {day}
+                      </label>
+                    ))}
+                  </div>
+                </div>
 
-          {/* Toggle */}
-          <div className="pb-4 border-gray-300 border-b">
-            <Switch.Group as="div" className="flex items-center justify-between">
-              <Switch
-                checked={showAvailableOnly}
-                onChange={setShowAvailableOnly}
-                className={`${showAvailableOnly ? "bg-blue-600" : "bg-gray-300"}
-        relative inline-flex h-6 w-11 items-center rounded-full transition`}
-              >
-                <span
-                  className={`${showAvailableOnly ? "translate-x-6" : "translate-x-1"}
-          inline-block h-4 w-4 transform bg-white rounded-full transition`}
-                />
-              </Switch>
-              <Switch.Label className="text-[16px] text-semibold">
-                Show venues with availability
-              </Switch.Label>
-            </Switch.Group>
-          </div>
-
+                {/* Toggle */}
+                <div className="pb-4 border-gray-300 border-b">
+                  <Switch.Group as="div" className="flex items-center justify-between">
+                    <Switch
+                      checked={showAvailableOnly}
+                      onChange={setShowAvailableOnly}
+                      className={`${showAvailableOnly ? "bg-blue-600" : "bg-gray-300"
+                        } relative inline-flex h-6 w-11 items-center rounded-full transition`}
+                    >
+                      <span
+                        className={`${showAvailableOnly ? "translate-x-6" : "translate-x-1"
+                          } inline-block h-4 w-4 transform bg-white rounded-full transition`}
+                      />
+                    </Switch>
+                    <Switch.Label className="text-[16px] font-medium">
+                      Show venues with availability
+                    </Switch.Label>
+                  </Switch.Group>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <div
           className={`transition-all duration-300 flex-1 bg-white`}>
@@ -584,14 +613,14 @@ const List = () => {
                           <div className="flex items-center gap-2">
                             <img src="/demo/synco/icons/Location.png" alt="" />
                             <div className="flex">
-<span className="font-medium text-[16px]">
-  {venue.address}
-  {venue.postal_code && !venue.address.includes(venue.postal_code) && (
-    <span> PostCode - {venue.postal_code}</span>
-  )}
-</span>
-                           
-                              </div>
+                              <span className="font-medium text-[16px]">
+                                {venue.address}
+                                {venue.postal_code && !venue.address.includes(venue.postal_code) && (
+                                  <span> PostCode - {venue.postal_code}</span>
+                                )}
+                              </span>
+
+                            </div>
                           </div>
                           <div ref={iconContainerRef} className=" md:mt-0 mt-5 flex relative items-center gap-4">
                             <img
@@ -635,9 +664,9 @@ const List = () => {
 
                         <div className="flex items-center bg-[#FCF9F6] flex-col lg:flex-row"> {/* ✅ responsive layout */}
                           {/* Meta Info */}
-                          <div className="flex items-start  w-1/12 text-sm text-[#555] px-4 py-2  border-b lg:border-b-0 my-6 border-gray-300 min-w-[250px]">
+                          <div className="flex items-start    max-w-40 text-sm text-[#555] px-4 py-2  border-b lg:border-b-0 my-6 border-gray-300 ">
                             <div>
-                              <div className="font-semibold text-[20px] text-black">{venue.venueName}</div>
+                              <div className="font-semibold text-[20px] text-black max-w-30 truncate ">{venue.venueName}</div>
                               <div className="whitespace-nowrap font-semibold text-[14px]">
                                 {(venue.distanceMiles / 1609.34).toFixed(2)} miles
                               </div>
@@ -648,10 +677,10 @@ const List = () => {
                           </div>
 
                           {/* Classes */}
-                          <div className="px-4  w-11/12 py-2 flex-1 space-y-6">
+                          <div className="px-4  w-auto py-2 flex-1 space-y-6">
                             {venue.classes && Object.keys(venue.classes).length > 0 ? (
                               Object.entries(venue.classes).map(([day, classList]) => (
-                                <div key={day} className="md:flex gap-6 items-center ">
+                                <div key={day} className="md:flex gap-6  m-0 items-center ">
                                   <div className="block border-r pr-3 min-w-25 border-[#b6b2ad] ">
                                     <div className="text-[16px] font-semibold text-[#384455]">{day}</div>
                                     <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
@@ -765,15 +794,15 @@ const List = () => {
                             </div>
                           )}
                           {showteamModal === venue.venueId && (
-<div 
-  ref={iconContainerRef} 
-  className="
+                            <div
+                              ref={iconContainerRef}
+                              className="
     absolute bg-opacity-30 top-15 flex items-center justify-center z-50
     min-w-[200px] sm:min-w-[489px]
     left-2 sm:left-auto right-2
     px-2 sm:px-0
   "
->
+                            >
                               <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
                                 {/* Header */}
                                 <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
@@ -836,7 +865,7 @@ const List = () => {
                                   {/* Calendar Weeks */}
                                   <div className="grid grid-cols-7 gap-0 text-[16px]">
                                     {calendarDays.map((date, i) => {
-                                      const { isStartOrEnd, isInBetween, isExcluded } = getDateStatus(date);
+                                      const { isStartOrEnd, isInBetween, isExcluded, isSessionDate } = getDateStatus(date);
 
                                       let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
                                       let innerDiv = null;
@@ -844,16 +873,18 @@ const List = () => {
                                       if (!date) {
                                         className += "";
                                       } else if (isExcluded) {
-                                        className += "bg-gray-300 text-white opacity-60 cursor-not-allowed";
+                                        className += "bg-gray-400 text-white opacity-60 rounded-full cursor-not-allowed";
+                                      } else if (isSessionDate) {
+                                        className += "bg-blue-600 text-white font-bold rounded-full"; // DARK BLUE
                                       } else if (isStartOrEnd) {
-                                        className += "bg-sky-100"; // Outer background
+                                        className += ""; // Outer background
                                         innerDiv = (
                                           <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
                                             {date.getDate()}
                                           </div>
                                         );
                                       } else if (isInBetween) {
-                                        className += "bg-sky-100 text-gray-800";
+                                        className += " text-gray-800";
                                       } else {
                                         className += "hover:bg-gray-100 text-gray-800";
                                       }

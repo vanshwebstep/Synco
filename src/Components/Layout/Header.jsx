@@ -242,7 +242,13 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
               onClick={() => setProfileOpen(!profileOpen)}
             >
               <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
-                <img src='{/demo/synco/images/demoprofile.png}' alt="Profile" className="w-full h-full object-cover" />
+                <img
+                    src={
+                      adminInfo?.profile
+                        ? `${adminInfo.profile}`
+                        : '/demo/synco/members/dummyuser.png'
+                    }
+                    className="w-full h-full object-cover" />
               </div>
             </div>
 
@@ -333,7 +339,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
                   <img
                     src={
                       adminInfo?.profile
-                        ? `${API_BASE_URL}/${adminInfo.profile}`
+                        ? `${adminInfo.profile}`
                         : '/demo/synco/members/dummyuser.png'
                     }
                     alt="profile"

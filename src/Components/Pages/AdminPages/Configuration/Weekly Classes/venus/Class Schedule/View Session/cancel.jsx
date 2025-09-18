@@ -26,7 +26,8 @@ const ViewSessions = () => {
   const [subject, setSubject] = useState('Class cancellation');
   const [emailText, setEmailText] = useState('');
   const navigate = useNavigate();
-  const { schedule } = location.state || {};
+  const { schedule ,sessionId} = location.state || {};
+  console.log('sessionId',sessionId)
   console.log("Filtered Schedules in cancel:", schedule);
   function formatDate(isoDate) {
     const date = new Date(isoDate);
@@ -95,7 +96,7 @@ const ViewSessions = () => {
 
       console.log("Cancellation Payload:", payload);
 
-      await cancelClass(schedule.id, payload); // ✅ await API call
+      await cancelClass(schedule.id,sessionId, payload); // ✅ await API call
     } catch (error) {
       console.error("Error cancelling class:", error);
     } finally {

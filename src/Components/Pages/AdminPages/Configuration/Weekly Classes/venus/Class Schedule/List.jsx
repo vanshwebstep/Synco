@@ -325,7 +325,7 @@ const List = () => {
                                             {/* Class info block */}
                                             <div className="grid grid-cols-2 md:grid-cols-8 gap-4 w-full text-sm">
                                                 <div>
-                                                    <p className="font-semibold text-[16px]">Class +{index + 1}</p>
+                                                    <p className="font-semibold text-[16px]">Class {index + 1}</p>
                                                     <p className="text-xs font-semibold text-[16px]">{item.className}</p>
                                                 </div>
                                                 <div>
@@ -478,13 +478,13 @@ console.log('itemitem',item)
                                                                             });
                                                                         };
                                                                         console.log('singleClassSchedules', singleClassSchedules)
+                                                                            console.log('session session for session:', session);
                                                                         // console.log('sessionPlan',sessionPlan)
 
                                                                         const handleNavigate = () => {
                                                                             console.log('---handleNavigate called---');
 
                                                                             const selected = sessionStates[session.id]?.selectedSessionMap;
-                                                                            console.log('Selected sessionMap for navigation:', selected);
 
                                                                             if (selected) {
                                                                                 console.log('Navigating with state:', {
@@ -505,7 +505,7 @@ console.log('itemitem',item)
                                                                             >
                                                                                 {/* Title and Date */}
                                                                                 <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm w-full md:w-auto">
-                                                                                    <span className="text-[15px] font-semibold min-w-0 md:min-w-[200px]">{session.sessionPlan.groupName}</span>
+                                                                                    <span className="text-[15px] font-semibold min-w-0 md:min-w-[200px]">{session?.sessionPlan?.groupName}</span>
                                                                                     <span className="text-[15px] min-w-0 md:min-w-[200px] text-gray-600">
                                                                                         {new Date(session.sessionDate).toLocaleDateString("en-US", {
                                                                                             weekday: "long",   // full day name
@@ -518,10 +518,11 @@ console.log('itemitem',item)
 
                                                                                 {/* Status */}
                                                                                 <div className="flex items-center gap-2 text-sm mt-2 md:mt-0 w-full md:w-auto">
-                                                                                    <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
-                                                                                        <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="" />
-                                                                                        {session.sessionPlanId || "Completed"}
-                                                                                    </span>
+                                                                               <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
+  <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="" />
+  {session?.sessionPlan?.status || "Completed"}
+</span>
+
                                                                                 </div>
 
                                                                                 {/* Action Buttons */}
@@ -550,58 +551,7 @@ console.log('itemitem',item)
 
                                                                                     )}
 
-                                                                                    {/* Animated Dropdown (Drawer style) */}
-                                                                                    <AnimatePresence>
-
-                                                                                        <motion.div
-                                                                                            initial={{ opacity: 0, y: -10 }}
-                                                                                            animate={{ opacity: 1, y: 0 }}
-                                                                                            exit={{ opacity: 0, y: -10 }}
-                                                                                            transition={{ duration: 0.3 }}
-                                                                                            style={{
-                                                                                                position: "absolute",
-                                                                                                opacity: 1,
-                                                                                                transform: "none",
-                                                                                                maxWidth: "400px"
-                                                                                            }}
-                                                                                            className="absolute z-50 mt-2  w-full md:w-1/3 bg-white border border-gray-200 rounded-xl shadow-xl p-4 space-y-4"
-                                                                                        >
-                                                                                            {/* Dropdown */}
-                                                                                            <div>
-                                                                                                <div className="flex mb-4 justify-between">
-                                                                                                    <label className="block text-sm font-medium text-gray-700 mb-1">Select {session.termName} Plan</label>
-
-                                                                                                    <button onClick={handleToggleDropdown}>X</button></div>
-                                                                                                <select
-                                                                                                    value={sessionState.selectedKey || ''}
-                                                                                                    onChange={(e) => handleSessionMapChange(e.target.value)}
-                                                                                                    className="border p-2 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                                                                                >
-                                                                                                    <option value="">-- Select --</option>
-                                                                                                    <option
-                                                                                                        value={`${sessionMaps.sessionDate}|||${sessionMaps.sessionPlan?.groupName}`}
-                                                                                                    >
-                                                                                                        {sessionMaps.sessionDate} - {sessionMaps.sessionPlan?.groupName}
-                                                                                                    </option>
-                                                                                                </select>
-
-                                                                                            </div>
-
-                                                                                            {/* View Button */}
-                                                                                            <button
-                                                                                                onClick={handleNavigate}
-                                                                                                disabled={!sessionState.selectedSessionMap}
-                                                                                                className={`w-full px-4 py-2 rounded-xl font-semibold transition-all duration-300 ${sessionState.selectedSessionMap
-                                                                                                    ? 'bg-[#237FEA] text-white hover:bg-white hover:text-[#237FEA] border border-[#237FEA]'
-                                                                                                    : 'bg-gray-300 text-white cursor-not-allowed'
-                                                                                                    }`}
-                                                                                            >
-                                                                                                View
-                                                                                            </button>
-                                                                                        </motion.div>
-
-                                                                                    </AnimatePresence>
-
+                                                                              
                                                                                     <button
                                                                                         onClick={() => navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/completed')}
                                                                                         className="hover:bg-blue-500 font-semibold bg-white text-blue-500 border-2 hover:border-transparent border-blue-500 text-[15px] hover:text-white px-3 py-2 rounded-xl transition"
@@ -615,6 +565,7 @@ console.log('itemitem',item)
                                                                                                     "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
                                                                                                     {
                                                                                                         state: {
+                                                                                                            sessionId:session.sessionPlanId,
                                                                                                             schedule: item,
                                                                                                             canceled: item.status === "cancelled" // true if cancelled, false otherwise
                                                                                                         }

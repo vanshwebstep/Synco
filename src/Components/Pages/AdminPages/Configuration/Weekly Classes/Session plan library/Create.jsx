@@ -7,6 +7,7 @@ import { useSearchParams } from "react-router-dom";
 import Loader from '../../../contexts/Loader';
 import { Editor } from '@tinymce/tinymce-react';
 import Swal from "sweetalert2";
+import { Mic, StopCircle, Play } from "lucide-react";
 
 import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 
@@ -24,7 +25,7 @@ const Create = () => {
     const [activeTab, setActiveTab] = useState('beginner');
     const fileInputRef = useRef(null);
     const [page, setPage] = useState(1);
-      const [photoPreview, setPhotoPreview] = useState([]);
+    const [photoPreview, setPhotoPreview] = useState([]);
 
     const [groupName, setGroupName] = useState('');
     const [groupNameSection, setGroupNameSection] = useState('');
@@ -41,6 +42,58 @@ const Create = () => {
     const visibleTabs = level ? tabs.filter((tab) => tab.toLowerCase() == level.toLowerCase()) : tabs;
     console.log('visibleTabs', visibleTabs)
     console.log('tabs', tabs)
+    const [recording, setRecording] = useState(null); // ✅ stores Blob instead of boolean
+    const [audioURL, setAudioURL] = useState(null);
+    const [elapsedTime, setElapsedTime] = useState(0);
+
+    const mediaRecorderRef = useRef(null);
+    const audioChunks = useRef([]);
+    const timerRef = useRef(null);
+    const startRecording = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorderRef.current = new MediaRecorder(stream);
+            audioChunks.current = [];
+
+            mediaRecorderRef.current.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    audioChunks.current.push(e.data);
+                }
+            };
+
+            mediaRecorderRef.current.onstop = () => {
+                const blob = new Blob(audioChunks.current, { type: "audio/webm" });
+                const url = URL.createObjectURL(blob);
+                setRecording(blob); // ✅ save Blob
+                setAudioURL(url);
+
+                stream.getTracks().forEach((track) => track.stop()); // stop mic
+            };
+
+            mediaRecorderRef.current.start();
+            setRecording("in-progress"); // mark as recording
+            setElapsedTime(0);
+
+            timerRef.current = setInterval(() => {
+                setElapsedTime((prev) => prev + 1);
+            }, 1000);
+        } catch (err) {
+            console.error("Error accessing microphone:", err);
+        }
+    };
+
+    const stopRecording = () => {
+        mediaRecorderRef.current?.stop();
+        clearInterval(timerRef.current);
+    };
+
+    const formatTime = (secs) => {
+        const m = String(Math.floor(secs / 60)).padStart(2, "0");
+        const s = String(secs % 60).padStart(2, "0");
+        return `${m}:${s}`;
+    };
+
+
 
     console.log('level', level)
 
@@ -79,29 +132,32 @@ const Create = () => {
 
         }
     };
+
+
     const handleCreateSession = (finalSubmit = false) => {
         if (isProcessing) return;
 
-    
-            if (!groupNameSection || !player || !skillOfTheDay || !descriptionSession || selectedPlans.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Please fill out all required fields before proceeding.',
-                });
-                return;
-            }
-        
+
+        if (!groupNameSection || !player || !skillOfTheDay || !descriptionSession || selectedPlans.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Please fill out all required fields before proceeding.',
+            });
+            return;
+        }
+
         setIsProcessing(true);
 
         if (tabRef.current) {
             tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-
+        console.log('selectedPlanssssssssssss', selectedPlans)
         const currentLevel = {
             level: activeTab,
             player,
             groupNameSection,
             skillOfTheDay,
+            recording,
             descriptionSession,
             videoFile,
             bannerFile,
@@ -126,73 +182,81 @@ const Create = () => {
         setIsProcessing(false);
     };
 
-const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
-    const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
-    const isLastTab = nextIndex >= tabs.length;
+    const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
+        const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
+        const isLastTab = nextIndex >= tabs.length;
 
-    // ✅ Only send the activeTab when editing
-    const levelsToSend = (isEditMode && id && level)
-        ? updatedLevels.filter(item => item.level === activeTab) // filter only activeTab
-        : updatedLevels;
+        // ✅ Only send the activeTab when editing
+        const levelsToSend = (isEditMode && id && level)
+            ? updatedLevels.filter(item => item.level === activeTab)
+            : updatedLevels;
 
-    const transformed = {
-        groupName: groupNameSection,
-        levels: {},
-    };
+        const transformed = {
+            groupName: groupNameSection,
+            player,
+            video: videoFile,
+            banner: bannerFile,
+            levels: {},
+        };
 
-    const allMediaFiles = {};
+        levelsToSend.forEach((item) => {
+            const levelKey = item.level.replace(/s$/i, '').toLowerCase();
 
-    levelsToSend.forEach((item) => {
-        // levelKey is lowercase singular version of activeTab
-        const levelKey = item.level.replace(/s$/i, '').toLowerCase();
+            if (!transformed.levels[levelKey]) {
+                transformed.levels[levelKey] = [];
+            }
 
-        // ✅ Only include the active level
-        if (!transformed.levels[levelKey]) {
-            transformed.levels[levelKey] = [];
-        }
-
-        transformed.levels[levelKey].push({
-            player: item.player,
-            skillOfTheDay: item.skillOfTheDay,
-            description: item.descriptionSession,
-            sessionExerciseId: item.sessionExerciseIds,
+            transformed.levels[levelKey].push({
+                skillOfTheDay: item.skillOfTheDay,
+                recording: item.recording,
+                description: item.descriptionSession,
+                sessionExerciseId: item.sessionExerciseIds,
+            });
         });
 
-        allMediaFiles[levelKey] = {
-            banner: item.bannerFile,
-            video: item.videoFile,
-        };
-    });
-
-    Object.entries(allMediaFiles).forEach(([levelKey, media]) => {
-        if (media.video instanceof File) {
-            transformed[`${levelKey}_video`] = media.video;
+        if (videoFile instanceof File) {
+            transformed["video_file"] = videoFile;
         }
-        if (media.banner instanceof File) {
-            transformed[`${levelKey}_banner`] = media.banner;
+        if (bannerFile instanceof File) {
+            transformed["banner_file"] = bannerFile;
         }
-    });
+        if (recording instanceof Blob) {
+            formData.append("recording", recording, "recording.webm");
+        }
 
-    if ((isEditMode && id && level) || isLastTab || forceSubmit) {
-        if (isEditMode && id && level) {
-            // ✅ Send only the active level data
-            updateDiscount(id, transformed);
+        if ((isEditMode && id && level) || isLastTab || forceSubmit) {
+            if (isEditMode && id && level) {
+                updateDiscount(id, transformed);
+            } else {
+                createSessionGroup(transformed);
+            }
         } else {
-            createSessionGroup(transformed);
+            // ✅ move to next tab but restore its data if exists
+            const nextTab = tabs[nextIndex];
+            setActiveTab(nextTab);
+            setPage(1);
+
+            const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
+
+            if (existingLevel) {
+                setSkillOfTheDay(existingLevel.skillOfTheDay || "");
+                setRecording(existingLevel.recording || null);
+                setDescriptionSession(existingLevel.descriptionSession || "");
+                setSelectedPlans(
+                    existingLevel.sessionExerciseIds?.map(id =>
+                        planOptions.find(opt => opt.id === id)
+                    ).filter(Boolean) || []
+                );
+            } else {
+                // fresh
+                setSkillOfTheDay("");
+                setRecording(null);
+                setDescriptionSession("");
+                setSelectedPlans([]);
+            }
         }
-    } else {
-        // Move to next tab
-        setActiveTab(tabs[nextIndex]);
-        setPage(1);
-        setPlayer('');
-        setSkillOfTheDay('');
-        setDescriptionSession('');
-        setBannerFile('');
-        setVideoFile('');
-        if (videoInputRef.current) videoInputRef.current.value = null;
-        if (bannerInputRef.current) bannerInputRef.current.value = null;
-    }
-};
+    };
+
 
 
 
@@ -217,53 +281,56 @@ const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
         }
     }, [id]);
 
-
     useEffect(() => {
-        if (selectedGroup?.levels && isEditMode) {
-            let parsedLevels;
+        if (selectedGroup && isEditMode) {
+            let parsedLevels = selectedGroup.levels;
 
-            if (typeof selectedGroup.levels === "string") {
+            // If it's stringified, parse it
+            if (typeof parsedLevels === "string") {
                 try {
-                    parsedLevels = JSON.parse(selectedGroup.levels);
+                    parsedLevels = JSON.parse(parsedLevels);
                 } catch (err) {
                     console.error("Failed to parse levels JSON:", err);
                     return;
                 }
-            } else {
-                parsedLevels = selectedGroup.levels;
             }
 
+            // Set top-level values
+            setGroupNameSection(selectedGroup.groupName || "");
+            setPlayer(selectedGroup.player || "");
+
+            // ✅ Video (string URL or File)
+            if (selectedGroup.video instanceof File) {
+                setVideoFile(selectedGroup.video);
+            } else if (typeof selectedGroup.video === "string") {
+                setVideoFile(selectedGroup.video); // direct URL
+            } else {
+                setVideoFile("");
+            }
+
+            // ✅ Banner (string URL or File)
+            if (selectedGroup.banner instanceof File) {
+                setBannerFile(selectedGroup.banner);
+            } else if (typeof selectedGroup.banner === "string") {
+                setBannerFile(selectedGroup.banner); // direct URL
+            } else {
+                setBannerFile("");
+            }
+
+            // ✅ Levels mapping
             const loadedLevels = [];
-            setGroupNameSection(selectedGroup.groupName || '');
-
-            Object.entries(parsedLevels).forEach(([levelKey, sessions]) => {
-                const bannerKey = `${levelKey}_banner`;
-                const videoKey = `${levelKey}_video`;
-
-                const banner = selectedGroup[bannerKey] || '';
-                const video = selectedGroup[videoKey];
-
-                // if (video) {
-                //     const myVideo = `${API_BASE_URL}/${video}`;
-                //     setVideoFilePreview(myVideo); // ✅ Set only if it exists
-                // }
-
-                // if (banner) {
-                //     const myBanner = `${API_BASE_URL}/${banner}`;
-                //     setBannerFilePreview(myBanner); // ✅ Set only if it exists
-                // }
-
-                // setBannerFile(banner);
+            Object.entries(parsedLevels || {}).forEach(([levelKey, sessions]) => {
                 sessions?.forEach((session) => {
                     loadedLevels.push({
                         level: levelKey,
-                        player: session.player || '',
-                        skillOfTheDay: session.skillOfTheDay || '',
-                        descriptionSession: session.description || '',
+                        player: session.player || "",
+                        skillOfTheDay: session.skillOfTheDay || "",
+                        recording: session.recording || "",
+                        descriptionSession: session.description || "",
                         sessionExerciseId: session.sessionExerciseId || [],
                         sessionExercises: session.sessionExercises || [],
-                        bannerFile: banner,
-                        videoFile: video,
+                        bannerFile: selectedGroup.banner, // use top-level
+                        videoFile: selectedGroup.video,   // use top-level
                     });
                 });
             });
@@ -272,26 +339,31 @@ const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
         }
     }, [selectedGroup, isEditMode]);
 
-    useEffect(() => {
-        const existingLevel = levels.find((lvl) => lvl.level?.toLowerCase?.() === activeTab?.toLowerCase?.());
 
+    useEffect(() => {
+
+        const existingLevel = levels.find((lvl) => lvl.level?.toLowerCase?.() === activeTab?.toLowerCase?.());
+        console.log('existingLevel', existingLevel)
         if (!existingLevel) {
-            setPlayer('');
             setSkillOfTheDay('');
+            setRecording('');
             setDescriptionSession('');
-            setBannerFile('');
-            setVideoFile('');
             setSelectedPlans([]);
             setSessionExerciseId([]);
             return;
         }
 
-        setPlayer(existingLevel.player || '');
         setSkillOfTheDay(existingLevel.skillOfTheDay || '');
+        setRecording(existingLevel.recording || '');
         setDescriptionSession(existingLevel.descriptionSession || '');
         // Step 1: Ensure sessionExerciseIds is set
+        console.log('existingLevel', existingLevel)
         setSessionExerciseId(existingLevel.sessionExerciseIds || []);
-
+        // setSelectedPlans(
+        //     existingLevel.sessionExerciseIds?.map(id =>
+        //         planOptions.find(opt => opt.id === id)
+        //     ).filter(Boolean) || []
+        // );
         // Step 2: Match selected plans from planOptions using the ids
         const selectedPlans = (planOptions || [])
             .filter(option => (existingLevel.sessionExerciseIds || []).includes(option.value))
@@ -305,40 +377,20 @@ const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
         console.log('Selected Plan IDs:', existingLevel.sessionExerciseIds);
         console.log('Matched Selected Plans:', selectedPlans);
 
-        // Step 3: Set selected plans state
-        setSelectedPlans(selectedPlans);
-
+    
+            setSelectedPlans(selectedPlans);
+        
         // ✅ Handle videoFile (convert to previewable URL if File or string)
-        if (existingLevel.videoFile) {
-            if (existingLevel.videoFile instanceof File) {
-                // Already a File object
-                setVideoFile(existingLevel.videoFile);
-            } else if (typeof existingLevel.videoFile === 'string') {
-                const videoPath = `${API_BASE_URL}/${existingLevel.videoFile}`;
-                setVideoFile(videoPath); // ✅ Just set the string URL
-            }
-        } else {
-            console.log("🚫 No videoFile found in existingLevel.");
-        }
 
-        // ✅ Handle bannerFile (convert to previewable URL if File or string)
-        if (existingLevel.bannerFile) {
-            if (existingLevel.bannerFile instanceof File) {
-                // Already a File object
-                setBannerFile(existingLevel.bannerFile);
-            } else if (typeof existingLevel.bannerFile === 'string') {
-                const bannerPath = `${API_BASE_URL}/${existingLevel.bannerFile}`;
-                setBannerFile(bannerPath); // ✅ Just set the string URL
-            }
-        } else {
-            console.log("🚫 No bannerFile found in existingLevel.");
-        }
 
         console.log('existingLevel', existingLevel);
     }, [activeTab, levels]);
 
-
+    //HOLDDD
     useEffect(() => {
+    if (selectedGroup && isEditMode) {
+        console.log('selectedGroup found ', selectedGroup)
+        
         const currentLevelData = levels.find((item) => item.level == activeTab);
         setSelectedPlans(
             (currentLevelData?.sessionExercises || []).map((exercise) => ({
@@ -348,6 +400,7 @@ const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
             }))
         );
 
+    }
     }, [activeTab, levels]);
 
 
@@ -390,71 +443,71 @@ const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
         updated.splice(index, 1);
         setSelectedPlans(updated);
     };
-const handleSavePlan = async () => {
-    const { title, duration, description, images } = formData;
+    const handleSavePlan = async () => {
+        const { title, duration, description, images } = formData;
 
-    // ✅ Reusable dynamic SweetAlert
-    const showAlert = ({ type = 'info', message = '', title = '' }) => {
-        Swal.fire({
-            icon: type,
-            title: title || type.charAt(0).toUpperCase() + type.slice(1),
-            text: message,
-            timer: type === 'success' ? 1500 : undefined,
-            showConfirmButton: type !== 'success',
-        });
-    };
+        // ✅ Reusable dynamic SweetAlert
+        const showAlert = ({ type = 'info', message = '', title = '' }) => {
+            Swal.fire({
+                icon: type,
+                title: title || type.charAt(0).toUpperCase() + type.slice(1),
+                text: message,
+                timer: type === 'success' ? 1500 : undefined,
+                showConfirmButton: type !== 'success',
+            });
+        };
 
-    // --- Frontend validation ---
-    if (!title.trim()) {
-        showAlert({ type: 'warning', message: 'Title is required', title: 'Missing Field' });
-        return;
-    }
-    if (!duration.trim()) {
-        showAlert({ type: 'warning', message: 'Duration is required', title: 'Missing Field' });
-        return;
-    }
-
-    const imageList = Array.isArray(images) ? images : [];
-    const hasValidImage = imageList.some(file => file instanceof File);
-    if (!hasValidImage) {
-        showAlert({ type: 'warning', message: 'Please upload at least one image', title: 'Missing Image' });
-        return;
-    }
-
-    setPlanLoading(true);
-
-    const data = new FormData();
-    data.append('title', title);
-    data.append('duration', duration);
-    data.append('description', description);
-    imageList.forEach(file => file instanceof File && data.append('images', file));
-
-    // --- API call ---
-    try {
-        await createSessionExercise(formData);
-
-        setFormData({ title: '', duration: '', description: '', images: [] });
-        setOpenForm(false);
-
-        showAlert({ type: 'success', message: 'Exercise saved successfully!', title: 'Saved' });
-
-    } catch (err) {
-        console.error('Error saving exercise:', err);
-
-        // Dynamic backend error handling
-        const message = err.message || 'Something went wrong';
-        const code = err.code;
-
-        if (code === 'UNAUTHORIZED') {
-            showAlert({ type: 'error', message, title: 'Permission Denied' });
-        } else {
-            showAlert({ type: 'error', message, title: 'Error' });
+        // --- Frontend validation ---
+        if (!title.trim()) {
+            showAlert({ type: 'warning', message: 'Title is required', title: 'Missing Field' });
+            return;
+        }
+        if (!duration.trim()) {
+            showAlert({ type: 'warning', message: 'Duration is required', title: 'Missing Field' });
+            return;
         }
 
-    } finally {
-        setPlanLoading(false);
-    }
-};
+        const imageList = Array.isArray(images) ? images : [];
+        const hasValidImage = imageList.some(file => file instanceof File);
+        if (!hasValidImage) {
+            showAlert({ type: 'warning', message: 'Please upload at least one image', title: 'Missing Image' });
+            return;
+        }
+
+        setPlanLoading(true);
+
+        const data = new FormData();
+        data.append('title', title);
+        data.append('duration', duration);
+        data.append('description', description);
+        imageList.forEach(file => file instanceof File && data.append('images', file));
+
+        // --- API call ---
+        try {
+            await createSessionExercise(formData);
+
+            setFormData({ title: '', duration: '', description: '', images: [] });
+            setOpenForm(false);
+
+            showAlert({ type: 'success', message: 'Exercise saved successfully!', title: 'Saved' });
+
+        } catch (err) {
+            console.error('Error saving exercise:', err);
+
+            // Dynamic backend error handling
+            const message = err.message || 'Something went wrong';
+            const code = err.code;
+
+            if (code === 'UNAUTHORIZED') {
+                showAlert({ type: 'error', message, title: 'Permission Denied' });
+            } else {
+                showAlert({ type: 'error', message, title: 'Error' });
+            }
+
+        } finally {
+            setPlanLoading(false);
+        }
+    };
 
 
 
@@ -488,8 +541,6 @@ const handleSavePlan = async () => {
     const handleTabClick = (tab) => {
         setActiveTab(tab);
         setPage(1);
-        setVideoFile('');
-        setBannerFile('');
         if (videoInputRef.current) videoInputRef.current.value = null;
         if (bannerInputRef.current) bannerInputRef.current.value = null;
     };
@@ -643,13 +694,100 @@ const handleSavePlan = async () => {
                                         Skill of the day
                                     </label>
                                     <input
-
                                         value={skillOfTheDay}
                                         onChange={(e) => setSkillOfTheDay(e.target.value)}
                                         type="text"
                                         required
                                         className="w-full px-4 font-semibold py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
+                                </div>
+                                <div>
+                                    <label className="block text-lg font-semibold text-gray-700 mb-2">
+                                        Add Audio
+                                    </label>
+
+                                    <div className="flex flex-col gap-3 px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 shadow-sm">
+                                        {/* Record / Stop button */}
+                                        <div className="flex items-center gap-4">
+                                            {recording === "in-progress" ? (
+                                                <button
+                                                    onClick={stopRecording}
+                                                    type="button"
+                                                    className="bg-red-500 text-white p-3 rounded-full shadow hover:scale-110 transition"
+                                                >
+                                                    <StopCircle size={28} />
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={startRecording}
+                                                    type="button"
+                                                    className="bg-blue-500 text-white p-2 rounded-full shadow hover:scale-110 transition"
+                                                >
+                                                    <Mic size={28} />
+                                                </button>
+                                            )}
+
+                                            <span
+                                                className={`font-medium ${recording === "in-progress" ? "text-red-600" : "text-gray-600"
+                                                    }`}
+                                            >
+                                                {recording === "in-progress"
+                                                    ? `Recording... ${formatTime(elapsedTime)}`
+                                                    : "Click mic to record"}
+                                            </span>
+                                        </div>
+
+                                        {/* Waveform animation */}
+                                        {recording === "in-progress" && (
+                                            <div className="flex gap-1 mt-2 h-6 items-end">
+                                                {Array.from({ length: 20 }).map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className="w-1 bg-red-400 rounded"
+                                                        style={{
+                                                            height: `${Math.random() * 100}%`,
+                                                            animation: "bounce 0.8s infinite ease-in-out",
+                                                            animationDelay: `${i * 0.05}s`,
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Playback */}
+                                        {audioURL && recording !== "in-progress" && (
+                                            <div className="flex items-center gap-3 mt-2">
+                                                <button
+                                                    onClick={() => {
+                                                        const audio = new Audio(audioURL);
+                                                        audio.play();
+                                                    }}
+                                                    className="bg-green-500 text-white p-2 rounded-full hover:scale-110 transition"
+                                                    type="button"
+                                                >
+                                                    <Play size={20} />
+                                                </button>
+
+                                                <audio
+                                                    controls
+                                                    src={audioURL}
+                                                    className="flex-1 h-10 rounded-md border border-gray-200"
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <style jsx>{`
+                                    @keyframes bounce {
+                                    0%,
+                                    100% {
+                                        transform: scaleY(0.3);
+                                    }
+                                    50% {
+                                        transform: scaleY(1);
+                                    }
+                                    }
+                                `}</style>
                                 </div>
 
                                 <div>
@@ -722,31 +860,31 @@ const handleSavePlan = async () => {
                                                 className="transition-all" // remove "overflow-hidden"
                                             >
                                                 <div className="w-full mb-4">
-                                                  <Select
-  options={planOptions}
-  value={selectedOptions}
-  onChange={handleSelectChange}
-  isMulti
-  placeholder="Select Exercises..."
-  className="react-select-container"
-  classNamePrefix="react-select"
-  menuPortalTarget={document.body}
-  styles={{
-    menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-    option: (base, state) => ({
-      ...base,
-      backgroundColor: state.isFocused
-        ? "#f1f1f1" // 👈 grayish hover
-        : state.isSelected
-        ? "#c4c0c0ff" // 👈 slightly darker when selected
-        : "white",
-      color: "black",
-      cursor: "pointer",
-    }),
-  }}
-  closeMenuOnSelect={false}
-  hideSelectedOptions={false}
-/>
+                                                    <Select
+                                                        options={planOptions}
+                                                        value={selectedOptions}
+                                                        onChange={handleSelectChange}
+                                                        isMulti
+                                                        placeholder="Select Exercises..."
+                                                        className="react-select-container"
+                                                        classNamePrefix="react-select"
+                                                        menuPortalTarget={document.body}
+                                                        styles={{
+                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                                                            option: (base, state) => ({
+                                                                ...base,
+                                                                backgroundColor: state.isFocused
+                                                                    ? "#f1f1f1" // 👈 grayish hover
+                                                                    : state.isSelected
+                                                                        ? "#c4c0c0ff" // 👈 slightly darker when selected
+                                                                        : "white",
+                                                                color: "black",
+                                                                cursor: "pointer",
+                                                            }),
+                                                        }}
+                                                        closeMenuOnSelect={false}
+                                                        hideSelectedOptions={false}
+                                                    />
 
 
 
@@ -774,7 +912,7 @@ const handleSavePlan = async () => {
                                         onClick={() => handleCreateSession()} // default = false
                                         disabled={isProcessing}
                                         className={`min-w-50 font-semibold px-6 py-2 rounded-lg w-full md:w-auto 
-        ${isProcessing ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#237FEA] hover:bg-blue-700 text-white'}`}
+                                   ${isProcessing ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#237FEA] hover:bg-blue-700 text-white'}`}
                                     >
                                         {isProcessing ? 'Processing...' :
                                             (isEditMode && id && level
@@ -881,41 +1019,41 @@ const handleSavePlan = async () => {
                                     </div>
 
                                     <div>
-                                    <div>
-  <input
-    type="file"
-    accept="image/*"
-    multiple
-    ref={fileInputRef}
-    onChange={(e) => {
-      const files = Array.from(e.target.files);
-      // Create URLs for each file
-      const previews = files.map((file) => URL.createObjectURL(file));
-      setPhotoPreview(previews);
-      setFormData((prev) => ({ ...prev, images: files }));
-    }}
-    style={{ display: 'none' }}
-  />
-  <button
-    type="button"
-    onClick={() => fileInputRef.current?.click()}
-    className="flex w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
-  >
-    Upload images
-  </button>
+                                        <div>
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                multiple
+                                                ref={fileInputRef}
+                                                onChange={(e) => {
+                                                    const files = Array.from(e.target.files);
+                                                    // Create URLs for each file
+                                                    const previews = files.map((file) => URL.createObjectURL(file));
+                                                    setPhotoPreview(previews);
+                                                    setFormData((prev) => ({ ...prev, images: files }));
+                                                }}
+                                                style={{ display: 'none' }}
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="flex w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
+                                            >
+                                                Upload images
+                                            </button>
 
-  {/* Render multiple previews */}
-  <div className="flex flex-wrap gap-2 mt-2">
-    {photoPreview?.map((src, index) => (
-      <img
-        key={index}
-        src={src}
-        alt={`preview-${index}`}
-        className="w-24 h-24 object-cover rounded-md"
-      />
-    ))}
-  </div>
-</div>
+                                            {/* Render multiple previews */}
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {photoPreview?.map((src, index) => (
+                                                    <img
+                                                        key={index}
+                                                        src={src}
+                                                        alt={`preview-${index}`}
+                                                        className="w-24 h-24 object-cover rounded-md"
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
 
 
                                     </div>

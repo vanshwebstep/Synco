@@ -18,7 +18,7 @@ const routeTitleMap = {
   '/configuration/holiday-camps/discounts/list': { title: 'Discounts', icon: "/demo/synco/icons/subscriptionplanIcon.png" },
   '/notification': { title: 'Notifications', icon: '/demo/synco/members/Notification.png' },
   '/configuration/weekly-classes/term-dates/list': { title: 'Term Dates & Session Plan Mapping', icon: '/demo/synco/members/termCondition.png' },
-  '/configuration/weekly-classes/term-dates/create': { title: 'Term Dates & Session Plan Mapping', icon: '/demo/synco/members/termCondition.png' },
+  '/configuration/weekly-classes/term-dates/Create': { title: 'Term Dates & Session Plan Mapping', icon: '/demo/synco/members/termCondition.png' },
   '/configuration/weekly-classes/venues/class-schedule': { title: 'Class Schedule ', icon: '/demo/synco/members/ClassSchedule.png' },
   '/configuration/weekly-classes/session-plan-list': { title: 'Session Plan Library ', icon: '/demo/synco/members/Document.png' },
   '/configuration/weekly-classes/session-plan-preview': { title: 'Session Plan Library ', icon: '/demo/synco/members/Document.png' },

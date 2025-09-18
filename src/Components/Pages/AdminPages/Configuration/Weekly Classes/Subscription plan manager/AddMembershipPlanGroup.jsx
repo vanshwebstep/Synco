@@ -497,7 +497,7 @@ const AddPaymentPlanGroup = () => {
                                     </button>
                                     {/* Add your form content here */}
                                     <div className="text-[24px] font-semibold mb-4">Membership Plan</div>
-                                 {[
+{[
   { label: "Title", name: "title", type: "text" },
   { label: "Price (€)", name: "price", type: "number" },
   { label: "Price per lesson(€)", name: "priceLesson", type: "number" },
@@ -585,29 +585,44 @@ const AddPaymentPlanGroup = () => {
             </option>
           ))}
         </select>
-      ) : (
+      ) : field.type === "number" ? (
         <input
-          type={field.type}
+          type="text" // numbers are text but validated
           value={formData[field.name]}
           onChange={(e) => {
             let value = e.target.value;
 
-            // Restrict max for students
-            if (field.name === "students" && Number(value) > 3) {
-              value = "3";
+            // Allow only whole numbers (no decimals)
+            if (/^\d*$/.test(value)) {
+              // Restrict max for students
+              if (field.name === "students" && Number(value) > 3) {
+                value = "3";
+              }
+              setFormData({ ...formData, [field.name]: value });
             }
-
-            setFormData({ ...formData, [field.name]: value });
           }}
-          className={`w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent`}
-          step={field.type === "number" ? "0.01" : undefined}
-          min={field.type === "number" ? 0 : undefined}
-          max={field.name === "students" ? 3 : undefined}
+          onPaste={(e) => {
+            const paste = e.clipboardData.getData("text");
+            if (!/^\d*$/.test(paste)) {
+              e.preventDefault(); // block non-numeric paste
+            }
+          }}
+          className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
+        />
+      ) : (
+        <input
+          type="text"
+          value={formData[field.name]}
+          onChange={(e) =>
+            setFormData({ ...formData, [field.name]: e.target.value })
+          }
+          className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
         />
       )}
     </div>
   );
 })}
+
 
 
 

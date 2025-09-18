@@ -246,7 +246,7 @@ export const ClassScheduleProvider = ({ children }) => {
       });
     }
   }, [token, fetchClassSchedules]);
- const cancelClass = async  (classScheduleId, updatedClassScheduleData) => {
+ const cancelClass = async  (classScheduleId, sessionId,updatedClassScheduleData) => {
     setLoading(true);
 
     const myHeaders = new Headers();
@@ -264,7 +264,7 @@ export const ClassScheduleProvider = ({ children }) => {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-session/${classScheduleId}/cancel`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-session/${classScheduleId}/cancel?sessionPlanId=${sessionId}`, requestOptions);
 
       if (!response.ok) {
         const errorData = await response.json();

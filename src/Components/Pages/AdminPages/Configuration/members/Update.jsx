@@ -427,7 +427,7 @@ const handleToggleAddress = () => {
                   photoPreview
                     ? photoPreview
                     : formData.profile
-                      ? `${API_BASE_URL}/${formData.profile}`
+                      ? `${formData.profile}`
                       : FALLBACK
                 }
                 alt="avatar"

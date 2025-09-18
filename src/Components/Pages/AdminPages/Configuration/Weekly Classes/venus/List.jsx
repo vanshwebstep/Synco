@@ -178,33 +178,47 @@ const handleIconClick = (icon, plan = null) => {
     setToDate(null);
   };
 
-  const getDateStatus = (date) => {
-    let isStartOrEnd = false;
-    let isInBetween = false;
-    let isExcluded = false;
+const getDateStatus = (date) => {
+  let isStartOrEnd = false;
+  let isInBetween = false;
+  let isExcluded = false;
+  let isSessionDate = false; // NEW
 
-    congestionNote.forEach((term) => {
-      const start = new Date(term.startDate);
-      const end = new Date(term.endDate);
+  congestionNote.forEach((term) => {
+    const start = new Date(term.startDate);
+    const end = new Date(term.endDate);
 
-      if (!date) return;
+    if (!date) return;
 
-      if (isSameDate(date, start) || isSameDate(date, end)) {
-        isStartOrEnd = true;
-      } else if (date >= start && date <= end) {
-        isInBetween = true;
+    // Start / End
+    if (isSameDate(date, start) || isSameDate(date, end)) {
+      isStartOrEnd = true;
+    } 
+    // In Between
+    else if (date >= start && date <= end) {
+      isInBetween = true;
+    }
+
+    // Exclusion Dates
+    term.exclusionDates?.forEach((ex) => {
+      const exclusionDate = new Date(ex);
+      if (isSameDate(date, exclusionDate)) {
+        isExcluded = true;
       }
-
-      term.exclusionDates?.forEach((ex) => {
-        const exclusionDate = new Date(ex);
-        if (isSameDate(date, exclusionDate)) {
-          isExcluded = true;
-        }
-      });
     });
 
-    return { isStartOrEnd, isInBetween, isExcluded };
-  };
+    // Session Dates (NEW)
+    term.sessionsMap?.forEach((session) => {
+      const sessionDate = new Date(session.sessionDate);
+      if (isSameDate(date, sessionDate)) {
+        isSessionDate = true;
+      }
+    });
+  });
+
+  return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
+};
+
 
   const isSameDate = (d1, d2) =>
     d1 &&
@@ -232,18 +246,6 @@ const handleIconClick = (icon, plan = null) => {
       if (formRef.current && !formRef.current.contains(e.target)) {
         setOpenForm(false);
         setIsEditVenue(false);
-        setFormData({
-          area: "",
-          name: "",
-          address: "",
-          facility: "",
-          parking: false,
-          congestion: false,
-          parkingNote: "",
-          entryNote: "",
-          termDateLinkage: "",
-          subscriptionLinkage: ""
-        });
       }
     }
 
@@ -731,39 +733,42 @@ const handleIconClick = (icon, plan = null) => {
               {/*also in calendar make auto prefilled terms startdate and end date print all like january has 15 to 21 feb has 23 to 28 */}
               {/* Calendar Grid */}
               <div className="grid grid-cols-7 gap-0 text-[16px]">
-                {calendarDays.map((date, i) => {
-                  const { isStartOrEnd, isInBetween, isExcluded } = getDateStatus(date);
+        {calendarDays.map((date, i) => {
+  const { isStartOrEnd, isInBetween, isExcluded, isSessionDate } = getDateStatus(date);
 
-                  let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
-                  let innerDiv = null;
+  let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
+  let innerDiv = null;
 
-                  if (!date) {
-                    className += "";
-                  } else if (isExcluded) {
-                    className += "bg-gray-300 text-white opacity-60 cursor-not-allowed";
-                  } else if (isStartOrEnd) {
-                    className += "bg-sky-100"; // Outer background
-                    innerDiv = (
-                      <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
-                        {date.getDate()}
-                      </div>
-                    );
-                  } else if (isInBetween) {
-                    className += "bg-sky-100 text-gray-800";
-                  } else {
-                    className += "hover:bg-gray-100 text-gray-800";
-                  }
+  if (!date) {
+    className += "";
+  } else if (isExcluded) {
+    className += "bg-gray-400 text-white opacity-60 rounded-full cursor-not-allowed";
+  } else if (isSessionDate) {
+    className += "bg-blue-600 text-white font-bold rounded-full"; // DARK BLUE
+  } else if (isStartOrEnd) {
+    className += "";
+    innerDiv = (
+      <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
+        {date.getDate()}
+      </div>
+    );
+  } else if (isInBetween) {
+    className += " text-gray-800";
+  } else {
+    className += "hover:bg-gray-100 text-gray-800";
+  }
 
-                  return (
-                    <div
-                      key={i}
-                      onClick={() => date && !isExcluded && handleDateClick(date)}
-                      className={className}
-                    >
-                      {innerDiv || (date ? date.getDate() : "")}
-                    </div>
-                  );
-                })}
+  return (
+    <div
+      key={i}
+      onClick={() => date && !isExcluded && handleDateClick(date)}
+      className={className}
+    >
+      {innerDiv || (date ? date.getDate() : "")}
+    </div>
+  );
+})}
+
               </div>
             </div>
           </div>

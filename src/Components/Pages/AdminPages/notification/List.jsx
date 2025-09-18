@@ -66,9 +66,9 @@ export default function List() {
               <img
                 src={
                   item?.admin?.profile
-                    ? `${API_BASE_URL}${item.admin.profile}`
+                    ? `${item.admin.profile}`
                     : item?.createdBy?.profile
-                      ? `${API_BASE_URL}${item.createdBy.profile}`
+                      ? `${item.createdBy.profile}`
                       : '/demo/synco/members/dummyuser.png'
                 }
                 alt={item.name || "avatar"}

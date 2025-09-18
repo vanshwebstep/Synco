@@ -112,7 +112,7 @@ const List = () => {
                               </button>
 
                               <img
-                                src={user.profile ? `${API_BASE_URL}/${user.profile}` : '/demo/synco/members/dummyuser.png'}
+                                src={user.profile ? `${user.profile}` : '/demo/synco/members/dummyuser.png'}
                                 alt={user.firstName || 'Profile Image'}
                                 onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}
                                 className="w-10 h-10 rounded-full object-contain"
