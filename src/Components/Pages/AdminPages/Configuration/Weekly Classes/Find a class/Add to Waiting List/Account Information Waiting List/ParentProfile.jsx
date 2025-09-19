@@ -44,8 +44,8 @@ const ParentProfile = ({ profile }) => {
         { value: "Schedule conflict", label: "Schedule conflict" },
     ];
     const cancelType = [
-        { value: "immediately", label: "Cancel Immediately" },
-        { value: "request", label: "Request Cancel" },
+        { value: "immediate", label: "Cancel Immediately" },
+        { value: "scheduled", label: "Request Cancel" },
     ];
     const firstPayment = Array.isArray(profile?.payments)
         ? profile.payments[0]

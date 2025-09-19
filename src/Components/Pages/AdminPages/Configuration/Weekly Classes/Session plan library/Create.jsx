@@ -42,7 +42,7 @@ const Create = () => {
     const visibleTabs = level ? tabs.filter((tab) => tab.toLowerCase() == level.toLowerCase()) : tabs;
     console.log('visibleTabs', visibleTabs)
     console.log('tabs', tabs)
-    const [recording, setRecording] = useState(null); // ✅ stores Blob instead of boolean
+    const [recording, setRecording] = useState(null); // stores Blob
     const [audioURL, setAudioURL] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
 
@@ -62,16 +62,25 @@ const Create = () => {
             };
 
             mediaRecorderRef.current.onstop = () => {
-                const blob = new Blob(audioChunks.current, { type: "audio/webm" });
-                const url = URL.createObjectURL(blob);
-                setRecording(blob); // ✅ save Blob
-                setAudioURL(url);
+                try {
+                    const blob = new Blob(audioChunks.current, { type: "audio/webm" });
+                    const url = URL.createObjectURL(blob);
 
-                stream.getTracks().forEach((track) => track.stop()); // stop mic
+                    // ⏳ short delay ensures recording fully flushed
+                    setTimeout(() => {
+                        setRecording(blob);
+                        setAudioURL(url);
+                    }, 200);
+
+                    // 🔒 release mic
+                    stream.getTracks().forEach((track) => track.stop());
+                } catch (err) {
+                    console.error("Error finalizing recording:", err);
+                }
             };
 
             mediaRecorderRef.current.start();
-            setRecording("in-progress"); // mark as recording
+            setRecording("in-progress");
             setElapsedTime(0);
 
             timerRef.current = setInterval(() => {
@@ -79,11 +88,16 @@ const Create = () => {
             }, 1000);
         } catch (err) {
             console.error("Error accessing microphone:", err);
+            alert("Microphone access denied or not available.");
         }
     };
 
     const stopRecording = () => {
-        mediaRecorderRef.current?.stop();
+        try {
+            mediaRecorderRef.current?.stop();
+        } catch (err) {
+            console.error("Error stopping recording:", err);
+        }
         clearInterval(timerRef.current);
     };
 
@@ -134,128 +148,130 @@ const Create = () => {
     };
 
 
-    const handleCreateSession = (finalSubmit = false) => {
-        if (isProcessing) return;
+       const handleCreateSession = (finalSubmit = false) => {
+           if (isProcessing) return;
+   
+   
+           if (!groupNameSection || !player || !skillOfTheDay || !descriptionSession || selectedPlans.length === 0) {
+               Swal.fire({
+                   icon: 'warning',
+                   title: 'Please fill out all required fields before proceeding.',
+               });
+               return;
+           }
+   
+           setIsProcessing(true);
+   
+           if (tabRef.current) {
+               tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+           }
+           console.log('selectedPlanssssssssssss', selectedPlans)
+           const currentLevel = {
+               level: activeTab,
+               player,
+               groupNameSection,
+               skillOfTheDay,
+               recording,
+               descriptionSession,
+               videoFile,
+               bannerFile,
+               sessionExerciseIds: selectedPlans.map(plan => plan.id),
+           };
+   
+           setLevels((prevLevels) => {
+               const existingIndex = prevLevels.findIndex((lvl) => lvl.level === activeTab);
+               const updated = [...prevLevels];
+               if (existingIndex !== -1) {
+                   updated[existingIndex] = currentLevel;
+               } else {
+                   updated.push(currentLevel);
+               }
+   
+               // Pass finalSubmit to handleNextTabOrSubmit
+               handleNextTabOrSubmit(updated, finalSubmit);
+   
+               return updated;
+           });
+   
+           setIsProcessing(false);
+       };
+   
+       const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
+           const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
+           const isLastTab = nextIndex >= tabs.length;
+   
+           // ✅ Only send the activeTab when editing
+           const levelsToSend = (isEditMode && id && level)
+               ? updatedLevels.filter(item => item.level === activeTab)
+               : updatedLevels;
+   
+           const transformed = {
+               groupName: groupNameSection,
+               player,
+               video: videoFile,
+               banner: bannerFile,
+               levels: {},
+           };
+   console.log('transformed',transformed)
+           levelsToSend.forEach((item) => {
+               const levelKey = item.level.replace(/s$/i, '').toLowerCase();
+   
+               if (!transformed.levels[levelKey]) {
+                   transformed.levels[levelKey] = [];
+               }
+   
+               transformed.levels[levelKey].push({
+                   skillOfTheDay: item.skillOfTheDay,
+                   recording: item.recording,
+                   description: item.descriptionSession,
+                   sessionExerciseId: item.sessionExerciseIds,
+               });
+           });
+   
+           if (videoFile instanceof File) {
+               transformed["video_file"] = videoFile;
+           }
+           if (bannerFile instanceof File) {
+               transformed["banner_file"] = bannerFile;
+           }
+           if (recording instanceof Blob) {
+               formData.append("recording", recording, "recording.webm");
+           }
+   
+           if ((isEditMode && id && level) || isLastTab || forceSubmit) {
+               if (isEditMode && id && level) {
+                   updateDiscount(id, transformed);
+               } else {
+                   createSessionGroup(transformed);
+               }
+           } else {
+               // ✅ move to next tab but restore its data if exists
+               const nextTab = tabs[nextIndex];
+               setActiveTab(nextTab);
+               setPage(1);
+   
+               const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
+   
+               if (existingLevel) {
+                   setSkillOfTheDay(existingLevel.skillOfTheDay || "");
+                   setRecording(existingLevel.recording || null);
+                   setDescriptionSession(existingLevel.descriptionSession || "");
+                   setSelectedPlans(
+                       existingLevel.sessionExerciseIds?.map(id =>
+                           planOptions.find(opt => opt.id === id)
+                       ).filter(Boolean) || []
+                   );
+               } else {
+                   // fresh
+                   setSkillOfTheDay("");
+                   setRecording(null);
+                   setDescriptionSession("");
+                   setSelectedPlans([]);
+               }
+           }
+       };
+   
 
-
-        if (!groupNameSection || !player || !skillOfTheDay || !descriptionSession || selectedPlans.length === 0) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Please fill out all required fields before proceeding.',
-            });
-            return;
-        }
-
-        setIsProcessing(true);
-
-        if (tabRef.current) {
-            tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        console.log('selectedPlanssssssssssss', selectedPlans)
-        const currentLevel = {
-            level: activeTab,
-            player,
-            groupNameSection,
-            skillOfTheDay,
-            recording,
-            descriptionSession,
-            videoFile,
-            bannerFile,
-            sessionExerciseIds: selectedPlans.map(plan => plan.id),
-        };
-
-        setLevels((prevLevels) => {
-            const existingIndex = prevLevels.findIndex((lvl) => lvl.level === activeTab);
-            const updated = [...prevLevels];
-            if (existingIndex !== -1) {
-                updated[existingIndex] = currentLevel;
-            } else {
-                updated.push(currentLevel);
-            }
-
-            // Pass finalSubmit to handleNextTabOrSubmit
-            handleNextTabOrSubmit(updated, finalSubmit);
-
-            return updated;
-        });
-
-        setIsProcessing(false);
-    };
-
-    const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
-        const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
-        const isLastTab = nextIndex >= tabs.length;
-
-        // ✅ Only send the activeTab when editing
-        const levelsToSend = (isEditMode && id && level)
-            ? updatedLevels.filter(item => item.level === activeTab)
-            : updatedLevels;
-
-        const transformed = {
-            groupName: groupNameSection,
-            player,
-            video: videoFile,
-            banner: bannerFile,
-            levels: {},
-        };
-
-        levelsToSend.forEach((item) => {
-            const levelKey = item.level.replace(/s$/i, '').toLowerCase();
-
-            if (!transformed.levels[levelKey]) {
-                transformed.levels[levelKey] = [];
-            }
-
-            transformed.levels[levelKey].push({
-                skillOfTheDay: item.skillOfTheDay,
-                recording: item.recording,
-                description: item.descriptionSession,
-                sessionExerciseId: item.sessionExerciseIds,
-            });
-        });
-
-        if (videoFile instanceof File) {
-            transformed["video_file"] = videoFile;
-        }
-        if (bannerFile instanceof File) {
-            transformed["banner_file"] = bannerFile;
-        }
-        if (recording instanceof Blob) {
-            formData.append("recording", recording, "recording.webm");
-        }
-
-        if ((isEditMode && id && level) || isLastTab || forceSubmit) {
-            if (isEditMode && id && level) {
-                updateDiscount(id, transformed);
-            } else {
-                createSessionGroup(transformed);
-            }
-        } else {
-            // ✅ move to next tab but restore its data if exists
-            const nextTab = tabs[nextIndex];
-            setActiveTab(nextTab);
-            setPage(1);
-
-            const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
-
-            if (existingLevel) {
-                setSkillOfTheDay(existingLevel.skillOfTheDay || "");
-                setRecording(existingLevel.recording || null);
-                setDescriptionSession(existingLevel.descriptionSession || "");
-                setSelectedPlans(
-                    existingLevel.sessionExerciseIds?.map(id =>
-                        planOptions.find(opt => opt.id === id)
-                    ).filter(Boolean) || []
-                );
-            } else {
-                // fresh
-                setSkillOfTheDay("");
-                setRecording(null);
-                setDescriptionSession("");
-                setSelectedPlans([]);
-            }
-        }
-    };
 
 
 
@@ -377,9 +393,9 @@ const Create = () => {
         console.log('Selected Plan IDs:', existingLevel.sessionExerciseIds);
         console.log('Matched Selected Plans:', selectedPlans);
 
-    
-            setSelectedPlans(selectedPlans);
-        
+
+        setSelectedPlans(selectedPlans);
+
         // ✅ Handle videoFile (convert to previewable URL if File or string)
 
 
@@ -388,19 +404,19 @@ const Create = () => {
 
     //HOLDDD
     useEffect(() => {
-    if (selectedGroup && isEditMode) {
-        console.log('selectedGroup found ', selectedGroup)
-        
-        const currentLevelData = levels.find((item) => item.level == activeTab);
-        setSelectedPlans(
-            (currentLevelData?.sessionExercises || []).map((exercise) => ({
-                id: exercise.id,
-                title: exercise.title || 'not found',
-                duration: exercise.duration || 'not found',
-            }))
-        );
+        if (selectedGroup && isEditMode) {
+            console.log('selectedGroup found ', selectedGroup)
 
-    }
+            const currentLevelData = levels.find((item) => item.level == activeTab);
+            setSelectedPlans(
+                (currentLevelData?.sessionExercises || []).map((exercise) => ({
+                    id: exercise.id,
+                    title: exercise.title || 'not found',
+                    duration: exercise.duration || 'not found',
+                }))
+            );
+
+        }
     }, [activeTab, levels]);
 
 
@@ -488,7 +504,7 @@ const Create = () => {
 
             setFormData({ title: '', duration: '', description: '', images: [] });
             setOpenForm(false);
-
+            setPhotoPreview([]);
             showAlert({ type: 'success', message: 'Exercise saved successfully!', title: 'Saved' });
 
         } catch (err) {
@@ -578,8 +594,8 @@ const Create = () => {
                     <div className={`transition-all duration-300 md:w-1/2`}>
                         <div className="rounded-2xl  md:p-10 ">
                             <form className="mx-auto  space-y-4">
-                                {/* Group Name */}
-                                <div className="flex gap-4   border w-full border-gray-300 p-1 rounded-xl  flex-wrap">
+                               
+                                <div className="flex gap-4   my-10 border w-full border-gray-300 p-1 rounded-xl  flex-wrap">
                                     {visibleTabs.map((tab) => (
                                         <button
                                             type="button"
@@ -595,8 +611,8 @@ const Create = () => {
 
                                 </div>
 
-                                <div>
 
+ <div>
                                     <label className="block text-[18px]  font-semibold text-gray-700 mb-2">
                                         Group Name
                                     </label>
@@ -607,6 +623,20 @@ const Create = () => {
                                         required
                                         placeholder="Enter Group Name"
                                         className="w-full px-4 font-semibold text-[18px] py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                {/* Description */}
+                                <div>
+                                    <label className="block text-[18px]  font-semibold text-gray-700 mb-2">
+                                        Player
+                                    </label>
+                                    <input
+
+                                        value={player}
+                                        onChange={(e) => setPlayer(e.target.value)}
+                                        type="text"
+                                        requiredx
+                                        className="w-full px-4 font-semibold py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
                                 <div className="flex w-full  gap-4 items-center">
@@ -675,20 +705,6 @@ const Create = () => {
 
                                 </div>
 
-                                {/* Description */}
-                                <div>
-                                    <label className="block text-[18px]  font-semibold text-gray-700 mb-2">
-                                        Player
-                                    </label>
-                                    <input
-
-                                        value={player}
-                                        onChange={(e) => setPlayer(e.target.value)}
-                                        type="text"
-                                        requiredx
-                                        className="w-full px-4 font-semibold py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                </div>
                                 <div>
                                     <label className="block text-[18px]  font-semibold text-gray-700 mb-2">
                                         Skill of the day
@@ -756,22 +772,11 @@ const Create = () => {
 
                                         {/* Playback */}
                                         {audioURL && recording !== "in-progress" && (
-                                            <div className="flex items-center gap-3 mt-2">
-                                                <button
-                                                    onClick={() => {
-                                                        const audio = new Audio(audioURL);
-                                                        audio.play();
-                                                    }}
-                                                    className="bg-green-500 text-white p-2 rounded-full hover:scale-110 transition"
-                                                    type="button"
-                                                >
-                                                    <Play size={20} />
-                                                </button>
-
+                                            <div className="flex items-center gap-3 mt-2 w-full">
                                                 <audio
                                                     controls
                                                     src={audioURL}
-                                                    className="flex-1 h-10 rounded-md border border-gray-200"
+                                                    className="w-full rounded-lg border border-gray-300 shadow-sm"
                                                 />
                                             </div>
                                         )}
@@ -850,48 +855,120 @@ const Create = () => {
                                         )}
                                     </div>
 
-                                    <AnimatePresence initial={false}>
-                                        {isOpen && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: "auto", opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                transition={{ duration: 0.3 }}
-                                                className="transition-all" // remove "overflow-hidden"
-                                            >
-                                                <div className="w-full mb-4">
-                                                    <Select
-                                                        options={planOptions}
-                                                        value={selectedOptions}
-                                                        onChange={handleSelectChange}
-                                                        isMulti
-                                                        placeholder="Select Exercises..."
-                                                        className="react-select-container"
-                                                        classNamePrefix="react-select"
-                                                        menuPortalTarget={document.body}
-                                                        styles={{
-                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                                                            option: (base, state) => ({
-                                                                ...base,
-                                                                backgroundColor: state.isFocused
-                                                                    ? "#f1f1f1" // 👈 grayish hover
-                                                                    : state.isSelected
-                                                                        ? "#c4c0c0ff" // 👈 slightly darker when selected
-                                                                        : "white",
-                                                                color: "black",
-                                                                cursor: "pointer",
-                                                            }),
-                                                        }}
-                                                        closeMenuOnSelect={false}
-                                                        hideSelectedOptions={false}
-                                                    />
+                               <AnimatePresence initial={false}>
+  {isOpen && (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: "auto" }}
+      exit={{ opacity: 0, height: 0 }}
+      transition={{ duration: 0.3 }}
+      className="overflow-hidden"
+    >
+      <div className="w-full mb-4">
+        <Select
+          options={planOptions}
+          value={selectedOptions}
+          onChange={handleSelectChange}
+          isMulti
+          placeholder="✨ Select Exercises..."
+          className="react-select-container"
+          classNamePrefix="react-select"
+          menuPortalTarget={document.body}
+          styles={{
+            control: (base, state) => ({
+              ...base,
+              borderRadius: "14px",
+              border: "1px solid",
+              borderColor: state.isFocused ? "#3b82f6" : "#e5e7eb", // Blue-500 or Gray-200
+              boxShadow: state.isFocused
+                ? "0 0 0 3px rgba(59, 130, 246, 0.2)"
+                : "0 1px 2px rgba(0,0,0,0.05)",
+              transition: "all 0.2s ease",
+              minHeight: "52px",
+              padding: "4px 8px",
+              backgroundColor: "#fff",
+              fontSize: "15px",
+              fontWeight: 500,
+            }),
+            valueContainer: (base) => ({
+              ...base,
+              gap: "6px",
+              padding: "2px 4px",
+            }),
+            placeholder: (base) => ({
+              ...base,
+              color: "#9ca3af", // gray-400
+              fontSize: "15px",
+              fontWeight: 400,
+            }),
+            menu: (base) => ({
+              ...base,
+              zIndex: 9999,
+              borderRadius: "14px",
+              marginTop: "6px",
+              padding: "6px 0",
+              backgroundColor: "white",
+              boxShadow:
+                "0 8px 24px rgba(0,0,0,0.12), 0 4px 6px rgba(0,0,0,0.08)",
+            }),
+            option: (base, state) => ({
+              ...base,
+              backgroundColor: state.isSelected
+                ? "#2563eb"
+                : state.isFocused
+                ? "#f3f4f6"
+                : "transparent",
+              color: state.isSelected ? "white" : "#111827",
+              fontSize: "15px",
+              fontWeight: state.isSelected ? 600 : 400,
+              padding: "12px 16px",
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }),
+            multiValue: (base) => ({
+              ...base,
+              borderRadius: "10px",
+              backgroundColor: "#eff6ff", // blue-50
+              padding: "2px 8px",
+              display: "flex",
+              alignItems: "center",
+            }),
+            multiValueLabel: (base) => ({
+              ...base,
+              color: "#1d4ed8", // blue-700
+              fontWeight: 500,
+              fontSize: "14px",
+            }),
+            multiValueRemove: (base) => ({
+              ...base,
+              color: "#2563eb",
+              borderRadius: "6px",
+              ":hover": {
+                backgroundColor: "#2563eb",
+                color: "white",
+              },
+            }),
+            dropdownIndicator: (base, state) => ({
+              ...base,
+              color: state.isFocused ? "#2563eb" : "#9ca3af",
+              transition: "transform 0.2s ease",
+              transform: state.selectProps.menuIsOpen
+                ? "rotate(180deg)"
+                : "rotate(0deg)",
+            }),
+            indicatorSeparator: () => ({ display: "none" }),
+            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+          }}
+          closeMenuOnSelect={false}
+          hideSelectedOptions={false}
+          isClearable
+        />
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
 
-
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
                                 </div>
 
                                 {/* Add Payment Plan Button */}

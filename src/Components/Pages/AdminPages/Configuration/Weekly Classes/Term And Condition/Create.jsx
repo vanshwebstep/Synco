@@ -658,7 +658,7 @@ const Create = () => {
                                 className="md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 disabled={isGroupSaved && !isEditMode}
                             />
-                            {!isGroupSaved && myGroupData?.id && (
+                            {!isGroupSaved &&(
                                 <button
                                     onClick={handleGroupNameSave}
                                     disabled={isLoading}

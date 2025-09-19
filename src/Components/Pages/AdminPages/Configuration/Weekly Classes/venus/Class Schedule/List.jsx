@@ -448,7 +448,7 @@ const List = () => {
                                                                                 return newId;
                                                                             });
                                                                         };
-console.log('itemitem',item)
+                                                                        console.log('itemitem', item)
                                                                         const handleSessionMapChange = (value) => {
                                                                             console.log('---handleSessionMapChange called---');
                                                                             console.log('Value received:', value);
@@ -478,7 +478,7 @@ console.log('itemitem',item)
                                                                             });
                                                                         };
                                                                         console.log('singleClassSchedules', singleClassSchedules)
-                                                                            console.log('session session for session:', session);
+                                                                        console.log('session session for session:', session);
                                                                         // console.log('sessionPlan',sessionPlan)
 
                                                                         const handleNavigate = () => {
@@ -518,12 +518,20 @@ console.log('itemitem',item)
 
                                                                                 {/* Status */}
                                                                                 <div className="flex items-center gap-2 text-sm mt-2 md:mt-0 w-full md:w-auto">
-                                                                               <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
-  <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="" />
-  {session?.sessionPlan?.status || "Completed"}
-</span>
-
+                                                                                    <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
+                                                                                        {session?.sessionPlan?.status == "pending" && (
+                                                                                            <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" />
+                                                                                        )}
+                                                                                        {session?.sessionPlan?.status == "completed" && (
+                                                                                            <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="Complete" />
+                                                                                        )}
+                                                                                        {session?.sessionPlan?.status == "cancelled" && (
+                                                                                            <img src="/demo/synco/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
+                                                                                        )}
+                                                                                        {session?.sessionPlan?.status || "Pending"}
+                                                                                    </span>
                                                                                 </div>
+
 
                                                                                 {/* Action Buttons */}
                                                                                 <div className="flex flex-col sm:flex-row gap-2 mt-3 md:mt-0 w-full md:w-auto">
@@ -538,9 +546,9 @@ console.log('itemitem',item)
                                                                                                         singleClassSchedules: singleClassSchedules,
                                                                                                         sessionMap: session.sessionPlan,
                                                                                                         sessionId: session.sessionPlanId,
-                                                                                                        venueId:venueId,
-                                                                                                        sessionDate:session.sessionDate,
-                                                                                                        classname:item,
+                                                                                                        venueId: venueId,
+                                                                                                        sessionDate: session.sessionDate,
+                                                                                                        classname: item,
                                                                                                     },
                                                                                                 })
                                                                                             }
@@ -551,7 +559,7 @@ console.log('itemitem',item)
 
                                                                                     )}
 
-                                                                              
+
                                                                                     <button
                                                                                         onClick={() => navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/completed')}
                                                                                         className="hover:bg-blue-500 font-semibold bg-white text-blue-500 border-2 hover:border-transparent border-blue-500 text-[15px] hover:text-white px-3 py-2 rounded-xl transition"
@@ -565,7 +573,7 @@ console.log('itemitem',item)
                                                                                                     "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
                                                                                                     {
                                                                                                         state: {
-                                                                                                            sessionId:session.sessionPlanId,
+                                                                                                            sessionId: session.sessionPlanId,
                                                                                                             schedule: item,
                                                                                                             canceled: item.status === "cancelled" // true if cancelled, false otherwise
                                                                                                         }

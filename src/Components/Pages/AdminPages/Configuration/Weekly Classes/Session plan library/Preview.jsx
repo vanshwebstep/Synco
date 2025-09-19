@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 import { formatDistanceToNow } from 'date-fns';
+import Loader from '../../../contexts/Loader';
 
 const levelKeyToLabel = {
   beginner: "Beginners",
@@ -17,7 +18,7 @@ const Preview = ({ item, sessionData }) => {
   const [myData, setMyData] = useState({});
   const [page, setPage] = useState(1);
   const [searchParams] = useSearchParams();
-  const { fetchGroupById, selectedGroup } = useSessionPlan();
+  const { fetchGroupById, selectedGroup, loading } = useSessionPlan();
   const navigate = useNavigate();
 
   const id = searchParams.get("id");
@@ -30,20 +31,26 @@ const Preview = ({ item, sessionData }) => {
   }, [id]);
 
   // Build dynamic content after fetch
+  console.log('selectedGroup', selectedGroup)
   useEffect(() => {
     if (selectedGroup?.levels) {
       const buildContentMap = () => {
         const content = {};
         Object.entries(selectedGroup.levels).forEach(([levelKey, items]) => {
           const label = levelKeyToLabel[levelKey];
-          const banner = selectedGroup.banner  || null;
+          const banner = selectedGroup.banner || null;
           const video = selectedGroup.video || null;
+          const totalVideoTime = selectedGroup.totalVideoTime || null;
+          const id = selectedGroup.id || null;
 
           content[label] = items.map((entry, index) => ({
             title: `${label} – Page ${index + 1}`,
             heading: entry.skillOfTheDay || 'No Skill',
             player: entry.player || 'player',
             videoUrl: video ? `${video}` : '',
+            totalVideoTime: totalVideoTime,
+            id: id,
+
             bannerUrl: banner ? `${banner}` : '',
             description: entry.description || '',
             sessionExercises: entry.sessionExercises || [],
@@ -76,6 +83,14 @@ const Preview = ({ item, sessionData }) => {
       setSelectedExercise(currentContent.sessionExercises[0]);
     }
   }, [currentContent]);
+  if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    )
+  }
+
   console.log('currentContent', currentContent)
   return (
     <div className="md:p-6 bg-gray-50 min-h-screen">
@@ -128,15 +143,15 @@ const Preview = ({ item, sessionData }) => {
                     src={currentContent.bannerUrl}
                     alt="Play like Pele"
                     className="rounded-xl max-h-50  mb-2"
-                   
+
                   />
                 )}
                 <h2 className="font-semibold text-[28px] mb-0">
-                  {currentContent.heading}
+                  Skill of the Day
                 </h2>
                 <p className="text-[20px] flex items-center gap-2 font-semibold">
-
-                  {currentContent?.player} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
+                  {/* {currentContent?.player} */}
+                  {currentContent.heading} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
                 </p>
                 <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
                   {currentContent.description}
@@ -152,16 +167,70 @@ const Preview = ({ item, sessionData }) => {
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
                   </h2>
-                  <img src="/demo/synco/icons/downloadicon.png" alt="" />
+
+   <img
+  src="/demo/synco/icons/downloadicon.png"
+  alt="Download"
+  className="cursor-pointer"
+  onClick={async () => {
+    try {
+      const token = localStorage.getItem("adminToken");
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/session-plan-group/${currentContent.id}/download-video?videolinkrandom=${encodeURIComponent(currentContent.videoUrl)}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to download video");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      // Generate a professional-looking filename
+      const safeGroup = currentContent?.groupName
+        ?.toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9\-]/g, "");
+      const safeLevel = currentContent?.level
+        ?.toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9\-]/g, "");
+
+      const filename = `${safeGroup || "session"}-${safeLevel || "video"}.mp4`;
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
+  }}
+/>
+
+
+
+
+
                 </div>
-                <div>
-                  <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
-                    <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
-                    {selectedGroup?.updatedAt
-                      ? formatDistanceToNow(new Date(selectedGroup.updatedAt), { addSuffix: true })
-                      : '—'}
-                  </p>
-                </div>
+                {currentContent.videoUrl && (
+                  <div>
+                    <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
+                      <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                      {currentContent.totalVideoTime || '—'}
+                    </p>
+                  </div>
+                )}
 
                 {currentContent.sessionExercises?.length > 0 && (
                   <div className="mt-6 space-y-6">
@@ -186,8 +255,8 @@ const Preview = ({ item, sessionData }) => {
                             <p>No images available</p>
                           )}
                         </div>
-                        <div>
-                          <h6 className="text-[18px] w-7/12 font-semibold">{exercise.title}</h6>
+                        <div className="w-7/12">
+                          <h6 className="text-[18px]  font-semibold">{exercise.title}</h6>
                           {/* <div
                             className="text-[16px] text-gray-700"
                             dangerouslySetInnerHTML={{
@@ -209,7 +278,7 @@ const Preview = ({ item, sessionData }) => {
               {/* Right - Placeholder Drill Info */}
               {selectedExercise && (
                 <div className="w-full border-l pl-6 border-gray-300 lg:w-1/2 bg-white">
-                  <h2 className="font-semibold text-[24px] mb-0">{selectedExercise.title}</h2>
+                  <h2 className="font-semibold text-[24px] mb-4">{selectedExercise.title}</h2>
                   <div className="flex flex-wrap justify-start gap-2 w-full ">
                     {selectedExercise.imageUrl ? (
                       JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
@@ -228,18 +297,25 @@ const Preview = ({ item, sessionData }) => {
                     Time Duration: {selectedExercise.duration || '—'}
                   </p>
 
-                  <div className="text-sm space-y-3">
+                  <div className="text-sm space-y-6">
                     <div>
-                      <p className="font-semibold text-[18px]">Description</p>
+                      <p className="font-semibold text-[18px] text-gray-800 mb-3 border-b border-gray-200 pb-2">
+                        Description
+                      </p>
                       <div
-                        className="text-gray-500 text-[14px] font-semibold"
+                        className="prose prose-sm max-w-none text-gray-700
+                 prose-p:mb-3 prose-li:mb-2
+                 prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
+                 prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5"
                         dangerouslySetInnerHTML={{
-                          __html: selectedExercise.description || '<p>No description available.</p>',
+                          __html:
+                            selectedExercise.description ||
+                            "<p class='text-gray-400 italic'>No description available.</p>",
                         }}
                       />
                     </div>
-                    {/* Add other sections like Rules, Conditions, etc. if you have them in exercise */}
                   </div>
+
                 </div>
               )}
 

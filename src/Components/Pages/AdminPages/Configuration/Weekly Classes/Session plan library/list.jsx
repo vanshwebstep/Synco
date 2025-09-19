@@ -277,7 +277,7 @@ const List = () => {
         <Droppable droppableId="weekList" direction="horizontal">
           {(provided) => (
             <div
-              className="md:flex bg-white flex-wrap rounded-3xl p-6 shadow gap-6 relative"
+              className="flex bg-white justify-center md:justify-start  flex-wrap rounded-3xl p-6 shadow gap-6 relative"
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
@@ -293,7 +293,7 @@ const List = () => {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className={`bg-gray-100 rounded-2xl p-4 md:min-w-[374px] max-w-xs transform ${snapshot.isDragging ? 'scale-105 shadow-xl transition-transform duration-200' : ''
+                      className={`bg-gray-100 rounded-2xl p-4 w-full md:min-w-[374px] md:max-w-xs transform ${snapshot.isDragging ? 'scale-105 shadow-xl transition-transform duration-200' : ''
                         }`}
                     >
                       <div className="flex items-center justify-between p-2">
@@ -329,8 +329,14 @@ const List = () => {
                         >
                           <div>
                             <p className="font-medium text-[16px]">{group.name}</p>
-                            <p className="text-[14px] text-gray-500">{group.player}</p>
-                          </div>
+                            <p className="text-[14px] text-gray-400">
+                              {{
+                                Beginner: "4-5 years",
+                                Intermediate: "6-7 years",
+                                Advanced: "8-9 years",
+                                Pro: "10-12 years",
+                              }[group.name] || ""}
+                            </p>                          </div>
                           <div className="flex gap-2">
                             {canEdit &&
                               <button

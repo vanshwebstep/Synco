@@ -105,7 +105,6 @@ if (!err) {
     });
     onClose();
    } // close form on success
-
     console.log("Venue Updated:", formData);
   };
 

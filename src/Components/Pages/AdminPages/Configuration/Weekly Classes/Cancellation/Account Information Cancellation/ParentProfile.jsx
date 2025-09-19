@@ -34,7 +34,7 @@ const ParentProfile = ({ ParentProfile }) => {
         { value: "Schedule conflict", label: "Schedule conflict" },
     ];
     const cancelType = [
-        { value: "immediately", label: "Cancel Immediately" },
+        { value: "immediate", label: "Cancel Immediately" },
     ];
     const handleCancel = () => {
         console.log("Payload:", formData);

@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { evaluate } from 'mathjs';
 import { Info } from "lucide-react"; // or use a custom icon if needed
+import ResizeMap from "../../../Common/Resizemap"
 import { useFindClass } from '../../../contexts/FindClassContext';
 import { FiMapPin } from "react-icons/fi";
 import { FaFacebookF, FaInstagram, FaWhatsapp, FaPinterestP } from "react-icons/fa";
@@ -18,13 +19,13 @@ import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from 'react-leafl
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Swal from "sweetalert2";
-
 import { usePermission } from '../../../Common/permission';
 const customIcon = new L.Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
+
 const List = () => {
   const { fetchFindClasses, findClasses, loading } = useFindClass();
   const [openMapId, setOpenMapId] = useState(null);
@@ -34,12 +35,12 @@ const List = () => {
     fetchFindClasses()
   }, [fetchFindClasses]);
   const iconContainerRef = useRef(null);
-
   const [activeParkingVenueId, setActiveParkingVenueId] = useState(null);
   const [notes, setNotes] = useState(null);
   const [activeCongestionVenueId, setActiveCongestionVenueId] = useState(null);
   const [showteamModal, setShowteamModal] = useState(null);
   const [showModal, setShowModal] = useState(null);
+  const modalRefs = useRef({}); // store refs by venueId
 
   const resetModals = () => {
     setActiveParkingVenueId(null);
@@ -406,17 +407,26 @@ const List = () => {
         break;
     }
   };
-  if (loading) {
-    return (
-      <>
-        <Loader />
-      </>
-    )
-  }
+  useEffect(() => {
+    const activeVenueId =
+      showModal || showteamModal || openMapId || activeCongestionVenueId || activeParkingVenueId;
+
+    if (activeVenueId && modalRefs.current[activeVenueId]) {
+      modalRefs.current[activeVenueId].scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [showModal, showteamModal, openMapId, activeCongestionVenueId, activeParkingVenueId]);
+
+
   const handleBookFreeTrial = (classId) => {
     navigate('/configuration/weekly-classes/find-a-class/book-a-free-trial', {
       state: { classId },
     });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }, 50);
   };
   const handleAddToWaitingList = (classId) => {
     navigate('/configuration/weekly-classes/find-a-class/add-to-waiting-list', {
@@ -474,7 +484,13 @@ const List = () => {
 
 
 
-
+  if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    )
+  }
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
 
@@ -759,12 +775,12 @@ const List = () => {
                                   <img src="/demo/synco/icons/infoIcon.png" alt="" />
                                 </div>
                                 <div className="mt-2 text-[16px] text-gray-700 leading-snug">
+
                                   {notes ? (
-                                    notes
+                                    <p>This venue is inside of the congestion zone.</p>
                                   ) : (
                                     <>
-                                      <p>This venue has no parking facilities available.</p>
-                                      <p>Paid road parking is available.</p>
+                                      <p>There is no congestion charges at this venue.</p>
                                     </>
                                   )}
                                 </div>
@@ -796,6 +812,7 @@ const List = () => {
                           {showteamModal === venue.venueId && (
                             <div
                               ref={iconContainerRef}
+                              // ref={iconContainerRef}
                               className="
     absolute bg-opacity-30 top-15 flex items-center justify-center z-50
     min-w-[200px] sm:min-w-[489px]
@@ -813,7 +830,7 @@ const List = () => {
                                 </div>
 
                                 {/* Term List */}
-                                <div className="space-y-6 text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
+                                <div className="space-y-6 max-h-80 overflow-y-scroll text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
                                   {calendarData.map((term) => (
                                     <div key={term.id}>
                                       <h3 className="md:text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
@@ -833,7 +850,7 @@ const List = () => {
                                 </div>
 
                                 {/* Calendar Section */}
-                                <div className="rounded p-4 mt-6 text-center md:text-sm w-full max-w-md mx-auto">
+                                <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="rounded p-4 mt-6 text-center md:text-sm w-full max-w-md mx-auto">
                                   {/* Header */}
                                   <div className="flex justify-around items-center mb-3">
                                     <button
@@ -908,7 +925,7 @@ const List = () => {
                           )}
                           {showModal === venue.venueId && (
                             <div ref={iconContainerRef} className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
-                              <div className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
+                              <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
                                 <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
                                   {/* Header */}
                                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
@@ -924,29 +941,37 @@ const List = () => {
                           )}
                         </div>
                         {openMapId === venue.venueId && (
-                          <div ref={iconContainerRef} className="mt-4 h-[450px] w-full rounded-lg overflow-hidden">
-                            <MapContainer
-                              center={[venue.latitude, venue.longitude]}
-                              zoom={13}
-                              scrollWheelZoom={false}
-                              zoomControl={false} // 🚫 disable top-left controls
-                              style={{ height: '100%', width: '100%' }}
+                          <div ref={iconContainerRef} >
+                            <div
+                              ref={(el) => (modalRefs.current[venue.venueId] = el)} // ✅ DOM ref here
+                              className="mt-4 h-[450px] w-full rounded-lg overflow-hidden"
                             >
-                              <TileLayer
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                              />
-                              <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
-                                <Popup>
-                                  <strong>{venue.venueName}</strong><br />
-                                  {venue.address}
-                                </Popup>
-                              </Marker>
+                              <MapContainer
+                                center={[venue.latitude, venue.longitude]}
+                                zoom={13}
+                                scrollWheelZoom={false}
+                                zoomControl={false}
+                                style={{ height: '100%', width: '100%' }}
+                              >
+                                <TileLayer
+                                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                  attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                                />
+                                <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
+                                  <Popup>
+                                    <strong>{venue.venueName}</strong>
+                                    <br />
+                                    {venue.address}
+                                  </Popup>
+                                </Marker>
+                                <ZoomControl position="bottomright" />
 
-                              <ZoomControl position="bottomright" /> {/* ✅ This puts it where you want */}
-                            </MapContainer>
+                                <ResizeMap /> {/* ✅ fixes the 30% render issue */}
+                              </MapContainer>
+                            </div>
                           </div>
                         )}
+
 
                       </div>
 

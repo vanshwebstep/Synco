@@ -252,10 +252,10 @@ const createSessionExercise = useCallback(async (data) => {
       };
 
       // Append media files
-      appendMedia("beginner_video", data.beginner_video);
-      appendMedia("beginner_banner", data.beginner_banner);
-      appendMedia("intermediate_video", data.intermediate_video);
-      appendMedia("intermediate_banner", data.intermediate_banner);
+      appendMedia("banner", data.banner);
+      appendMedia("banner_file", data.banner_file);
+      appendMedia("video_file", data.video_file);
+      appendMedia("video", data.video);
       appendMedia("advanced_video", data.advanced_video);
       appendMedia("advanced_banner", data.advanced_banner);
       appendMedia("pro_video", data.pro_video);
@@ -268,7 +268,10 @@ const createSessionExercise = useCallback(async (data) => {
       if (data.groupName) {
         formdata.append("groupName", data.groupName);
       }
-
+      console.log('data',data)
+if (data.player) {
+        formdata.append("player", data.player);
+      }
       const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
         method: "PUT",
         headers: {

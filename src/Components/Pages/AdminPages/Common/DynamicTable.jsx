@@ -38,67 +38,70 @@ console.log('data',data)
 
               const isSelected = selectedIds.includes(uniqueId);
 
-              return (
-                <tr
-                  key={`${uniqueId}-${studentIndex}`}
-                  onClick={onRowClick ? () => onRowClick(item) : undefined}
-                  className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
-                >
-                  {columns.map((col, cIdx) => {
-                    // ✅ Dynamic checkbox column
-                    if (col.selectable) {
-                      return (
-                        <td
-                          key={cIdx}
-                          onClick={(e) => e.stopPropagation()}
-                          className="p-4 cursor-pointer"
-                        >
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => toggleSelect(uniqueId)}
-                              className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 
-                                ${
-                                  isSelected
-                                    ? "bg-blue-500 border-blue-500 text-white"
-                                    : "border-gray-300 text-transparent"
-                                }`}
-                            >
-                              {isSelected && <Check size={14} />}
-                            </button>
+            return (
+  <tr
+    key={`${uniqueId}-${studentIndex}`}
+    onClick={onRowClick ? () => onRowClick(item) : undefined}
+    className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
+  >
+    {columns.map((col, cIdx) => {
+      // ✅ Dynamic checkbox column
+      if (col.selectable) {
+        return (
+          <td
+            key={cIdx}
+            className="p-4 cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // ⛔ prevent row redirect
+                  toggleSelect(uniqueId);
+                }}
+                className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 
+                  ${
+                    isSelected
+                      ? "bg-blue-500 border-blue-500 text-white"
+                      : "border-gray-300 text-transparent"
+                  }`}
+              >
+                {isSelected && <Check size={14} />}
+              </button>
 
-                            {/* ✅ If header = Parent Name, show parent; else show student */}
-                            <span>
-                              {col.header === "Parent Name"
-                                ? `${item.parents?.[0]?.parentFirstName || ""} ${
-                                    item.parents?.[0]?.parentLastName || ""
-                                  }`.trim() || "null"
-                                : `${student.studentFirstName || ""} ${
-                                    student.studentLastName || ""
-                                  }`.trim() || "null"}
-                            </span>
-                          </div>
-                        </td>
-                      );
-                    }
+              {/* ✅ If header = Parent Name, show parent; else show student */}
+              <span>
+                {col.header === "Parent Name"
+                  ? `${item.parents?.[0]?.parentFirstName || ""} ${
+                      item.parents?.[0]?.parentLastName || ""
+                    }`.trim() || "null"
+                  : `${student.studentFirstName || ""} ${
+                      student.studentLastName || ""
+                    }`.trim() || "null"}
+              </span>
+            </div>
+          </td>
+        );
+      }
 
-                    // ✅ Custom render
-                    if (col.render) {
-                      return (
-                        <td key={cIdx} className="p-4">
-                          {col.render(item, student)}
-                        </td>
-                      );
-                    }
+      // ✅ Custom render
+      if (col.render) {
+        return (
+          <td key={cIdx} className="p-4">
+            {col.render(item, student)}
+          </td>
+        );
+      }
 
-                    // ✅ Default value lookup
-                    return (
-                      <td key={cIdx} className="p-4">
-                        {item[col.key] || student[col.key] || "-"}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
+      // ✅ Default value lookup
+      return (
+        <td key={cIdx} className="p-4">
+          {item[col.key] || student[col.key] || "-"}
+        </td>
+      );
+    })}
+  </tr>
+);
+
             })
           )
         ) : (

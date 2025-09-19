@@ -9,6 +9,7 @@ import { evaluate } from "mathjs";
 import PhoneInput from "react-phone-input-2";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 import PlanTabs from "../PlanTabs";
 import Loader from "../../../../contexts/Loader";
@@ -51,7 +52,7 @@ const List = () => {
     });
     console.log('TrialData', TrialData)
     console.log('classId', classId)
-    const { fetchFindClassID, singleClassSchedulesOnly } = useClassSchedule() || {};
+    const { fetchFindClassID, singleClassSchedulesOnly, loading } = useClassSchedule() || {};
     const [students, setStudents] = useState([
         {
             studentFirstName: '',
@@ -63,6 +64,7 @@ const List = () => {
             // Add other fields if needed
         },
     ]);
+    console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
     const [emergency, setEmergency] = useState({
         sameAsAbove: false,
         emergencyFirstName: "",
@@ -193,7 +195,7 @@ const List = () => {
     const [clickedIcon, setClickedIcon] = useState(null);
     const [selectedKeyInfo, setSelectedKeyInfo] = useState(null);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const { venues, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue() || {};
+    const { venues, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues } = useVenue() || {};
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const isAllSelected = venues.length > 0 && selectedUserIds.length === venues.length;
     const toggleSelectAll = () => {
@@ -649,6 +651,19 @@ const List = () => {
         { value: "female", label: "Female" },
         { value: "other", label: "Other" },
     ];
+    const sessionDates = singleClassSchedulesOnly?.venue?.termGroups?.flatMap(group =>
+        group.terms.flatMap(term =>
+            term.sessionsMap.map(s => s.sessionDate)
+        )
+    ) || [];
+
+    
+  const selectedLabel =
+    keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
+    "Key Information";
+    
+    
+    const sessionDatesSet = new Set(sessionDates);
     if (loading) return <Loader />;
 
     return (
@@ -884,31 +899,36 @@ const List = () => {
                                 </div>
 
                                 {/* Calendar Weeks */}
-                                <div className="flex flex-col  gap-1">
+                                <div className="flex flex-col gap-1">
                                     {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
                                         const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
-
 
                                         return (
                                             <div
                                                 key={weekIndex}
-                                                className={`grid grid-cols-7 text-[18px] gap-1 py-1 rounded `}
+                                                className="grid grid-cols-7 text-[18px] gap-1 py-1 rounded"
                                             >
                                                 {week.map((date, i) => {
+                                                    if (!date) {
+                                                        return <div key={i} />;
+                                                    }
+
+                                                    const formattedDate = formatLocalDate(date);
+                                                    const isAvailable = sessionDatesSet.has(formattedDate); // check if this date is valid session
                                                     const isSelected = isSameDate(date, selectedDate);
+
                                                     return (
                                                         <div
                                                             key={i}
-                                                            onClick={() => date && handleDateClick(date)}
-                                                            className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full cursor-pointer
-                      ${isSelected
-                                                                    ? "bg-blue-600 text-white font-bold"
-                                                                    : "text-gray-800"
-                                                                }
-                    `}
+                                                            onClick={() => isAvailable && handleDateClick(date)}
+                                                            className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full
+    ${isAvailable ? "cursor-pointer bg-sky-200" : "cursor-not-allowed opacity-40 bg-white"}
+    ${isSelected ? "selectedDate text-white font-bold" : ""}
+  `}
                                                         >
-                                                            {date ? date.getDate() : ""}
+                                                            {date.getDate()}
                                                         </div>
+
                                                     );
                                                 })}
                                             </div>
@@ -950,7 +970,7 @@ const List = () => {
                                 <div className="flex justify-between text-[#333]">
                                     <span>Membership Plan</span>
                                     <span>
-                                        {membershipPlan.all.duration} {membershipPlan.all.interval}
+                                        {membershipPlan?.all?.duration} {membershipPlan.all.interval}
                                         {membershipPlan.all.duration > 1 ? 's' : ''}
                                     </span>
                                 </div>
@@ -1339,37 +1359,69 @@ const List = () => {
                                 </div>
                             </div>
                         </div>
+    <div className="w-full my-10">
+                            {/* Placeholder (acts like a select box) */}
+                            <div
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between text-[20px] p-3 border  border-white rounded-xl cursor-pointer bg-white shadow-sm  hover:border-gray-400 transition"
+              >
+                <span
+                  className={`${selectedKeyInfo ? " font-medium" : "text-gray-800"
+                    }`}
+                >
+                                    {selectedLabel}
+                                </span>
+                                {isOpen ? (
+                                    <ChevronUp className="w-5 h-5 text-gray-500" />
+                                ) : (
+                                    <ChevronDown className="w-5 h-5 text-gray-500" />
+                                )}
+                            </div>
 
-                        <div className="w-full my-10">
-                            <Select
-                                options={keyInfoOptions}
-                                value={keyInfoOptions.find(option => option.value === selectedKeyInfo)}
-                                onChange={(selectedOption) => setSelectedKeyInfo(selectedOption?.value || '')}
-                                placeholder="Key Information"
-                                className="react-select-container text-[20px]"
-                                classNamePrefix="react-select"
-                                styles={{
-                                    control: (base, state) => ({
-                                        ...base,
-                                        borderRadius: '1rem',
-                                        borderColor: state.isFocused ? '#ccc' : '#E5E7EB',
-                                        boxShadow: 'none',
-                                        padding: '8px 8px',
-                                        minHeight: '48px',
-                                    }),
-                                    placeholder: (base) => ({
-                                        ...base,
-                                        color: '#000000ff',
-                                        fontWeight: 600,
-                                    }),
-                                    dropdownIndicator: (base) => ({
-                                        ...base,
-                                        color: '#9CA3AF',
-                                    }),
-                                    indicatorSeparator: () => ({ display: 'none' }),
-                                }}
-                            />
+                            {/* Options (radio style) */}
+                            {isOpen && (
+                                <div className="mt-3 space-y-3 ">
+                                    {keyInfoOptions.map((option) => (
+                                        <label
+                                            key={option.value}
+                                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition 
+                ${selectedKeyInfo === option.value
+                                                    ? "bg-blue-50 border border-blue-400"
+                                                    : "hover:bg-gray-50 border border-transparent"
+                                                }`}
+                                            onClick={() => {
+                                                setSelectedKeyInfo(option.value);
+                                                setIsOpen(false); // close after select
+                                            }}
+                                        >
+                                            {/* Bullet Circle */}
+                                            <span
+                                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center 
+                  ${selectedKeyInfo === option.value
+                                                        ? "border-blue-500"
+                                                        : "border-gray-400"
+                                                    }`}
+                                            >
+                                                {selectedKeyInfo === option.value && (
+                                                    <span className="w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
+                                                )}
+                                            </span>
+
+                                            {/* Label */}
+                                            <span
+                                                className={`${selectedKeyInfo === option.value
+                                                        ? "font-semibold text-blue-600"
+                                                        : "text-gray-700"
+                                                    }`}
+                                            >
+                                                {option.label}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
                         </div>
+
 
                         <div className="flex justify-end gap-4">
                             <button

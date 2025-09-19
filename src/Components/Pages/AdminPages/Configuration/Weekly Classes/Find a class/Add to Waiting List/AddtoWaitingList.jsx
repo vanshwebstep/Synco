@@ -12,6 +12,7 @@ import Swal from "sweetalert2"; // make sure it's installed
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import { X } from "lucide-react"; // Optional: Use any icon or ✖️ if no icon lib
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { evaluate } from 'mathjs';
 
@@ -36,9 +37,10 @@ const AddtoWaitingList = () => {
   const popup1Ref = useRef(null);
   const popup2Ref = useRef(null);
   const popup3Ref = useRef(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   console.log('classId', classId)
-  const { fetchClassSchedulesByID, singleClassSchedulesOnly } = useClassSchedule() || {};
+  const { fetchClassSchedulesByID, singleClassSchedulesOnly, loading } = useClassSchedule() || {};
   const { createWaitinglist } = useBookFreeTrial()
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -116,7 +118,7 @@ const AddtoWaitingList = () => {
   const { fetchTermGroup, termGroup } = useTermContext()
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue() || {};
+  const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues } = useVenue() || {};
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
@@ -263,14 +265,6 @@ const AddtoWaitingList = () => {
   }, [showModal, clickedIcon, setShowModal]);
 
   const [selectedClass, setSelectedClass] = useState();
-
-  if (loading) {
-    return (
-      <>
-        <Loader />
-      </>
-    )
-  }
 
 
   const allTermRanges = Array.isArray(congestionNote)
@@ -590,6 +584,28 @@ const AddtoWaitingList = () => {
     { value: "female", label: "Female" },
     { value: "other", label: "Other" },
   ];
+  const sessionDates = singleClassSchedulesOnly?.venue?.termGroups?.flatMap(group =>
+    group.terms.flatMap(term =>
+      term.sessionsMap.map(s => s.sessionDate)
+    )
+  ) || [];
+
+  // Convert to YYYY-MM-DD set for quick lookup
+  const sessionDatesSet = new Set(sessionDates);
+
+  const selectedLabel =
+    keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
+    "Key Information";
+
+
+  if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    )
+  }
+
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
       <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
@@ -797,24 +813,31 @@ const AddtoWaitingList = () => {
                     const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
 
                     return (
-                      <div key={weekIndex} className="grid grid-cols-7 text-[18px] gap-1 py-1 rounded">
+                      <div
+                        key={weekIndex}
+                        className="grid grid-cols-7 text-[18px] gap-1 py-1 rounded"
+                      >
                         {week.map((date, i) => {
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0); // normalize today's date
+                          if (!date) {
+                            return <div key={i} />;
+                          }
+
+                          const formattedDate = formatLocalDate(date);
+                          const isAvailable = sessionDatesSet.has(formattedDate); // check if this date is valid session
                           const isSelected = isSameDate(date, selectedDate);
-                          const isPast = date && date < today; // check if date is before today
 
                           return (
                             <div
                               key={i}
-                              onClick={() => !isPast && date && handleDateClick(date)}
-                              className={`w-8 h-8 flex items-center justify-center mx-auto text-base rounded-full 
-                      ${isSelected ? "bg-blue-600 text-white font-bold" : "text-gray-800"}
-                      ${isPast ? "text-gray-300 cursor-not-allowed" : "hover:bg-gray-200 cursor-pointer"}
-                    `}
+                              onClick={() => isAvailable && handleDateClick(date)}
+                              className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full
+    ${isAvailable ? "cursor-pointer bg-sky-200" : "cursor-not-allowed opacity-40 bg-white"}
+    ${isSelected ? "selectedDate text-white font-bold" : ""}
+  `}
                             >
-                              {date ? date.getDate() : ""}
+                              {date.getDate()}
                             </div>
+
                           );
                         })}
                       </div>
@@ -1204,34 +1227,66 @@ const AddtoWaitingList = () => {
               </div>
             </div>
             <div className="w-full my-10">
-              <Select
-                options={keyInfoOptions}
-                value={keyInfoOptions.find(option => option.value === selectedKeyInfo)}
-                onChange={(selectedOption) => setSelectedKeyInfo(selectedOption?.value || '')}
-                placeholder="Key Information"
-                className="react-select-container text-[20px]"
-                classNamePrefix="react-select"
-                styles={{
-                  control: (base, state) => ({
-                    ...base,
-                    borderRadius: '1rem',
-                    borderColor: state.isFocused ? '#ccc' : '#E5E7EB',
-                    boxShadow: 'none',
-                    padding: '8px 8px',
-                    minHeight: '48px',
-                  }),
-                  placeholder: (base) => ({
-                    ...base,
-                    color: '#000000ff',
-                    fontWeight: 600,
-                  }),
-                  dropdownIndicator: (base) => ({
-                    ...base,
-                    color: '#9CA3AF',
-                  }),
-                  indicatorSeparator: () => ({ display: 'none' }),
-                }}
-              />
+              {/* Placeholder (acts like a select box) */}
+              <div
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between text-[20px] p-3 border  border-white rounded-xl cursor-pointer bg-white shadow-sm  hover:border-gray-400 transition"
+              >
+                <span
+                  className={`${selectedKeyInfo ? " font-medium" : "text-gray-800"
+                    }`}
+                >
+                  {selectedLabel}
+                </span>
+                {isOpen ? (
+                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                )}
+              </div>
+
+              {/* Options (radio style) */}
+              {isOpen && (
+                <div className="mt-3 space-y-3 ">
+                  {keyInfoOptions.map((option) => (
+                    <label
+                      key={option.value}
+                      className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition 
+                          ${selectedKeyInfo === option.value
+                          ? "bg-blue-50 border border-blue-400"
+                          : "hover:bg-gray-50 border border-transparent"
+                        }`}
+                      onClick={() => {
+                        setSelectedKeyInfo(option.value);
+                        setIsOpen(false); // close after select
+                      }}
+                    >
+                      {/* Bullet Circle */}
+                      <span
+                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center 
+                            ${selectedKeyInfo === option.value
+                            ? "border-blue-500"
+                            : "border-gray-400"
+                          }`}
+                      >
+                        {selectedKeyInfo === option.value && (
+                          <span className="w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
+                        )}
+                      </span>
+
+                      {/* Label */}
+                      <span
+                        className={`${selectedKeyInfo === option.value
+                          ? "font-semibold text-blue-600"
+                          : "text-gray-700"
+                          }`}
+                      >
+                        {option.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
 
 

@@ -11,9 +11,8 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [showNotificationPopup, setShowNotificationPopup] = useState(null);
-  const { notification, customnotificationAll, setNotification, stopFetching, fetchNotification } = useNotification();
+  const { notification, customnotificationAll, setNotification, stopFetching, fetchNotification,adminInfo,setAdminInfo } = useNotification();
   const currentDate = new Date();
-  const [adminInfo, setAdminInfo] = useState({ firstName: "", lastName: "", role: "", profile: "" });
 
   const month = currentDate.toLocaleString("default", { month: "long" }); // e.g., January
   const day = currentDate.getDate(); // e.g., 8
@@ -22,10 +21,11 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const { activeTab, setActiveTab } = useMembers();
 
   // console.log('notificassstion', notification)
+  const storedAdmin = localStorage.getItem("adminInfo");
 
   useEffect(() => {
     // ✅ Load adminInfo from localStorage
-    const storedAdmin = localStorage.getItem("adminInfo");
+    console.log('storedAdmin',storedAdmin)
     if (storedAdmin) {
       try {
         const parsedAdmin = JSON.parse(storedAdmin);

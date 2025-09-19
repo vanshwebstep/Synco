@@ -9,6 +9,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Loader from '../../contexts/Loader'
 import { verifyToken } from '../../../../verifyToken';
 import { usePermission } from "../../Common/permission";
+import { useNotification } from "../../contexts/NotificationContext";
 
 const Update = () => {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ const Update = () => {
   const [error, setError] = useState("");
   const MyRole = localStorage.getItem("role");
   const { checkPermission } = usePermission();
+    const { setAdminInfo } = useNotification();
+  
     const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -242,12 +245,14 @@ const Update = () => {
 
       Swal.fire({
         icon: "success",
-        title: "Member Updated",
+        title: result.message || "Member Updated",
         text: result.message || "New member was Updated successfully!",
         timer: 2000,
         showConfirmButton: false,
       });
-
+        const storedAdmin = localStorage.getItem("adminInfo");
+         const parsedAdmin = JSON.parse(storedAdmin);
+        setAdminInfo(parsedAdmin);
       navigate('/configuration/members/List')
 
 

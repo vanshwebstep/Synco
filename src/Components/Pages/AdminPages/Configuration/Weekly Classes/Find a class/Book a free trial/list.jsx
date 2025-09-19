@@ -12,6 +12,7 @@ import Swal from "sweetalert2"; // make sure it's installed
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
 import { X } from "lucide-react"; // Optional: Use any icon or ✖️ if no icon lib
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { evaluate } from 'mathjs';
 
@@ -28,6 +29,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
 import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
 const List = () => {
+    useEffect(() => {
+        window.scrollTo(0, 0); // scrolls to top on mount
+    }, []);
     const [expression, setExpression] = useState('');
     const [result, setResult] = useState('');
     const navigate = useNavigate();
@@ -36,13 +40,15 @@ const List = () => {
     const popup1Ref = useRef(null);
     const popup2Ref = useRef(null);
     const popup3Ref = useRef(null);
-
+    const { pathname } = useLocation();
+    const [isOpen, setIsOpen] = useState(false);
     console.log('classId', classId)
-    const { fetchFindClassID, singleClassSchedulesOnly } = useClassSchedule() || {};
+    const { fetchFindClassID, singleClassSchedulesOnly, loading } = useClassSchedule() || {};
     const { createBookFreeTrials } = useBookFreeTrial()
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
+
         const fetchData = async () => {
             if (classId) {
                 await fetchFindClassID(classId);
@@ -110,7 +116,7 @@ const List = () => {
     const { fetchTermGroup, termGroup } = useTermContext()
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue() || {};
+    const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues } = useVenue() || {};
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const toggleCheckbox = (userId) => {
         setSelectedUserIds((prev) =>
@@ -258,13 +264,6 @@ const List = () => {
 
     const [selectedClass, setSelectedClass] = useState();
 
-    if (loading) {
-        return (
-            <>
-                <Loader />
-            </>
-        )
-    }
 
 
     const allTermRanges = Array.isArray(congestionNote)
@@ -584,6 +583,24 @@ const List = () => {
         { value: "female", label: "Female" },
         { value: "other", label: "Other" },
     ];
+    const sessionDates = singleClassSchedulesOnly?.venue?.termGroups?.flatMap(group =>
+        group.terms.flatMap(term =>
+            term.sessionsMap.map(s => s.sessionDate)
+        )
+    ) || [];
+
+    const selectedLabel =
+        keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
+        "Key Information";
+    const sessionDatesSet = new Set(sessionDates);
+    if (loading) {
+        return (
+            <>
+                <Loader />
+            </>
+        )
+    }
+
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
@@ -752,72 +769,79 @@ const List = () => {
                         </div>
                     </div>
 
-                 <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
-  <div className="">
-    <h2 className="text-[24px] font-semibold">Select trial Date </h2>
+                    <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
+                        <div className="">
+                            <h2 className="text-[24px] font-semibold">Select trial Date </h2>
 
-    <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
-      {/* Header */}
-      <div className="flex justify-around items-center mb-3">
-        <button
-          onClick={goToPreviousMonth}
-          className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <p className="font-semibold text-[20px]">
-          {currentDate.toLocaleString("default", { month: "long" })} {year}
-        </p>
-        <button
-          onClick={goToNextMonth}
-          className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
+                            <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
+                                {/* Header */}
+                                <div className="flex justify-around items-center mb-3">
+                                    <button
+                                        onClick={goToPreviousMonth}
+                                        className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                                    >
+                                        <ChevronLeft className="w-5 h-5" />
+                                    </button>
+                                    <p className="font-semibold text-[20px]">
+                                        {currentDate.toLocaleString("default", { month: "long" })} {year}
+                                    </p>
+                                    <button
+                                        onClick={goToNextMonth}
+                                        className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                                    >
+                                        <ChevronRight className="w-5 h-5" />
+                                    </button>
+                                </div>
 
-      {/* Day Labels */}
-      <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
-        {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
-          <div key={day} className="font-medium text-center">
-            {day}
-          </div>
-        ))}
-      </div>
+                                {/* Day Labels */}
+                                <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
+                                    {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
+                                        <div key={day} className="font-medium text-center">
+                                            {day}
+                                        </div>
+                                    ))}
+                                </div>
 
-      {/* Calendar Weeks */}
-      <div className="flex flex-col gap-1">
-        {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
-          const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
+                                {/* Calendar Weeks */}
+                                <div className="flex flex-col gap-1">
+                                    {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
+                                        const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
 
-          return (
-            <div key={weekIndex} className="grid grid-cols-7 text-[18px] gap-1 py-1 rounded">
-              {week.map((date, i) => {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0); // normalize today's date
-                const isSelected = isSameDate(date, selectedDate);
-                const isPast = date && date < today; // check if date is before today
+                                        return (
+                                            <div
+                                                key={weekIndex}
+                                                className="grid grid-cols-7 text-[18px] gap-1 py-1 rounded"
+                                            >
+                                                {week.map((date, i) => {
+                                                    if (!date) {
+                                                        return <div key={i} />;
+                                                    }
 
-                return (
-                  <div
-                    key={i}
-                    onClick={() => !isPast && date && handleDateClick(date)}
-                    className={`w-8 h-8 flex items-center justify-center mx-auto text-base rounded-full 
-                      ${isSelected ? "bg-blue-600 text-white font-bold" : "text-gray-800"}
-                      ${isPast ? "text-gray-300 cursor-not-allowed" : "hover:bg-gray-200 cursor-pointer"}
-                    `}
-                  >
-                    {date ? date.getDate() : ""}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  </div>
-</div>
+                                                    const formattedDate = formatLocalDate(date);
+                                                    const isAvailable = sessionDatesSet.has(formattedDate); // check if this date is valid session
+                                                    const isSelected = isSameDate(date, selectedDate);
+
+                                                    return (
+                                                        <div
+                                                            key={i}
+                                                            onClick={() => isAvailable && handleDateClick(date)}
+                                                            className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full
+    ${isAvailable ? "cursor-pointer bg-sky-200" : "cursor-not-allowed opacity-40 bg-white"}
+    ${isSelected ? "selectedDate text-white font-bold" : ""}
+  `}
+                                                        >
+                                                            {date.getDate()}
+                                                        </div>
+
+                                                    );
+                                                })}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 
@@ -864,37 +888,37 @@ const List = () => {
                                     </div>
 
                                     {/* Row 2 */}
-                                  <div className="flex gap-4">
-  <div className="w-1/2">
-    <label className="block text-[16px] font-semibold">
-      Date of birth
-    </label>
-    <DatePicker
-    withPortal
-      selected={student.dateOfBirth}
-      onChange={(date) => handleDOBChange(index, date)}
-      className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-      showYearDropdown
-      scrollableYearDropdown
-      yearDropdownItemNumber={100}
-      dateFormat="dd/MM/yyyy"
-      maxDate={new Date(new Date().setFullYear(new Date().getFullYear() - 3))} // Minimum age: 3 years
-      minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))} // Maximum age: 100 years
-      placeholderText="Select date of birth"
-      isClearable
-    />
-  </div>
-  <div className="w-1/2">
-    <label className="block text-[16px] font-semibold">Age</label>
-    <input
-      type="text"
-      value={student.age}
-      readOnly
-      className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-      placeholder="Automatic entry"
-    />
-  </div>
-</div>
+                                    <div className="flex gap-4">
+                                        <div className="w-1/2">
+                                            <label className="block text-[16px] font-semibold">
+                                                Date of birth
+                                            </label>
+                                            <DatePicker
+                                                withPortal
+                                                selected={student.dateOfBirth}
+                                                onChange={(date) => handleDOBChange(index, date)}
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                showYearDropdown
+                                                scrollableYearDropdown
+                                                yearDropdownItemNumber={100}
+                                                dateFormat="dd/MM/yyyy"
+                                                maxDate={new Date(new Date().setFullYear(new Date().getFullYear() - 3))} // Minimum age: 3 years
+                                                minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))} // Maximum age: 100 years
+                                                placeholderText="Select date of birth"
+                                                isClearable
+                                            />
+                                        </div>
+                                        <div className="w-1/2">
+                                            <label className="block text-[16px] font-semibold">Age</label>
+                                            <input
+                                                type="text"
+                                                value={student.age}
+                                                readOnly
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                placeholder="Automatic entry"
+                                            />
+                                        </div>
+                                    </div>
 
 
                                     {/* Row 3 */}
@@ -999,41 +1023,41 @@ const List = () => {
                                     </div>
 
                                     {/* Row 1 */}
-                              <div className="flex gap-4">
-  <div className="w-1/2">
-    <label className="block text-[16px] font-semibold">First name</label>
-    <input
-      className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-      placeholder="Enter first name"
-      value={parent.parentFirstName}
-      onChange={(e) => {
-        // Remove numbers if typed or pasted
-        const value = e.target.value.replace(/\d/g, "");
-        handleParentChange(index, "parentFirstName", value);
-      }}
-      onKeyPress={(e) => {
-        if (/\d/.test(e.key)) e.preventDefault(); // block typing numbers
-      }}
-    />
-  </div>
+                                    <div className="flex gap-4">
+                                        <div className="w-1/2">
+                                            <label className="block text-[16px] font-semibold">First name</label>
+                                            <input
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                placeholder="Enter first name"
+                                                value={parent.parentFirstName}
+                                                onChange={(e) => {
+                                                    // Remove numbers if typed or pasted
+                                                    const value = e.target.value.replace(/\d/g, "");
+                                                    handleParentChange(index, "parentFirstName", value);
+                                                }}
+                                                onKeyPress={(e) => {
+                                                    if (/\d/.test(e.key)) e.preventDefault(); // block typing numbers
+                                                }}
+                                            />
+                                        </div>
 
-  <div className="w-1/2">
-    <label className="block text-[16px] font-semibold">Last name</label>
-    <input
-      className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-      placeholder="Enter last name"
-      value={parent.parentLastName}
-      onChange={(e) => {
-        // Remove numbers if typed or pasted
-        const value = e.target.value.replace(/\d/g, "");
-        handleParentChange(index, "parentLastName", value);
-      }}
-      onKeyPress={(e) => {
-        if (/\d/.test(e.key)) e.preventDefault(); // block typing numbers
-      }}
-    />
-  </div>
-</div>
+                                        <div className="w-1/2">
+                                            <label className="block text-[16px] font-semibold">Last name</label>
+                                            <input
+                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                placeholder="Enter last name"
+                                                value={parent.parentLastName}
+                                                onChange={(e) => {
+                                                    // Remove numbers if typed or pasted
+                                                    const value = e.target.value.replace(/\d/g, "");
+                                                    handleParentChange(index, "parentLastName", value);
+                                                }}
+                                                onKeyPress={(e) => {
+                                                    if (/\d/.test(e.key)) e.preventDefault(); // block typing numbers
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
 
 
                                     {/* Row 2 */}
@@ -1180,34 +1204,66 @@ const List = () => {
                         </div>
 
                         <div className="w-full my-10">
-                            <Select
-                                options={keyInfoOptions}
-                                value={keyInfoOptions.find(option => option.value === selectedKeyInfo)}
-                                onChange={(selectedOption) => setSelectedKeyInfo(selectedOption?.value || '')}
-                                placeholder="Key Information"
-                                className="react-select-container text-[20px]"
-                                classNamePrefix="react-select"
-                                styles={{
-                                    control: (base, state) => ({
-                                        ...base,
-                                        borderRadius: '1rem',
-                                        borderColor: state.isFocused ? '#ccc' : '#E5E7EB',
-                                        boxShadow: 'none',
-                                        padding: '8px 8px',
-                                        minHeight: '48px',
-                                    }),
-                                    placeholder: (base) => ({
-                                        ...base,
-                                        color: '#000000ff',
-                                        fontWeight: 600,
-                                    }),
-                                    dropdownIndicator: (base) => ({
-                                        ...base,
-                                        color: '#9CA3AF',
-                                    }),
-                                    indicatorSeparator: () => ({ display: 'none' }),
-                                }}
-                            />
+                            {/* Placeholder (acts like a select box) */}
+                             <div
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center justify-between text-[20px] p-3 border  border-white rounded-xl cursor-pointer bg-white shadow-sm  hover:border-gray-400 transition"
+              >
+                <span
+                  className={`${selectedKeyInfo ? " font-medium" : "text-gray-800"
+                    }`}
+                >
+                                    {selectedLabel}
+                                </span>
+                                {isOpen ? (
+                                    <ChevronUp className="w-5 h-5 text-gray-500" />
+                                ) : (
+                                    <ChevronDown className="w-5 h-5 text-gray-500" />
+                                )}
+                            </div>
+
+                            {/* Options (radio style) */}
+                            {isOpen && (
+                                <div className="mt-3 space-y-3 ">
+                                    {keyInfoOptions.map((option) => (
+                                        <label
+                                            key={option.value}
+                                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition 
+                ${selectedKeyInfo === option.value
+                                                    ? "bg-blue-50 border border-blue-400"
+                                                    : "hover:bg-gray-50 border border-transparent"
+                                                }`}
+                                            onClick={() => {
+                                                setSelectedKeyInfo(option.value);
+                                                setIsOpen(false); // close after select
+                                            }}
+                                        >
+                                            {/* Bullet Circle */}
+                                            <span
+                                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center 
+                  ${selectedKeyInfo === option.value
+                                                        ? "border-blue-500"
+                                                        : "border-gray-400"
+                                                    }`}
+                                            >
+                                                {selectedKeyInfo === option.value && (
+                                                    <span className="w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
+                                                )}
+                                            </span>
+
+                                            {/* Label */}
+                                            <span
+                                                className={`${selectedKeyInfo === option.value
+                                                        ? "font-semibold text-blue-600"
+                                                        : "text-gray-700"
+                                                    }`}
+                                            >
+                                                {option.label}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
                         </div>
 
 
