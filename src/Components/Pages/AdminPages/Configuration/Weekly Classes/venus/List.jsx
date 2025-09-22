@@ -461,7 +461,7 @@ const getDateStatus = (date) => {
 
               <div className={`overflow-auto rounded-4xl w-full`}>
 
-                <table className="min-w-full rounded-4xl  bg-white text-sm border border-[#E2E1E5]">
+                <table className="overflow-hidden rounded-4xl border border-[#E2E1E5] bg-white w-full">
                   <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
                     <tr className="font-semibold ">
                       <th className="p-4 text-[#717073]">
@@ -646,7 +646,8 @@ const getDateStatus = (date) => {
       {showModal && clickedIcon === "currency" && selectedPlans.length > 0 && (
         <div className="fixed inset-0 z-50 bg-black/60 flex  max-h-full items-center justify-center">
           <div className="flex items-center    justify-center w-full px-4 py-6 sm:px-6 md:py-10">
-            <div className="bg-white rounded-3xl overflow-y-auto max-h-[700px] scrollbar-hide p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl">
+  <div className="overflow-y-auto max-h-[700px] rounded-3xl scrollbar-hide p-4 sm:p-6">
               {/* Header */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
                 <h2 className="font-semibold text-[20px] sm:text-[24px]">Subscription Plan Preview</h2>
@@ -660,6 +661,7 @@ const getDateStatus = (date) => {
                 </button>
               </div>
               <PlanTabs selectedPlans={selectedPlans} />
+              </div>
             </div>
           </div>
         </div>

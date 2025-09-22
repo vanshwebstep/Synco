@@ -128,7 +128,7 @@ const List = () => {
   const [searchPostcode, setSearchPostcode] = useState("");
   const [selectedVenues, setSelectedVenues] = useState(["All venues"]);
   const [calendarData, setCalendarData] = useState([]);
-  const [selectedDays, setSelectedDays] = useState(["Sunday"]);
+  const [selectedDays, setSelectedDays] = useState([]);
   const [showAvailableOnly, setShowAvailableOnly] = useState(false);
 
 
@@ -290,7 +290,6 @@ const List = () => {
           .includes(searchPostcode.toLowerCase());
 
       const venueMatch =
-        !showAvailableOnly ||
         selectedVenues.length === 0 ||
         selectedVenues.includes("All venues") ||
         selectedVenues.includes(venue.venueName);
@@ -301,7 +300,6 @@ const List = () => {
         : [];
 
       const dayMatch =
-        !showAvailableOnly ||
         selectedDays.length === 0 ||
         selectedDays.some((selectedDay) =>
           (venue.classes?.[selectedDay] || []).length > 0
@@ -923,23 +921,24 @@ const List = () => {
                             </div>
 
                           )}
-                          {showModal === venue.venueId && (
-                            <div ref={iconContainerRef} className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
-                              <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
-                                <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
-                                  {/* Header */}
-                                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-                                    <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
-                                    <button className="text-gray-400 hover:text-black text-xl font-bold">
-                                      <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
-                                    </button>
-                                  </div>
-                                  <PlanTabs selectedPlans={selectedPlans} />
+
+                        </div>
+                        {showModal === venue.venueId && (
+                          <div ref={iconContainerRef} className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
+                            <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
+                              <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+                                {/* Header */}
+                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
+                                  <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
+                                  <button className="text-gray-400 hover:text-black text-xl font-bold">
+                                    <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
+                                  </button>
                                 </div>
+                                <PlanTabs selectedPlans={selectedPlans} />
                               </div>
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
                         {openMapId === venue.venueId && (
                           <div ref={iconContainerRef} >
                             <div

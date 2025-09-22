@@ -36,6 +36,7 @@ const routeTitleMap = {
   '/configuration/weekly-classes/capacity': { title: 'Capacity', icon: '/demo/synco/members/Capacity.png' },
   '/configuration/weekly-classes/cancellation': { title: 'Cancellations', icon: '/demo/synco/members/Cancellations.png' },
   '/configuration/weekly-classes/all-members/account-info': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
+  '/permission': { title: 'Permissions ', icon: '/demo/synco/members/Profile.png' },
 
 };
 

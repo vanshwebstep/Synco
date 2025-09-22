@@ -56,8 +56,8 @@ const TermCard = ({ item, sessionData }) => {
     <div className="flex-1 flex flex-col md:flex-row gap-4 md:gap-8 overflow-x-auto scrollbar-hide">
       {sessionData.map(({ id, term, icon, date, sessions }) => (
         <div key={term} className="flex-shrink-0 w-full sm:w-[250px] md:w-[320px] flex flex-col gap-2">
-          <div className="flex items-start gap-3">
-            <img src={icon} alt={term} className="w-5 h-5 mt-1 flex-shrink-0" />
+          <div className="flex items-center gap-3">
+            <img src={icon} alt={term} className="w-6 h-6 mt-1 flex-shrink-0" />
             <div>
               <p className="text-[#717073]">{term}</p>
               <p className="whitespace-pre-line text-sm text-gray-600">{date}</p>

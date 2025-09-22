@@ -723,7 +723,7 @@ const Create = () => {
                                                     onChange={(e) =>
                                                         handleInputChange(term.id, 'name', e.target.value)
                                                     }
-                                                    className="md:w-1/2 px-4 mb-5 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    className="md:w-1/2 px-4 mb-5 mx-2 mt-2 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                 />
 
                                                 <div className="md:flex gap-4 px-2 mb-5 justify-between">

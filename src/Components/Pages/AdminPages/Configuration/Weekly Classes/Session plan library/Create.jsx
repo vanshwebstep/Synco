@@ -148,131 +148,150 @@ const Create = () => {
     };
 
 
-       const handleCreateSession = (finalSubmit = false) => {
-           if (isProcessing) return;
-   
-   
-           if (!groupNameSection || !player || !skillOfTheDay || !descriptionSession || selectedPlans.length === 0) {
-               Swal.fire({
-                   icon: 'warning',
-                   title: 'Please fill out all required fields before proceeding.',
-               });
-               return;
-           }
-   
-           setIsProcessing(true);
-   
-           if (tabRef.current) {
-               tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-           }
-           console.log('selectedPlanssssssssssss', selectedPlans)
-           const currentLevel = {
-               level: activeTab,
-               player,
-               groupNameSection,
-               skillOfTheDay,
-               recording,
-               descriptionSession,
-               videoFile,
-               bannerFile,
-               sessionExerciseIds: selectedPlans.map(plan => plan.id),
-           };
-   
-           setLevels((prevLevels) => {
-               const existingIndex = prevLevels.findIndex((lvl) => lvl.level === activeTab);
-               const updated = [...prevLevels];
-               if (existingIndex !== -1) {
-                   updated[existingIndex] = currentLevel;
-               } else {
-                   updated.push(currentLevel);
-               }
-   
-               // Pass finalSubmit to handleNextTabOrSubmit
-               handleNextTabOrSubmit(updated, finalSubmit);
-   
-               return updated;
-           });
-   
-           setIsProcessing(false);
-       };
-   
-       const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
-           const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
-           const isLastTab = nextIndex >= tabs.length;
-   
-           // ✅ Only send the activeTab when editing
-           const levelsToSend = (isEditMode && id && level)
-               ? updatedLevels.filter(item => item.level === activeTab)
-               : updatedLevels;
-   
-           const transformed = {
-               groupName: groupNameSection,
-               player,
-               video: videoFile,
-               banner: bannerFile,
-               levels: {},
-           };
-   console.log('transformed',transformed)
-           levelsToSend.forEach((item) => {
-               const levelKey = item.level.replace(/s$/i, '').toLowerCase();
-   
-               if (!transformed.levels[levelKey]) {
-                   transformed.levels[levelKey] = [];
-               }
-   
-               transformed.levels[levelKey].push({
-                   skillOfTheDay: item.skillOfTheDay,
-                   recording: item.recording,
-                   description: item.descriptionSession,
-                   sessionExerciseId: item.sessionExerciseIds,
-               });
-           });
-   
-           if (videoFile instanceof File) {
-               transformed["video_file"] = videoFile;
-           }
-           if (bannerFile instanceof File) {
-               transformed["banner_file"] = bannerFile;
-           }
-           if (recording instanceof Blob) {
-               formData.append("recording", recording, "recording.webm");
-           }
-   
-           if ((isEditMode && id && level) || isLastTab || forceSubmit) {
-               if (isEditMode && id && level) {
-                   updateDiscount(id, transformed);
-               } else {
-                   createSessionGroup(transformed);
-               }
-           } else {
-               // ✅ move to next tab but restore its data if exists
-               const nextTab = tabs[nextIndex];
-               setActiveTab(nextTab);
-               setPage(1);
-   
-               const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
-   
-               if (existingLevel) {
-                   setSkillOfTheDay(existingLevel.skillOfTheDay || "");
-                   setRecording(existingLevel.recording || null);
-                   setDescriptionSession(existingLevel.descriptionSession || "");
-                   setSelectedPlans(
-                       existingLevel.sessionExerciseIds?.map(id =>
-                           planOptions.find(opt => opt.id === id)
-                       ).filter(Boolean) || []
-                   );
-               } else {
-                   // fresh
-                   setSkillOfTheDay("");
-                   setRecording(null);
-                   setDescriptionSession("");
-                   setSelectedPlans([]);
-               }
-           }
-       };
-   
+    const handleCreateSession = (finalSubmit = false) => {
+        if (isProcessing) return;
 
 
+        if (!groupNameSection || !player || !skillOfTheDay || !descriptionSession || selectedPlans.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Please fill out all required fields before proceeding.',
+            });
+            return;
+        }
+
+        setIsProcessing(true);
+
+        if (tabRef.current) {
+            tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        console.log('selectedPlanssssssssssss', selectedPlans)
+        const currentLevel = {
+            level: activeTab,
+            player,
+            groupNameSection,
+            skillOfTheDay,
+            recording,
+            descriptionSession,
+            videoFile,
+            bannerFile,
+            sessionExerciseIds: selectedPlans.map(plan => plan.id),
+        };
+
+        setLevels((prevLevels) => {
+            const existingIndex = prevLevels.findIndex((lvl) => lvl.level === activeTab);
+            const updated = [...prevLevels];
+            if (existingIndex !== -1) {
+                updated[existingIndex] = currentLevel;
+            } else {
+                updated.push(currentLevel);
+            }
+
+            // Pass finalSubmit to handleNextTabOrSubmit
+            handleNextTabOrSubmit(updated, finalSubmit);
+
+            return updated;
+        });
+
+        setIsProcessing(false);
+    };
+
+    const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
+        const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
+        const isLastTab = nextIndex >= tabs.length;
+
+        // ✅ Only send the activeTab when editing
+        const levelsToSend = (isEditMode && id && level)
+            ? updatedLevels.filter(item => item.level === activeTab)
+            : updatedLevels;
+
+        const transformed = {
+            groupName: groupNameSection,
+            player,
+            video: videoFile,
+            banner: bannerFile,
+            levels: {},
+        };
+        console.log('transformed', transformed)
+        levelsToSend.forEach((item) => {
+            const levelKey = item.level.replace(/s$/i, '').toLowerCase();
+            if (item.recording instanceof Blob) {
+                transformed[`${levelKey}_recording`] = item.recording;
+            }
+
+            if (!transformed.levels[levelKey]) {
+                transformed.levels[levelKey] = [];
+            }
+
+            transformed.levels[levelKey].push({
+                skillOfTheDay: item.skillOfTheDay,
+
+                description: item.descriptionSession,
+                sessionExerciseId: item.sessionExerciseIds,
+            });
+        });
+
+        if (videoFile instanceof File) {
+            transformed["video_file"] = videoFile;
+        }
+        if (bannerFile instanceof File) {
+            transformed["banner_file"] = bannerFile;
+        }
+
+
+        if ((isEditMode && id && level) || isLastTab || forceSubmit) {
+            if (isEditMode && id && level) {
+                updateDiscount(id, transformed);
+            } else {
+                createSessionGroup(transformed, true);
+            }
+        } else {
+            // ✅ move to next tab but restore its data if exists
+            const nextTab = tabs[nextIndex];
+            setActiveTab(nextTab);
+            setPage(1);
+
+            const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
+
+            if (existingLevel) {
+                setSkillOfTheDay(existingLevel.skillOfTheDay || "");
+                setRecording(existingLevel.recording || null);
+
+                // 👇 Recreate audio URL from blob
+                if (existingLevel.recording instanceof Blob) {
+                    const url = URL.createObjectURL(existingLevel.recording);
+                    setAudioURL(url);
+                } else {
+                    setAudioURL(null);
+                }
+
+                setDescriptionSession(existingLevel.descriptionSession || "");
+                setSelectedPlans(
+                    existingLevel.sessionExerciseIds?.map(id =>
+                        planOptions.find(opt => opt.id === id)
+                    ).filter(Boolean) || []
+                );
+            } else {
+                // Fresh tab
+                setSkillOfTheDay("");
+                setRecording(null);
+                setAudioURL(null);
+                setDescriptionSession("");
+                setSelectedPlans([]);
+            }
+
+        }
+    };
+
+
+
+    useEffect(() => {
+        return () => {
+            if (audioURL) {
+                URL.revokeObjectURL(audioURL);
+            }
+        };
+    }, [audioURL]);
 
 
 
@@ -557,9 +576,41 @@ const Create = () => {
     const handleTabClick = (tab) => {
         setActiveTab(tab);
         setPage(1);
+
         if (videoInputRef.current) videoInputRef.current.value = null;
         if (bannerInputRef.current) bannerInputRef.current.value = null;
+
+        // 🔥 You were missing this line!
+        const existingLevel = levels.find((lvl) => lvl.level === tab);
+
+        if (existingLevel) {
+            setSkillOfTheDay(existingLevel.skillOfTheDay || "");
+            setRecording(existingLevel.recording || null);
+
+            // 👇 Recreate audio URL from saved blob
+            if (existingLevel.recording instanceof Blob) {
+                const url = URL.createObjectURL(existingLevel.recording);
+                setAudioURL(url);
+            } else {
+                setAudioURL(null);
+            }
+
+            setDescriptionSession(existingLevel.descriptionSession || "");
+            setSelectedPlans(
+                existingLevel.sessionExerciseIds?.map(id =>
+                    planOptions.find(opt => opt.id === id)
+                ).filter(Boolean) || []
+            );
+        } else {
+            // No saved data for this tab — clear everything
+            setSkillOfTheDay("");
+            setRecording(null);
+            setAudioURL(null);
+            setDescriptionSession("");
+            setSelectedPlans([]);
+        }
     };
+
     console.log('selectedPlans', selectedPlans)
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
@@ -594,7 +645,7 @@ const Create = () => {
                     <div className={`transition-all duration-300 md:w-1/2`}>
                         <div className="rounded-2xl  md:p-10 ">
                             <form className="mx-auto  space-y-4">
-                               
+
                                 <div className="flex gap-4   my-10 border w-full border-gray-300 p-1 rounded-xl  flex-wrap">
                                     {visibleTabs.map((tab) => (
                                         <button
@@ -612,7 +663,7 @@ const Create = () => {
                                 </div>
 
 
- <div>
+                                <div>
                                     <label className="block text-[18px]  font-semibold text-gray-700 mb-2">
                                         Group Name
                                     </label>
@@ -855,118 +906,118 @@ const Create = () => {
                                         )}
                                     </div>
 
-                               <AnimatePresence initial={false}>
-  {isOpen && (
-    <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "auto" }}
-      exit={{ opacity: 0, height: 0 }}
-      transition={{ duration: 0.3 }}
-      className="overflow-hidden"
-    >
-      <div className="w-full mb-4">
-        <Select
-          options={planOptions}
-          value={selectedOptions}
-          onChange={handleSelectChange}
-          isMulti
-          placeholder="✨ Select Exercises..."
-          className="react-select-container"
-          classNamePrefix="react-select"
-          menuPortalTarget={document.body}
-          styles={{
-            control: (base, state) => ({
-              ...base,
-              borderRadius: "14px",
-              border: "1px solid",
-              borderColor: state.isFocused ? "#3b82f6" : "#e5e7eb", // Blue-500 or Gray-200
-              boxShadow: state.isFocused
-                ? "0 0 0 3px rgba(59, 130, 246, 0.2)"
-                : "0 1px 2px rgba(0,0,0,0.05)",
-              transition: "all 0.2s ease",
-              minHeight: "52px",
-              padding: "4px 8px",
-              backgroundColor: "#fff",
-              fontSize: "15px",
-              fontWeight: 500,
-            }),
-            valueContainer: (base) => ({
-              ...base,
-              gap: "6px",
-              padding: "2px 4px",
-            }),
-            placeholder: (base) => ({
-              ...base,
-              color: "#9ca3af", // gray-400
-              fontSize: "15px",
-              fontWeight: 400,
-            }),
-            menu: (base) => ({
-              ...base,
-              zIndex: 9999,
-              borderRadius: "14px",
-              marginTop: "6px",
-              padding: "6px 0",
-              backgroundColor: "white",
-              boxShadow:
-                "0 8px 24px rgba(0,0,0,0.12), 0 4px 6px rgba(0,0,0,0.08)",
-            }),
-            option: (base, state) => ({
-              ...base,
-              backgroundColor: state.isSelected
-                ? "#2563eb"
-                : state.isFocused
-                ? "#f3f4f6"
-                : "transparent",
-              color: state.isSelected ? "white" : "#111827",
-              fontSize: "15px",
-              fontWeight: state.isSelected ? 600 : 400,
-              padding: "12px 16px",
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            }),
-            multiValue: (base) => ({
-              ...base,
-              borderRadius: "10px",
-              backgroundColor: "#eff6ff", // blue-50
-              padding: "2px 8px",
-              display: "flex",
-              alignItems: "center",
-            }),
-            multiValueLabel: (base) => ({
-              ...base,
-              color: "#1d4ed8", // blue-700
-              fontWeight: 500,
-              fontSize: "14px",
-            }),
-            multiValueRemove: (base) => ({
-              ...base,
-              color: "#2563eb",
-              borderRadius: "6px",
-              ":hover": {
-                backgroundColor: "#2563eb",
-                color: "white",
-              },
-            }),
-            dropdownIndicator: (base, state) => ({
-              ...base,
-              color: state.isFocused ? "#2563eb" : "#9ca3af",
-              transition: "transform 0.2s ease",
-              transform: state.selectProps.menuIsOpen
-                ? "rotate(180deg)"
-                : "rotate(0deg)",
-            }),
-            indicatorSeparator: () => ({ display: "none" }),
-            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-          }}
-          closeMenuOnSelect={false}
-          hideSelectedOptions={false}
-          isClearable
-        />
-      </div>
-    </motion.div>
-  )}
-</AnimatePresence>
+                                    <AnimatePresence initial={false}>
+                                        {isOpen && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: "auto" }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="overflow-hidden"
+                                            >
+                                                <div className="w-full mb-4">
+                                                    <Select
+                                                        options={planOptions}
+                                                        value={selectedOptions}
+                                                        onChange={handleSelectChange}
+                                                        isMulti
+                                                        placeholder="Select Exercises..."
+                                                        className="react-select-container"
+                                                        classNamePrefix="react-select"
+                                                        menuPortalTarget={document.body}
+                                                        styles={{
+                                                            control: (base, state) => ({
+                                                                ...base,
+                                                                borderRadius: "14px",
+                                                                border: "1px solid",
+                                                                borderColor: state.isFocused ? "#3b82f6" : "#e5e7eb", // Blue-500 or Gray-200
+                                                                boxShadow: state.isFocused
+                                                                    ? "0 0 0 3px rgba(59, 130, 246, 0.2)"
+                                                                    : "0 1px 2px rgba(0,0,0,0.05)",
+                                                                transition: "all 0.2s ease",
+                                                                minHeight: "52px",
+                                                                padding: "4px 8px",
+                                                                backgroundColor: "#fff",
+                                                                fontSize: "15px",
+                                                                fontWeight: 500,
+                                                            }),
+                                                            valueContainer: (base) => ({
+                                                                ...base,
+                                                                gap: "6px",
+                                                                padding: "2px 4px",
+                                                            }),
+                                                            placeholder: (base) => ({
+                                                                ...base,
+                                                                color: "#9ca3af", // gray-400
+                                                                fontSize: "15px",
+                                                                fontWeight: 400,
+                                                            }),
+                                                            menu: (base) => ({
+                                                                ...base,
+                                                                zIndex: 9999,
+                                                                borderRadius: "14px",
+                                                                marginTop: "6px",
+                                                                padding: "6px 0",
+                                                                backgroundColor: "white",
+                                                                boxShadow:
+                                                                    "0 8px 24px rgba(0,0,0,0.12), 0 4px 6px rgba(0,0,0,0.08)",
+                                                            }),
+                                                            option: (base, state) => ({
+                                                                ...base,
+                                                                backgroundColor: state.isSelected
+                                                                    ? "#2563eb"
+                                                                    : state.isFocused
+                                                                        ? "#f3f4f6"
+                                                                        : "transparent",
+                                                                color: state.isSelected ? "white" : "#111827",
+                                                                fontSize: "15px",
+                                                                fontWeight: state.isSelected ? 600 : 400,
+                                                                padding: "12px 16px",
+                                                                cursor: "pointer",
+                                                                transition: "all 0.15s ease",
+                                                            }),
+                                                            multiValue: (base) => ({
+                                                                ...base,
+                                                                borderRadius: "10px",
+                                                                backgroundColor: "#eff6ff", // blue-50
+                                                                padding: "2px 8px",
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                            }),
+                                                            multiValueLabel: (base) => ({
+                                                                ...base,
+                                                                color: "#1d4ed8", // blue-700
+                                                                fontWeight: 500,
+                                                                fontSize: "14px",
+                                                            }),
+                                                            multiValueRemove: (base) => ({
+                                                                ...base,
+                                                                color: "#2563eb",
+                                                                borderRadius: "6px",
+                                                                ":hover": {
+                                                                    backgroundColor: "#2563eb",
+                                                                    color: "white",
+                                                                },
+                                                            }),
+                                                            dropdownIndicator: (base, state) => ({
+                                                                ...base,
+                                                                color: state.isFocused ? "#2563eb" : "#9ca3af",
+                                                                transition: "transform 0.2s ease",
+                                                                transform: state.selectProps.menuIsOpen
+                                                                    ? "rotate(180deg)"
+                                                                    : "rotate(0deg)",
+                                                            }),
+                                                            indicatorSeparator: () => ({ display: "none" }),
+                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
+                                                        }}
+                                                        closeMenuOnSelect={false}
+                                                        hideSelectedOptions={false}
+                                                        isClearable
+                                                    />
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
 
 
                                 </div>

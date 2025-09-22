@@ -25,28 +25,28 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
       link: '/',
     },
-    {
-      title: 'Configuration',
-      icon: '/demo/synco/SidebarLogos/config.png',
-      iconHover: '/demo/synco/SidebarLogos/configH.png',
-      needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term-group', action: 'create' }, { module: 'venue', action: 'view-listing' }, { module: 'book-membership', action: 'view-listing' }, { module: 'book-free-trial', action: 'view-listing' }, { module: 'find-class', action: 'view-listing' }, { module: 'payment-group', action: 'view-listing' }, { module: 'session-plan-group', action: 'view-listing' }, { module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }, { module: 'member', action: 'view-listing' }],
-      subItems: [
+    // {
+    //   title: 'Configuration',
+    //   icon: '/demo/synco/SidebarLogos/config.png',
+    //   iconHover: '/demo/synco/SidebarLogos/configH.png',
+    //   needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term-group', action: 'create' }, { module: 'venue', action: 'view-listing' }, { module: 'book-membership', action: 'view-listing' }, { module: 'book-free-trial', action: 'view-listing' }, { module: 'find-class', action: 'view-listing' }, { module: 'payment-group', action: 'view-listing' }, { module: 'session-plan-group', action: 'view-listing' }, { module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }, { module: 'member', action: 'view-listing' }],
+    //   subItems: [
         {
           title: 'Weekly Classes',
           icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
           iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
           needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term-group', action: 'create' }, { module: 'venue', action: 'view-listing' }, { module: 'book-membership', action: 'view-listing' }, { module: 'book-free-trial', action: 'view-listing' }, { module: 'find-class', action: 'view-listing' }, { module: 'payment-group', action: 'view-listing' }, { module: 'session-plan-group', action: 'view-listing' }],
           subItems: [
+            { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
+            { title: 'Members', link: '/configuration/weekly-classes/all-members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+            { title: 'Sales', link: '/configuration/weekly-classes/all-members/membership-sales', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+            { title: 'Trials', link: '/configuration/weekly-classes/trial/list', needPermissions: [{ module: 'book-free-trial', action: 'view-listing' }] },
             { title: 'Cancellation', link: '/configuration/weekly-classes/cancellation', needPermissions: [{ module: 'cancellation', action: 'view-listing' }], },
+            { title: 'Waiting List', link: '/configuration/weekly-classes/find-a-class/add-to-waiting-list/list', needPermissions: [{ module: 'waiting-list', action: 'view-listing' }] },
             { title: 'Capacity', link: '/configuration/weekly-classes/capacity', needPermissions: [{ module: 'capacity', action: 'view-listing' }], },
             { title: 'Session Plan Library', link: '/configuration/weekly-classes/session-plan-list', needPermissions: [{ module: 'session-plan-group', action: 'view-listing' }] },
             { title: 'Subscription Plan Manager', link: '/configuration/weekly-classes/subscription-planManager', needPermissions: [{ module: 'payment-group', action: 'view-listing' }] },
-            { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
-            { title: 'Trials', link: '/configuration/weekly-classes/trial/list', needPermissions: [{ module: 'book-free-trial', action: 'view-listing' }] },
-            { title: 'All Members', link: '/configuration/weekly-classes/all-members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
-            { title: 'Membership Sales', link: '/configuration/weekly-classes/all-members/membership-sales', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
             { title: 'Venues', link: '/configuration/weekly-classes/venues', needPermissions: [{ module: 'venue', action: 'view-listing' }, { module: 'venue', action: 'create' }] },
-            { title: 'Waiting List', link: '/configuration/weekly-classes/find-a-class/add-to-waiting-list/list', needPermissions: [{ module: 'waiting-list', action: 'view-listing' }] },
             { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term', action: 'view-listing' }], }
           ]
         },
@@ -67,9 +67,9 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           subItems: [
             { title: 'Admin Panel', link: '/configuration/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] }
           ]
-        }
-      ]
-    },
+        },
+    //   ]
+    // },
     {
       title: 'Permission',
       icon: '/demo/synco/SidebarLogos/Dashboard.png',
@@ -201,7 +201,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
     return (
      <ul
-  className={`${level === 0 ? 'px-4 lg:px-6' : 'pl-6 lg:pl-10'} ${level === 2 ? 'list-disc' : 'list-none'
+  className={`${level === 0 ? 'px-4 lg:px-1' : 'pl-6 lg:pl-12'} ${level === 2 ? 'list-disc' : 'list-none'
     } space-y-1`}
 >
   {items.map((item) => {

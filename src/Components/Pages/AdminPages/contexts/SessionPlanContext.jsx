@@ -38,18 +38,33 @@ export const SessionPlanContextProvider = ({ children }) => {
     async (formdata, shouldRedirect = false) => {
       if (!token) return;
 
+      console.log('formdata', formdata);
+
       try {
         setLoading(true);
 
         const fd = new FormData();
 
+        // Append all keys except "levels"
         for (const key in formdata) {
           if (key === "levels") continue;
-          if (formdata[key] instanceof File || typeof formdata[key] === "string") {
-            fd.append(key, formdata[key]);
+
+          const value = formdata[key];
+
+          if (value instanceof File || value instanceof Blob) {
+            // If it's a Blob or File, append directly
+            // Provide a filename if it's a Blob
+            const fileName = value instanceof File ? value.name : `${key}.mp4`;
+            fd.append(key, value, fileName);
+          } else if (typeof value === "string") {
+            fd.append(key, value);
+          } else if (value !== null && value !== undefined) {
+            // Convert other non-null values to string
+            fd.append(key, JSON.stringify(value));
           }
         }
 
+        // Append levels as JSON string
         fd.append("levels", JSON.stringify(formdata.levels));
 
         const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/`, {
@@ -67,15 +82,18 @@ export const SessionPlanContextProvider = ({ children }) => {
             icon: 'success',
             title: 'Success',
             text: data.message || 'Group created successfully.',
-            confirmButtonColor: '#237FEA'
+            confirmButtonColor: '#237FEA',
           });
-          navigate('/configuration/weekly-classes/session-plan-list');
+
+          if (shouldRedirect) {
+            navigate('/configuration/weekly-classes/session-plan-list');
+          }
         } else {
           await Swal.fire({
             icon: 'error',
             title: 'Error',
             text: data.message || 'Failed to create session group.',
-            confirmButtonColor: '#d33'
+            confirmButtonColor: '#d33',
           });
           console.error("API Error:", data.message || "Unknown error");
         }
@@ -85,7 +103,7 @@ export const SessionPlanContextProvider = ({ children }) => {
           icon: 'error',
           title: 'Error',
           text: 'Something went wrong while creating the session group.',
-          confirmButtonColor: '#d33'
+          confirmButtonColor: '#d33',
         });
       } finally {
         setLoading(false);
@@ -93,7 +111,6 @@ export const SessionPlanContextProvider = ({ children }) => {
     },
     [token, navigate]
   );
-
 
 
 
@@ -113,46 +130,46 @@ export const SessionPlanContextProvider = ({ children }) => {
       setLoading(false);
     }
   }, [token]);
-const createSessionExercise = useCallback(async (data) => {
-  if (!token) return;
+  const createSessionExercise = useCallback(async (data) => {
+    if (!token) return;
 
-  try {
-    const formdata = new FormData();
-    formdata.append("title", data.title);
-    formdata.append("description", data.description);
-    formdata.append("duration", data.duration);
+    try {
+      const formdata = new FormData();
+      formdata.append("title", data.title);
+      formdata.append("description", data.description);
+      formdata.append("duration", data.duration);
 
-    if (Array.isArray(data.images)) {
-      data.images.forEach((file) => {
-        formdata.append("images", file); // backend expects "images"
+      if (Array.isArray(data.images)) {
+        data.images.forEach((file) => {
+          formdata.append("images", file); // backend expects "images"
+        });
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formdata,
       });
+
+      // Check for HTTP errors
+      const result = await response.json();
+
+      if (!response.ok) {
+        // Throw object for frontend to catch
+        throw result;
+      }
+
+      console.log("✅ Exercise created");
+      await fetchExercises();
+
+      return result; // return response if needed
+    } catch (err) {
+      console.error("❌ Failed to create exercise:", err);
+      throw err; // re-throw so caller can show dynamic alert
     }
-
-    const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formdata,
-    });
-
-    // Check for HTTP errors
-    const result = await response.json();
-
-    if (!response.ok) {
-      // Throw object for frontend to catch
-      throw result;
-    }
-
-    console.log("✅ Exercise created");
-    await fetchExercises();
-
-    return result; // return response if needed
-  } catch (err) {
-    console.error("❌ Failed to create exercise:", err);
-    throw err; // re-throw so caller can show dynamic alert
-  }
-}, [token, fetchExercises]);
+  }, [token, fetchExercises]);
 
 
   const fetchExerciseById = useCallback(async (id) => {
@@ -268,8 +285,8 @@ const createSessionExercise = useCallback(async (data) => {
       if (data.groupName) {
         formdata.append("groupName", data.groupName);
       }
-      console.log('data',data)
-if (data.player) {
+      console.log('data', data)
+      if (data.player) {
         formdata.append("player", data.player);
       }
       const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
