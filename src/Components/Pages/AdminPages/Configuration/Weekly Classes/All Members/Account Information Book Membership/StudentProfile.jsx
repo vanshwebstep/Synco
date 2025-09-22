@@ -13,7 +13,7 @@ import Loader from '../../../../contexts/Loader';
 import { usePermission } from '../../../../Common/permission';
 import { addDays } from "date-fns";
 
-const ParentProfile = ({ profile }) => {
+const StudentProfile = ({ profile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const {
         loading,
@@ -239,16 +239,15 @@ const ParentProfile = ({ profile }) => {
         <>
             <div className="md:flex w-full gap-4">
                 <div className="transition-all duration-300 flex-1 ">
-                
                     <div className="space-y-6">
-                        {parentsList?.map((parent, index) => (
+                        {studentsList?.map((student, index) => (
                             <div
-                                key={parent.parentEmail || index}
+                                key={student.studentFirstName || index}
                                 className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
                             >
                                 {/* Top Header Row */}
                                 <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Parent information</h2>
+                                    <h2 className="text-[20px] font-semibold">Student information</h2>
 
                                 </div>
 
@@ -259,7 +258,7 @@ const ParentProfile = ({ profile }) => {
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter first name"
-                                            value={parent.parentFirstName}
+                                            value={student.studentFirstName}
                                             readOnly
                                         />
                                     </div>
@@ -268,7 +267,7 @@ const ParentProfile = ({ profile }) => {
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter last name"
-                                            value={parent.parentLastName}
+                                            value={student.studentLastName}
                                             readOnly
                                         />
                                     </div>
@@ -277,20 +276,20 @@ const ParentProfile = ({ profile }) => {
                                 {/* Row 2 */}
                                 <div className="flex gap-4">
                                     <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Email</label>
+                                        <label className="block text-[16px] font-semibold">Age</label>
                                         <input
                                             type="email"
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter email address"
-                                            value={parent.parentEmail}
+                                            value={student.age}
                                             readOnly
                                         />
                                     </div>
                                     <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Phone number</label>
+                                        <label className="block text-[16px] font-semibold">Date of Birth</label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.parentPhoneNumber}
+                                            value={student.dateOfBirth}
                                             readOnly
                                         />
                                     </div>
@@ -298,19 +297,36 @@ const ParentProfile = ({ profile }) => {
 
                                 {/* Row 3 */}
                                 <div className="flex gap-4">
-
-                                    <div className="w-full">
-                                        <label className="block text-[16px] font-semibold">How did you hear about us?</label>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Medical information</label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.howDidYouHear}
+                                            value={student.medicalInformation}
                                             readOnly
                                         />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Ability level</label>
+                                        <select
+                                            name="abilityLevel"
+                                            id="abilityLevel"
+                                            className="w-full mt-2 text-gray-500 border  border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            defaultValue=""
+                                        >
+                                            <option className="" value="" disabled>
+                                                Select Ability level
+                                            </option>
+                                            <option value="beginner">Beginner</option>
+                                            <option value="intermediate">Intermediate</option>
+                                            <option value="advanced">Advanced</option>
+                                        </select>
+
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
+             
 
                     <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
@@ -1216,4 +1232,4 @@ const ParentProfile = ({ profile }) => {
     );
 };
 
-export default ParentProfile;
+export default StudentProfile;

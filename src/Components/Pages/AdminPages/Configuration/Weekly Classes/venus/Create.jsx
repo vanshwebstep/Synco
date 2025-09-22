@@ -3,7 +3,7 @@ import { useVenue } from "../../../contexts/VenueContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 
-const Create = ({ packages, termGroup, onClose }) => {
+const Create = ({ groups, termGroup, onClose }) => {
 
 
   const { formData, setFormData, createVenues, isEditVenue, updateVenues, setIsEditVenue } = useVenue();
@@ -161,9 +161,9 @@ if (!err) {
     exit: { opacity: 0, scale: 0.95, y: -10 },
   };
 
-  const subOptions = packages?.map(pkg => ({
+  const subOptions = groups?.map(pkg => ({
     id: pkg.id,
-    label: `${pkg.title} (${pkg.students} Students) £${pkg.price.toFixed(2)}`
+    label: `${pkg.name}`
   }));
   console.log(subOptions);
 

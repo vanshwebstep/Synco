@@ -1,4 +1,4 @@
-// src/components/ParentProfile.jsx
+// src/components/StudentProfile.jsx
 
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -12,7 +12,7 @@ import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
 import Loader from '../../../../contexts/Loader';
 import { usePermission } from '../../../../Common/permission';
 import { addDays } from "date-fns";
-const ParentProfile = ({ ParentProfile }) => {
+const StudentProfile = ({ StudentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [selectedDate, setSelectedDate] = useState(null);
 
@@ -72,7 +72,7 @@ const ParentProfile = ({ ParentProfile }) => {
         classSchedule,
         paymentPlan,
         paymentPlans,
-    } = ParentProfile;
+    } = StudentProfile;
 
     const [rebookFreeTrial, setRebookFreeTrial] = useState({
         bookingId: id || null,
@@ -118,9 +118,9 @@ const ParentProfile = ({ ParentProfile }) => {
         reactivateOn: null,
         additionalNote: "",
     });
-    console.log('parents', ParentProfile)
-    const studentsList = ParentProfile?.students || [];
-    const parents = ParentProfile.parents || [];
+    console.log('parents', StudentProfile)
+    const studentsList = StudentProfile?.students || [];
+    const parents = StudentProfile.parents || [];
     const [formData, setFormData] = useState({
         bookingId: id,
         cancelReason: "",
@@ -128,7 +128,7 @@ const ParentProfile = ({ ParentProfile }) => {
     });
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
-    const emergency = ParentProfile.emergency || [];
+    const emergency = StudentProfile.emergency || [];
     console.log('matchedPlan', matchedPlan)
 
     const { checkPermission } = usePermission();
@@ -176,7 +176,7 @@ const ParentProfile = ({ ParentProfile }) => {
         }));
     };
 
-    const newClasses = ParentProfile?.newClasses?.map((cls) => ({
+    const newClasses = StudentProfile?.newClasses?.map((cls) => ({
         value: cls.id,
         label: `${cls.className} - ${cls.day} (${cls.startTime} - ${cls.endTime})`,
     }));
@@ -207,16 +207,15 @@ const ParentProfile = ({ ParentProfile }) => {
         <>
             <div className="md:flex w-full gap-4">
                 <div className="transition-all duration-300 flex-1 ">
-                   
                     <div className="space-y-6">
-                        {parents.map((parent, index) => (
+                        {studentsList?.map((student, index) => (
                             <div
-                                key={parent.parentFirstName}
+                                key={student.studentFirstName || index}
                                 className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
                             >
                                 {/* Top Header Row */}
                                 <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Parent information</h2>
+                                    <h2 className="text-[20px] font-semibold">Student information</h2>
 
                                 </div>
 
@@ -227,7 +226,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter first name"
-                                            value={parent.parentFirstName}
+                                            value={student.studentFirstName}
                                             readOnly
                                         />
                                     </div>
@@ -236,7 +235,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter last name"
-                                            value={parent.parentLastName}
+                                            value={student.studentLastName}
                                             readOnly
                                         />
                                     </div>
@@ -244,41 +243,64 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                 {/* Row 2 */}
                                 <div className="flex gap-4">
+
+
                                     <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Email</label>
+                                        <label className="block text-[16px] font-semibold">Age</label>
                                         <input
                                             type="email"
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter email address"
-                                            value={parent.parentEmail}
+                                            value={student.age}
                                             readOnly
                                         />
                                     </div>
                                     <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Phone number</label>
+                                        <label className="block text-[16px] font-semibold">Date of Birth</label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.parentPhoneNumber}
+                                            value={student.dateOfBirth}
                                             readOnly
                                         />
                                     </div>
                                 </div>
 
-                                {/* Row 3 */}
                                 <div className="flex gap-4">
 
+
                                     <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">How did you hear about us?</label>
+                                        <label className="block text-[16px] font-semibold">Medical information</label>
                                         <input
+                                            type="email"
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.howDidYouHear}
+                                            placeholder="Enter email address"
+                                            value={student.medicalInformation}
                                             readOnly
                                         />
                                     </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Ability Level </label>
+                                        <select
+                                            name="abilityLevel"
+                                            id="abilityLevel"
+                                            className="w-full mt-2 text-gray-500 border  border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            defaultValue=""
+                                        >
+                                            <option className="" value="" disabled>
+                                                Select Ability level
+                                            </option>
+                                            <option value="beginner">Beginner</option>
+                                            <option value="intermediate">Intermediate</option>
+                                            <option value="advanced">Advanced</option>
+                                        </select>
+
+                                    </div>
                                 </div>
+
                             </div>
                         ))}
                     </div>
+               
                     {/* {emergency?.map((emergency, index) => (
                         <div className="bg-white p-6 rounded-3xl shadow-sm space-y-6">
 
@@ -1251,4 +1273,4 @@ const ParentProfile = ({ ParentProfile }) => {
     );
 };
 
-export default ParentProfile;
+export default StudentProfile;

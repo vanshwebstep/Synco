@@ -8,24 +8,26 @@ import DatePicker from "react-datepicker";
 import Select from "react-select";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
-import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
-import Loader from '../../../../contexts/Loader';
-import { usePermission } from '../../../../Common/permission';
+import { useBookFreeTrial } from '../../../../../contexts/BookAFreeTrialContext';
+import Loader from '../../../../../contexts/Loader';
+import { usePermission } from '../../../../../Common/permission';
 import { addDays } from "date-fns";
 
-const ParentProfile = ({ profile }) => {
+const StudentProfile = ({ profile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const {
         loading,
         addtoWaitingListSubmit, cancelMembershipSubmit,
-        sendBookMembershipMail, transferMembershipSubmit,
+        sendWaitingListMail, transferMembershipSubmit,
         freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot
     } = useBookFreeTrial() || {};
     const classSchedule = profile?.classSchedule;
-    const bookingId = profile?.bookingId;
+    const bookingId = profile?.id;
     const id = profile?.id;
     const paymentPlans = profile?.paymentPlans;
     const parentsList = profile?.parents || [];
+    const emergencyList = profile?.emergency || [];
+
     const studentsList = profile?.students || [];
     const bookedBy = profile?.bookedByAdmin;
     const [addToWaitingList, setaddToWaitingList] = useState(false);
@@ -239,7 +241,115 @@ const ParentProfile = ({ profile }) => {
         <>
             <div className="md:flex w-full gap-4">
                 <div className="transition-all duration-300 flex-1 ">
-                
+                    <div className="space-y-6">
+                        {studentsList?.map((student, index) => (
+                            <div
+                                key={student.studentFirstName || index}
+                                className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
+                            >
+                                {/* Top Header Row */}
+                                <div className="flex justify-between items-start">
+                                    <h2 className="text-[20px] font-semibold">Student information</h2>
+
+                                </div>
+
+                                {/* Row 1 */}
+                                <div className="flex gap-4">
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">First name</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter first name"
+                                            value={student.studentFirstName}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Last name</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter last name"
+                                            value={student.studentLastName}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Row 2 */}
+                                <div className="flex gap-4">
+
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Date of Birth</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            value={student.dateOfBirth}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Age</label>
+                                        <input
+                                            type="email"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter email address"
+                                            value={student.age}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Gender</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            value={student.gender}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Medical information</label>
+                                        <input
+                                            type="email"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter email address"
+                                            value={student.medicalInformation}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Row 3 */}
+                                <div className="flex gap-4">
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Class</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            value={student.class}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Time </label>
+                                        <select
+                                            name="abilityLevel"
+                                            id="abilityLevel"
+                                            className="w-full mt-2 text-gray-500 border  border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            defaultValue=""
+                                        >
+                                            <option className="" value="" disabled>
+                                                Select Ability level
+                                            </option>
+                                            <option value="beginner">Beginner</option>
+                                            <option value="intermediate">Intermediate</option>
+                                            <option value="advanced">Advanced</option>
+                                        </select>
+
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                     <div className="space-y-6">
                         {parentsList?.map((parent, index) => (
                             <div
@@ -298,8 +408,17 @@ const ParentProfile = ({ profile }) => {
 
                                 {/* Row 3 */}
                                 <div className="flex gap-4">
-
-                                    <div className="w-full">
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Relation to Child</label>
+                                        <input
+                                            type="email"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter email address"
+                                            value={parent.relationToChild}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
                                         <label className="block text-[16px] font-semibold">How did you hear about us?</label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
@@ -311,7 +430,66 @@ const ParentProfile = ({ profile }) => {
                             </div>
                         ))}
                     </div>
+                    <div className="space-y-6">
+                        {emergencyList?.map((parent, index) => (
+                            <div
+                                key={parent.parentEmail || index}
+                                className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
+                            >
+                                {/* Top Header Row */}
+                                <div className="flex justify-between items-start">
+                                    <h2 className="text-[20px] font-semibold">Emergency information</h2>
 
+                                </div>
+
+                                {/* Row 1 */}
+                                <div className="flex gap-4">
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">First name</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter first name"
+                                            value={parent.emergencyFirstName}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Last name</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter last name"
+                                            value={parent.emergencyLastName}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Row 2 */}
+                                <div className="flex gap-4">
+
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Phone number</label>
+                                        <input
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            value={parent.emergencyPhoneNumber}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Relation to Child</label>
+                                        <input
+                                            type="email"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter email address"
+                                            value={parent.emergencyRelation}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+
+                            </div>
+                        ))}
+                    </div>
                     <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
 
@@ -380,7 +558,7 @@ const ParentProfile = ({ profile }) => {
                     <div className="rounded-3xl bg-[#363E49] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
                         <div className={`m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center `}
-                            style={{
+                         style={{
                                 backgroundImage: status === "cancelled"
                                     ? "url('/demo/synco/frames/Cancelled.png')"
                                     : status === "frozen"
@@ -409,7 +587,7 @@ const ParentProfile = ({ profile }) => {
                                 <div className="flex items-center gap-4">
                                     <img
                                         src={
-                                            bookedBy.profile
+                                            bookedBy?.profile
                                                 ? `${API_BASE_URL}/${bookedBy.profile}`
                                                 : "https://cdn-icons-png.flaticon.com/512/147/147144.png"
                                         }
@@ -506,7 +684,7 @@ const ParentProfile = ({ profile }) => {
                                 {/* Top Row: Email + Text */}
                                 <div className="flex gap-7">
 
-                                    <button onClick={() => sendBookMembershipMail([bookingId])} className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium">
+                                    <button onClick={() => sendWaitingListMail([bookingId])} className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium">
                                         <img src="/demo/synco/icons/mail.png" alt="" /> Send Email
                                     </button>
 
@@ -553,6 +731,11 @@ const ParentProfile = ({ profile }) => {
                                         Transfer Class
                                     </button>
                                 )}
+                                 {/* {status !== 'pending' && status !== 'attended' && (
+                                    <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md hover:bg-[#237FEA] hover:text-white transition-shadow duration-300 font-medium">
+                                        Book a Membership
+                                    </button>
+                                )} */}
                                 {status == 'waiting list' && canCancelTrial && (
                                     <button
                                         onClick={() => setRemoveWaiting(true)}
@@ -575,11 +758,7 @@ const ParentProfile = ({ profile }) => {
 
                                 )}
 
-                                {/* {status !== 'pending' && status !== 'attended' && (
-                                    <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
-                                        Book a Membership
-                                    </button>
-                                )} */}
+                               
 
                                 {status === 'attended' && (
                                     <div className="flex gap-7">
@@ -670,12 +849,12 @@ const ParentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Preferred Start Date (Optional)</label>
                                     <DatePicker
+                                    withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={waitingListData.preferredStartDate ? new Date(waitingListData.preferredStartDate) : null}
                                         onChange={(date) => handleDateChange(date, "preferredStartDate", setWaitingListData)}
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        withPortal
                                     />
 
                                 </div>
@@ -727,6 +906,7 @@ const ParentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Reactivate On</label>
                                     <DatePicker
+                                    withPortal
                                         minDate={addDays(new Date(), 1)} // disable today & past dates
                                         selected={
                                             reactivateData?.reactivateOn
@@ -736,7 +916,6 @@ const ParentProfile = ({ profile }) => {
                                         onChange={(date) => handleDateChange(date, "reactivateOn", setReactivateData)}
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        withPortal
                                     />
                                 </div>
 
@@ -873,23 +1052,18 @@ const ParentProfile = ({ profile }) => {
                                         </label>
                                     ))}
                                 </div>
-                                {cancelData.cancellationType !== 'immediately' && (
-                                    <>
-                                        <div>
+                                <div>
+                                    <label className="block text-[16px] font-semibold">Cancellation Effective Date</label>
+                                    <DatePicker
+                                    withPortal
+                                        minDate={addDays(new Date(), 1)} // disables today and all past dates
+                                        dateFormat="EEEE, dd MMMM yyyy"
+                                        selected={cancelData.cancelDate ? new Date(cancelData.cancelDate) : null}
+                                        onChange={(date) => handleDateChange(date, "cancelDate", setCancelData)}
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
 
-                                            <label className="block text-[16px] font-semibold">Cancellation Effective Date</label>
-                                            <DatePicker
-                                                minDate={addDays(new Date(), 1)} // disables today and all past dates
-                                                dateFormat="EEEE, dd MMMM yyyy"
-                                                selected={cancelData.cancelDate ? new Date(cancelData.cancelDate) : null}
-                                                onChange={(date) => handleDateChange(date, "cancelDate", setCancelData)}
-                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                withPortal
-                                            />
-
-                                        </div>
-                                    </>
-                                )}
+                                    />
+                                </div>
                                 <div>
                                     <label className="block text-[16px] font-semibold">
                                         Reason for Cancellation
@@ -1137,12 +1311,12 @@ const ParentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Freeze Start Date</label>
                                     <DatePicker
+                                    withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={freezeData.freezeStartDate ? new Date(freezeData.freezeStartDate) : null}
                                         onChange={(date) => handleDateChange(date, "freezeStartDate", setFreezeData)}
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        withPortal
                                     />
                                 </div>
 
@@ -1173,12 +1347,12 @@ const ParentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Reactivate On</label>
                                     <DatePicker
+                                    withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={freezeData.reactivateOn ? new Date(freezeData.reactivateOn) : null}
                                         onChange={(date) => handleDateChange(date, "reactivateOn", setFreezeData)}
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        withPortal
                                     />
                                 </div>
 
@@ -1216,4 +1390,4 @@ const ParentProfile = ({ profile }) => {
     );
 };
 
-export default ParentProfile;
+export default StudentProfile;

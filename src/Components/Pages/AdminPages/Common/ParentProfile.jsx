@@ -542,7 +542,7 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                             <div className=" text-[20px] text-white">Lifecycle</div>
                                             <div className="text-[16px] mt-1 text-gray-400">
-                                                {paymentPlan.duration} {paymentPlan.interval}{paymentPlan.duration > 1 ? "s" : ""}
+                                                {paymentPlan?.duration} {paymentPlan?.interval}{paymentPlan?.duration > 1 ? "s" : ""}
                                             </div>
                                         </>
                                     )}

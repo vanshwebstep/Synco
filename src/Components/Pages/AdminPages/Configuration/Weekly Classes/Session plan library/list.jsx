@@ -89,6 +89,10 @@ const List = () => {
       setWeeks(transformedWeeks);
       setWeekList(transformedWeeks);
     }
+    else{
+      setWeekList([])
+      setTempList([])
+    }
   }, [sessionGroup]);
 
   console.log('sessionGroup', sessionGroup)

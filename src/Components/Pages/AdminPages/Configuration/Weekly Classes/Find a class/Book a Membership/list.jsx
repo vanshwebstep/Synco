@@ -27,7 +27,9 @@ const List = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { createBookMembership, createBookMembershipByfreeTrial } = useBookFreeTrial()
     const [expression, setExpression] = useState('');
-    const [numberOfStudents, setNumberOfStudents] = useState('1')
+    const [numberOfStudents, setNumberOfStudents] = useState('1');
+    
+    const [isOpenMembership, setIsOpenMembership] = useState(false);
 
     const [result, setResult] = useState('');
     const navigate = useNavigate();
@@ -43,7 +45,7 @@ const List = () => {
         lastName: "",
         email: "",
         billingAddress: "",
-        referenceId: "",
+        iban: "",
         cardHolderName: "",
         cv2: "",
         expiryDate: "",
@@ -657,12 +659,12 @@ const List = () => {
         )
     ) || [];
 
-    
-  const selectedLabel =
-    keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
-    "Key Information";
-    
-    
+
+    const selectedLabel =
+        keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
+        "Key Information";
+
+
     const sessionDatesSet = new Set(sessionDates);
     if (loading) return <Loader />;
 
@@ -943,7 +945,7 @@ const List = () => {
                         <button
                             type="button"
                             disabled={!membershipPlan}
-                            onClick={() => setIsOpen(!isOpen)}
+                            onClick={() => setIsOpenMembership(!isOpenMembership)}
                             className={`bg-[#237FEA] text-white text-[18px]  font-semibold border w-full border-[#237FEA] px-6 py-3 rounded-lg flex items-center justify-center  ${membershipPlan
                                 ? "bg-[#237FEA] border border-[#237FEA]"
                                 : "bg-gray-400 border-gray-400 cursor-not-allowed"
@@ -952,14 +954,14 @@ const List = () => {
                             Membership Plan Breakdown
 
                             <img
-                                src={isOpen ? "/demo/synco/members/dash.png" : "/demo/synco/members/add.png"}
-                                alt={isOpen ? "Collapse" : "Expand"}
+                                src={isOpenMembership ? "/demo/synco/members/dash.png" : "/demo/synco/members/add.png"}
+                                alt={isOpenMembership ? "Collapse" : "Expand"}
                                 className="ml-2 w-5 h-5 inline-block"
                             />
 
                         </button>
 
-                        {isOpen && (
+                        {isOpenMembership && (
                             <motion.div
                                 initial={{ opacity: 0, height: 0 }}
                                 animate={{ opacity: 1, height: "auto" }}
@@ -1359,16 +1361,16 @@ const List = () => {
                                 </div>
                             </div>
                         </div>
-    <div className="w-full my-10">
+                        <div className="w-full my-10">
                             {/* Placeholder (acts like a select box) */}
                             <div
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between text-[20px] p-3 border  border-white rounded-xl cursor-pointer bg-white shadow-sm  hover:border-gray-400 transition"
-              >
-                <span
-                  className={`${selectedKeyInfo ? " font-medium" : "text-gray-800"
-                    }`}
-                >
+                                onClick={() => setIsOpen(!isOpen)}
+                                className="flex items-center justify-between text-[20px] p-3 border  border-white rounded-xl cursor-pointer bg-white shadow-sm  hover:border-gray-400 transition"
+                            >
+                                <span
+                                    className={`${selectedKeyInfo ? " font-medium" : "text-gray-800"
+                                        }`}
+                                >
                                     {selectedLabel}
                                 </span>
                                 {isOpen ? (
@@ -1410,8 +1412,8 @@ const List = () => {
                                             {/* Label */}
                                             <span
                                                 className={`${selectedKeyInfo === option.value
-                                                        ? "font-semibold text-blue-600"
-                                                        : "text-gray-700"
+                                                    ? "font-semibold text-blue-600"
+                                                    : "text-gray-700"
                                                     }`}
                                             >
                                                 {option.label}
@@ -1422,49 +1424,7 @@ const List = () => {
                             )}
                         </div>
 
-
-                        <div className="flex justify-end gap-4">
-                            <button
-                                onClick={handleCancel}
-
-                                type="button"
-                                className="flex items-center justify-center gap-1 border border-[#717073] text-[#717073] px-12 text-[18px]  py-2 rounded-lg font-semibold bg-none"
-                            >
-                                Cancel
-                            </button>
-
-
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    if (!membershipPlan || !selectedDate) {
-                                        let msg = "";
-                                        if (!membershipPlan && !selectedDate) msg = "Please select Membership Plan and  Date";
-                                        else if (!membershipPlan) msg = "Please select Membership Plan";
-                                        else if (!selectedDate) msg = "Please select  Date";
-
-                                        Swal.fire({
-                                            icon: "warning",
-                                            title: "Required Fields",
-                                            text: msg,
-                                        });
-                                        return;
-                                    }
-
-                                    // If both are selected, proceed
-                                    setShowPopup(true);
-                                }}
-                                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${isSubmitting || membershipPlan && selectedDate
-                                    ? "bg-[#237FEA] border border-[#237FEA]"
-                                    : "bg-gray-400 border-gray-400 cursor-not-allowed"
-                                    }`}
-                            >
-                                {isSubmitting ? "Submitting..." : "Setup Direct Debit"}
-                            </button>
-
-
-                        </div>
-                        <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
+<div className="bg-white rounded-3xl p-6 my-10 space-y-4">
                             <h2 className="text-[24px] font-semibold">Comment</h2>
 
                             {/* Input section */}
@@ -1526,6 +1486,49 @@ const List = () => {
                                 ))}
                             </div>
                         </div>
+
+                        <div className="flex justify-end gap-4">
+                            <button
+                                onClick={handleCancel}
+
+                                type="button"
+                                className="flex items-center justify-center gap-1 border border-[#717073] text-[#717073] px-12 text-[18px]  py-2 rounded-lg font-semibold bg-none"
+                            >
+                                Cancel
+                            </button>
+
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    if (!membershipPlan || !selectedDate) {
+                                        let msg = "";
+                                        if (!membershipPlan && !selectedDate) msg = "Please select Membership Plan and  Date";
+                                        else if (!membershipPlan) msg = "Please select Membership Plan";
+                                        else if (!selectedDate) msg = "Please select  Date";
+
+                                        Swal.fire({
+                                            icon: "warning",
+                                            title: "Required Fields",
+                                            text: msg,
+                                        });
+                                        return;
+                                    }
+
+                                    // If both are selected, proceed
+                                    setShowPopup(true);
+                                }}
+                                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${isSubmitting || membershipPlan && selectedDate
+                                    ? "bg-[#237FEA] border border-[#237FEA]"
+                                    : "bg-gray-400 border-gray-400 cursor-not-allowed"
+                                    }`}
+                            >
+                                {isSubmitting ? "Submitting..." : "Setup Direct Debit"}
+                            </button>
+
+
+                        </div>
+                        
                         {showPopup && (
                             <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
                                 <div className="bg-white rounded-2xl max-w-[541px] min-w-[541px] max-h-[90%] overflow-y-scroll space-y-6 relative scrollbar-hide">
@@ -1613,23 +1616,219 @@ const List = () => {
 
 
                                         {payment.paymentType === "rrn" && (
-                                            <div className="mt-4">
-                                                <label className="block text-[16px] font-semibold">Reference Number</label>
-                                                <input
-                                                    required={payment.paymentType === "rrn"}
-                                                    type="text"
-                                                    placeholder="Enter Reference No."
-                                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                    value={payment.referenceId}
-                                                    onChange={(e) =>
-                                                        setPayment({
-                                                            ...payment,
-                                                            referenceId: e.target.value, // ✅ allow all input
-                                                        })
-                                                    }
-                                                />
+                                            <div className="mt-4 space-y-4">
+                                              
+                                                {/* First & Last Name */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">First Name</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter First Name"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.firstName}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, firstName: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Last Name</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Last Name"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.lastName}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, lastName: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {/* Email */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">Email</label>
+                                                    <input
+                                                        type="email"
+                                                        placeholder="Enter Email"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        value={payment.email}
+                                                        onChange={(e) =>
+                                                            setPayment({ ...payment, email: e.target.value })
+                                                        }
+                                                    />
+                                                </div>
+
+                                                {/* Address Line 1 & 2 */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Address Line 1</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Address Line 1"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.addressLine1}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, addressLine1: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Address Line 2</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Address Line 2"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.addressLine2}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, addressLine2: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {/* City & Postal Code */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">City</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter City"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.city}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, city: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Postal Code</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Postal Code"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.postalCode}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, postalCode: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {/* Country Code & Region */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Country Code</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Country Code"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.countryCode}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, countryCode: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Region</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Region"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.region}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, region: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {/* Bank Details in 2-column layout */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Account Holder</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Account Holder Name"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.account_holder_name}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, account_holder_name: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Account Number</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Account Number"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.account_number}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, account_number: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Branch Code</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Branch Code"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.branch_code}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, branch_code: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Bank Code</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Bank Code"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.bank_code}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, bank_code: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {/* Account Type & IBAN */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">Account Type</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter Account Type"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.account_type}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, account_type: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-[16px] font-semibold">IBAN</label>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Enter IBAN"
+                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                            value={payment.iban}
+                                                            onChange={(e) =>
+                                                                setPayment({ ...payment, iban: e.target.value })
+                                                            }
+                                                        />
+                                                    </div>
+                                                </div>
                                             </div>
                                         )}
+
                                         {payment.paymentType === "card" && (
                                             <div className="mt-5">
                                                 <div>
@@ -1710,14 +1909,18 @@ const List = () => {
                                             </div>
                                         )}
                                         <div className="flex items-center space-x-2 pt-2">
-                                            <input
-                                                type="checkbox"
-                                                className=" border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            <label className="flex items-center space-x-2 pt-2 cursor-pointer text-[16px] font-semibold">
+                                                <input
+                                                    type="checkbox"
+                                                    className="border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                    checked={payment.authorise}
+                                                    onChange={(e) =>
+                                                        setPayment({ ...payment, authorise: e.target.checked })
+                                                    }
+                                                />
+                                                <span>I can authorise Direct Debits on this account myself</span>
+                                            </label>
 
-                                                checked={payment.authorise}
-                                                onChange={(e) => setPayment({ ...payment, authorise: e.target.checked })}
-                                            />
-                                            <label className="block text-[16px] font-semibold">I can authorise Direct Debits on this account myself</label>
                                         </div>
                                     </div>
                                     <div className="w-full mx-auto flex justify-center" >
@@ -1726,7 +1929,7 @@ const List = () => {
                                             disabled={
                                                 isSubmitting || // disable while submitting
                                                 !payment.authorise ||
-                                                (payment.paymentType === "rrn" && !payment.referenceId) ||
+                                                (payment.paymentType === "rrn" && !payment.firstName && !payment.email && !payment.addressLine1 && !payment.city && !payment.postalCode && !payment.countryCode && !payment.account_holder_name && !payment.account_number && !payment.bank_code && !payment.iban ) ||
                                                 (payment.paymentType === "card" &&
                                                     (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan))
                                             }
@@ -1742,7 +1945,7 @@ const List = () => {
                                             }}
                                             className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold ${isSubmitting ||
                                                 !payment.authorise ||
-                                                (payment.paymentType === "rrn" && !payment.referenceId) ||
+                                                (payment.paymentType === "rrn" && !payment.iban) ||
                                                 (payment.paymentType === "card" &&
                                                     (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan))
                                                 ? "bg-gray-400 cursor-not-allowed"

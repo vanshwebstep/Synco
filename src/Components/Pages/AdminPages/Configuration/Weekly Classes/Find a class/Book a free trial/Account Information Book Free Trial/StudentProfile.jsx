@@ -1,4 +1,4 @@
-// src/components/ParentProfile.jsx
+// src/components/StudentProfile.jsx
 
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -15,7 +15,7 @@ import List from '../../Book a Membership/list';
 import Swal from "sweetalert2"; // make sure it's installed
 import { useNavigate } from 'react-router-dom';
 
-const ParentProfile = ({ ParentProfile }) => {
+const StudentProfile = ({ StudentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [selectedDate, setSelectedDate] = useState(null);
     const navigate = useNavigate();
@@ -71,9 +71,9 @@ const ParentProfile = ({ ParentProfile }) => {
         venueId,
         classSchedule,
         paymentPlans,
-    } = ParentProfile;
+    } = StudentProfile;
 
-    const studentsList = ParentProfile?.students || [];
+    const studentsList = StudentProfile?.students || [];
 
 
     const [cancelWaitingList, setCancelWaitingList] = useState({
@@ -88,8 +88,8 @@ const ParentProfile = ({ ParentProfile }) => {
         additionalNote: "",
     });
 
-    console.log('parents', ParentProfile)
-    const parents = ParentProfile.parents;
+    console.log('parents', StudentProfile)
+    const parents = StudentProfile.parents;
     const [formData, setFormData] = useState({
         bookingId: id,
         cancelReason: "",
@@ -97,7 +97,7 @@ const ParentProfile = ({ ParentProfile }) => {
     });
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
-    const emergency = ParentProfile.emergency;
+    const emergency = StudentProfile.emergency;
     console.log('matchedPlan', matchedPlan)
 
     const { checkPermission } = usePermission();
@@ -158,7 +158,7 @@ const ParentProfile = ({ ParentProfile }) => {
             if (result.isConfirmed) {
                 // Navigate to your component/route
                 navigate("/configuration/weekly-classes/find-a-class/book-a-membership", {
-                    state: { TrialData: ParentProfile },
+                    state: { TrialData: StudentProfile },
                 });
             }
         });
@@ -167,16 +167,15 @@ const ParentProfile = ({ ParentProfile }) => {
         <>
             <div className="md:flex w-full gap-4">
                 <div className="transition-all duration-300 flex-1 ">
-                  
                     <div className="space-y-6">
-                        {parents.map((parent, index) => (
+                        {studentsList?.map((student, index) => (
                             <div
-                                key={parent.parentFirstName}
+                                key={student.studentFirstName || index}
                                 className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
                             >
                                 {/* Top Header Row */}
                                 <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Parent information</h2>
+                                    <h2 className="text-[20px] font-semibold">Student information</h2>
 
                                 </div>
 
@@ -187,7 +186,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter first name"
-                                            value={parent.parentFirstName}
+                                            value={student.studentFirstName}
                                             readOnly
                                         />
                                     </div>
@@ -196,7 +195,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter last name"
-                                            value={parent.parentLastName}
+                                            value={student.studentLastName}
                                             readOnly
                                         />
                                     </div>
@@ -204,21 +203,43 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                 {/* Row 2 */}
                                 <div className="flex gap-4">
+
                                     <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Email</label>
+                                        <label className="block text-[16px] font-semibold">Date of Birth</label>
                                         <input
-                                            type="email"
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={parent.parentEmail}
+                                            value={student.dateOfBirth}
                                             readOnly
                                         />
                                     </div>
                                     <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Phone number</label>
+                                        <label className="block text-[16px] font-semibold">Age</label>
+                                        <input
+                                            type="email"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter email address"
+                                            value={student.age}
+                                            readOnly
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Gender</label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.parentPhoneNumber}
+                                            value={student.gender}
+                                            readOnly
+                                        />
+                                    </div>
+                                    <div className="w-1/2">
+                                        <label className="block text-[16px] font-semibold">Medical information</label>
+                                        <input
+                                            type="email"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Enter email address"
+                                            value={student.medicalInformation}
                                             readOnly
                                         />
                                     </div>
@@ -227,75 +248,27 @@ const ParentProfile = ({ ParentProfile }) => {
                                 {/* Row 3 */}
                                 <div className="flex gap-4">
                                     <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Relation to child</label>
+                                        <label className="block text-[16px] font-semibold">Class</label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.relationToChild}
+                                            value={classSchedule.className}
                                             readOnly
                                         />
                                     </div>
                                     <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">How did you hear about us?</label>
+                                        <label className="block text-[16px] font-semibold">Time </label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.howDidYouHear}
+                                            value={classSchedule.startTime}
                                             readOnly
                                         />
+
                                     </div>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    {emergency.map((emergency, index) => (
-                        <div className="bg-white p-6 rounded-3xl shadow-sm space-y-6">
-
-                            <h2 className="text-[20px] font-semibold">Emergency contact details</h2>
-
-                            <div className="flex items-center gap-2">
-                                <input type="checkbox" checked={emergency.sameAsAbove} readOnly disabled />
-                                <label className="text-base font-semibold text-gray-700">Fill same as above</label>
-                            </div>
-
-                            <div className="flex gap-4">
-                                <div className="w-1/2">
-                                    <label className="block text-[16px] font-semibold">First name</label>
-                                    <input
-                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        value={emergency.emergencyFirstName}
-                                        readOnly
-                                    />
-                                </div>
-                                <div className="w-1/2">
-                                    <label className="block text-[16px] font-semibold">Last name</label>
-                                    <input
-                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        value={emergency.emergencyLastName}
-                                        readOnly
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex gap-4">
-                                <div className="w-1/2">
-                                    <label className="block text-[16px] font-semibold">Phone number</label>
-                                    <input
-                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        value={emergency.emergencyPhoneNumber}
-                                        readOnly
-                                    />
-                                </div>
-                                <div className="w-1/2">
-                                    <label className="block text-[16px] font-semibold">Relation to child</label>
-                                    <input
-                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        value={emergency.emergencyRelation}
-                                        readOnly
-                                    />
-                                </div>
-                            </div>
-
-                        </div>
-                    ))}
+                 
                     <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
 
@@ -847,4 +820,4 @@ const ParentProfile = ({ ParentProfile }) => {
     );
 };
 
-export default ParentProfile;
+export default StudentProfile;

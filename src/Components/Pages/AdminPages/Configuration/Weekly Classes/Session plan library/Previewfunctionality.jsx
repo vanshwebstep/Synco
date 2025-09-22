@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 import Loader from '../../../contexts/Loader';
 
-const BASE_URL = 'https://synconode.onrender.com/';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Preview = () => {
   const [activeTab, setActiveTab] = useState('');
@@ -38,14 +38,14 @@ const Preview = () => {
   const getVideoUrl = () => {
     const videoField = `${activeTab.toLowerCase()}_video`;
     return selectedGroup?.[videoField]
-      ? `${BASE_URL}${selectedGroup[videoField]}`
+      ? `${API_BASE_URL}${selectedGroup[videoField]}`
       : '/demo/videoFallback.mp4';
   };
 
   const getBanner = () => {
     const bannerField = `${activeTab.toLowerCase()}_banner`;
     return selectedGroup?.[bannerField]
-      ? `${BASE_URL}${selectedGroup[bannerField]}`
+      ? `${API_BASE_URL}${selectedGroup[bannerField]}`
       : '/demo/default_banner.jpg';
   };
 
@@ -116,7 +116,7 @@ const Preview = () => {
                     <div key={exercise.id} className="flex items-center mb-5 gap-4">
                       <img
                         className="min-h-[116px] min-w-[181px] rounded-xl object-cover"
-                        src={`${BASE_URL}${exercise.imageUrl}`}
+                        src={`${API_BASE_URL}${exercise.imageUrl}`}
                         alt={exercise.title}
                       />
                       <div>

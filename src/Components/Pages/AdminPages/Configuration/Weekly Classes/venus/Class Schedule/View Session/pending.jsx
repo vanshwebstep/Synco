@@ -323,7 +323,7 @@ useEffect(() => {
                         <img
                           key={index}
                           className="rounded object-cover mr-2 min-h-50 max-h-50 mb-2"
-                          src={`${API_BASE_URL}/${imgUrl}`}
+                          src={`${imgUrl}`}
                           alt={`${selectedExercise.title} ${index + 1}`}
                         />
                       ))

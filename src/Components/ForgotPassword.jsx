@@ -212,7 +212,7 @@ const validateEmail = (email) => {
 
     setLoading(true);
 
-    const url = `https://synconode.onrender.com/api/admin/auth/password/forget`;
+    const url = `${API_BASE_URL}/api/admin/auth/password/forget`;
 
     try {
       console.log('Sending forgot password request to:', url);

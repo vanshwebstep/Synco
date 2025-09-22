@@ -1205,14 +1205,14 @@ const List = () => {
 
                         <div className="w-full my-10">
                             {/* Placeholder (acts like a select box) */}
-                             <div
-                onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-between text-[20px] p-3 border  border-white rounded-xl cursor-pointer bg-white shadow-sm  hover:border-gray-400 transition"
-              >
-                <span
-                  className={`${selectedKeyInfo ? " font-medium" : "text-gray-800"
-                    }`}
-                >
+                            <div
+                                onClick={() => setIsOpen(!isOpen)}
+                                className="flex items-center justify-between text-[20px] p-3 border  border-white rounded-xl cursor-pointer bg-white shadow-sm  hover:border-gray-400 transition"
+                            >
+                                <span
+                                    className={`${selectedKeyInfo ? " font-medium" : "text-gray-800"
+                                        }`}
+                                >
                                     {selectedLabel}
                                 </span>
                                 {isOpen ? (
@@ -1254,8 +1254,8 @@ const List = () => {
                                             {/* Label */}
                                             <span
                                                 className={`${selectedKeyInfo === option.value
-                                                        ? "font-semibold text-blue-600"
-                                                        : "text-gray-700"
+                                                    ? "font-semibold text-blue-600"
+                                                    : "text-gray-700"
                                                     }`}
                                             >
                                                 {option.label}
@@ -1266,27 +1266,7 @@ const List = () => {
                             )}
                         </div>
 
-
-                        <div className="flex justify-end  mb-10 gap-4">
-                            <button
-                                type="button"
-                                className="flex items-center justify-center gap-1 border border-[#717073] text-[#717073] px-12 text-[18px]  py-2 rounded-lg font-semibold bg-none"
-                            >
-                                Cancel
-                            </button>
-
-                            <button
-                                type="submit"
-                                onClick={handleSubmit}
-                                disabled={isSubmitting}
-                                className="bg-[#237FEA] text-white  text-[18px]  font-semibold border  border-[#237FEA] px-6 py-3 rounded-lg"
-                            >
-                                {isSubmitting ? "Submitting..." : "Book FREE Trial"}
-
-                            </button>
-
-                        </div>
-                        <div className="bg-white rounded-3xl p-6 space-y-4">
+                        <div className="bg-white mb-10 rounded-3xl p-6 space-y-4">
                             <h2 className="text-[24px] font-semibold">Comment</h2>
 
                             {/* Input section */}
@@ -1348,6 +1328,26 @@ const List = () => {
                                 ))}
                             </div>
                         </div>
+                        <div className="flex justify-end  pb-10 gap-4">
+                            <button
+                                type="button"
+                                className="flex items-center justify-center gap-1 border border-[#717073] text-[#717073] px-12 text-[18px]  py-2 rounded-lg font-semibold bg-none"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="submit"
+                                onClick={handleSubmit}
+                                disabled={isSubmitting}
+                                className="bg-[#237FEA] text-white  text-[18px]  font-semibold border  border-[#237FEA] px-6 py-3 rounded-lg"
+                            >
+                                {isSubmitting ? "Submitting..." : "Book FREE Trial"}
+
+                            </button>
+
+                        </div>
+
 
                     </div>
                 </div>

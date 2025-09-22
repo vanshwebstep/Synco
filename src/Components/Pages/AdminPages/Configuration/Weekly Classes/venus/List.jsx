@@ -83,7 +83,7 @@ const handleIconClick = (icon, plan = null) => {
 
 
 
-  const { fetchPackages, packages } = usePayments()
+  const { fetchGroups, groups } = usePayments()
   const { fetchTermGroup, termGroup, fetchTerm, termData } = useTermContext()
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -133,10 +133,10 @@ const handleIconClick = (icon, plan = null) => {
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   useEffect(() => {
     fetchVenues();
-    fetchPackages();
+    fetchGroups();
     fetchTermGroup();
     fetchTerm();
-  }, [fetchVenues, fetchPackages, fetchTermGroup, fetchTerm]);
+  }, [fetchVenues, fetchGroups, fetchTermGroup, fetchTerm]);
 
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -633,7 +633,7 @@ const getDateStatus = (date) => {
             >
             </button>
 <Create
-  packages={packages}
+  groups={groups}
   termGroup={classCards}
   onClose={() => setOpenForm(false)}
 />

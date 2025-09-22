@@ -440,9 +440,9 @@ const Capacity = () => {
                                                     <div className="whitespace-nowrap text-[#717073] font-semibold text-[14px]">
                                                         {new Date(venue.createdAt).toLocaleDateString("en-GB", {
                                                             weekday: "long",
-                                                            year: "numeric",
-                                                            month: "short",
-                                                            day: "2-digit",
+                                                            // year: "numeric",
+                                                            // month: "short",
+                                                            // day: "2-digit",
                                                         })}
                                                     </div>
                                                 </div>
@@ -512,12 +512,13 @@ const Capacity = () => {
 
 
                                                 {/* Stats with Pie */}
-                                                <div className="bg-[#F2ECE6] border border-[#ccc] text-black rounded-3xl shadow-md px-6 py-4 flex items-center">
+                                                <div className="bg-[#F2ECE6] max-w-[255px]  border border-[#ccc] text-black rounded-3xl shadow-md px-6 py-4 flex items-center">
                                                     <div className="flex flex-col">
                                                         <span className="text-[16px] font-semibold">Total</span>
                                                         <span className="text-[14px] text-[#717073]">
-                                                            <span>{venue.stats.totalBooked} Booked of </span>
-                                                            <span>{venue.stats.totalCapacity} Spaces</span>
+                                                            <span>{venue.stats.totalBooked} Booked </span>
+                                                            <br></br>
+                                                            <span>of {venue.stats.totalCapacity}  Spaces</span>
                                                         </span>
                                                     </div>
 

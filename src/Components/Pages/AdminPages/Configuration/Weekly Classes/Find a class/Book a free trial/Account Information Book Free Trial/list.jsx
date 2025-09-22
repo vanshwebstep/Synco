@@ -14,6 +14,7 @@ const tabs = [
 import ParentProfile from "./ParentProfile";
 import { useBookFreeTrial } from '../../../../../contexts/BookAFreeTrialContext';
 import ServiceHistory from "../../../../../Common/serviceHistory";
+import StudentProfile from "./StudentProfile";
 
 const list = () => {
       const { serviceHistoryFetchById ,serviceHistory} = useBookFreeTrial()
@@ -74,7 +75,7 @@ console.log('serviceHistory',serviceHistory)
         </div>
     {activeTab === "Service History" && (
         <div className=" flex items-start  gap-2 md:gap-3">
-          <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
+          {/* <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
               src="/demo/synco/images/points.png"
               alt="Back"
@@ -84,7 +85,7 @@ console.log('serviceHistory',serviceHistory)
               <div className="whitespace-nowrap text-[#717073] font-semibold text-[14px]">Total points</div>
               <div className="text-[20px] font-semibold text-[#384455]">543</div>
             </div>
-          </div>
+          </div> */}
           <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
               src="/demo/synco/images/totalPoints.png"
@@ -133,6 +134,7 @@ console.log('serviceHistory',serviceHistory)
           }}
           comesFrom={'freeTrial'}
         /> }
+         {activeTab === "Student Profile" && <StudentProfile  StudentProfile={serviceHistory}  />}
       {activeTab === "Parent Profile" && <ParentProfile  ParentProfile={serviceHistory}  />}
 
     </>

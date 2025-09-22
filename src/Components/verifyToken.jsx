@@ -1,7 +1,9 @@
 export const verifyToken = async (token) => {
   try {
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    
     console.log('🔍 Verifying token...');
-    const response = await fetch(`https://synconode.onrender.com/api/admin/auth/login/verify`, {
+    const response = await fetch(`${API_BASE_URL}/api/admin/auth/login/verify`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,

@@ -36,74 +36,72 @@ const AdminLogin = () => {
   }, []);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-const handleNext = async (e) => {
-  e.preventDefault();
+  const handleNext = async (e) => {
+    e.preventDefault();
 
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-  if (newPassword !== confirmPassword) {
-    Swal.fire({
-      icon: "error",
-      title: "Passwords do not match",
-    });
-    return;
-  }
-  if (!newPassword || !confirmPassword) {
-    Swal.fire({
-      icon: "warning",
-      title: "Both fields are required",
-    });
-    return;
-  }
-
-  const raw = JSON.stringify({
-    token,
-    newPassword,
-    confirmPassword,
-  });
-
-  setLoading(true);
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/admin/auth/password/reset`,
-      {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-      }
-    );
-
-    const result = await response.json();
-
-    if (response.ok) {
-      Swal.fire({
-        icon: "success",
-        title: result.message || `Password successfully reset.`,
-        showConfirmButton: false,
-        timer: 2000, // auto close after 2s
-      });
-      setIsResetCome(false);
-    } else {
+    if (newPassword !== confirmPassword) {
       Swal.fire({
         icon: "error",
-        title: result.message || "Reset failed",
+        title: "Passwords do not match",
       });
+      return;
     }
-  } catch (err) {
-    console.error(err);
-    Swal.fire({
-      icon: "error",
-      title: "Server error. Please try again later.",
+    if (!newPassword || !confirmPassword) {
+      Swal.fire({
+        icon: "warning",
+        title: "Both fields are required",
+      });
+      return;
+    }
+
+    const raw = JSON.stringify({
+      token,
+      newPassword,
+      confirmPassword,
     });
-  } finally {
-    setLoading(false);
-  }
 
-  console.log("Ready to submit:", { token, newPassword });
-};
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/auth/password/reset`,
+        {
+          method: "POST",
+          headers: myHeaders,
+          body: raw,
+        }
+      );
 
+      const result = await response.json();
 
+      if (response.ok) {
+        Swal.fire({
+          icon: "success",
+          title: result.message || `Password successfully reset.`,
+          showConfirmButton: false,
+          timer: 2000, // auto close after 2s
+        });
+        setIsResetCome(false);
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: result.message || "Reset failed",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Server error. Please try again later.",
+      });
+    } finally {
+      setLoading(false);
+    }
+
+    console.log("Ready to submit:", { token, newPassword });
+  };
 
   const validateEmail = (email) => {
     return /\S+@\S+\.\S+/.test(email);
@@ -127,7 +125,7 @@ const handleNext = async (e) => {
     try {
       const raw = JSON.stringify({ email, password });
 
-      const response = await fetch(`https://synconode.onrender.com/api/admin/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: raw,
