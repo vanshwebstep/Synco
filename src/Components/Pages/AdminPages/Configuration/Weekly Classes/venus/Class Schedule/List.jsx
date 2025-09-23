@@ -521,16 +521,16 @@ const List = () => {
                                                                                         {/* Status */}
                                                                                         <div className="flex items-center gap-2 text-sm mt-2 md:mt-0 w-full md:w-auto">
                                                                                             <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
-                                                                                                {session?.sessionPlan?.status == "pending" || session?.sessionPlan?.status == "Pending" && (
+                                                                                                {session?.classScheduleTermMaps?.status == "pending"  && (
                                                                                                     <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" />
                                                                                                 )}
-                                                                                                {session?.sessionPlan?.status == "completed" && (
+                                                                                                {session?.classScheduleTermMaps?.status == "completed" && (
                                                                                                     <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="Complete" />
                                                                                                 )}
-                                                                                                {session?.sessionPlan?.status == "cancelled" && (
+                                                                                                {session?.classScheduleTermMaps?.status == "cancelled" && (
                                                                                                     <img src="/demo/synco/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
                                                                                                 )}
-                                                                                                {session?.sessionPlan?.status || "Pending"}
+                                                                                                {session?.classScheduleTermMaps?.status || "Pendiaaang"}
                                                                                             </span>
                                                                                         </div>
 
@@ -543,7 +543,7 @@ const List = () => {
                                                                                             {sessionMaps && (
                                                                                                 <button
                                                                                                     onClick={() =>
-                                                                                                        navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/pending', {
+                                                                                                        navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/viewSessions', {
                                                                                                             state: {
                                                                                                                 singleClassSchedules: singleClassSchedules,
                                                                                                                 sessionMap: session.sessionPlan,
@@ -551,6 +551,7 @@ const List = () => {
                                                                                                                 venueId: venueId,
                                                                                                                 sessionDate: session.sessionDate,
                                                                                                                 classname: item,
+                                                                                                                statusIs:session?.classScheduleTermMaps?.status
                                                                                                             },
                                                                                                         })
                                                                                                     }
@@ -575,21 +576,21 @@ const List = () => {
                                                                                                             "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
                                                                                                             {
                                                                                                                 state: {
-                                                                                                                    sessionId: session.sessionPlanId,
+                                                                                                                    sessionId: session.classScheduleTermMaps.id || session.classScheduleTermMaps.classScheduleId  , 
                                                                                                                     schedule: item,
-                                                                                                                    canceled: item.status === "cancelled" // true if cancelled, false otherwise
+                                                                                                                    canceled: session?.classScheduleTermMaps?.status === "cancelled" // true if cancelled, false otherwise
                                                                                                                 }
                                                                                                             }
                                                                                                         )
                                                                                                     }
 
                                                                                                     className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
-        ${item.status === "cancelled"
+        ${session?.classScheduleTermMaps?.status === "cancelled"
                                                                                                             ? "bg-white text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
                                                                                                             : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
                                                                                                         }`}
                                                                                                 >
-                                                                                                    {item.status === "cancelled" ? "See details" : "Cancel Session"}
+                                                                                                    {session?.classScheduleTermMaps?.status === "cancelled" ? "See details" : "Cancel Session"}
                                                                                                 </button>
                                                                                             }
                                                                                         </div>

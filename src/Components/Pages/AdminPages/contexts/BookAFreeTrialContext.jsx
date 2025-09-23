@@ -425,7 +425,7 @@ export const BookFreeTrialProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/service-history/account-profile/${ID}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/service-history/account-profile/${ID}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -501,7 +501,7 @@ export const BookFreeTrialProvider = ({ children }) => {
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-freeTrial`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/cancel-freeTrial`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -548,7 +548,7 @@ export const BookFreeTrialProvider = ({ children }) => {
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/reebooking`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/reebooking`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -643,7 +643,7 @@ export const BookFreeTrialProvider = ({ children }) => {
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/no-membership/`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/no-membership/`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -954,7 +954,7 @@ export const BookFreeTrialProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/service-history/trial-to-membership/${trialId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/service-history/trial-to-membership/${trialId}`, {
         method: "PUT",
         headers,
         body: JSON.stringify(bookFreeMembershipData),
@@ -1050,7 +1050,7 @@ export const BookFreeTrialProvider = ({ children }) => {
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-membership/`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/cancel-membership/`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]

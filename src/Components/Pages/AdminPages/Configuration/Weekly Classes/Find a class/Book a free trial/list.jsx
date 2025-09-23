@@ -558,8 +558,8 @@ const List = () => {
         };
     }, [activePopup]);
     useEffect(() => {
-        if (singleClassSchedulesOnly?.venue?.paymentPlans?.length > 0) {
-            const cleanedPlans = singleClassSchedulesOnly.venue.paymentPlans.map(plan => ({
+        if (singleClassSchedulesOnly?.venue?.paymentGroups?.length > 0) {
+            const cleanedPlans = singleClassSchedulesOnly.venue?.paymentGroups[0]?.paymentPlans.map(plan => ({
                 id: plan.id,
                 title: plan.title,
                 price: plan.price,
@@ -1207,10 +1207,10 @@ const List = () => {
                             {/* Placeholder (acts like a select box) */}
                             <div
                                 onClick={() => setIsOpen(!isOpen)}
-                                className="flex items-center justify-between text-[20px] p-3 border  border-white rounded-xl cursor-pointer bg-white shadow-sm  hover:border-gray-400 transition"
+                                className="flex items-center justify-between text-[20px] p-3 border border-gray-200 rounded-xl cursor-pointer bg-white shadow-md hover:border-gray-400 transition"
                             >
                                 <span
-                                    className={`${selectedKeyInfo ? " font-medium" : "text-gray-800"
+                                    className={`${selectedKeyInfo ? "font-medium text-gray-900" : "text-gray-500"
                                         }`}
                                 >
                                     {selectedLabel}
@@ -1222,49 +1222,46 @@ const List = () => {
                                 )}
                             </div>
 
-                            {/* Options (radio style) */}
+                            {/* Options (bullet style) */}
                             {isOpen && (
-                                <div className="mt-3 space-y-3 ">
+                                <div className="mt-3 space-y-2 e sha rounded-xl p-3 bo0">
                                     {keyInfoOptions.map((option) => (
-                                        <label
+                                        <div
                                             key={option.value}
                                             className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition 
-                ${selectedKeyInfo === option.value
-                                                    ? "bg-blue-50 border border-blue-400"
+          ${selectedKeyInfo === option.value
+                                                    ? ""
                                                     : "hover:bg-gray-50 border border-transparent"
                                                 }`}
                                             onClick={() => {
                                                 setSelectedKeyInfo(option.value);
-                                                setIsOpen(false); // close after select
+                                                // close after select
                                             }}
                                         >
-                                            {/* Bullet Circle */}
+                                            {/* Custom Bullet */}
                                             <span
-                                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center 
-                  ${selectedKeyInfo === option.value
-                                                        ? "border-blue-500"
-                                                        : "border-gray-400"
+                                                className={`w-3 h-3 rounded-full bg-gradient-to-r 
+            ${selectedKeyInfo === option.value
+                                                        ? "from-blue-500 to-blue-400 shadow-sm"
+                                                        : "from-gray-400 to-gray-300"
                                                     }`}
-                                            >
-                                                {selectedKeyInfo === option.value && (
-                                                    <span className="w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
-                                                )}
-                                            </span>
+                                            ></span>
 
                                             {/* Label */}
                                             <span
                                                 className={`${selectedKeyInfo === option.value
-                                                    ? "font-semibold text-blue-600"
-                                                    : "text-gray-700"
+                                                        ? "font-semibold text-blue-700"
+                                                        : "text-gray-700"
                                                     }`}
                                             >
                                                 {option.label}
                                             </span>
-                                        </label>
+                                        </div>
                                     ))}
                                 </div>
                             )}
                         </div>
+
 
                         <div className="bg-white mb-10 rounded-3xl p-6 space-y-4">
                             <h2 className="text-[24px] font-semibold">Comment</h2>

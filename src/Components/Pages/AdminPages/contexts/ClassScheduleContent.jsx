@@ -264,7 +264,7 @@ export const ClassScheduleProvider = ({ children }) => {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-session/${classScheduleId}/cancel?sessionPlanId=${sessionId}`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-session/${classScheduleId}/cancel?mapId=${sessionId}`, requestOptions);
 
       if (!response.ok) {
         const errorData = await response.json();

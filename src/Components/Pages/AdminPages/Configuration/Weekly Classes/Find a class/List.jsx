@@ -479,7 +479,7 @@ const List = () => {
 
   const canAddToWaitingList =
     checkPermission({ module: 'waiting-list', action: 'create' })
-
+console.log('selectedPlans',selectedPlans)
 
 
   if (loading) {
@@ -639,8 +639,7 @@ const List = () => {
                           <div ref={iconContainerRef} className=" md:mt-0 mt-5 flex relative items-center gap-4">
                             <img
                               src="/demo/synco/icons/fcDollar.png"
-                              onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentPlans)}
-                              alt=""
+ onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentGroups[0]?.paymentPlans)}                              alt=""
                               className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                             />
 

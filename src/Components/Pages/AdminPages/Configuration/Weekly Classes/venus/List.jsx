@@ -219,7 +219,7 @@ const getDateStatus = (date) => {
   return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
 };
 
-
+console.log('congestionNote',congestionNote)
   const isSameDate = (d1, d2) =>
     d1 &&
     d2 &&
@@ -308,7 +308,7 @@ const getDateStatus = (date) => {
 
 
 
-  console.log('congestionNote', congestionNote)
+  console.log('venues', venues)
 
 
   const formatShortDate = (iso) => {
@@ -459,7 +459,7 @@ const getDateStatus = (date) => {
           {
             venues.length > 0 ? (
 
-              <div className={`overflow-auto rounded-4xl w-full`}>
+              <div className={`overflow-auto min-h-[600px] bg-white rounded-4xl w-full`}>
 
                 <table className="overflow-hidden rounded-4xl border border-[#E2E1E5] bg-white w-full">
                   <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
@@ -520,7 +520,7 @@ const getDateStatus = (date) => {
                                 />
                               </div>
                               <div
-                                onClick={() => handleIconClick("currency", user.paymentPlans)}
+                                onClick={() => handleIconClick("currency", user.paymentGroups[0]?.paymentPlans)}
                                 className="cursor-pointer"
                               >
                                 <img

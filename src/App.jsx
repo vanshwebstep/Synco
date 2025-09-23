@@ -68,6 +68,7 @@ import Capacity from './Components/Pages/AdminPages/Configuration/Weekly Classes
 import CancellationList from './Components/Pages/AdminPages/Configuration/Weekly Classes/Cancellation/list.jsx';
 import AccountInfoCancellation from './Components/Pages/AdminPages/Configuration/Weekly Classes/Cancellation/Account Information Cancellation/list.jsx';
 import { BookFreeTrialLoaderProvider } from './Components/Pages/AdminPages/contexts/BookAFreeTrialLoaderContext.jsx';
+import KeyInfomation from './Components/Pages/AdminPages/Configuration/Weekly Classes/Key Information/KeyInfomation.jsx';
 // Define roles
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -307,7 +308,7 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
 
-      <Route path="/configuration/weekly-classes/venues/class-schedule/Sessions/pending" element={
+      <Route path="/configuration/weekly-classes/venues/class-schedule/Sessions/viewSessions" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -460,6 +461,16 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
+      <Route path="/configuration/KeyInfomation" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <KeyInfomation />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+
       <Route path="/permission" element={
         <ProtectedRoute>
           <AdminLayout>

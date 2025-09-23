@@ -14,6 +14,7 @@ const ViewSessions = ({ item, sessionData }) => {
   const singleClassSchedules = location.state?.singleClassSchedules;
   const sessionDate = location.state?.sessionDate;
   const className = location.state?.classname;
+  const statusIs = location.state?.statusIs;
 
   console.log(
     'className',
@@ -91,11 +92,13 @@ useEffect(() => {
           levelsData = {};
         }
       }
-
+console.log('levelsData',levelsData)
       Object.entries(levelsData).forEach(([levelKey, items]) => {
         const label = levelKeyToLabel[levelKey] || levelKey;
-        const banner = selectedGroup[`${levelKey}_banner`] || null;
-        const video = selectedGroup[`${levelKey}_video`] || null;
+        const banner = selectedGroup[`${levelKey}_banner`] || selectedGroup.banner;
+        const video = selectedGroup[`${levelKey}_video`] || selectedGroup.video;
+console.log('levelKey',levelKey)
+console.log('items',items)
 
         content[label] = items.map((entry, index) => {
           return {
@@ -136,7 +139,7 @@ useEffect(() => {
       setSelectedExercise(currentContent.sessionExercises[0]);
     }
   }, [currentContent]);
-  console.log('currentContent', currentContent)
+  console.log('myData', myData)
   console.log('singleClassSchedules', singleClassSchedules)
   const ageGroups = {
     "Beginners": "4–5 Years",
@@ -193,10 +196,20 @@ useEffect(() => {
       <div className="bg-white  rounded-3xl shadow p-6 flex flex-col md:flex-row gap-6">
         {/* Left Sidebar */}
         <div className="w-full md:w-2/12 bg-[#F4F2EC] py-6  rounded-2xl  text-center">
-          <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
-            <img src="/demo/synco/icons/pendingBig.png" alt="" />
-          </div>
-          <p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4">Pending</p>
+         <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
+  {statusIs === "cancelled" ? (
+    <img src="/demo/synco/icons/cancelBig.png" alt="Cancelled" />
+  ) : statusIs === "complete" ? (
+    <img src="/demo/synco/icons/completeBig.png" alt="Complete" />
+  ) : (
+    <img src="/demo/synco/icons/pendingBig.png" alt="Pending" />
+  )}
+</div>
+
+<p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4 capitalize">
+  {statusIs || 'Pending'}
+</p>
+
           <div className="text-sm  p-6 text-gray-700 space-y-3 text-left">
             <p><span className="font-semibold">Venue</span><br /> {singleClassSchedules.name}</p>
             <p><span className="font-semibold">Class</span><br />   {className.className}</p>

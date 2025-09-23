@@ -21,6 +21,7 @@ import { useBookFreeTrial } from "../../../../contexts/BookAFreeTrialContext";
 
 import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-input-2/lib/style.css";
+import { useMembers } from "../../../../contexts/MemberContext";
 
 const List = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +29,7 @@ const List = () => {
     const { createBookMembership, createBookMembershipByfreeTrial } = useBookFreeTrial()
     const [expression, setExpression] = useState('');
     const [numberOfStudents, setNumberOfStudents] = useState('1');
+     const { keyInfoData, fetchKeyInfo} = useMembers();
     
     const [isOpenMembership, setIsOpenMembership] = useState(false);
 
@@ -88,15 +90,17 @@ const List = () => {
     ]);
     const finalClassId = classId || TrialData?.classScheduleId;
     const allPaymentPlans =
-        singleClassSchedulesOnly?.venue?.paymentPlans?.map((plan) => ({
+        singleClassSchedulesOnly?.venue?.paymentGroups[0].paymentPlans?.map((plan) => ({
             label: `${plan.title} (${plan.students} student${plan.students > 1 ? "s" : ""})`,
             value: plan.id,
             joiningFee: plan.joiningFee,
             all: plan,
         })) || [];
+
     const paymentPlanOptions = numberOfStudents
         ? allPaymentPlans.filter((plan) => plan.all.students === Number(numberOfStudents))
         : allPaymentPlans;
+        console.log('singleClassSchedulesOnly',singleClassSchedulesOnly)
 
 
     const handleNumberChange = (e) => {
@@ -170,11 +174,13 @@ const List = () => {
     useEffect(() => {
         const fetchData = async () => {
             if (finalClassId) {
+
                 await fetchFindClassID(finalClassId);
+                await fetchKeyInfo();
             }
         };
         fetchData();
-    }, [finalClassId, fetchFindClassID]);
+    }, [finalClassId, fetchFindClassID,fetchKeyInfo]);
     const [activePopup, setActivePopup] = useState(null);
     const togglePopup = (id) => {
         setActivePopup((prev) => (prev === id ? null : id));
@@ -602,8 +608,8 @@ const List = () => {
         };
     }, [activePopup]);
     useEffect(() => {
-        if (singleClassSchedulesOnly?.venue?.paymentPlans?.length > 0) {
-            const cleanedPlans = singleClassSchedulesOnly.venue.paymentPlans.map(plan => ({
+        if (singleClassSchedulesOnly?.venue?.paymentGroups?.length > 0) {
+            const cleanedPlans = singleClassSchedulesOnly.venue.paymentGroups[0].paymentPlans.map(plan => ({
                 id: plan.id,
                 title: plan.title,
                 price: plan.price,
@@ -643,11 +649,48 @@ const List = () => {
         { value: "Friend", label: "Friend" },
         { value: "Flyer", label: "Flyer" },
     ];
-    const keyInfoOptions = [
-        { value: "keyInfo 1", label: "keyInfo 1" },
-        { value: "keyInfo 2", label: "keyInfo 2" },
-        { value: "keyInfo 3", label: "keyInfo 3" },
-    ];
+
+
+// Function to convert HTML to plain text while preserving list structure
+function htmlToArray(html) {
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+
+  const items = [];
+
+  function traverse(node) {
+    node.childNodes.forEach((child) => {
+      if (child.nodeName === "LI") {
+        const text = child.textContent.trim();
+        if (text) items.push(text);
+      } else if (child.nodeName === "OL" || child.nodeName === "UL") {
+        traverse(child);
+      } else if (child.nodeType !== 3) { // skip text nodes outside li
+        traverse(child);
+      }
+    });
+  }
+
+  traverse(tempDiv);
+
+  // If no <li> found, fallback to plain text
+  if (items.length === 0) {
+    const plainText = tempDiv.textContent.trim();
+    if (plainText) items.push(plainText);
+  }
+
+  return items;
+}
+
+// Example usage:
+const keyInfoArray = htmlToArray(keyInfoData?.keyInformation);
+
+// Map into dynamic options
+const keyInfoOptions = keyInfoArray.map((item) => ({
+  value: item,
+  label: item,
+}));
+
     const genderOptions = [
         { value: "male", label: "Male" },
         { value: "female", label: "Female" },
@@ -659,7 +702,7 @@ const List = () => {
         )
     ) || [];
 
-
+console.log('keyInfoData',keyInfoData)
     const selectedLabel =
         keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
         "Key Information";
@@ -1361,68 +1404,64 @@ const List = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="w-full my-10">
-                            {/* Placeholder (acts like a select box) */}
-                            <div
-                                onClick={() => setIsOpen(!isOpen)}
-                                className="flex items-center justify-between text-[20px] p-3 border  border-white rounded-xl cursor-pointer bg-white shadow-sm  hover:border-gray-400 transition"
-                            >
-                                <span
-                                    className={`${selectedKeyInfo ? " font-medium" : "text-gray-800"
-                                        }`}
-                                >
-                                    {selectedLabel}
-                                </span>
-                                {isOpen ? (
-                                    <ChevronUp className="w-5 h-5 text-gray-500" />
-                                ) : (
-                                    <ChevronDown className="w-5 h-5 text-gray-500" />
-                                )}
-                            </div>
-
-                            {/* Options (radio style) */}
-                            {isOpen && (
-                                <div className="mt-3 space-y-3 ">
-                                    {keyInfoOptions.map((option) => (
-                                        <label
-                                            key={option.value}
-                                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition 
-                ${selectedKeyInfo === option.value
-                                                    ? "bg-blue-50 border border-blue-400"
-                                                    : "hover:bg-gray-50 border border-transparent"
-                                                }`}
-                                            onClick={() => {
-                                                setSelectedKeyInfo(option.value);
-                                                setIsOpen(false); // close after select
-                                            }}
-                                        >
-                                            {/* Bullet Circle */}
-                                            <span
-                                                className={`w-4 h-4 rounded-full border-2 flex items-center justify-center 
-                  ${selectedKeyInfo === option.value
-                                                        ? "border-blue-500"
-                                                        : "border-gray-400"
-                                                    }`}
-                                            >
-                                                {selectedKeyInfo === option.value && (
-                                                    <span className="w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
-                                                )}
-                                            </span>
-
-                                            {/* Label */}
-                                            <span
-                                                className={`${selectedKeyInfo === option.value
-                                                    ? "font-semibold text-blue-600"
-                                                    : "text-gray-700"
-                                                    }`}
-                                            >
-                                                {option.label}
-                                            </span>
-                                        </label>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                           <div className="w-full my-10">
+                                                   {/* Placeholder (acts like a select box) */}
+                                                   <div
+                                                       onClick={() => setIsOpen(!isOpen)}
+                                                       className="flex items-center justify-between text-[20px] p-3 border border-gray-200 rounded-xl cursor-pointer bg-white shadow-md hover:border-gray-400 transition"
+                                                   >
+                                                       <span
+                                                           className={`${selectedKeyInfo ? "font-medium text-gray-900" : "text-gray-500"
+                                                               }`}
+                                                       >
+                                                           {selectedLabel}
+                                                       </span>
+                                                       {isOpen ? (
+                                                           <ChevronUp className="w-5 h-5 text-gray-500" />
+                                                       ) : (
+                                                           <ChevronDown className="w-5 h-5 text-gray-500" />
+                                                       )}
+                                                   </div>
+                       
+                                                   {/* Options (bullet style) */}
+                                                   {isOpen && (
+                                                       <div className="mt-3 space-y-2 e sha rounded-xl p-3 bo0">
+                                                           {keyInfoOptions.map((option) => (
+                                                               <div
+                                                                   key={option.value}
+                                                                   className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition 
+                                 ${selectedKeyInfo === option.value
+                                                                           ? ""
+                                                                           : "hover:bg-gray-50 border border-transparent"
+                                                                       }`}
+                                                                //    onClick={() => {
+                                                                //        setSelectedKeyInfo(option.value);
+                                                                //        // close after select
+                                                                //    }}
+                                                               >
+                                                                   {/* Custom Bullet */}
+                                                                   <span
+                                                                       className={`w-3 h-3 rounded-full bg-gradient-to-r 
+                                   ${selectedKeyInfo === option.value
+                                                                               ? "from-blue-500 to-blue-400 shadow-sm"
+                                                                               : "from-gray-400 to-gray-300"
+                                                                           }`}
+                                                                   ></span>
+                       
+                                                                   {/* Label */}
+                                                                   <span
+                                                                       className={`${selectedKeyInfo === option.value
+                                                                               ? "font-semibold text-blue-700"
+                                                                               : "text-gray-700"
+                                                                           }`}
+                                                                   >
+                                                                       {option.label}
+                                                                   </span>
+                                                               </div>
+                                                           ))}
+                                                       </div>
+                                                   )}
+                                               </div>
 
 <div className="bg-white rounded-3xl p-6 my-10 space-y-4">
                             <h2 className="text-[24px] font-semibold">Comment</h2>

@@ -77,6 +77,13 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       link: '/permission',
       needPermissions: [{ module: 'admin-role', action: 'view-listing' }, { module: 'admin-role', action: 'create' }]
     },
+      {
+      title: 'Key Information',
+      icon: '/demo/synco/SidebarLogos/Management.png',
+      iconHover: '/demo/synco/SidebarLogos/ManagementH.png',
+      link: '/configuration/KeyInfomation',
+      needPermissions: [{ module: 'admin-role', action: 'view-listing' }, { module: 'admin-role', action: 'create' }]
+    },
   ];
 
   let menuItems = [];

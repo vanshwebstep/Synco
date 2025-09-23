@@ -15,7 +15,14 @@ const Create = () => {
     const videoInputRef = useRef(null);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [planLoading, setPlanLoading] = useState(false);
+    const MultiValue = () => null; // Hides the default selected boxes
+    const exerciseRef = useRef(null);
+    const [mounted, setMounted] = useState(false);
+const containerRef = useRef(null);
 
+    useEffect(() => {
+        setMounted(true);
+    }, [])
     const tabRef = useRef(null);
     const bannerInputRef = useRef(null);
     const [searchParams] = useSearchParams();
@@ -162,7 +169,7 @@ const Create = () => {
 
         setIsProcessing(true);
 
-        if (tabRef.current) {
+        if (!finalSubmit && tabRef.current) {
             tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         console.log('selectedPlanssssssssssss', selectedPlans)
@@ -316,11 +323,12 @@ const Create = () => {
         }
     }, [id]);
 
+    // Load selectedGroup and levels initially
     useEffect(() => {
         if (selectedGroup && isEditMode) {
             let parsedLevels = selectedGroup.levels;
 
-            // If it's stringified, parse it
+            // Parse levels if it's a string
             if (typeof parsedLevels === "string") {
                 try {
                     parsedLevels = JSON.parse(parsedLevels);
@@ -330,29 +338,20 @@ const Create = () => {
                 }
             }
 
-            // Set top-level values
             setGroupNameSection(selectedGroup.groupName || "");
             setPlayer(selectedGroup.player || "");
 
-            // ✅ Video (string URL or File)
-            if (selectedGroup.video instanceof File) {
-                setVideoFile(selectedGroup.video);
-            } else if (typeof selectedGroup.video === "string") {
-                setVideoFile(selectedGroup.video); // direct URL
-            } else {
-                setVideoFile("");
-            }
+            // Video setup
+            setVideoFile(
+                selectedGroup.video instanceof File ? selectedGroup.video : selectedGroup.video || ""
+            );
 
-            // ✅ Banner (string URL or File)
-            if (selectedGroup.banner instanceof File) {
-                setBannerFile(selectedGroup.banner);
-            } else if (typeof selectedGroup.banner === "string") {
-                setBannerFile(selectedGroup.banner); // direct URL
-            } else {
-                setBannerFile("");
-            }
+            // Banner setup
+            setBannerFile(
+                selectedGroup.banner instanceof File ? selectedGroup.banner : selectedGroup.banner || ""
+            );
 
-            // ✅ Levels mapping
+            // Map levels
             const loadedLevels = [];
             Object.entries(parsedLevels || {}).forEach(([levelKey, sessions]) => {
                 sessions?.forEach((session) => {
@@ -360,12 +359,12 @@ const Create = () => {
                         level: levelKey,
                         player: session.player || "",
                         skillOfTheDay: session.skillOfTheDay || "",
-                        recording: session.recording || "",
+                        recording: selectedGroup[`${levelKey}_recording`] || session.recording || "",
                         descriptionSession: session.description || "",
                         sessionExerciseId: session.sessionExerciseId || [],
                         sessionExercises: session.sessionExercises || [],
-                        bannerFile: selectedGroup.banner, // use top-level
-                        videoFile: selectedGroup.video,   // use top-level
+                        bannerFile: selectedGroup.banner,
+                        videoFile: selectedGroup.video,
                     });
                 });
             });
@@ -373,6 +372,29 @@ const Create = () => {
             setLevels(loadedLevels);
         }
     }, [selectedGroup, isEditMode]);
+
+    // Update audio URL when tab changes
+    useEffect(() => {
+        if (levels.length > 0) {
+            const currentLevel = levels.find((lvl) => lvl.level === activeTab);
+
+            if (currentLevel) {
+                if (currentLevel.recording instanceof Blob) {
+                    setAudioURL(URL.createObjectURL(currentLevel.recording));
+                } else if (
+                    typeof currentLevel.recording === "string" &&
+                    currentLevel.recording.startsWith("http")
+                ) {
+                    setAudioURL(currentLevel.recording);
+                } else {
+                    setAudioURL(null);
+                }
+
+                setRecording(currentLevel.recording || null);
+            }
+        }
+    }, [levels, activeTab]);
+
 
 
     useEffect(() => {
@@ -450,7 +472,11 @@ const Create = () => {
         label: `${plan.duration}: ${plan.title}`,
         data: plan,
     }));
-
+useEffect(() => {
+    if (containerRef.current) {
+        containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+}, [selectedOptions]);
     const handleSelectChange = (selected) => {
         setSelectedPlans(selected ? selected.map((item) => item.data) : []);
     };
@@ -472,11 +498,19 @@ const Create = () => {
     }, [fetchExercises]);
     const handleAddPlan = () => {
         setOpenForm(true);
+
     };
+    useEffect(() => {
+        if (openForm) {
+            // scroll after the form is rendered
+            exerciseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, [openForm]);
     const handleRemovePlan = (index) => {
         const updated = [...selectedPlans];
         updated.splice(index, 1);
         setSelectedPlans(updated);
+
     };
     const handleSavePlan = async () => {
         const { title, duration, description, images } = formData;
@@ -610,13 +644,22 @@ const Create = () => {
             setSelectedPlans([]);
         }
     };
+    const sortedOptions = planOptions.sort((a, b) => {
+        const aSelected = selectedOptions.some(o => o.value === a.value);
+        const bSelected = selectedOptions.some(o => o.value === b.value);
 
+        // If a is selected and b is not, a goes after b
+        if (aSelected && !bSelected) return 1;
+        if (!aSelected && bSelected) return -1;
+        return 0; // keep original order if both selected or both unselected
+    });
     console.log('selectedPlans', selectedPlans)
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
             <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2`}>
                 <h2
+                    ref={exerciseRef}
                     onClick={() => {
                         if (previewShowModal) {
                             setPreviewShowModal(false);
@@ -723,40 +766,43 @@ const Create = () => {
                                         className="hidden"
                                     />
                                 </div>
-                                <div className="flex flex-col md:flex-row items-center justify-center gap-6 mt-4 w-full">
-                                    {/* Video Preview */}
-                                    {videoFile && videoPreviewUrl && (
-                                        <div className="w-full md:w-1/2">
-                                            <label className="block text-sm font-semibold mb-2 text-gray-700">Video Preview</label>
-                                            <video
-                                                controls
-                                                className="w-full h-auto rounded shadow"
-                                                src={videoPreviewUrl}
-                                                onError={() => console.error("Failed to load video:", videoFile)}
-                                            />
-                                        </div>
-                                    )}
+                            <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 mt-6 w-full">
+  {/* Video Preview */}
+  {videoFile && videoPreviewUrl && (
+    <div className="w-full md:w-1/2 bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+      <label className="block text-sm font-semibold mb-2 text-gray-700 p-4">Video Preview</label>
+      <div className="w-full aspect-square">
+        <video
+          controls
+          className="w-full h-full object-cover"
+          src={videoPreviewUrl}
+          onError={() => console.error("Failed to load video:", videoFile)}
+        />
+      </div>
+    </div>
+  )}
 
-                                    {bannerFile && bannerPreviewUrl && (
-                                        <div className="w-full md:w-1/2">
-                                            <label className="block text-sm font-semibold mb-2 text-gray-700">Banner Preview</label>
-                                            <img
-                                                src={bannerPreviewUrl}
-                                                alt="Banner Preview"
-                                                className="w-full h-auto rounded shadow"
-                                                onError={(e) => {
-                                                    console.error("Failed to load banner:", bannerFile);
-                                                    e.target.style.display = "none";
-                                                }}
-                                            />
-                                        </div>
-                                    )}
+  {/* Banner Preview */}
+  {bannerFile && bannerPreviewUrl && (
+    <div className="w-full md:w-1/2 bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+      <label className="block text-sm font-semibold mb-2 text-gray-700 p-4">Banner Preview</label>
+      <div className="w-full aspect-square">
+        <img
+          src={bannerPreviewUrl}
+          alt="Banner Preview"
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            console.error("Failed to load banner:", bannerFile);
+            e.target.style.display = "none";
+          }}
+        />
+      </div>
+    </div>
+  )}
+</div>
 
-
-
-                                </div>
-
-                                <div>
+                                <div  ref={containerRef}>
+                                    
                                     <label className="block text-[18px]  font-semibold text-gray-700 mb-2">
                                         Skill of the day
                                     </label>
@@ -864,6 +910,7 @@ const Create = () => {
                                 <div className="w-full">
                                     {/* Label - Clickable to toggle options */}
                                     <div
+                                     
                                         className="flex items-center justify-between cursor-pointer mb-2"
                                         onClick={() => setIsOpen(!isOpen)}
                                     >
@@ -877,148 +924,93 @@ const Create = () => {
 
 
                                     {/* Selected Plans */}
+                                    <div className="relative">
+                                        <div
+  
+    onClick={() => setIsOpen(!isOpen)}
+    className="mt-4 space-y-2 border border-gray-200 px-4 py-3 rounded-lg max-h-28 overflow-auto"
+>
+    {selectedPlans.length > 0 ? (
+        selectedPlans.map((plan, idx) => (
+            <div
+                key={plan.id || idx}
+                className="flex items-center font-semibold justify-between"
+            >
+                <span>{`${plan.duration}: ${plan.title}`}</span>
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemovePlan(idx);
+                    }}
+                    className="text-gray-500 hover:text-red-500"
+                >
+                    <Trash2 size={18} />
+                </button>
+            </div>
+        ))
+    ) : (
+        <div className="text-gray-400 italic py-3">  </div>
+    )}
+</div>
 
-                                    <div
-                                        onClick={() => setIsOpen(!isOpen)}
-                                        className="mt-4 space-y-2 border border-gray-200 px-4 py-3 rounded-lg"
-                                    >
-                                        {selectedPlans.length > 0 ? (
-                                            selectedPlans.map((plan, idx) => (
-                                                <div
-                                                    key={plan.id || idx}
-                                                    className="flex items-center font-semibold justify-between"
+                                        <AnimatePresence initial={false}>
+                                            {isOpen && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: "auto" }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                    className="overflow-hidden"
                                                 >
-                                                    <span>{`${plan.duration}: ${plan.title}`}</span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation(); // Prevents triggering setIsOpen
-                                                            handleRemovePlan(idx);
-                                                        }}
-                                                        className="text-gray-500 hover:text-red-500"
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <div className="text-gray-400 italic py-3">  </div>
-                                        )}
+                                                    <div className="w-full mb-4">
+                                                      <Select
+    key={mounted}
+    options={sortedOptions}
+    value={selectedOptions}
+    onChange={handleSelectChange}
+    isMulti
+    placeholder="Select Exercises..."
+    className="react-select-container"
+    classNamePrefix="react-select"
+    components={{ MultiValue }}
+    menuPortalTarget={document.body}
+    menuPosition="fixed"
+    menuPlacement="auto"
+    closeMenuOnSelect={false}
+    hideSelectedOptions={false}
+    isClearable
+    styles={{
+        control: (base, state) => ({
+            ...base,
+            borderRadius: "14px",
+            borderColor: state.isFocused ? "#3b82f6" : "#e5e7eb",
+            padding: "4px 8px",
+            backgroundColor: "#fff",
+        }),
+        valueContainer: (base) => ({
+            ...base,
+            maxHeight: "120px",
+            overflowY: "auto",
+            gap: "6px",
+        }),
+        multiValue: (base) => ({
+            ...base,
+            borderRadius: "10px",
+            backgroundColor: "#eff6ff",
+        }),
+        multiValueLabel: (base) => ({
+            ...base,
+            color: "#1d4ed8",
+        }),
+    }}
+/>
+
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
-
-                                    <AnimatePresence initial={false}>
-                                        {isOpen && (
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: "auto" }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                transition={{ duration: 0.3 }}
-                                                className="overflow-hidden"
-                                            >
-                                                <div className="w-full mb-4">
-                                                    <Select
-                                                        options={planOptions}
-                                                        value={selectedOptions}
-                                                        onChange={handleSelectChange}
-                                                        isMulti
-                                                        placeholder="Select Exercises..."
-                                                        className="react-select-container"
-                                                        classNamePrefix="react-select"
-                                                        menuPortalTarget={document.body}
-                                                        styles={{
-                                                            control: (base, state) => ({
-                                                                ...base,
-                                                                borderRadius: "14px",
-                                                                border: "1px solid",
-                                                                borderColor: state.isFocused ? "#3b82f6" : "#e5e7eb", // Blue-500 or Gray-200
-                                                                boxShadow: state.isFocused
-                                                                    ? "0 0 0 3px rgba(59, 130, 246, 0.2)"
-                                                                    : "0 1px 2px rgba(0,0,0,0.05)",
-                                                                transition: "all 0.2s ease",
-                                                                minHeight: "52px",
-                                                                padding: "4px 8px",
-                                                                backgroundColor: "#fff",
-                                                                fontSize: "15px",
-                                                                fontWeight: 500,
-                                                            }),
-                                                            valueContainer: (base) => ({
-                                                                ...base,
-                                                                gap: "6px",
-                                                                padding: "2px 4px",
-                                                            }),
-                                                            placeholder: (base) => ({
-                                                                ...base,
-                                                                color: "#9ca3af", // gray-400
-                                                                fontSize: "15px",
-                                                                fontWeight: 400,
-                                                            }),
-                                                            menu: (base) => ({
-                                                                ...base,
-                                                                zIndex: 9999,
-                                                                borderRadius: "14px",
-                                                                marginTop: "6px",
-                                                                padding: "6px 0",
-                                                                backgroundColor: "white",
-                                                                boxShadow:
-                                                                    "0 8px 24px rgba(0,0,0,0.12), 0 4px 6px rgba(0,0,0,0.08)",
-                                                            }),
-                                                            option: (base, state) => ({
-                                                                ...base,
-                                                                backgroundColor: state.isSelected
-                                                                    ? "#2563eb"
-                                                                    : state.isFocused
-                                                                        ? "#f3f4f6"
-                                                                        : "transparent",
-                                                                color: state.isSelected ? "white" : "#111827",
-                                                                fontSize: "15px",
-                                                                fontWeight: state.isSelected ? 600 : 400,
-                                                                padding: "12px 16px",
-                                                                cursor: "pointer",
-                                                                transition: "all 0.15s ease",
-                                                            }),
-                                                            multiValue: (base) => ({
-                                                                ...base,
-                                                                borderRadius: "10px",
-                                                                backgroundColor: "#eff6ff", // blue-50
-                                                                padding: "2px 8px",
-                                                                display: "flex",
-                                                                alignItems: "center",
-                                                            }),
-                                                            multiValueLabel: (base) => ({
-                                                                ...base,
-                                                                color: "#1d4ed8", // blue-700
-                                                                fontWeight: 500,
-                                                                fontSize: "14px",
-                                                            }),
-                                                            multiValueRemove: (base) => ({
-                                                                ...base,
-                                                                color: "#2563eb",
-                                                                borderRadius: "6px",
-                                                                ":hover": {
-                                                                    backgroundColor: "#2563eb",
-                                                                    color: "white",
-                                                                },
-                                                            }),
-                                                            dropdownIndicator: (base, state) => ({
-                                                                ...base,
-                                                                color: state.isFocused ? "#2563eb" : "#9ca3af",
-                                                                transition: "transform 0.2s ease",
-                                                                transform: state.selectProps.menuIsOpen
-                                                                    ? "rotate(180deg)"
-                                                                    : "rotate(0deg)",
-                                                            }),
-                                                            indicatorSeparator: () => ({ display: "none" }),
-                                                            menuPortal: (base) => ({ ...base, zIndex: 9999 }),
-                                                        }}
-                                                        closeMenuOnSelect={false}
-                                                        hideSelectedOptions={false}
-                                                        isClearable
-                                                    />
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-
 
                                 </div>
 

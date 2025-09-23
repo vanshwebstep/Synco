@@ -14,6 +14,7 @@ import { usePermission } from "../../../Common/permission";
 
 const AddPaymentPlanGroup = () => {
     const [isSavePlan, setIsSavePlan] = useState(false);
+    const MultiValue = () => null; // Hides the default selected boxes
 
     const [submitloading, setSubmitLoading] = useState(false);
 
@@ -27,6 +28,11 @@ const AddPaymentPlanGroup = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [searchParams] = useSearchParams();
     const id = searchParams.get("id");
+       const [mounted, setMounted] = useState(false);
+    
+        useEffect(() => {
+            setMounted(true);
+        }, [])
     useEffect(() => {
         if (id) {
             console.log('id foud');
@@ -235,7 +241,15 @@ const AddPaymentPlanGroup = () => {
             setSelectedPlans(selectedGroup.paymentPlans || []);
         }
     }, [selectedGroup]);
+    const sortedOptions = planOptions.sort((a, b) => {
+        const aSelected = selectedOptions.some(o => o.value === a.value);
+        const bSelected = selectedOptions.some(o => o.value === b.value);
 
+        // If a is selected and b is not, a goes after b
+        if (aSelected && !bSelected) return 1;
+        if (!aSelected && bSelected) return -1;
+        return 0; // keep original order if both selected or both unselected
+    });
     if (loading) {
         return (
             <>
@@ -418,18 +432,110 @@ const AddPaymentPlanGroup = () => {
                                                 >
                                                     <div className="w-full mb-4">
                                                         <Select
-                                                            options={planOptions}
+                                                            options={sortedOptions}
                                                             value={selectedOptions}
                                                             onChange={handleSelectChange}
                                                             isMulti
+                                                            components={{ MultiValue }}
                                                             placeholder="Select Membership plans..."
                                                             className="react-select-container"
                                                             classNamePrefix="react-select"
 
                                                             menuPortalTarget={document.body} // 🔥 THIS FIXES OVERFLOW
                                                             styles={{
-                                                                menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Ensure it's on top
+                                                                control: (base, state) => ({
+                                                                    ...base,
+                                                                    borderRadius: "14px",
+                                                                    border: "1px solid",
+                                                                    borderColor: state.isFocused ? "#3b82f6" : "#e5e7eb", // Blue-500 or Gray-200
+                                                                    boxShadow: state.isFocused
+                                                                        ? "0 0 0 3px rgba(59, 130, 246, 0.2)"
+                                                                        : "0 1px 2px rgba(0,0,0,0.05)",
+                                                                    transition: "all 0.2s ease",
+                                                                  
+                                                                    padding: "4px 8px",
+                                                                    backgroundColor: "#fff",
+                                                                    fontSize: "15px",
+                                                                    fontWeight: 500,
+                                                                }),
+                                                                valueContainer: (base) => ({
+                                                                    ...base,
+                                                                    gap: "6px",
+                                                                    padding: "2px 4px",
+                                                                }),
+                                                                placeholder: (base) => ({
+                                                                    ...base,
+                                                                    color: "#9ca3af", // gray-400
+                                                                    fontSize: "15px",
+                                                                    fontWeight: 400,
+                                                                }),
+
+                                                                option: (base, state) => ({
+                                                                    ...base,
+                                                                    backgroundColor: state.isSelected
+                                                                        ? "#2563eb"
+                                                                        : state.isFocused
+                                                                            ? "#f3f4f6"
+                                                                            : "transparent",
+                                                                    color: state.isSelected ? "white" : "#111827",
+                                                                    fontSize: "15px",
+                                                                    fontWeight: state.isSelected ? 600 : 400,
+                                                                    padding: "12px 16px",
+                                                                    cursor: "pointer",
+                                                                    transition: "all 0.15s ease",
+                                                                }),
+                                                                multiValue: (base) => ({
+                                                                    ...base,
+                                                                    borderRadius: "10px",
+                                                                    backgroundColor: "#eff6ff", // blue-50
+                                                                    padding: "2px 8px",
+                                                                    display: "flex",
+                                                                    alignItems: "center",
+                                                                }),
+                                                                multiValueLabel: (base) => ({
+                                                                    ...base,
+                                                                    color: "#1d4ed8", // blue-700
+                                                                    fontWeight: 500,
+                                                                    fontSize: "14px",
+                                                                }),
+                                                                multiValueRemove: (base) => ({
+                                                                    ...base,
+                                                                    color: "#2563eb",
+                                                                    borderRadius: "6px",
+                                                                    ":hover": {
+                                                                        backgroundColor: "#2563eb",
+                                                                        color: "white",
+                                                                    },
+                                                                }),
+                                                                dropdownIndicator: (base, state) => ({
+                                                                    ...base,
+                                                                    color: state.isFocused ? "#2563eb" : "#9ca3af",
+                                                                    transition: "transform 0.2s ease",
+                                                                    transform: state.selectProps.menuIsOpen
+                                                                        ? "rotate(180deg)"
+                                                                        : "rotate(0deg)",
+                                                                }),
+
+                                                                indicatorSeparator: () => ({ display: "none" }),
+                                                                menuPortal: (base) => ({
+                                                                    ...base,
+                                                                    zIndex: 9999,
+                                                                    // or explicitly match the Select control
+                                                                }),
+                                                                menu: (base) => ({
+                                                                    ...base,
+                                                                    zIndex: 9999,
+                                                                    borderRadius: "14px",
+                                                                    marginTop: "6px",
+                                                                    padding: "6px 0",
+                                                                    backgroundColor: "white",
+                                                                    boxShadow: "0 8px 24px rgba(0,0,0,0.12), 0 4px 6px rgba(0,0,0,0.08)",
+                                                                }),
                                                             }}
+                                                            menuPlacement="auto"
+                                                            closeMenuOnSelect={false}
+                                                            hideSelectedOptions={false}
+                                                            isClearable
                                                         />
 
 

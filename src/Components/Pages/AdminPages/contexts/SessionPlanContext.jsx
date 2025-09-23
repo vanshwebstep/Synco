@@ -254,74 +254,87 @@ export const SessionPlanContextProvider = ({ children }) => {
 
 
   // Update discount
-  const updateDiscount = useCallback(async (id, data) => {
-    if (!token) return;
+const updateDiscount = useCallback(async (id, data) => {
+  if (!token) return;
 
-    setLoading(true); // 🔵 Start loading
+  setLoading(true); // 🔵 Start loading
 
-    try {
-      const formdata = new FormData();
+  try {
+    const formdata = new FormData();
 
-      const appendMedia = (key, file) => {
-        if (file && typeof file !== "string") {
-          formdata.append(key, file, file.name || "[PROXY]");
-        }
-      };
-
-      // Append media files
-      appendMedia("banner", data.banner);
-      appendMedia("banner_file", data.banner_file);
-      appendMedia("video_file", data.video_file);
-      appendMedia("video", data.video);
-      appendMedia("advanced_video", data.advanced_video);
-      appendMedia("advanced_banner", data.advanced_banner);
-      appendMedia("pro_video", data.pro_video);
-      appendMedia("pro_banner", data.pro_banner);
-
-      if (data.levels) {
-        formdata.append("levels", JSON.stringify(data.levels));
+    const appendMedia = (key, file) => {
+      if (file && typeof file !== "string") {
+        const fileName =
+          file instanceof File
+            ? file.name
+            : `${key}.${file.type === "audio/webm" ? "webm" : "mp3"}`;
+        formdata.append(key, file, fileName);
       }
+    };
 
-      if (data.groupName) {
-        formdata.append("groupName", data.groupName);
+    // Append media files
+    appendMedia("banner", data.banner);
+    appendMedia("banner_file", data.banner_file);
+    appendMedia("video_file", data.video_file);
+    appendMedia("video", data.video);
+    appendMedia("advanced_video", data.advanced_video);
+    appendMedia("advanced_banner", data.advanced_banner);
+    appendMedia("pro_video", data.pro_video);
+    appendMedia("pro_banner", data.pro_banner);
+
+    // 🔊 Append audio files dynamically (beginner_recording, intermediate_recording, etc.)
+    Object.keys(data).forEach((key) => {
+      if (key.endsWith("_recording")) {
+        appendMedia(key, data[key]);
       }
-      console.log('data', data)
-      if (data.player) {
-        formdata.append("player", data.player);
-      }
-      const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formdata,
-      });
+    });
 
-      const result = await response.json();
-
-      if (!response.ok) throw new Error(result.message || "Failed to update");
-
-      await Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: result.message || 'Level updated successfully.',
-        confirmButtonColor: '#237FEA'
-      });
-
-      navigate('/configuration/weekly-classes/session-plan-list');
-      await fetchSessionGroup();
-
-    } catch (err) {
-      console.error("Failed to update discount:", err);
-      await Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: err.message || 'Something went wrong.',
-      });
-    } finally {
-      setLoading(false); // 🔵 End loading
+    // Append levels JSON
+    if (data.levels) {
+      formdata.append("levels", JSON.stringify(data.levels));
     }
-  }, [token, fetchSessionGroup, navigate, setLoading]);
+
+    if (data.groupName) {
+      formdata.append("groupName", data.groupName);
+    }
+
+    if (data.player) {
+      formdata.append("player", data.player);
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formdata,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) throw new Error(result.message || "Failed to update");
+
+    await Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: result.message || "Level updated successfully.",
+      confirmButtonColor: "#237FEA",
+    });
+
+    navigate("/configuration/weekly-classes/session-plan-list");
+    await fetchSessionGroup();
+  } catch (err) {
+    console.error("Failed to update discount:", err);
+    await Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: err.message || "Something went wrong.",
+    });
+  } finally {
+    setLoading(false); // 🔵 End loading
+  }
+}, [token, fetchSessionGroup, navigate, setLoading]);
+
 
 
   // Delete discount

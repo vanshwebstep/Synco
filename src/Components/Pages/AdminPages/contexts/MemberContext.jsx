@@ -11,6 +11,7 @@ export const MemberProvider = ({ children }) => {
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(false);
     const [roleOptions, setRoleOptions] = useState([]);
+    const [keyInfoData, setKeyInfoData] = useState(null);
     const [showRoleModal, setShowRoleModal] = useState(false);
     const [roleName, setRoleName] = useState("");
     const [permissions, setPermissions] = useState([]);
@@ -190,6 +191,42 @@ export const MemberProvider = ({ children }) => {
         }
     }, [token, fetchRoles, fetchPermission]);
 
+const fetchKeyInfo = useCallback(async () => {
+    setLoading(true);
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/key-information`, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const result = await response.json();
+        const formatted = result.data;
+
+        setKeyInfoData(formatted);
+    } catch (error) {
+        console.error("Failed to fetch key info:", error);
+    } finally {
+        setLoading(false);
+    }
+}, [token]);
+
+    const KeyInformationCreate = useCallback(async (keyinfo, perms) => {
+        try {
+            await fetch(`${API_BASE_URL}/api/admin/key-information`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ keyInformation: keyinfo }),
+            });
+
+            await fetchKeyInfo();
+        } catch (error) {
+            console.error("Key Info error:", error);
+        }
+    }, [token, fetchKeyInfo]);
+
   const fetchDashboard = useCallback(async (params = {}) => {
   const token = localStorage.getItem("adminToken");
   if (!token) return;
@@ -238,6 +275,9 @@ export const MemberProvider = ({ children }) => {
             members, activeTab, handlePermissionCreate, fetchPermission, setActiveTab, setMembers, fetchMembers, loading, roleOptions,
             fetchRoles,
             showRoleModal,
+            fetchKeyInfo,
+            keyInfoData,
+            KeyInformationCreate,
             setShowRoleModal,
             roleName,
             setRoleName,

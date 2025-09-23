@@ -19,7 +19,7 @@ const Create = ({ groups, termGroup, onClose }) => {
   const [showTermDropdown, setShowTermDropdown] = useState(false);
   const [showSubDropdown, setShowSubDropdown] = useState(false);
   const [selectedTerms, setSelectedTerms] = useState([]);
-  const [selectedSubs, setSelectedSubs] = useState([]);
+  const [selectedSub, setSelectedSub] = useState(null);
   const [selectedTermIds, setSelectedTermIds] = useState([]);
   const [selectedLabels, setSelectedLabels] = useState([]);
   const validateForm = () => {
@@ -40,7 +40,7 @@ const Create = ({ groups, termGroup, onClose }) => {
     if (selectedTermIds?.length === 0) return 'Please select at least one Term Date Linkage';
 
     // require at least one subscription plan if business rule says so (optional)
-    // if (selectedSubs?.length === 0) return 'Please select at least one Subscription Plan';
+    // if (selectedSub?.length === 0) return 'Please select at least one Subscription Plan';
 
     return null; // valid
   };
@@ -58,14 +58,14 @@ const Create = ({ groups, termGroup, onClose }) => {
     else {
       console.log("Venue Submitted:", formData);
       createVenues(formData);
-if (!err) {
-      setFormData({
-        area: "", name: "", address: "", facility: "",
-        hasParking: false, isCongested: false, parkingNote: "",
-        howToEnterFacility: "", termGroupId: "", paymentPlanId: ""
-      });
-      onClose();
-     } // close form on success
+      if (!err) {
+        setFormData({
+          area: "", name: "", address: "", facility: "",
+          hasParking: false, isCongested: false, parkingNote: "",
+          howToEnterFacility: "", termGroupId: "", paymentGroupId: ""
+        });
+        onClose();
+      } // close form on success
     }
   };
 
@@ -73,7 +73,7 @@ if (!err) {
     setFormData({
       area: "", name: "", address: "", facility: "",
       hasParking: false, isCongested: false, parkingNote: "",
-      howToEnterFacility: "", termGroupId: "", paymentPlanId: ""
+      howToEnterFacility: "", termGroupId: "", paymentGroupId: ""
     });
     onClose();
 
@@ -97,14 +97,14 @@ if (!err) {
       return;
     }
     updateVenues(id, formData);
-        if (!err) {
-    setFormData({
-      area: "", name: "", address: "", facility: "",
-      hasParking: false, isCongested: false, parkingNote: "",
-      howToEnterFacility: "", termGroupId: "", paymentPlanId: ""
-    });
-    onClose();
-   } // close form on success
+    if (!err) {
+      setFormData({
+        area: "", name: "", address: "", facility: "",
+        hasParking: false, isCongested: false, parkingNote: "",
+        howToEnterFacility: "", termGroupId: "", paymentGroupId: ""
+      });
+      onClose();
+    } // close form on success
     console.log("Venue Updated:", formData);
   };
 
@@ -122,7 +122,7 @@ if (!err) {
   const handleSaveSub = () => {
     setFormData((prev) => ({
       ...prev,
-      paymentPlanId: selectedSubs, // now just an array
+      paymentGroupId: selectedSub, // now just an array
     }));
     setShowSubDropdown(false);
   };
@@ -169,14 +169,14 @@ if (!err) {
 
 
   useEffect(() => {
-    if (formData?.paymentPlanId) {
+    if (formData?.paymentGroupId) {
       try {
-        const parsed = Array.isArray(formData.paymentPlanId)
-          ? formData.paymentPlanId
-          : JSON.parse(formData.paymentPlanId);
-        setSelectedSubs(parsed);
+        const parsed = Array.isArray(formData.paymentGroupId)
+          ? formData.paymentGroupId
+          : JSON.parse(formData.paymentGroupId);
+        setSelectedSub(parsed);
       } catch {
-        setSelectedSubs([]);
+        setSelectedSub([]);
       }
     }
 
@@ -406,11 +406,8 @@ if (!err) {
               onClick={() => setShowSubDropdown(!showSubDropdown)}
               className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white cursor-pointer"
             >
-              {selectedSubs.length > 0
-                ? subOptions
-                  .filter(opt => selectedSubs.includes(opt.id))
-                  .map(opt => opt.label)
-                  .join(", ")
+              {selectedSub
+                ? subOptions.find(opt => opt.id === selectedSub)?.label
                 : "Select Subscription Plan"}
             </div>
 
@@ -424,13 +421,13 @@ if (!err) {
                   variants={dropdownVariants}
                   transition={{ duration: 0.2 }}
                 >
-                  <p className="font-semibold text-[17px]">Select Available Subscription Plans</p>
+                  <p className="font-semibold text-[17px]">Select Available Subscription Plan</p>
                   {subOptions?.map((plan) => (
-                    <label key={plan.id} className="flex items-center gap-2 text-[15px]">
+                    <label key={plan.id} className="flex items-center gap-2 text-[15px] cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={selectedSubs.includes(plan.id)}
-                        onChange={() => toggleValue(selectedSubs, setSelectedSubs, plan.id)}
+                        checked={selectedSub === plan.id}
+                        onChange={() => setSelectedSub(plan.id)}
                         className="accent-blue-600"
                       />
                       {plan.label}
@@ -448,6 +445,8 @@ if (!err) {
               )}
             </AnimatePresence>
           </div>
+
+
         </div>
 
         {/* BUTTONS */}
