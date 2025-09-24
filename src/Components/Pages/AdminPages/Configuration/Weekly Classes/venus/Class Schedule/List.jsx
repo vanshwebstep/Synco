@@ -501,100 +501,100 @@ const List = () => {
                                                                                 };
 
                                                                                 return (
-                                                                                    <div
-                                                                                        key={session.id}
-                                                                                        className="flex flex-col md:flex-row md:flex-wrap gap-2 md:gap-4 justify-between items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
-                                                                                    >
-                                                                                        {/* Title and Date */}
-                                                                                        <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm w-full md:w-auto">
-                                                                                            <span className="text-[15px] font-semibold min-w-0 md:min-w-[200px]">{session?.sessionPlan?.groupName}</span>
-                                                                                            <span className="text-[15px] min-w-0 md:min-w-[200px] text-gray-600">
-                                                                                                {new Date(session.sessionDate).toLocaleDateString("en-US", {
-                                                                                                    weekday: "long",   // full day name
-                                                                                                    day: "2-digit",    // two-digit day
-                                                                                                    month: "2-digit",  // two-digit month
-                                                                                                    year: "numeric",   // full year
-                                                                                                })}
-                                                                                            </span>
-                                                                                        </div>
+                                                                                   <div
+  key={session.id}
+  className="grid grid-cols-1 md:grid-cols-[1fr_1fr_2.5fr] gap-4 items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
+>
+  {/* Title and Date */}
+  <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm">
+    <span className="text-[15px] font-semibold truncate md:min-w-[200px]">
+      {session?.sessionPlan?.groupName}
+    </span>
+    <span className="text-[15px] text-gray-600 truncate md:min-w-[200px]">
+      {new Date(session.sessionDate).toLocaleDateString("en-US", {
+        weekday: "long",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })}
+    </span>
+  </div>
 
-                                                                                        {/* Status */}
-                                                                                        <div className="flex items-center gap-2 text-sm mt-2 md:mt-0 w-full md:w-auto">
-                                                                                            <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
-                                                                                                {session?.classScheduleTermMaps?.status == "pending"  && (
-                                                                                                    <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" />
-                                                                                                )}
-                                                                                                {session?.classScheduleTermMaps?.status == "completed" && (
-                                                                                                    <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="Complete" />
-                                                                                                )}
-                                                                                                {session?.classScheduleTermMaps?.status == "cancelled" && (
-                                                                                                    <img src="/demo/synco/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
-                                                                                                )}
-                                                                                                {session?.classScheduleTermMaps?.status || "Pendiaaang"}
-                                                                                            </span>
-                                                                                        </div>
+  {/* Status */}
+  <div className="flex items-center gap-2 text-sm">
+    <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
+      {session?.classScheduleTermMaps?.status === "pending" && (
+        <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" />
+      )}
+      {session?.classScheduleTermMaps?.status === "completed" && (
+        <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="Complete" />
+      )}
+      {session?.classScheduleTermMaps?.status === "cancelled" && (
+        <img src="/demo/synco/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
+      )}
+      {session?.classScheduleTermMaps?.status || "Pending"}
+    </span>
+  </div>
 
+  {/* Action Buttons */}
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
+    {sessionMaps && (
+      <button
+        onClick={() =>
+          navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/viewSessions', {
+            state: {
+              singleClassSchedules,
+              sessionMap: session.sessionPlan,
+              sessionId: session.sessionPlanId,
+              venueId,
+              sessionDate: session.sessionDate,
+              classname: item,
+              statusIs: session?.classScheduleTermMaps?.status,
+            },
+          })
+        }
+        className="px-6 py-3 bg-[#237FEA] text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
+      >
+        View Session Plan
+      </button>
+    )}
 
-                                                                                        {/* Action Buttons */}
-                                                                                        <div className="flex flex-col sm:flex-row gap-2 mt-3 md:mt-0 w-full md:w-auto">
+    <button
+      onClick={() => navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/completed')}
+      className="hover:bg-blue-500 font-semibold bg-white text-blue-500 border-2 hover:border-transparent border-blue-500 text-[15px] hover:text-white px-3 py-2 rounded-xl transition"
+    >
+      View Class Register
+    </button>
 
+    {cancelSession && (
+      <button
+        onClick={() =>
+          navigate(
+            "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
+            {
+              state: {
+                sessionId: session.classScheduleTermMaps.id || session.classScheduleTermMaps.classScheduleId,
+                schedule: item,
+                canceled: session?.classScheduleTermMaps?.status === "cancelled",
+              },
+            }
+          )
+        }
+        className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
+          ${
+            session?.classScheduleTermMaps?.status === "cancelled"
+              ? "bg-white text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
+              : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
+          }`}
+      >
+        {session?.classScheduleTermMaps?.status === "cancelled"
+          ? "See details"
+          : "Cancel Session"}
+      </button>
+    )}
+  </div>
+</div>
 
-                                                                                            {/* Step 2: Show dropdown and view button */}
-                                                                                            {sessionMaps && (
-                                                                                                <button
-                                                                                                    onClick={() =>
-                                                                                                        navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/viewSessions', {
-                                                                                                            state: {
-                                                                                                                singleClassSchedules: singleClassSchedules,
-                                                                                                                sessionMap: session.sessionPlan,
-                                                                                                                sessionId: session.sessionPlanId,
-                                                                                                                venueId: venueId,
-                                                                                                                sessionDate: session.sessionDate,
-                                                                                                                classname: item,
-                                                                                                                statusIs:session?.classScheduleTermMaps?.status
-                                                                                                            },
-                                                                                                        })
-                                                                                                    }
-                                                                                                    className="px-6 py-3 bg-[#237FEA] text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
-                                                                                                >
-                                                                                                    View Session Plan
-                                                                                                </button>
-
-                                                                                            )}
-
-
-                                                                                            <button
-                                                                                                onClick={() => navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/completed')}
-                                                                                                className="hover:bg-blue-500 font-semibold bg-white text-blue-500 border-2 hover:border-transparent border-blue-500 text-[15px] hover:text-white px-3 py-2 rounded-xl transition"
-                                                                                            >
-                                                                                                View Class Register
-                                                                                            </button>
-                                                                                            {cancelSession &&
-                                                                                                <button
-                                                                                                    onClick={() =>
-                                                                                                        navigate(
-                                                                                                            "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
-                                                                                                            {
-                                                                                                                state: {
-                                                                                                                    sessionId: session.classScheduleTermMaps.id || session.classScheduleTermMaps.classScheduleId  , 
-                                                                                                                    schedule: item,
-                                                                                                                    canceled: session?.classScheduleTermMaps?.status === "cancelled" // true if cancelled, false otherwise
-                                                                                                                }
-                                                                                                            }
-                                                                                                        )
-                                                                                                    }
-
-                                                                                                    className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
-        ${session?.classScheduleTermMaps?.status === "cancelled"
-                                                                                                            ? "bg-white text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
-                                                                                                            : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
-                                                                                                        }`}
-                                                                                                >
-                                                                                                    {session?.classScheduleTermMaps?.status === "cancelled" ? "See details" : "Cancel Session"}
-                                                                                                </button>
-                                                                                            }
-                                                                                        </div>
-                                                                                    </div>
                                                                                 )
                                                                             })}
                                                                         </div>

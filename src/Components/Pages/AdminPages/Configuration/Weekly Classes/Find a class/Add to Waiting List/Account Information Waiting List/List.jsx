@@ -54,8 +54,8 @@ const AccountInfoWaitingList = () => {
             onClick={() => {
               navigate(
                 memberInfo === 'allMembers'
-                  ? "/configuration/weekly-classes/all-members/list"
-                  : "/configuration/weekly-classes/all-members/membership-sales"
+                  ? "/configuration/weekly-classes/find-a-class/add-to-waiting-list/list"
+                  : "/configuration/weekly-classes/find-a-class/add-to-waiting-list/list"
               );
             }}
             className="text-xl md:text-2xl font-semibold cursor-pointer hover:opacity-80 transition-opacity duration-200"

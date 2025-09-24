@@ -29,8 +29,8 @@ const List = () => {
     const { createBookMembership, createBookMembershipByfreeTrial } = useBookFreeTrial()
     const [expression, setExpression] = useState('');
     const [numberOfStudents, setNumberOfStudents] = useState('1');
-     const { keyInfoData, fetchKeyInfo} = useMembers();
-    
+    const { keyInfoData, fetchKeyInfo } = useMembers();
+
     const [isOpenMembership, setIsOpenMembership] = useState(false);
 
     const [result, setResult] = useState('');
@@ -100,7 +100,7 @@ const List = () => {
     const paymentPlanOptions = numberOfStudents
         ? allPaymentPlans.filter((plan) => plan.all.students === Number(numberOfStudents))
         : allPaymentPlans;
-        console.log('singleClassSchedulesOnly',singleClassSchedulesOnly)
+    console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
 
 
     const handleNumberChange = (e) => {
@@ -180,7 +180,7 @@ const List = () => {
             }
         };
         fetchData();
-    }, [finalClassId, fetchFindClassID,fetchKeyInfo]);
+    }, [finalClassId, fetchFindClassID, fetchKeyInfo]);
     const [activePopup, setActivePopup] = useState(null);
     const togglePopup = (id) => {
         setActivePopup((prev) => (prev === id ? null : id));
@@ -651,45 +651,45 @@ const List = () => {
     ];
 
 
-// Function to convert HTML to plain text while preserving list structure
-function htmlToArray(html) {
-  const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = html;
+    // Function to convert HTML to plain text while preserving list structure
+    function htmlToArray(html) {
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = html;
 
-  const items = [];
+        const items = [];
 
-  function traverse(node) {
-    node.childNodes.forEach((child) => {
-      if (child.nodeName === "LI") {
-        const text = child.textContent.trim();
-        if (text) items.push(text);
-      } else if (child.nodeName === "OL" || child.nodeName === "UL") {
-        traverse(child);
-      } else if (child.nodeType !== 3) { // skip text nodes outside li
-        traverse(child);
-      }
-    });
-  }
+        function traverse(node) {
+            node.childNodes.forEach((child) => {
+                if (child.nodeName === "LI") {
+                    const text = child.textContent.trim();
+                    if (text) items.push(text);
+                } else if (child.nodeName === "OL" || child.nodeName === "UL") {
+                    traverse(child);
+                } else if (child.nodeType !== 3) { // skip text nodes outside li
+                    traverse(child);
+                }
+            });
+        }
 
-  traverse(tempDiv);
+        traverse(tempDiv);
 
-  // If no <li> found, fallback to plain text
-  if (items.length === 0) {
-    const plainText = tempDiv.textContent.trim();
-    if (plainText) items.push(plainText);
-  }
+        // If no <li> found, fallback to plain text
+        if (items.length === 0) {
+            const plainText = tempDiv.textContent.trim();
+            if (plainText) items.push(plainText);
+        }
 
-  return items;
-}
+        return items;
+    }
 
-// Example usage:
-const keyInfoArray = htmlToArray(keyInfoData?.keyInformation);
+    // Example usage:
+    const keyInfoArray = htmlToArray(keyInfoData?.keyInformation);
 
-// Map into dynamic options
-const keyInfoOptions = keyInfoArray.map((item) => ({
-  value: item,
-  label: item,
-}));
+    // Map into dynamic options
+    const keyInfoOptions = keyInfoArray.map((item) => ({
+        value: item,
+        label: item,
+    }));
 
     const genderOptions = [
         { value: "male", label: "Male" },
@@ -702,7 +702,7 @@ const keyInfoOptions = keyInfoArray.map((item) => ({
         )
     ) || [];
 
-console.log('keyInfoData',keyInfoData)
+    console.log('keyInfoData', keyInfoData)
     const selectedLabel =
         keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
         "Key Information";
@@ -1404,66 +1404,66 @@ console.log('keyInfoData',keyInfoData)
                                 </div>
                             </div>
                         </div>
-                           <div className="w-full my-10">
-                                                   {/* Placeholder (acts like a select box) */}
-                                                   <div
-                                                       onClick={() => setIsOpen(!isOpen)}
-                                                       className="flex items-center justify-between text-[20px] p-3 border border-gray-200 rounded-xl cursor-pointer bg-white shadow-md hover:border-gray-400 transition"
-                                                   >
-                                                       <span
-                                                           className={`${selectedKeyInfo ? "font-medium text-gray-900" : "text-gray-500"
-                                                               }`}
-                                                       >
-                                                           {selectedLabel}
-                                                       </span>
-                                                       {isOpen ? (
-                                                           <ChevronUp className="w-5 h-5 text-gray-500" />
-                                                       ) : (
-                                                           <ChevronDown className="w-5 h-5 text-gray-500" />
-                                                       )}
-                                                   </div>
-                       
-                                                   {/* Options (bullet style) */}
-                                                   {isOpen && (
-                                                       <div className="mt-3 space-y-2 e sha rounded-xl p-3 bo0">
-                                                           {keyInfoOptions.map((option) => (
-                                                               <div
-                                                                   key={option.value}
-                                                                   className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition 
-                                 ${selectedKeyInfo === option.value
-                                                                           ? ""
-                                                                           : "hover:bg-gray-50 border border-transparent"
-                                                                       }`}
-                                                                //    onClick={() => {
-                                                                //        setSelectedKeyInfo(option.value);
-                                                                //        // close after select
-                                                                //    }}
-                                                               >
-                                                                   {/* Custom Bullet */}
-                                                                   <span
-                                                                       className={`w-3 h-3 rounded-full bg-gradient-to-r 
-                                   ${selectedKeyInfo === option.value
-                                                                               ? "from-blue-500 to-blue-400 shadow-sm"
-                                                                               : "from-gray-400 to-gray-300"
-                                                                           }`}
-                                                                   ></span>
-                       
-                                                                   {/* Label */}
-                                                                   <span
-                                                                       className={`${selectedKeyInfo === option.value
-                                                                               ? "font-semibold text-blue-700"
-                                                                               : "text-gray-700"
-                                                                           }`}
-                                                                   >
-                                                                       {option.label}
-                                                                   </span>
-                                                               </div>
-                                                           ))}
-                                                       </div>
-                                                   )}
-                                               </div>
+                        <div className="w-full my-10">
+                            {/* Placeholder (acts like a select box) */}
+                            <div
+                                onClick={() => setIsOpen(!isOpen)}
+                                className="flex items-center justify-between text-[20px] p-3 border border-gray-200 rounded-xl cursor-pointer bg-white shadow-md hover:border-gray-400 transition"
+                            >
+                                <span
+                                    className={`${selectedKeyInfo ? "font-medium text-gray-900" : "text-gray-500"
+                                        }`}
+                                >
+                                    {selectedLabel}
+                                </span>
+                                {isOpen ? (
+                                    <ChevronUp className="w-5 h-5 text-gray-500" />
+                                ) : (
+                                    <ChevronDown className="w-5 h-5 text-gray-500" />
+                                )}
+                            </div>
 
-<div className="bg-white rounded-3xl p-6 my-10 space-y-4">
+                            {/* Options (bullet style) */}
+                            {isOpen && (
+                                <div className="mt-3 space-y-2 e sha rounded-xl p-3 bo0">
+                                    {keyInfoOptions.map((option) => (
+                                        <div
+                                            key={option.value}
+                                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition 
+                                 ${selectedKeyInfo === option.value
+                                                    ? ""
+                                                    : "hover:bg-gray-50 border border-transparent"
+                                                }`}
+                                        //    onClick={() => {
+                                        //        setSelectedKeyInfo(option.value);
+                                        //        // close after select
+                                        //    }}
+                                        >
+                                            {/* Custom Bullet */}
+                                            <span
+                                                className={`w-3 h-3 rounded-full bg-gradient-to-r 
+                                   ${selectedKeyInfo === option.value
+                                                        ? "from-blue-500 to-blue-400 shadow-sm"
+                                                        : "from-gray-400 to-gray-300"
+                                                    }`}
+                                            ></span>
+
+                                            {/* Label */}
+                                            <span
+                                                className={`${selectedKeyInfo === option.value
+                                                    ? "font-semibold text-blue-700"
+                                                    : "text-gray-700"
+                                                    }`}
+                                            >
+                                                {option.label}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="bg-white rounded-3xl p-6 my-10 space-y-4">
                             <h2 className="text-[24px] font-semibold">Comment</h2>
 
                             {/* Input section */}
@@ -1567,7 +1567,7 @@ console.log('keyInfoData',keyInfoData)
 
 
                         </div>
-                        
+
                         {showPopup && (
                             <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
                                 <div className="bg-white rounded-2xl max-w-[541px] min-w-[541px] max-h-[90%] overflow-y-scroll space-y-6 relative scrollbar-hide">
@@ -1656,7 +1656,7 @@ console.log('keyInfoData',keyInfoData)
 
                                         {payment.paymentType === "rrn" && (
                                             <div className="mt-4 space-y-4">
-                                              
+
                                                 {/* First & Last Name */}
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div>
@@ -1968,7 +1968,7 @@ console.log('keyInfoData',keyInfoData)
                                             disabled={
                                                 isSubmitting || // disable while submitting
                                                 !payment.authorise ||
-                                                (payment.paymentType === "rrn" && !payment.firstName && !payment.email && !payment.addressLine1 && !payment.city && !payment.postalCode && !payment.countryCode && !payment.account_holder_name && !payment.account_number && !payment.bank_code && !payment.iban ) ||
+                                                (payment.paymentType === "rrn" && !payment.firstName && !payment.email && !payment.addressLine1 && !payment.city && !payment.postalCode && !payment.countryCode && !payment.account_holder_name && !payment.account_number && !payment.bank_code && !payment.iban) ||
                                                 (payment.paymentType === "card" &&
                                                     (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan))
                                             }

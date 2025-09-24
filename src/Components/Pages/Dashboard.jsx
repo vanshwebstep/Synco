@@ -74,17 +74,23 @@ const Dashboard = () => {
      const handleCheckboxChange = (key) => {
         setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
     };
-  useEffect(() => {
-    if (dashboardData) {
-      const updatedMetrics = metricDefinitions
-        .filter((metric) => dashboardData.hasOwnProperty(metric.key))
-        .map((metric) => ({
-          ...metric,
-          value: dashboardData[metric.key]?.count ?? 0,
-        }));
-      setMetricsList(updatedMetrics);
-    }
-  }, [dashboardData]);
+useEffect(() => {
+  if (dashboardData) {
+    console.log("dashboardData", dashboardData);
+
+    const updatedMetrics = Object.keys(dashboardData).map((key) => {
+      const metricDef = metricDefinitions.find((m) => m.key === key);
+      return {
+        ...metricDef,
+        value: dashboardData[key]?.count ?? 0,
+      };
+    });
+
+    console.log("updatedMetrics", updatedMetrics);
+    setMetricsList(updatedMetrics);
+  }
+}, [dashboardData]);
+
 
   const handleDragEnd = (result) => {
     if (!result.destination) return; // dropped outside list
@@ -234,7 +240,7 @@ const applyFilter = () => {
   });
 };
 
-
+console.log('metricsList',metricsList)
 
   if (loading) {
     return (

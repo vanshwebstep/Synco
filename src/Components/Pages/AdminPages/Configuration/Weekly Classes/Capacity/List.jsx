@@ -13,16 +13,16 @@ import Swal from "sweetalert2";
 const CheckboxOption = (props) => {
     return (
         <components.Option {...props}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <input
-          type="checkbox"
-          checked={props.isSelected}
-          onChange={() => null}
-          style={{ marginRight: '10px' }}
-        />
-        {props.label}
-      </div>
-    </components.Option>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <input
+                    type="checkbox"
+                    checked={props.isSelected}
+                    onChange={() => null}
+                    style={{ marginRight: '10px' }}
+                />
+                {props.label}
+            </div>
+        </components.Option>
     );
 };
 const Capacity = () => {
@@ -189,61 +189,61 @@ const Capacity = () => {
             <div className="flex items-end justify-between">
                 <div className="flex gap-5 py-5 items-center a ">
                     <div className="relative w-100">
-                       <Select
-  options={
-    capacityData?.searchVenue?.map((venue) => ({
-      value: venue.venueName,
-      label: venue.venueName,
-    })) || []
-  }
-  placeholder="Choose Venue"
-  value={selectedVenue}
-  onChange={handleVenueChange}
-  isMulti
-  closeMenuOnSelect={false}
-  hideSelectedOptions={false}
-  components={{
-    Option: CheckboxOption,
-    // Add DropdownIndicator and IndicatorSeparator to remove default icons
-    DropdownIndicator: null, 
-    IndicatorSeparator: null
-  }}
-  styles={{
-    control: (base, state) => ({
-      ...base,
-      borderRadius: "1rem",
-      borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
-      boxShadow: "none",
-      padding: "4px 8px",
-      minHeight: "48px",
-    }),
-    placeholder: (base) => ({ 
-      ...base, 
-      fontWeight: 600,
-      marginLeft: '10px' 
-    }),
-    // Adjust menu styling to match the card look
-    menu: (base) => ({
-      ...base,
-      borderRadius: '1rem', // Match the control's border radius
-      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow
-      border: '1px solid #E5E7EB', // Border for the card
-      marginTop: '8px', // Space between the control and the dropdown
-    }),
-    option: (base, state) => ({
-      ...base,
-      backgroundColor: state.isSelected ? '#e0f2fe' : 'white', // Light blue background for selected options
-      color: 'black', // Ensure text color is black
-      // Hover effect to match the image
-      '&:hover': {
-        backgroundColor: '#e5e7eb',
-      },
-    }),
-    // Remove indicator and separator
-    dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
-                                indicatorSeparator: () => ({ display: "none" }),    
-  }}
-/>
+                        <Select
+                            options={
+                                capacityData?.searchVenue?.map((venue) => ({
+                                    value: venue.venueName,
+                                    label: venue.venueName,
+                                })) || []
+                            }
+                            placeholder="Choose Venue"
+                            value={selectedVenue}
+                            onChange={handleVenueChange}
+                            isMulti
+                            closeMenuOnSelect={false}
+                            hideSelectedOptions={false}
+                            components={{
+                                Option: CheckboxOption,
+                                // Add DropdownIndicator and IndicatorSeparator to remove default icons
+                                DropdownIndicator: null,
+                                IndicatorSeparator: null
+                            }}
+                            styles={{
+                                control: (base, state) => ({
+                                    ...base,
+                                    borderRadius: "1rem",
+                                    borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
+                                    boxShadow: "none",
+                                    padding: "4px 8px",
+                                    minHeight: "48px",
+                                }),
+                                placeholder: (base) => ({
+                                    ...base,
+                                    fontWeight: 600,
+                                    marginLeft: '10px'
+                                }),
+                                // Adjust menu styling to match the card look
+                                menu: (base) => ({
+                                    ...base,
+                                    borderRadius: '1rem', // Match the control's border radius
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Subtle shadow
+                                    border: '1px solid #E5E7EB', // Border for the card
+                                    marginTop: '8px', // Space between the control and the dropdown
+                                }),
+                                option: (base, state) => ({
+                                    ...base,
+                                    backgroundColor: state.isSelected ? '#e0f2fe' : 'white', // Light blue background for selected options
+                                    color: 'black', // Ensure text color is black
+                                    // Hover effect to match the image
+                                    '&:hover': {
+                                        backgroundColor: '#e5e7eb',
+                                    },
+                                }),
+                                // Remove indicator and separator
+                                dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                indicatorSeparator: () => ({ display: "none" }),
+                            }}
+                        />
 
 
                     </div>
@@ -414,150 +414,172 @@ const Capacity = () => {
                 ) :
                     capacityData && capacityData.venues ? (
                         capacityData.venues.length > 0 ? (
-                            capacityData.venues.map((venue) => (
-                                <div
-                                    key={venue.id}
-                                    className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white"
-                                >
-                                    {/* Header */}
-                                    <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
-                                        <div className="flex items-center gap-2">
-                                            <img src="/demo/synco/icons/Location.png" alt="" />
-                                            <span className="font-medium text-[20px]">
-                                                {venue.address || "Unnamed Address"}
-                                            </span>
+                            capacityData.venues.map((venue) => {
+                                const totalCapacity = venue.classes.reduce((sum, cls) => sum + cls.stats.totalCapacity, 0);
+                                const totalBooked = venue.classes.reduce((sum, cls) => sum + cls.stats.totalBooked, 0);
+                                const freeTrials = venue.classes.reduce((sum, cls) => sum + cls.stats.freeTrials, 0);
+                                const availableSpaces = venue.classes.reduce((sum, cls) => sum + cls.stats.availableSpaces, 0);
+                                const members = venue.classes.reduce((sum, cls) => sum + cls.stats.members, 0);
+                                const occupancyRate = totalCapacity > 0 ? Math.round((totalBooked / totalCapacity) * 100) : 0;
+                                return (
+                                    <div
+                                        key={venue.id}
+                                        className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white"
+                                    >
+                                        {/* Header */}
+                                        <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
+                                            <div className="flex items-center gap-2">
+                                                <img src="/demo/synco/icons/Location.png" alt="" />
+                                                <span className="font-medium text-[20px]">
+                                                    {venue.address || "Unnamed Address"}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className="flex items-center flex-col lg:flex-row">
-                                        <div className="px-4 w-full py-2 flex-1 space-y-6">
-                                            <div className="flex gap-4 justify-between items-center flex-wrap">
-                                                {/* Venue Info */}
-                                                <div>
-                                                    <div className="font-semibold text-[16px] text-black">
-                                                        {venue.name}
+                                        <div className="flex items-center flex-col lg:flex-row">
+                                            <div className="px-4 w-full py-2 flex-1 space-y-6">
+                                                <div className=" grid md:grid-cols-[0.5fr_3.5fr_1fr] gap-4 items-center">
+                                                    {/* Venue Info */}
+                                                    <div className=''>
+                                                        <div className="font-semibold text-[16px] text-black">
+                                                            {venue.name}
+                                                        </div>
+                                                        <div className="whitespace-nowrap text-[#717073] font-semibold text-[14px]">
+                                                            {new Date(venue.createdAt).toLocaleDateString("en-GB", {
+                                                                weekday: "long",
+                                                                // year: "numeric",
+                                                                // month: "short",
+                                                                // day: "2-digit",
+                                                            })}
+                                                        </div>
                                                     </div>
-                                                    <div className="whitespace-nowrap text-[#717073] font-semibold text-[14px]">
-                                                        {new Date(venue.createdAt).toLocaleDateString("en-GB", {
-                                                            weekday: "long",
-                                                            // year: "numeric",
-                                                            // month: "short",
-                                                            // day: "2-digit",
-                                                        })}
-                                                    </div>
-                                                </div>
+                                                    <div className='overflow-x-auto custom-scrollbar'>
+                                                        <div className='flex row gap-4 justify-start items-center'>
+                                                            {venue.classes && venue.classes.length > 0 ? (
+                                                                venue.classes.map((cls) => {
 
-                                                {venue.classes && venue.classes.length > 0 ? (
-                                                    venue.classes.map((cls) => {
-                                                        const { totalCapacity, totalBooked, availableSpaces, members, freeTrials } = venue.stats;
+                                                                    const statsItems = [
+                                                                        { label: "Total Students", color: "#F9FAFB", borderColor: "#ccc", value: cls.stats.totalBooked, textColor: "#414141" },
+                                                                        { label: "Members", color: "#237FEA", borderColor: "#237FEA", value: cls.stats.members, textColor: "#fff" },
+                                                                        { label: "Free Trials", color: "#EEAA1F", borderColor: "#EEAA1F", value: cls.stats.freeTrials, textColor: "#fff" },
+                                                                        {
+                                                                            label: "Spaces Available",
+                                                                            color: cls.stats.availableSpaces > 0 ? "#34AE56" : "#FE7058", // green if >0, red if 0
+                                                                            borderColor: cls.stats.availableSpaces > 0 ? "#34AE56" : "#FE7058",
+                                                                            value: cls.stats.availableSpaces,
+                                                                            textColor: "#fff"
+                                                                            , icon: '+'
+                                                                        },
+                                                                        { label: "No Spaces", color: "#FE7058", borderColor: "#FE7058", value: cls.stats.totalCapacity - cls.stats.totalBooked - cls.stats.availableSpaces, textColor: "#fff" },
+                                                                    ];
+                                                                    console.log('statsItems', statsItems)
+                                                                    return (
+                                                                        <div
+                                                                            key={cls.id}
+                                                                            className="block text-center pr-10 border-r border-[#ccc]"
+                                                                        >
+                                                                            <div className="whitespace-nowrap font-semibold text-[14px]">
+                                                                                {`Class: ${cls.day}, ${cls.startTime} - ${cls.endTime}`}
+                                                                            </div>
+                                                                            <div className="text-[16px] py-4 font-semibold text-[#384455]">
+                                                                                <div className="flex items-center gap-3">
+                                                                                    {statsItems.map((item, idx) => {
+                                                                                        // Skip "Spaces Available" if value is 0
+                                                                                        if (item.label === "Spaces Available" && cls.stats.availableSpaces === 0) {
+                                                                                            return null;
+                                                                                        }
 
-                                                        const statsItems = [
-                                                            { label: "Total Students", color: "#F9FAFB", borderColor: "#ccc", value: totalBooked, textColor: "#414141" },
-                                                            { label: "Members", color: "#237FEA", borderColor: "#237FEA", value: members, textColor: "#fff" },
-                                                            { label: "Free Trials", color: "#EEAA1F", borderColor: "#EEAA1F", value: freeTrials, textColor: "#fff" },
-                                                            {
-                                                                label: "Spaces Available",
-                                                                color: availableSpaces > 0 ? "#34AE56" : "#FE7058", // green if >0, red if 0
-                                                                borderColor: availableSpaces > 0 ? "#34AE56" : "#FE7058",
-                                                                value: availableSpaces,
-                                                                textColor: "#fff"
-                                                                , icon:'+' 
-                                                            },
-                                                            { label: "No Spaces", color: "#FE7058", borderColor: "#FE7058", value: totalCapacity - totalBooked - availableSpaces, textColor: "#fff" },
-                                                        ];
-                                                        console.log('statsItems', statsItems)
-                                                        return (
-                                                            <div
-                                                                key={cls.id}
-                                                                className="block text-center pr-10 border-r border-[#ccc]"
-                                                            >
-                                                                <div className="whitespace-nowrap font-semibold text-[14px]">
-                                                                    {`Class: ${cls.day}, ${cls.startTime} - ${cls.endTime}`}
-                                                                </div>
-                                                                <div className="text-[16px] py-4 font-semibold text-[#384455]">
-                                                                    <div className="flex items-center gap-3">
-                                                                        {statsItems
-                                                                            .filter(item =>
-                                                                                item.value > 0 || (item.label === "No Spaces" && venue.stats.occupancyRate === 0)
-                                                                            )
-                                                                            .map((item, idx) => (
-                                                                                <div
-                                                                                    key={idx}
-                                                                                    className="w-10 h-10 rounded-md border flex items-center justify-center"
-                                                                                    style={{
-                                                                                        backgroundColor: item.color,
-                                                                                        borderColor: item.borderColor,
-                                                                                        color: item.textColor
-                                                                                    }}
-                                                                                    title={`${item.label}: ${item.value}`}
-                                                                                >
-                                                                                    <span className="text-[18px] font-semibold flex">    {item.icon}    {item.value > 0 ? item.value : "N/A"}
-</span>
+                                                                                        // Skip "No Spaces" unless availableSpaces is 0
+                                                                                        if (item.label === "No Spaces" && cls.stats.availableSpaces > 0) {
+                                                                                            return null;
+                                                                                        }
+
+                                                                                        // Determine display value
+                                                                                        let displayValue = item.value;
+                                                                                        if (item.label === "No Spaces") {
+                                                                                            displayValue = "N/A";
+                                                                                        }
+
+                                                                                        return (
+                                                                                            <div
+                                                                                                key={idx}
+                                                                                                className="w-10 h-10 rounded-md border flex items-center justify-center"
+                                                                                                style={{
+                                                                                                    backgroundColor: item.color,
+                                                                                                    borderColor: item.borderColor,
+                                                                                                    color: item.textColor
+                                                                                                }}
+                                                                                                title={`${item.label}: ${item.value}`}
+                                                                                            >
+                                                                                                <span className="text-[18px] font-semibold flex">
+                                                                                                    {item.icon} {displayValue}
+                                                                                                </span>
+                                                                                            </div>
+                                                                                        );
+                                                                                    })}
+
+
                                                                                 </div>
-                                                                            ))
-                                                                        }
-
-                                                                    </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })
+                                                            ) : (
+                                                                <div className="text-gray-500 text-sm">
+                                                                    No classes available
                                                                 </div>
-                                                            </div>
-                                                        );
-                                                    })
-                                                ) : (
-                                                    <div className="text-gray-500 text-sm">
-                                                        No classes available
+                                                            )}
+                                                        </div>
+
                                                     </div>
-                                                )}
+                                                    <div className=' flex justify-end  '>
+                                                    <div className=" bg-[#F2ECE6] max-w-[255px]  border border-[#ccc] text-black rounded-3xl shadow-md px-6 py-4 flex items-center">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[16px] font-semibold">Total</span>
+                                                            <span className="text-[14px] text-[#717073]">
+                                                                <span>{totalBooked} Booked </span>
+                                                                <br></br>
+                                                                <span>of {totalCapacity}  Spaces</span>
+                                                            </span>
+                                                        </div>
 
-
-
-
-                                                {/* Stats with Pie */}
-                                                <div className="bg-[#F2ECE6] max-w-[255px]  border border-[#ccc] text-black rounded-3xl shadow-md px-6 py-4 flex items-center">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[16px] font-semibold">Total</span>
-                                                        <span className="text-[14px] text-[#717073]">
-                                                            <span>{venue.stats.totalBooked} Booked </span>
-                                                            <br></br>
-                                                            <span>of {venue.stats.totalCapacity}  Spaces</span>
-                                                        </span>
+                                                        <div className="ml-6 relative">
+                                                            <PieChart width={80} height={80}>
+                                                                <Pie
+                                                                    data={[
+                                                                        { value: totalBooked },
+                                                                        {
+                                                                            value:
+                                                                                totalCapacity -
+                                                                                totalBooked,
+                                                                        },
+                                                                    ]}
+                                                                    cx="50%"
+                                                                    cy="50%"
+                                                                    startAngle={90}
+                                                                    endAngle={-270}
+                                                                    innerRadius={32}
+                                                                    outerRadius={38}
+                                                                    dataKey="value"
+                                                                    stroke="none"
+                                                                >
+                                                                    {[0, 1].map((i) => (
+                                                                        <Cell key={i} fill={COLORS[i]} />
+                                                                    ))}
+                                                                </Pie>
+                                                            </PieChart>
+                                                            <span className="absolute inset-0 flex items-center justify-center text-[18px] font-semibold">
+                                                                {occupancyRate}%
+                                                            </span>
+                                                        </div>
                                                     </div>
-
-                                                    <div className="ml-6 relative">
-                                                        <PieChart width={80} height={80}>
-                                                            <Pie
-                                                                data={[
-                                                                    { value: venue.stats.totalBooked },
-                                                                    {
-                                                                        value:
-                                                                            venue.stats.totalCapacity -
-                                                                            venue.stats.totalBooked,
-                                                                    },
-                                                                ]}
-                                                                cx="50%"
-                                                                cy="50%"
-                                                                startAngle={90}
-                                                                endAngle={-270}
-                                                                innerRadius={32}
-                                                                outerRadius={38}
-                                                                dataKey="value"
-                                                                stroke="none"
-                                                            >
-                                                                {[0, 1].map((i) => (
-                                                                    <Cell key={i} fill={COLORS[i]} />
-                                                                ))}
-                                                            </Pie>
-                                                        </PieChart>
-                                                        <span className="absolute inset-0 flex items-center justify-center text-[18px] font-semibold">
-                                                            {venue.stats.occupancyRate}%
-                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-
-                            ))
+                                )
+                            })
                         ) : (
                             <div className="text-center py-6 text-gray-500">No data available</div>
                         )

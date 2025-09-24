@@ -75,7 +75,7 @@ const TermCard = ({ item, sessionData }) => {
         }`}
       >
         <span className="font-semibold truncate">
-          {`Session ${i + 1}: Plan #${session.groupName || 'No Session Found' }`}
+          {`Session ${i + 1}: ${session.groupName || 'No Session Found' }`}
         </span>
         <span className="text-[#717073] text-left">{session.date}</span>
       </div>

@@ -623,7 +623,7 @@ console.log('selectedPlans',selectedPlans)
                         key={idx}
                         className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white " // ✅ min height
                       >
-                        <div className="bg-[#2E2F3E] text-white p-4 rounded-xl md:flex items-center justify-between text-sm">
+              <div className="bg-[#2E2F3E] text-white p-4 rounded-xl md:grid md:grid-cols-[2fr_1fr] md:items-center text-sm gap-4">
                           <div className="flex items-center gap-2">
                             <img src="/demo/synco/icons/Location.png" alt="" />
                             <div className="flex">

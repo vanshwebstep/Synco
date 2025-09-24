@@ -47,7 +47,7 @@ const ServiceHistory = ({ serviceHistory }) => {
               </div>
               <div className="flex relative items-center gap-4">
                 {/* Student Count */}
-                <div className="flex gap-2 items-center text-black p-2 rounded-xl flex-wrap bg-white">
+                {/* <div className="flex gap-2 items-center text-black p-2 rounded-xl flex-wrap bg-white">
                   <img
                     src="/demo/synco/images/accountInfoCount.png"
                     alt="Back"
@@ -57,7 +57,7 @@ const ServiceHistory = ({ serviceHistory }) => {
                       {students?.length || 0}
                     </div>
                   </div>
-                </div>
+                </div> */}
                 {/* Status */}
                 <div
                   className={`flex gap-2 items-center p-2 rounded-xl flex-wrap ${

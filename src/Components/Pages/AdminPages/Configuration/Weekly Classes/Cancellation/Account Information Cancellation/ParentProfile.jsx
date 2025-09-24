@@ -424,7 +424,6 @@ const ParentProfile = ({ ParentProfile }) => {
                         </div>
 
 
-                        {parents.map((parent, index) => (
                             <div className="bg-[#2E2F3E] text-white px-6 py-6 space-y-6">
                                 {/* Avatar & Account Holder */}
                                 <div className="flex items-center gap-4">
@@ -449,7 +448,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                         <div className="text-[16px] text-gray-300">
                                             {status === 'request_to_cancel' || status === 'cancelled'
                                                 ? `${bookedBy.firstName} ${bookedBy.lastName}`
-                                                : `${parent.parentFirstName} / ${parent.relationToChild}`}
+                                                : ``}
                                         </div>
                                     </div>
                                 </div>
@@ -545,7 +544,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                       
 
 
                     </div>

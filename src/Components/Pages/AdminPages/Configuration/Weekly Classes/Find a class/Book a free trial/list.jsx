@@ -28,6 +28,7 @@ import { useClassSchedule } from '../../../../contexts/ClassScheduleContent';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
 import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
+import { useMembers } from '../../../../contexts/MemberContext';
 const List = () => {
     useEffect(() => {
         window.scrollTo(0, 0); // scrolls to top on mount
@@ -46,12 +47,14 @@ const List = () => {
     const { fetchFindClassID, singleClassSchedulesOnly, loading } = useClassSchedule() || {};
     const { createBookFreeTrials } = useBookFreeTrial()
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { keyInfoData, fetchKeyInfo } = useMembers();
 
     useEffect(() => {
 
         const fetchData = async () => {
             if (classId) {
                 await fetchFindClassID(classId);
+                await fetchKeyInfo();
             }
         };
         fetchData();
@@ -83,11 +86,45 @@ const List = () => {
         { value: "Friend", label: "Friend" },
         { value: "Flyer", label: "Flyer" },
     ];
-    const keyInfoOptions = [
-        { value: "keyInfo 1", label: "keyInfo 1" },
-        { value: "keyInfo 2", label: "keyInfo 2" },
-        { value: "keyInfo 3", label: "keyInfo 3" },
-    ];
+   function htmlToArray(html) {
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+
+  const items = [];
+
+  function traverse(node) {
+    node.childNodes.forEach((child) => {
+      if (child.nodeName === "LI") {
+        const text = child.textContent.trim();
+        if (text) items.push(text);
+      } else if (child.nodeName === "OL" || child.nodeName === "UL") {
+        traverse(child);
+      } else if (child.nodeType !== 3) { // skip text nodes outside li
+        traverse(child);
+      }
+    });
+  }
+
+  traverse(tempDiv);
+
+  // If no <li> found, fallback to plain text
+  if (items.length === 0) {
+    const plainText = tempDiv.textContent.trim();
+    if (plainText) items.push(plainText);
+  }
+
+  return items;
+}
+
+// Example usage:
+const keyInfoArray = htmlToArray(keyInfoData?.keyInformation);
+
+// Map into dynamic options
+const keyInfoOptions = keyInfoArray.map((item) => ({
+  value: item,
+  label: item,
+}));
+
     const [clickedIcon, setClickedIcon] = useState(null);
     const [selectedRelation, setSelectedRelation] = useState(null);
     const [selectedKeyInfo, setSelectedKeyInfo] = useState(null);
@@ -1203,64 +1240,64 @@ const List = () => {
                             </div>
                         </div>
 
-                        <div className="w-full my-10">
-                            {/* Placeholder (acts like a select box) */}
-                            <div
-                                onClick={() => setIsOpen(!isOpen)}
-                                className="flex items-center justify-between text-[20px] p-3 border border-gray-200 rounded-xl cursor-pointer bg-white shadow-md hover:border-gray-400 transition"
-                            >
-                                <span
-                                    className={`${selectedKeyInfo ? "font-medium text-gray-900" : "text-gray-500"
-                                        }`}
-                                >
-                                    {selectedLabel}
-                                </span>
-                                {isOpen ? (
-                                    <ChevronUp className="w-5 h-5 text-gray-500" />
-                                ) : (
-                                    <ChevronDown className="w-5 h-5 text-gray-500" />
-                                )}
-                            </div>
-
-                            {/* Options (bullet style) */}
-                            {isOpen && (
-                                <div className="mt-3 space-y-2 e sha rounded-xl p-3 bo0">
-                                    {keyInfoOptions.map((option) => (
-                                        <div
-                                            key={option.value}
-                                            className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition 
-          ${selectedKeyInfo === option.value
-                                                    ? ""
-                                                    : "hover:bg-gray-50 border border-transparent"
-                                                }`}
-                                            onClick={() => {
-                                                setSelectedKeyInfo(option.value);
-                                                // close after select
-                                            }}
-                                        >
-                                            {/* Custom Bullet */}
-                                            <span
-                                                className={`w-3 h-3 rounded-full bg-gradient-to-r 
-            ${selectedKeyInfo === option.value
-                                                        ? "from-blue-500 to-blue-400 shadow-sm"
-                                                        : "from-gray-400 to-gray-300"
-                                                    }`}
-                                            ></span>
-
-                                            {/* Label */}
-                                            <span
-                                                className={`${selectedKeyInfo === option.value
-                                                        ? "font-semibold text-blue-700"
-                                                        : "text-gray-700"
-                                                    }`}
-                                            >
-                                                {option.label}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                    <div className="w-full my-10">
+                                                {/* Placeholder (acts like a select box) */}
+                                                <div
+                                                    onClick={() => setIsOpen(!isOpen)}
+                                                    className="flex items-center justify-between text-[20px] p-3 border border-gray-200 rounded-xl cursor-pointer bg-white shadow-md hover:border-gray-400 transition"
+                                                >
+                                                    <span
+                                                        className={`${selectedKeyInfo ? "font-medium text-gray-900" : "text-gray-500"
+                                                            }`}
+                                                    >
+                                                        {selectedLabel}
+                                                    </span>
+                                                    {isOpen ? (
+                                                        <ChevronUp className="w-5 h-5 text-gray-500" />
+                                                    ) : (
+                                                        <ChevronDown className="w-5 h-5 text-gray-500" />
+                                                    )}
+                                                </div>
+                    
+                                                {/* Options (bullet style) */}
+                                                {isOpen && (
+                                                    <div className="mt-3 space-y-2 e sha rounded-xl p-3 bo0">
+                                                        {keyInfoOptions.map((option) => (
+                                                            <div
+                                                                key={option.value}
+                                                                className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition 
+                                                     ${selectedKeyInfo === option.value
+                                                                        ? ""
+                                                                        : "hover:bg-gray-50 border border-transparent"
+                                                                    }`}
+                                                            //    onClick={() => {
+                                                            //        setSelectedKeyInfo(option.value);
+                                                            //        // close after select
+                                                            //    }}
+                                                            >
+                                                                {/* Custom Bullet */}
+                                                                <span
+                                                                    className={`w-3 h-3 rounded-full bg-gradient-to-r 
+                                                       ${selectedKeyInfo === option.value
+                                                                            ? "from-blue-500 to-blue-400 shadow-sm"
+                                                                            : "from-gray-400 to-gray-300"
+                                                                        }`}
+                                                                ></span>
+                    
+                                                                {/* Label */}
+                                                                <span
+                                                                    className={`${selectedKeyInfo === option.value
+                                                                        ? "font-semibold text-blue-700"
+                                                                        : "text-gray-700"
+                                                                        }`}
+                                                                >
+                                                                    {option.label}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
 
 
                         <div className="bg-white mb-10 rounded-3xl p-6 space-y-4">

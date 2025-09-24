@@ -12,6 +12,7 @@ import { useBookFreeTrial } from '../../../../../contexts/BookAFreeTrialContext'
 import Loader from '../../../../../contexts/Loader';
 import { usePermission } from '../../../../../Common/permission';
 import { addDays } from "date-fns";
+import { FaEdit, FaSave } from "react-icons/fa";
 
 const StudentProfile = ({ profile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -19,7 +20,7 @@ const StudentProfile = ({ profile }) => {
         loading,
         addtoWaitingListSubmit, cancelMembershipSubmit,
         sendWaitingListMail, transferMembershipSubmit,
-        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot
+        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot,updateWaitingListFamily
     } = useBookFreeTrial() || {};
     const classSchedule = profile?.classSchedule;
     const bookingId = profile?.id;
@@ -27,8 +28,10 @@ const StudentProfile = ({ profile }) => {
     const paymentPlans = profile?.paymentPlans;
     const parentsList = profile?.parents || [];
     const emergencyList = profile?.emergency || [];
+    const [editingIndex, setEditingIndex] = useState(null);
 
-    const studentsList = profile?.students || [];
+        const [students, setStudents] = useState(profile?.students || []);
+    
     const bookedBy = profile?.bookedByAdmin;
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
@@ -68,8 +71,6 @@ const StudentProfile = ({ profile }) => {
 
     console.log('loading', loading)
 
-    const studentCount = studentsList.length;
-    const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const { checkPermission } = usePermission();
     const failedPayments = profile.payments?.filter(
         (payment) => payment.paymentStatus !== "success"
@@ -141,7 +142,8 @@ const StudentProfile = ({ profile }) => {
         stateSetter((prev) => ({ ...prev, [field]: value }));
     };
 
-
+ const parents = profile.parents;
+    const emergency = profile.emergency;
 
     const paymentPlan = profile?.paymentPlan;
     // Access the first booking's venue name
@@ -200,6 +202,49 @@ const StudentProfile = ({ profile }) => {
     }
 
 
+    const handleStudentDataChange = (index, field, value) => {
+        const updatedStudents = [...students];
+        updatedStudents[index] = {
+            ...updatedStudents[index],
+            [field]: value,
+        };
+        setStudents(updatedStudents);
+    };
+   
+
+    const toggleEditStudent = (index) => {
+        if (editingIndex === index) {
+            // ✅ Save Mode
+            setEditingIndex(null);
+
+            const payload = students.map((student, sIndex) => ({
+                id: student.id ?? sIndex + 1,
+                studentFirstName: student.studentFirstName,
+                studentLastName: student.studentLastName,
+                dateOfBirth: student.dateOfBirth,
+                age: student.age,
+                gender: student.gender,
+                medicalInformation: student.medicalInformation,
+                parents: parents.map((p, pIndex) => ({
+                    id: p.id ?? pIndex + 1,
+                    ...p,
+                })),
+                emergencyContacts: emergency.map((e, eIndex) => ({
+                    id: e.id ?? eIndex + 1,
+                    ...e,
+                })),
+            }));
+
+            updateWaitingListFamily(profile.id, payload);
+            console.log("Parent Payload to send:", payload);
+        } else {
+            // ✏️ Edit Mode
+            setEditingIndex(index);
+        }
+    };
+
+
+
     const getStatusBgColor = (status) => {
         switch (status) {
             case "active": return "bg-[#43BE4F]";
@@ -242,254 +287,138 @@ const StudentProfile = ({ profile }) => {
             <div className="md:flex w-full gap-4">
                 <div className="transition-all duration-300 flex-1 ">
                     <div className="space-y-6">
-                        {studentsList?.map((student, index) => (
-                            <div
-                                key={student.studentFirstName || index}
-                                className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
-                            >
-                                {/* Top Header Row */}
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Student information</h2>
+                      {students?.map((student, index) => (
+  <div
+    key={student.id || index}
+    className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
+  >
+    {/* Top Header Row */}
+    <div className="flex justify-between items-start">
+      <h2 className="text-[20px] font-semibold">Student Information</h2>
+      <button
+        onClick={() => toggleEditStudent(index)}
+        className="text-gray-600 hover:text-blue-600"
+      >
+        {editingIndex === index ? <FaSave /> : <FaEdit />}
+      </button>
+    </div>
 
-                                </div>
+    {/* Row 1 */}
+    <div className="flex gap-4">
+      <div className="w-1/2">
+        <label className="block text-[16px] font-semibold">First name</label>
+        <input
+          type="text"
+          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+          placeholder="Enter first name"
+          value={student.studentFirstName || ""}
+          readOnly={editingIndex !== index}
+          onChange={(e) =>
+            handleStudentDataChange(index, "studentFirstName", e.target.value)
+          }
+        />
+      </div>
+      <div className="w-1/2">
+        <label className="block text-[16px] font-semibold">Last name</label>
+        <input
+          type="text"
+          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+          placeholder="Enter last name"
+          value={student.studentLastName || ""}
+          readOnly={editingIndex !== index}
+          onChange={(e) =>
+            handleStudentDataChange(index, "studentLastName", e.target.value)
+          }
+        />
+      </div>
+    </div>
 
-                                {/* Row 1 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">First name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter first name"
-                                            value={student.studentFirstName}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Last name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter last name"
-                                            value={student.studentLastName}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
+    {/* Row 2 */}
+    <div className="flex gap-4">
+      <div className="w-1/2">
+        <label className="block text-[16px] font-semibold">Date of Birth</label>
+        <input
+          type="date"
+          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+          value={student.dateOfBirth || ""}
+          readOnly={editingIndex !== index}
+          onChange={(e) =>
+            handleStudentDataChange(index, "dateOfBirth", e.target.value)
+          }
+        />
+      </div>
+      <div className="w-1/2">
+        <label className="block text-[16px] font-semibold">Age</label>
+        <input
+          type="number"
+          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+          placeholder="Enter age"
+          value={student.age || ""}
+          readOnly={editingIndex !== index}
+          onChange={(e) =>
+            handleStudentDataChange(index, "age", e.target.value)
+          }
+        />
+      </div>
+    </div>
 
-                                {/* Row 2 */}
-                                <div className="flex gap-4">
+    {/* Row 3 */}
+    <div className="flex gap-4">
+      <div className="w-1/2">
+        <label className="block text-[16px] font-semibold">Gender</label>
+        <input
+          type="text"
+          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+          value={student.gender || ""}
+          readOnly={editingIndex !== index}
+          onChange={(e) =>
+            handleStudentDataChange(index, "gender", e.target.value)
+          }
+        />
+      </div>
+      <div className="w-1/2">
+        <label className="block text-[16px] font-semibold">
+          Medical information
+        </label>
+        <input
+          type="text"
+          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+          placeholder="Enter medical info"
+          value={student.medicalInformation || ""}
+          readOnly={editingIndex !== index}
+          onChange={(e) =>
+            handleStudentDataChange(index, "medicalInformation", e.target.value)
+          }
+        />
+      </div>
+    </div>
 
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Date of Birth</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.dateOfBirth}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Age</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={student.age}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
+    {/* Row 4 */}
+    <div className="flex gap-4">
+      <div className="w-1/2">
+        <label className="block text-[16px] font-semibold">Class</label>
+        <input
+          type="text"
+          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+          value={classSchedule?.className || ""}
+          readOnly
+        />
+      </div>
+      <div className="w-1/2">
+        <label className="block text-[16px] font-semibold">Time</label>
+        <input
+          type="text"
+          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+          value={classSchedule?.startTime || ""}
+          readOnly
+        />
+      </div>
+    </div>
+  </div>
+))}
 
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Gender</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.gender}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Medical information</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={student.medicalInformation}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Row 3 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Class</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.class}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Time </label>
-                                        <select
-                                            name="abilityLevel"
-                                            id="abilityLevel"
-                                            className="w-full mt-2 text-gray-500 border  border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            defaultValue=""
-                                        >
-                                            <option className="" value="" disabled>
-                                                Select Ability level
-                                            </option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                        </select>
-
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
                     </div>
-                    <div className="space-y-6">
-                        {parentsList?.map((parent, index) => (
-                            <div
-                                key={parent.parentEmail || index}
-                                className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
-                            >
-                                {/* Top Header Row */}
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Parent information</h2>
 
-                                </div>
-
-                                {/* Row 1 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">First name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter first name"
-                                            value={parent.parentFirstName}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Last name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter last name"
-                                            value={parent.parentLastName}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Row 2 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Email</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={parent.parentEmail}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Phone number</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.parentPhoneNumber}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Row 3 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Relation to Child</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={parent.relationToChild}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">How did you hear about us?</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.howDidYouHear}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="space-y-6">
-                        {emergencyList?.map((parent, index) => (
-                            <div
-                                key={parent.parentEmail || index}
-                                className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
-                            >
-                                {/* Top Header Row */}
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Emergency information</h2>
-
-                                </div>
-
-                                {/* Row 1 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">First name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter first name"
-                                            value={parent.emergencyFirstName}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Last name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter last name"
-                                            value={parent.emergencyLastName}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Row 2 */}
-                                <div className="flex gap-4">
-
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Phone number</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.emergencyPhoneNumber}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Relation to Child</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={parent.emergencyRelation}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                            </div>
-                        ))}
-                    </div>
                     <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
 
@@ -558,7 +487,7 @@ const StudentProfile = ({ profile }) => {
                     <div className="rounded-3xl bg-[#363E49] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
                         <div className={`m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center `}
-                         style={{
+                            style={{
                                 backgroundImage: status === "cancelled"
                                     ? "url('/demo/synco/frames/Cancelled.png')"
                                     : status === "frozen"
@@ -581,99 +510,98 @@ const StudentProfile = ({ profile }) => {
                             </div>
                         </div>
 
-                        {parentsList?.map((parent, index) => (
-                            <div className="bg-[#363E49] text-white px-6 py-6 space-y-6">
-                                {/* Avatar & Account Holder */}
-                                <div className="flex items-center gap-4">
-                                    <img
-                                        src={
-                                            bookedBy?.profile
-                                                ? `${API_BASE_URL}/${bookedBy.profile}`
-                                                : "https://cdn-icons-png.flaticon.com/512/147/147144.png"
-                                        }
-                                        alt="avatar"
-                                        className="w-18 h-18 rounded-full"
-                                        onError={(e) => {
-                                            e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/147/147144.png"; // fallback if image fails to load
-                                        }}
-                                    />
+                        <div className="bg-[#363E49] text-white px-6 py-6 space-y-6">
+                            {/* Avatar & Account Holder */}
+                            <div className="flex items-center gap-4">
+                                <img
+                                    src={
+                                        bookedBy?.profile
+                                            ? `${API_BASE_URL}/${bookedBy.profile}`
+                                            : "https://cdn-icons-png.flaticon.com/512/147/147144.png"
+                                    }
+                                    alt="avatar"
+                                    className="w-18 h-18 rounded-full"
+                                    onError={(e) => {
+                                        e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/147/147144.png"; // fallback if image fails to load
+                                    }}
+                                />
 
-                                    <div>
-                                        <div className="text-[24px] font-semibold leading-tight">
-                                            Booked By
-                                        </div>
-                                        <div className="text-[16px] text-gray-300">
-                                            {bookedBy?.firstName} {bookedBy?.lastName}
-
-                                        </div>
+                                <div>
+                                    <div className="text-[24px] font-semibold leading-tight">
+                                        Booked By
                                     </div>
-                                </div>
-
-                                {/* Details */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <div className="text-[20px] font-bold tracking-wide">Venue</div>
-                                        <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
-                                            {venueName || "-"}
-                                        </div>
-                                    </div>
-
-                                    <div className="border-t border-[#495362] pt-5">
-
-                                        <div className="text-[20px] text-white">Membership Plan</div>
-
-                                        <div className="text-[1s6px] mt-1 text-gray-400">
-                                            {MembershipPlan} Plan
-                                        </div>
+                                    <div className="text-[16px] text-gray-300">
+                                        {bookedBy?.firstName} {bookedBy?.lastName}
 
                                     </div>
-                                    <div className="border-t border-[#495362] pt-5">
-
-                                        <div className="text-[20px] text-white">Membership Start Date</div>
-
-                                        <div className="text-[1s6px] mt-1 text-gray-400">
-                                            {formatISODate(dateBooked)}
-                                        </div>
-
-                                    </div>
-
-                                    <div className="border-t border-[#495362] pt-5">
-
-                                        <div className="text-[20px] text-white">Membership Tenure</div>
-                                        <div className="text-[1s6px] mt-1 text-gray-400">
-                                            {MembershipTenure}
-                                        </div>
-
-                                    </div>
-                                    <div className="border-t border-[#495362] pt-5">
-
-                                        <div className="text-[20px] text-white">ID</div>
-                                        <div className="text-[1s6px] mt-1 text-gray-400">
-                                            {ID}
-                                        </div>
-
-                                    </div>
-                                    <div className="border-t border-[#495362] py-5">
-                                        <div className="text-[20px] text-white mb-3">Progress</div>
-                                        <div className="flex items-center justify-between">
-                                            <div className="w-[90%] bg-[#fff] h-3 rounded-full overflow-hidden">
-                                                <div
-                                                    className="bg-green-500 h-4 rounded-full"
-                                                    style={{ width: "78%" }}
-                                                ></div>
-                                            </div>
-                                            <div className="text-white text-right mt-1 text-[14px]">78%</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="border-t border-[#495362] py-5">
-                                        <div className=" text-[20px] text-white">Price</div>
-                                        <div className="text-[16px]  mt-1 text-gray-400"> £{MembershipPrice} </div>
-                                    </div>
-
                                 </div>
                             </div>
-                        ))}
+
+                            {/* Details */}
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="text-[20px] font-bold tracking-wide">Venue</div>
+                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
+                                        {venueName || "-"}
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-[#495362] pt-5">
+
+                                    <div className="text-[20px] text-white">Membership Plan</div>
+
+                                    <div className="text-[1s6px] mt-1 text-gray-400">
+                                        {MembershipPlan} Plan
+                                    </div>
+
+                                </div>
+                                <div className="border-t border-[#495362] pt-5">
+
+                                    <div className="text-[20px] text-white">Membership Start Date</div>
+
+                                    <div className="text-[1s6px] mt-1 text-gray-400">
+                                        {formatISODate(dateBooked)}
+                                    </div>
+
+                                </div>
+
+                                <div className="border-t border-[#495362] pt-5">
+
+                                    <div className="text-[20px] text-white">Membership Tenure</div>
+                                    <div className="text-[1s6px] mt-1 text-gray-400">
+                                        {MembershipTenure}
+                                    </div>
+
+                                </div>
+                                <div className="border-t border-[#495362] pt-5">
+
+                                    <div className="text-[20px] text-white">ID</div>
+                                    <div className="text-[1s6px] mt-1 text-gray-400">
+                                        {ID}
+                                    </div>
+
+                                </div>
+                                <div className="border-t border-[#495362] py-5">
+                                    <div className="text-[20px] text-white mb-3">Progress</div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="w-[90%] bg-[#fff] h-3 rounded-full overflow-hidden">
+                                            <div
+                                                className="bg-green-500 h-4 rounded-full"
+                                                style={{ width: "78%" }}
+                                            ></div>
+                                        </div>
+                                        <div className="text-white text-right mt-1 text-[14px]">78%</div>
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-[#495362] py-5">
+                                    <div className=" text-[20px] text-white">Price</div>
+                                    <div className="text-[16px]  mt-1 text-gray-400"> £{MembershipPrice} </div>
+                                </div>
+
+                            </div>
+                        </div>
+
 
 
                     </div>
@@ -731,7 +659,7 @@ const StudentProfile = ({ profile }) => {
                                         Transfer Class
                                     </button>
                                 )}
-                                 {/* {status !== 'pending' && status !== 'attended' && (
+                                {/* {status !== 'pending' && status !== 'attended' && (
                                     <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md hover:bg-[#237FEA] hover:text-white transition-shadow duration-300 font-medium">
                                         Book a Membership
                                     </button>
@@ -758,7 +686,7 @@ const StudentProfile = ({ profile }) => {
 
                                 )}
 
-                               
+
 
                                 {status === 'attended' && (
                                     <div className="flex gap-7">
@@ -849,7 +777,7 @@ const StudentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Preferred Start Date (Optional)</label>
                                     <DatePicker
-                                    withPortal
+                                        withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={waitingListData.preferredStartDate ? new Date(waitingListData.preferredStartDate) : null}
                                         onChange={(date) => handleDateChange(date, "preferredStartDate", setWaitingListData)}
@@ -906,7 +834,7 @@ const StudentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Reactivate On</label>
                                     <DatePicker
-                                    withPortal
+                                        withPortal
                                         minDate={addDays(new Date(), 1)} // disable today & past dates
                                         selected={
                                             reactivateData?.reactivateOn
@@ -1055,7 +983,7 @@ const StudentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Cancellation Effective Date</label>
                                     <DatePicker
-                                    withPortal
+                                        withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         selected={cancelData.cancelDate ? new Date(cancelData.cancelDate) : null}
@@ -1311,7 +1239,7 @@ const StudentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Freeze Start Date</label>
                                     <DatePicker
-                                    withPortal
+                                        withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={freezeData.freezeStartDate ? new Date(freezeData.freezeStartDate) : null}
                                         onChange={(date) => handleDateChange(date, "freezeStartDate", setFreezeData)}
@@ -1347,7 +1275,7 @@ const StudentProfile = ({ profile }) => {
                                 <div>
                                     <label className="block text-[16px] font-semibold">Reactivate On</label>
                                     <DatePicker
-                                    withPortal
+                                        withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
                                         selected={freezeData.reactivateOn ? new Date(freezeData.reactivateOn) : null}
                                         onChange={(date) => handleDateChange(date, "reactivateOn", setFreezeData)}

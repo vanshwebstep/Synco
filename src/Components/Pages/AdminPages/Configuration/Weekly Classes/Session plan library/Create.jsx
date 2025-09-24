@@ -18,7 +18,7 @@ const Create = () => {
     const MultiValue = () => null; // Hides the default selected boxes
     const exerciseRef = useRef(null);
     const [mounted, setMounted] = useState(false);
-const containerRef = useRef(null);
+    const containerRef = useRef(null);
 
     useEffect(() => {
         setMounted(true);
@@ -95,7 +95,10 @@ const containerRef = useRef(null);
             }, 1000);
         } catch (err) {
             console.error("Error accessing microphone:", err);
-            alert("Microphone access denied or not available.");
+           Swal.fire({
+                icon: 'warning',
+                title: 'Microphone access denied or not available.',
+            });  
         }
     };
 
@@ -472,11 +475,11 @@ const containerRef = useRef(null);
         label: `${plan.duration}: ${plan.title}`,
         data: plan,
     }));
-useEffect(() => {
-    if (containerRef.current) {
-        containerRef.current.scrollTop = containerRef.current.scrollHeight;
-    }
-}, [selectedOptions]);
+    useEffect(() => {
+        if (containerRef.current) {
+            containerRef.current.scrollTop = containerRef.current.scrollHeight;
+        }
+    }, [selectedOptions]);
     const handleSelectChange = (selected) => {
         setSelectedPlans(selected ? selected.map((item) => item.data) : []);
     };
@@ -766,43 +769,43 @@ useEffect(() => {
                                         className="hidden"
                                     />
                                 </div>
-                            <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 mt-6 w-full">
-  {/* Video Preview */}
-  {videoFile && videoPreviewUrl && (
-    <div className="w-full md:w-1/2 bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
-      <label className="block text-sm font-semibold mb-2 text-gray-700 p-4">Video Preview</label>
-      <div className="w-full aspect-square">
-        <video
-          controls
-          className="w-full h-full object-cover"
-          src={videoPreviewUrl}
-          onError={() => console.error("Failed to load video:", videoFile)}
-        />
-      </div>
-    </div>
-  )}
+                                <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 mt-6 w-full">
+                                    {/* Video Preview */}
+                                    {videoFile && videoPreviewUrl && (
+                                        <div className="w-full md:w-1/2 bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+                                            <label className="block text-sm font-semibold mb-2 text-gray-700 p-4">Video Preview</label>
+                                            <div className="w-full aspect-square">
+                                                <video
+                                                    controls
+                                                    className="w-full h-full object-cover"
+                                                    src={videoPreviewUrl}
+                                                    onError={() => console.error("Failed to load video:", videoFile)}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
 
-  {/* Banner Preview */}
-  {bannerFile && bannerPreviewUrl && (
-    <div className="w-full md:w-1/2 bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
-      <label className="block text-sm font-semibold mb-2 text-gray-700 p-4">Banner Preview</label>
-      <div className="w-full aspect-square">
-        <img
-          src={bannerPreviewUrl}
-          alt="Banner Preview"
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            console.error("Failed to load banner:", bannerFile);
-            e.target.style.display = "none";
-          }}
-        />
-      </div>
-    </div>
-  )}
-</div>
+                                    {/* Banner Preview */}
+                                    {bannerFile && bannerPreviewUrl && (
+                                        <div className="w-full md:w-1/2 bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+                                            <label className="block text-sm font-semibold mb-2 text-gray-700 p-4">Banner Preview</label>
+                                            <div className="w-full aspect-square">
+                                                <img
+                                                    src={bannerPreviewUrl}
+                                                    alt="Banner Preview"
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        console.error("Failed to load banner:", bannerFile);
+                                                        e.target.style.display = "none";
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
 
-                                <div  ref={containerRef}>
-                                    
+                                <div ref={containerRef}>
+
                                     <label className="block text-[18px]  font-semibold text-gray-700 mb-2">
                                         Skill of the day
                                     </label>
@@ -910,7 +913,7 @@ useEffect(() => {
                                 <div className="w-full">
                                     {/* Label - Clickable to toggle options */}
                                     <div
-                                     
+
                                         className="flex items-center justify-between cursor-pointer mb-2"
                                         onClick={() => setIsOpen(!isOpen)}
                                     >
@@ -926,33 +929,33 @@ useEffect(() => {
                                     {/* Selected Plans */}
                                     <div className="relative">
                                         <div
-  
-    onClick={() => setIsOpen(!isOpen)}
-    className="mt-4 space-y-2 border border-gray-200 px-4 py-3 rounded-lg max-h-28 overflow-auto"
->
-    {selectedPlans.length > 0 ? (
-        selectedPlans.map((plan, idx) => (
-            <div
-                key={plan.id || idx}
-                className="flex items-center font-semibold justify-between"
-            >
-                <span>{`${plan.duration}: ${plan.title}`}</span>
-                <button
-                    type="button"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemovePlan(idx);
-                    }}
-                    className="text-gray-500 hover:text-red-500"
-                >
-                    <Trash2 size={18} />
-                </button>
-            </div>
-        ))
-    ) : (
-        <div className="text-gray-400 italic py-3">  </div>
-    )}
-</div>
+
+                                            onClick={() => setIsOpen(!isOpen)}
+                                            className="mt-4 space-y-2 border border-gray-200 px-4 py-3 rounded-lg max-h-28 overflow-auto"
+                                        >
+                                            {selectedPlans.length > 0 ? (
+                                                selectedPlans.map((plan, idx) => (
+                                                    <div
+                                                        key={plan.id || idx}
+                                                        className="flex items-center font-semibold justify-between"
+                                                    >
+                                                        <span>{`${plan.duration}: ${plan.title}`}</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleRemovePlan(idx);
+                                                            }}
+                                                            className="text-gray-500 hover:text-red-500"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="text-gray-400 italic py-3">  </div>
+                                            )}
+                                        </div>
 
                                         <AnimatePresence initial={false}>
                                             {isOpen && (
@@ -961,50 +964,50 @@ useEffect(() => {
                                                     animate={{ opacity: 1, height: "auto" }}
                                                     exit={{ opacity: 0, height: 0 }}
                                                     transition={{ duration: 0.3 }}
-                                                    className="overflow-hidden"
+                                                    className=" my-2 p-3 overflow-hidden"
                                                 >
                                                     <div className="w-full mb-4">
-                                                      <Select
-    key={mounted}
-    options={sortedOptions}
-    value={selectedOptions}
-    onChange={handleSelectChange}
-    isMulti
-    placeholder="Select Exercises..."
-    className="react-select-container"
-    classNamePrefix="react-select"
-    components={{ MultiValue }}
-    menuPortalTarget={document.body}
-    menuPosition="fixed"
-    menuPlacement="auto"
-    closeMenuOnSelect={false}
-    hideSelectedOptions={false}
-    isClearable
-    styles={{
-        control: (base, state) => ({
-            ...base,
-            borderRadius: "14px",
-            borderColor: state.isFocused ? "#3b82f6" : "#e5e7eb",
-            padding: "4px 8px",
-            backgroundColor: "#fff",
-        }),
-        valueContainer: (base) => ({
-            ...base,
-            maxHeight: "120px",
-            overflowY: "auto",
-            gap: "6px",
-        }),
-        multiValue: (base) => ({
-            ...base,
-            borderRadius: "10px",
-            backgroundColor: "#eff6ff",
-        }),
-        multiValueLabel: (base) => ({
-            ...base,
-            color: "#1d4ed8",
-        }),
-    }}
-/>
+                                                        <Select
+                                                            key={mounted}
+                                                            options={sortedOptions}
+                                                            value={selectedOptions}
+                                                            onChange={handleSelectChange}
+                                                            isMulti
+                                                            placeholder="Select Exercises..."
+                                                            className="react-select-container"
+                                                            classNamePrefix="react-select"
+                                                            components={{ MultiValue }}
+                                                            menuPortalTarget={document.body}
+                                                            menuPosition="fixed"
+                                                            menuPlacement="auto"
+                                                            closeMenuOnSelect={false}
+                                                            hideSelectedOptions={false}
+                                                            isClearable
+                                                            styles={{
+                                                                control: (base, state) => ({
+                                                                    ...base,
+                                                                    borderRadius: "14px",
+                                                                    borderColor: state.isFocused ? "#3b82f6" : "#e5e7eb",
+                                                                    padding: "4px 8px",
+                                                                    backgroundColor: "#fff",
+                                                                }),
+                                                                valueContainer: (base) => ({
+                                                                    ...base,
+                                                                    maxHeight: "120px",
+                                                                    overflowY: "auto",
+                                                                    gap: "6px",
+                                                                }),
+                                                                multiValue: (base) => ({
+                                                                    ...base,
+                                                                    borderRadius: "10px",
+                                                                    backgroundColor: "#eff6ff",
+                                                                }),
+                                                                multiValueLabel: (base) => ({
+                                                                    ...base,
+                                                                    color: "#1d4ed8",
+                                                                }),
+                                                            }}
+                                                        />
 
                                                     </div>
                                                 </motion.div>

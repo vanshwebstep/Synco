@@ -336,3 +336,18 @@ aside.hidden.md\:w-2\/12.lg\:flex.w-72.bg-white.border-r.border-gray-100.flex-co
 }
 
 
+/* global.css or component CSS */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px; /* horizontal scrollbar height */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #a0a0a0;
+  border-radius: 4px;
+  border: 2px solid #f0f0f0; /* gives a padding effect */
+}

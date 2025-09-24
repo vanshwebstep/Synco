@@ -22,52 +22,40 @@ const Create = ({ groups, termGroup, onClose }) => {
   const [selectedSub, setSelectedSub] = useState(null);
   const [selectedTermIds, setSelectedTermIds] = useState([]);
   const [selectedLabels, setSelectedLabels] = useState([]);
-  const validateForm = () => {
-    if (!formData.area || !formData.area.trim()) return 'Area is required';
-    if (!formData.name || !formData.name.trim()) return 'Name of Venue is required';
-    if (!formData.address || !formData.address.trim()) return 'Address is required';
-    if (!formData.facility || formData.facility === '') return 'Please select Facility (Indoor/Outdoor)';
+const validateForm = () => {
+  if (!formData.area?.trim()) return 'Area is required';
+  if (!formData.name?.trim()) return 'Name of Venue is required';
+  if (!formData.address?.trim()) return 'Address is required';
+  if (!formData.facility) return 'Please select Facility (Indoor/Outdoor)';
+  if (formData.hasParking && !formData.parkingNote?.trim()) return 'Please add a Parking Note';
+  if (formData.isCongested && !formData.howToEnterFacility?.trim()) return 'Please add a Congestion Note';
+  if (selectedTermIds.length === 0) return 'Please select at least one Term Date Linkage';
+  return null; // ✅ valid
+};
 
-    // if user selected parking, they must add a parking note (optional rule — adjust if you prefer)
-    if (formData.hasParking && (!formData.parkingNote || !formData.parkingNote.trim()))
-      return 'Please add a Parking Note or toggle off Parking';
-
-    // if congestion toggle is on, require a note
-    if (formData.isCongested && (!formData.howToEnterFacility || !formData.howToEnterFacility.trim()))
-      return 'Please add a Congestion Note or toggle off Congestion';
-
-    // require at least one term linkage (if that is a must — remove this block if optional)
-    if (selectedTermIds?.length === 0) return 'Please select at least one Term Date Linkage';
-
-    // require at least one subscription plan if business rule says so (optional)
-    // if (selectedSub?.length === 0) return 'Please select at least one Subscription Plan';
-
-    return null; // valid
-  };
   const handleSubmit = () => {
-    const err = validateForm();
-    if (err) {
-      Swal.fire({
-        title: 'Validation Error',
-        text: err,
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
-      return;
-    }
-    else {
-      console.log("Venue Submitted:", formData);
-      createVenues(formData);
-      if (!err) {
-        setFormData({
-          area: "", name: "", address: "", facility: "",
-          hasParking: false, isCongested: false, parkingNote: "",
-          howToEnterFacility: "", termGroupId: "", paymentGroupId: ""
-        });
-        onClose();
-      } // close form on success
-    }
-  };
+  const err = validateForm();
+  if (err) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: err,
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
+    return; // stop here
+  }
+
+  // Success flow
+  console.log("Venue Submitted:", formData);
+  createVenues(formData);
+  setFormData({
+    area: "", name: "", address: "", facility: "",
+    hasParking: false, isCongested: false, parkingNote: "",
+    howToEnterFacility: "", termGroupId: "", paymentGroupId: ""
+  });
+  onClose();
+};
+
 
   const handleCancel = () => {
     setFormData({
@@ -85,28 +73,29 @@ const Create = ({ groups, termGroup, onClose }) => {
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
   };
-  const handleUpdate = (id) => {
-    const err = validateForm();
-    if (err) {
-      Swal.fire({
-        title: 'Validation Error',
-        text: err,
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
-      return;
-    }
-    updateVenues(id, formData);
-    if (!err) {
-      setFormData({
-        area: "", name: "", address: "", facility: "",
-        hasParking: false, isCongested: false, parkingNote: "",
-        howToEnterFacility: "", termGroupId: "", paymentGroupId: ""
-      });
-      onClose();
-    } // close form on success
-    console.log("Venue Updated:", formData);
-  };
+ const handleUpdate = (id) => {
+  const err = validateForm();
+  if (err) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: err,
+      icon: 'error',
+      confirmButtonText: 'OK',
+    });
+    return; // stop here, don't close
+  }
+
+  // ✅ success flow only
+  updateVenues(id, formData);
+  setFormData({
+    area: "", name: "", address: "", facility: "",
+    hasParking: false, isCongested: false, parkingNote: "",
+    howToEnterFacility: "", termGroupId: "", paymentGroupId: ""
+  });
+  onClose();
+  console.log("Venue Updated:", formData);
+};
+
 
 
 

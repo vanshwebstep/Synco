@@ -12,6 +12,7 @@ import { useBookFreeTrial } from '../../../../../contexts/BookAFreeTrialContext'
 import Loader from '../../../../../contexts/Loader';
 import { usePermission } from '../../../../../Common/permission';
 import { addDays } from "date-fns";
+import { FaEdit, FaSave } from "react-icons/fa";
 
 const ParentProfile = ({ profile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -19,7 +20,7 @@ const ParentProfile = ({ profile }) => {
         loading,
         addtoWaitingListSubmit, cancelMembershipSubmit,
         sendWaitingListMail, transferMembershipSubmit,
-        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot
+        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot,updateWaitingListFamily
     } = useBookFreeTrial() || {};
     const classSchedule = profile?.classSchedule;
     const bookingId = profile?.id;
@@ -27,8 +28,13 @@ const ParentProfile = ({ profile }) => {
     const paymentPlans = profile?.paymentPlans;
     const parentsList = profile?.parents || [];
     const emergencyList = profile?.emergency || [];
+    const [editingEmergency, setEditingEmergency] = useState(null);
+    const [editingIndex, setEditingIndex] = useState(null);
 
-    const studentsList = profile?.students || [];
+    const students = profile?.students || [];
+    const [parents, setParents] = useState(profile.parents || []); 
+    const [emergencyContacts, setEmergencyContacts] = useState(profile?.emergency || []);
+    
     const bookedBy = profile?.bookedByAdmin;
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
@@ -68,8 +74,6 @@ const ParentProfile = ({ profile }) => {
 
     console.log('loading', loading)
 
-    const studentCount = studentsList.length;
-    const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const { checkPermission } = usePermission();
     const failedPayments = profile.payments?.filter(
         (payment) => payment.paymentStatus !== "success"
@@ -209,6 +213,80 @@ const ParentProfile = ({ profile }) => {
             default: return "bg-[#A4A5A6]";
         }
     };
+  const handleDataChange = (index, field, value) => {
+        const updatedParents = [...parents];
+        updatedParents[index][field] = value;
+        setParents(updatedParents);
+    };
+    const handleEmergencyChange = (index, field, value) => {
+        const updated = [...emergencyContacts];
+        updated[index][field] = value;
+        setEmergencyContacts(updated);
+    };
+
+    // ✅ Parent edit/save toggle
+    const toggleEditParent = (index) => {
+        if (editingIndex === index) {
+            // 🔹 Save Mode
+            setEditingIndex(null);
+
+            const payload = students.map((student, sIndex) => ({
+                id: student.id ?? sIndex + 1,
+                studentFirstName: student.studentFirstName,
+                studentLastName: student.studentLastName,
+                dateOfBirth: student.dateOfBirth,
+                age: student.age,
+                gender: student.gender,
+                medicalInformation: student.medicalInformation,
+                parents: parents.map((p, pIndex) => ({
+                    id: p.id ?? pIndex + 1,
+                    ...p,
+                })),
+                emergencyContacts: emergencyContacts.map((e, eIndex) => ({
+                    id: e.id ?? eIndex + 1,
+                    ...e,
+                })),
+            }));
+
+            updateWaitingListFamily(profile.id, payload);
+            console.log("Parent Payload to send:", payload);
+        } else {
+            // 🔹 Edit Mode
+            setEditingIndex(index);
+        }
+    };
+
+    // ✅ Emergency edit/save toggle
+    const toggleEditEmergency = (index) => {
+        if (editingEmergency === index) {
+            // 🔹 Save Mode
+            setEditingEmergency(null);
+
+            const payload = students.map((student, sIndex) => ({
+                id: student.id ?? sIndex + 1,
+                studentFirstName: student.studentFirstName,
+                studentLastName: student.studentLastName,
+                dateOfBirth: student.dateOfBirth,
+                age: student.age,
+                gender: student.gender,
+                medicalInformation: student.medicalInformation,
+                parents: parents.map((p, pIndex) => ({
+                    id: p.id ?? pIndex + 1,
+                    ...p,
+                })),
+                emergencyContacts: emergencyContacts.map((e, eIndex) => ({
+                    id: e.id ?? eIndex + 1,
+                    ...e,
+                })),
+            }));
+
+            updateWaitingListFamily(profile.id, payload);
+            console.log("Emergency Payload to send:", payload);
+        } else {
+            // 🔹 Edit Mode
+            setEditingEmergency(index);
+        }
+    };
 
     const monthOptions = [
         { value: 1, label: "1 Month" },
@@ -242,254 +320,177 @@ const ParentProfile = ({ profile }) => {
             <div className="md:flex w-full gap-4">
                 <div className="transition-all duration-300 flex-1 ">
                     <div className="space-y-6">
-                        {studentsList?.map((student, index) => (
-                            <div
-                                key={student.studentFirstName || index}
-                                className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
-                            >
-                                {/* Top Header Row */}
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Student information</h2>
-
-                                </div>
-
-                                {/* Row 1 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">First name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter first name"
-                                            value={student.studentFirstName}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Last name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter last name"
-                                            value={student.studentLastName}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Row 2 */}
-                                <div className="flex gap-4">
-
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Date of Birth</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.dateOfBirth}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Age</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={student.age}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Gender</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.gender}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Medical information</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={student.medicalInformation}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Row 3 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Class</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.class}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Time </label>
-                                        <select
-                                            name="abilityLevel"
-                                            id="abilityLevel"
-                                            className="w-full mt-2 text-gray-500 border  border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            defaultValue=""
-                                        >
-                                            <option className="" value="" disabled>
-                                                Select Ability level
-                                            </option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                        </select>
-
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="space-y-6">
-                        {parentsList?.map((parent, index) => (
-                            <div
-                                key={parent.parentEmail || index}
-                                className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
-                            >
-                                {/* Top Header Row */}
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Parent information</h2>
-
-                                </div>
-
-                                {/* Row 1 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">First name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter first name"
-                                            value={parent.parentFirstName}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Last name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter last name"
-                                            value={parent.parentLastName}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Row 2 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Email</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={parent.parentEmail}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Phone number</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.parentPhoneNumber}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Row 3 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Relation to Child</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={parent.relationToChild}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">How did you hear about us?</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.howDidYouHear}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="space-y-6">
-                        {emergencyList?.map((parent, index) => (
-                            <div
-                                key={parent.parentEmail || index}
-                                className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
-                            >
-                                {/* Top Header Row */}
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Emergency information</h2>
-
-                                </div>
-
-                                {/* Row 1 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">First name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter first name"
-                                            value={parent.emergencyFirstName}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Last name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter last name"
-                                            value={parent.emergencyLastName}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Row 2 */}
-                                <div className="flex gap-4">
-
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Phone number</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.emergencyPhoneNumber}
-                                            readOnly
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Relation to Child</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={parent.emergencyRelation}
-                                            readOnly
-                                        />
-                                    </div>
-                                </div>
-
-                            </div>
-                        ))}
-                    </div>
+                                          {parents.map((parent, index) => (
+                                              <div
+                                                  key={index}
+                                                  className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
+                                              >
+                                                  {/* Header + Pencil/Save */}
+                                                  <div className="flex justify-between items-start">
+                                                      <h2 className="text-[20px] font-semibold">Parent information</h2>
+                                                      <button
+                                                          onClick={() => toggleEditParent(index)}
+                                                          className="text-gray-600 hover:text-blue-600"
+                                                      >
+                                                          {editingIndex === index ? <FaSave /> : <FaEdit />}
+                                                      </button>
+                                                  </div>
+                  
+                                                  {/* First/Last Name */}
+                                                  <div className="flex gap-4">
+                                                      <div className="w-1/2">
+                                                          <label className="block text-[16px] font-semibold">First name</label>
+                                                          <input
+                                                              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                              value={parent.parentFirstName}
+                                                              readOnly={editingIndex !== index}
+                                                              onChange={(e) =>
+                                                                  handleDataChange(index, "parentFirstName", e.target.value)
+                                                              }
+                                                          />
+                                                      </div>
+                                                      <div className="w-1/2">
+                                                          <label className="block text-[16px] font-semibold">Last name</label>
+                                                          <input
+                                                              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                              value={parent.parentLastName}
+                                                              readOnly={editingIndex !== index}
+                                                              onChange={(e) =>
+                                                                  handleDataChange(index, "parentLastName", e.target.value)
+                                                              }
+                                                          />
+                                                      </div>
+                                                  </div>
+                  
+                                                  {/* Email + Phone */}
+                                                  <div className="flex gap-4">
+                                                      <div className="w-1/2">
+                                                          <label className="block text-[16px] font-semibold">Email</label>
+                                                          <input
+                                                              type="email"
+                                                              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                              value={parent.parentEmail}
+                                                              readOnly={editingIndex !== index}
+                                                              onChange={(e) =>
+                                                                  handleDataChange(index, "parentEmail", e.target.value)
+                                                              }
+                                                          />
+                                                      </div>
+                                                      <div className="w-1/2">
+                                                          <label className="block text-[16px] font-semibold">Phone number</label>
+                                                          <input
+                                                              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                              value={parent.parentPhoneNumber}
+                                                              readOnly={editingIndex !== index}
+                                                              onChange={(e) =>
+                                                                  handleDataChange(index, "parentPhoneNumber", e.target.value)
+                                                              }
+                                                          />
+                                                      </div>
+                                                  </div>
+                  
+                                                  {/* Relation + How Did You Hear */}
+                                                  <div className="flex gap-4">
+                                                      <div className="w-1/2">
+                                                          <label className="block text-[16px] font-semibold">Relation to child</label>
+                                                          <input
+                                                              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                              value={parent.relationToChild}
+                                                              readOnly={editingIndex !== index}
+                                                              onChange={(e) =>
+                                                                  handleDataChange(index, "relationToChild", e.target.value)
+                                                              }
+                                                          />
+                                                      </div>
+                                                      <div className="w-1/2">
+                                                          <label className="block text-[16px] font-semibold">
+                                                              How did you hear about us?
+                                                          </label>
+                                                          <input
+                                                              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                              value={parent.howDidYouHear}
+                                                              readOnly={editingIndex !== index}
+                                                              onChange={(e) =>
+                                                                  handleDataChange(index, "howDidYouHear", e.target.value)
+                                                              }
+                                                          />
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          ))}
+                                      </div>
+                                      {emergencyContacts.map((emergency, index) => (
+                                          <div key={index} className="bg-white p-6 rounded-3xl shadow-sm space-y-6">
+                                              <div className="flex justify-between items-start">
+                                                  <h2 className="text-[20px] font-semibold">Emergency contact details</h2>
+                                                  <button
+                                                      onClick={() => toggleEditEmergency(index)}
+                                                      className="text-gray-600 hover:text-blue-600"
+                                                  >
+                                                      {editingEmergency === index ? <FaSave /> : <FaEdit />}
+                                                  </button>
+                                              </div>
+                  
+                                              <div className="flex items-center gap-2">
+                                                  <input type="checkbox" checked={emergency.sameAsAbove} readOnly disabled />
+                                                  <label className="text-base font-semibold text-gray-700">
+                                                      Fill same as above
+                                                  </label>
+                                              </div>
+                  
+                                              {/* First / Last Name */}
+                                              <div className="flex gap-4">
+                                                  <div className="w-1/2">
+                                                      <label className="block text-[16px] font-semibold">First name</label>
+                                                      <input
+                                                          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                          value={emergency.emergencyFirstName}
+                                                          readOnly={editingEmergency !== index}
+                                                          onChange={(e) =>
+                                                              handleEmergencyChange(index, "emergencyFirstName", e.target.value)
+                                                          }
+                                                      />
+                                                  </div>
+                                                  <div className="w-1/2">
+                                                      <label className="block text-[16px] font-semibold">Last name</label>
+                                                      <input
+                                                          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                          value={emergency.emergencyLastName}
+                                                          readOnly={editingEmergency !== index}
+                                                          onChange={(e) =>
+                                                              handleEmergencyChange(index, "emergencyLastName", e.target.value)
+                                                          }
+                                                      />
+                                                  </div>
+                                              </div>
+                  
+                                              {/* Phone / Relation */}
+                                              <div className="flex gap-4">
+                                                  <div className="w-1/2">
+                                                      <label className="block text-[16px] font-semibold">Phone number</label>
+                                                      <input
+                                                          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                          value={emergency.emergencyPhoneNumber}
+                                                          readOnly={editingEmergency !== index}
+                                                          onChange={(e) =>
+                                                              handleEmergencyChange(index, "emergencyPhoneNumber", e.target.value)
+                                                          }
+                                                      />
+                                                  </div>
+                                                  <div className="w-1/2">
+                                                      <label className="block text-[16px] font-semibold">Relation to child</label>
+                                                      <input
+                                                          className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                          value={emergency.emergencyRelation}
+                                                          readOnly={editingEmergency !== index}
+                                                          onChange={(e) =>
+                                                              handleEmergencyChange(index, "emergencyRelation", e.target.value)
+                                                          }
+                                                      />
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      ))}
                     <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
 
@@ -581,7 +582,6 @@ const ParentProfile = ({ profile }) => {
                             </div>
                         </div>
 
-                        {parentsList?.map((parent, index) => (
                             <div className="bg-[#363E49] text-white px-6 py-6 space-y-6">
                                 {/* Avatar & Account Holder */}
                                 <div className="flex items-center gap-4">
@@ -673,7 +673,7 @@ const ParentProfile = ({ profile }) => {
 
                                 </div>
                             </div>
-                        ))}
+                        
 
 
                     </div>

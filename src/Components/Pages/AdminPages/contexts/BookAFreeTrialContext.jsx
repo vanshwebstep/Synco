@@ -384,6 +384,55 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  const updateBookFreeTrialsFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
+    setLoading(true);
+console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    if (token) {
+      myHeaders.append("Authorization", `Bearer ${token}`);
+    }
+
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+body: JSON.stringify({ students: updatedBookFreeTrialData })
+,     redirect: "follow",
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/service-history/update-booking/information/${bookFreeTrialId}`, requestOptions);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update bookFreeTrial");
+      }
+
+      const result = await response.json();
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "BookFreeTrial has been updated successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Error updating bookFreeTrial:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while updating bookFreeTrial.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+        navigate(`/configuration/weekly-classes/trial/list`)
+      setLoading(false);
+    }
+  };
+  
   const deleteBookFreeTrial = useCallback(async (id) => {
     if (!token) return;
 
@@ -857,7 +906,54 @@ export const BookFreeTrialProvider = ({ children }) => {
     },
     [API_BASE_URL]
   );
+  const updateBookMembershipFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
+    setLoading(true);
+console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    if (token) {
+      myHeaders.append("Authorization", `Bearer ${token}`);
+    }
 
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+body: JSON.stringify({ students: updatedBookFreeTrialData })
+,     redirect: "follow",
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/${bookFreeTrialId}`, requestOptions);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update bookFreeTrial");
+      }
+
+      const result = await response.json();
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "BookFreeTrial has been updated successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Error updating bookFreeTrial:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while updating bookFreeTrial.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+       navigate(`/configuration/weekly-classes/all-members/list`)
+      setLoading(false);
+    }
+  };
 
   const serviceHistoryMembership = useCallback(async (ID) => {
     const token = localStorage.getItem("adminToken");
@@ -2297,7 +2393,54 @@ const shouldShowLoader =
       setLoading(false);
     }
   };
+  const updateWaitingListFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
+    setLoading(true);
+console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    if (token) {
+      myHeaders.append("Authorization", `Bearer ${token}`);
+    }
 
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+body: JSON.stringify({ students: updatedBookFreeTrialData })
+,     redirect: "follow",
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/waiting-list/service-history/update/${bookFreeTrialId}`, requestOptions);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update bookFreeTrial");
+      }
+
+      const result = await response.json();
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "BookFreeTrial has been updated successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Error updating bookFreeTrial:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while updating bookFreeTrial.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+       navigate(`/configuration/weekly-classes/find-a-class/add-to-waiting-list/list`)
+      setLoading(false);
+    }
+  };
 
   const ServiceHistoryRequestto = useCallback(async (ID) => {
     const token = localStorage.getItem("adminToken");
@@ -2329,6 +2472,7 @@ const shouldShowLoader =
         createBookFreeTrials,
         updateBookFreeTrials,
         deleteBookFreeTrial,
+        updateBookFreeTrialsFamily,
         fetchBookFreeTrials,
         fetchBookFreeTrialsID,
         fetchBookFreeTrialsByID,
@@ -2354,6 +2498,7 @@ const shouldShowLoader =
 
         // Waiting List
         addtoWaitingListSubmit,
+        updateWaitingListFamily,
         fetchAddtoWaitingList,
         cancelWaitingListSpot,
         sendWaitingListMail,
@@ -2411,7 +2556,7 @@ const shouldShowLoader =
         sendFullTomail,
         sendAllmail,
         ServiceHistoryRequestto,
-
+updateBookMembershipFamily,
 
 
 

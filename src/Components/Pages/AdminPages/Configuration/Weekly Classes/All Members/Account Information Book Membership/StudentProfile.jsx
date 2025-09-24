@@ -12,6 +12,7 @@ import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
 import Loader from '../../../../contexts/Loader';
 import { usePermission } from '../../../../Common/permission';
 import { addDays } from "date-fns";
+import { FaEdit, FaSave } from "react-icons/fa";
 
 const StudentProfile = ({ profile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -19,14 +20,17 @@ const StudentProfile = ({ profile }) => {
         loading,
         addtoWaitingListSubmit, cancelMembershipSubmit,
         sendBookMembershipMail, transferMembershipSubmit,
-        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot
+        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot,updateBookMembershipFamily
     } = useBookFreeTrial() || {};
     const classSchedule = profile?.classSchedule;
     const bookingId = profile?.bookingId;
     const id = profile?.id;
     const paymentPlans = profile?.paymentPlans;
-    const parentsList = profile?.parents || [];
-    const studentsList = profile?.students || [];
+       const parents = profile?.parents;
+    const emergency = profile?.emergency;
+
+        const [students, setStudents] = useState(profile?.students || []);
+     const [editingIndex, setEditingIndex] = useState(null);
     const bookedBy = profile?.bookedByAdmin;
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
@@ -66,8 +70,6 @@ const StudentProfile = ({ profile }) => {
 
     console.log('loading', loading)
 
-    const studentCount = studentsList.length;
-    const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const { checkPermission } = usePermission();
     const failedPayments = profile.payments?.filter(
         (payment) => payment.paymentStatus !== "success"
@@ -196,7 +198,44 @@ const StudentProfile = ({ profile }) => {
 
         return `${month} ${day} ${year}, ${hours}:${minutes}`;
     }
+    const handleStudentDataChange = (index, field, value) => {
+        const updatedStudents = [...students];
+        updatedStudents[index] = {
+            ...updatedStudents[index],
+            [field]: value,
+        };
+        setStudents(updatedStudents);
+    };
+    const toggleEditStudent = (index) => {
+        if (editingIndex === index) {
+            // ✅ Save Mode
+            setEditingIndex(null);
 
+            const payload = students.map((student, sIndex) => ({
+                id: student.id ?? sIndex + 1,
+                studentFirstName: student.studentFirstName,
+                studentLastName: student.studentLastName,
+                dateOfBirth: student.dateOfBirth,
+                age: student.age,
+                gender: student.gender,
+                medicalInformation: student.medicalInformation,
+                parents: parents.map((p, pIndex) => ({
+                    id: p.id ?? pIndex + 1,
+                    ...p,
+                })),
+                emergencyContacts: emergency.map((e, eIndex) => ({
+                    id: e.id ?? eIndex + 1,
+                    ...e,
+                })),
+            }));
+
+            updateBookMembershipFamily(profile.bookingId, payload);
+            console.log("Parent Payload to send:", payload);
+        } else {
+            // ✏️ Edit Mode
+            setEditingIndex(index);
+        }
+    };
 
     const getStatusBgColor = (status) => {
         switch (status) {
@@ -240,15 +279,20 @@ const StudentProfile = ({ profile }) => {
             <div className="md:flex w-full gap-4">
                 <div className="transition-all duration-300 flex-1 ">
                     <div className="space-y-6">
-                        {studentsList?.map((student, index) => (
+                        {students?.map((student, index) => (
                             <div
                                 key={student.studentFirstName || index}
                                 className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
                             >
                                 {/* Top Header Row */}
                                 <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Student information</h2>
-
+                                    <h2 className="text-[20px] font-semibold">Student Information</h2>
+                                    <button
+                                        onClick={() => toggleEditStudent(index)}
+                                        className="text-gray-600 hover:text-blue-600"
+                                    >
+                                        {editingIndex === index ? <FaSave /> : <FaEdit />}
+                                    </button>
                                 </div>
 
                                 {/* Row 1 */}
@@ -258,8 +302,11 @@ const StudentProfile = ({ profile }) => {
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter first name"
-                                            value={student.studentFirstName}
-                                            readOnly
+                                            value={student.studentFirstName || ""}
+                                            readOnly={editingIndex !== index}
+                                            onChange={(e) =>
+                                                handleStudentDataChange(index, "studentFirstName", e.target.value)
+                                            }
                                         />
                                     </div>
                                     <div className="w-1/2">
@@ -267,8 +314,11 @@ const StudentProfile = ({ profile }) => {
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter last name"
-                                            value={student.studentLastName}
-                                            readOnly
+                                            value={student.studentLastName || ""}
+                                            readOnly={editingIndex !== index}
+                                            onChange={(e) =>
+                                                handleStudentDataChange(index, "studentLastName", e.target.value)
+                                            }
                                         />
                                     </div>
                                 </div>
@@ -281,16 +331,22 @@ const StudentProfile = ({ profile }) => {
                                             type="email"
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             placeholder="Enter email address"
-                                            value={student.age}
-                                            readOnly
+                                            value={student.age || ""}
+                                            readOnly={editingIndex !== index}
+                                            onChange={(e) =>
+                                                handleStudentDataChange(index, "age", e.target.value)
+                                            }
                                         />
                                     </div>
                                     <div className="w-1/2">
                                         <label className="block text-[16px] font-semibold">Date of Birth</label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.dateOfBirth}
-                                            readOnly
+                                            value={student.dateOfBirth || ""}
+                                            readOnly={editingIndex !== index}
+                                            onChange={(e) =>
+                                                handleStudentDataChange(index, "dateOfBirth", e.target.value)
+                                            }
                                         />
                                     </div>
                                 </div>
@@ -301,8 +357,11 @@ const StudentProfile = ({ profile }) => {
                                         <label className="block text-[16px] font-semibold">Medical information</label>
                                         <input
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.medicalInformation}
-                                            readOnly
+                                            value={student.medicalInformation || ""}
+                                            readOnly={editingIndex !== index}
+                                            onChange={(e) =>
+                                                handleStudentDataChange(index, "medicalInformation", e.target.value)
+                                            }
                                         />
                                     </div>
                                     <div className="w-1/2">
@@ -326,7 +385,7 @@ const StudentProfile = ({ profile }) => {
                             </div>
                         ))}
                     </div>
-             
+
 
                     <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
@@ -419,99 +478,98 @@ const StudentProfile = ({ profile }) => {
                             </div>
                         </div>
 
-                        {parentsList?.map((parent, index) => (
-                            <div className="bg-[#363E49] text-white px-6 py-6 space-y-6">
-                                {/* Avatar & Account Holder */}
-                                <div className="flex items-center gap-4">
-                                    <img
-                                        src={
-                                            bookedBy.profile
-                                                ? `${API_BASE_URL}/${bookedBy.profile}`
-                                                : "https://cdn-icons-png.flaticon.com/512/147/147144.png"
-                                        }
-                                        alt="avatar"
-                                        className="w-18 h-18 rounded-full"
-                                        onError={(e) => {
-                                            e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/147/147144.png"; // fallback if image fails to load
-                                        }}
-                                    />
+                        <div className="bg-[#363E49] text-white px-6 py-6 space-y-6">
+                            {/* Avatar & Account Holder */}
+                            <div className="flex items-center gap-4">
+                                <img
+                                    src={
+                                        bookedBy.profile
+                                            ? `${API_BASE_URL}/${bookedBy.profile}`
+                                            : "https://cdn-icons-png.flaticon.com/512/147/147144.png"
+                                    }
+                                    alt="avatar"
+                                    className="w-18 h-18 rounded-full"
+                                    onError={(e) => {
+                                        e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/147/147144.png"; // fallback if image fails to load
+                                    }}
+                                />
 
-                                    <div>
-                                        <div className="text-[24px] font-semibold leading-tight">
-                                            Booked By
-                                        </div>
-                                        <div className="text-[16px] text-gray-300">
-                                            {bookedBy?.firstName} {bookedBy?.lastName}
-
-                                        </div>
+                                <div>
+                                    <div className="text-[24px] font-semibold leading-tight">
+                                        Booked By
                                     </div>
-                                </div>
-
-                                {/* Details */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <div className="text-[20px] font-bold tracking-wide">Venue</div>
-                                        <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
-                                            {venueName || "-"}
-                                        </div>
-                                    </div>
-
-                                    <div className="border-t border-[#495362] pt-5">
-
-                                        <div className="text-[20px] text-white">Membership Plan</div>
-
-                                        <div className="text-[1s6px] mt-1 text-gray-400">
-                                            {MembershipPlan} Plan
-                                        </div>
+                                    <div className="text-[16px] text-gray-300">
+                                        {bookedBy?.firstName} {bookedBy?.lastName}
 
                                     </div>
-                                    <div className="border-t border-[#495362] pt-5">
-
-                                        <div className="text-[20px] text-white">Membership Start Date</div>
-
-                                        <div className="text-[1s6px] mt-1 text-gray-400">
-                                            {formatISODate(dateBooked)}
-                                        </div>
-
-                                    </div>
-
-                                    <div className="border-t border-[#495362] pt-5">
-
-                                        <div className="text-[20px] text-white">Membership Tenure</div>
-                                        <div className="text-[1s6px] mt-1 text-gray-400">
-                                            {MembershipTenure}
-                                        </div>
-
-                                    </div>
-                                    <div className="border-t border-[#495362] pt-5">
-
-                                        <div className="text-[20px] text-white">ID</div>
-                                        <div className="text-[1s6px] mt-1 text-gray-400">
-                                            {ID}
-                                        </div>
-
-                                    </div>
-                                    <div className="border-t border-[#495362] py-5">
-                                        <div className="text-[20px] text-white mb-3">Progress</div>
-                                        <div className="flex items-center justify-between">
-                                            <div className="w-[90%] bg-[#fff] h-3 rounded-full overflow-hidden">
-                                                <div
-                                                    className="bg-green-500 h-4 rounded-full"
-                                                    style={{ width: "78%" }}
-                                                ></div>
-                                            </div>
-                                            <div className="text-white text-right mt-1 text-[14px]">78%</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="border-t border-[#495362] py-5">
-                                        <div className=" text-[20px] text-white">Price</div>
-                                        <div className="text-[16px]  mt-1 text-gray-400"> £{MembershipPrice} </div>
-                                    </div>
-
                                 </div>
                             </div>
-                        ))}
+
+                            {/* Details */}
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="text-[20px] font-bold tracking-wide">Venue</div>
+                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
+                                        {venueName || "-"}
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-[#495362] pt-5">
+
+                                    <div className="text-[20px] text-white">Membership Plan</div>
+
+                                    <div className="text-[1s6px] mt-1 text-gray-400">
+                                        {MembershipPlan} Plan
+                                    </div>
+
+                                </div>
+                                <div className="border-t border-[#495362] pt-5">
+
+                                    <div className="text-[20px] text-white">Membership Start Date</div>
+
+                                    <div className="text-[1s6px] mt-1 text-gray-400">
+                                        {formatISODate(dateBooked)}
+                                    </div>
+
+                                </div>
+
+                                <div className="border-t border-[#495362] pt-5">
+
+                                    <div className="text-[20px] text-white">Membership Tenure</div>
+                                    <div className="text-[1s6px] mt-1 text-gray-400">
+                                        {MembershipTenure}
+                                    </div>
+
+                                </div>
+                                <div className="border-t border-[#495362] pt-5">
+
+                                    <div className="text-[20px] text-white">ID</div>
+                                    <div className="text-[1s6px] mt-1 text-gray-400">
+                                        {ID}
+                                    </div>
+
+                                </div>
+                                <div className="border-t border-[#495362] py-5">
+                                    <div className="text-[20px] text-white mb-3">Progress</div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="w-[90%] bg-[#fff] h-3 rounded-full overflow-hidden">
+                                            <div
+                                                className="bg-green-500 h-4 rounded-full"
+                                                style={{ width: "78%" }}
+                                            ></div>
+                                        </div>
+                                        <div className="text-white text-right mt-1 text-[14px]">78%</div>
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-[#495362] py-5">
+                                    <div className=" text-[20px] text-white">Price</div>
+                                    <div className="text-[16px]  mt-1 text-gray-400"> £{MembershipPrice} </div>
+                                </div>
+
+                            </div>
+                        </div>
+
 
 
                     </div>

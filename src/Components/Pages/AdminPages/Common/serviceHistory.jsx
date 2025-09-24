@@ -69,7 +69,7 @@ const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
 
               <div className="flex relative items-center gap-4">
                 {/* Student Count */}
-                {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                {/* {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
                   <div className="flex gap-2 items-center text-black p-2 rounded-xl flex-wrap bg-white">
                     <img
                       src="/demo/synco/images/accountInfoCount.png"
@@ -81,7 +81,7 @@ const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
                 {/* Status */}
                 {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
                   <div

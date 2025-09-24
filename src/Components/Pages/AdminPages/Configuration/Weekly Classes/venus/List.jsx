@@ -241,24 +241,26 @@ console.log('congestionNote',congestionNote)
       }
     }
   };
-    useEffect(() => {
-    function handleClickOutside(e) {
-      if (formRef.current && !formRef.current.contains(e.target)) {
-        setOpenForm(false);
-        setIsEditVenue(false);
-      }
-    }
+//     useEffect(() => {
+//  function handleClickOutside(e) {
+//   if (e.target.id === "form-backdrop") {
+//     setOpenForm(false);
+//     setIsEditVenue(false);
+//   }
+// }
 
-    if (openForm) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [openForm]);
+//     if (openForm) {
+//       document.addEventListener("mousedown", handleClickOutside);
+//     } else {
+//       document.removeEventListener("mousedown", handleClickOutside);
+//     }
+
+//     return () => {
+//       document.removeEventListener("mousedown", handleClickOutside);
+//     };
+//   }, [openForm]);
+
   const modalRef = useRef(null);
   const PRef = useRef(null);
   useEffect(() => {
@@ -437,7 +439,7 @@ console.log('congestionNote',congestionNote)
 
     // ref={formRef}
   return (
-    <div ref={formRef}  className=" pt-1 bg-gray-50 min-h-screen">
+    <div   id="form-backdrop" ref={formRef}  className=" pt-1 bg-gray-50 min-h-screen">
       <div className={`flex flex-wrap pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
         <h2 className="text-[28px] font-semibold">Venues</h2>
         {canCreate &&
