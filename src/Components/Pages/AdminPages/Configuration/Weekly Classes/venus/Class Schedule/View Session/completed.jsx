@@ -6,6 +6,10 @@ const ViewSessions = ({ item, sessionData }) => {
     const tabs = ['Members', 'Trials', 'Coaches'];
     const [activeTab, setActiveTab] = useState('Members');
     const [page, setPage] = useState(1);
+  const location = useLocation();
+
+    const venueId = location.state?.venueId;
+
     const [attendance, setAttendance] = useState([
         true,  // Session 1: Attended
         false, // Session 2: Not Attended
@@ -66,9 +70,9 @@ const ViewSessions = ({ item, sessionData }) => {
             {/* Header */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
                 <h2
-                    onClick={() => {
-                        navigate('/configuration/weekly-classes/venues/class-schedule');
-                    }}
+                           onClick={() => {
+    navigate(`/configuration/weekly-classes/venues/class-schedule?id=${venueId}`);
+}}
                     className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
                     <img
                         src="/demo/synco/icons/arrow-left.png"

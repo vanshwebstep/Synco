@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState,useRef , useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 import { formatDistanceToNow } from 'date-fns';
@@ -13,7 +13,9 @@ const levelKeyToLabel = {
 
 const Preview = ({ item, sessionData }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
+const [recording, setRecording] = useState(null);
+const [currentRecording, setCurrentRecording] = useState(null); // url of playing recording
+const audioRef = useRef(null);
   const [activeTab, setActiveTab] = useState('Beginners');
   const [myData, setMyData] = useState({});
   const [page, setPage] = useState(1);
@@ -83,6 +85,35 @@ const Preview = ({ item, sessionData }) => {
       setSelectedExercise(currentContent.sessionExercises[0]);
     }
   }, [currentContent]);
+  useEffect(() => {
+  if (selectedGroup && activeTab) {
+    const tabKey = activeTab.toLowerCase().replace(/s$/, ""); 
+    const fieldName = `${tabKey}_recording`;
+
+    // check if that recording field exists in selectedGroup
+    if (selectedGroup[fieldName]) {
+      setRecording(selectedGroup[fieldName]);
+    } else {
+      setRecording(null); // no match found
+    }
+  }
+}, [selectedGroup, activeTab]);
+console.log('setRecording',recording)
+const handlePlayRecording = (url) => {
+  if (!audioRef.current) return;
+
+  if (currentRecording === url) {
+    // 🔴 If the same recording is playing → stop it
+    audioRef.current.pause();
+    setCurrentRecording(null);
+  } else {
+    // 🟢 Play new recording
+    audioRef.current.src = url;
+    audioRef.current.play();
+    setCurrentRecording(url);
+  }
+};
+
   if (loading) {
     return (
       <>
@@ -151,7 +182,15 @@ const Preview = ({ item, sessionData }) => {
                 </h2>
                 <p className="text-[20px] flex items-center gap-2 font-semibold">
                   {/* {currentContent?.player} */}
-                  {currentContent.heading} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
+                  {currentContent.heading} <img
+  src="/demo/synco/icons/Volumeblue.png"
+  alt="Play Recording"
+  className={`w-6 h-6 cursor-pointer ${
+    currentRecording === recording  ? "opacity-100" : "opacity-40"
+  }`}
+  onClick={() => handlePlayRecording(recording )}
+/>
+<audio ref={audioRef} onEnded={() => setCurrentRecording(null)} />
                 </p>
                 <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
                   {currentContent.description}

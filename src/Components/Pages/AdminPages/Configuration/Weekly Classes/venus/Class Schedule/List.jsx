@@ -560,7 +560,19 @@ const List = () => {
     )}
 
     <button
-      onClick={() => navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/completed')}
+    onClick={() =>
+          navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/completed', {
+            state: {
+              singleClassSchedules,
+              sessionMap: session.sessionPlan,
+              sessionId: session.sessionPlanId,
+              venueId,
+              sessionDate: session.sessionDate,
+              classname: item,
+              statusIs: session?.classScheduleTermMaps?.status,
+            },
+          })
+        }
       className="hover:bg-blue-500 font-semibold bg-white text-blue-500 border-2 hover:border-transparent border-blue-500 text-[15px] hover:text-white px-3 py-2 rounded-xl transition"
     >
       View Class Register

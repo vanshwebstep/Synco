@@ -198,44 +198,56 @@ const StudentProfile = ({ profile }) => {
 
         return `${month} ${day} ${year}, ${hours}:${minutes}`;
     }
-    const handleStudentDataChange = (index, field, value) => {
-        const updatedStudents = [...students];
-        updatedStudents[index] = {
-            ...updatedStudents[index],
-            [field]: value,
-        };
-        setStudents(updatedStudents);
-    };
-    const toggleEditStudent = (index) => {
-        if (editingIndex === index) {
-            // ✅ Save Mode
-            setEditingIndex(null);
+  const handleStudentDataChange = (index, field, value) => {
+  const updatedStudents = [...students];
+  
+  // Convert age to number
+  if (field === "age") {
+    value = value ? parseInt(value) : "";
+  }
 
-            const payload = students.map((student, sIndex) => ({
-                id: student.id ?? sIndex + 1,
-                studentFirstName: student.studentFirstName,
-                studentLastName: student.studentLastName,
-                dateOfBirth: student.dateOfBirth,
-                age: student.age,
-                gender: student.gender,
-                medicalInformation: student.medicalInformation,
-                parents: parents.map((p, pIndex) => ({
-                    id: p.id ?? pIndex + 1,
-                    ...p,
-                })),
-                emergencyContacts: emergency.map((e, eIndex) => ({
-                    id: e.id ?? eIndex + 1,
-                    ...e,
-                })),
-            }));
+  updatedStudents[index] = {
+    ...updatedStudents[index],
+    [field]: value,
+  };
+  setStudents(updatedStudents);
+};
 
-            updateBookMembershipFamily(profile.bookingId, payload);
-            console.log("Parent Payload to send:", payload);
-        } else {
-            // ✏️ Edit Mode
-            setEditingIndex(index);
-        }
-    };
+const saveStudentData = () => {
+  const payload = students.map((student, sIndex) => ({
+    id: student.id ?? sIndex + 1,
+    studentFirstName: student.studentFirstName,
+    studentLastName: student.studentLastName,
+    dateOfBirth: student.dateOfBirth,
+    age: student.age,
+    gender: student.gender,
+    medicalInformation: student.medicalInformation,
+    abilityLevel: student.abilityLevel,
+    parents: parents.map((p, pIndex) => ({
+      id: p.id ?? pIndex + 1,
+      ...p,
+    })),
+    emergencyContacts: emergency.map((e, eIndex) => ({
+      id: e.id ?? eIndex + 1,
+      ...e,
+    })),
+  }));
+
+  updateBookMembershipFamily(profile.bookingId, payload);
+  console.log("📤 Payload sent:", payload);
+};
+
+const toggleEditStudent = (index) => {
+  if (editingIndex === index) {
+    saveStudentData();
+    setEditingIndex(null);
+  } else {
+    setEditingIndex(index);
+  }
+};
+
+
+
 
     const getStatusBgColor = (status) => {
         switch (status) {
@@ -279,111 +291,116 @@ const StudentProfile = ({ profile }) => {
             <div className="md:flex w-full gap-4">
                 <div className="transition-all duration-300 flex-1 ">
                     <div className="space-y-6">
-                        {students?.map((student, index) => (
-                            <div
-                                key={student.studentFirstName || index}
-                                className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
-                            >
-                                {/* Top Header Row */}
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Student Information</h2>
-                                    <button
-                                        onClick={() => toggleEditStudent(index)}
-                                        className="text-gray-600 hover:text-blue-600"
-                                    >
-                                        {editingIndex === index ? <FaSave /> : <FaEdit />}
-                                    </button>
-                                </div>
+  {students?.map((student, index) => (
+      <div
+        key={student.id || index}
+        className="bg-white p-6 mb-10 rounded-3xl shadow-sm space-y-6 relative"
+      >
+        {/* Top Header */}
+        <div className="flex justify-between items-start">
+          <h2 className="text-[20px] font-semibold">Student Information</h2>
+          <button
+            onClick={() => toggleEditStudent(index)}
+            className="text-gray-600 hover:text-blue-600"
+          >
+            {editingIndex === index ? <FaSave /> : <FaEdit />}
+          </button>
+        </div>
 
-                                {/* Row 1 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">First name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter first name"
-                                            value={student.studentFirstName || ""}
-                                            readOnly={editingIndex !== index}
-                                            onChange={(e) =>
-                                                handleStudentDataChange(index, "studentFirstName", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Last name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter last name"
-                                            value={student.studentLastName || ""}
-                                            readOnly={editingIndex !== index}
-                                            onChange={(e) =>
-                                                handleStudentDataChange(index, "studentLastName", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                </div>
+        {/* Row 1 */}
+        <div className="flex gap-4">
+          <div className="w-1/2">
+            <label className="block text-[16px] font-semibold">First name</label>
+            <input
+              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+              placeholder="Enter first name"
+              value={student.studentFirstName || ""}
+              readOnly={editingIndex !== index}
+              onChange={(e) =>
+                handleStudentDataChange(index, "studentFirstName", e.target.value)
+              }
+            />
+          </div>
+          <div className="w-1/2">
+            <label className="block text-[16px] font-semibold">Last name</label>
+            <input
+              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+              placeholder="Enter last name"
+              value={student.studentLastName || ""}
+              readOnly={editingIndex !== index}
+              onChange={(e) =>
+                handleStudentDataChange(index, "studentLastName", e.target.value)
+              }
+            />
+          </div>
+        </div>
 
-                                {/* Row 2 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Age</label>
-                                        <input
-                                            type="email"
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            placeholder="Enter email address"
-                                            value={student.age || ""}
-                                            readOnly={editingIndex !== index}
-                                            onChange={(e) =>
-                                                handleStudentDataChange(index, "age", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Date of Birth</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.dateOfBirth || ""}
-                                            readOnly={editingIndex !== index}
-                                            onChange={(e) =>
-                                                handleStudentDataChange(index, "dateOfBirth", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                </div>
+        {/* Row 2 */}
+        <div className="flex gap-4">
+          <div className="w-1/2">
+            <label className="block text-[16px] font-semibold">Age</label>
+            <input
+              type="number"
+              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+              placeholder="Enter age"
+              value={student.age || ""}
+              readOnly={editingIndex !== index}
+              onChange={(e) =>
+                handleStudentDataChange(index, "age", e.target.value)
+              }
+            />
+          </div>
+          <div className="w-1/2">
+            <label className="block text-[16px] font-semibold">Date of Birth</label>
+            <input
+              type="date"
+              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+              value={student.dateOfBirth || ""}
+              readOnly={editingIndex !== index}
+              onChange={(e) =>
+                handleStudentDataChange(index, "dateOfBirth", e.target.value)
+              }
+            />
+          </div>
+        </div>
 
-                                {/* Row 3 */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Medical information</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.medicalInformation || ""}
-                                            readOnly={editingIndex !== index}
-                                            onChange={(e) =>
-                                                handleStudentDataChange(index, "medicalInformation", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Ability level</label>
-                                        <select
-                                            name="abilityLevel"
-                                            id="abilityLevel"
-                                            className="w-full mt-2 text-gray-500 border  border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            defaultValue=""
-                                        >
-                                            <option className="" value="" disabled>
-                                                Select Ability level
-                                            </option>
-                                            <option value="beginner">Beginner</option>
-                                            <option value="intermediate">Intermediate</option>
-                                            <option value="advanced">Advanced</option>
-                                        </select>
+        {/* Row 3 */}
+        <div className="flex gap-4">
+          <div className="w-1/2">
+            <label className="block text-[16px] font-semibold">Medical information</label>
+            <input
+              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+              value={student.medicalInformation || ""}
+              readOnly={editingIndex !== index}
+              onChange={(e) =>
+                handleStudentDataChange(index, "medicalInformation", e.target.value)
+              }
+            />
+          </div>
+          <div className="w-1/2">
+            <label className="block text-[16px] font-semibold">Ability level</label>
+            <select
+              name="abilityLevel"
+              id="abilityLevel"
+              className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+              value={student.abilityLevel || ""}
+              disabled={editingIndex !== index}
+              onChange={(e) =>
+                handleStudentDataChange(index, "abilityLevel", e.target.value)
+              }
+            >
+              <option value="" disabled>
+                Select Ability level
+              </option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    ))}
 
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
                     </div>
 
 

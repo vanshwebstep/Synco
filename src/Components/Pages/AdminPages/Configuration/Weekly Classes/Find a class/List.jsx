@@ -479,7 +479,7 @@ const List = () => {
 
   const canAddToWaitingList =
     checkPermission({ module: 'waiting-list', action: 'create' })
-console.log('selectedPlans',selectedPlans)
+  console.log('selectedPlans', selectedPlans)
 
 
   if (loading) {
@@ -623,7 +623,7 @@ console.log('selectedPlans',selectedPlans)
                         key={idx}
                         className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white " // ✅ min height
                       >
-              <div className="bg-[#2E2F3E] text-white p-4 rounded-xl md:grid md:grid-cols-[2fr_1fr] md:items-center text-sm gap-4">
+                        <div className="bg-[#2E2F3E] text-white p-4 rounded-xl md:grid md:grid-cols-[2fr_1fr] md:items-center text-sm gap-4">
                           <div className="flex items-center gap-2">
                             <img src="/demo/synco/icons/Location.png" alt="" />
                             <div className="flex">
@@ -639,7 +639,7 @@ console.log('selectedPlans',selectedPlans)
                           <div ref={iconContainerRef} className=" md:mt-0 mt-5 flex relative items-center gap-4">
                             <img
                               src="/demo/synco/icons/fcDollar.png"
- onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentGroups[0]?.paymentPlans)}                              alt=""
+                              onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentGroups[0]?.paymentPlans)} alt=""
                               className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                             />
 
@@ -675,7 +675,7 @@ console.log('selectedPlans',selectedPlans)
 
                         </div>
 
-                        <div className="flex items-center bg-[#FCF9F6] flex-col lg:flex-row"> {/* ✅ responsive layout */}
+                        <div className="flex items-start  bg-[#FCF9F6] flex-col lg:flex-row"> {/* ✅ responsive layout */}
                           {/* Meta Info */}
                           <div className="flex items-start    max-w-40 text-sm text-[#555] px-4 py-2  border-b lg:border-b-0 my-6 border-gray-300 ">
                             <div>
@@ -702,16 +702,22 @@ console.log('selectedPlans',selectedPlans)
                                     {classList.map((s, i) => (
                                       <div
                                         key={s.classId}
-                                        className="md:grid md:grid-cols-7 mt-10 md:mt-0 items-center text-sm min-h-[60px]"
+                                        className="grid grid-cols-1 md:grid-cols-[0.5fr_1fr_1.5fr_0.5fr_2fr] gap-4 items-center text-sm min-h-[60px] bg-white rounded-xl p-4"
                                       >
+                                        {/* Class Number */}
                                         <div className="font-bold text-[16px] text-black">Class {i + 1}</div>
+
+                                        {/* Class Name */}
                                         <div className="font-semibold text-[16px]">{s.className}</div>
-                                        <div className="font-semibold text-[16px] flex gap-2 items-center col-span-2">
-                                          <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />{s.time}
+
+                                        {/* Time */}
+                                        <div className="font-semibold text-[16px] flex gap-2 items-center">
+                                          <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />
+                                          {s.time}
                                         </div>
 
                                         {/* Capacity */}
-                                        <div className="mt-5 md:mt-0 text-sm">
+                                        <div className="text-sm">
                                           {s.capacity === 0 ? (
                                             <span className="text-red-500 whitespace-nowrap bg-red-50 p-2 rounded-xl text-[14px] font-semibold">
                                               Fully booked
@@ -724,7 +730,7 @@ console.log('selectedPlans',selectedPlans)
                                         </div>
 
                                         {/* Action Buttons */}
-                                        <div className="mt-5 md:mt-0 flex gap-2 col-span-2 flex-wrap md:justify-end">
+                                        <div className="flex gap-2 flex-wrap  md:justify-end">
                                           {s.capacity === 0 && canAddToWaitingList ? (
                                             <button
                                               onClick={() => handleAddToWaitingList(s.classId)}
@@ -753,10 +759,10 @@ console.log('selectedPlans',selectedPlans)
                                             </>
                                           )}
                                         </div>
-
                                       </div>
                                     ))}
                                   </div>
+
                                 </div>
                               ))
                             ) : (
