@@ -480,7 +480,40 @@ const List = () => {
   const canAddToWaitingList =
     checkPermission({ module: 'waiting-list', action: 'create' })
   console.log('selectedPlans', selectedPlans)
-
+  const classes = [
+    {
+      id: 1,
+      name: "Class 1",
+      age: "4–7 years",
+      time: "9:30am – 10:30am",
+      status: "Fully booked",
+      type: "full",
+    },
+    {
+      id: 2,
+      name: "Class 2",
+      age: "8–12 years",
+      time: "10:30am – 11:30am",
+      status: "+4 spaces",
+      type: "available",
+    },
+    {
+      id: 3,
+      name: "Class 3",
+      age: "8–12 years",
+      time: "10:30am – 11:30am",
+      status: "+4 spaces",
+      type: "available",
+    },
+    {
+      id: 4,
+      name: "Class 3",
+      age: "8–12 years",
+      time: "10:30am – 11:30am",
+      status: "+4 spaces",
+      type: "available",
+    },
+  ];
 
   if (loading) {
     return (
@@ -609,7 +642,7 @@ const List = () => {
           </AnimatePresence>
         </div>
         <div
-          className={`transition-all duration-300 flex-1 bg-white`}>
+          className={`transition-all duration-300 flex-1 `}>
           {
             venues.length > 1 ? (
 
@@ -621,9 +654,9 @@ const List = () => {
                     filteredClasses.map((venue, idx) => (
                       <div
                         key={idx}
-                        className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white " // ✅ min height
+                        className="w-full bg-white rounded-xl shadow overflow-hidden rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white " // ✅ min height
                       >
-                        <div className="bg-[#2E2F3E] text-white p-4 rounded-xl md:grid md:grid-cols-[2fr_1fr] md:items-center text-sm gap-4">
+                        <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex justify-between md:items-center text-sm gap-4">
                           <div className="flex items-center gap-2">
                             <img src="/demo/synco/icons/Location.png" alt="" />
                             <div className="flex">
@@ -675,13 +708,20 @@ const List = () => {
 
                         </div>
 
-                        <div className="flex items-start  bg-[#FCF9F6] flex-col lg:flex-row"> {/* ✅ responsive layout */}
+                        <div className="p-5 flex flex-col lg:flex-row gap-8  bg-[#FCF9F6] "> {/* ✅ responsive layout */}
                           {/* Meta Info */}
-                          <div className="flex items-start    max-w-40 text-sm text-[#555] px-4 py-2  border-b lg:border-b-0 my-6 border-gray-300 ">
-                            <div>
-                              <div className="font-semibold text-[20px] text-black max-w-30 truncate ">{venue.venueName}</div>
-                              <div className="whitespace-nowrap font-semibold text-[14px]">
-                                {(venue.distanceMiles / 1609.34).toFixed(2)} miles
+                          <div className="w-full lg:w-3/12 space-y-1 border-r border-[#ccc]">
+                            <div className='flex gap-5 items-center'>
+                              <div>
+                                <div className="font-semibold text-[20px] text-black max-w-30 min-w-30  truncate ">{venue.venueName}</div>
+                                <div className="whitespace-nowrap font-semibold text-[14px]">
+                                  {(venue.distanceMiles / 1609.34).toFixed(2)} miles
+                                </div>
+                              </div>
+
+                              <div className="">
+                                <div className="text-[16px] font-semibold text-[#384455]">{'day'}</div>
+                                <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
                               </div>
                             </div>
                             <div>
@@ -689,29 +729,23 @@ const List = () => {
                             </div>
                           </div>
 
-                          {/* Classes */}
-                          <div className="px-4  w-auto py-2 flex-1 space-y-6">
+                          <div className="w-full lg:w-10/12 space-y-4">
                             {venue.classes && Object.keys(venue.classes).length > 0 ? (
                               Object.entries(venue.classes).map(([day, classList]) => (
-                                <div key={day} className="md:flex gap-6  m-0 items-center ">
-                                  <div className="block border-r pr-3 min-w-25 border-[#b6b2ad] ">
-                                    <div className="text-[16px] font-semibold text-[#384455]">{day}</div>
-                                    <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
-                                  </div>
-                                  <div className="flex flex-col w-full space-y-4">
+                                <div key={day} className="">
                                     {classList.map((s, i) => (
                                       <div
                                         key={s.classId}
-                                        className="grid grid-cols-1 md:grid-cols-[0.5fr_1fr_1.5fr_0.5fr_2fr] gap-4 items-center text-sm min-h-[60px] bg-white rounded-xl p-4"
+                                        className=" w-full flex space-x-2 items-center justify-between space-y-4"
                                       >
-                                        {/* Class Number */}
-                                        <div className="font-bold text-[16px] text-black">Class {i + 1}</div>
+                                       <div className='flex space-x-3 items-center justify-between'>
+                                        <div className="font-bold text-[16px] text-black whitespace-nowrap">Class {i + 1}</div>
 
                                         {/* Class Name */}
-                                        <div className="font-semibold text-[16px]">{s.className}</div>
+                                        <div className="font-semibold text-[16px] min-w-25 max-w-25 ">{s.className}</div>
 
                                         {/* Time */}
-                                        <div className="font-semibold text-[16px] flex gap-2 items-center">
+                                        <div className="font-semibold text-[16px] whitespace-nowrap flex gap-2 items-center min-w-40">
                                           <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />
                                           {s.time}
                                         </div>
@@ -728,7 +762,7 @@ const List = () => {
                                             </span>
                                           )}
                                         </div>
-
+</div>
                                         {/* Action Buttons */}
                                         <div className="flex gap-2 flex-wrap  md:justify-end">
                                           {s.capacity === 0 && canAddToWaitingList ? (
@@ -761,7 +795,7 @@ const List = () => {
                                         </div>
                                       </div>
                                     ))}
-                                  </div>
+                                  
 
                                 </div>
                               ))

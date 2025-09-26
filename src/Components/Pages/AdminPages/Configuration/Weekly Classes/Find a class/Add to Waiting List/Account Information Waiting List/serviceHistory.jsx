@@ -27,11 +27,13 @@ const ServiceHistory = ({ serviceHistory }) => {
     status,
     trialDate,
     dateBooked,
+    createdAt,
     students,
     venue,
+    startDate,
     paymentPlan,
     payments,
-    paymentData,
+    bookedBy,
     bookedByAdmin,
   } = serviceHistory;
   console.log('serviceHistory', serviceHistory)
@@ -93,7 +95,7 @@ const ServiceHistory = ({ serviceHistory }) => {
                   Date Of Trial
                 </div>
                 <div className="font-semibold text-[16px] text-black">
-                  {paymentPlan?.startDate || '-'}
+                  {startDate || '-'}
                 </div>
               </div>
 
@@ -133,7 +135,7 @@ const ServiceHistory = ({ serviceHistory }) => {
                   Date of Booking
                 </div>
                 <div className="text-[16px] font-semibold text-[#384455]">
-                  {formatDate(dateBooked, true)}
+                  {formatDate(createdAt, true)}
                 </div>
               </div>
 
@@ -147,8 +149,8 @@ const ServiceHistory = ({ serviceHistory }) => {
                     Booking Source
                   </div>
                   <div className="text-[16px] font-semibold text-[#384455]">
-                    {(paymentData?.firstName || paymentData?.lastName)
-                      ? `${paymentData?.firstName ?? ''} ${paymentData?.lastName ?? ''}`
+                    {(bookedBy?.firstName || bookedBy?.lastName)
+                      ? `${bookedBy?.firstName ?? ''} ${bookedBy?.lastName ?? ''}`
                       : '-'}
                   </div>
 
