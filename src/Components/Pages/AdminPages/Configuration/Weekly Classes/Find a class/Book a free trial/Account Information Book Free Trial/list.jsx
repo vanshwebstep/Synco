@@ -37,7 +37,7 @@ useEffect(() => {
           fetchData();
       }, [itemId, serviceHistoryFetchById]);
   const [activeTab, setActiveTab] = useState("Service History");
-console.log('serviceHistory',serviceHistory)
+ console.log('serviceHistory',serviceHistory)
 
 
   return (

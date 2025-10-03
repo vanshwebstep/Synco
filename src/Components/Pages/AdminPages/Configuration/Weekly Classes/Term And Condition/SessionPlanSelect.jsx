@@ -59,7 +59,7 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
     const getPackages = async () => {
       try {
         const response = await fetchSessionGroup();
-        console.log("Fetched packages:", response);
+         console.log("Fetched packages:", response);
       } catch (error) {
         console.error("Error fetching packages:", error);
       }

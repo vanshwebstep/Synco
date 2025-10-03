@@ -11,7 +11,7 @@ const KeyInformation = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-console.log('keyInfoData',keyInfoData?.keyInformation)
+ console.log('keyInfoData',keyInfoData?.keyInformation)
   // Fetch key info when component mounts
   useEffect(() => {
     fetchKeyInfo();

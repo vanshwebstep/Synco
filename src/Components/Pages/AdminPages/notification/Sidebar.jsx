@@ -34,8 +34,8 @@ const mergedNotifications = [
     ? n.recipients.every(r => r.isRead)
     : false;
 
-  console.log("notification", notification);
-  console.log("customnotificationAll", customnotificationAll);
+   // console.log("notification", notification);
+   // console.log("customnotificationAll", customnotificationAll);
 
   return {
     ...n,
@@ -50,7 +50,7 @@ const mergedNotifications = [
     activeTab === "All"
       ? mergedNotifications
       : mergedNotifications.filter(n => n.category === activeTab);
-  console.log('filtsdsdered', filtered)
+   // console.log('filtsdsdered', filtered)
   // ✅ Filter unread only
   const unreadNotifications = mergedNotifications.filter(n => !n.isRead);
 
@@ -60,7 +60,7 @@ const mergedNotifications = [
     acc[cat] = (acc[cat] || 0) + 1;
     return acc;
   }, {});
-  console.log("unreadNotifications", unreadNotifications)
+   // console.log("unreadNotifications", unreadNotifications)
   // Optional: Sort categories with unread items first
   // const sortedTabs = [...allTabs].sort((a, b) => (categoryCounts[b] || 0) - (categoryCounts[a] || 0));
   const tabsToDisplay = allTabs; // or use sortedTabs for sorting
@@ -143,5 +143,3 @@ const mergedNotifications = [
 //   return acc;
 // }, {});
 
-// console.log("filtered", filtered);
-// console.log("categoryCounts", categoryCounts);

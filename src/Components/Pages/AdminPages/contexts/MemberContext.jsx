@@ -128,6 +128,9 @@ export const MemberProvider = ({ children }) => {
             setLoading(false);
         }
     }, []);
+
+
+
     const fetchPermission = useCallback(async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/admin/role/permission`, {
@@ -191,24 +194,24 @@ export const MemberProvider = ({ children }) => {
         }
     }, [token, fetchRoles, fetchPermission]);
 
-const fetchKeyInfo = useCallback(async () => {
-    setLoading(true);
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/key-information`, {
-            method: "GET",
-            headers: { Authorization: `Bearer ${token}` },
-        });
+    const fetchKeyInfo = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/key-information`, {
+                method: "GET",
+                headers: { Authorization: `Bearer ${token}` },
+            });
 
-        const result = await response.json();
-        const formatted = result.data;
+            const result = await response.json();
+            const formatted = result.data;
 
-        setKeyInfoData(formatted);
-    } catch (error) {
-        console.error("Failed to fetch key info:", error);
-    } finally {
-        setLoading(false);
-    }
-}, [token]);
+            setKeyInfoData(formatted);
+        } catch (error) {
+            console.error("Failed to fetch key info:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [token]);
 
     const KeyInformationCreate = useCallback(async (keyinfo, perms) => {
         try {
@@ -227,47 +230,47 @@ const fetchKeyInfo = useCallback(async () => {
         }
     }, [token, fetchKeyInfo]);
 
-  const fetchDashboard = useCallback(async (params = {}) => {
-  const token = localStorage.getItem("adminToken");
-  if (!token) return;
+    const fetchDashboard = useCallback(async (params = {}) => {
+        const token = localStorage.getItem("adminToken");
+        if (!token) return;
 
-  const { studentName, venueName, filterTypes = [], fromDate, toDate } = params;
+        const { studentName, venueName, filterTypes = [], fromDate, toDate } = params;
 
-  // build query params
-  const searchParams = new URLSearchParams();
+        // build query params
+        const searchParams = new URLSearchParams();
 
-  if (studentName) searchParams.append("studentName", studentName);
-  if (venueName) searchParams.append("venueName", venueName);
+        if (studentName) searchParams.append("studentName", studentName);
+        if (venueName) searchParams.append("venueName", venueName);
 
-  // support multiple filterTypes
-  filterTypes.forEach((ft) => searchParams.append("filterType", ft));
+        // support multiple filterTypes
+        filterTypes.forEach((ft) => searchParams.append("filterType", ft));
 
-  if (fromDate) searchParams.append("fromDate", fromDate);
-  if (toDate) searchParams.append("toDate", toDate);
+        if (fromDate) searchParams.append("fromDate", fromDate);
+        if (toDate) searchParams.append("toDate", toDate);
 
-  const query = searchParams.toString();
-  const url = `${API_BASE_URL}/api/admin/dashboard/stats${query ? `?${query}` : ""}`;
+        const query = searchParams.toString();
+        const url = `${API_BASE_URL}/api/admin/dashboard/stats${query ? `?${query}` : ""}`;
 
-  console.log("🚀 Fetching:", url);
+        console.log("🚀 Fetching:", url);
 
-  setLoading(true);
-  try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+        setLoading(true);
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
-    const resultRaw = await response.json();
-    const result = resultRaw.data || [];
-    setDashboardData(result);
-  } catch (error) {
-    console.error("Failed to fetch dashboard:", error);
-  } finally {
-    setLoading(false);
-  }
-}, []);
+            const resultRaw = await response.json();
+            const result = resultRaw.data || [];
+            setDashboardData(result);
+        } catch (error) {
+            console.error("Failed to fetch dashboard:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
 
     return (

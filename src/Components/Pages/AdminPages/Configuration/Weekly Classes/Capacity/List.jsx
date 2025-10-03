@@ -47,7 +47,7 @@ const Capacity = () => {
     const overview = capacityData?.overview || {};
     const { totalCapacity, totalBooked, occupancyRate } = overview;
 
-    console.log('capacityData', capacityData)
+     console.log('capacityData', capacityData)
 
 
 
@@ -67,7 +67,7 @@ const Capacity = () => {
         { label: "No Spaces", color: "#FE7058", borderColor: "#FE7058" },
     ];
     const handleVenueChange = (venues) => {
-        console.log("Selected venues:", venues);
+         console.log("Selected venues:", venues);
         setSelectedVenue(venues);
 
         // pass all selected venue names as array
@@ -311,7 +311,7 @@ const Capacity = () => {
                                                     const isStartOrEnd = isStart || isEnd;
                                                     const isInBetween = date && isInRange(date);
                                                     const isExcluded = !date;
-                                                    console.log('isInBetween', isInBetween)
+                                                     console.log('isInBetween', isInBetween)
                                                     let className =
                                                         "w-full h-12 aspect-square flex items-center justify-center transition-all duration-200";
 
@@ -472,7 +472,7 @@ const Capacity = () => {
                                                                         },
                                                                         { label: "No Spaces", color: "#FE7058", borderColor: "#FE7058", value: cls.stats.totalCapacity - cls.stats.totalBooked - cls.stats.availableSpaces, textColor: "#fff" },
                                                                     ];
-                                                                    console.log('statsItems', statsItems)
+                                                                     console.log('statsItems', statsItems)
                                                                     return (
                                                                         <div
                                                                             key={cls.id}

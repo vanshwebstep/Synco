@@ -34,7 +34,7 @@ const ServiceHistory = ({ serviceHistory }) => {
     paymentData,
     bookedByAdmin,
   } = serviceHistory;
-  console.log('serviceHistory', serviceHistory)
+   console.log('serviceHistory', serviceHistory)
   // pick first payment if exists
   const payment = payments?.[0];
   const navigate = useNavigate();

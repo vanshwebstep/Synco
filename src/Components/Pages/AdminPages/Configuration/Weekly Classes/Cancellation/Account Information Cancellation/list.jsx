@@ -37,7 +37,7 @@ const AccountInfoCancellation = () => {
     fetchData();
   }, [itemId, ServiceHistoryRequestto]);
   const [activeTab, setActiveTab] = useState("Service History");
-  console.log('serviceHistory', serviceHistory)
+   console.log('serviceHistory', serviceHistory)
 
 
   return (

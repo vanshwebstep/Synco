@@ -45,7 +45,7 @@ const AccountInfoBookMembership = () => {
   }, [itemId, serviceHistoryMembership]);
   const [activeTab, setActiveTab] = useState("Service History");
 
-console.log('error',error)
+ console.log('error',error)
 
   return (
     <>

@@ -10,7 +10,7 @@ const DynamicTable = ({ columns, data, from, selectedIds, setSelectedStudents, o
         : [...prev, studentId]
     );
   };
-  console.log('data', data)
+   console.log('data', data)
   // ✅ Utility function
 
 
@@ -30,7 +30,7 @@ const DynamicTable = ({ columns, data, from, selectedIds, setSelectedStudents, o
           {data && data.length > 0 ? (
             data.map((item) =>
               item.students.map((student, studentIndex) => {
-                console.log('item', item)
+                 console.log('item', item)
                 const uniqueId =
                   from === "freetrial" || from === "waitingList" || from === "membership"
                     ? item.id
@@ -71,9 +71,9 @@ const DynamicTable = ({ columns, data, from, selectedIds, setSelectedStudents, o
                               <span>
                                 {col.header === "Parent Name"
                                   ? `${item.parents?.[0]?.parentFirstName || ""} ${item.parents?.[0]?.parentLastName || ""
-                                    }`.trim() || "null"
+                                    }`.trim() || "N/A"
                                   : `${student.studentFirstName || ""} ${student.studentLastName || ""
-                                    }`.trim() || "null"}
+                                    }`.trim() || "N/A"}
                               </span>
                             </div>
                           </td>

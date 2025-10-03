@@ -27,7 +27,7 @@ const DiscountsList = () => {
     const getPackages = async () => {
       try {
         const response = await fetchDiscounts();
-        console.log("Fetched packages:", response);
+         console.log("Fetched packages:", response);
         // do something with response (set state, display, etc.)
       } catch (error) {
         console.error("Error fetching packages:", error);

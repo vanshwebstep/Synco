@@ -36,7 +36,7 @@ export default function List() {
   useEffect(() => {
     fetchNotification();
   }, [fetchNotification]);
-  console.log('allNotifications', allNotifications)
+   console.log('allNotifications', allNotifications)
   function formatDateTime(dateStr) {
     const date = new Date(dateStr);
     const year = date.getFullYear();
@@ -47,7 +47,7 @@ export default function List() {
     hours = hours % 12 || 12;
     return `${year}/${month}/${day} - ${hours} ${ampm}`;
   }
-  console.log('filteredss', filtered)
+   console.log('filteredss', filtered)
   return (
     <div className="space-y-5 bg-white p-10 rounded-2xl">
       {filtered.length === 0 && (

@@ -199,7 +199,7 @@ const List = () => {
     let isInBetween = false;
     let isExcluded = false;
     let isSessionDate = false;
-    console.log('calendarData', calendarData)
+     // console.log('calendarData', calendarData)
     calendarData.forEach((term) => {
       const start = new Date(term.startDate);
       const end = new Date(term.endDate);
@@ -309,8 +309,8 @@ const List = () => {
         !showAvailableOnly ||
         classList.some((cls) => cls.capacity > 0);
 
-      console.log(`🧪 Venue: ${venue.venueName}`);
-      console.log({ nameMatch, postcodeMatch, venueMatch, dayMatch, availableMatch });
+       // console.log(`🧪 Venue: ${venue.venueName}`);
+       // console.log({ nameMatch, postcodeMatch, venueMatch, dayMatch, availableMatch });
 
       return nameMatch && postcodeMatch && venueMatch && dayMatch && availableMatch;
     })
@@ -319,8 +319,8 @@ const List = () => {
 
 
 
-  console.log('filteredClasses', filteredClasses)
-  console.log('findClasses', findClasses)
+   // console.log('filteredClasses', filteredClasses)
+   // console.log('findClasses', findClasses)
 
   const modalRef = useRef(null);
   const PRef = useRef(null);
@@ -436,7 +436,7 @@ const List = () => {
       state: { classId },
     });
   };
-  console.log('calendarData', calendarData)
+   // console.log('calendarData', calendarData)
 
   const getActiveTerm = () =>
     calendarData.find((term) => {
@@ -479,7 +479,7 @@ const List = () => {
 
   const canAddToWaitingList =
     checkPermission({ module: 'waiting-list', action: 'create' })
-  console.log('selectedPlans', selectedPlans)
+   // console.log('selectedPlans', selectedPlans)
   const classes = [
     {
       id: 1,
@@ -654,7 +654,7 @@ const List = () => {
                     filteredClasses.map((venue, idx) => (
                       <div
                         key={idx}
-                        className="w-full bg-white rounded-xl shadow overflow-hidden rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white " // ✅ min height
+                        className="w-full bg-white rounded-xl shadow  rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white " // ✅ min height
                       >
                         <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex justify-between md:items-center text-sm gap-4">
                           <div className="flex items-center gap-2">

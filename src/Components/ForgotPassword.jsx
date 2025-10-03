@@ -215,7 +215,7 @@ const validateEmail = (email) => {
     const url = `${API_BASE_URL}/api/admin/auth/password/forget`;
 
     try {
-      console.log('Sending forgot password request to:', url);
+       console.log('Sending forgot password request to:', url);
 
       const res = await fetchWithTimeout(url, {
         method: 'POST',
@@ -226,7 +226,7 @@ const validateEmail = (email) => {
       });
 
       const result = await res.json();
-      console.log('Response from server:', result);
+       console.log('Response from server:', result);
 
       if (res.ok) {
         Swal.fire({

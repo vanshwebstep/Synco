@@ -22,14 +22,14 @@ const List = () => {
   const [clickedIcon, setClickedIcon] = useState(null);
 
 const handleIconClick = (icon, plan = null) => {
-  console.log("🔵 handleIconClick triggered");
-  console.log("👉 Received icon:", icon);
+   // console.log("🔵 handleIconClick triggered");
+   // console.log("👉 Received icon:", icon);
 
   if (Array.isArray(plan)) {
-    console.log("📦 Plan is an array with length:", plan.length);
+     // console.log("📦 Plan is an array with length:", plan.length);
     console.table(plan);
   } else {
-    console.log("📦 Plan is not an array, value:", plan);
+     // console.log("📦 Plan is not an array, value:", plan);
   }
 
   // 🔴 Validation checks with Swal alerts
@@ -58,27 +58,27 @@ const handleIconClick = (icon, plan = null) => {
 
   // 🟢 Normal flow
   setClickedIcon(icon);
-  console.log("✅ setClickedIcon:", icon);
+   // console.log("✅ setClickedIcon:", icon);
 
   setCongestionNote(null);
-  console.log("✅ congestionNote reset to null");
+   // console.log("✅ congestionNote reset to null");
 
   if (icon === "currency") {
     setSelectedPlans(plan || []);
-    console.log("💰 setSelectedPlans:", plan || []);
+     // console.log("💰 setSelectedPlans:", plan || []);
   } else if (icon === "group") {
     setCongestionNote(plan);
-    console.log("👥 setCongestionNote (group):", plan);
+     // console.log("👥 setCongestionNote (group):", plan);
   } else if (icon === "p") {
     setCongestionNote(plan);
-    console.log("🅿️ setCongestionNote (p):", plan);
+     // console.log("🅿️ setCongestionNote (p):", plan);
   } else if (icon === "calendar") {
     setCongestionNote(plan);
-    console.log("📅 setCongestionNote (calendar):", plan);
+     // console.log("📅 setCongestionNote (calendar):", plan);
   }
 
   setShowModal(true);
-  console.log("🟢 setShowModal set to true");
+   // console.log("🟢 setShowModal set to true");
 };
 
 
@@ -120,7 +120,7 @@ const handleIconClick = (icon, plan = null) => {
       cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log('DeleteId:', id);
+         // console.log('DeleteId:', id);
 
         deleteVenue(id); // Call your delete function here
 
@@ -219,7 +219,7 @@ const getDateStatus = (date) => {
   return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
 };
 
-console.log('congestionNote',congestionNote)
+ // console.log('congestionNote',congestionNote)
   const isSameDate = (d1, d2) =>
     d1 &&
     d2 &&
@@ -310,7 +310,7 @@ console.log('congestionNote',congestionNote)
 
 
 
-  console.log('venues', venues)
+   // console.log('venues', venues)
 
 
   const formatShortDate = (iso) => {
@@ -327,23 +327,23 @@ console.log('congestionNote',congestionNote)
   };
 
   const grouped = termGroup.map((group, groupIdx) => {
-    console.log(`\n📦 Processing Group #${groupIdx + 1}:`, group);
+     // console.log(`\n📦 Processing Group #${groupIdx + 1}:`, group);
 
     // Use termGroup?.id to match correctly
     const terms = termData.filter((t) => t.termGroup?.id === group.id);
     if (!terms.length) {
-      console.log(`⚠️ No terms found for group ID ${group.id}`);
+       // console.log(`⚠️ No terms found for group ID ${group.id}`);
       return null;
     }
 
-    console.log(`🔍 Matched ${terms.length} terms for group '${group.name}'`);
+     // console.log(`🔍 Matched ${terms.length} terms for group '${group.name}'`);
 
     // Step 2: Map each term to sessionData
     const sessionData = terms.map((term, termIdx) => {
       const start = formatDate(term.startDate);
       const end = formatDate(term.endDate);
       const dateRange = `${start} - ${end}`;
-      console.log('terms', terms)
+       // console.log('terms', terms)
       // Parse exclusionDates
       let exclusionArr = [];
       try {
@@ -384,11 +384,11 @@ console.log('congestionNote',congestionNote)
 
       };
 
-      console.log(`📘 Term #${termIdx + 1} (${term.termName}):`, sessionObj);
+       // console.log(`📘 Term #${termIdx + 1} (${term.termName}):`, sessionObj);
       return sessionObj;
     });
 
-    console.log('📊 SessionData for this group:', sessionData);
+     // console.log('📊 SessionData for this group:', sessionData);
 
     // Step 3: Build the class card
     const classCard = {
@@ -405,7 +405,7 @@ console.log('congestionNote',congestionNote)
       classCard[key] = `${termData.date}`;
     });
 
-    console.log(`🧾 Built classCard for group '${group.name}':`, classCard);
+     // console.log(`🧾 Built classCard for group '${group.name}':`, classCard);
 
     return { sessionData, classCard };
   });
@@ -414,8 +414,8 @@ console.log('congestionNote',congestionNote)
     .filter(item => item && item.classCard)
     .map(item => item.classCard);
 
-  console.log('sessionData', grouped)
-  console.log('classCards', classCards)
+   // console.log('sessionData', grouped)
+   // console.log('classCards', classCards)
   const { checkPermission } = usePermission();
 
   const canCreate =
@@ -437,7 +437,7 @@ console.log('congestionNote',congestionNote)
   const canViewClassSchedule =
     checkPermission({ module: 'class-schedule', action: 'view-listing' })
 
-    // ref={formRef}
+    
   return (
     <div   id="form-backdrop" ref={formRef}  className=" pt-1 bg-gray-50 min-h-screen">
       <div className={`flex flex-wrap pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>

@@ -17,7 +17,7 @@ const PaymentPlanManagerList = () => {
     const getPackages = async () => {
       try {
         const response = await fetchGroups();
-        console.log("Fetched packages:", response);
+         console.log("Fetched packages:", response);
         // do something with response (set state, display, etc.)
       } catch (error) {
         console.error("Error fetching packages:", error);
@@ -31,7 +31,7 @@ const PaymentPlanManagerList = () => {
   const handleShow = async (id) => {
     const group = await fetchGroupById(id);
     if (!group || !group.paymentPlans) return;
-    console.log('group.paymentPlans', group.paymentPlans)
+     console.log('group.paymentPlans', group.paymentPlans)
     const grouped = group.paymentPlans.reduce((acc, plan) => {
       if (!acc[plan.students]) acc[plan.students] = [];
       acc[plan.students].push(plan);
@@ -48,9 +48,9 @@ const PaymentPlanManagerList = () => {
 
 
 
-  console.log('plan.groupByStudents', groupByStudents[activeTab])
+   console.log('plan.groupByStudents', groupByStudents[activeTab])
   const handleEdit = (id) => {
-    console.log("Edit group with ID:", id);
+     console.log("Edit group with ID:", id);
     navigate(`/configuration/weekly-classes/add-subscription-plan-group?id=${id}`)
   };
 

@@ -113,7 +113,7 @@ const WaitingList = () => {
 
     const navigate = useNavigate();
 
-    console.log('bookedByAdmin', bookedByAdmin)
+     console.log('bookedByAdmin', bookedByAdmin)
     useEffect(() => {
         if (selectedVenue) {
             fetchAddtoWaitingList("", selectedVenue.label); // Using label as venueName
@@ -322,7 +322,7 @@ const WaitingList = () => {
                 (agent) => `${agent.firstName}`
             );
             setSavedAgent(selectedNames); // ✅ saves full names as strings
-            console.log("selectedNames", tempSelectedAgents);
+             console.log("selectedNames", tempSelectedAgents);
         } else {
             setSavedAgent([]); // nothing selected → clear
         }
@@ -335,7 +335,7 @@ const WaitingList = () => {
         // Fetch data with search value (debounce optional)
         fetchAddtoWaitingList(value);
     };
-    console.log('bookedByAdmin', bookedByAdmin)
+     console.log('bookedByAdmin', bookedByAdmin)
     const { checkPermission } = usePermission();
 
     const canServicehistory =

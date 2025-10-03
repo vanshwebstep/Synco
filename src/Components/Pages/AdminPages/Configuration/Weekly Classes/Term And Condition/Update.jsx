@@ -108,16 +108,16 @@ const Create = () => {
             if (selectedTermGroup?.id) {
                 // ✅ Update using selectedTermGroup.id
                 await updateTermGroup(selectedTermGroup.id, payload);
-                console.log("🔄 Updated using selectedTermGroup");
+                 // console.log("🔄 Updated using selectedTermGroup");
             } else if (isCreated) {
                 // ✅ Update using myGroupData.id
                 await updateTermGroup(myGroupData.id, payload);
-                console.log("🔄 Updated using myGroupData");
+                 // console.log("🔄 Updated using myGroupData");
             } else {
                 // ✅ Create new
                 await createTermGroup(payload);
                 setIsCreated(true);
-                console.log("✅ Created new term group");
+                 // console.log("✅ Created new term group");
             }
         } catch (err) {
             console.error("❌ Error saving Term Group:", err);
@@ -143,7 +143,7 @@ const Create = () => {
         }
     };
     const handleSaveTerm = async (term, isEdit) => {
-        console.log('myGroupData', myGroupData)
+         // console.log('myGroupData', myGroupData)
         if (!myGroupData?.id) {
             console.error("Missing termGroupId");
             return;
@@ -187,7 +187,7 @@ const Create = () => {
                 throw new Error(data.message || 'Failed to save term.');
             }
 
-            console.log(`✅ Term ${isEdit ? 'Updated' : 'Created'}:`, data);
+             // console.log(`✅ Term ${isEdit ? 'Updated' : 'Created'}:`, data);
 
             Swal.fire({
                 icon: 'success',
@@ -314,7 +314,7 @@ const Create = () => {
 
 
         // Optional: log or use updatedTerm somewhere
-        console.log('✅ Updated Active Term with mapped sessions:', updatedTerm);
+         // console.log('✅ Updated Active Term with mapped sessions:', updatedTerm);
 
         // Update state if needed
         setMapSession(sessionMappings); // Still keep this if it's used elsewhere
@@ -346,7 +346,7 @@ const Create = () => {
         // Navigate after confirmation
         navigate('/configuration/weekly-classes/term-dates/list');
     };
-    console.log('selectedTermGroup', selectedTermGroup)
+     // console.log('selectedTermGroup', selectedTermGroup)
     useEffect(() => {
         if (selectedTermGroup) {
             setTermGroupName(selectedTermGroup?.name);
@@ -380,7 +380,7 @@ const Create = () => {
             );
 
             setSessionMappings(extractedData);
-            console.log('sessionMapData', extractedData);
+             // console.log('sessionMapData', extractedData);
 
             setTerms(formattedTerms);
             setMachedTermsID(formattedTerms)
@@ -390,8 +390,8 @@ const Create = () => {
     const filteredMappings = sessionMappings.filter(
         (mapping) => mapping.termId === activeTerm?.id
     );
-    console.log('Terms', terms);
-    console.log('setSessionMappings', sessionMappings);
+     // console.log('Terms', terms);
+     // console.log('setSessionMappings', sessionMappings);
 
     return (
         <div className="md:p-6 bg-gray-50 min-h-screen">

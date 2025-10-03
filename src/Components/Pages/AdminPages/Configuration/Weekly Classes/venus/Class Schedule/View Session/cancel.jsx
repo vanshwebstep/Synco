@@ -27,8 +27,8 @@ const ViewSessions = () => {
   const [emailText, setEmailText] = useState('');
   const navigate = useNavigate();
   const { schedule ,sessionId} = location.state || {};
-  console.log('sessionId',sessionId)
-  console.log("Filtered Schedules in cancel:", schedule);
+   console.log('sessionId',sessionId)
+   console.log("Filtered Schedules in cancel:", schedule);
   function formatDate(isoDate) {
     const date = new Date(isoDate);
 
@@ -82,7 +82,7 @@ const ViewSessions = () => {
         };
       });
 
-      console.log("Final roles payload:", { roles });
+       console.log("Final roles payload:", { roles });
 
       // Gather all data
       const payload = {
@@ -94,7 +94,7 @@ const ViewSessions = () => {
         roles,
       };
 
-      console.log("Cancellation Payload:", payload);
+       console.log("Cancellation Payload:", payload);
 
       await cancelClass(schedule.id,sessionId, payload); // ✅ await API call
     } catch (error) {

@@ -40,7 +40,7 @@ const ProtectedRoute = ({ children }) => {
             "hasPermission",
             JSON.stringify(result.hasPermission)
           );
-          console.log('permission saved in protectedroute', result.admin.hasPermission)
+           console.log('permission saved in protectedroute', result.admin.hasPermission)
         } else {
           console.warn('Token invalid or expired');
           localStorage.removeItem('adminToken');

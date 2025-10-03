@@ -14,57 +14,56 @@ const [stopFetching, setStopFetching] = useState(false);
 
   const [loadingNotification, setLoadingNotification] = useState(null);
   const [loadingCustomNotification, setLoadingCustomNotification] = useState(null);
-const fetchNotification = useCallback(async () => {
-  const token = localStorage.getItem("adminToken");
-  if (!token) return false;
+  const fetchNotification = useCallback(async () => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return false;
 
-  setLoadingNotification(true);
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/admin/notification`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const resultRaw = await response.json();
-
-    // If account is suspended
-    if (resultRaw.status === false && resultRaw.code === "ACCOUNT_SUSPENDED") {
-      await Swal.fire({
-        icon: "error",
-        title: "Account Suspended",
-        text: resultRaw.message || "Your account is suspended. Please contact support.",
-        confirmButtonText: "OK",
+    setLoadingNotification(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/notification`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      localStorage.clear();
-      navigate("/admin-login");
-      return false;
-    }
 
-    // If unauthorized → stop further fetching
-    if (resultRaw.code === "UNAUTHORIZED") {
-      console.warn("❌ Unauthorized, stopping notification polling.");
-      setStopFetching(true); // stop further calls
-      return false;
-    }
+      const resultRaw = await response.json();
 
-    // If successful
-    const result = resultRaw.data?.notifications || [];
-    // console.log("finalresult", result);
-    setNotification(result);
-    if (result?.role) {
-      localStorage.setItem("role", result?.role);
+      // If account is suspended
+      if (resultRaw.status === false && resultRaw.code === "ACCOUNT_SUSPENDED") {
+        await Swal.fire({
+          icon: "error",
+          title: "Account Suspended",
+          text: resultRaw.message || "Your account is suspended. Please contact support.",
+          confirmButtonText: "OK",
+        });
+        localStorage.clear();
+        navigate("/admin-login");
+        return false;
+      }
+
+      // If unauthorized → stop further fetching
+      if (resultRaw.code === "UNAUTHORIZED") {
+        console.warn("❌ Unauthorized, stopping notification polling.");
+        setStopFetching(true); // stop further calls
+        return false;
+      }
+
+      // If successful
+      const result = resultRaw.data?.notifications || [];
+      setNotification(result);
+      if (result?.role) {
+        localStorage.setItem("role", result?.role);
+      }
+      setCustomnotificationAll(resultRaw.data?.customNotifications || []);
+      return true;
+    } catch (error) {
+      console.error("Failed to fetch notification:", error);
+      return false;
+    } finally {
+      setLoadingNotification(false);
     }
-    setCustomnotificationAll(resultRaw.data?.customNotifications || []);
-    return true;
-  } catch (error) {
-    console.error("Failed to fetch notification:", error);
-    return false;
-  } finally {
-    setLoadingNotification(false);
-  }
-}, [navigate]);
+  }, [navigate]);
 
 
   const fetchMarkAsRead = useCallback(async (category) => {
@@ -82,7 +81,7 @@ const fetchNotification = useCallback(async () => {
       });
 
       const resultRaw = await response.json();
-      console.log("Mark as read response:", resultRaw);
+       console.log("Mark as read response:", resultRaw);
     } catch (error) {
       console.error("Failed to fetch notification:", error);
     }

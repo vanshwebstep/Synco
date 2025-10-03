@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Check, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { FiSearch } from "react-icons/fi";
@@ -22,6 +22,7 @@ import { useBookFreeTrial } from "../../../../contexts/BookAFreeTrialContext";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-input-2/lib/style.css";
 import { useMembers } from "../../../../contexts/MemberContext";
+import { useNotification } from "../../../../contexts/NotificationContext";
 
 const List = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -30,9 +31,13 @@ const List = () => {
     const [expression, setExpression] = useState('');
     const [numberOfStudents, setNumberOfStudents] = useState('1');
     const { keyInfoData, fetchKeyInfo } = useMembers();
+    const token = localStorage.getItem("adminToken");
+  const {adminInfo,setAdminInfo } = useNotification();
+
 
     const [isOpenMembership, setIsOpenMembership] = useState(false);
-
+    const [commentsList, setCommentsList] = useState([]);
+    const [comment, setComment] = useState('');
     const [result, setResult] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
@@ -54,8 +59,27 @@ const List = () => {
         pan: "",
         authorise: false,
     });
-    console.log('TrialData', TrialData)
-    console.log('classId', classId)
+
+
+    const formatTimeAgo = (timestamp) => {
+        const now = new Date();
+        const past = new Date(timestamp);
+        const diff = Math.floor((now - past) / 1000); // in seconds
+
+        if (diff < 60) return `${diff} sec${diff !== 1 ? 's' : ''} ago`;
+        if (diff < 3600) return `${Math.floor(diff / 60)} min${Math.floor(diff / 60) !== 1 ? 's' : ''} ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)} hour${Math.floor(diff / 3600) !== 1 ? 's' : ''} ago`;
+        if (diff < 604800) return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) !== 1 ? 's' : ''} ago`;
+
+        // fallback: return exact date if older than 7 days
+        return past.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        });
+    };
+    // console.log('TrialData', TrialData)
+    // console.log('classId', classId)
     const { fetchFindClassID, singleClassSchedulesOnly, loading } = useClassSchedule() || {};
     const [students, setStudents] = useState([
         {
@@ -68,7 +92,7 @@ const List = () => {
             // Add other fields if needed
         },
     ]);
-    console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
+    // console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
     const [emergency, setEmergency] = useState({
         sameAsAbove: false,
         emergencyFirstName: "",
@@ -100,7 +124,7 @@ const List = () => {
     const paymentPlanOptions = numberOfStudents
         ? allPaymentPlans.filter((plan) => plan.all.students === Number(numberOfStudents))
         : allPaymentPlans;
-    console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
+    // console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
 
 
     const handleNumberChange = (e) => {
@@ -141,12 +165,12 @@ const List = () => {
 
     useEffect(() => {
         if (TrialData) {
-            console.log('stp1')
+            // console.log('stp1')
             if (Array.isArray(TrialData.students) && TrialData.students.length > 0) {
-                console.log('stp2')
+                // console.log('stp2')
                 setStudents(TrialData.students);
             }
-            console.log('stp3')
+            // console.log('stp3')
             if (Array.isArray(TrialData.parents) && TrialData.parents.length > 0) {
                 setParents(
                     TrialData.parents.map((p, idx) => ({
@@ -163,7 +187,7 @@ const List = () => {
             }
         }
     }, [TrialData]);
-    console.log('TrialData', students)
+    // console.log('TrialData', students)
 
     useEffect(() => {
         if (!finalClassId) {
@@ -177,6 +201,7 @@ const List = () => {
 
                 await fetchFindClassID(finalClassId);
                 await fetchKeyInfo();
+                await fetchComments();
             }
         };
         fetchData();
@@ -226,7 +251,7 @@ const List = () => {
             cancelButtonText: 'Cancel',
         }).then((result) => {
             if (result.isConfirmed) {
-                console.log('DeleteId:', id);
+                // console.log('DeleteId:', id);
 
                 deleteVenue(id); // Call your delete function here
 
@@ -531,7 +556,7 @@ const List = () => {
             } else {
                 await createBookMembership(payload);
             }
-            console.log("Final Payload:", JSON.stringify(payload, null, 2));
+            // console.log("Final Payload:", JSON.stringify(payload, null, 2));
             // Optionally show success alert or reset form
         } catch (error) {
             console.error("Error while submitting:", error);
@@ -539,7 +564,7 @@ const List = () => {
         } finally {
             setIsSubmitting(false); // Stop loading
         }
-        console.log("Final Payload:", JSON.stringify(payload, null, 2));
+        // console.log("Final Payload:", JSON.stringify(payload, null, 2));
         // send to API with fetch/axios
     };
 
@@ -620,10 +645,10 @@ const List = () => {
                 holidayCampPackage: plan.HolidayCampPackage,
                 termsAndCondition: plan.termsAndCondition,
             }));
-            console.log('cleanedPlans', cleanedPlans);
+            // console.log('cleanedPlans', cleanedPlans);
             setSelectedPlans(cleanedPlans);
         } else {
-            console.log('cleanedPlans not found');
+            // console.log('cleanedPlans not found');
         }
     }, [singleClassSchedulesOnly]);
 
@@ -651,6 +676,96 @@ const List = () => {
     ];
 
 
+
+    const fetchComments = useCallback(async () => {
+        const token = localStorage.getItem("adminToken");
+        if (!token) return;
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/list`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const resultRaw = await response.json();
+            const result = resultRaw.data || [];
+            setCommentsList(result);
+        } catch (error) {
+            console.error("Failed to fetch comments:", error);
+
+            Swal.fire({
+                title: "Error",
+                text: error.message || error.error || "Failed to fetch comments. Please try again later.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+        }
+    }, []);
+    const handleSubmitComment = async (e) => {
+
+        e.preventDefault();
+
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Authorization", `Bearer ${token}`);
+
+        const raw = JSON.stringify({
+            "comment": comment
+        });
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow"
+        };
+
+        try {
+            Swal.fire({
+                title: "Creating ",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+
+            const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/create`, requestOptions);
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed to Add Comment",
+                    text: result.message || "Something went wrong.",
+                });
+                return;
+            }
+
+
+            Swal.fire({
+                icon: "success",
+                title: "Comment Created",
+                text: result.message || " Comment has been  added successfully!",
+                showConfirmButton: false,
+            });
+
+
+            setComment('');
+            fetchComments();
+        } catch (error) {
+            console.error("Error creating member:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Network Error",
+                text:
+                    error.message || "An error occurred while submitting the form.",
+            });
+        }
+    }
     // Function to convert HTML to plain text while preserving list structure
     function htmlToArray(html) {
         const tempDiv = document.createElement("div");
@@ -702,7 +817,7 @@ const List = () => {
         )
     ) || [];
 
-    console.log('keyInfoData', keyInfoData)
+    // console.log('keyInfoData', keyInfoData)
     const selectedLabel =
         keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
         "Key Information";
@@ -1463,67 +1578,68 @@ const List = () => {
                             )}
                         </div>
 
-                        <div className="bg-white rounded-3xl p-6 my-10 space-y-4">
+                        <div className="bg-white mb-10 rounded-3xl p-6 space-y-4">
                             <h2 className="text-[24px] font-semibold">Comment</h2>
 
                             {/* Input section */}
                             <div className="flex items-center gap-2">
                                 <img
-                                    src="https://i.pravatar.cc/40?img=3" // Replace with actual user image
+                                   src={
+                                    adminInfo?.profile
+                                        ? `${adminInfo.profile}`
+                                        : '/demo/synco/members/dummyuser.png'
+                                    } // Replace with actual user image
                                     alt="User"
                                     className="w-14 h-14 rounded-full object-cover"
                                 />
                                 <input
                                     type="text"
+                                    name='comment'
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
                                     placeholder="Add a comment"
                                     className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none"
                                 />
-                                <button className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600">
+                                <button className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600" onClick={handleSubmitComment}>
                                     <img src="/demo/synco/icons/sent.png" alt="" />
                                 </button>
                             </div>
 
                             {/* Comment list */}
-                            <div className="space-y-4">
-                                {[
-                                    {
-                                        name: "Ethan",
-                                        time: "8 min ago",
-                                        comment: "Not 100% sure she can attend but if she cant she will email us.",
-                                        avatar: "https://i.pravatar.cc/40?img=3",
-                                    },
-                                    {
-                                        name: "Nilio Bagga",
-                                        time: "8 min ago",
-                                        comment:
-                                            "Not 100% sure she can attend but if she cant she will email us. Not 100% sure she can attend but if she cant she will email us.",
-                                        avatar: "https://i.pravatar.cc/40?img=12",
-                                    },
-                                ].map((c, i) => (
-                                    <div
-                                        key={i}
-                                        className="bg-gray-50 rounded-xl p-4   text-sm"
-                                    >
-                                        <p className="text-gray-700 text-[16px] font-semibold mb-1">{c.comment}</p>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center gap-3">
-                                                <img
-                                                    src={c.avatar}
-                                                    alt={c.name}
-                                                    className="w-10 h-10 rounded-full object-cover mt-1"
-                                                />
-                                                <div>
+                            {commentsList && commentsList.length > 0 ? (
+                                <div className="space-y-4">
+                                    {commentsList.map((c, i) => (
+                                        <div
+                                            key={i}
+                                            className="bg-gray-50 rounded-xl p-4   text-sm"
+                                        >
+                                            <p className="text-gray-700 text-[16px] font-semibold mb-1">{c.comment}</p>
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center gap-3">
+                                                    <img
+                                                        src={c?.bookedByAdmin?.profile}
+                                                        alt={c?.bookedByAdmin?.firstName}
+                                                        className="w-10 h-10 rounded-full object-cover mt-1"
+                                                    />
+                                                    <div>
 
-                                                    <p className="font-semibold text-[#237FEA] text-[16px]">{c.name}</p>
+                                                        <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName}</p>
+                                                    </div>
                                                 </div>
+                                                <span className="text-gray-400 text-[16px] whitespace-nowrap mt-1">
+                                                    {formatTimeAgo(c.createdAt)}
+                                                </span>
+
                                             </div>
-                                            <span className=" text-gray-400 text-[16px] whitespace-nowrap mt-1">
-                                                {c.time}
-                                            </span>
                                         </div>
-                                    </div>
-                                ))}
-                            </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <>
+                                    <p className="text-center ">No Comments yet.</p>
+                                </>
+                            )}
+
                         </div>
 
                         <div className="flex justify-end gap-4">

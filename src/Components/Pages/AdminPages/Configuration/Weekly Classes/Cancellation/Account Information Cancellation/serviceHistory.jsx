@@ -38,7 +38,7 @@ const ServiceHistory = ({ serviceHistory }) => {
   cancelled: "bg-red-500 text-white",
   request_to_cancel: "bg-white text-red-500 border ",
 };
-  console.log('serviceHistory', serviceHistory)
+   console.log('serviceHistory', serviceHistory)
   return (
     <div className="transition-all duration-300 flex-1 bg-white">
       <div className="rounded-4xl w-full">

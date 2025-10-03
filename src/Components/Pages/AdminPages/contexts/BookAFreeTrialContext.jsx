@@ -64,11 +64,11 @@ export const BookFreeTrialProvider = ({ children }) => {
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
-      console.log('status1', status1)
-      console.log('satus2', status2)
-      console.log('otherDateRange', otherDateRange)
-      console.log('dateoftrial', dateoftrial)
-      console.log('forOtherDate', forOtherDate)
+       // console.log('status1', status1)
+       // console.log('satus2', status2)
+       // console.log('otherDateRange', otherDateRange)
+       // console.log('dateoftrial', dateoftrial)
+       // console.log('forOtherDate', forOtherDate)
 
       const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
       // if (shouldShowLoader) setLoading(true);
@@ -386,7 +386,7 @@ export const BookFreeTrialProvider = ({ children }) => {
   };
   const updateBookFreeTrialsFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
     setLoading(true);
-console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
+ // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     if (token) {
@@ -497,7 +497,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -545,12 +545,12 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/cancel-freeTrial`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-freeTrial`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -592,7 +592,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -639,7 +639,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -687,7 +687,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -908,7 +908,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
   );
   const updateBookMembershipFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
     setLoading(true);
-console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
+ // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     if (token) {
@@ -1091,7 +1091,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1141,7 +1141,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1192,7 +1192,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1243,7 +1243,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1531,7 +1531,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1583,7 +1583,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1643,11 +1643,11 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
-      console.log('status1', status1)
-      console.log('satus2', status2)
-      console.log('otherDateRange', otherDateRange)
-      console.log('dateoftrial', dateoftrial)
-      console.log('forOtherDate', forOtherDate)
+       // console.log('status1', status1)
+       // console.log('satus2', status2)
+       // console.log('otherDateRange', otherDateRange)
+       // console.log('dateoftrial', dateoftrial)
+       // console.log('forOtherDate', forOtherDate)
 
       const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
       // if (shouldShowLoader) setLoading(true);
@@ -1723,7 +1723,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1774,7 +1774,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1966,11 +1966,11 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
-      console.log('status1', status1)
-      console.log('satus2', status2)
-      console.log('otherDateRange', otherDateRange)
-      console.log('dateoftrial', dateoftrial)
-      console.log('forOtherDate', forOtherDate)
+       // console.log('status1', status1)
+       // console.log('satus2', status2)
+       // console.log('otherDateRange', otherDateRange)
+       // console.log('dateoftrial', dateoftrial)
+       // console.log('forOtherDate', forOtherDate)
 
 const shouldShowLoader =
   !studentName && !venueName && !status1 && !status2 &&
@@ -2065,11 +2065,11 @@ if (shouldShowLoader) setLoading(true);
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
-      console.log('status1', status1)
-      console.log('satus2', status2)
-      console.log('otherDateRange', otherDateRange)
-      console.log('dateoftrial', dateoftrial)
-      console.log('forOtherDate', forOtherDate)
+       // console.log('status1', status1)
+       // console.log('satus2', status2)
+       // console.log('otherDateRange', otherDateRange)
+       // console.log('dateoftrial', dateoftrial)
+       // console.log('forOtherDate', forOtherDate)
 
 const shouldShowLoader =
   !studentName && !venueName && !status1 && !status2 &&
@@ -2164,11 +2164,11 @@ const shouldShowLoader =
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
-      console.log('status1', status1)
-      console.log('satus2', status2)
-      console.log('otherDateRange', otherDateRange)
-      console.log('dateoftrial', dateoftrial)
-      console.log('forOtherDate', forOtherDate)
+       // console.log('status1', status1)
+       // console.log('satus2', status2)
+       // console.log('otherDateRange', otherDateRange)
+       // console.log('dateoftrial', dateoftrial)
+       // console.log('forOtherDate', forOtherDate)
 
 const shouldShowLoader =
   !studentName && !venueName && !status1 && !status2 &&
@@ -2255,7 +2255,7 @@ const shouldShowLoader =
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -2303,7 +2303,7 @@ const shouldShowLoader =
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -2351,7 +2351,7 @@ const shouldShowLoader =
     const headers = {
       "Content-Type": "application/json",
     };
-    console.log('bookingIds', bookingIds)
+     // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -2395,7 +2395,7 @@ const shouldShowLoader =
   };
   const updateWaitingListFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
     setLoading(true);
-console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
+ // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     if (token) {

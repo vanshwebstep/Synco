@@ -35,13 +35,13 @@ const mapSectionRef = useRef(null);
     const navigate = useNavigate();
 
     const { createTermGroup, updateTermGroup, myGroupData, setMyGroupData, setSelectedTermGroup, selectedTermGroup, fetchTerm, termData, fetchTermGroupById, loading } = useTermContext();
-    console.log('terms', terms)
+     // console.log('terms', terms)
     // Handle prefilling data in edit mode
     // First: fetch group data and wait for state update
     useEffect(() => {
         if (id) {
             const fetchData = async () => {
-                console.log('Fetching group data...');
+                 // console.log('Fetching group data...');
                 setMyGroupData(null);
                 await fetchTerm();
 
@@ -59,11 +59,11 @@ const mapSectionRef = useRef(null);
 
     // Second: Wait for isEditMode + termData + selectedTermGroup
     useEffect(() => {
-        console.log('isEditMode1', isEditMode)
+         // console.log('isEditMode1', isEditMode)
         console.group('termData1', termData)
-        console.log('selectedTermGroup1', selectedTermGroup)
+         // console.log('selectedTermGroup1', selectedTermGroup)
         if (isEditMode && termData.length && selectedTermGroup?.id) {
-            console.log('Processing group data...', termData);
+             // console.log('Processing group data...', termData);
             setMyGroupData(null)
             setGroupName(selectedTermGroup.name);
             setIsGroupSaved(true);
@@ -71,7 +71,7 @@ const mapSectionRef = useRef(null);
             const matchedTerms = termData.filter(
                 (term) => term.termGroup?.id === selectedTermGroup.id
             );
-            console.log('Processing group matchedTerms...', matchedTerms);
+             // console.log('Processing group matchedTerms...', matchedTerms);
 
             if (matchedTerms?.length) {
                 const mappedTerms = matchedTerms.map(term => ({
@@ -101,7 +101,7 @@ const mapSectionRef = useRef(null);
                     matchedTerms.forEach(term => updated.add(term.id));
                     return updated;
                 });
-                console.log('extractedData', extractedData);
+                 // console.log('extractedData', extractedData);
                 setSessionMappings(extractedData);
             }
         }
@@ -118,14 +118,14 @@ const mapSectionRef = useRef(null);
             return;
         }
 
-        console.log('myGroupData', selectedTermGroup);
+         // console.log('myGroupData', selectedTermGroup);
         setMyGroupData(null)
         // setIsLoading(true);
         try {
             const payload = { name: groupName };
 
             const groupId = myGroupData?.id || selectedTermGroup?.id;
-            console.log('myGroupData', groupId);
+             // console.log('myGroupData', groupId);
             if (groupId) {
                 // Update existing group
                 await updateTermGroup(groupId, payload);
@@ -183,7 +183,7 @@ const mapSectionRef = useRef(null);
 
         const openTerm = terms.find(t => t.isOpen);
         if (openTerm) {
-            console.log('openTerm0', openTerm)
+             // console.log('openTerm0', openTerm)
             setActiveSessionValue(openTerm.sessions || '');
             // Load either saved mappings or unsaved mappings
             setSessionMappings(openTerm.sessionsMap.length > 0 ?
@@ -274,7 +274,7 @@ const mapSectionRef = useRef(null);
             )
         );
     };
-    console.log('myGroupData', myGroupData)
+     // console.log('myGroupData', myGroupData)
     const deleteTerm = useCallback(async (id) => {
         if (!token) return;
 
@@ -361,7 +361,7 @@ const mapSectionRef = useRef(null);
     };
 
     const handleMappingChange = (index, field, value) => {
-        console.log('index', field, value)
+         // console.log('index', field, value)
         const updated = [...sessionMappings];
         updated[index] = {
             ...updated[index],
@@ -399,7 +399,7 @@ const mapSectionRef = useRef(null);
         }
 
         // If everything is valid
-        console.log('sessionMappings', sessionMappings);
+         // console.log('sessionMappings', sessionMappings);
         setSessionsMap(sessionMappings);
         setIsMapping(false);
 
@@ -412,20 +412,20 @@ const mapSectionRef = useRef(null);
     };
 
     const handleSaveTerm = async (term) => {
-        console.log('selectedTermGroup', selectedTermGroup)
-        console.log('myGroupData', myGroupData)
+         // console.log('selectedTermGroup', selectedTermGroup)
+         // console.log('myGroupData', myGroupData)
         if (!myGroupData?.id && !selectedTermGroup) {
             console.error("Missing termGroupId");
             return;
         }
 
-        console.log("OK"); // Either one exists
+         // console.log("OK"); // Either one exists
 
 
 
 
-        console.log('Term to save:', term);
-        console.log('Matched terms:', termData);
+         // console.log('Term to save:', term);
+         // console.log('Matched terms:', termData);
 
         // Validate required fields
         if (!term.name || !term.startDate || !term.endDate || !term.sessions) {
@@ -448,7 +448,7 @@ const mapSectionRef = useRef(null);
             });
             return;
         }
-        console.log('selectedTermGroup', selectedTermGroup?.id)
+         // console.log('selectedTermGroup', selectedTermGroup?.id)
         // Prepare the payload
         const payload = {
             termName: term.name,
@@ -609,13 +609,13 @@ const mapSectionRef = useRef(null);
             navigate('/configuration/weekly-classes/term-dates/list');
         });
     };
-    console.log('terms', terms)
-    console.log('savedTermIds', savedTermIds)
+     // console.log('terms', terms)
+     // console.log('savedTermIds', savedTermIds)
 
     // const isSaveDisabled = !terms.length || terms.some(t => !savedTermIds.has(t.id));
 
-    console.log('selectedTermGroup', selectedTermGroup)
-    console.log("myGroupData", myGroupData)
+     // console.log('selectedTermGroup', selectedTermGroup)
+     // console.log("myGroupData", myGroupData)
     const parseLocalDate = (dateStr) => {
         if (!dateStr) return null;
         const [year, month, day] = dateStr.split("-").map(Number);

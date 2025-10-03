@@ -39,7 +39,7 @@ const Dashboard = () => {
   }, [fetchDashboard]);
   const [reorderMode, setReorderMode] = useState(false);
 
-  console.log('dashboardData', dashboardData)
+   // console.log('dashboardData', dashboardData)
   const [originalData, setOriginalData] = useState([]);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const Dashboard = () => {
     };
 useEffect(() => {
   if (dashboardData) {
-    console.log("dashboardData", dashboardData);
+     // console.log("dashboardData", dashboardData);
 
     const updatedMetrics = Object.keys(dashboardData).map((key) => {
       const metricDef = metricDefinitions.find((m) => m.key === key);
@@ -86,7 +86,7 @@ useEffect(() => {
       };
     });
 
-    console.log("updatedMetrics", updatedMetrics);
+     // console.log("updatedMetrics", updatedMetrics);
     setMetricsList(updatedMetrics);
   }
 }, [dashboardData]);
@@ -108,7 +108,7 @@ useEffect(() => {
     value: dashboardData[metric.key]?.count ?? 0, // fallback to 0 if missing
   }));
 
-  console.log("Dynamic Metrics:", metrics);
+   // console.log("Dynamic Metrics:", metrics);
 
   const MyRole = localStorage.getItem("role");
 
@@ -131,7 +131,7 @@ useEffect(() => {
         },
         body: JSON.stringify(payload),
       });
-      console.log("Reordered:", payload);
+       // console.log("Reordered:", payload);
       setOriginalData(dashboardData); // update original order
 
       setReorderMode(false); // exit reorder mode after saving
@@ -215,20 +215,20 @@ useEffect(() => {
 
   
 const applyFilter = () => {
-  console.log("▶️ applyFilter called");
+   // console.log("▶️ applyFilter called");
 
   // validate custom date range
   const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
   const hasRange = isValidDate(fromDate) && isValidDate(toDate);
   const range = hasRange ? [fromDate, toDate] : [];
 
-  console.log("📅 final range:", range);
+   // console.log("📅 final range:", range);
 
   // collect selected filters (can be multiple)
   const selectedFilters = Object.keys(checkedStatuses).filter(
     (key) => checkedStatuses[key]
   );
-  console.log("🔎 selectedFilters:", selectedFilters);
+   // console.log("🔎 selectedFilters:", selectedFilters);
 
   // call fetchDashboard with params
   fetchDashboard({
@@ -240,7 +240,7 @@ const applyFilter = () => {
   });
 };
 
-console.log('metricsList',metricsList)
+ // console.log('metricsList',metricsList)
 
   if (loading) {
     return (
@@ -519,8 +519,8 @@ console.log('metricsList',metricsList)
 
                   {/* Day Labels */}
                   <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
-                    {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
-                      <div key={day} className="font-medium text-center">
+                    {["M", "T", "W", "T", "F", "S", "S"].map((day ,indx) => (
+                      <div key={indx} className="font-medium text-center">
                         {day}
                       </div>
                     ))}

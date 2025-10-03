@@ -21,80 +21,91 @@ const Create = ({ groups, termGroup, onClose }) => {
   const [selectedTerms, setSelectedTerms] = useState([]);
   const [selectedSub, setSelectedSub] = useState(null);
   const [selectedTermIds, setSelectedTermIds] = useState([]);
-  const [selectedLabels, setSelectedLabels] = useState([]);
-const validateForm = () => {
-  if (!formData.area?.trim()) return 'Area is required';
-  if (!formData.name?.trim()) return 'Name of Venue is required';
-  if (!formData.address?.trim()) return 'Address is required';
-  if (!formData.facility) return 'Please select Facility (Indoor/Outdoor)';
-  if (formData.hasParking && !formData.parkingNote?.trim()) return 'Please add a Parking Note';
-  if (formData.isCongested && !formData.howToEnterFacility?.trim()) return 'Please add a Congestion Note';
-  if (selectedTermIds.length === 0) return 'Please select at least one Term Date Linkage';
-  return null; // ✅ valid
-};
+  const validateForm = () => {
+    if (!formData.area?.trim()) return 'Area is required';
+    if (!formData.name?.trim()) return 'Name of Venue is required';
+    if (!formData.address?.trim()) return 'Address is required';
+    if (!formData.facility) return 'Please select Facility (Indoor/Outdoor)';
+    if (formData.hasParking && !formData.parkingNote?.trim()) return 'Please add a Parking Note';
+    if (formData.isCongested && !formData.howToEnterFacility?.trim()) return 'Please add a Congestion Note';
+    if (selectedTermIds.length === 0) return 'Please select at least one Term Date Linkage';
+    return null; // ✅ valid
+  };
 
   const handleSubmit = () => {
-  const err = validateForm();
-  if (err) {
-    Swal.fire({
-      title: 'Validation Error',
-      text: err,
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-    return; // stop here
-  }
+    const err = validateForm();
+    if (err) {
+      Swal.fire({
+        title: 'Validation Error',
+        text: err,
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+      return; // stop here
+    }
 
-  // Success flow
-  console.log("Venue Submitted:", formData);
-  createVenues(formData);
-  setFormData({
-    area: "", name: "", address: "", facility: "",
-    hasParking: false, isCongested: false, parkingNote: "",
-    howToEnterFacility: "", termGroupId: "", paymentGroupId: ""
-  });
-  onClose();
-};
+    // Success flow
+    // console.log("Venue Submitted:", formData);
+    createVenues(formData);
+    setFormData({
+      area: "", name: "", address: "", facility: "",
+      hasParking: false, isCongested: false, parkingNote: "",
+      howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
+    });
+    onClose();
+  };
 
 
   const handleCancel = () => {
     setFormData({
       area: "", name: "", address: "", facility: "",
       hasParking: false, isCongested: false, parkingNote: "",
-      howToEnterFacility: "", termGroupId: "", paymentGroupId: ""
+      howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
     });
     onClose();
 
   };
 
-  console.log('formData', formData)
+  // console.log('formData', formData)
   const toggleValue = (list, setList, value) => {
     setList((prev) =>
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
   };
- const handleUpdate = (id) => {
-  const err = validateForm();
-  if (err) {
-    Swal.fire({
-      title: 'Validation Error',
-      text: err,
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-    return; // stop here, don't close
-  }
+  const handleUpdate = (id) => {
+    const err = validateForm();
+    if (err) {
+      Swal.fire({
+        title: 'Validation Error',
+        text: err,
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+      return; // stop here, don't close
+    }
 
-  // ✅ success flow only
-  updateVenues(id, formData);
-  setFormData({
-    area: "", name: "", address: "", facility: "",
-    hasParking: false, isCongested: false, parkingNote: "",
-    howToEnterFacility: "", termGroupId: "", paymentGroupId: ""
-  });
-  onClose();
-  console.log("Venue Updated:", formData);
-};
+    // ✅ success flow only
+    console.log('formData.termGroupId', formData.termGroupId)
+    let termGroupId = formData.termGroupId;
+    if (typeof termGroupId === 'string') {
+      try {
+        termGroupId = JSON.parse(termGroupId);
+      } catch (e) {
+        console.error("Invalid JSON for termGroupId:", termGroupId);
+        termGroupId = [];
+      }
+    }
+    // Now it's [1, 10]
+    updateVenues(id, formData);
+
+    setFormData({
+      area: "", name: "", address: "", facility: "",
+      hasParking: false, isCongested: false, parkingNote: "",
+      howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
+    });
+    onClose();
+    // console.log("Venue Updated:", formData);
+  };
 
 
 
@@ -118,31 +129,29 @@ const validateForm = () => {
 
 
 
-  const termOptions = termGroup.map((group) => {
-    const date = new Date(group.createdAt);
-    const dayName = date.toLocaleDateString("en-GB", { weekday: "long" }); // "Tuesday"
-    const label = ` ${group.name.replace(/^(Saturday|Sunday|Tuesday)\s?/i, "")}`.trim();
+  const termOptions = Array.isArray(termGroup)
+    ? termGroup.map((group) => {
+      if (!group?.id || !group?.name) return null;
 
-    return {
-      id: group.id,
-      label
-    };
-  });
+      const label = `${group.name.replace(/^(Saturday|Sunday|Tuesday)\s?/i, "")}`.trim();
 
-  useEffect(() => {
-    const labels = termOptions
-      .filter(opt => selectedTermIds.includes(opt.id))
-      .map(opt => opt.label);
-    setSelectedLabels(labels);
-  }, [selectedTermIds, termOptions]);
-
+      return {
+        id: group.id,
+        label,
+      };
+    }).filter(Boolean)
+    : [];
 
 
   const toggleTermId = (id) => {
-    setSelectedTermIds(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
+    setSelectedTermIds((prev) => {
+      const current = Array.isArray(prev) ? prev : [];
+      return current.includes(id)
+        ? current.filter(i => i !== id)
+        : [...current, id];
+    });
   };
+
 
   const dropdownVariants = {
     hidden: { opacity: 0, scale: 0.95, y: -10 },
@@ -150,26 +159,31 @@ const validateForm = () => {
     exit: { opacity: 0, scale: 0.95, y: -10 },
   };
 
-  const subOptions = groups?.map(pkg => ({
-    id: pkg.id,
-    label: `${pkg.name}`
-  }));
-  console.log(subOptions);
+  const subOptions = Array.isArray(groups)
+    ? groups.map(pkg => {
+      if (!pkg?.id || !pkg?.name) return null;
+      return { id: pkg.id, label: pkg.name };
+    }).filter(Boolean)
+    : [];
+
+  // console.log(subOptions);
 
 
   useEffect(() => {
-    if (formData?.paymentGroupId) {
+    // Handle subscription group ID
+    if (formData?.paymentGroupId != null) {
       try {
         const parsed = Array.isArray(formData.paymentGroupId)
           ? formData.paymentGroupId
           : JSON.parse(formData.paymentGroupId);
         setSelectedSub(parsed);
       } catch {
-        setSelectedSub([]);
+        setSelectedSub(null);
       }
     }
 
-    if (formData?.termGroupId) {
+    // Handle term group ID
+    if (formData?.termGroupId != null) {
       try {
         const parsed = Array.isArray(formData.termGroupId)
           ? formData.termGroupId
@@ -181,12 +195,13 @@ const validateForm = () => {
     }
   }, [formData]);
 
-  useEffect(() => {
-    const matched = termOptions
-      .filter((group) => selectedTermIds.includes(group.id))
-      .map((group) => group.label);
-    setSelectedLabels(matched);
-  }, [selectedTermIds, termOptions]);
+  // ✅ First one (line ~140):
+const labels = Array.isArray(termOptions) && Array.isArray(selectedTermIds)
+  ? termOptions
+      .filter(opt => opt && selectedTermIds.includes(opt.id))
+      .map(opt => opt.label)
+      .filter(Boolean)
+  : [];
 
   return (
     <div className="max-w-md mx-auto">
@@ -347,8 +362,8 @@ const validateForm = () => {
               onClick={() => setShowTermDropdown(!showTermDropdown)}
               className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white cursor-pointer"
             >
-              {selectedLabels.length > 0
-                ? selectedLabels.join(", ")
+              {labels.length > 0
+                ? labels.join(", ")
                 : "Select Term Date Linkage"}
             </div>
 
@@ -367,13 +382,14 @@ const validateForm = () => {
                     <label key={group.id} className="flex items-center gap-2 text-[15px]">
                       <input
                         type="checkbox"
-                        checked={selectedTermIds.includes(group.id)}
+                        checked={Array.isArray(selectedTermIds) && selectedTermIds.includes(group.id)}
                         onChange={() => toggleTermId(group.id)}
                         className="accent-blue-600"
                       />
                       {group.label}
                     </label>
                   ))}
+
                   <button
                     type="button"
                     onClick={handleSaveTerm}

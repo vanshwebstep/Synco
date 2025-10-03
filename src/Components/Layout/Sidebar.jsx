@@ -17,156 +17,172 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const sidebarRef = useRef();
   const { checkPermission } = usePermission();
+  const MyRole = localStorage.getItem("role");
 
   const menuItemsRaw = [
-    {
-      title: 'Dashboard',
-      icon: '/demo/synco/SidebarLogos/Dashboard.png',
-      iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
-      link: '/',
-    },
-    // {
-    //   title: 'Configuration',
-    //   icon: '/demo/synco/SidebarLogos/config.png',
-    //   iconHover: '/demo/synco/SidebarLogos/configH.png',
-    //   needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term-group', action: 'create' }, { module: 'venue', action: 'view-listing' }, { module: 'book-membership', action: 'view-listing' }, { module: 'book-free-trial', action: 'view-listing' }, { module: 'find-class', action: 'view-listing' }, { module: 'payment-group', action: 'view-listing' }, { module: 'session-plan-group', action: 'view-listing' }, { module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }, { module: 'member', action: 'view-listing' }],
-    //   subItems: [
+  {
+    title: 'Dashboard',
+    icon: '/demo/synco/SidebarLogos/Dashboard.png',
+    iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
+    link: '/',
+  },
+  {
+    title: 'Weekly Classes',
+    icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
+    iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
+    needPermissions: [
+      { module: 'term-group', action: 'view-listing' },
+      { module: 'term-group', action: 'create' },
+      { module: 'venue', action: 'view-listing' },
+      { module: 'book-membership', action: 'view-listing' },
+      { module: 'book-free-trial', action: 'view-listing' },
+      { module: 'find-class', action: 'view-listing' },
+      { module: 'payment-group', action: 'view-listing' },
+      { module: 'session-plan-group', action: 'view-listing' }
+    ],
+    subItems: [
+      { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
+      { title: 'Members', link: '/configuration/weekly-classes/all-members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+      { title: 'Sales', link: '/configuration/weekly-classes/all-members/membership-sales', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+      { title: 'Trials', link: '/configuration/weekly-classes/trial/list', needPermissions: [{ module: 'book-free-trial', action: 'view-listing' }] },
+      { title: 'Cancellation', link: '/configuration/weekly-classes/cancellation', needPermissions: [{ module: 'cancellation', action: 'view-listing' }] },
+      { title: 'Waiting List', link: '/configuration/weekly-classes/find-a-class/add-to-waiting-list/list', needPermissions: [{ module: 'waiting-list', action: 'view-listing' }] },
+      { title: 'Capacity', link: '/configuration/weekly-classes/capacity', needPermissions: [{ module: 'capacity', action: 'view-listing' }] },
+      { title: 'Session Plan Library', link: '/configuration/weekly-classes/session-plan-list', needPermissions: [{ module: 'session-plan-group', action: 'view-listing' }] },
+      { title: 'Subscription Plan Manager', link: '/configuration/weekly-classes/subscription-planManager', needPermissions: [{ module: 'payment-group', action: 'view-listing' }] },
+      { title: 'Venues', link: '/configuration/weekly-classes/venues', needPermissions: [{ module: 'venue', action: 'view-listing' }, { module: 'venue', action: 'create' }] },
+      { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term', action: 'view-listing' }] }
+    ]
+  },
+  {
+    title: 'Holiday Camps',
+    icon: '/demo/synco/SidebarLogos/Holiday.png',
+    iconHover: '/demo/synco/SidebarLogos/HolidayH.png',
+    needPermissions: [
+      { module: 'discount', action: 'view-listing' },
+      { module: 'discount', action: 'create' }
+    ],
+    subItems: [
+      { title: 'Discounts', link: '/configuration/holiday-camps/discounts/list', needPermissions: [{ module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }] }
+    ]
+  },
+  {
+    title: 'Administration',
+    icon: '/demo/synco/SidebarLogos/Admistration.png',
+    iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
+    needPermissions: [{ module: 'member', action: 'view-listing' }],
+    subItems: [
+      { title: 'Admin Panel', link: '/configuration/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] }
+    ]
+  },
+  ...(MyRole === 'Super Admin'
+    ? [
         {
-          title: 'Weekly Classes',
-          icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
-          iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
-          needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term-group', action: 'create' }, { module: 'venue', action: 'view-listing' }, { module: 'book-membership', action: 'view-listing' }, { module: 'book-free-trial', action: 'view-listing' }, { module: 'find-class', action: 'view-listing' }, { module: 'payment-group', action: 'view-listing' }, { module: 'session-plan-group', action: 'view-listing' }],
-          subItems: [
-            { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
-            { title: 'Members', link: '/configuration/weekly-classes/all-members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
-            { title: 'Sales', link: '/configuration/weekly-classes/all-members/membership-sales', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
-            { title: 'Trials', link: '/configuration/weekly-classes/trial/list', needPermissions: [{ module: 'book-free-trial', action: 'view-listing' }] },
-            { title: 'Cancellation', link: '/configuration/weekly-classes/cancellation', needPermissions: [{ module: 'cancellation', action: 'view-listing' }], },
-            { title: 'Waiting List', link: '/configuration/weekly-classes/find-a-class/add-to-waiting-list/list', needPermissions: [{ module: 'waiting-list', action: 'view-listing' }] },
-            { title: 'Capacity', link: '/configuration/weekly-classes/capacity', needPermissions: [{ module: 'capacity', action: 'view-listing' }], },
-            { title: 'Session Plan Library', link: '/configuration/weekly-classes/session-plan-list', needPermissions: [{ module: 'session-plan-group', action: 'view-listing' }] },
-            { title: 'Subscription Plan Manager', link: '/configuration/weekly-classes/subscription-planManager', needPermissions: [{ module: 'payment-group', action: 'view-listing' }] },
-            { title: 'Venues', link: '/configuration/weekly-classes/venues', needPermissions: [{ module: 'venue', action: 'view-listing' }, { module: 'venue', action: 'create' }] },
-            { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', needPermissions: [{ module: 'term-group', action: 'view-listing' }, { module: 'term', action: 'view-listing' }], }
+          title: 'Permission',
+          icon: '/demo/synco/SidebarLogos/Dashboard.png',
+          iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
+          link: '/permission',
+          needPermissions: [
+            { module: 'admin-role', action: 'view-listing' },
+            { module: 'admin-role', action: 'create' }
           ]
-        },
-        {
-          title: 'Holiday Camps',
-          icon: '/demo/synco/SidebarLogos/Holiday.png',
-          iconHover: '/demo/synco/SidebarLogos/HolidayH.png',
-          needPermissions: [{ module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }],
-          subItems: [
-            { title: 'Discounts', link: '/configuration/holiday-camps/discounts/list', needPermissions: [{ module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }] }
-          ]
-        },
-        {
-          title: 'Administration',
-          icon: '/demo/synco/SidebarLogos/Admistration.png',
-          iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
-          needPermissions: [{ module: 'member', action: 'view-listing' }],
-          subItems: [
-            { title: 'Admin Panel', link: '/configuration/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] }
-          ]
-        },
-    //   ]
-    // },
-    {
-      title: 'Permission',
-      icon: '/demo/synco/SidebarLogos/Dashboard.png',
-      iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
-      link: '/permission',
-      needPermissions: [{ module: 'admin-role', action: 'view-listing' }, { module: 'admin-role', action: 'create' }]
-    },
-      {
-      title: 'Key Information',
-      icon: '/demo/synco/SidebarLogos/Management.png',
-      iconHover: '/demo/synco/SidebarLogos/ManagementH.png',
-      link: '/configuration/KeyInfomation',
-      needPermissions: [{ module: 'admin-role', action: 'view-listing' }, { module: 'admin-role', action: 'create' }]
-    },
-  ];
+        }
+      ]
+    : []),
+  {
+    title: 'Key Information',
+    icon: '/demo/synco/SidebarLogos/Management.png',
+    iconHover: '/demo/synco/SidebarLogos/ManagementH.png',
+    link: '/configuration/KeyInfomation',
+    needPermissions: [
+      { module: 'admin-role', action: 'view-listing' },
+      { module: 'admin-role', action: 'create' }
+    ]
+  }
+];
+
 
   let menuItems = [];
 
   menuItemsRaw.forEach(menuItem => {
-    // console.log("Checking Menu Item:", menuItem.title);
+     // console.log("Checking Menu Item:", menuItem.title);
 
     let isMenuGranted = false;
 
 
     if (!menuItem.needPermissions) {
-      // console.log("-> No permissions needed for this menu.");
+       // console.log("-> No permissions needed for this menu.");
       isMenuGranted = true;
     } else {
-      // console.log(`-> Checkings required permissions for this menu (${menuItem.title})...`);
+       // console.log(`-> Checkings required permissions for this menu (${menuItem.title})...`);
       menuItem.needPermissions.forEach(permission => {
         if (checkPermission(permission)) {
-          // console.log(`--> Permission denied:`, permission);
+           // console.log(`--> Permission denied:`, permission);
           isMenuGranted = true;
         } else {
-          // console.log(`--> Permission denied:`, permission);
+           // console.log(`--> Permission denied:`, permission);
         }
       });
     }
 
     // Step 2: If main menu is allowed, check sub-items
     if (isMenuGranted && menuItem.subItems && menuItem.subItems.length) {
-      // console.log("-> Checking sub-items...");
+       // console.log("-> Checking sub-items...");
       let validSubs = [];
 
       menuItem.subItems.forEach(sub => {
-        // console.log("   Checking Sub-Item:", sub.title);
+         // console.log("   Checking Sub-Item:", sub.title);
 
         let isSubGranted = false;
         let isChildPermissionGranted = false;
 
         // Step 2.1: Check permissions for sub-item
         if (!sub.needPermissions) {
-          // console.log("   -> No permissions needed for this sub-item.");
+           // console.log("   -> No permissions needed for this sub-item.");
           isSubGranted = true;
         } else {
-          // console.log(`   -> Checking required permissions for this sub-item (${sub.title})...`);
+           // console.log(`   -> Checking required permissions for this sub-item (${sub.title})...`);
           sub.needPermissions.forEach(permission => {
             if (checkPermission(permission)) {
-              // console.log(`   --> Sub-item permission granted: ${permission}`);
+               // console.log(`   --> Sub-item permission granted: ${permission}`);
               isSubGranted = true;
             } else {
-              // console.log(`   --> Sub-item permission denied: ${permission}`);
+               // console.log(`   --> Sub-item permission denied: ${permission}`);
             }
           });
         }
 
         // Step 2.2: Check children of sub-item
         if (sub.subItems && sub.subItems.length) {
-          // console.log("   -> Checking children of sub-item...");
+           // console.log("   -> Checking children of sub-item...");
           let validChildren = [];
 
           sub.subItems.forEach(child => {
-            // console.log("      Checking Child Item:", child.title);
+             // console.log("      Checking Child Item:", child.title);
 
             let isChildGranted = false;
 
             if (!child.needPermissions) {
-              // console.log("      -> No permissions needed for this child.");
+               // console.log("      -> No permissions needed for this child.");
               isChildGranted = true;
             } else {
-              // console.log("      -> Checking required permissions for this child...");
+               // console.log("      -> Checking required permissions for this child...");
               child.needPermissions.forEach(permission => {
                 if (checkPermission(permission)) {
-                  // console.log(`      --> Child permission granted: ${permission}`);
+                   // console.log(`      --> Child permission granted: ${permission}`);
                   isChildGranted = true;
                 } else {
-                  // console.log(`      --> Child permission denied: ${permission}`);
+                   // console.log(`      --> Child permission denied: ${permission}`);
                 }
               });
             }
 
             if (isChildGranted) {
-              // console.log("      => Child granted access and added.");
+               // console.log("      => Child granted access and added.");
               validChildren.push(child);
               isChildPermissionGranted = true;
             } else {
-              // console.log("      => Child denied access and skipped.");
+               // console.log("      => Child denied access and skipped.");
             }
           });
 
@@ -175,10 +191,10 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
         // Step 2.3: Decide if sub-item should be added
         if (isSubGranted || isChildPermissionGranted) {
-          // console.log("   => Sub-item granted access and added.");
+           // console.log("   => Sub-item granted access and added.");
           validSubs.push(sub);
         } else {
-          // console.log("   => Sub-item denied access and skipped.");
+           // console.log("   => Sub-item denied access and skipped.");
         }
       });
 
@@ -187,10 +203,10 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
     // Step 3: Add the menu item if granted or if any sub-items remain
     if (isMenuGranted) {
-      // console.log(`=> (${menuItem.title}) Menu item granted access and added to final list.\n`);
+       // console.log(`=> (${menuItem.title}) Menu item granted access and added to final list.\n`);
       menuItems.push(menuItem);
     } else {
-      // console.log("=> Menu item denied access and skipped.\n");
+       // console.log("=> Menu item denied access and skipped.\n");
     }
   });
 
@@ -204,7 +220,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   };
   const renderMenuItems = (items, level = 0) => {
     const location = useLocation(); // hook inside render so it's scoped
-    // console.log('localSgtorage', localStorage)
+     // console.log('localSgtorage', localStorage)
 
     return (
      <ul

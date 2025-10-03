@@ -112,11 +112,11 @@ const Create = () => {
             if (isCreated) {
                 await updateTermGroup(myGroupData.id, payload);
                 setIsAddTermOk(true);
-                console.log("🔄 Updated Term Group");
+                 console.log("🔄 Updated Term Group");
             } else {
                 const created = await createTermGroup(payload);
                 setIsCreated(true);
-                console.log("✅ Created New Term Group");
+                 console.log("✅ Created New Term Group");
             }
 
             setPrevGroupName(trimmedName); // Update previous value
@@ -182,7 +182,7 @@ const Create = () => {
                 throw new Error(data.message || 'Failed to save term.');
             }
 
-            console.log("✅ Term Saved:", data);
+             console.log("✅ Term Saved:", data);
 
             Swal.fire({
                 icon: 'success',
@@ -260,7 +260,7 @@ const Create = () => {
 
 
         // Optional: log or use updatedTerm somewhere
-        console.log('✅ Updated Active Term with mapped sessions:', updatedTerm);
+         console.log('✅ Updated Active Term with mapped sessions:', updatedTerm);
 
         // Update state if needed
         setMapSession(sessionMappings); // Still keep this if it's used elsewhere

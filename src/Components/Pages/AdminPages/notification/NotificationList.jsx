@@ -191,7 +191,7 @@ const recipientOptions = [
         return startMatch && endMatch && matchCategory;
     });
 
-    console.log('filteredNotifications', filteredNotifications)
+     console.log('filteredNotifications', filteredNotifications)
     
    if (loading && loadingCustomNotification) {
         return (

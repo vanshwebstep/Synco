@@ -111,7 +111,7 @@ const PermissionList = () => {
       }
     });
 
-    console.log("SAVE PAYLOAD 👉", payload);
+     console.log("SAVE PAYLOAD 👉", payload);
     if (payload.length > 0) {
       try {
         setSubmitLoading(true);

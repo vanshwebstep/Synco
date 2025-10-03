@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Pencil, Trash2, Eye, } from 'lucide-react';
+import React, { useState, useEffect,useCallback } from 'react';
+import { Pencil, Trash2, Eye, Copy,} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 import Swal from "sweetalert2";
@@ -12,7 +12,7 @@ const List = () => {
   const token = localStorage.getItem("adminToken");
 
   const navigate = useNavigate();
-  const { fetchSessionGroup, sessionGroup, deleteSessionGroup, deleteSessionlevel, loading } = useSessionPlan();
+  const { fetchSessionGroup, sessionGroup, deleteSessionGroup, deleteSessionlevel,duplicateSession, updateDiscount, loading, setLoading} = useSessionPlan();
   const [weeks, setWeeks] = useState([]);
   const ageMapping = {
     Beginner: "4-6 Years",
@@ -24,6 +24,8 @@ const List = () => {
   const [tempList, setTempList] = useState([]); // holds the working reorder
   const [reorderMode, setReorderMode] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [editingWeek, setEditingWeek] = useState(null); // {weekId}
+  const [editedWeekTitle, setEditedWeekTitle] = useState("");
   useEffect(() => {
     const getPackages = async () => {
       try {
@@ -89,7 +91,7 @@ const List = () => {
       setWeeks(transformedWeeks);
       setWeekList(transformedWeeks);
     }
-    else{
+    else {
       setWeekList([])
       setTempList([])
     }
@@ -99,7 +101,7 @@ const List = () => {
   // without condition 
   //  useEffect(() => {
   //   if (sessionGroup?.length > 0) {
-  //     console.log('sessionGroup', sessionGroup);
+  //      console.log('sessionGroup', sessionGroup);
 
   //     const transformedWeeks = sessionGroup.map((group) => {
   //       const levels = typeof group.levels === 'string'
@@ -127,7 +129,7 @@ const List = () => {
   //           };
   //         });
 
-  //       console.log('groups', groups);
+  //        console.log('groups', groups);
 
   //       return {
   //         id: group.id,
@@ -169,6 +171,33 @@ const List = () => {
     });
   };
 
+const handleDuplicateGroup = (weekId) => {
+  Swal.fire({
+    title: 'Duplicate Group?',
+    text: "This group will be duplicated.",
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, duplicate it!',
+    reverseButtons: true,
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        setLoading(true); // Optional, show loading
+        await duplicateSession(weekId); // Call your duplication function
+        Swal.fire('Duplicated!', 'The group has been duplicated.', 'success');
+      } catch (err) {
+        console.error(err);
+        Swal.fire('Error!', 'Failed to duplicate the group.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+  });
+};
+
+
   const handleDeleteLevel = (id, level) => {
     Swal.fire({
       title: 'Are you sure?',
@@ -186,6 +215,75 @@ const List = () => {
       }
     });
   };
+  const handleEditGroupNameOnly = (weekId, currentTitle) => {
+    setEditingWeek(weekId);
+    setEditedWeekTitle(currentTitle); // prefill existing title
+  };
+const handleSaveWeekTitle = useCallback(
+  async (weekId) => {
+    // ✅ Update only the title in local state
+    setTempList((prev) =>
+      prev.map((week) =>
+        week.id === weekId ? { ...week, title: editedWeekTitle } : week
+      )
+    );
+
+    if (!token) return;
+
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      if (editedWeekTitle) {
+        formData.append("groupName", editedWeekTitle); // 👈 use "title", not "groupName"
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/session-plan-group/${weekId}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "Failed to update");
+
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: result.message || "Week title updated successfully.",
+        confirmButtonColor: "#237FEA",
+      });
+
+      await fetchSessionGroup(); // ✅ refresh list after update
+    } catch (err) {
+      console.error("Failed to update week title:", err);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message || "Something went wrong.",
+      });
+    } finally {
+      setLoading(false);
+      setEditingWeek(null);
+    }
+  },
+  [editedWeekTitle, token, navigate, fetchSessionGroup]
+);
+
+
+
+  console.log('setTempList', editedWeekTitle)
+
+
+  const handleCancelEdit = () => {
+    setEditingWeek(null);
+  };
+
   const handleAddGroup = (weekId) => {
     // Add group logic here
   };
@@ -301,30 +399,67 @@ const List = () => {
                         }`}
                     >
                       <div className="flex items-center justify-between p-2">
-                        <h3 className="font-semibold text-[24px]">{week.title}</h3>
-                        {!reorderMode && (
-                          <div className="flex gap-2 item-center">
-                            <button
-                              onClick={() =>
-                                navigate(`/configuration/weekly-classes/session-plan-preview?id=${week.id}`)
-                              }
-                              className="text-gray-700 hover:text-black"
-                            >
-                              <Eye size={24} />
-                            </button>
-                            {/* <button
-                              onClick={() => handleDeleteGroup(week.id)}
-                              className="text-gray-500 hover:text-red-500"
-                            >
-                              <img
-                                src="/demo/synco/icons/deleteIcon.png"
-                                alt="Delete"
-                                className="min-w-6 min-h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
-                              />
-                            </button> */}
-                          </div>
+                        {editingWeek === week.id ? (
+                          <>
+                            <input
+                              type="text"
+                              value={editedWeekTitle}
+                              onChange={(e) => setEditedWeekTitle(e.target.value)}
+                              className="border border-gray-300 rounded px-2 py-1 text-lg font-semibold"
+                            />
+
+                            <div className="flex gap-2 items-center">
+                              <button
+                                onClick={() => handleSaveWeekTitle(week.id)}
+                                className="text-green-600 font-semibold"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={handleCancelEdit}
+                                className="text-red-500 font-semibold"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <h3 className="font-semibold text-[24px]">{week.title}</h3>
+                            {!reorderMode && (
+                              <div className="flex gap-2 items-center">
+                                <button
+                                  onClick={() => handleEditGroupNameOnly(week.id, week.title)}
+                                  className="text-gray-500 hover:text-blue-600"
+                                >
+                                  <img
+                                    src="/demo/synco/icons/edit.png"
+                                    alt="Edit"
+                                    className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                  />
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    navigate(`/configuration/weekly-classes/session-plan-preview?id=${week.id}`)
+                                  }
+                                  className="text-gray-700 hover:text-black"
+                                >
+                                  <Eye size={24} />
+                                </button>
+                                 <button
+                                  onClick={() =>
+                                    handleDuplicateGroup(week.id)
+                                  }
+                                  className="text-gray-700 hover:text-black"
+                                >
+                                  <Copy  size={24} />
+                                </button>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
+
 
                       {week.groups.map((group) => (
                         <div
@@ -341,6 +476,7 @@ const List = () => {
                                 Pro: "10-12 years",
                               }[group.name] || ""}
                             </p>                          </div>
+
                           <div className="flex gap-2">
                             {canEdit &&
                               <button

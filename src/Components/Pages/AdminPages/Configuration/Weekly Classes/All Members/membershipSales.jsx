@@ -189,7 +189,7 @@ const trialLists = () => {
         );
     };
 
-    console.log('bookMembership', bookMembership)
+     console.log('bookMembership', bookMembership)
 
 
 
@@ -290,7 +290,7 @@ const getStatusBadge = (status) => {
                 (agent) => `${agent.id}`
             );
             setSavedAgent(selectedNames); // ✅ saves full names as strings
-            console.log("selectedNames", tempSelectedAgents);
+             console.log("selectedNames", tempSelectedAgents);
         } else {
             setSavedAgent([]); // nothing selected → clear
         }
@@ -367,7 +367,7 @@ const membershipColumns = [
     ];
     if (loading) return <Loader />;
 
-    console.log('bookMembership', bookMembership)
+     console.log('bookMembership', bookMembership)
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
 

@@ -76,7 +76,7 @@ const createTermGroup = useCallback(
       const data = await response.json();
 setMyGroupData(data.data);
 
-      console.log("data", data.data);
+       console.log("data", data.data);
 
       if (response.ok && data.status === true) {
         // await Swal.fire({
@@ -169,7 +169,7 @@ const createTerms = useCallback(
       formdata.append("title", data.title);
       formdata.append("description", data.description);
       formdata.append("duration", data.duration);
-      console.log('formdatahh', formdata)
+       console.log('formdatahh', formdata)
       if (file) formdata.append("image", file);
 
       await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/`, {
@@ -180,7 +180,7 @@ const createTerms = useCallback(
         },
         body: formdata,
       });
-      console.log('doneeee')
+       console.log('doneeee')
       await fetchExercises(); // optional if refreshing UI
     } catch (err) {
       console.error("Failed to create exercise:", err);

@@ -118,6 +118,7 @@ const createVenues = async (venueData) => {
       myHeaders.append("Authorization", `Bearer ${token}`);
     }
 
+     console.log('updatedVenueData',updatedVenueData)
     const requestOptions = {
       method: "PUT",
       headers: myHeaders,

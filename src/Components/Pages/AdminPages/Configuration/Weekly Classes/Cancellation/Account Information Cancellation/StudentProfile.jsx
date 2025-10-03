@@ -37,7 +37,7 @@ const StudentProfile = ({ StudentProfile }) => {
         { value: "immediate", label: "Cancel Immediately" },
     ];
     const handleCancel = () => {
-        console.log("Payload:", formData);
+         console.log("Payload:", formData);
         cancelFreeTrial(formData);
     };
 
@@ -118,7 +118,7 @@ const StudentProfile = ({ StudentProfile }) => {
         reactivateOn: null,
         additionalNote: "",
     });
-    console.log('parents', StudentProfile)
+     console.log('parents', StudentProfile)
     const studentsList = StudentProfile?.students || [];
     const parents = StudentProfile.parents || [];
     const [formData, setFormData] = useState({
@@ -129,7 +129,7 @@ const StudentProfile = ({ StudentProfile }) => {
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const emergency = StudentProfile.emergency || [];
-    console.log('matchedPlan', matchedPlan)
+     console.log('matchedPlan', matchedPlan)
 
     const { checkPermission } = usePermission();
 
@@ -812,7 +812,7 @@ const StudentProfile = ({ StudentProfile }) => {
                                 <div className="flex gap-4 pt-4">
                                     <button
                                         className="flex-1 border border-gray-400 rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => console.log("Cancel clicked")}
+                                        onClick={() =>  console.log("Cancel clicked")}
                                     >
                                         Cancel
                                     </button>

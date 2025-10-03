@@ -40,10 +40,10 @@ const StudentProfile = ({ StudentProfile }) => {
     ];
 
     const handleCancel = () => {
-        console.log("Payload:", formData);
+         console.log("Payload:", formData);
         cancelFreeTrial(formData);
     };
-    console.log('editingIndex', editingIndex)
+     console.log('editingIndex', editingIndex)
     const formatDate = (dateString, withTime = false) => {
         if (!dateString) return "-";
         const date = new Date(dateString);
@@ -89,7 +89,7 @@ const StudentProfile = ({ StudentProfile }) => {
         additionalNote: "",
     });
 
-    console.log('parents', StudentProfile)
+     console.log('parents', StudentProfile)
     const parents = StudentProfile.parents;
     const [formData, setFormData] = useState({
         bookingId: id,
@@ -99,7 +99,7 @@ const StudentProfile = ({ StudentProfile }) => {
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const emergency = StudentProfile.emergency;
-    console.log('matchedPlan', matchedPlan)
+     console.log('matchedPlan', matchedPlan)
 
     const { checkPermission } = usePermission();
 
@@ -115,6 +115,23 @@ const StudentProfile = ({ StudentProfile }) => {
             trialDate: date ? date.toISOString().split("T")[0] : "",
         }));
     };
+
+
+      const handleDOBChange = (index, date) => {
+        const today = new Date();
+        let ageNow = today.getFullYear() - date.getFullYear();
+        const m = today.getMonth() - date.getMonth();
+
+        if (m < 0 || (m === 0 && today.getDate() < date.getDate())) {
+            ageNow--;
+        }
+
+        const updatedStudents = [...students];
+        updatedStudents[index].dateOfBirth = date;
+        updatedStudents[index].age = ageNow;
+        setStudents(updatedStudents);
+    };
+    
 
     const handleReasonChange = (selectedOption) => {
         setReason(selectedOption);
@@ -169,7 +186,7 @@ const StudentProfile = ({ StudentProfile }) => {
             }));
 
             updateBookFreeTrialsFamily(StudentProfile.id, payload);
-            console.log("Parent Payload to send:", payload);
+             console.log("Parent Payload to send:", payload);
         } else {
             // ✏️ Edit Mode
             setEditingIndex(index);
@@ -205,7 +222,7 @@ const StudentProfile = ({ StudentProfile }) => {
             }
         });
     };
-    console.log('students', students)
+     console.log('students', students)
     return (
         <>
             <div className="md:flex w-full gap-4">
@@ -259,14 +276,19 @@ const StudentProfile = ({ StudentProfile }) => {
                                 <div className="flex gap-4">
                                     <div className="w-1/2">
                                         <label className="block text-[16px] font-semibold">Date of Birth</label>
-                                        <input
-                                            type="date"
+                                        <DatePicker
+                                            withPortal
+                                            selected={student.dateOfBirth}
+                                            onChange={(date) => handleDOBChange(index, date)}
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={student.dateOfBirth || ""}
-                                            readOnly={editingIndex !== index}
-                                            onChange={(e) =>
-                                                handleStudentDataChange(index, "dateOfBirth", e.target.value)
-                                            }
+                                            showYearDropdown
+                                            scrollableYearDropdown
+                                            yearDropdownItemNumber={100}
+                                            dateFormat="dd/MM/yyyy"
+                                            maxDate={new Date(new Date().setFullYear(new Date().getFullYear() - 3))} // Minimum age: 3 years
+                                            minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))} // Maximum age: 100 years
+                                            placeholderText="Select date of birth"
+                                            isClearable
                                         />
                                     </div>
                                     <div className="w-1/2">
@@ -275,7 +297,7 @@ const StudentProfile = ({ StudentProfile }) => {
                                             type="number"
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                             value={student.age || ""}
-                                            readOnly={editingIndex !== index}
+                                            readOnly
                                             onChange={(e) =>
                                                 handleStudentDataChange(index, "age", e.target.value)
                                             }

@@ -57,7 +57,7 @@ const PlainTextEditor = () => {
   const termsRef = useRef();
 
   const handleSave = () => {
-    console.log('Saved:', { packageDetails, terms });
+     console.log('Saved:', { packageDetails, terms });
     alert('Plan saved successfully!');
   };
 

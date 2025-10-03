@@ -35,7 +35,7 @@ const AddPaymentPlanGroup = () => {
         }, [])
     useEffect(() => {
         if (id) {
-            console.log('id foud');
+             console.log('id foud');
             setIsEditMode(true);
             fetchGroupById(id);
         } else {
@@ -89,7 +89,7 @@ const AddPaymentPlanGroup = () => {
         const getPackages = async () => {
             try {
                 const response = await fetchPackages();
-                console.log("Fetched packages:", response);
+                 console.log("Fetched packages:", response);
 
                 if (response?.status && Array.isArray(response.data)) {
                     setPlans(response.data); // Set the dynamic plans from backend
@@ -262,7 +262,7 @@ const AddPaymentPlanGroup = () => {
     const canCreate =
         checkPermission({ module: 'payment-plan', action: 'create' });
 
-    console.log('formData.HolidayCampPackage', formData.HolidayCampPackage)
+     console.log('formData.HolidayCampPackage', formData.HolidayCampPackage)
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -846,7 +846,7 @@ const AddPaymentPlanGroup = () => {
                                                     },
                                                 }}
                                                 onInit={(evt, editor) => {
-                                                    console.log('Editor initialized', editor);
+                                                     console.log('Editor initialized', editor);
                                                 }}
                                             />
                                         </div>

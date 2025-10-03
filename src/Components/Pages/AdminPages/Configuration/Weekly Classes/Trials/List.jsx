@@ -110,7 +110,7 @@ const trialLists = () => {
 
     const navigate = useNavigate();
 
-    console.log('bookedByAdmin', bookedByAdmin)
+     console.log('bookedByAdmin', bookedByAdmin)
     useEffect(() => {
         if (selectedVenue) {
             fetchBookFreeTrials("", selectedVenue.label); // Using label as venueName
@@ -309,7 +309,7 @@ const trialLists = () => {
                 (agent) => `${agent.id}`
             );
             setSavedAgent(selectedNames); // ✅ saves full names as strings
-            console.log("selectedNames", tempSelectedAgents);
+             console.log("selectedNames", tempSelectedAgents);
         } else {
             setSavedAgent([]); // nothing selected → clear
         }
@@ -322,7 +322,7 @@ const trialLists = () => {
         // Fetch data with search value (debounce optional)
         fetchBookFreeTrials(value);
     };
-    console.log('statsFreeTrial', statsFreeTrial)
+     console.log('statsFreeTrial', statsFreeTrial)
     const { checkPermission } = usePermission();
     const formatStatus = (status) => {
         if (!status) return "-";

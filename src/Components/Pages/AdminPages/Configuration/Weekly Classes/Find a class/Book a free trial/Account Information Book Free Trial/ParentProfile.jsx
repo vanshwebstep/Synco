@@ -41,7 +41,7 @@ const ParentProfile = ({ ParentProfile }) => {
     ];
 
     const handleCancel = () => {
-        console.log("Payload:", formData);
+         console.log("Payload:", formData);
         cancelFreeTrial(formData);
     };
 
@@ -91,7 +91,7 @@ const ParentProfile = ({ ParentProfile }) => {
         additionalNote: "",
     });
 
-    console.log('parents', ParentProfile)
+     console.log('parents', ParentProfile)
     const [parents, setParents] = useState(ParentProfile.parents || []); 
     const [formData, setFormData] = useState({
         bookingId: id,
@@ -101,7 +101,7 @@ const ParentProfile = ({ ParentProfile }) => {
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const emergency = ParentProfile.emergency;
-    console.log('matchedPlan', matchedPlan)
+     console.log('matchedPlan', matchedPlan)
 
     const { checkPermission } = usePermission();
 
@@ -173,7 +173,7 @@ const ParentProfile = ({ ParentProfile }) => {
             }));
 
             updateBookFreeTrialsFamily(ParentProfile.id, payload);
-            console.log("Parent Payload to send:", payload);
+             console.log("Parent Payload to send:", payload);
         } else {
             // 🔹 Edit Mode
             setEditingIndex(index);
@@ -205,7 +205,7 @@ const ParentProfile = ({ ParentProfile }) => {
             }));
 
             updateBookFreeTrialsFamily(ParentProfile.id, payload);
-            console.log("Emergency Payload to send:", payload);
+             console.log("Emergency Payload to send:", payload);
         } else {
             // 🔹 Edit Mode
             setEditingEmergency(index);
@@ -241,7 +241,7 @@ const ParentProfile = ({ ParentProfile }) => {
             }
         });
     };
-    console.log('parents', parents)
+     console.log('parents', parents)
     return (
         <>
             <div className="md:flex w-full gap-4">

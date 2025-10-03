@@ -2,7 +2,7 @@ export const verifyToken = async (token) => {
   try {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     
-    console.log('🔍 Verifying token...');
+     console.log('🔍 Verifying token...');
     const response = await fetch(`${API_BASE_URL}/api/admin/auth/login/verify`, {
       method: 'GET',
       headers: {
@@ -11,7 +11,7 @@ export const verifyToken = async (token) => {
     });
 
     const result = await response.json();
-    console.log('📦 Verify response:', result);
+     console.log('📦 Verify response:', result);
 
     if (response.ok) {
       localStorage.setItem('adminInfo', JSON.stringify(result.admin));
@@ -20,7 +20,7 @@ export const verifyToken = async (token) => {
           "hasPermission",
           JSON.stringify(result.hasPermission)
         );
-          console.log('permission saved in verifytoken',result.hasPermission)
+           console.log('permission saved in verifytoken',result.hasPermission)
     
       return true;
     } else {

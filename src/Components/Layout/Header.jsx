@@ -20,12 +20,10 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const year = currentDate.getFullYear(); // e.g., 2024
   const { activeTab, setActiveTab } = useMembers();
 
-  // console.log('notificassstion', notification)
   const storedAdmin = localStorage.getItem("adminInfo");
 
   useEffect(() => {
     // ✅ Load adminInfo from localStorage
-    console.log('storedAdmin',storedAdmin)
     if (storedAdmin) {
       try {
         const parsedAdmin = JSON.parse(storedAdmin);

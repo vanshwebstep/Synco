@@ -71,8 +71,8 @@ const Create = () => {
 
         }
     };
-    console.log('bannerfile',bannerFile)
-    console.log('selectedGroup',selectedGroup)
+     // console.log('bannerfile',bannerFile)
+     // console.log('selectedGroup',selectedGroup)
 
     const handleCreateSession = () => {
         if (isProcessing) return;
@@ -92,7 +92,7 @@ const Create = () => {
             bannerFile,
             sessionExerciseIds: selectedPlans.map(plan => plan.id),
         };
-        console.log('currentLevel', currentLevel)
+         // console.log('currentLevel', currentLevel)
         setLevels((prevLevels) => {
             const existingIndex = prevLevels.findIndex((lvl) => lvl.level == activeTab);
             const updated = [...prevLevels];
@@ -102,7 +102,7 @@ const Create = () => {
             } else {
                 updated.push(currentLevel);
             }
-            console.log('updated', updated)
+             // console.log('updated', updated)
             handleNextTabOrSubmit(updated);
 
             return updated;
@@ -150,7 +150,7 @@ const Create = () => {
                 transformed[`${levelKey}_banner`] = media.banner || null;
             });
 
-            console.log("✅ Final Transformed Session Data (Edit Mode):", transformed);
+             // console.log("✅ Final Transformed Session Data (Edit Mode):", transformed);
             updateDiscount(id, transformed);
             return; // 🚫 Stop further execution
         }
@@ -191,7 +191,7 @@ const Create = () => {
                 transformed[`${levelKey}_banner`] = media.banner || null;
             });
 
-            console.log("✅ Final Transformed Session Data (Create Mode):", transformed);
+             // console.log("✅ Final Transformed Session Data (Create Mode):", transformed);
             createSessionGroup(transformed);
         } else {
             // Move to next tab
@@ -210,23 +210,23 @@ const Create = () => {
     };
 
     useEffect(() => {
-        console.log('level', level)
+         // console.log('level', level)
         if (level) {
             const matchedTab = tabs.find(
                 tab => tab.toLowerCase() == level.toLowerCase()
             );
             setActiveTab(matchedTab || 'beginner');
-            console.log('tabFromUrl', matchedTab || 'Begisssnner');
+             // console.log('tabFromUrl', matchedTab || 'Begisssnner');
         } else {
             const tabFromUrl = level && tabs.includes(level) ? (level) : 'beginner';
             setActiveTab(tabFromUrl);
-            console.log('tabFromUrl', tabFromUrl);
+             // console.log('tabFromUrl', tabFromUrl);
         }
     }, [level]);
 
     useEffect(() => {
         if (id) {
-            console.log('id foud', id);
+             // console.log('id foud', id);
             setIsEditMode(true);
             fetchGroupById(id);
         } else {
@@ -252,7 +252,7 @@ const Create = () => {
 
             const loadedLevels = [];
             setGroupNameSection(selectedGroup.groupName || '');
-            console.log('selectedGroup', selectedGroup);
+             // console.log('selectedGroup', selectedGroup);
 
             Object.entries(parsedLevels).forEach(([levelKey, sessions]) => {
                 const bannerKey = `${levelKey}_banner`;
@@ -291,14 +291,14 @@ const Create = () => {
     }, [selectedGroup, isEditMode]);
 
 useEffect(() => {
-    console.log("🔥 useEffect triggered with activeTab:", activeTab);
-    console.log("📦 All Levels:", levels);
+     // console.log("🔥 useEffect triggered with activeTab:", activeTab);
+     // console.log("📦 All Levels:", levels);
 
     const existingLevel = levels.find((lvl) => lvl.level?.toLowerCase?.() === activeTab?.toLowerCase?.());
-    console.log("🔍 Found existingLevel:", existingLevel);
+     // console.log("🔍 Found existingLevel:", existingLevel);
 
     if (!existingLevel) {
-        console.log("🚫 No matching level found. Resetting all states.");
+         // console.log("🚫 No matching level found. Resetting all states.");
         setPlayer('');
         setSkillOfTheDay('');
         setDescriptionSession('');
@@ -309,7 +309,7 @@ useEffect(() => {
         return;
     }
 
-    console.log("✅ Populating data from existingLevel...");
+     // console.log("✅ Populating data from existingLevel...");
 
     setPlayer(existingLevel.player || '');
     setSkillOfTheDay(existingLevel.skillOfTheDay || '');
@@ -321,54 +321,54 @@ useEffect(() => {
         title: ex.title,
         duration: ex.duration,
     }));
-    console.log("📋 Set session plans:", plans);
+     // console.log("📋 Set session plans:", plans);
     setSelectedPlans(plans);
 
     if (existingLevel.videoFile) {
         const videoPath = `${API_BASE_URL}/${existingLevel.videoFile}`;
-        console.log("🎞️ Fetching video from:", videoPath);
+         // console.log("🎞️ Fetching video from:", videoPath);
 
         fetch(videoPath)
             .then(res => {
-                console.log("🎥 Video fetch response:", res);
+                 // console.log("🎥 Video fetch response:", res);
                 return res.blob();
             })
             .then(blob => {
                 const ext = blob.type.split('/')[1];
                 const file = new File([blob], `video.${ext}`, { type: blob.type });
-                console.log("📁 Created video file object:", file);
+                 // console.log("📁 Created video file object:", file);
                 setVideoFile(file);
             })
             .catch(err => console.error("❌ Error fetching video:", err));
     } else {
-        console.log("🚫 No videoFile found in existingLevel.");
+         // console.log("🚫 No videoFile found in existingLevel.");
     }
 
     if (existingLevel.bannerFile) {
         const bannerPath = `${API_BASE_URL}/${existingLevel.bannerFile}`;
-        console.log("🖼️ Fetching banner from:", bannerPath);
+         // console.log("🖼️ Fetching banner from:", bannerPath);
 
         fetch(bannerPath)
             .then(res => {
-                console.log("🖼️ Banner fetch response:", res);
+                 // console.log("🖼️ Banner fetch response:", res);
                 return res.blob();
             })
             .then(blob => {
                 const ext = blob.type.split('/')[1];
                 const file = new File([blob], `banner.${ext}`, { type: blob.type });
-                console.log("📁 Created banner file object:", file);
+                 // console.log("📁 Created banner file object:", file);
                 setBannerFile(file);
             })
             .catch(err => console.error("❌ Error fetching banner:", err));
     } else {
-        console.log("🚫 No bannerFile found in existingLevel.");
+         // console.log("🚫 No bannerFile found in existingLevel.");
     }
 }, [activeTab, levels]);
 
 
     useEffect(() => {
         const currentLevelData = levels.find((item) => item.level == activeTab);
-        console.log('currentLevelData', levels)
+         // console.log('currentLevelData', levels)
         setSelectedPlans(
             (currentLevelData?.sessionExercises || []).map((exercise) => ({
                 id: exercise.id,
@@ -399,7 +399,7 @@ useEffect(() => {
         const getPackages = async () => {
             try {
                 const response = await fetchExercises();
-                console.log("Fetched exercises:", response);
+                 // console.log("Fetched exercises:", response);
 
                 if (response?.status && Array.isArray(response.data)) {
                     setPlans(response.data); // Set the dynamic plans from backend
@@ -450,9 +450,9 @@ useEffect(() => {
             </>
         )
     }
-    console.log('selectedPlanss', selectedPlans)
+     // console.log('selectedPlanss', selectedPlans)
 
-    console.log('videoFilePreview', videoFilePreview)
+     // console.log('videoFilePreview', videoFilePreview)
 
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">

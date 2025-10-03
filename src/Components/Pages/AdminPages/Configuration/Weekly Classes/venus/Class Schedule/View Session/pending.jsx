@@ -9,17 +9,14 @@ const ViewSessions = ({ item, sessionData }) => {
   const [page, setPage] = useState(1);
   const location = useLocation();
   const sessionMap = location.state?.sessionMap;
-    const venueId = location.state?.venueId;
+  const venueId = location.state?.venueId;
   const sessionId = location.state?.sessionId;
   const singleClassSchedules = location.state?.singleClassSchedules;
   const sessionDate = location.state?.sessionDate;
   const className = location.state?.classname;
   const statusIs = location.state?.statusIs;
 
-  console.log(
-    'className',
-    className
-  );
+
   const selectedGroup = sessionMap;
   const levelKeyToLabel = {
     beginner: "Beginners",
@@ -29,103 +26,54 @@ const ViewSessions = ({ item, sessionData }) => {
   };
 
   // Demo page content for each tab
-  const contentMap = {
-    Beginners: [
-      {
-        title: 'Skill of the day',
-        heading: 'The Pingium',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        description: 'In todays lesson, students will learn to perform the Pinguim',
-      },
-      {
-        title: 'Skill of the day – Page 2',
-        heading: 'The Pingium',
-        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
-        description: 'Students will now practice movement coordination.',
-      },
-    ],
-    Intermediate: [
-      {
-        title: 'Intermediate Drill – Page 1',
-        heading: 'The Pingium',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        description: 'Warmup drills and possession training.',
-      },
-      {
-        title: 'Intermediate Drill – Page 2',
-        heading: 'The Pingium',
-        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
-        description: '1v1 defense and offense basics.',
-      },
-    ],
-    Advanced: [
-      {
-        title: 'Advanced Technique – Page 1',
-        heading: 'The Pingium',
-        videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        description: 'Team transitions and tactical pressing.',
-      },
-    ],
-    Pro: [
-      {
-        title: 'Pro-Level Training – Page 1',
-        heading: 'The Pingium',
-        videoUrl: 'https://www.w3schools.com/html/movie.mp4',
-        description: 'High-intensity pressing and zonal systems.',
-      },
-    ],
-  };
+
   const navigate = useNavigate();
-  console.log('sessionId', selectedGroup)
+  useEffect(() => {
+    if (selectedGroup?.levels) {
+      const buildContentMap = () => {
+        const content = {};
 
-useEffect(() => {
-  if (selectedGroup?.levels) {
-    const buildContentMap = () => {
-      const content = {};
-
-      let levelsData = selectedGroup.levels;
-      if (typeof levelsData === 'string') {
-        try {
-          levelsData = JSON.parse(levelsData);
-        } catch (e) {
-          console.error('Invalid JSON format in selectedGroup.levels:', e);
-          levelsData = {};
+        let levelsData = selectedGroup.levels;
+        if (typeof levelsData === 'string') {
+          try {
+            levelsData = JSON.parse(levelsData);
+          } catch (e) {
+            console.error('Invalid JSON format in selectedGroup.levels:', e);
+            levelsData = {};
+          }
         }
-      }
-console.log('levelsData',levelsData)
-      Object.entries(levelsData).forEach(([levelKey, items]) => {
-        const label = levelKeyToLabel[levelKey] || levelKey;
-        const banner = selectedGroup[`${levelKey}_banner`] || selectedGroup.banner;
-        const video = selectedGroup[`${levelKey}_video`] || selectedGroup.video;
-console.log('levelKey',levelKey)
-console.log('items',items)
+        Object.entries(levelsData).forEach(([levelKey, items]) => {
+          const label = levelKeyToLabel[levelKey] || levelKey;
+          const banner = selectedGroup[`${levelKey}_banner`] || selectedGroup.banner;
+          const video = selectedGroup[`${levelKey}_video`] || selectedGroup.video;
 
-        content[label] = items.map((entry, index) => {
-          return {
-            title: `${label} – Page ${index + 1}`,
-            heading: entry.skillOfTheDay || 'No Skill',
-            player: entry.player || 'player',
-            videoUrl: video || '',
-            bannerUrl: banner || '',
-            description: entry.description || '',
-            // Use the sessionExercises directly from the entry
-            sessionExercises: entry.sessionExercises || [],
-          };
+
+          content[label] = items.map((entry, index) => {
+            return {
+              title: `${label} – Page ${index + 1}`,
+              heading: entry.skillOfTheDay || 'No Skill',
+              player: entry.player || 'player',
+              videoUrl: video || '',
+              bannerUrl: banner || '',
+              description: entry.description || '',
+              videoUploadedAgo: selectedGroup.videoUploadedAgo || '',
+              // Use the sessionExercises directly from the entry
+              sessionExercises: entry.sessionExercises || [],
+            };
+          });
         });
-      });
 
-      return content;
-    };
+        return content;
+      };
 
-    const dynamicContent = buildContentMap();
-    setMyData(dynamicContent);
-    console.log('dynamicContent', dynamicContent);
+      const dynamicContent = buildContentMap();
+      setMyData(dynamicContent);
 
-    const firstTab = Object.keys(dynamicContent)[0];
-    setActiveTab(firstTab);
-    setPage(1);
-  }
-}, [selectedGroup]);
+      const firstTab = Object.keys(dynamicContent)[0];
+      setActiveTab(firstTab);
+      setPage(1);
+    }
+  }, [selectedGroup]);
 
 
   const dynamicTabs = Object.keys(myData);
@@ -139,8 +87,6 @@ console.log('items',items)
       setSelectedExercise(currentContent.sessionExercises[0]);
     }
   }, [currentContent]);
-  console.log('myData', myData)
-  console.log('singleClassSchedules', singleClassSchedules)
   const ageGroups = {
     "Beginners": "4–5 Years",
     "Intermediate": "6–7 Years",
@@ -172,7 +118,6 @@ console.log('items',items)
     return `${weekday} ${day}${suffix} ${month} ${year}`;
   }
 
-
   // Output: Sunday 23rd April 2023
 
   return (
@@ -180,9 +125,9 @@ console.log('items',items)
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
         <h2
-         onClick={() => {
-    navigate(`/configuration/weekly-classes/venues/class-schedule?id=${venueId}`);
-}}
+          onClick={() => {
+            navigate(`/configuration/weekly-classes/venues/class-schedule?id=${venueId}`);
+          }}
 
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
@@ -196,60 +141,62 @@ console.log('items',items)
       <div className="bg-white  rounded-3xl shadow p-6 flex flex-col md:flex-row gap-6">
         {/* Left Sidebar */}
         <div className="w-full md:w-2/12 bg-[#F4F2EC] py-6  rounded-2xl  text-center">
-         <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
-  {statusIs === "cancelled" ? (
-    <img src="/demo/synco/icons/cancelBig.png" alt="Cancelled" />
-  ) : statusIs === "complete" ? (
-    <img src="/demo/synco/icons/completeBig.png" alt="Complete" />
-  ) : (
-    <img src="/demo/synco/icons/pendingBig.png" alt="Pending" />
-  )}
-</div>
+          <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
+            {statusIs === "cancelled" ? (
+              <img src="/demo/synco/icons/cancelBig.png" alt="Cancelled" />
+            ) : statusIs === "complete" ? (
+              <img src="/demo/synco/icons/completeBig.png" alt="Complete" />
+            ) : (
+              <img src="/demo/synco/icons/pendingBig.png" alt="Pending" />
+            )}
+          </div>
 
-<p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4 capitalize">
-  {statusIs || 'Pending'}
-</p>
+          <p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4 capitalize">
+            {statusIs || 'Pending'}
+          </p>
 
           <div className="text-sm  p-6 text-gray-700 space-y-3 text-left">
-            <p><span className="font-semibold">Venue</span><br /> {singleClassSchedules.name}</p>
-            <p><span className="font-semibold">Class</span><br />   {className.className}</p>
-            <p><span className="font-semibold">Date:</span> <br />{formatDateWithSuffix(sessionDate)} </p>
-            <p><span className="font-semibold">Time:</span> <br />{className.startTime} – {className.endTime}</p>
+            <p><b className="">Venue</b><br /> {singleClassSchedules?.name}</p>
+            <p><b className="">Class</b><br />   {className?.className}</p>
+            <p><b className="">Date:</b> <br />{formatDateWithSuffix(sessionDate)} </p>
+            <p><b className="">Time:</b> <br />{className?.startTime} – {className.endTime}</p>
           </div>
         </div>
 
         {/* Right Content */}
-        <div className="w-full md:w-10/12 space-y-6">
+          <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
-          <div className="flex gap-4 border max-w-fit border-gray-300 p-1 rounded-xl  flex-wrap">
-            {dynamicTabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => {
-                  setActiveTab(tab);
-                  setPage(1);
-                }}
-                className={`px-4 py-1.5 rounded-xl text-sm font-medium transition ${activeTab === tab
-                  ? 'bg-blue-500 text-white'
-                  : 'text-gray-500 hover:text-blue-500'
-                  }`}
-              >
-                {tab}
-              </button>
-            ))}
+          <div className="flex w-full flex-col lg:flex-row gap-6">
+            <div className="w-full bg-white  lg:w-1/2 flex gap-4 border border-gray-300 p-2 rounded-2xl justify-between  flex-wrap me-5">
+              {dynamicTabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setPage(1);
+                  }}
+                  className={`px-6 py-2 rounded-xl text-[18px] font-semibold transition ${activeTab === tab
+                    ? 'bg-blue-500 text-white'
+                    : 'text-[#717073] hover:text-blue-500'
+                    }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="w-full pl-6  lg:w-1/2 "></div>
           </div>
-
           {/* Main Page Content */}
           {currentContent && (
-            <div className="flex w-full flex-col lg:flex-row gap-6">
+            <div className="flex w-full flex-col border-t border-[#E2E1E5] pt-6 lg:flex-row gap-6">
               {/* Left - Video and Info */}
               <div className="w-full lg:w-1/2 space-y-2">
                 {currentContent.bannerUrl && (
                   <img
                     src={currentContent.bannerUrl}
-                    alt="Play like Pele"
-                    className="rounded-xl max-h-50  mb-2"
-                    
+                    alt="Play like Pele "
+                    className="rounded-xl w-full object-cover max-h-[130px]  mb-2"
+
                   />
                 )}
                 <h2 className="font-semibold text-[28px] mb-0">
@@ -275,29 +222,27 @@ console.log('items',items)
                   <img src="/demo/synco/icons/downloadicon.png" alt="" />
                 </div>
                 <div>
-                  <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
+                  <p className="text-sm flex items-center gap-2 text-gray-500  pb-3">
                     <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
-                    {selectedGroup?.updatedAt
-                      ? formatDistanceToNow(new Date(selectedGroup.updatedAt), { addSuffix: true })
-                      : '—'}
+                    {currentContent.videoUploadedAgo || 'N/A'}
                   </p>
                 </div>
 
                 {currentContent.sessionExercises?.length > 0 && (
-                  <div className="mt-6 space-y-6">
+                  <div className="mt-1 space-y-6">
                     {currentContent.sessionExercises.map((exercise) => (
                       <div
                         key={exercise.id}
-                        className={`flex items-center gap-4 cursor-pointer p-2 rounded ${selectedExercise?.id === exercise.id ? 'bg-blue-50 border border-blue-200' : ''
+                        className={`flex items-center gap-6 cursor-pointer py-2 rounded ${selectedExercise?.id === exercise.id ? '' : ''
                           }`}
                         onClick={() => setSelectedExercise(exercise)}
                       >
-                        <div className="w-6/12">
+                        <div className="w-4/12">
                           {exercise.imageUrl ? (
                             JSON.parse(exercise.imageUrl).map((imgUrl, index) => (
                               <img
                                 key={index}
-                                className="rounded object-cover mr-2 mb-2"
+                                className="rounded-3xl w-full max-h-[114px] object-cover mr-2 mb-2"
                                 src={`${imgUrl}`}
                                 alt={`${exercise.title} ${index + 1}`}
                               />
@@ -306,8 +251,8 @@ console.log('items',items)
                             <p>No images available</p>
                           )}
                         </div>
-                        <div>
-                          <h6 className="text-[18px] w-7/12 font-semibold">{exercise.title}</h6>
+                        <div className="w-8/12">
+                          <h6 className="text-[18px]  font-semibold">{exercise.title}</h6>
                           {/* <div
                             className="text-[16px] text-gray-700"
                             dangerouslySetInnerHTML={{
@@ -330,12 +275,12 @@ console.log('items',items)
               {selectedExercise && (
                 <div className="w-full border-l pl-6 border-gray-300 lg:w-1/2 bg-white">
                   <h2 className="font-semibold text-[24px] mb-0">{selectedExercise.title}</h2>
-                  <div className="flex flex-wrap justify-start gap-2 w-full ">
+                  <div className="flex flex-wrap justify-start gap-2 w-full my-5 ">
                     {selectedExercise.imageUrl ? (
                       JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
-                        <img
+                       <img
                           key={index}
-                          className="rounded object-cover mr-2 min-h-50 max-h-50 mb-2"
+                          className="rounded-2xl object-cover lg:w-[400px] mr-2 min-h-50 max-h-[220px] mb-2"
                           src={`${imgUrl}`}
                           alt={`${selectedExercise.title} ${index + 1}`}
                         />
@@ -344,13 +289,13 @@ console.log('items',items)
                       <p>No images available</p>
                     )}
                   </div>
-                  <p className="text-blue-500 text-[14px] font-semibold">
+                  <p className="text-blue-500 text-[14px] font-semibold pb-4">
                     Time Duration: {selectedExercise.duration || '—'}
                   </p>
 
                   <div className="text-sm space-y-3">
                     <div>
-                      <p className="font-semibold text-[18px]">Description</p>
+                      <p className="font-semibold text-[18px] pb-2">Description</p>
                       <div
                         className="text-gray-500 text-[14px] font-semibold"
                         dangerouslySetInnerHTML={{

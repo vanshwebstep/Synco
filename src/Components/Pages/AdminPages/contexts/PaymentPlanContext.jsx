@@ -165,7 +165,7 @@ const fetchGroupById = useCallback(async (id) => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log(result);
+         console.log(result);
 
         await fetchGroups();
 

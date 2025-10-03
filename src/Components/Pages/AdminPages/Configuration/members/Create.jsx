@@ -84,10 +84,10 @@ const Create = () => {
     e.preventDefault();
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    console.log("❌ Missing fisselds:", formData);
+     // console.log("❌ Missing fisselds:", formData);
     // Email validation
     if (!formData.email || !emailRegex.test(formData.email)) {
-      console.log("❌ Missing fields:", formData);
+       // console.log("❌ Missing fields:", formData);
       Swal.fire({
         icon: "error",
         title: "Invalid Email",
@@ -95,10 +95,10 @@ const Create = () => {
       });
       return;
     }
-    console.log("❌ Misdss:", formData);
+     // console.log("❌ Misdss:", formData);
 
     if (validate()) {
-      console.log("❌ Misdsdsdsss:", formData);
+       // console.log("❌ Misdsdsdsss:", formData);
 
       if (
         !formData.firstName ||
@@ -108,7 +108,7 @@ const Create = () => {
         !formData.password ||
         !formData.role?.value
       ) {
-        console.log("❌ Missing fields:", formData);
+         // console.log("❌ Missing fields:", formData);
 
         Swal.fire({
           icon: "warning",
@@ -217,7 +217,7 @@ const Create = () => {
     } else if (!/\d/.test(password)) {
       newErrors.password = "Password must contain at least one number.";
     }
-    console.log('newErrors', newErrors)
+     // console.log('newErrors', newErrors)
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

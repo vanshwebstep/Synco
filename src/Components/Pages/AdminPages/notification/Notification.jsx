@@ -11,7 +11,7 @@ export default function Notification() {
   const { checkPermission } = usePermission();
 
   const { activeTab, setActiveTab } = useMembers();
-  console.log('activeTabssdsdsds', activeTab)
+   console.log('activeTabssdsdsds', activeTab)
   const hasPermission =
     checkPermission({ module: 'custom-notification', action: 'create' }) &&
     checkPermission({ module: 'custom-notification', action: 'view-listing' });
@@ -19,7 +19,7 @@ export default function Notification() {
   const hasMarkAsRead =
     checkPermission({ module: 'notification ', action: 'read' })
 
-    console.log('hasMarkAsRead',hasMarkAsRead)
+     console.log('hasMarkAsRead',hasMarkAsRead)
   return (
     <>
       <div className="md:flex justify-between items-center mb-4">

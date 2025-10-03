@@ -140,7 +140,7 @@ const Create = () => {
 
         try {
             await createDiscount(payload); // ✅ send to server
-            console.log("Submitted:", payload);
+             console.log("Submitted:", payload);
             // Optionally show a success toast/modal here
         } catch (err) {
             console.error("Submit error:", err);

@@ -26,7 +26,7 @@ export const SessionPlanContextProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
-      console.log('result', result)
+       console.log('result', result)
       setSessionGroup(result.data || []);
     } catch (err) {
       console.error("Failed to fetch sessionGroup:", err);
@@ -38,7 +38,7 @@ export const SessionPlanContextProvider = ({ children }) => {
     async (formdata, shouldRedirect = false) => {
       if (!token) return;
 
-      console.log('formdata', formdata);
+       console.log('formdata', formdata);
 
       try {
         setLoading(true);
@@ -161,7 +161,7 @@ export const SessionPlanContextProvider = ({ children }) => {
         throw result;
       }
 
-      console.log("✅ Exercise created");
+       console.log("✅ Exercise created");
       await fetchExercises();
 
       return result; // return response if needed
@@ -284,7 +284,7 @@ const updateDiscount = useCallback(async (id, data) => {
 
     // 🔊 Append audio files dynamically (beginner_recording, intermediate_recording, etc.)
     Object.keys(data).forEach((key) => {
-      if (key.endsWith("_recording")) {
+      if (key.endsWith("_upload")) {
         appendMedia(key, data[key]);
       }
     });
@@ -352,6 +352,22 @@ const updateDiscount = useCallback(async (id, data) => {
   }, [token, fetchSessionGroup]);
 
 
+  //duplicate  
+    const duplicateSession = useCallback(async (id) => {
+    if (!token) return;
+     setLoading(true); // Start loading
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}/duplicate`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await fetchSessionGroup();
+    } catch (err) {
+       setLoading(false); // Start loading
+      console.error("Failed to delete discount:", err);
+    }
+  }, [token, fetchSessionGroup]);
+
 
 
   const deleteSessionlevel = useCallback(async (id, level) => {
@@ -376,6 +392,7 @@ const updateDiscount = useCallback(async (id, data) => {
         sessionGroup,
         setSessionGroup,
         loading,
+        setLoading,
         createSessionGroup,
         createSessionExercise,
         selectedGroup,
@@ -384,6 +401,7 @@ const updateDiscount = useCallback(async (id, data) => {
         createDiscount,
         updateDiscount,
         deleteSessionGroup,
+        duplicateSession,
 
         selectedExercise,
         setSelectedExercise,

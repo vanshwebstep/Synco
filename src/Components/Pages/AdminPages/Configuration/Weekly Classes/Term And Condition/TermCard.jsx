@@ -32,8 +32,8 @@ const TermCard = ({ item, sessionData }) => {
     const handleEdit = (id) => {
         navigate(`/configuration/weekly-classes/term-dates/Create?id=${id}`)
     };
-    console.log('sessionData', sessionData);
-    console.log('item', item)
+     console.log('sessionData', sessionData);
+     console.log('item', item)
     const { checkPermission } = usePermission();
 
     const canEdit =

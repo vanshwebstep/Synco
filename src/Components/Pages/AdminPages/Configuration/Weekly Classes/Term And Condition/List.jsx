@@ -34,16 +34,16 @@ const List = () => {
     fetchTermGroup();
   }, [fetchTerm, fetchTermGroup]);
   useEffect(() => {
-    console.log("🚀 useEffect triggered");
+     // console.log("🚀 useEffect triggered");
 
     // Step 1: Check data presence
     if (!termGroup.length || !termData.length) {
-      console.log("⛔ Missing termGroup or termData");
+       // console.log("⛔ Missing termGroup or termData");
       return;
     }
 
-    console.log("✅ termGroup:", termGroup);
-    console.log("✅ termData:", termData);
+     // console.log("✅ termGroup:", termGroup);
+     // console.log("✅ termData:", termData);
 
     // Helper to detect season
     const detectSeason = (termName) => {
@@ -54,23 +54,23 @@ const List = () => {
     };
 
     const grouped = termGroup.map((group, groupIdx) => {
-      console.log(`\n📦 Processing Group #${groupIdx + 1}:`, group);
+       // console.log(`\n📦 Processing Group #${groupIdx + 1}:`, group);
 
       // Use termGroup?.id to match correctly
       const terms = termData.filter((t) => t.termGroup?.id === group.id);
       if (!terms.length) {
-        console.log(`⚠️ No terms found for group ID ${group.id}`);
+         // console.log(`⚠️ No terms found for group ID ${group.id}`);
         return null;
       }
 
-      console.log(`🔍 Matched ${terms.length} terms for group '${group.name}'`);
+       // console.log(`🔍 Matched ${terms.length} terms for group '${group.name}'`);
 
       // Step 2: Map each term to sessionData
       const sessionData = terms.map((term, termIdx) => {
         const start = formatDate(term.startDate);
         const end = formatDate(term.endDate);
         const dateRange = `${start} - ${end}`;
-        console.log('terms', terms)
+         // console.log('terms', terms)
         // Parse exclusionDates
         let exclusionArr = [];
         try {
@@ -111,11 +111,11 @@ const List = () => {
 
         };
 
-        console.log(`📘 Term #${termIdx + 1} (${term.termName}):`, sessionObj);
+         // console.log(`📘 Term #${termIdx + 1} (${term.termName}):`, sessionObj);
         return sessionObj;
       });
 
-      console.log('📊 SessionData for this group:', sessionData);
+       // console.log('📊 SessionData for this group:', sessionData);
 
       // Step 3: Build the class card
       const classCard = {
@@ -132,7 +132,7 @@ const List = () => {
         classCard[key] = `${termData.date}`;
       });
 
-      console.log(`🧾 Built classCard for group '${group.name}':`, classCard);
+       // console.log(`🧾 Built classCard for group '${group.name}':`, classCard);
 
       return { sessionData, classCard };
     });
@@ -141,8 +141,8 @@ const List = () => {
     const allSessions = filtered.map((g) => g.sessionData);
     const allClasses = filtered.map((g) => g.classCard);
 
-    console.log("✅ Final SessionDataList:", allSessions);
-    console.log("✅ Final ClassList:", allClasses);
+     // console.log("✅ Final SessionDataList:", allSessions);
+     // console.log("✅ Final ClassList:", allClasses);
 
     setSessionDataList(allSessions);
     setClassList(allClasses);
@@ -159,7 +159,7 @@ const List = () => {
   if (loading) {
     return <Loader />;
   }
-console.log('classList',classList)
+ // console.log('classList',classList)
   // Then check for missing data
   if (!termGroup.length && !termData.length) {
     return (

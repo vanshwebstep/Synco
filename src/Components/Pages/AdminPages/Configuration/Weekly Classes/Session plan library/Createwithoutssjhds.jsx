@@ -72,7 +72,7 @@ const Create = () => {
             // ✅ Log if this is the LAST tab
             const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
             if (nextIndex >= tabs.length) {
-                console.log('✅ Final Session Data:', updated);
+                 console.log('✅ Final Session Data:', updated);
             }
 
             return updated;
@@ -113,7 +113,7 @@ const Create = () => {
     const id = searchParams.get("id");
     useEffect(() => {
         if (id) {
-            console.log('id foud');
+             console.log('id foud');
             setIsEditMode(true);
             fetchGroupById(id);
         } else {
@@ -176,7 +176,7 @@ const Create = () => {
         const getPackages = async () => {
             try {
                 const response = await fetchExercises();
-                console.log("Fetched exercises:", response);
+                 console.log("Fetched exercises:", response);
 
                 if (response?.status && Array.isArray(response.data)) {
                     setPlans(response.data); // Set the dynamic plans from backend
@@ -223,7 +223,7 @@ const Create = () => {
     }, [searchTerm]);
     const handleCreateGroup = async () => {
         const ids = selectedPlans.map(plan => plan.id).join(',');
-        console.log('Selected Plan IDs:', ids);
+         console.log('Selected Plan IDs:', ids);
         const payload = {
             name: groupName,
             description: description,
@@ -231,7 +231,7 @@ const Create = () => {
             // Or use: price: price
         };
 
-        console.log("Final Group Payload:", payload);
+         console.log("Final Group Payload:", payload);
 
         try {
             await createGroup(payload);

@@ -48,7 +48,7 @@ const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
     cancelled: "bg-red-500 text-white",
     request_to_cancel: "bg-white text-red-500 border",
   };
-  console.log('comesFrom,cancellation', serviceHistory)
+   console.log('comesFrom,cancellation', serviceHistory)
   return (
     <div className="transition-all duration-300 flex-1 bg-white">
       <div className="rounded-4xl w-full">

@@ -56,7 +56,7 @@ const StudentProfile = ({ profile }) => {
     const ID = firstPayment?.referenceId || firstPayment?.pan;
 
 
-    console.log('profile', profile)
+     // console.log('profile', profile)
     const [rebookFreeTrial, setRebookFreeTrial] = useState({
         bookingId: id || null,
         trialDate: "",
@@ -69,7 +69,7 @@ const StudentProfile = ({ profile }) => {
         additionalNote: "",
     });
 
-    console.log('loading', loading)
+     // console.log('loading', loading)
 
     const { checkPermission } = usePermission();
     const failedPayments = profile.payments?.filter(
@@ -162,7 +162,7 @@ const StudentProfile = ({ profile }) => {
     const dateBooked = profile?.dateBooked;
     const status = profile?.status;
 
-    console.log('Venue Name:', profile.dateBooked);
+     // console.log('Venue Name:', profile.dateBooked);
 
     function formatISODate(isoDateString, toTimezone = null) {
         const date = new Date(isoDateString);
@@ -236,7 +236,7 @@ const StudentProfile = ({ profile }) => {
             }));
 
             updateWaitingListFamily(profile.id, payload);
-            console.log("Parent Payload to send:", payload);
+             // console.log("Parent Payload to send:", payload);
         } else {
             // ✏️ Edit Mode
             setEditingIndex(index);
@@ -265,11 +265,11 @@ const StudentProfile = ({ profile }) => {
         { value: 12, label: "12 Months" },
     ];
 
-    console.log('waitingListData', waitingListData)
-    console.log('transferData', transferData)
-    console.log('freezeData', freezeData)
-    console.log('cancelData', cancelData)
-    console.log('cancelWaitingList', cancelWaitingList)
+     // console.log('waitingListData', waitingListData)
+     // console.log('transferData', transferData)
+     // console.log('freezeData', freezeData)
+     // console.log('cancelData', cancelData)
+     // console.log('cancelWaitingList', cancelWaitingList)
 
     const newClasses = profile?.newClasses?.map((cls) => ({
         value: cls.id,

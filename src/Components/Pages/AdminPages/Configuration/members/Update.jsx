@@ -20,9 +20,9 @@ const Update = () => {
   const [error, setError] = useState("");
   const MyRole = localStorage.getItem("role");
   const { checkPermission } = usePermission();
-    const { setAdminInfo } = useNotification();
-  
-    const [formData, setFormData] = useState({
+  const { setAdminInfo } = useNotification();
+
+  const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
@@ -46,9 +46,9 @@ const Update = () => {
   const [isImageremove, setIsImageremove] = useState(false);
 
 
-  const [originalData, setOriginalData] = useState(formData); 
+  const [originalData, setOriginalData] = useState(formData);
   const [editPersonal, setEditPersonal] = useState(false);
-  console.log('formData', formData)
+  // console.log('formData', formData)
   const [isImageValid, setIsImageValid] = useState(false);
   const FALLBACK = "/demo/synco/members/dummyuser.png";
   const {
@@ -77,7 +77,7 @@ const Update = () => {
       );
 
       const resultRaw = await response.json();
-      console.log('resultRaw', resultRaw)
+      // console.log('resultRaw', resultRaw)
 
       if (!resultRaw.status) {
         setError(resultRaw.message || "Invalid ID");
@@ -143,10 +143,10 @@ const Update = () => {
   };
 
 
-  console.log('localStorageRole', localStorage.role)
-  console.log('localStorageId', JSON.parse(localStorage.adminInfo).id)
-  console.log('MyID', formData.id)
-  console.log('MyIDOptions', roleOptions)
+  // console.log('localStorageRole', localStorage.role)
+  // console.log('localStorageId', JSON.parse(localStorage.adminInfo).id)
+  // console.log('MyID', formData.id)
+  // console.log('MyIDOptions', roleOptions)
 
   const handleRoleChange = (selected) => {
     if (!selected) return;
@@ -170,9 +170,9 @@ const Update = () => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-  setOriginalData(formData); // update backup on save
-  setEditPersonal(false);
-  setEditAddress(false);
+    setOriginalData(formData); // update backup on save
+    setEditPersonal(false);
+    setEditAddress(false);
     const requiredFields = ["firstName", "lastName", "email", "city", "postalCode"];
     const missing = requiredFields.filter((f) => !formData[f]);
 
@@ -233,7 +233,7 @@ const Update = () => {
       const result = await response.json();
       const verified = await verifyToken(token);
 
-      console.log('🔍 Verification result:', verified);
+      // console.log('🔍 Verification result:', verified);
       if (!response.ok) {
         Swal.fire({
           icon: "error",
@@ -250,9 +250,9 @@ const Update = () => {
         timer: 2000,
         showConfirmButton: false,
       });
-        const storedAdmin = localStorage.getItem("adminInfo");
-         const parsedAdmin = JSON.parse(storedAdmin);
-        setAdminInfo(parsedAdmin);
+      const storedAdmin = localStorage.getItem("adminInfo");
+      const parsedAdmin = JSON.parse(storedAdmin);
+      setAdminInfo(parsedAdmin);
       navigate('/configuration/members/List')
 
 
@@ -316,23 +316,23 @@ const Update = () => {
     }
   };
   const handleTogglePersonal = () => {
-  if (!editPersonal) {
-    setOriginalData(formData); // backup
-    setEditPersonal(true);
-  } else {
-    setFormData(originalData); // restore
-    setEditPersonal(false);
-  }
-};
-const handleToggleAddress = () => {
-  if (!editAddress) {
-    setOriginalData(formData); // backup
-    setEditAddress(true);
-  } else {
-    setFormData(originalData); // restore
-    setEditAddress(false);
-  }
-};
+    if (!editPersonal) {
+      setOriginalData(formData); // backup
+      setEditPersonal(true);
+    } else {
+      setFormData(originalData); // restore
+      setEditPersonal(false);
+    }
+  };
+  const handleToggleAddress = () => {
+    if (!editAddress) {
+      setOriginalData(formData); // backup
+      setEditAddress(true);
+    } else {
+      setFormData(originalData); // restore
+      setEditAddress(false);
+    }
+  };
   const handleSuspend = async (status) => {
     const isSuspending = status === 1; // 1 = suspend, 0 = activate
     const statusText = isSuspending ? 'suspend' : 'active';
@@ -409,7 +409,7 @@ const handleToggleAddress = () => {
   if (!id) return null;
   if (error) return <p className="text-red-500 text-center mt-5">{error}</p>;
 
-  console.log('isImageremove', isImageremove)
+  // console.log('isImageremove', isImageremove)
   return (
     <div className="md:max-w-[1043px] w-full mx-auto md:p-4 space-y-8">
       <h2
@@ -511,7 +511,7 @@ const handleToggleAddress = () => {
             </div>
           </div>
           <button type="button" className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
-  onClick={handleTogglePersonal}
+            onClick={handleTogglePersonal}
           >
             {editPersonal ? "Cancel" : "Edit Profile"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
           </button>
@@ -521,7 +521,7 @@ const handleToggleAddress = () => {
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-[24px]">Personal Information</h3>
             <button type="button" className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
-  onClick={handleTogglePersonal}
+              onClick={handleTogglePersonal}
             >
               {editPersonal ? "Cancel" : "Edit"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
             </button>
@@ -635,9 +635,9 @@ const handleToggleAddress = () => {
             <button
               type="button"
               className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full hover:bg-blue-50"
-  onClick={handleToggleAddress}
+              onClick={handleToggleAddress}
             >
-                {editAddress ? "Cancel" : "Edit"}
+              {editAddress ? "Cancel" : "Edit"}
 
               <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
             </button>
@@ -674,51 +674,53 @@ const handleToggleAddress = () => {
                   />
                 </div>
 
-                {[
-                  {
-                    name: "city",
-                    label: "City",
-                    placeholder: "City",
-                    preventNumbers: true,
-                  },
-                  {
-                    name: "postalCode",
-                    label: "Postal Code",
-                    placeholder: "Postal Code",
-                    type: "number",
-                    fullWidth: true,
-                  },
-                ].map(({ name, label, placeholder, preventNumbers, type, fullWidth }) => (
-                  <div key={name} className={fullWidth ? "sm:col-span-2" : ""}>
-                    <label className="block text-sm font-semibold text-[#282829] mb-1">
-                      {label}
-                    </label>
-                    <input
-                      name={name}
-                      type={type || "text"}
-                      value={formData[name] || ""}
-                      required
-                      onChange={(e) => {
-                        let val = e.target.value;
-                        if (preventNumbers) {
-                          // Remove everything except letters and spaces
-                          val = val.replace(/[^a-zA-Z\s]/g, "");
-                        }
-                        handleChange({
-                          target: { name, value: val }
-                        });
-                      }}
-                      onKeyPress={(e) => {
-                        if (preventNumbers && /[^a-zA-Z\s]/.test(e.key)) {
-                          e.preventDefault(); // prevent typing numbers/special chars
-                        }
-                      }}
-                      placeholder={placeholder}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
+            {[
+  {
+    name: "city",
+    label: "City",
+    placeholder: "City",
+    preventNumbers: true,
+  },
+  {
+    name: "postalCode",
+    label: "Postal Code",
+    placeholder: "Postal Code",
+    type: "text", // ✅ keep as text
+    fullWidth: true,
+  },
+].map(({ name, label, placeholder, preventNumbers, type, fullWidth }) => (
+  <div key={name} className={fullWidth ? "sm:col-span-2" : ""}>
+    <label className="block text-sm font-semibold text-[#282829] mb-1">
+      {label}
+    </label>
+    <input
+      name={name}
+      type={type || "text"}
+      value={formData[name] || ""}
+      required
+      onChange={(e) => {
+        let val = e.target.value;
 
-                  </div>
-                ))}
+        if (preventNumbers) {
+          // ✅ City only letters + spaces
+          val = val.replace(/[^a-zA-Z\s]/g, "");
+        }
+
+        if (name === "postalCode") {
+          // ✅ Allow everything (letters, numbers, spaces, special chars)
+          val = val.toUpperCase();
+        }
+
+        handleChange({
+          target: { name, value: val }
+        });
+      }}
+      placeholder={placeholder}
+      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+))}
+
               </>
             ) : (
               <>
@@ -821,7 +823,7 @@ const handleToggleAddress = () => {
 
 
 
-          <button type="submit" className="btn bg-[#237FEA] text-white cursor-pointer px-8 py-2 font-semibold rounded-lg text-[14px]" >Save</button>
+          <button type="submit" className="btn bg-[#237FEA] text-white cursor-pointer px-8 py-2 font-semibold rounded-lg text-[14px]" >Update</button>
         </div>
       </form >
       {showRoleModal && (

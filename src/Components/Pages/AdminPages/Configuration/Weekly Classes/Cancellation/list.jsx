@@ -96,24 +96,24 @@ const CancellationList = () => {
 
     const navigate = useNavigate();
 
-    console.log('bookedByAdmin', bookedByAdmin)
+     // console.log('bookedByAdmin', bookedByAdmin)
 
     useEffect(() => {
         const venueName = selectedVenue?.label || "";
-        console.log('venueName', venueName)
+         // console.log('venueName', venueName)
         if (active === "request") {
             fetchRequestToCancellations("", venueName);
-            console.log('1')
+             // console.log('1')
         } else if (active === "full") {
             fetchFullCancellations("", venueName);
-            console.log('2')
+             // console.log('2')
 
         } else if (active === "all") {
 
-            console.log('3')
+             // console.log('3')
             fetchAllCancellations("", venueName);
         } else {
-            console.log('4')
+             // console.log('4')
             // fallback
             fetchFullCancellations();
         }
@@ -360,7 +360,7 @@ const CancellationList = () => {
                 (agent) => `${agent.id}`
             );
             setSavedAgent(selectedNames); // ✅ saves full names as strings
-            console.log("selectedNames", tempSelectedAgents);
+             // console.log("selectedNames", tempSelectedAgents);
         } else {
             setSavedAgent([]); // nothing selected → clear
         }
@@ -379,7 +379,7 @@ const CancellationList = () => {
             fetchAllCancellations(value);
         }
     };
-    console.log('statsFreeTrial', statsFreeTrial)
+     // console.log('statsFreeTrial', statsFreeTrial)
     const { checkPermission } = usePermission();
 
     const canServicehistory =

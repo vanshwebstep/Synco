@@ -53,7 +53,7 @@ const ParentProfile = ({ profile }) => {
     const ID = firstPayment?.referenceId || firstPayment?.pan;
 
 
-    console.log('profile', profile)
+     // console.log('profile', profile)
     const [rebookFreeTrial, setRebookFreeTrial] = useState({
         bookingId: id || null,
         trialDate: "",
@@ -67,7 +67,7 @@ const ParentProfile = ({ profile }) => {
     });
   const [emergencyContacts, setEmergencyContacts] = useState(profile.emergency || []);
     const [editingEmergency, setEditingEmergency] = useState(null);
-    console.log('loading', loading)
+     // console.log('loading', loading)
 
 
     const { checkPermission } = usePermission();
@@ -161,7 +161,7 @@ const ParentProfile = ({ profile }) => {
     const dateBooked = profile?.dateBooked;
     const status = profile?.status;
 
-    console.log('Venue Name:', profile.dateBooked);
+     // console.log('Venue Name:', profile.dateBooked);
 
     function formatISODate(isoDateString, toTimezone = null) {
         const date = new Date(isoDateString);
@@ -200,7 +200,7 @@ const ParentProfile = ({ profile }) => {
         return `${month} ${day} ${year}, ${hours}:${minutes}`;
     }
 
-console.log('profile',profile)
+ // console.log('profile',profile)
 
  const handleDataChange = (index, field, value) => {
         const updatedParents = [...parents];
@@ -212,7 +212,7 @@ console.log('profile',profile)
         updated[index][field] = value;
         setEmergencyContacts(updated);
     };
-console.log('profile',profile)
+ // console.log('profile',profile)
     // ✅ Parent edit/save toggle
     const toggleEditParent = (index) => {
         if (editingIndex === index) {
@@ -238,7 +238,7 @@ console.log('profile',profile)
             }));
 
             updateBookMembershipFamily(profile.bookingId, payload);
-            console.log("Parent Payload to send:", payload);
+             // console.log("Parent Payload to send:", payload);
         } else {
             // 🔹 Edit Mode
             setEditingIndex(index);
@@ -270,7 +270,7 @@ console.log('profile',profile)
             }));
 
             updateBookMembershipFamily(profile.bookingId, payload);
-            console.log("Emergency Payload to send:", payload);
+             // console.log("Emergency Payload to send:", payload);
         } else {
             // 🔹 Edit Mode
             setEditingEmergency(index);
@@ -297,11 +297,11 @@ console.log('profile',profile)
         { value: 12, label: "12 Months" },
     ];
 
-    console.log('waitingListData', waitingListData)
-    console.log('transferData', transferData)
-    console.log('freezeData', freezeData)
-    console.log('cancelData', cancelData)
-    console.log('emergencyContacts', emergencyContacts)
+     // console.log('waitingListData', waitingListData)
+     // console.log('transferData', transferData)
+     // console.log('freezeData', freezeData)
+     // console.log('cancelData', cancelData)
+     // console.log('emergencyContacts', emergencyContacts)
 
     const newClasses = profile?.newClasses?.map((cls) => ({
         value: cls.id,

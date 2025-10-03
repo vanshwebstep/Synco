@@ -89,7 +89,6 @@ const getAllowedBasePathsFromMenu = (items, role) => {
 const AuthRoutes = () => {
   const location = useLocation();
   const isForgot = location.pathname === '/admin-ForgotPassword';
-
   return (
     <div className='login-container'>
       <div className={`login-container-inner ${isForgot ? 'forgetPass' : ''}`}>
@@ -109,7 +108,6 @@ const AppRoutes = () => {
   const isAuth = ['/admin-login', '/reset-password', '/admin-ForgotPassword'].includes(location.pathname);
 
   if (isAuth) return <AuthRoutes />;
-
   return (
     <Routes>
       {/* Public routes */}
@@ -490,6 +488,7 @@ const AppRoutes = () => {
 
 // ----------------- APP WRAPPER -----------------
 function App() {
+
   return (
     <Router basename="/demo/synco/">
 

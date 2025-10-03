@@ -22,7 +22,7 @@ const AdminLogin = () => {
     const emailFromURL = params.get("email");
 
     for (const [key, value] of params.entries()) {
-      console.log(`${key}: ${value}`);
+       // console.log(`${key}: ${value}`);
     }
 
     if (tokenFromURL) {
@@ -100,7 +100,7 @@ const AdminLogin = () => {
       setLoading(false);
     }
 
-    console.log("Ready to submit:", { token, newPassword });
+     // console.log("Ready to submit:", { token, newPassword });
   };
 
   const validateEmail = (email) => {
@@ -108,7 +108,7 @@ const AdminLogin = () => {
   };
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('🔐 Starting login...');
+     // console.log('🔐 Starting login...');
 
     if (!email || !password) {
       Swal.fire({ icon: 'warning', title: 'Missing Fields', text: 'Please enter both email and password.' });
@@ -132,7 +132,7 @@ const AdminLogin = () => {
       });
 
       const result = await response.json();
-      console.log('🟢 Login result:', result);
+       // console.log('🟢 Login result:', result);
 
       if (response.ok && result?.data?.token) {
         const token = result.data.token;
@@ -145,11 +145,11 @@ const AdminLogin = () => {
 
         localStorage.setItem('role', result.data.admin.role);
 
-        console.log('✅ Token saved:', token);
+         // console.log('✅ Token saved:', token);
 
         try {
           const verified = await verifyToken(token);
-          console.log('🔍 Verification result:', verified);
+           // console.log('🔍 Verification result:', verified);
 
           Swal.fire({
             icon: 'success',
@@ -160,7 +160,7 @@ const AdminLogin = () => {
           });
 
           setTimeout(() => {
-            console.log('➡️ Navigating to dashboard...');
+             // console.log('➡️ Navigating to dashboard...');
             navigate('/');
           }, 1500);
 

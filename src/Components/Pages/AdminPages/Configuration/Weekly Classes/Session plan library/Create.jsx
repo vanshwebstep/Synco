@@ -47,8 +47,8 @@ const Create = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const visibleTabs = level ? tabs.filter((tab) => tab.toLowerCase() == level.toLowerCase()) : tabs;
-    console.log('visibleTabs', visibleTabs)
-    console.log('tabs', tabs)
+     // console.log('visibleTabs', visibleTabs)
+     // console.log('tabs', tabs)
     const [recording, setRecording] = useState(null); // stores Blob
     const [audioURL, setAudioURL] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -119,7 +119,7 @@ const Create = () => {
 
 
 
-    console.log('level', level)
+     // console.log('level', level)
 
     const [sessionExerciseId, setSessionExerciseId] = useState([]); // or selectedPlans[0]?.id
     const [levels, setLevels] = useState([]);
@@ -172,10 +172,10 @@ const Create = () => {
 
         setIsProcessing(true);
 
-        if (!finalSubmit && tabRef.current) {
-            tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        console.log('selectedPlanssssssssssss', selectedPlans)
+        // if (!finalSubmit && tabRef.current) {
+        //     tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // }
+         // console.log('selectedPlanssssssssssss', selectedPlans)
         const currentLevel = {
             level: activeTab,
             player,
@@ -222,12 +222,12 @@ const Create = () => {
             banner: bannerFile,
             levels: {},
         };
-        console.log('transformed', transformed)
+         // console.log('transformed', transformed)
         levelsToSend.forEach((item) => {
             const levelKey = item.level.replace(/s$/i, '').toLowerCase();
-            if (item.recording instanceof Blob) {
-                transformed[`${levelKey}_recording`] = item.recording;
-            }
+          if (item.recording instanceof Blob || item.recording instanceof File) {
+    transformed[`${levelKey}_recording`] = item.recording;
+}
 
             if (!transformed.levels[levelKey]) {
                 transformed.levels[levelKey] = [];
@@ -261,34 +261,44 @@ const Create = () => {
             setActiveTab(nextTab);
             setPage(1);
 
-            const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
+ const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
 
-            if (existingLevel) {
-                setSkillOfTheDay(existingLevel.skillOfTheDay || "");
-                setRecording(existingLevel.recording || null);
+if (existingLevel) {
+    setSkillOfTheDay(existingLevel.skillOfTheDay || "");
+    setRecording(existingLevel.recording || null);
 
-                // 👇 Recreate audio URL from blob
-                if (existingLevel.recording instanceof Blob) {
-                    const url = URL.createObjectURL(existingLevel.recording);
-                    setAudioURL(url);
-                } else {
-                    setAudioURL(null);
-                }
+    // ✅ Revoke old URL if exists
+    if (audioURL) {
+        URL.revokeObjectURL(audioURL);
+    }
 
-                setDescriptionSession(existingLevel.descriptionSession || "");
-                setSelectedPlans(
-                    existingLevel.sessionExerciseIds?.map(id =>
-                        planOptions.find(opt => opt.id === id)
-                    ).filter(Boolean) || []
-                );
-            } else {
-                // Fresh tab
-                setSkillOfTheDay("");
-                setRecording(null);
-                setAudioURL(null);
-                setDescriptionSession("");
-                setSelectedPlans([]);
-            }
+    // ✅ Create a new audio URL if recording exists
+    if (existingLevel.recording instanceof Blob || existingLevel.recording instanceof File) {
+        const url = URL.createObjectURL(existingLevel.recording);
+        setAudioURL(url);
+    } else {
+        setAudioURL(null);
+    }
+
+    setDescriptionSession(existingLevel.descriptionSession || "");
+    setSelectedPlans(
+        existingLevel.sessionExerciseIds?.map(id =>
+            planOptions.find(opt => opt.id === id)
+        ).filter(Boolean) || []
+    );
+} else {
+    // fresh tab
+    setSkillOfTheDay("");
+    setRecording(null);
+
+    if (audioURL) URL.revokeObjectURL(audioURL); // revoke old
+    setAudioURL(null);
+
+    setDescriptionSession("");
+    setSelectedPlans([]);
+}
+
+
 
         }
     };
@@ -362,7 +372,7 @@ const Create = () => {
                         level: levelKey,
                         player: session.player || "",
                         skillOfTheDay: session.skillOfTheDay || "",
-                        recording: selectedGroup[`${levelKey}_recording`] || session.recording || "",
+                        recording: selectedGroup[`${levelKey}_upload`] || session._upload || "",
                         descriptionSession: session.description || "",
                         sessionExerciseId: session.sessionExerciseId || [],
                         sessionExercises: session.sessionExercises || [],
@@ -382,7 +392,7 @@ const Create = () => {
             const currentLevel = levels.find((lvl) => lvl.level === activeTab);
 
             if (currentLevel) {
-                if (currentLevel.recording instanceof Blob) {
+                if (currentLevel._upload instanceof Blob) {
                     setAudioURL(URL.createObjectURL(currentLevel.recording));
                 } else if (
                     typeof currentLevel.recording === "string" &&
@@ -403,7 +413,7 @@ const Create = () => {
     useEffect(() => {
 
         const existingLevel = levels.find((lvl) => lvl.level?.toLowerCase?.() === activeTab?.toLowerCase?.());
-        console.log('existingLevel', existingLevel)
+         // console.log('existingLevel', existingLevel)
         if (!existingLevel) {
             setSkillOfTheDay('');
             setRecording('');
@@ -417,7 +427,7 @@ const Create = () => {
         setRecording(existingLevel.recording || '');
         setDescriptionSession(existingLevel.descriptionSession || '');
         // Step 1: Ensure sessionExerciseIds is set
-        console.log('existingLevel', existingLevel)
+         // console.log('existingLevel', existingLevel)
         setSessionExerciseId(existingLevel.sessionExerciseIds || []);
         // setSelectedPlans(
         //     existingLevel.sessionExerciseIds?.map(id =>
@@ -434,8 +444,8 @@ const Create = () => {
             }));
 
         // Optional: Logging for debug
-        console.log('Selected Plan IDs:', existingLevel.sessionExerciseIds);
-        console.log('Matched Selected Plans:', selectedPlans);
+         // console.log('Selected Plan IDs:', existingLevel.sessionExerciseIds);
+         // console.log('Matched Selected Plans:', selectedPlans);
 
 
         setSelectedPlans(selectedPlans);
@@ -443,13 +453,13 @@ const Create = () => {
         // ✅ Handle videoFile (convert to previewable URL if File or string)
 
 
-        console.log('existingLevel', existingLevel);
+         // console.log('existingLevel', existingLevel);
     }, [activeTab, levels]);
 
     //HOLDDD
     useEffect(() => {
         if (selectedGroup && isEditMode) {
-            console.log('selectedGroup found ', selectedGroup)
+             // console.log('selectedGroup found ', selectedGroup)
 
             const currentLevelData = levels.find((item) => item.level == activeTab);
             setSelectedPlans(
@@ -605,7 +615,7 @@ const Create = () => {
         )
     }
 
-    console.log('formData', formData)
+     // console.log('formData', formData)
     const stripHtml = (html) => {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || '';
@@ -656,7 +666,7 @@ const Create = () => {
         if (!aSelected && bSelected) return -1;
         return 0; // keep original order if both selected or both unselected
     });
-    console.log('selectedPlans', selectedPlans)
+     // console.log('selectedPlans', selectedPlans)
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -817,83 +827,40 @@ const Create = () => {
                                         className="w-full px-4 font-semibold py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
-                                <div>
-                                    <label className="block text-lg font-semibold text-gray-700 mb-2">
-                                        Add Audio
-                                    </label>
+           <div>
+    <label className="block text-lg font-semibold text-gray-700 mb-2">
+        Upload Audio
+    </label>
 
-                                    <div className="flex flex-col gap-3 px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 shadow-sm">
-                                        {/* Record / Stop button */}
-                                        <div className="flex items-center gap-4">
-                                            {recording === "in-progress" ? (
-                                                <button
-                                                    onClick={stopRecording}
-                                                    type="button"
-                                                    className="bg-red-500 text-white p-3 rounded-full shadow hover:scale-110 transition"
-                                                >
-                                                    <StopCircle size={28} />
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    onClick={startRecording}
-                                                    type="button"
-                                                    className="bg-blue-500 text-white p-2 rounded-full shadow hover:scale-110 transition"
-                                                >
-                                                    <Mic size={28} />
-                                                </button>
-                                            )}
+    <div className="flex flex-col gap-3 px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 shadow-sm">
+        {/* File Upload */}
+        <input
+            type="file"
+            accept="audio/*"
+            onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    setRecording(file); // store uploaded file in recording state
+                    const url = URL.createObjectURL(file);
+                    setAudioURL(url); // set playback URL
+                }
+            }}
+            className="block w-full text-gray-700 rounded-lg border border-gray-300 p-2 cursor-pointer"
+        />
 
-                                            <span
-                                                className={`font-medium ${recording === "in-progress" ? "text-red-600" : "text-gray-600"
-                                                    }`}
-                                            >
-                                                {recording === "in-progress"
-                                                    ? `Recording... ${formatTime(elapsedTime)}`
-                                                    : "Click mic to record"}
-                                            </span>
-                                        </div>
+        {/* Playback */}
+        {audioURL && (
+            <div className="flex items-center gap-3 mt-2 w-full">
+                <audio
+                    controls
+                    src={audioURL}
+                    className="w-full rounded-lg border border-gray-300 shadow-sm"
+                />
+            </div>
+        )}
+    </div>
+</div>
 
-                                        {/* Waveform animation */}
-                                        {recording === "in-progress" && (
-                                            <div className="flex gap-1 mt-2 h-6 items-end">
-                                                {Array.from({ length: 20 }).map((_, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className="w-1 bg-red-400 rounded"
-                                                        style={{
-                                                            height: `${Math.random() * 100}%`,
-                                                            animation: "bounce 0.8s infinite ease-in-out",
-                                                            animationDelay: `${i * 0.05}s`,
-                                                        }}
-                                                    />
-                                                ))}
-                                            </div>
-                                        )}
-
-                                        {/* Playback */}
-                                        {audioURL && recording !== "in-progress" && (
-                                            <div className="flex items-center gap-3 mt-2 w-full">
-                                                <audio
-                                                    controls
-                                                    src={audioURL}
-                                                    className="w-full rounded-lg border border-gray-300 shadow-sm"
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <style jsx>{`
-                                    @keyframes bounce {
-                                    0%,
-                                    100% {
-                                        transform: scaleY(0.3);
-                                    }
-                                    50% {
-                                        transform: scaleY(1);
-                                    }
-                                    }
-                                `}</style>
-                                </div>
 
                                 <div>
                                     <label className="block text-[18px]  font-semibold text-gray-700 mb-2">
