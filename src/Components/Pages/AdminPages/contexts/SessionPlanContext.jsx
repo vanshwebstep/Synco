@@ -170,7 +170,71 @@ export const SessionPlanContextProvider = ({ children }) => {
       throw err; // re-throw so caller can show dynamic alert
     }
   }, [token, fetchExercises]);
+const updateSessionExercise = useCallback(async (id, data) => {
+  if (!token) return;
 
+  try {
+    const formdata = new FormData();
+    formdata.append("title", data.title);
+    formdata.append("description", data.description);
+    formdata.append("duration", data.duration);
+
+    if (Array.isArray(data.images)) {
+      data.images.forEach((file) => {
+        formdata.append("images", file);
+      });
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/${id}`, {
+      method: "PUT", // ✅ Use PUT for update
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formdata,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw result; // forward error to frontend
+    }
+
+    console.log("✅ Exercise updated");
+    await fetchExercises(); // refresh list after update
+
+    return result;
+  } catch (err) {
+    console.error("❌ Failed to update exercise:", err);
+    throw err;
+  }
+}, [token, fetchExercises]);
+    const duplicatePlan = useCallback(async (id) => {
+    if (!token) return;
+     setLoading(true); // Start loading
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/${id}/duplicate`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await fetchExercises();
+    } catch (err) {
+       setLoading(false); // Start loading
+      console.error("Failed :", err);
+    }
+  }, [token, fetchExercises]);
+
+  const deleteExercise = useCallback(async (id) => {
+    if (!token) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await fetchExercises();
+    } catch (err) {
+      console.error("Failed to delete Exercise:", err);
+    }
+  }, [token, fetchExercises]);
 
   const fetchExerciseById = useCallback(async (id) => {
     if (!token) return;
@@ -277,6 +341,13 @@ const updateDiscount = useCallback(async (id, data) => {
     appendMedia("banner_file", data.banner_file);
     appendMedia("video_file", data.video_file);
     appendMedia("video", data.video);
+    
+    appendMedia("beginner_video", data.beginner_video);
+    appendMedia("beginner_banner", data.beginner_banner);
+    
+    appendMedia("intermediate_video", data.intermediate_video);
+    appendMedia("intermediate_banner", data.intermediate_banner);
+
     appendMedia("advanced_video", data.advanced_video);
     appendMedia("advanced_banner", data.advanced_banner);
     appendMedia("pro_video", data.pro_video);
@@ -395,6 +466,8 @@ const updateDiscount = useCallback(async (id, data) => {
         setLoading,
         createSessionGroup,
         createSessionExercise,
+        updateSessionExercise,
+        duplicatePlan,
         selectedGroup,
         fetchSessionGroup,
         fetchGroupById,
@@ -406,6 +479,7 @@ const updateDiscount = useCallback(async (id, data) => {
         selectedExercise,
         setSelectedExercise,
         exercises,
+        deleteExercise,
         setExercises,
         fetchExerciseById,
         deleteSessionlevel,

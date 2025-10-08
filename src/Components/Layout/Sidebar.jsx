@@ -224,7 +224,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
     return (
      <ul
-  className={`${level === 0 ? 'px-4 lg:px-1' : 'pl-6 lg:pl-12'} ${level === 2 ? 'list-disc' : 'list-none'
+  className={`${level === 0 ? 'px-4 py-10 lg:px-1' : 'pl-6 lg:pl-12'} ${level === 2 ? 'list-disc' : 'list-none'
     } space-y-1`}
 >
   {items.map((item) => {
@@ -246,7 +246,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         }}
         onMouseEnter={() => setHoveredItem(itemTitle)}
         onMouseLeave={() => setHoveredItem(null)}
-        className={`flex items-center justify-between font-semibold cursor-pointer 
+        className={`flex items-center text-[#1B1B1E] justify-between font-semibold cursor-pointer 
         px-3 sm:px-4 lg:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-100
         ${level === 0
             ? isActive
@@ -269,7 +269,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               />
             </span>
           )}
-          <span>{itemTitle}</span>
+          <span className='font-semibold text-[18px]'>{itemTitle}</span>
         </span>
 
         {level === 0 && hasSubItems &&
@@ -364,10 +364,10 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
 
       {/* Desktop Sidebar */}
-      <aside className="hidden md:w-2/12 lg:flex w-72 bg-white border-r border-gray-100 flex-col shadow-lg">
+      <aside className="hidden md:w-1.5/12 lg:flex w-72 bg-white border-r border-gray-100 flex-col shadow-lg">
         <div className="p-6 font-semibold text-2xl text-center flex items-center gap-0.5 justify-center">
-          <img src='/demo/synco/images/synco-text.png' alt="Logo" className="h-10 w-auto object-contain" />
-        <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className="h-10 w-auto object-contain mb-0.5 animate-spin [animation-duration:4s] " />
+          <img src='/demo/synco/images/synco-text.png' alt="Logo" className="h-15 w-auto object-contain" />
+        <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className="h-15 w-auto object-contain mb-0.5 animate-spin [animation-duration:4s] " />
         </div>
         <nav className="flex-1 overflow-y-auto scrollbar-hide scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500">
           {renderMenuItems(menuItems)}

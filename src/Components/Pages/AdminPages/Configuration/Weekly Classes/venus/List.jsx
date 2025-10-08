@@ -21,65 +21,65 @@ const List = () => {
 
   const [clickedIcon, setClickedIcon] = useState(null);
 
-const handleIconClick = (icon, plan = null) => {
-   // console.log("🔵 handleIconClick triggered");
-   // console.log("👉 Received icon:", icon);
+  const handleIconClick = (icon, plan = null) => {
+    // console.log("🔵 handleIconClick triggered");
+    // console.log("👉 Received icon:", icon);
 
-  if (Array.isArray(plan)) {
-     // console.log("📦 Plan is an array with length:", plan.length);
-    console.table(plan);
-  } else {
-     // console.log("📦 Plan is not an array, value:", plan);
-  }
+    if (Array.isArray(plan)) {
+      // console.log("📦 Plan is an array with length:", plan.length);
+      console.table(plan);
+    } else {
+      // console.log("📦 Plan is not an array, value:", plan);
+    }
 
-  // 🔴 Validation checks with Swal alerts
-  if (!icon) {
-    Swal.fire({
-      icon: "error",
-      title: "Missing Icon",
-      text: "❌ Icon is missing!",
-    });
-    console.error("❌ Icon is missing!");
-    return;
-  }
+    // 🔴 Validation checks with Swal alerts
+    if (!icon) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Icon",
+        text: "❌ Icon is missing!",
+      });
+      console.error("❌ Icon is missing!");
+      return;
+    }
 
-  if (
-    (icon === "currency" && (!plan || plan.length === 0)) ||
-    (icon === "calendar" && !plan)
-  ) {
-    Swal.fire({
-      icon: "error",
-      title: "Missing Data",
-      text: `❌ Required plan data is missing `,
-    });
-    console.error(`❌ Required plan data is missing for icon: ${icon}`);
-    return;
-  }
+    if (
+      (icon === "currency" && (!plan || plan.length === 0)) ||
+      (icon === "calendar" && !plan)
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Data",
+        text: `❌ Required plan data is missing `,
+      });
+      console.error(`❌ Required plan data is missing for icon: ${icon}`);
+      return;
+    }
 
-  // 🟢 Normal flow
-  setClickedIcon(icon);
-   // console.log("✅ setClickedIcon:", icon);
+    // 🟢 Normal flow
+    setClickedIcon(icon);
+    // console.log("✅ setClickedIcon:", icon);
 
-  setCongestionNote(null);
-   // console.log("✅ congestionNote reset to null");
+    setCongestionNote(null);
+    // console.log("✅ congestionNote reset to null");
 
-  if (icon === "currency") {
-    setSelectedPlans(plan || []);
-     // console.log("💰 setSelectedPlans:", plan || []);
-  } else if (icon === "group") {
-    setCongestionNote(plan);
-     // console.log("👥 setCongestionNote (group):", plan);
-  } else if (icon === "p") {
-    setCongestionNote(plan);
-     // console.log("🅿️ setCongestionNote (p):", plan);
-  } else if (icon === "calendar") {
-    setCongestionNote(plan);
-     // console.log("📅 setCongestionNote (calendar):", plan);
-  }
+    if (icon === "currency") {
+      setSelectedPlans(plan || []);
+      // console.log("💰 setSelectedPlans:", plan || []);
+    } else if (icon === "group") {
+      setCongestionNote(plan);
+      // console.log("👥 setCongestionNote (group):", plan);
+    } else if (icon === "p") {
+      setCongestionNote(plan);
+      // console.log("🅿️ setCongestionNote (p):", plan);
+    } else if (icon === "calendar") {
+      setCongestionNote(plan);
+      // console.log("📅 setCongestionNote (calendar):", plan);
+    }
 
-  setShowModal(true);
-   // console.log("🟢 setShowModal set to true");
-};
+    setShowModal(true);
+    // console.log("🟢 setShowModal set to true");
+  };
 
 
 
@@ -120,7 +120,7 @@ const handleIconClick = (icon, plan = null) => {
       cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
-         // console.log('DeleteId:', id);
+        // console.log('DeleteId:', id);
 
         deleteVenue(id); // Call your delete function here
 
@@ -178,48 +178,48 @@ const handleIconClick = (icon, plan = null) => {
     setToDate(null);
   };
 
-const getDateStatus = (date) => {
-  let isStartOrEnd = false;
-  let isInBetween = false;
-  let isExcluded = false;
-  let isSessionDate = false; // NEW
+  const getDateStatus = (date) => {
+    let isStartOrEnd = false;
+    let isInBetween = false;
+    let isExcluded = false;
+    let isSessionDate = false; // NEW
 
-  congestionNote.forEach((term) => {
-    const start = new Date(term.startDate);
-    const end = new Date(term.endDate);
+    congestionNote.forEach((term) => {
+      const start = new Date(term.startDate);
+      const end = new Date(term.endDate);
 
-    if (!date) return;
+      if (!date) return;
 
-    // Start / End
-    if (isSameDate(date, start) || isSameDate(date, end)) {
-      isStartOrEnd = true;
-    } 
-    // In Between
-    else if (date >= start && date <= end) {
-      isInBetween = true;
-    }
-
-    // Exclusion Dates
-    term.exclusionDates?.forEach((ex) => {
-      const exclusionDate = new Date(ex);
-      if (isSameDate(date, exclusionDate)) {
-        isExcluded = true;
+      // Start / End
+      if (isSameDate(date, start) || isSameDate(date, end)) {
+        isStartOrEnd = true;
       }
+      // In Between
+      else if (date >= start && date <= end) {
+        isInBetween = true;
+      }
+
+      // Exclusion Dates
+      term.exclusionDates?.forEach((ex) => {
+        const exclusionDate = new Date(ex);
+        if (isSameDate(date, exclusionDate)) {
+          isExcluded = true;
+        }
+      });
+
+      // Session Dates (NEW)
+      term.sessionsMap?.forEach((session) => {
+        const sessionDate = new Date(session.sessionDate);
+        if (isSameDate(date, sessionDate)) {
+          isSessionDate = true;
+        }
+      });
     });
 
-    // Session Dates (NEW)
-    term.sessionsMap?.forEach((session) => {
-      const sessionDate = new Date(session.sessionDate);
-      if (isSameDate(date, sessionDate)) {
-        isSessionDate = true;
-      }
-    });
-  });
+    return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
+  };
 
-  return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
-};
-
- // console.log('congestionNote',congestionNote)
+  // console.log('congestionNote',congestionNote)
   const isSameDate = (d1, d2) =>
     d1 &&
     d2 &&
@@ -241,25 +241,25 @@ const getDateStatus = (date) => {
       }
     }
   };
-//     useEffect(() => {
-//  function handleClickOutside(e) {
-//   if (e.target.id === "form-backdrop") {
-//     setOpenForm(false);
-//     setIsEditVenue(false);
-//   }
-// }
+  //     useEffect(() => {
+  //  function handleClickOutside(e) {
+  //   if (e.target.id === "form-backdrop") {
+  //     setOpenForm(false);
+  //     setIsEditVenue(false);
+  //   }
+  // }
 
 
-//     if (openForm) {
-//       document.addEventListener("mousedown", handleClickOutside);
-//     } else {
-//       document.removeEventListener("mousedown", handleClickOutside);
-//     }
+  //     if (openForm) {
+  //       document.addEventListener("mousedown", handleClickOutside);
+  //     } else {
+  //       document.removeEventListener("mousedown", handleClickOutside);
+  //     }
 
-//     return () => {
-//       document.removeEventListener("mousedown", handleClickOutside);
-//     };
-//   }, [openForm]);
+  //     return () => {
+  //       document.removeEventListener("mousedown", handleClickOutside);
+  //     };
+  //   }, [openForm]);
 
   const modalRef = useRef(null);
   const PRef = useRef(null);
@@ -310,7 +310,7 @@ const getDateStatus = (date) => {
 
 
 
-   // console.log('venues', venues)
+  // console.log('venues', venues)
 
 
   const formatShortDate = (iso) => {
@@ -327,23 +327,23 @@ const getDateStatus = (date) => {
   };
 
   const grouped = termGroup.map((group, groupIdx) => {
-     // console.log(`\n📦 Processing Group #${groupIdx + 1}:`, group);
+    // console.log(`\n📦 Processing Group #${groupIdx + 1}:`, group);
 
     // Use termGroup?.id to match correctly
     const terms = termData.filter((t) => t.termGroup?.id === group.id);
     if (!terms.length) {
-       // console.log(`⚠️ No terms found for group ID ${group.id}`);
+      // console.log(`⚠️ No terms found for group ID ${group.id}`);
       return null;
     }
 
-     // console.log(`🔍 Matched ${terms.length} terms for group '${group.name}'`);
+    // console.log(`🔍 Matched ${terms.length} terms for group '${group.name}'`);
 
     // Step 2: Map each term to sessionData
     const sessionData = terms.map((term, termIdx) => {
       const start = formatDate(term.startDate);
       const end = formatDate(term.endDate);
       const dateRange = `${start} - ${end}`;
-       // console.log('terms', terms)
+      // console.log('terms', terms)
       // Parse exclusionDates
       let exclusionArr = [];
       try {
@@ -384,11 +384,11 @@ const getDateStatus = (date) => {
 
       };
 
-       // console.log(`📘 Term #${termIdx + 1} (${term.termName}):`, sessionObj);
+      // console.log(`📘 Term #${termIdx + 1} (${term.termName}):`, sessionObj);
       return sessionObj;
     });
 
-     // console.log('📊 SessionData for this group:', sessionData);
+    // console.log('📊 SessionData for this group:', sessionData);
 
     // Step 3: Build the class card
     const classCard = {
@@ -405,7 +405,7 @@ const getDateStatus = (date) => {
       classCard[key] = `${termData.date}`;
     });
 
-     // console.log(`🧾 Built classCard for group '${group.name}':`, classCard);
+    // console.log(`🧾 Built classCard for group '${group.name}':`, classCard);
 
     return { sessionData, classCard };
   });
@@ -414,8 +414,8 @@ const getDateStatus = (date) => {
     .filter(item => item && item.classCard)
     .map(item => item.classCard);
 
-   // console.log('sessionData', grouped)
-   // console.log('classCards', classCards)
+  // console.log('sessionData', grouped)
+  // console.log('classCards', classCards)
   const { checkPermission } = usePermission();
 
   const canCreate =
@@ -436,10 +436,10 @@ const getDateStatus = (date) => {
     checkPermission({ module: 'payment-group', action: 'view-listing' })
   const canViewClassSchedule =
     checkPermission({ module: 'class-schedule', action: 'view-listing' })
+  console.log('venues', venues)
 
-    
   return (
-    <div   id="form-backdrop" ref={formRef}  className=" pt-1 bg-gray-50 min-h-screen">
+    <div id="form-backdrop" ref={formRef} className=" pt-1 bg-gray-50 min-h-screen">
       <div className={`flex flex-wrap pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
         <h2 className="text-[28px] font-semibold">Venues</h2>
         {canCreate &&
@@ -493,14 +493,13 @@ const getDateStatus = (date) => {
                         <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
                           <td className="p-4 cursor-pointer">
                             <div className="flex items-center gap-3">
-                             <button
-  onClick={() => toggleCheckbox(user.id)}
-  className={`w-6 h-6 sm:w-5 sm:h-5 flex items-center justify-center rounded-md border-2 ${
-    isChecked ? 'border-gray-700' : 'border-gray-300'
-  } transition-colors focus:outline-none`}
->
-  {isChecked && <Check size={16} strokeWidth={3} className="text-gray-700" />}
-</button>
+                              <button
+                                onClick={() => toggleCheckbox(user.id)}
+                                className={`w-6 h-6 sm:w-5 sm:h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-700' : 'border-gray-300'
+                                  } transition-colors focus:outline-none`}
+                              >
+                                {isChecked && <Check size={16} strokeWidth={3} className="text-gray-700" />}
+                              </button>
 
                               <span>{user.area || "-"}</span>
                             </div>
@@ -512,7 +511,10 @@ const getDateStatus = (date) => {
                             <div className="flex gap-2">
                               <div
                                 onClick={() =>
-                                  handleIconClick("calendar", user.termGroups?.[0]?.terms || [])
+                                  handleIconClick(
+                                    "calendar",
+                                    user.termGroups?.flatMap(group => group.terms) || []
+                                  )
                                 } className="cursor-pointer"
                               >
                                 <img
@@ -531,20 +533,19 @@ const getDateStatus = (date) => {
                                   alt="currency"
                                 />
                               </div>
-                              <div
-                                onClick={() =>
-                                  user.isCongested
-                                    ? handleIconClick("group", user.howToEnterFacility)
-                                    : handleIconClick("group")
-                                }
-                                className="cursor-pointer"
-                              >
-                                <img
-                                  src="/demo/synco/members/Group-c.png"
-                                  className="min-w-6 min-h-6 max-w-6 max-h-6"
-                                  alt="group"
-                                />
-                              </div>
+                           {user.isCongested && (
+  <div
+    onClick={() => handleIconClick("group", user.howToEnterFacility)}
+    className="cursor-pointer"
+  >
+    <img
+      src="/demo/synco/members/Group-c.png"
+      className="min-w-6 min-h-6 max-w-6 max-h-6"
+      alt="group"
+    />
+  </div>
+)}
+
                               <div
                                 onClick={() =>
                                   user.hasParking
@@ -592,7 +593,7 @@ const getDateStatus = (date) => {
                                   />
                                 </div>
                               }
-                              
+
                             </div>
 
                           </td>
@@ -611,7 +612,7 @@ const getDateStatus = (date) => {
         </div>
 
         {openForm && (
-          <div    className="md:w-1/4 bg-white  rounded-4xl relative">
+          <div className="md:w-1/4 bg-white  rounded-4xl relative">
 
             <button
               onClick={() => {
@@ -634,11 +635,11 @@ const getDateStatus = (date) => {
               title="Close"
             >
             </button>
-<Create
-  groups={groups}
-  termGroup={classCards}
-  onClose={() => setOpenForm(false)}
-/>
+            <Create
+              groups={groups}
+              termGroup={classCards}
+              onClose={() => setOpenForm(false)}
+            />
 
           </div>
         )}
@@ -648,21 +649,21 @@ const getDateStatus = (date) => {
       {showModal && clickedIcon === "currency" && selectedPlans.length > 0 && (
         <div className="fixed inset-0 z-50 bg-black/60 flex  max-h-full items-center justify-center">
           <div className="flex items-center    justify-center w-full px-4 py-6 sm:px-6 md:py-10">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl">
-  <div className="overflow-y-auto max-h-[700px] rounded-3xl scrollbar-hide p-4 sm:p-6">
-              {/* Header */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-                <h2 className="font-semibold text-[20px] sm:text-[24px]">Subscription Plan Preview</h2>
-                <button className="text-gray-400 hover:text-black text-xl font-bold">
-                  <img
-                    src="/demo/synco/icons/cross.png"
-                    onClick={() => setShowModal(false)}
-                    alt="close"
-                    className="w-5 h-5"
-                  />
-                </button>
-              </div>
-              <PlanTabs selectedPlans={selectedPlans} />
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-4xl">
+              <div className="overflow-y-auto max-h-[700px] rounded-3xl scrollbar-hide p-4 sm:p-6">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
+                  <h2 className="font-semibold text-[20px] sm:text-[24px]">Subscription Plan Preview</h2>
+                  <button className="text-gray-400 hover:text-black text-xl font-bold">
+                    <img
+                      src="/demo/synco/icons/cross.png"
+                      onClick={() => setShowModal(false)}
+                      alt="close"
+                      className="w-5 h-5"
+                    />
+                  </button>
+                </div>
+                <PlanTabs selectedPlans={selectedPlans} />
               </div>
             </div>
           </div>
@@ -737,41 +738,41 @@ const getDateStatus = (date) => {
               {/*also in calendar make auto prefilled terms startdate and end date print all like january has 15 to 21 feb has 23 to 28 */}
               {/* Calendar Grid */}
               <div className="grid grid-cols-7 gap-0 text-[16px]">
-        {calendarDays.map((date, i) => {
-  const { isStartOrEnd, isInBetween, isExcluded, isSessionDate } = getDateStatus(date);
+                {calendarDays.map((date, i) => {
+                  const { isStartOrEnd, isInBetween, isExcluded, isSessionDate } = getDateStatus(date);
 
-  let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
-  let innerDiv = null;
+                  let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
+                  let innerDiv = null;
 
-  if (!date) {
-    className += "";
-  } else if (isExcluded) {
-    className += "bg-gray-400 text-white opacity-60 rounded-full cursor-not-allowed";
-  } else if (isSessionDate) {
-    className += "bg-blue-600 text-white font-bold rounded-full"; // DARK BLUE
-  } else if (isStartOrEnd) {
-    className += "";
-    innerDiv = (
-      <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
-        {date.getDate()}
-      </div>
-    );
-  } else if (isInBetween) {
-    className += " text-gray-800";
-  } else {
-    className += "hover:bg-gray-100 text-gray-800";
-  }
+                  if (!date) {
+                    className += "";
+                  } else if (isExcluded) {
+                    className += "bg-gray-400 text-white opacity-60 rounded-full cursor-not-allowed";
+                  } else if (isSessionDate) {
+                    className += "bg-blue-600 text-white font-bold rounded-full"; // DARK BLUE
+                  } else if (isStartOrEnd) {
+                    className += "";
+                    innerDiv = (
+                      <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
+                        {date.getDate()}
+                      </div>
+                    );
+                  } else if (isInBetween) {
+                    className += " text-gray-800";
+                  } else {
+                    className += "hover:bg-gray-100 text-gray-800";
+                  }
 
-  return (
-    <div
-      key={i}
-      onClick={() => date && !isExcluded && handleDateClick(date)}
-      className={className}
-    >
-      {innerDiv || (date ? date.getDate() : "")}
-    </div>
-  );
-})}
+                  return (
+                    <div
+                      key={i}
+                      onClick={() => date && !isExcluded && handleDateClick(date)}
+                      className={className}
+                    >
+                      {innerDiv || (date ? date.getDate() : "")}
+                    </div>
+                  );
+                })}
 
               </div>
             </div>

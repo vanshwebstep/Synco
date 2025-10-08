@@ -332,6 +332,7 @@ const handleSaveWeekTitle = useCallback(
   console.log(weekList)
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
+    
       <div className="md:flex pe-4 justify-between items-center mb-4 w-full">
         <h2 className="text-[28px] font-semibold">Session Plan Library</h2>
 
@@ -398,14 +399,14 @@ const handleSaveWeekTitle = useCallback(
                       className={`bg-gray-100 rounded-2xl p-4 w-full md:min-w-[374px] md:max-w-xs transform ${snapshot.isDragging ? 'scale-105 shadow-xl transition-transform duration-200' : ''
                         }`}
                     >
-                      <div className="flex items-center justify-between p-2">
+                      <div className="flex items-center justify-between p-2 w-full gap-2">
                         {editingWeek === week.id ? (
                           <>
                             <input
                               type="text"
                               value={editedWeekTitle}
                               onChange={(e) => setEditedWeekTitle(e.target.value)}
-                              className="border border-gray-300 rounded px-2 py-1 text-lg font-semibold"
+                              className="border border-gray-300 w-inherit rounded px-2 py-1 text-lg font-semibold"style={{ width: "inherit" }}
                             />
 
                             <div className="flex gap-2 items-center">
@@ -425,7 +426,7 @@ const handleSaveWeekTitle = useCallback(
                           </>
                         ) : (
                           <>
-                            <h3 className="font-semibold text-[24px]">{week.title}</h3>
+                            <h3 className="font-semibold text-[24px] max-w-[215px] overflow-hidden">{week.title}</h3>
                             {!reorderMode && (
                               <div className="flex gap-2 items-center">
                                 <button
@@ -433,7 +434,7 @@ const handleSaveWeekTitle = useCallback(
                                   className="text-gray-500 hover:text-blue-600"
                                 >
                                   <img
-                                    src="/demo/synco/icons/edit.png"
+                                    src="/demo/synco/icons/edit2.png"
                                     alt="Edit"
                                     className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                   />
@@ -442,7 +443,7 @@ const handleSaveWeekTitle = useCallback(
                                   onClick={() =>
                                     navigate(`/configuration/weekly-classes/session-plan-preview?id=${week.id}`)
                                   }
-                                  className="text-gray-700 hover:text-black"
+                                  className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                 >
                                   <Eye size={24} />
                                 </button>
@@ -450,7 +451,7 @@ const handleSaveWeekTitle = useCallback(
                                   onClick={() =>
                                     handleDuplicateGroup(week.id)
                                   }
-                                  className="text-gray-700 hover:text-black"
+                                  className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                 >
                                   <Copy  size={24} />
                                 </button>
@@ -504,7 +505,7 @@ const handleSaveWeekTitle = useCallback(
                                 <img
                                   src="/demo/synco/icons/deleteIcon.png"
                                   alt="Delete"
-                                  className="min-w-6 min-h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                  className="w-6 h-6  transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                 />
                               </button>
                             }

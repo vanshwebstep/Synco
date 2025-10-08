@@ -379,7 +379,7 @@ const WaitingList = () => {
         },
         {
             header: "Days Waiting",
-            render: (item) => item.waitingDays || "From Akshay pending ",
+            render: (item) => item.waitingDays || "null",
         },
         {
             header: "Interest level",

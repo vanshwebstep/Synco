@@ -325,97 +325,125 @@ const List = () => {
   const modalRef = useRef(null);
   const PRef = useRef(null);
 
-  useEffect(() => {
-    const handleOutsideClick = (event) => {
-      if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setActiveCongestionVenueId(false); // Close modal
-      }
-    };
 
-    if (activeCongestionVenueId) {
-      document.addEventListener("mousedown", handleOutsideClick);
+const handleIconClick = (type, venueId, paymentPlans = []) => {
+  console.log("🔹 handleIconClick triggered", { type, venueId, paymentPlans });
+
+  switch (type) {
+    case "payment":
+      console.log("🟢 Opening Payment modal for:", venueId);
+      setSelectedPlans(paymentPlans || []);
+      setShowModal(prev => {
+        const next = prev === venueId ? null : venueId;
+        console.log("   ↳ showModal:", next);
+        console.log("   ↳ prev:", prev);
+        console.log("   ↳ venueId:", venueId);
+        return next;
+      });
+      setShowteamModal(null);
+      setOpenMapId(null);
+      setActiveCongestionVenueId(null);
+      setActiveParkingVenueId(null);
+      setNotes(null);
+      break;
+
+    case "team":
+      console.log("🟡 Opening Team modal for:", venueId);
+      setCalendarData(paymentPlans || []);
+      setShowteamModal(prev => {
+        const next = prev === venueId ? null : venueId;
+        console.log("   ↳ showteamModal:", next);
+        return next;
+      });
+      setShowModal(null);
+      setOpenMapId(null);
+      setActiveCongestionVenueId(null);
+      setActiveParkingVenueId(null);
+      setNotes(null);
+      break;
+
+    case "location":
+      console.log("🔵 Opening Location map for:", venueId);
+      setOpenMapId(prev => {
+        const next = prev === venueId ? null : venueId;
+        console.log("   ↳ openMapId:", next);
+        return next;
+      });
+      setShowModal(null);
+      setShowteamModal(null);
+      setActiveCongestionVenueId(null);
+      setActiveParkingVenueId(null);
+      setNotes(null);
+      break;
+
+    case "congestion":
+      console.log("🟠 Showing Congestion Notes for:", venueId);
+      setNotes(paymentPlans);
+      setActiveCongestionVenueId(prev => {
+        const next = prev === venueId ? null : venueId;
+        console.log("   ↳ activeCongestionVenueId:", next);
+        return next;
+      });
+      setShowModal(null);
+      setShowteamModal(null);
+      setOpenMapId(null);
+      setActiveParkingVenueId(null);
+      break;
+
+    case "parking":
+      console.log("🟣 Showing Parking Notes for:", venueId);
+      setNotes(paymentPlans);
+      setActiveParkingVenueId(prev => {
+        const next = prev === venueId ? null : venueId;
+        console.log("   ↳ activeParkingVenueId:", next);
+        return next;
+      });
+      setShowModal(null);
+      setShowteamModal(null);
+      setOpenMapId(null);
+      setActiveCongestionVenueId(null);
+      break;
+
+    default:
+      console.log("⚪ Unknown type:", type);
+      break;
+  }
+
+  console.log("✅ Completed handleIconClick for", type);
+};
+
+
+
+
+useEffect(() => {
+  const activeVenueId =
+    showModal ?? showteamModal ?? openMapId ?? activeCongestionVenueId ?? activeParkingVenueId;
+
+  if (activeVenueId && modalRefs.current[activeVenueId]) {
+    modalRefs.current[activeVenueId].scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }
+}, [showModal, showteamModal, openMapId, activeCongestionVenueId, activeParkingVenueId]);
+
+
+
+useEffect(() => {
+  const handleOutsideClick = (event) => {
+    if (modalRef.current && !modalRef.current.contains(event.target)) {
+      setActiveCongestionVenueId(null); // toggle works now
     }
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
-  }, [activeCongestionVenueId]);
-  useEffect(() => {
-    const handleOutsideClickP = (event) => {
-      if (PRef.current && !PRef.current.contains(event.target)) {
-        setActiveParkingVenueId(false); // Close modal(false); // Close modal
-      }
-    };
-
-    if (activeParkingVenueId) {
-      document.addEventListener("mousedown", handleOutsideClickP);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClickP);
-    };
-  }, [activeParkingVenueId]);
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (iconContainerRef.current && !iconContainerRef.current.contains(event.target)) {
-        // Clicked outside
-        setShowModal(null);
-        setShowteamModal(null);
-        setOpenMapId(null);
-        setActiveCongestionVenueId(null);
-        setActiveParkingVenueId(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-  const handleIconClick = (type, venueId, paymentPlans = []) => {
-    setNotes(null);
-    setShowModal(null);
-    setShowteamModal(null);
-    setOpenMapId(null);
-    setActiveCongestionVenueId(null);
-    setActiveParkingVenueId(null);
-
-    // Apply active toggle
-    switch (type) {
-      case 'payment':
-        setSelectedPlans(paymentPlans || []);
-        setShowModal(prev => (prev === venueId ? null : venueId));
-        break;
-      case 'team':
-        setShowteamModal(prev => (prev === venueId ? null : venueId));
-        setCalendarData(paymentPlans || [])
-        break;
-      case 'location':
-        setOpenMapId(prev => (prev === venueId ? null : venueId));
-        break;
-      case 'congestion':
-        setNotes(paymentPlans);
-        setActiveCongestionVenueId(prev => (prev === venueId ? null : venueId));
-        break;
-      case 'parking':
-        setNotes(paymentPlans);
-        setActiveParkingVenueId(prev => (prev === venueId ? null : venueId));
-        break;
-      default:
-        break;
+    if (PRef.current && !PRef.current.contains(event.target)) {
+      setActiveParkingVenueId(null); // toggle works now
     }
   };
-  useEffect(() => {
-    const activeVenueId =
-      showModal || showteamModal || openMapId || activeCongestionVenueId || activeParkingVenueId;
 
-    if (activeVenueId && modalRefs.current[activeVenueId]) {
-      modalRefs.current[activeVenueId].scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [showModal, showteamModal, openMapId, activeCongestionVenueId, activeParkingVenueId]);
+  document.addEventListener("mousedown", handleOutsideClick);
+  return () => document.removeEventListener("mousedown", handleOutsideClick);
+}, []);
+
+
 
 
   const handleBookFreeTrial = (classId) => {
@@ -480,40 +508,28 @@ const List = () => {
   const canAddToWaitingList =
     checkPermission({ module: 'waiting-list', action: 'create' })
    // console.log('selectedPlans', selectedPlans)
-  const classes = [
-    {
-      id: 1,
-      name: "Class 1",
-      age: "4–7 years",
-      time: "9:30am – 10:30am",
-      status: "Fully booked",
-      type: "full",
-    },
-    {
-      id: 2,
-      name: "Class 2",
-      age: "8–12 years",
-      time: "10:30am – 11:30am",
-      status: "+4 spaces",
-      type: "available",
-    },
-    {
-      id: 3,
-      name: "Class 3",
-      age: "8–12 years",
-      time: "10:30am – 11:30am",
-      status: "+4 spaces",
-      type: "available",
-    },
-    {
-      id: 4,
-      name: "Class 3",
-      age: "8–12 years",
-      time: "10:30am – 11:30am",
-      status: "+4 spaces",
-      type: "available",
-    },
-  ];
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    const clickedOutsideIcons = iconContainerRef.current && !iconContainerRef.current.contains(event.target);
+    const clickedOutsidePaymentModal = modalRef.current && !modalRef.current.contains(event.target);
+    const clickedOutsideParkingModal = PRef.current && !PRef.current.contains(event.target);
+
+    // Close all modals if click is outside icons AND outside any open modal
+    if (clickedOutsideIcons && clickedOutsidePaymentModal && clickedOutsideParkingModal) {
+      setShowModal(null);
+      setShowteamModal(null);
+      setOpenMapId(null);
+      setActiveCongestionVenueId(null);
+      setActiveParkingVenueId(null);
+      setNotes(null);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+}, []);
+
+
 
   if (loading) {
     return (
@@ -867,7 +883,7 @@ const List = () => {
                                 </div>
 
                                 {/* Term List */}
-                                <div className="space-y-6 max-h-80 overflow-y-scroll text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
+                                <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="space-y-6 max-h-80 overflow-y-scroll text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
                                   {calendarData.map((term) => (
                                     <div key={term.id}>
                                       <h3 className="md:text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
@@ -887,7 +903,7 @@ const List = () => {
                                 </div>
 
                                 {/* Calendar Section */}
-                                <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="rounded p-4 mt-6 text-center md:text-sm w-full max-w-md mx-auto">
+                                <div  className="rounded p-4 mt-6 text-center md:text-sm w-full max-w-md mx-auto">
                                   {/* Header */}
                                   <div className="flex justify-around items-center mb-3">
                                     <button
@@ -963,9 +979,9 @@ const List = () => {
 
                         </div>
                         {showModal === venue.venueId && (
-                          <div ref={iconContainerRef} className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
+                          <div  className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
                             <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
-                              <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+                              <div ref={iconContainerRef} className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
                                 {/* Header */}
                                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
                                   <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>

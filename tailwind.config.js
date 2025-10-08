@@ -4,6 +4,10 @@ module.exports = {
 
   theme: {
     extend: {
+       screens: {
+        'xl2': '1400px', // applies for 1400px and above
+        'xxl': '1900px', // optional for 1900px+
+      },
       keyframes: {
         slideIn: {
           "0%": { transform: "translateY(-100%)", opacity: 0 },

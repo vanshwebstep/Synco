@@ -14,6 +14,8 @@ const levelKeyToLabel = {
 const Preview = ({ item, sessionData }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [recording, setRecording] = useState(null);
+  const [videoUrl, setVideoUrl] = useState(null);
+  const [videoDuration, setVideoDuration] = useState(null);
   const [currentRecording, setCurrentRecording] = useState(null); // url of playing recording
   const audioRef = useRef(null);
   const [activeTab, setActiveTab] = useState('Beginners');
@@ -33,7 +35,7 @@ const Preview = ({ item, sessionData }) => {
   }, [id]);
 
   // Build dynamic content after fetch
-   console.log('selectedGroup', selectedGroup)
+  console.log('selectedGroup', selectedGroup)
   useEffect(() => {
     if (selectedGroup?.levels) {
       const buildContentMap = () => {
@@ -71,12 +73,12 @@ const Preview = ({ item, sessionData }) => {
     }
   }, [selectedGroup]);
 
-   console.log('selectedGroup', selectedGroup)
+  console.log('videoUrl', videoUrl)
   const dynamicTabs = Object.keys(myData);
   const currentContent = myData[activeTab]?.[page - 1] || {};
   const totalPages = myData[activeTab]?.length || 0;
 
-   console.log(selectedGroup)
+  console.log(selectedGroup)
   const [selectedExercise, setSelectedExercise] = useState(
     currentContent.sessionExercises?.[0] || null
   );
@@ -88,7 +90,11 @@ const Preview = ({ item, sessionData }) => {
   useEffect(() => {
     if (selectedGroup && activeTab) {
       const tabKey = activeTab.toLowerCase().replace(/s$/, "");
-      const fieldName = `${tabKey}_recording`;
+      const fieldName = `${tabKey}_upload`;
+      const fieldVideoName = `${tabKey}_video`;
+      const videoDuration = `${tabKey}_video_duration`;
+      console.log('selectedGroup', selectedGroup)
+      console.log('fieldName', fieldName)
 
       // check if that recording field exists in selectedGroup
       if (selectedGroup[fieldName]) {
@@ -96,9 +102,19 @@ const Preview = ({ item, sessionData }) => {
       } else {
         setRecording(null); // no match found
       }
+      if (selectedGroup[fieldVideoName]) {
+        setVideoUrl(selectedGroup[fieldVideoName]);
+      } else {
+        setVideoUrl(null); // no match found
+      }
+       if (selectedGroup[videoDuration]) {
+        setVideoDuration(selectedGroup[videoDuration]);
+      } else {
+        setVideoDuration(null); // no match found
+      }
     }
   }, [selectedGroup, activeTab]);
-   console.log('setRecording', recording)
+  console.log('setRecording', recording)
   const handlePlayRecording = (url) => {
     if (!audioRef.current) return;
 
@@ -121,8 +137,10 @@ const Preview = ({ item, sessionData }) => {
       </>
     )
   }
+  
+console.log(selectedExercise?.description);
 
-   console.log('currentContent', currentContent)
+  console.log('currentContent', currentContent)
   return (
     <div className="md:py-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -147,7 +165,7 @@ const Preview = ({ item, sessionData }) => {
         <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
           <div className="flex w-full flex-col lg:flex-row gap-6">
-            <div className="w-full bg-white  lg:w-1/2 flex gap-4 border border-gray-300 p-2 rounded-2xl justify-between  flex-wrap me-5">
+            <div className="w-full bg-white  lg:w-1/2 flex gap-2 border border-gray-300 p-2 rounded-2xl justify-between  flex-wrap">
               {dynamicTabs.map((tab) => (
                 <button
                   key={tab}
@@ -196,9 +214,9 @@ const Preview = ({ item, sessionData }) => {
                 <p className="text-[16px] text-[#717073] font-semibold border-b border-gray-300 pb-4 ">
                   {currentContent.description}
                 </p>
-                {currentContent.videoUrl && (
+                {videoUrl && (
                   <video
-                    src={currentContent.videoUrl}
+                    src={videoUrl}
                     controls
                     className="w-full  pt-3 rounded-4xl"
                   />
@@ -263,11 +281,11 @@ const Preview = ({ item, sessionData }) => {
 
 
                 </div>
-                {currentContent.videoUrl && (
+                {videoDuration && (
                   <div>
                     <p className="text-sm flex items-center gap-2 text-gray-500 pb-3">
                       <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
-                      {currentContent.videoUploadedAgo || 'N/A'}
+                      {videoDuration || 'N/A'}
                     </p>
                   </div>
                 )}
@@ -333,20 +351,19 @@ const Preview = ({ item, sessionData }) => {
                       <p>No images available</p>
                     )}
                   </div>
-                  <p className="text-blue-500 text-[14px] font-semibold">
+                  <p className="text-blue-500 text-[14px] mt-4 font-semibold">
                     Time Duration: {selectedExercise.duration || '—'}
                   </p>
 
                   <div className="text-sm space-y-6">
                     <div>
-                      <p className="font-semibold text-[18px] text-gray-800 mb-3 border-b border-gray-200 pb-2">
-                        Description
-                      </p>
+                      
                       <div
-                        className="prose prose-sm max-w-none text-gray-700
-                 prose-p:mb-3 prose-li:mb-2
-                 prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
-                 prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5"
+                      className="prose prose-sm max-w-none text-gray-700
+    prose-p:mb-3 prose-li:mb-2
+    prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
+    prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5
+    marker:text-gray-700"
                         dangerouslySetInnerHTML={{
                           __html:
                             selectedExercise.description ||

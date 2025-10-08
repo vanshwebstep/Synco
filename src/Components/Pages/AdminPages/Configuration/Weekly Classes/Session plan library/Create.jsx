@@ -7,18 +7,20 @@ import { useSearchParams } from "react-router-dom";
 import Loader from '../../../contexts/Loader';
 import { Editor } from '@tinymce/tinymce-react';
 import Swal from "sweetalert2";
-import { Mic, StopCircle, Play } from "lucide-react";
+import { Mic, StopCircle, Copy, Play } from "lucide-react";
 
 import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 
 const Create = () => {
     const videoInputRef = useRef(null);
+    const uploadInputRef = useRef(null);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [planLoading, setPlanLoading] = useState(false);
     const MultiValue = () => null; // Hides the default selected boxes
     const exerciseRef = useRef(null);
     const [mounted, setMounted] = useState(false);
     const containerRef = useRef(null);
+    const [editIndex, setEditIndex] = useState(null); // null = not editing
 
     useEffect(() => {
         setMounted(true);
@@ -41,14 +43,14 @@ const Create = () => {
     const [descriptionSession, setDescriptionSession] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [previewShowModal, setPreviewShowModal] = useState(false);
-    const { fetchExercises, sessionGroup, groups, updateDiscount, createSessionExercise, selectedGroup, fetchGroupById, loading, createGroup, selectedExercise, exercises, updateGroup, setExercises, createSessionGroup, fetchSessionGroup } = useSessionPlan();
+    const { fetchExercises, sessionGroup, groups, updateDiscount, createSessionExercise, deleteExercise,duplicatePlan, setLoading, updateSessionExercise, selectedGroup, fetchGroupById, loading, createGroup, selectedExercise, exercises, updateGroup, setExercises, createSessionGroup, fetchSessionGroup } = useSessionPlan();
     const [selectedPlans, setSelectedPlans] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isEditMode, setIsEditMode] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const visibleTabs = level ? tabs.filter((tab) => tab.toLowerCase() == level.toLowerCase()) : tabs;
-     // console.log('visibleTabs', visibleTabs)
-     // console.log('tabs', tabs)
+    // console.log('visibleTabs', visibleTabs)
+    // console.log('tabs', tabs)
     const [recording, setRecording] = useState(null); // stores Blob
     const [audioURL, setAudioURL] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -95,10 +97,10 @@ const Create = () => {
             }, 1000);
         } catch (err) {
             console.error("Error accessing microphone:", err);
-           Swal.fire({
+            Swal.fire({
                 icon: 'warning',
                 title: 'Microphone access denied or not available.',
-            });  
+            });
         }
     };
 
@@ -119,12 +121,18 @@ const Create = () => {
 
 
 
-     // console.log('level', level)
+    // console.log('level', level)
 
     const [sessionExerciseId, setSessionExerciseId] = useState([]); // or selectedPlans[0]?.id
     const [levels, setLevels] = useState([]);
     // State for raw file instead of preview URL
-    const [videoFile, setVideoFile] = useState(null);
+    const [videoFiles, setVideoFiles] = useState({});
+    const [videoPreviews, setVideoPreviews] = useState({});
+
+
+
+    const [uploadFiles, setUploadFiles] = useState({});
+    const [uploadPreviews, setUploadPreviews] = useState({});
     const [videoFilePreview, setVideoFilePreview] = useState(null);
     const [bannerFilePreview, setBannerFilePreview] = useState(null);
 
@@ -142,13 +150,47 @@ const Create = () => {
 
     const [openForm, setOpenForm] = useState(false);
     const navigate = useNavigate();
+    useEffect(() => {
+        return () => {
+            photoPreview.forEach((url) => URL.revokeObjectURL(url));
+        };
+    }, [photoPreview]);
     const handleVideoChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setVideoFile(file);
+            const url = URL.createObjectURL(file);
+
+            setVideoFiles((prev) => ({
+                ...prev,
+                [activeTab]: file,
+            }));
+
+            setVideoPreviews((prev) => ({
+                ...prev,
+                [activeTab]: url,
+            }));
+
+            console.log(`🎥 Video selected for ${activeTab}:`, file.name);
         }
     };
+    const handleUploadChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
 
+            setUploadFiles((prev) => ({
+                ...prev,
+                [activeTab]: file,
+            }));
+
+            setUploadPreviews((prev) => ({
+                ...prev,
+                [activeTab]: url,
+            }));
+
+            console.log(`🎥 Upload selected for ${activeTab}:`, file.name);
+        }
+    };
     const handleBannerChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -157,7 +199,18 @@ const Create = () => {
         }
     };
 
+    const handleImageChange = (e) => {
+        const files = Array.from(e.target.files);
+        const previews = files.map((file) => URL.createObjectURL(file));
+        setPhotoPreview(previews);
+        setFormData((prev) => ({ ...prev, images: files }));
+    };
 
+    const handleRemoveImage = (index) => {
+        const updatedPhotos = photoPreview.filter((_, i) => i !== index);
+        setPhotoPreview(updatedPhotos);
+        setFormData(prev => ({ ...prev, images: updatedPhotos }));
+    };
     const handleCreateSession = (finalSubmit = false) => {
         if (isProcessing) return;
 
@@ -175,7 +228,7 @@ const Create = () => {
         // if (!finalSubmit && tabRef.current) {
         //     tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         // }
-         // console.log('selectedPlanssssssssssss', selectedPlans)
+        // console.log('selectedPlanssssssssssss', selectedPlans)
         const currentLevel = {
             level: activeTab,
             player,
@@ -183,8 +236,8 @@ const Create = () => {
             skillOfTheDay,
             recording,
             descriptionSession,
-            videoFile,
-            bannerFile,
+            videoFile: videoFiles[activeTab] || null,
+            uploadFile: uploadFiles[activeTab] || null,
             sessionExerciseIds: selectedPlans.map(plan => plan.id),
         };
 
@@ -218,16 +271,15 @@ const Create = () => {
         const transformed = {
             groupName: groupNameSection,
             player,
-            video: videoFile,
             banner: bannerFile,
             levels: {},
         };
-         // console.log('transformed', transformed)
+        // console.log('transformed', transformed)
         levelsToSend.forEach((item) => {
             const levelKey = item.level.replace(/s$/i, '').toLowerCase();
-          if (item.recording instanceof Blob || item.recording instanceof File) {
-    transformed[`${levelKey}_recording`] = item.recording;
-}
+            if (item.recording instanceof Blob || item.recording instanceof File) {
+                transformed[`${levelKey}_recording`] = item.recording;
+            }
 
             if (!transformed.levels[levelKey]) {
                 transformed.levels[levelKey] = [];
@@ -241,18 +293,33 @@ const Create = () => {
             });
         });
 
-        if (videoFile instanceof File) {
-            transformed["video_file"] = videoFile;
-        }
+        Object.entries(videoFiles).forEach(([tab, file]) => {
+            const levelKey = tab.replace(/s$/i, '').toLowerCase();
+            if (file instanceof File) {
+                transformed[`${levelKey}_video`] = file;
+            } else if (typeof file === "string") {
+                transformed[`${levelKey}_video`] = file;
+            }
+        });
+        Object.entries(uploadFiles).forEach(([tab, file]) => {
+            const levelKey = tab.replace(/s$/i, '').toLowerCase();
+            if (file instanceof File) {
+                transformed[`${levelKey}_upload`] = file;
+            } else if (typeof file === "string") {
+                transformed[`${levelKey}_upload`] = file;
+            }
+        });
         if (bannerFile instanceof File) {
-            transformed["banner_file"] = bannerFile;
+            transformed["banner"] = bannerFile;
         }
 
 
         if ((isEditMode && id && level) || isLastTab || forceSubmit) {
             if (isEditMode && id && level) {
+                console.log('transformed', transformed)
                 updateDiscount(id, transformed);
             } else {
+                console.log('transformed', transformed)
                 createSessionGroup(transformed, true);
             }
         } else {
@@ -261,42 +328,42 @@ const Create = () => {
             setActiveTab(nextTab);
             setPage(1);
 
- const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
+            const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
 
-if (existingLevel) {
-    setSkillOfTheDay(existingLevel.skillOfTheDay || "");
-    setRecording(existingLevel.recording || null);
+            if (existingLevel) {
+                setSkillOfTheDay(existingLevel.skillOfTheDay || "");
+                setRecording(existingLevel.recording || null);
 
-    // ✅ Revoke old URL if exists
-    if (audioURL) {
-        URL.revokeObjectURL(audioURL);
-    }
+                // ✅ Revoke old URL if exists
+                if (audioURL) {
+                    URL.revokeObjectURL(audioURL);
+                }
 
-    // ✅ Create a new audio URL if recording exists
-    if (existingLevel.recording instanceof Blob || existingLevel.recording instanceof File) {
-        const url = URL.createObjectURL(existingLevel.recording);
-        setAudioURL(url);
-    } else {
-        setAudioURL(null);
-    }
+                // ✅ Create a new audio URL if recording exists
+                if (existingLevel.recording instanceof Blob || existingLevel.recording instanceof File) {
+                    const url = URL.createObjectURL(existingLevel.recording);
+                    setAudioURL(url);
+                } else {
+                    setAudioURL(null);
+                }
 
-    setDescriptionSession(existingLevel.descriptionSession || "");
-    setSelectedPlans(
-        existingLevel.sessionExerciseIds?.map(id =>
-            planOptions.find(opt => opt.id === id)
-        ).filter(Boolean) || []
-    );
-} else {
-    // fresh tab
-    setSkillOfTheDay("");
-    setRecording(null);
+                setDescriptionSession(existingLevel.descriptionSession || "");
+                setSelectedPlans(
+                    existingLevel.sessionExerciseIds?.map(id =>
+                        planOptions.find(opt => opt.id === id)
+                    ).filter(Boolean) || []
+                );
+            } else {
+                // fresh tab
+                setSkillOfTheDay("");
+                setRecording(null);
 
-    if (audioURL) URL.revokeObjectURL(audioURL); // revoke old
-    setAudioURL(null);
+                if (audioURL) URL.revokeObjectURL(audioURL); // revoke old
+                setAudioURL(null);
 
-    setDescriptionSession("");
-    setSelectedPlans([]);
-}
+                setDescriptionSession("");
+                setSelectedPlans([]);
+            }
 
 
 
@@ -338,54 +405,87 @@ if (existingLevel) {
 
     // Load selectedGroup and levels initially
     useEffect(() => {
-        if (selectedGroup && isEditMode) {
-            let parsedLevels = selectedGroup.levels;
+        if (!isEditMode || !selectedGroup) return;
 
-            // Parse levels if it's a string
-            if (typeof parsedLevels === "string") {
-                try {
-                    parsedLevels = JSON.parse(parsedLevels);
-                } catch (err) {
-                    console.error("Failed to parse levels JSON:", err);
-                    return;
-                }
+        let parsedLevels = selectedGroup.levels;
+        if (typeof parsedLevels === "string") {
+            try {
+                parsedLevels = JSON.parse(parsedLevels);
+            } catch (err) {
+                console.error("Failed to parse levels JSON:", err);
+                return;
             }
+        }
 
-            setGroupNameSection(selectedGroup.groupName || "");
-            setPlayer(selectedGroup.player || "");
+        setGroupNameSection(selectedGroup.groupName || "");
+        setPlayer(selectedGroup.player || "");
+        console.log('visibleTabs', visibleTabs)
+        const videoMap = {}, videoPreviewMap = {}, uploadMap = {}, uploadPreviewMap = {};
 
-            // Video setup
-            setVideoFile(
-                selectedGroup.video instanceof File ? selectedGroup.video : selectedGroup.video || ""
-            );
+        (visibleTabs || []).forEach((levelKey) => {
+            const formattedLevel = levelKey;
+            const videoKey = `${levelKey}_video`;
+            const uploadKey = `${levelKey}_upload`;
+            if (selectedGroup[videoKey]) {
+                videoMap[formattedLevel] = selectedGroup[videoKey];
+                videoPreviewMap[formattedLevel] = selectedGroup[videoKey];
+            }
+            if (selectedGroup[uploadKey]) {
+                uploadMap[formattedLevel] = selectedGroup[uploadKey];
+                uploadPreviewMap[formattedLevel] = selectedGroup[uploadKey];
+            }
+        });
+        console.log('videoMap', videoMap)
+        console.log('uploadMap', uploadMap)
+        setUploadFiles(uploadMap);
+        setUploadPreviews(uploadPreviewMap);
+        setVideoFiles(videoMap);
+        setVideoPreviews(videoPreviewMap);
 
-            // Banner setup
-            setBannerFile(
-                selectedGroup.banner instanceof File ? selectedGroup.banner : selectedGroup.banner || ""
-            );
+        setBannerFile(
+            selectedGroup.banner instanceof File
+                ? selectedGroup.banner
+                : selectedGroup.banner || ""
+        );
 
-            // Map levels
-            const loadedLevels = [];
-            Object.entries(parsedLevels || {}).forEach(([levelKey, sessions]) => {
-                sessions?.forEach((session) => {
-                    loadedLevels.push({
-                        level: levelKey,
-                        player: session.player || "",
-                        skillOfTheDay: session.skillOfTheDay || "",
-                        recording: selectedGroup[`${levelKey}_upload`] || session._upload || "",
-                        descriptionSession: session.description || "",
-                        sessionExerciseId: session.sessionExerciseId || [],
-                        sessionExercises: session.sessionExercises || [],
-                        bannerFile: selectedGroup.banner,
-                        videoFile: selectedGroup.video,
-                    });
+        const loadedLevels = [];
+        Object.entries(parsedLevels || {}).forEach(([levelKey, sessions]) => {
+            sessions?.forEach((session) => {
+                loadedLevels.push({
+                    level: levelKey,
+                    player: session.player || "",
+                    skillOfTheDay: session.skillOfTheDay || "",
+                    recording:
+                        selectedGroup[`${levelKey}_upload`] ||
+                        session._upload ||
+                        "",
+                    descriptionSession: session.description || "",
+                    sessionExerciseId: session.sessionExerciseId || [],
+                    sessionExercises: session.sessionExercises || [],
+                    bannerFile: selectedGroup.banner,
+                    videoFile: selectedGroup[`${levelKey}_video`] || "",
+                    uploadFile: selectedGroup[`${levelKey}_upload`] || "",
                 });
             });
+        });
 
-            setLevels(loadedLevels);
-        }
-    }, [selectedGroup, isEditMode]);
+        setLevels(loadedLevels);
+    }, [isEditMode, selectedGroup?.id]);
 
+    useEffect(() => {
+        return () => {
+            Object.values(videoPreviews).forEach((url) => {
+                if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+            });
+        };
+    }, []);
+    useEffect(() => {
+        return () => {
+            Object.values(uploadPreviews).forEach((url) => {
+                if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
+            });
+        };
+    }, []);
     // Update audio URL when tab changes
     useEffect(() => {
         if (levels.length > 0) {
@@ -413,7 +513,7 @@ if (existingLevel) {
     useEffect(() => {
 
         const existingLevel = levels.find((lvl) => lvl.level?.toLowerCase?.() === activeTab?.toLowerCase?.());
-         // console.log('existingLevel', existingLevel)
+        // console.log('existingLevel', existingLevel)
         if (!existingLevel) {
             setSkillOfTheDay('');
             setRecording('');
@@ -427,7 +527,7 @@ if (existingLevel) {
         setRecording(existingLevel.recording || '');
         setDescriptionSession(existingLevel.descriptionSession || '');
         // Step 1: Ensure sessionExerciseIds is set
-         // console.log('existingLevel', existingLevel)
+        // console.log('existingLevel', existingLevel)
         setSessionExerciseId(existingLevel.sessionExerciseIds || []);
         // setSelectedPlans(
         //     existingLevel.sessionExerciseIds?.map(id =>
@@ -444,8 +544,8 @@ if (existingLevel) {
             }));
 
         // Optional: Logging for debug
-         // console.log('Selected Plan IDs:', existingLevel.sessionExerciseIds);
-         // console.log('Matched Selected Plans:', selectedPlans);
+        // console.log('Selected Plan IDs:', existingLevel.sessionExerciseIds);
+        // console.log('Matched Selected Plans:', selectedPlans);
 
 
         setSelectedPlans(selectedPlans);
@@ -453,13 +553,13 @@ if (existingLevel) {
         // ✅ Handle videoFile (convert to previewable URL if File or string)
 
 
-         // console.log('existingLevel', existingLevel);
+        // console.log('existingLevel', existingLevel);
     }, [activeTab, levels]);
 
     //HOLDDD
     useEffect(() => {
         if (selectedGroup && isEditMode) {
-             // console.log('selectedGroup found ', selectedGroup)
+            // console.log('selectedGroup found ', selectedGroup)
 
             const currentLevelData = levels.find((item) => item.level == activeTab);
             setSelectedPlans(
@@ -481,8 +581,8 @@ if (existingLevel) {
     }));
 
     const selectedOptions = selectedPlans.map((plan) => ({
-        value: plan.id,
-        label: `${plan.duration}: ${plan.title}`,
+        value: plan?.id,
+        label: `${plan?.duration}: ${plan?.title}`,
         data: plan,
     }));
     useEffect(() => {
@@ -513,79 +613,148 @@ if (existingLevel) {
         setOpenForm(true);
 
     };
-    useEffect(() => {
-        if (openForm) {
-            // scroll after the form is rendered
-            exerciseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }, [openForm]);
-    const handleRemovePlan = (index) => {
-        const updated = [...selectedPlans];
-        updated.splice(index, 1);
-        setSelectedPlans(updated);
+ useEffect(() => {
+  if (openForm) {
+    const isMobile = window.innerWidth <= 769; // mobile + tablet breakpoint
+    exerciseRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: isMobile ? '' : 'start', // scroll bottom on mobile, top on desktop
+    });
+  }
+}, [openForm]);
 
-    };
+  
+const handleDeletePlan = async (index, id) => {
+    const result = await Swal.fire({
+        title: 'Choose an action for this plan',
+        showCancelButton: true,
+        showDenyButton: true,
+        showConfirmButton: true,
+        confirmButtonText: 'Permanent Delete',
+        denyButtonText: 'Just Remove',
+        cancelButtonText: 'Do Nothing',
+    });
+
+    if (result.isConfirmed) {
+        // Permanent Delete
+        try {
+            await deleteExercise(id); // your API call
+            removeFromUI(index);      // remove from UI after backend success
+            Swal.fire('Deleted!', '', 'success');
+        } catch (error) {
+            Swal.fire('Error deleting!', '', 'error');
+        }
+    } else if (result.isDenied) {
+        // Just Remove from UI
+        removeFromUI(index);
+    }
+    // Cancel / Do Nothing → do nothing
+};
+const removeFromUI = (index) => {
+    const updated = [...selectedPlans];
+    updated.splice(index, 1);
+    setSelectedPlans(updated);
+};
     const handleSavePlan = async () => {
+        console.log("🔹 handleSavePlan triggered");
+        console.log("Current formData:", formData);
+        console.log("editIndex:", editIndex);
+
         const { title, duration, description, images } = formData;
 
-        // ✅ Reusable dynamic SweetAlert
-        const showAlert = ({ type = 'info', message = '', title = '' }) => {
+        const showAlert = ({ type = "info", message = "", title = "" }) => {
             Swal.fire({
                 icon: type,
                 title: title || type.charAt(0).toUpperCase() + type.slice(1),
                 text: message,
-                timer: type === 'success' ? 1500 : undefined,
-                showConfirmButton: type !== 'success',
+                timer: type === "success" ? 1500 : undefined,
+                showConfirmButton: type !== "success",
             });
         };
 
-        // --- Frontend validation ---
-        if (!title.trim()) {
-            showAlert({ type: 'warning', message: 'Title is required', title: 'Missing Field' });
+        if (!title?.trim()) {
+            showAlert({ type: "warning", message: "Title is required", title: "Missing Field" });
             return;
         }
-        if (!duration.trim()) {
-            showAlert({ type: 'warning', message: 'Duration is required', title: 'Missing Field' });
+        if (!duration?.trim()) {
+            showAlert({ type: "warning", message: "Duration is required", title: "Missing Field" });
             return;
         }
 
         const imageList = Array.isArray(images) ? images : [];
-        const hasValidImage = imageList.some(file => file instanceof File);
+        const hasValidImage = imageList.some(
+            (file) => file instanceof File || typeof file === "string"
+        );
         if (!hasValidImage) {
-            showAlert({ type: 'warning', message: 'Please upload at least one image', title: 'Missing Image' });
+            showAlert({ type: "warning", message: "Please upload at least one image", title: "Missing Image" });
             return;
         }
 
         setPlanLoading(true);
 
-        const data = new FormData();
-        data.append('title', title);
-        data.append('duration', duration);
-        data.append('description', description);
-        imageList.forEach(file => file instanceof File && data.append('images', file));
-
-        // --- API call ---
         try {
-            await createSessionExercise(formData);
+            if (editIndex !== null) {
+                console.log("✏️ Editing existing plan");
+                const planToEdit = selectedPlans[editIndex];
+                const exerciseId = planToEdit?.id;
 
-            setFormData({ title: '', duration: '', description: '', images: [] });
-            setOpenForm(false);
-            setPhotoPreview([]);
-            showAlert({ type: 'success', message: 'Exercise saved successfully!', title: 'Saved' });
+                // 🔹 Update via API
+                const res = await updateSessionExercise(exerciseId, formData);
+                console.log("✅ API response:", res);
 
-        } catch (err) {
-            console.error('Error saving exercise:', err);
+                // FIXED: use res.data (not res.data.data)
+                const updatedExercise = res?.data?.data || res?.data;
 
-            // Dynamic backend error handling
-            const message = err.message || 'Something went wrong';
-            const code = err.code;
+                if (!updatedExercise) {
+                    throw new Error("Invalid API response: missing exercise data");
+                }
 
-            if (code === 'UNAUTHORIZED') {
-                showAlert({ type: 'error', message, title: 'Permission Denied' });
-            } else {
-                showAlert({ type: 'error', message, title: 'Error' });
+                const updatedPlans = selectedPlans.map((plan) =>
+                    plan.id === exerciseId
+                        ? {
+                            ...plan,
+                            title: updatedExercise.title,
+                            duration: updatedExercise.duration,
+                            description: updatedExercise.description,
+                            imageUrl: updatedExercise.imageUrl, // ✅ URLs from backend
+                        }
+                        : plan
+                );
+
+                console.log("✅ Updated plans:", updatedPlans);
+
+                setSelectedPlans(updatedPlans);
+                showAlert({ type: "success", message: "Exercise updated successfully!", title: "Updated" });
+                setEditIndex(null);
             }
+            else {
+                console.log("➕ Creating new plan");
+                const data = new FormData();
+                data.append("title", title);
+                data.append("duration", duration);
+                data.append("description", description);
+                imageList.forEach((file) => file instanceof File && data.append("images", file));
 
+                const res = await createSessionExercise(formData);
+                const newExercise = res?.data?.data;
+
+                showAlert({ type: "success", message: "Exercise saved successfully!", title: "Saved" });
+
+                // 🔹 Do NOT update selectedPlans here
+                // setSelectedPlans((prev) => [...prev, newExercise]);
+            }
+            // ✅ Reset form
+            console.log("🧹 Clearing form");
+            setFormData({ title: "", duration: "", description: "", images: [] });
+            setPhotoPreview([]);
+            setOpenForm(false);
+        } catch (err) {
+            console.error("❌ Error saving exercise:", err);
+            showAlert({
+                type: "error",
+                message: err?.message || "Something went wrong",
+                title: "Error",
+            });
         } finally {
             setPlanLoading(false);
         }
@@ -594,12 +763,17 @@ if (existingLevel) {
 
 
 
+
+
+
+
     const videoPreviewUrl = useMemo(() => {
-        if (videoFile && typeof videoFile !== "string") {
-            return URL.createObjectURL(videoFile);
+        const file = videoFiles[activeTab];
+        if (file && typeof file !== "string") {
+            return URL.createObjectURL(file);
         }
-        return typeof videoFile === "string" ? videoFile : null;
-    }, [videoFile]);
+        return typeof file === "string" ? file : null;
+    }, [videoFiles, activeTab]);
 
     const bannerPreviewUrl = useMemo(() => {
         if (bannerFile && typeof bannerFile !== "string") {
@@ -607,6 +781,33 @@ if (existingLevel) {
         }
         return typeof bannerFile === "string" ? bannerFile : null;
     }, [bannerFile]);
+
+    const handleDuplicateExercise = (weekId) => {
+        Swal.fire({
+            title: 'Duplicate Exercise?',
+            text: "This Exercise will be duplicated.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, duplicate it!',
+            reverseButtons: true,
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    setLoading(true); // Optional, show loading
+                    await duplicatePlan(weekId); // Call your duplication function
+                    Swal.fire('Duplicated!', 'The Exercise has been duplicated.', 'success');
+                } catch (err) {
+                    console.error(err);
+                    Swal.fire('Error!', 'Failed to duplicate the Exercise.', 'error');
+                } finally {
+                    setLoading(false);
+                }
+            }
+        });
+    };
+
     if (loading) {
         return (
             <>
@@ -615,7 +816,7 @@ if (existingLevel) {
         )
     }
 
-     // console.log('formData', formData)
+    // console.log('formData', formData)
     const stripHtml = (html) => {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || '';
@@ -625,10 +826,25 @@ if (existingLevel) {
         setPage(1);
 
         if (videoInputRef.current) videoInputRef.current.value = null;
+        if (uploadInputRef.current) uploadInputRef.current.value = null;
+
         if (bannerInputRef.current) bannerInputRef.current.value = null;
 
         // 🔥 You were missing this line!
-        const existingLevel = levels.find((lvl) => lvl.level === tab);
+        // Handle per-tab video
+        const existingLevel = levels.find((lvl) => lvl.level === activeTab);
+        if (existingLevel?.videoFile) {
+            setVideoFiles((prev) => ({
+                ...prev,
+                [activeTab]: existingLevel.videoFile,
+            }));
+        }
+        if (existingLevel?.uploadFile) {
+            setUploadFiles((prev) => ({
+                ...prev,
+                [activeTab]: existingLevel.uploadFile,
+            }));
+        }
 
         if (existingLevel) {
             setSkillOfTheDay(existingLevel.skillOfTheDay || "");
@@ -666,7 +882,11 @@ if (existingLevel) {
         if (!aSelected && bSelected) return -1;
         return 0; // keep original order if both selected or both unselected
     });
-     // console.log('selectedPlans', selectedPlans)
+
+    console.log('setFormData', formData)
+    console.log('photoPreview', photoPreview)
+    console.log('selectedPlans', selectedPlans)
+
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -695,28 +915,12 @@ if (existingLevel) {
 
             </div>
 
-            <div className={`flex flex-col md:flex-row bg-white  rounded-3xl ${previewShowModal ? 'md:min-w-3/4  md:p-10' : 'w-full  md:p-12 p-4'}`}>
+            <div className={`flex mobileBlock flex-col md:flex-row bg-white  rounded-3xl ${previewShowModal ? 'md:min-w-3/4  md:p-10' : 'w-full  md:p-12 p-4'}`}>
 
                 <>
-                    <div className={`transition-all duration-300 md:w-1/2`}>
+                    <div className={`transition-all duration-300 fullWidthTabMobile w-full md:w-1/2`}>
                         <div className="rounded-2xl  md:p-10 ">
                             <form className="mx-auto  space-y-4">
-
-                                <div className="flex gap-4   my-10 border w-full border-gray-300 p-1 rounded-xl  flex-wrap">
-                                    {visibleTabs.map((tab) => (
-                                        <button
-                                            type="button"
-                                            ref={tabRef}
-                                            key={tab}
-                                            onClick={() => handleTabClick(tab)}
-                                            className={`px-4 py-1.5 rounded-xl text-[19.28px] font-medium capitalize transition ${activeTab == tab ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-blue-500'
-                                                }`}
-                                        >
-                                            {tab}
-                                        </button>
-                                    ))}
-
-                                </div>
 
 
                                 <div>
@@ -748,26 +952,11 @@ if (existingLevel) {
                                 </div>
                                 <div className="flex w-full  gap-4 items-center">
                                     {/* Add Video */}
-                                    <button
-                                        type="button"
-                                        onClick={() => videoInputRef.current.click()}
-                                        className="flex w-1/2 items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
-                                    >
-                                        {videoFile ? "Change Video" : "Add Video"}
-                                    </button>
-                                    <input
-                                        type="file"
-                                        ref={videoInputRef}
-                                        onChange={handleVideoChange}
-                                        accept="video/*"
-                                        className="hidden"
-                                    />
 
-                                    {/* Add Banner */}
                                     <button
                                         type="button"
                                         onClick={() => bannerInputRef.current.click()}
-                                        className="flex w-1/2 items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
+                                        className="flex w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
                                     >
                                         {bannerFile ? "Change Banner" : "Add Banner"}
                                     </button>
@@ -779,31 +968,17 @@ if (existingLevel) {
                                         className="hidden"
                                     />
                                 </div>
-                                <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 mt-6 w-full">
-                                    {/* Video Preview */}
-                                    {videoFile && videoPreviewUrl && (
-                                        <div className="w-full md:w-1/2 bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
-                                            <label className="block text-sm font-semibold mb-2 text-gray-700 p-4">Video Preview</label>
-                                            <div className="w-full aspect-square">
-                                                <video
-                                                    controls
-                                                    className="w-full h-full object-cover"
-                                                    src={videoPreviewUrl}
-                                                    onError={() => console.error("Failed to load video:", videoFile)}
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
 
-                                    {/* Banner Preview */}
+                                <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 mt-6 w-full">
+
                                     {bannerFile && bannerPreviewUrl && (
-                                        <div className="w-full md:w-1/2 bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+                                        <div className="w-full md:w-full bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
                                             <label className="block text-sm font-semibold mb-2 text-gray-700 p-4">Banner Preview</label>
-                                            <div className="w-full aspect-square">
+                                            <div className="w-full max-h-200">
                                                 <img
                                                     src={bannerPreviewUrl}
                                                     alt="Banner Preview"
-                                                    className="w-full h-full object-cover"
+                                                    className="w-full h-auto object-contain"
                                                     onError={(e) => {
                                                         console.error("Failed to load banner:", bannerFile);
                                                         e.target.style.display = "none";
@@ -812,6 +987,21 @@ if (existingLevel) {
                                             </div>
                                         </div>
                                     )}
+                                </div>
+                                <div className="md:flex gap-4 justify-between my-10 border w-full border-gray-300 p-1 tabBar rounded-xl  flex-wrap">
+                                    {visibleTabs.map((tab) => (
+                                        <button
+                                            type="button"
+                                            ref={tabRef}
+                                            key={tab}
+                                            onClick={() => handleTabClick(tab)}
+                                            className={`px-4 py-1.5 rounded-xl text-[19.28px] font-medium capitalize transition ${activeTab == tab ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-blue-500'
+                                                }`}
+                                        >
+                                            {tab}
+                                        </button>
+                                    ))}
+
                                 </div>
 
                                 <div ref={containerRef}>
@@ -827,40 +1017,90 @@ if (existingLevel) {
                                         className="w-full px-4 font-semibold py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                 </div>
-           <div>
-    <label className="block text-lg font-semibold text-gray-700 mb-2">
-        Upload Audio
-    </label>
+                                <div className="flex w-full   gap-4 items-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => videoInputRef.current.click()}
+                                        className="flex w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
+                                    >
+                                        {videoFiles[activeTab] ? "Change Video" : "Add Video"}
+                                    </button>
+                                    <input
+                                        type="file"
+                                        ref={videoInputRef}
+                                        onChange={handleVideoChange}
+                                        accept="video/*"
+                                        className="hidden"
+                                    />
 
-    <div className="flex flex-col gap-3 px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 shadow-sm">
-        {/* File Upload */}
-        <input
-            type="file"
-            accept="audio/*"
-            onChange={(e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    setRecording(file); // store uploaded file in recording state
-                    const url = URL.createObjectURL(file);
-                    setAudioURL(url); // set playback URL
-                }
-            }}
-            className="block w-full text-gray-700 rounded-lg border border-gray-300 p-2 cursor-pointer"
-        />
+                                    {/* Add Banner */}
 
-        {/* Playback */}
-        {audioURL && (
-            <div className="flex items-center gap-3 mt-2 w-full">
-                <audio
-                    controls
-                    src={audioURL}
-                    className="w-full rounded-lg border border-gray-300 shadow-sm"
-                />
-            </div>
-        )}
-    </div>
-</div>
+                                </div>
+                                {videoPreviews[activeTab] && (
+                                    <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 mt-6 w-full">
+                                        {/* Video Preview */}
 
+                                        <div className="w-full md:w-full bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+                                            <label className="block text-sm font-semibold mb-2 text-gray-700 p-4 capitalize">
+                                                {activeTab} Video Preview
+                                            </label>
+                                            <div className="w-full max-h-100">
+                                                <video
+                                                    controls
+                                                    className="w-fit m-auto  object-contain"
+                                                    src={videoPreviews[activeTab]}
+                                                    onError={() => console.error(`Failed to load ${activeTab} video`, videoFiles[activeTab])}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div>
+
+                                    <div className="flex w-full  gap-4 items-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => uploadInputRef.current.click()}
+                                            className="flex w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
+                                        >
+                                            {uploadFiles[activeTab] ? "Change Audio" : "Upload Audio"}
+                                        </button>
+                                        <input
+                                            type="file"
+                                            ref={uploadInputRef}
+                                            onChange={handleUploadChange}
+                                            accept="audio/*"
+                                            className="hidden"
+                                        />
+
+                                        {/* Add Banner */}
+
+                                    </div>
+                                </div>
+
+                                {uploadPreviews[activeTab] && (
+                                    <div className="flex flex-col md:flex-row items-stretch justify-center gap-6 mt-6 w-full">
+                                        {/* Video Preview */}
+
+                                        <div className="w-full md:w-full bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow duration-300">
+                                            <label className="block text-sm font-semibold mb-2 text-gray-700 p-4 capitalize">
+                                                {activeTab} Audio Preview
+                                            </label>
+                                            <div className="w-full ">
+                                                <audio
+                                                    controls
+                                                    className="w-full p-2"
+                                                    src={uploadPreviews[activeTab]}
+                                                    onError={() =>
+                                                        console.error(`Failed to load ${activeTab} Audio`, uploadFiles[activeTab])
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                )}
 
                                 <div>
                                     <label className="block text-[18px]  font-semibold text-gray-700 mb-2">
@@ -907,16 +1147,47 @@ if (existingLevel) {
                                                         className="flex items-center font-semibold justify-between"
                                                     >
                                                         <span>{`${plan.duration}: ${plan.title}`}</span>
-                                                        <button
+
+                                                        <div className="flex gap-2 i">
+                                                            <img
+                                                                src="/demo/synco/icons/edit2.png"
+                                                                alt="Edit"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setEditIndex(idx);
+                                                                    setFormData({
+                                                                        title: plan.title || "",
+                                                                        duration: plan.duration || "",
+                                                                        description: plan.description || "",
+                                                                        images: typeof plan.imageUrl === "string" ? JSON.parse(plan.imageUrl) : plan.imageUrl || [],
+                                                                    });
+                                                                    setPhotoPreview(
+                                                                        typeof plan.imageUrl === "string" ? JSON.parse(plan.imageUrl) : plan.imageUrl || []
+                                                                    );
+                                                                    setOpenForm(true);
+                                                                }}
+                                                                className="w-5 h-5 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                                            />
+                                                            <button
                                                             type="button"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleRemovePlan(idx);
-                                                            }}
-                                                            className="text-gray-500 hover:text-red-500"
-                                                        >
-                                                            <Trash2 size={18} />
-                                                        </button>
+                                                                onClick={() =>
+                                                                    handleDuplicateExercise(plan.id)
+                                                                }
+                                                                className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                                            >
+                                                                <Copy size={18} />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDeletePlan(idx, plan.id); // pass index and id
+                                                                }}
+                                                                className="text-gray-800 hover:text-red-500"
+                                                            >
+                                                                <Trash2 size={18} />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 ))
                                             ) : (
@@ -1016,7 +1287,7 @@ if (existingLevel) {
                             </form>
                         </div>
                     </div>
-                    <div className="w-full bg-none md:w-1/2  max-h-fit">
+                    <div className="w-full bg-none md:w-1/2   fullWidthTabMobile max-h-fit">
                         <AnimatePresence>
                             {openForm && (
                                 <motion.div
@@ -1027,11 +1298,16 @@ if (existingLevel) {
                                     className="bg-white rounded-3xl p-6 my-8  shadow-2xl relative "
                                 >
                                     <button
-                                        onClick={() => setOpenForm(false)}
-                                        className="absolute top-2 right-3  hover:text-gray-700 text-5xl"
+                                        onClick={() => {
+                                            setOpenForm(false);
+                                            setEditIndex(null); // ❌ cancel edit
+                                            setFormData({ title: '', duration: '', description: '', images: [] });
+                                            setPhotoPreview([]);
+                                        }}
+                                        className="absolute top-3 right-3 hover:text-gray-700 text-5xl"
                                         title="Close"
                                     >
-                                        &times;
+                                        <img src="/demo/synco/icons/crossGray.png" alt="" />
                                     </button>
                                     {/* Add your form content here */}
                                     <div className="text-[24px] font-semibold mb-4">Exercise    </div>
@@ -1059,6 +1335,7 @@ if (existingLevel) {
                                             Description
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
+                                            { /* bullist numlist  code */}
                                             <Editor
                                                 apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
                                                 value={formData.description}
@@ -1069,7 +1346,7 @@ if (existingLevel) {
                                                     menubar: false,
                                                     plugins: 'lists advlist code',
                                                     toolbar:
-                                                        'fontsizeselect capitalize bold italic underline alignleft aligncenter alignjustify  bullist numlist  code',
+                                                        'fontsizeselect capitalize bold italic underline alignleft aligncenter bullist  ',
                                                     height: 200,
                                                     branding: false,
                                                     content_style: `
@@ -1109,21 +1386,16 @@ if (existingLevel) {
                                     </div>
 
                                     <div>
-                                        <div>
+                                        <div className="w-full">
                                             <input
                                                 type="file"
                                                 accept="image/*"
                                                 multiple
                                                 ref={fileInputRef}
-                                                onChange={(e) => {
-                                                    const files = Array.from(e.target.files);
-                                                    // Create URLs for each file
-                                                    const previews = files.map((file) => URL.createObjectURL(file));
-                                                    setPhotoPreview(previews);
-                                                    setFormData((prev) => ({ ...prev, images: files }));
-                                                }}
-                                                style={{ display: 'none' }}
+                                                onChange={handleImageChange}
+                                                style={{ display: "none" }}
                                             />
+
                                             <button
                                                 type="button"
                                                 onClick={() => fileInputRef.current?.click()}
@@ -1132,15 +1404,23 @@ if (existingLevel) {
                                                 Upload images
                                             </button>
 
-                                            {/* Render multiple previews */}
-                                            <div className="flex flex-wrap gap-2 mt-2">
-                                                {photoPreview?.map((src, index) => (
-                                                    <img
-                                                        key={index}
-                                                        src={src}
-                                                        alt={`preview-${index}`}
-                                                        className="w-24 h-24 object-cover rounded-md"
-                                                    />
+                                            {/* Multiple Previews */}
+                                            <div className="flex flex-wrap gap-3 mt-3">
+                                                {photoPreview.map((src, index) => (
+                                                    <div key={index} className="relative">
+                                                        <img
+                                                            src={src}
+                                                            alt={`preview-${index}`}
+                                                            className="w-24 h-24 object-cover rounded-md border border-gray-200"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveImage(index)}
+                                                            className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1.5"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    </div>
                                                 ))}
                                             </div>
                                         </div>
@@ -1151,8 +1431,7 @@ if (existingLevel) {
                                         <button
                                             onClick={handleSavePlan}
                                             disabled={planLoading}
-                                            className={`bg-[#237FEA] text-white mt-5 md:min-w-50 w-full md:w-auto font-semibold px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''
-                                                }`}
+                                            className={`bg-[#237FEA] text-white mt-5 md:min-w-50 w-full md:w-auto font-semibold px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 ${planLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         >
                                             {planLoading ? (
                                                 <>
@@ -1176,10 +1455,10 @@ if (existingLevel) {
                                                             d="M4 12a8 8 0 018-8v8H4z"
                                                         ></path>
                                                     </svg>
-                                                    Saving...
+                                                    {editIndex !== null ? 'Updating...' : 'Saving...'}
                                                 </>
                                             ) : (
-                                                'Save Exercise'
+                                                editIndex !== null ? 'Update Exercise' : 'Save Exercise'
                                             )}
                                         </button>
 

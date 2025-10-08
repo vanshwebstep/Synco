@@ -87,7 +87,6 @@ export const BookFreeTrialProvider = ({ children }) => {
           BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
         }
 
-
         if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
           const [from, to] = dateoftrial;
           if (from && to) {
@@ -401,7 +400,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/service-history/update-booking/information/${bookFreeTrialId}`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/service-history/update-booking/information/${bookFreeTrialId}`, requestOptions);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -474,7 +473,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/service-history/account-profile/${ID}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/service-history/account-profile/${ID}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -597,7 +596,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/reebooking`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/reebooking`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -644,7 +643,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/send-email`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/reebooking/trial/send-email`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -692,7 +691,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/no-membership/`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/no-membership/`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -728,8 +727,6 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       setLoading(false);
     }
   };
-
-
 
   // Book a Membership
   const fetchBookMemberships = useCallback(
@@ -1050,7 +1047,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/service-history/trial-to-membership/${trialId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/service-history/trial-to-membership/${trialId}`, {
         method: "PUT",
         headers,
         body: JSON.stringify(bookFreeMembershipData),
@@ -1146,7 +1143,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/cancel-membership/`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-membership/`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -1197,7 +1194,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/transfer-class`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/transfer/class`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -1248,7 +1245,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/freeze`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/membership/freeze`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -1304,7 +1301,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         throw new Error("No booking IDs provided");
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/reactivate`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/membership/reactivate`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds), // sending as object
@@ -1574,8 +1571,6 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     }
   };
 
-
-
   // Add to Waiting List 
   const addtoWaitingListSubmit = async (bookingIds, comesfrom) => {
     setLoading(true);
@@ -1666,7 +1661,6 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
           BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
         }
-
 
         if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
           const [from, to] = dateoftrial;
@@ -1948,9 +1942,6 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     }
   };
 
-
-
-
   // Cancellation 
   const fetchFullCancellations = useCallback(
     async (
@@ -1993,7 +1984,6 @@ if (shouldShowLoader) setLoading(true);
         if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
           BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
         }
-
 
         if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
           const [from, to] = dateoftrial;
@@ -2093,7 +2083,6 @@ const shouldShowLoader =
           BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
         }
 
-
         if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
           const [from, to] = dateoftrial;
           if (from && to) {
@@ -2191,7 +2180,6 @@ const shouldShowLoader =
         if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
           BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
         }
-
 
         if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
           const [from, to] = dateoftrial;
@@ -2557,8 +2545,6 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         sendAllmail,
         ServiceHistoryRequestto,
 updateBookMembershipFamily,
-
-
 
         fetchBookFreeTrialsLoading,
         fetchBookMembershipsLoading,

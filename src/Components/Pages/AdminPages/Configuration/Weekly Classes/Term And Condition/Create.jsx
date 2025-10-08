@@ -7,6 +7,7 @@ import { useTermContext } from '../../../contexts/TermDatesSessionContext';
 import Swal from 'sweetalert2';
 import Loader from '../../../contexts/Loader';
 
+
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSearchParams } from "react-router-dom";
@@ -17,8 +18,24 @@ const Create = () => {
     const token = localStorage.getItem("adminToken");
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [searchParams] = useSearchParams();
-const mapSectionRef = useRef(null);
+    const mapSectionRef = useRef(null);
     const id = searchParams.get("id");
+    const [selectedDay, setSelectedDay] = useState(null);
+    const [selectedDates, setSelectedDates] = useState([]);
+    const options = [
+        { value: "monday", label: "Monday" },
+        { value: "tuesday", label: "Tuesday" },
+        { value: "wednesday", label: "Wednesday" },
+        { value: "thursday", label: "Thursday" },
+        { value: "friday", label: "Friday" },
+        { value: "saturday", label: "Saturday" },
+        { value: "sunday", label: "Sunday" },
+    ];
+    const termOptions = [
+        { value: "Autumn", label: "Autumn" },
+        { value: "Spring", label: "Spring" },
+        { value: "Summer", label: "Summer" },
+    ];
 
     const [terms, setTerms] = useState(initialTerms);
     const [activeSessionValue, setActiveSessionValue] = useState('');
@@ -33,15 +50,15 @@ const mapSectionRef = useRef(null);
     const activeSessionCount = parseInt(activeSessionValue || 0, 10);
     const [isMapping, setIsMapping] = useState(false);
     const navigate = useNavigate();
-
+    // console.log('terms', terms)
     const { createTermGroup, updateTermGroup, myGroupData, setMyGroupData, setSelectedTermGroup, selectedTermGroup, fetchTerm, termData, fetchTermGroupById, loading } = useTermContext();
-     // console.log('terms', terms)
+    // console.log('terms', terms)
     // Handle prefilling data in edit mode
     // First: fetch group data and wait for state update
     useEffect(() => {
         if (id) {
             const fetchData = async () => {
-                 // console.log('Fetching group data...');
+                // console.log('Fetching group data...');
                 setMyGroupData(null);
                 await fetchTerm();
 
@@ -59,53 +76,58 @@ const mapSectionRef = useRef(null);
 
     // Second: Wait for isEditMode + termData + selectedTermGroup
     useEffect(() => {
-         // console.log('isEditMode1', isEditMode)
-        console.group('termData1', termData)
-         // console.log('selectedTermGroup1', selectedTermGroup)
+        console.group('termData1', termData);
+
         if (isEditMode && termData.length && selectedTermGroup?.id) {
-             // console.log('Processing group data...', termData);
-            setMyGroupData(null)
+            setMyGroupData(null);
             setGroupName(selectedTermGroup.name);
             setIsGroupSaved(true);
 
             const matchedTerms = termData.filter(
                 (term) => term.termGroup?.id === selectedTermGroup.id
             );
-             // console.log('Processing group matchedTerms...', matchedTerms);
 
             if (matchedTerms?.length) {
-                const mappedTerms = matchedTerms.map(term => ({
-                    id: term.id,
-                    name: term.termName,
-                    startDate: term.startDate,
-                    endDate: term.endDate,
-                    exclusions: Array.isArray(term?.exclusionDates)
-                        ? term.exclusionDates
-                        : JSON.parse(term?.exclusionDates || '[]'),
-                    sessions: term.sessionsMap?.length || 0,
-                    isOpen: false,
-                    sessionsMap: term.sessionsMap || []
-                }));
+                const mappedTerms = matchedTerms.map((term) => {
+                    // Set selected day for the current term (optional — depends on your logic)
+                    setSelectedDay(term.day);
+
+                    return {
+                        id: term.id,
+                        day: term.day,
+                        name: term.termName,
+                        startDate: term.startDate,
+                        endDate: term.endDate,
+                        exclusions: Array.isArray(term?.exclusionDates)
+                            ? term.exclusionDates
+                            : JSON.parse(term?.exclusionDates || '[]'),
+                        sessions: term.sessionsMap?.length || 0,
+                        isOpen: false,
+                        sessionsMap: term.sessionsMap || [],
+                    };
+                });
 
                 setTerms(mappedTerms);
 
-                const extractedData = mappedTerms.flatMap(term =>
-                    term.sessionsMap.map(session => ({
+                const extractedData = mappedTerms.flatMap((term) =>
+                    term.sessionsMap.map((session) => ({
                         sessionDate: session.sessionDate,
                         sessionPlanId: session.sessionPlanId,
                         termId: term.id,
                     }))
                 );
-                setSavedTermIds(prev => {
+
+                setSavedTermIds((prev) => {
                     const updated = new Set(prev);
-                    matchedTerms.forEach(term => updated.add(term.id));
+                    matchedTerms.forEach((term) => updated.add(term.id));
                     return updated;
                 });
-                 // console.log('extractedData', extractedData);
+
                 setSessionMappings(extractedData);
             }
         }
     }, [isEditMode, termData, selectedTermGroup]);
+
 
     const handleGroupNameSave = async () => {
         if (!groupName.trim()) {
@@ -118,14 +140,14 @@ const mapSectionRef = useRef(null);
             return;
         }
 
-         // console.log('myGroupData', selectedTermGroup);
+        // console.log('myGroupData', selectedTermGroup);
         setMyGroupData(null)
         // setIsLoading(true);
         try {
             const payload = { name: groupName };
 
             const groupId = myGroupData?.id || selectedTermGroup?.id;
-             // console.log('myGroupData', groupId);
+            // console.log('myGroupData', groupId);
             if (groupId) {
                 // Update existing group
                 await updateTermGroup(groupId, payload);
@@ -154,36 +176,36 @@ const mapSectionRef = useRef(null);
         }
     };
 
-  const handleMapSession = (termId) => {
-    if (!isGroupSaved) {
-        alert('Please save the group name first');
-        return;
-    }
+    const handleMapSession = (termId) => {
+        if (!isGroupSaved) {
+            alert('Please save the group name first');
+            return;
+        }
 
-    if (!activeTerm) {
-        alert('Please select a term to map sessions');
-        return;
-    }
+        if (!activeTerm) {
+            alert('Please select a term to map sessions');
+            return;
+        }
 
-    // Only scroll when opening
-    if (!isMapping) {
-        setIsMapping(true);
+        // Only scroll when opening
+        if (!isMapping) {
+            setIsMapping(true);
 
-        setTimeout(() => {
-            mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100); // small delay to ensure the section is rendered
-    } else {
-        // If it's already open, just close
-        setIsMapping(false);
-    }
-};
+            setTimeout(() => {
+                mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100); // small delay to ensure the section is rendered
+        } else {
+            // If it's already open, just close
+            setIsMapping(false);
+        }
+    };
 
 
     useEffect(() => {
 
         const openTerm = terms.find(t => t.isOpen);
         if (openTerm) {
-             // console.log('openTerm0', openTerm)
+            // console.log('openTerm0', openTerm)
             setActiveSessionValue(openTerm.sessions || '');
             // Load either saved mappings or unsaved mappings
             setSessionMappings(openTerm.sessionsMap.length > 0 ?
@@ -236,6 +258,7 @@ const mapSectionRef = useRef(null);
     };
 
     const handleInputChange = (id, field, value) => {
+
         setTerms((prev) =>
             prev.map((term) =>
                 term.id === id ? { ...term, [field]: value } : term
@@ -250,31 +273,134 @@ const mapSectionRef = useRef(null);
         }
     };
 
-    const handleExclusionChange = (termId, index, value) => {
+    const [termselect, setTerm] = useState({
+        startDate: "",
+        endDate: "",
+        sessionDates: [],
+        exclusions: [],
+    });
+    // e.g., {value: "sunday", label: "Sunday"}
+
+    // Handle multi-date selection for session dates
+    const handleSessionDate = (termId, date) => {
+        if (!selectedDay) {
+            Swal.fire({ icon: "warning", title: "Oops...", text: "Select a day first!" });
+            return;
+        }
+
+        const dateStr = date.toLocaleDateString("en-CA");
+
         setTerms((prev) =>
-            prev.map((term) =>
-                term.id === termId
-                    ? {
-                        ...term,
-                        exclusions: term.exclusions.map((ex, i) =>
-                            i === index ? value : ex
-                        ),
+            prev.map((t) => {
+                if (t.id === termId) {
+                    let updatedDates = t.sessionsMap.map((s) => s.sessionDate);
+
+                    if (updatedDates.includes(dateStr)) {
+                        // Deselect
+                        updatedDates = updatedDates.filter((d) => d !== dateStr);
+                    } else {
+                        updatedDates.push(dateStr);
+                        updatedDates.sort();
                     }
-                    : term
-            )
+
+                    const updatedSessionsMap = updatedDates.map((d, i) => ({
+                        sessionDate: d,
+                        sessionPlanId: t.sessionsMap[i]?.sessionPlanId || null,
+                        sessionPlan: t.sessionsMap[i]?.sessionPlan || null,
+                    }));
+
+                    return {
+                        ...t,
+                        startDate: updatedDates[0] || "",
+                        endDate: updatedDates[updatedDates.length - 1] || "",
+                        sessionsMap: updatedSessionsMap,
+                    };
+                }
+                return t;
+            })
+        );
+    };
+    // Handle exclusion dates
+    const handleExclusionChange = (termId, idx, dateStr) => {
+        setTerms((prev) =>
+            prev.map((t) => {
+                if (t.id === termId) {
+                    const updatedExclusions = [...t.exclusions];
+                    updatedExclusions[idx] = dateStr;
+                    return { ...t, exclusions: updatedExclusions };
+                }
+                return t;
+            })
         );
     };
 
     const addExclusionDate = (termId) => {
         setTerms((prev) =>
-            prev.map((term) =>
-                term.id === termId
-                    ? { ...term, exclusions: [...term.exclusions, ''] }
-                    : term
+            prev.map((t) =>
+                t.id === termId ? { ...t, exclusions: [...t.exclusions, ""] } : t
             )
         );
     };
-     // console.log('myGroupData', myGroupData)
+
+    const removeExclusionDate = (termId, idx) => {
+        setTerms((prev) =>
+            prev.map((t) =>
+                t.id === termId
+                    ? { ...t, exclusions: t.exclusions.filter((_, i) => i !== idx) }
+                    : t
+            )
+        );
+    };
+
+    const filterSessionDay = (date, term) => {
+        if (!selectedDay) return false;
+
+        const dayMap = {
+            sunday: 0,
+            monday: 1,
+            tuesday: 2,
+            wednesday: 3,
+            thursday: 4,
+            friday: 5,
+            saturday: 6,
+        };
+        const dayOk = date.getDay() === dayMap[selectedDay];
+
+        const dateStr = date.toLocaleDateString("en-CA");
+        // disable if in exclusions
+        const notExcluded = !term.exclusions.includes(dateStr);
+
+        return dayOk && notExcluded;
+    };
+
+    const filterExclusionDay = (date, term) => {
+        if (!selectedDay) return false;
+
+        const dayMap = {
+            sunday: 0,
+            monday: 1,
+            tuesday: 2,
+            wednesday: 3,
+            thursday: 4,
+            friday: 5,
+            saturday: 6,
+        };
+
+        const dayOk = date.getDay() === dayMap[selectedDay];
+        const dateStr = date.toLocaleDateString("en-CA");
+
+        // must be within start/end
+        const withinTerm =
+            term.startDate && term.endDate
+                ? dateStr >= term.startDate && dateStr <= term.endDate
+                : false;
+
+        // cannot select session dates
+        const notSession = !term.sessionsMap.map((s) => s.sessionDate).includes(dateStr);
+
+        return dayOk && withinTerm && notSession;
+    };
+    // console.log('myGroupData', myGroupData)
     const deleteTerm = useCallback(async (id) => {
         if (!token) return;
 
@@ -347,21 +473,10 @@ const mapSectionRef = useRef(null);
 
 
 
-    const removeExclusionDate = (termId, indexToRemove) => {
-        setTerms((prev) =>
-            prev.map((term) =>
-                term.id === termId
-                    ? {
-                        ...term,
-                        exclusions: term.exclusions.filter((_, idx) => idx !== indexToRemove),
-                    }
-                    : term
-            )
-        );
-    };
+
 
     const handleMappingChange = (index, field, value) => {
-         // console.log('index', field, value)
+        // console.log('index', field, value)
         const updated = [...sessionMappings];
         updated[index] = {
             ...updated[index],
@@ -372,7 +487,7 @@ const mapSectionRef = useRef(null);
 
 
 
-    const handleSaveMappings = async () => {
+    const handleSaveMappings = () => {
         if (!sessionMappings.length) {
             Swal.fire({
                 icon: 'warning',
@@ -383,10 +498,7 @@ const mapSectionRef = useRef(null);
             return;
         }
 
-        // Validate all mappings have both date and plan
-        const isValid = sessionMappings.every(mapping =>
-            mapping.sessionDate && mapping.sessionPlanId
-        );
+        const isValid = sessionMappings.every(mapping => mapping.sessionDate && mapping.sessionPlanId);
 
         if (!isValid) {
             Swal.fire({
@@ -398,9 +510,10 @@ const mapSectionRef = useRef(null);
             return;
         }
 
-        // If everything is valid
-         // console.log('sessionMappings', sessionMappings);
+        // Save mappings exactly as added
         setSessionsMap(sessionMappings);
+        console.log('sessionMappings', sessionMappings)
+
         setIsMapping(false);
 
         Swal.fire({
@@ -411,24 +524,25 @@ const mapSectionRef = useRef(null);
         });
     };
 
+
     const handleSaveTerm = async (term) => {
-         // console.log('selectedTermGroup', selectedTermGroup)
-         // console.log('myGroupData', myGroupData)
+        console.log('selectedTermGroup', selectedTermGroup)
+        console.log('myGroupData', myGroupData)
         if (!myGroupData?.id && !selectedTermGroup) {
             console.error("Missing termGroupId");
             return;
         }
 
-         // console.log("OK"); // Either one exists
+        // console.log("OK"); // Either one exists
 
 
 
 
-         // console.log('Term to save:', term);
-         // console.log('Matched terms:', termData);
+        console.log('Term to save:', term);
+        console.log('sessionMappings:', termData);
 
         // Validate required fields
-        if (!term.name || !term.startDate || !term.endDate || !term.sessions) {
+        if (!term.name || !term.startDate || !term.endDate) {
             Swal.fire({
                 icon: 'error',
                 title: 'Missing Information',
@@ -439,7 +553,10 @@ const mapSectionRef = useRef(null);
         }
 
         // Validate session mappings
-        if (sessionMappings.length === 0) {
+        if (
+            sessionMappings.length === 0 ||
+            sessionMappings.some(mapping => !mapping.sessionPlanId)
+        ) {
             Swal.fire({
                 icon: 'error',
                 title: 'Session Mapping Required',
@@ -448,10 +565,11 @@ const mapSectionRef = useRef(null);
             });
             return;
         }
-         // console.log('selectedTermGroup', selectedTermGroup?.id)
+        // console.log('selectedTermGroup', selectedTermGroup?.id)
         // Prepare the payload
         const payload = {
             termName: term.name,
+            day: term.day,
             termGroupId: myGroupData?.id || selectedTermGroup?.id,
             sessionPlanGroupId: 1, // static value
             startDate: term.startDate,
@@ -472,6 +590,7 @@ const mapSectionRef = useRef(null);
             : `${API_BASE_URL}/api/admin/term`;
         const method = isExistingTerm ? "PUT" : "POST";
 
+console.log('isExistingTerm',isExistingTerm)
         setIsLoading(true);
         try {
             const response = await fetch(requestUrl, {
@@ -506,7 +625,7 @@ const mapSectionRef = useRef(null);
                 return t;
             }));
 
-            // Save to saved list
+           await fetchTerm();
             setSavedTermIds(prev => new Set(prev).add(data.data.id || term.id));
 
             Swal.fire({
@@ -609,13 +728,13 @@ const mapSectionRef = useRef(null);
             navigate('/configuration/weekly-classes/term-dates/list');
         });
     };
-     // console.log('terms', terms)
-     // console.log('savedTermIds', savedTermIds)
+    // console.log('terms', terms)
+    // console.log('savedTermIds', savedTermIds)
 
     // const isSaveDisabled = !terms.length || terms.some(t => !savedTermIds.has(t.id));
 
-     // console.log('selectedTermGroup', selectedTermGroup)
-     // console.log("myGroupData", myGroupData)
+    // console.log('selectedTermGroup', selectedTermGroup)
+    // console.log("myGroupData", myGroupData)
     const parseLocalDate = (dateStr) => {
         if (!dateStr) return null;
         const [year, month, day] = dateStr.split("-").map(Number);
@@ -623,11 +742,13 @@ const mapSectionRef = useRef(null);
     };
 
     if (loading) return <Loader />;
+    console.log('selectedDay', selectedDay)
+    console.log('terms', terms)
     return (
         <div className="md:p-6 bg-gray-50 min-h-screen">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
                 <h2
-                 ref={mapSectionRef}
+                    ref={mapSectionRef}
                     onClick={() => {
                         navigate('/configuration/weekly-classes/term-dates/list');
                         setIsEditMode(false);
@@ -728,34 +849,98 @@ const mapSectionRef = useRef(null);
                                                 transition={{ duration: 0.3 }}
                                                 className="overflow-hidden"
                                             >
-                                                <input
-                                                    type="text"
-                                                    placeholder="Enter Term Name"
-                                                    value={term.name}
-                                                    onChange={(e) =>
-                                                        handleInputChange(term.id, 'name', e.target.value)
-                                                    }
-                                                    className="md:w-1/2 px-4 mb-5 mx-2 mt-2 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                />
+                                                <div className="md:flex items-center justify-between">
+                                                    <Select
+                                                        value={termOptions.find(option => option.value === term.name)}
+                                                        onChange={(selectedOption) =>
+                                                            handleInputChange(term.id, "name", selectedOption.value)
+                                                        }
+                                                        options={termOptions}
+                                                        placeholder="Select Term"
+                                                        className="md:w-1/2 mb-5 mx-2 mt-2 font-semibold text-base"
+                                                        classNamePrefix="react-select"
+                                                        styles={{
+                                                            control: (base, state) => ({
+                                                                ...base,
+                                                                borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
+                                                                boxShadow: "none",
+                                                                padding: "6px 8px",
+                                                                minHeight: "48px",
+                                                            }),
+                                                            placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                                            dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                                            indicatorSeparator: () => ({ display: "none" }),
+                                                        }}
+                                                    />
+                                                    <div className="md:w-1/2 mb-5 mx-2 mt-2">
+                                                        <Select
+                                                            options={options}
+                                                            value={options.find(option => option.value === term.day) || null}
+                                                            onChange={(selectedOption) => {
+                                                                const newTerms = terms.map(t =>
+                                                                    t.id === term.id ? { ...t, day: selectedOption?.value || "" } : t
+                                                                );
+                                                                setSelectedDay(selectedOption?.value)
+                                                                setTerms(newTerms); // update state
+                                                            }}
+                                                            placeholder="Select a day"
+                                                            className="rounded-lg px-0 py-0"
+                                                            classNamePrefix="react-select"
+                                                            isClearable={true}
+                                                            styles={{
+                                                                control: (base, state) => ({
+                                                                    ...base,
+                                                                    borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
+                                                                    boxShadow: "none",
+                                                                    padding: "6px 8px",
+                                                                    minHeight: "48px",
+                                                                }),
+                                                                placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                                                dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                                                indicatorSeparator: () => ({ display: "none" }),
+                                                            }}
+                                                        />
 
+                                                    </div>
+                                                </div>
                                                 <div className="md:flex gap-4 px-2 mb-5 justify-between">
                                                     <div className="w-full">
                                                         <label className="block text-base font-semibold text-gray-700 mb-2">
                                                             Start Date
                                                         </label>
                                                         <DatePicker
+                                                            disabled={!term.day}
                                                             placeholderText="Enter Start Date"
-                                                            selected={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
-                                                            onChange={(date) => {
-                                                                const localDate = date ? date.toLocaleDateString("en-CA") : "";
-                                                                handleInputChange(term.id, "startDate", localDate);
+                                                            selected={null}
+                                                            value={
+                                                                term.startDate
+                                                                    ? new Date(term.startDate + "T00:00:00").toLocaleDateString("en-GB", {
+                                                                        weekday: "long",
+                                                                        day: "2-digit",
+                                                                        month: "short",
+                                                                    }).replace(/(\w+)\s/, "$1, ") // Adds a comma after weekday
+                                                                    : ""
+                                                            }
+
+                                                            onChange={(date) => handleSessionDate(term.id, date)}
+                                                            filterDate={(d) => filterSessionDay(d, term)}
+                                                            dayClassName={(date) => {
+                                                                const dateStr = date.toLocaleDateString("en-CA");
+                                                                if (term.sessionsMap.map((s) => s.sessionDate).includes(dateStr))
+                                                                    return "selected-date";
+                                                                if (term.exclusions.includes(dateStr)) return "exclusion-date";
+                                                                return undefined;
                                                             }}
+                                                            shouldCloseOnSelect={false}
                                                             dateFormat="EEEE, dd MMM"
-                                                            maxDate={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
-                                                            className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            className={`w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg ${term.day ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
                                                             withPortal // this renders the calendar in a portal, fixed on screen
                                                         />
-
+                                                        <ul>
+                                                            {selectedDates.map((d) => (
+                                                                <li key={d}>{d}</li>
+                                                            ))}
+                                                        </ul>
 
 
 
@@ -766,7 +951,9 @@ const mapSectionRef = useRef(null);
                                                             End Date
                                                         </label>
                                                         <DatePicker
-                                                            placeholderText="Enter End Date"
+
+                                                            readOnly
+                                                            placeholderText="End Date"
                                                             selected={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
                                                             onChange={(date) => {
                                                                 const localDate = date ? date.toLocaleDateString("en-CA") : "";
@@ -774,7 +961,7 @@ const mapSectionRef = useRef(null);
                                                             }}
                                                             dateFormat="EEEE, dd MMM"
                                                             minDate={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
-                                                            className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                            className="w-full px-4 font-semibold text-base py-3 cursor-default border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-white"
                                                             withPortal // this renders the calendar in a portal, fixed on screen
 
                                                         />
@@ -789,7 +976,7 @@ const mapSectionRef = useRef(null);
                                                             Exclusion Date(s)
                                                         </label>
                                                         {term.exclusions.map((ex, idx) => (
-                                                            <div key={idx} className="flex gap-2 mb-2 items-center">
+                                                            <div key={idx} className=" relative gap-2 mb-2 items-center">
                                                                 <DatePicker
                                                                     placeholderText={`Exclusion Date ${idx + 1}`}
                                                                     selected={ex ? new Date(ex + "T00:00:00") : null}
@@ -801,18 +988,22 @@ const mapSectionRef = useRef(null);
                                                                         )
                                                                     }
                                                                     dateFormat="EEEE, dd MMM"
-                                                                    minDate={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
-                                                                    maxDate={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
+                                                                    filterDate={(d) => filterExclusionDay(d, term)}
+                                                                    withPortal
                                                                     className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                                    withPortal // this renders the calendar in a portal, fixed on screen
-
+                                                                    dayClassName={(date) => {
+                                                                        const dateStr = date.toLocaleDateString("en-CA");
+                                                                        if (term.exclusions.includes(dateStr)) return "exclusion-date";
+                                                                        if (term.sessionsMap.map((s) => s.sessionDate).includes(dateStr))
+                                                                            return "selected-date";
+                                                                        return undefined;
+                                                                    }}
                                                                 />
-
                                                                 {term.exclusions.length > 1 && (
                                                                     <button
                                                                         onClick={() => removeExclusionDate(term.id, idx)}
                                                                         type="button"
-                                                                        className="text-red-500 hover:text-red-700 font-bold text-xl"
+                                                                        className="text-red-500 absolute top-[10px] right-[15px] hover:text-red-700 font-bold text-xl"
                                                                         title="Remove"
                                                                     >
                                                                         &times;
@@ -837,7 +1028,8 @@ const mapSectionRef = useRef(null);
                                                         <input
                                                             type="number"
                                                             placeholder="Total Number of Sessions"
-                                                            value={term.sessions}
+                                                            value={term.sessionsMap.length}
+                                                            readOnly
                                                             onChange={(e) =>
                                                                 handleInputChange(term.id, 'sessions', e.target.value)
                                                             }
@@ -846,7 +1038,6 @@ const mapSectionRef = useRef(null);
                                                         />
                                                     </div>
                                                 </div>
-
                                                 {activeSessionValue && (
                                                     <div className="text-right font-semibold text-blue-600 mb-4">
                                                         Active Term Sessions: {activeSessionValue}
@@ -918,7 +1109,7 @@ const mapSectionRef = useRef(null);
                         <motion.div
                             key="session-step"
                             initial={{ opacity: 0, y: 20 }}
-                            
+
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 20 }}
                             transition={{ duration: 0.4 }}
@@ -945,14 +1136,15 @@ const mapSectionRef = useRef(null);
                                     <div className="flex justify-between gap-4 w-full text-[18px] mb-4 font-semibold">
                                         <label className=" w-1/2">Session Date</label> <label className=" w-1/2 md:pl-5">Session Plan</label>
                                     </div>
-                                    {Array.from({ length: activeSessionCount }).map((_, index) => (
+                                    {Array.from({ length: activeTerm?.sessionsMap?.length || 0 }).map((_, index) => (
                                         <div key={index} className="md:flex w-full items-start gap-4 justify-between mb-4">
-                                            <div className="w-1/2 ">
-
-
-                                                <div className="flex items-center  gap-2 bg-white border border-gray-300 rounded-2xl px-4 py-3 mb-4 shadow-sm">
-                                                    <span className="font-semibold text-base text-black whitespace-nowrap">Session {index + 1}</span>
+                                            <div className="w-1/2">
+                                                <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-2xl px-4 py-3 mb-4 shadow-sm">
+                                                    <span className="font-semibold text-base text-black whitespace-nowrap">
+                                                        Session {index + 1}
+                                                    </span>
                                                     <DatePicker
+                                                        readOnly
                                                         selected={
                                                             sessionMappings[index]?.sessionDate
                                                                 ? new Date(sessionMappings[index].sessionDate + "T00:00:00")
@@ -962,30 +1154,34 @@ const mapSectionRef = useRef(null);
                                                             handleMappingChange(
                                                                 index,
                                                                 "sessionDate",
-                                                                date ? date.toLocaleDateString("en-CA") : "" // ✅ local YYYY-MM-DD
+                                                                date ? date.toLocaleDateString("en-CA") : ""
                                                             )
                                                         }
                                                         dateFormat="EEEE, dd MMM"
-                                                        className="text-[#717073] text-[15px] font-semibold bg-transparent focus:outline-none"
                                                         placeholderText="Select date"
                                                         withPortal
-                                                        minDate={activeTerm?.startDate ? new Date(activeTerm.startDate + "T00:00:00") : null}   // ✅ restrict start
-                                                        maxDate={activeTerm?.endDate ? new Date(activeTerm.endDate + "T00:00:00") : null}       // ✅ restrict end
+                                                        minDate={
+                                                            activeTerm?.startDate
+                                                                ? new Date(activeTerm.startDate + "T00:00:00")
+                                                                : null
+                                                        }
+                                                        maxDate={
+                                                            activeTerm?.endDate
+                                                                ? new Date(activeTerm.endDate + "T00:00:00")
+                                                                : null
+                                                        }
                                                         excludeDates={
                                                             activeTerm?.exclusions?.length
                                                                 ? activeTerm.exclusions.map(
-                                                                    (ex) => new Date(ex + "T00:00:00") // ✅ convert exclusion strings to Date objects
+                                                                    (ex) => new Date(ex + "T00:00:00")
                                                                 )
                                                                 : []
                                                         }
+                                                        className="text-[#717073] text-[15px] font-semibold bg-transparent focus:outline-none"
                                                     />
-
-
                                                 </div>
-
                                             </div>
-                                            <div className="w-1/2 ">
-
+                                            <div className="w-1/2">
                                                 <motion.div
                                                     key={`sessionPlanId-${index}`}
                                                     initial={{ opacity: 0, x: 10 }}
@@ -997,14 +1193,12 @@ const mapSectionRef = useRef(null);
                                                         idx={index}
                                                         value={sessionMappings[index]?.sessionPlanId}
                                                         onChange={handleMappingChange}
-
                                                     />
-
-
                                                 </motion.div>
                                             </div>
                                         </div>
                                     ))}
+
 
                                     <div className="flex gap-4 justify-between">
                                         <div className="w-1/2" />

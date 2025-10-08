@@ -697,7 +697,7 @@ const Update = () => {
       name={name}
       type={type || "text"}
       value={formData[name] || ""}
-      required
+    
       onChange={(e) => {
         let val = e.target.value;
 

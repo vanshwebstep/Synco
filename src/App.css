@@ -238,29 +238,37 @@ body#tinymce {
 .react-tel-input .flag-dropdown {
   background: none;
   border: none;
-      padding: 0px; /* space around flag */
+  padding: 0px;
+  /* space around flag */
 }
+
 .react-tel-input .flag {
-  transform: scale(1.5); /* Adjust size as needed */
+  transform: scale(1.5);
+  /* Adjust size as needed */
   margin-right: 10px;
 
 }
+
 .custom-phone .flag {
   transform: scale(1.5);
-}.custom-phone .flag {
+}
+
+.custom-phone .flag {
   transform: scale(1.5);
   transform-origin: center;
   margin-top: 2px;
 }
+
 .bookCheck {
-    width: 18px !important;
-    height: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
 }
+
 .directDebitBg {
   background-image: url(/public/images/directDebitBG.png);
-object-fit: contain;
-background-repeat: no-repeat;
-background-position: center;
+  object-fit: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
@@ -268,28 +276,35 @@ background-position: center;
 }
 
 .scrollbar-hide {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 button {
   cursor: pointer;
 }
+
 .tox-toolbar__group span.tox-icon.tox-tbtn__icon-wrap {
-    cursor: pointer;
+  cursor: pointer;
 }
+
 /* // for hide scrolbar .scrollbar-hide */
 .react-select__control {
-    padding: 8px 5px;
+  padding: 8px 5px;
 }
+
 ul.pl-10.list-disc.space-y-1 li.mb-2.text-lg a {
-	display: block;
+  display: block;
 }
+
 /* For mobile screens only */
 @media screen and (max-width: 768px) {
   .login-container {
     border-radius: 0;
   }
+
   .dynamicpadding {
     padding-top: 80px;
     padding-bottom: 80px;
@@ -304,22 +319,28 @@ ul.pl-10.list-disc.space-y-1 li.mb-2.text-lg a {
 
 
 .fixerhe {
-    overflow: hidden;
-    max-height: 100%;
-    height: 100vh;
+  overflow: hidden;
+  max-height: 100%;
+  height: 100vh;
 }
 
 aside.hidden.md\:w-2\/12.lg\:flex.w-72.bg-white.border-r.border-gray-100.flex-col.shadow-lg {
-    max-height: 100%;
-    height: 100vh;
+  max-height: 100%;
+  height: 100vh;
 }
 
 .leftEnd {
-  margin: 0 0 0  auto;
+  margin: 0 0 0 auto;
 }
+
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .spin-slow {
@@ -332,13 +353,14 @@ aside.hidden.md\:w-2\/12.lg\:flex.w-72.bg-white.border-r.border-gray-100.flex-co
 }
 
 .selectedDate {
-   background-color: #237FEA !important;
+  background-color: #237FEA !important;
 }
 
 
 /* global.css or component CSS */
 .custom-scrollbar::-webkit-scrollbar {
-  height: 8px; /* horizontal scrollbar height */
+  height: 8px;
+  /* horizontal scrollbar height */
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -349,5 +371,173 @@ aside.hidden.md\:w-2\/12.lg\:flex.w-72.bg-white.border-r.border-gray-100.flex-co
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #a0a0a0;
   border-radius: 4px;
-  border: 2px solid #f0f0f0; /* gives a padding effect */
+  border: 2px solid #f0f0f0;
+  /* gives a padding effect */
 }
+
+.tox .tox-tbtn svg {
+  display: block;
+  fill: #717073 !important;
+}
+
+span.tox-tbtn.tox-split-button__chevron {
+  display: none;
+}
+
+
+
+.w-full.bg-white.lg\:w-1\/2.flex.gap-2 {
+    gap: 0;
+}
+
+.prose p strong {
+    font-size: 18px;
+    font-weight: 600;
+    /* margin-bottom: 10px; */
+    line-height: 3;
+    color: #000;
+}
+
+.prose p {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.prose li {
+    list-style: auto;
+    margin-left: 15px;
+}
+
+.prose ol li {
+    list-style: disc;
+}
+
+/*  */
+@media (min-width: 1200px) and (max-width: 1550px) {
+  .md\:text-\[38px\] {
+    font-size: 28px;
+  }
+
+  .md\:max-w-\[40px\].max-w-\[20px\].text-black {
+    width: 30px;
+  }
+
+  h2.text-\[28px\] {
+    font-size: 22px;
+  }
+
+  .text-\[24px\] {
+    font-size: 20px;
+  }
+
+  .text-\[16px\] {
+    font-size: 14px;
+  }
+
+  .text-\[14px\] {
+    font-size: 12px;
+  }
+
+  .w-6.h-6 {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+  }
+
+  button.text-gray-800 svg {
+    width: 18px;
+    height: 18px;
+  }
+
+
+
+  .md\:min-w-\[374px\] {
+    min-width: 300px;
+  }
+
+  .bg-white.border.border-gray-300.p-3.mb-2.rounded-xl.flex.justify-between.items-center {
+    padding: 10px;
+  }
+
+  .text-\[18px\] {
+    font-size: 16px;
+  }
+
+  span.w-6.h-6.sm\:w-8.sm\:h-8.flex.items-center.justify-center.rounded {
+    width: auto;
+  }
+
+  .text-\[22px\] {
+    font-size: 18px;
+  }
+
+  .w-72 {
+    width: 230px;
+  }
+
+  .md\:p-12 {
+    padding: 15px;
+  }
+
+  .text-\[19\.28px\] {
+    font-size: 16px;
+  }
+
+  .flex.gap-4 {
+    gap: 6px;
+  }
+
+  button.min-w-50 {
+    min-width: 30px;
+  }
+  .text-\[20px\] {
+    font-size: 16px;
+}
+button.px-6.py-2.rounded-xl.text-\[18px\] {
+    padding: 8px 12px;
+}
+
+}
+
+@media (min-width: 1200px) and (max-width: 1300px) {
+  .text-\[19\.28px\] {
+    font-size: 12px;
+  }
+.w-full.bg-white.lg\:w-1\/2.flex.gap-2 {
+    gap: 0;
+}
+  .text-\[18px\] {
+    font-size: 14px;
+  }
+
+  button {
+    font-size: 14px I !important;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .tabBar button {
+    width: 100%;
+  }
+
+  .mobileBlock {
+    display: block;
+  }
+
+  .fullWidthTabMobile {
+    width: 100%;
+  }
+}
+
+  .selected-date {
+          background-color: #3b82f6 !important;
+          color: white !important;
+          border-radius: 50%;
+        }
+        .exclusion-date {
+          background-color: #9ca3af !important; /* gray for disabled/excluded */
+          color: white !important;
+          border-radius: 50%;
+        }

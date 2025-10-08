@@ -304,7 +304,7 @@ const Create = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#282829] mb-1">Role</label>
+            <label className="">Role</label>
             <CreatableSelect
               options={roleOptions}
               value={formData.role}

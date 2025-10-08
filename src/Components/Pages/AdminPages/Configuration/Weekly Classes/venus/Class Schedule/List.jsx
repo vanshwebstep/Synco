@@ -22,7 +22,7 @@ const List = () => {
     const [openDropdownSessionId, setOpenDropdownSessionId] = useState(null);
 
 
-     // console.log('openDropdownSessionId', openDropdownSessionId)
+    // console.log('openDropdownSessionId', openDropdownSessionId)
     const { fetchClassSchedules, createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
     useEffect(() => {
         const fetchData = async () => {
@@ -43,7 +43,7 @@ const List = () => {
         (item) => item.venueId == venueId
     );
 
-     // console.log('Filtered Class Schedules:', classSchedules);
+    // console.log('Filtered Class Schedules:', classSchedules);
     const formatDateToTimeString = (date) => {
         if (!date) return "";
         return format(date, "h:mm aa");
@@ -77,7 +77,14 @@ const List = () => {
     };
     // Reset for new form
     const handleAddNew = () => {
-        setFormData({})
+        setFormData({
+    className: '',
+    capacity: '',
+    day: "Saturday", // default selected
+    startTime: null,
+    endTime: null,
+    allowFreeTrial: false
+})
         setIsEditing(false);
         setOpenForm(true);
     };
@@ -86,14 +93,15 @@ const List = () => {
     const [value, setValue] = useState('Some text');
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const { venues, isEditVenue, setIsEditVenue, fetchVenues } = useVenue()
-    const [formData, setFormData] = useState({
-        className: '',
-        capacity: '',
-        day: '',
-        startTime: null,
-        endTime: null,
-        allowFreeTrial: false
-    });
+  const [formData, setFormData] = useState({
+    className: '',
+    capacity: '',
+    day: "Saturday", // default selected
+    startTime: null,
+    endTime: null,
+    allowFreeTrial: false
+});
+
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const toggleCheckbox = (userId) => {
         setSelectedUserIds((prev) =>
@@ -275,9 +283,9 @@ const List = () => {
         return date;
     };
 
-     // console.log('singleClassSchedules', singleClassSchedules)
-     // console.log("filteredSchedules", filteredSchedules)
-     // console.log('formData', formData)
+    // console.log('singleClassSchedules', singleClassSchedules)
+    //  console.log("filteredSchedules", filteredSchedules)
+    console.log('formData', formData)
     const { checkPermission } = usePermission();
 
     const canCreate =
@@ -367,7 +375,7 @@ const List = () => {
                                                 {canDelete &&
 
                                                     <img
-                                                        className=" cursor-pointer"
+                                                        className=" w-6 h-6 cursor-pointer"
                                                         onClick={() => handleDeleteClick(item.id)}
                                                         src="/demo/synco/icons/deleteIcon.png"
                                                         alt="Delete"
@@ -389,9 +397,9 @@ const List = () => {
                                                     className="overflow-hidden mt-4  rounded-xl"
                                                 >
                                                     <div className="space-y-4">
-                                                        {item.venue?.termGroups.map((group) => (
-                                                            <div key={group.id} className=" rounded-xl w-full">
-                                                                {group.terms.map((term) => (
+                                                        {item?.venue?.termGroups?.map((group) => (
+                                                            <div key={group.id} className="rounded-xl w-full">
+                                                                {group?.terms?.map((term) => (
                                                                     <div key={term.id}>
                                                                         <div
                                                                             onClick={() => toggleTerm(term.id)}
@@ -423,13 +431,13 @@ const List = () => {
                                                                         >
                                                                             {term.sessionsMap.map((session) => {
                                                                                 const sessionMaps = session.sessionPlan || [];
-                                                                                 // console.log('sessionsssss', session)
+                                                                                // console.log('sessionsssss', session)
                                                                                 const sessionState = sessionStates[session.sessionPlanId] || {};
 
                                                                                 const handleToggleDropdown = (sessionId) => {
-                                                                                     // console.log('---handleToggleDropdown called---');
-                                                                                     // console.log('Previous sessionStates:', sessionStates);
-                                                                                     // console.log('Toggling sessionId:', sessionId);
+                                                                                    // console.log('---handleToggleDropdown called---');
+                                                                                    // console.log('Previous sessionStates:', sessionStates);
+                                                                                    // console.log('Toggling sessionId:', sessionId);
 
                                                                                     setSessionStates((prev) => {
                                                                                         const newState = {
@@ -440,7 +448,7 @@ const List = () => {
                                                                                                 selectedSessionMap: null,
                                                                                             },
                                                                                         };
-                                                                                         // console.log('New sessionStates:', newState);
+                                                                                        // console.log('New sessionStates:', newState);
                                                                                         return newState;
                                                                                     });
 
@@ -449,7 +457,7 @@ const List = () => {
                                                                                         return newId;
                                                                                     });
                                                                                 };
-                                                                                 // console.log('itemitem', item)
+                                                                                // console.log('itemitem', item)
                                                                                 const handleSessionMapChange = (value) => {
 
                                                                                     const [date, groupName] = value.split('|||');
@@ -458,7 +466,7 @@ const List = () => {
 
                                                                                     if (sessionDate === date && sessionPlan.groupName === groupName) {
                                                                                         const levels = sessionPlan.levels;
-                                                                                         // console.log(levels);
+                                                                                        // console.log(levels);
                                                                                     }
 
                                                                                     setSessionStates((prev) => {
@@ -473,17 +481,17 @@ const List = () => {
                                                                                         return newState;
                                                                                     });
                                                                                 };
-                                                                              
+
 
                                                                                 const handleNavigate = () => {
 
                                                                                     const selected = sessionStates[session.id]?.selectedSessionMap;
 
                                                                                     if (selected) {
-                                                                                      
+
 
                                                                                     } else {
-                                                                                         // console.log('No sessionMap selected, navigation skipped');
+                                                                                        // console.log('No sessionMap selected, navigation skipped');
                                                                                     }
                                                                                 };
 
@@ -668,8 +676,7 @@ const List = () => {
                                         <div className='w-1/2'>
                                             <label htmlFor="">Day</label>
                                             <select
-                                                value={formData.day}
-
+                                                value={formData.day }
                                                 onChange={(e) => handleChange('day', e.target.value)}
                                                 className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
                                             >
@@ -679,44 +686,43 @@ const List = () => {
                                                 ))}
                                             </select>
                                         </div>
-                                        <div className='flex w-1/2 gap-4'>
-                                            <div className='w-1/2'>
-                                                <label>Start Time</label>
-                                                <DatePicker
-                                                    withPortal
-                                                    selected={parseTimeStringToDate(formData?.startTime)}
-                                                    onChange={(date) =>
-                                                        handleChange('startTime', formatDateToTimeString(date))
-                                                    }
+                                            <div className='flex w-1/2 gap-4'>
+                                                <div className='w-1/2'>
+                                                    <label>Start Time</label>
+                                                    <DatePicker
+                                                    
+                                                        selected={parseTimeStringToDate(formData?.startTime)}
+                                                        onChange={(date) =>
+                                                            handleChange('startTime', formatDateToTimeString(date))
+                                                        }
 
-                                                    showTimeSelect
-                                                    showTimeSelectOnly
-                                                    timeIntervals={15}
-                                                    dateFormat="h:mm aa"
-                                                    timeCaption="Time"
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-                                                />
+                                                        showTimeSelect
+                                                        showTimeSelectOnly
+                                                        timeIntervals={15}
+                                                        dateFormat="h:mm aa"
+                                                        timeCaption="Time"
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+                                                    />
+                                                </div>
+
+                                                <div className='w-1/2'>
+                                                    <label>End Time</label>
+                                                    <DatePicker
+                                                        selected={parseTimeStringToDate(formData?.endTime)}
+                                                        onChange={(date) =>
+                                                            handleChange('endTime', formatDateToTimeString(date))
+                                                        }
+                                                        showTimeSelect
+
+                                                        showTimeSelectOnly
+                                                        timeIntervals={15}
+                                                        dateFormat="h:mm aa"
+                                                        timeCaption="Time"
+                                                        className="w-full px-3 py-2 border border-gray-300 rounded-xl"
+
+                                                    />
+                                                </div>
                                             </div>
-
-                                            <div className='w-1/2'>
-                                                <label>End Time</label>
-                                                <DatePicker
-                                                    withPortal
-                                                    selected={parseTimeStringToDate(formData?.endTime)}
-                                                    onChange={(date) =>
-                                                        handleChange('endTime', formatDateToTimeString(date))
-                                                    }
-                                                    showTimeSelect
-
-                                                    showTimeSelectOnly
-                                                    timeIntervals={15}
-                                                    dateFormat="h:mm aa"
-                                                    timeCaption="Time"
-                                                    className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-
-                                                />
-                                            </div>
-                                        </div>
 
 
                                     </div>
