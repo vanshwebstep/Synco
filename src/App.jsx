@@ -6,28 +6,32 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom';
+import { useEffect } from 'react';
 
 import AdminLogin from './Components/AdminLogin.jsx';
 import ResetPassword from './Components/ResetPassword.jsx';
 import ForgotPassword from './Components/ForgotPassword.jsx';
 import AdminLayout from './Components/Layout/AdminLayout.jsx';
+import PermissionProtectedRoute from './PermissionProtectedRoute.jsx';
 import ProtectedRoute from './Components/ProtectedRoute.jsx';
 import Unauthorized from './Components/Unauthorized.jsx';
+import Test from './Test.jsx';
+import { renderProtectedRoute } from "./RenderProtectedRoute";
 
 // Import all your pages
 import Dashboard from './Components/Pages/Dashboard.jsx';
-import MemberList from './Components/Pages/AdminPages/configuration/members/List.jsx';
-import Update from './Components/Pages/AdminPages/configuration/members/Update.jsx';
+import MemberList from './Components/Pages/AdminPages/members/List.jsx';
+import Update from './Components/Pages/AdminPages/members/Update.jsx';
 import SubscriptiontPlanManagerList from './Components/Pages/AdminPages/configuration/Weekly Classes/Subscription plan manager/SubscriptionPlanManager.jsx';
 import AddMembershipPlanGroup from './Components/Pages/AdminPages/configuration/Weekly Classes/Subscription plan manager/AddMembershipPlanGroup.jsx';
-import DiscountsList from './Components/Pages/AdminPages/configuration/discounts/list.jsx';
-import DiscountCreate from './Components/Pages/AdminPages/configuration/discounts/create.jsx';
+import DiscountsList from './Components/Pages/AdminPages/discounts/list.jsx';
+import DiscountCreate from './Components/Pages/AdminPages/discounts/create.jsx';
 import Notification from './Components/Pages/AdminPages/notification/Notification.jsx';
 import NotificationList from './Components/Pages/AdminPages/notification/NotificationList.jsx';
 import List from './Components/Pages/AdminPages/configuration/Weekly Classes/venus/List.jsx';
-import FindAClass from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/List.jsx';
-import BookFreeTrial from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Book a free trial/list.jsx'
-import BookMembership from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Book a Membership/list.jsx'
+import FindAClass from './Components/Pages/AdminPages/Weekly Classes/Find a class/List.jsx';
+import BookFreeTrial from './Components/Pages/AdminPages/Weekly Classes/Find a class/Book a free trial/list.jsx'
+import BookMembership from './Components/Pages/AdminPages/Weekly Classes/Find a class/Book a Membership/list.jsx'
 import ClassSchedule from './Components/Pages/AdminPages/Configuration/Weekly Classes/venus/Class Schedule/List.jsx';
 import Pending from './Components/Pages/AdminPages/configuration/Weekly Classes/venus/Class Schedule/View Session/pending.jsx';
 import Completed from './Components/Pages/AdminPages/configuration/Weekly Classes/venus/Class Schedule/View Session/completed.jsx';
@@ -38,11 +42,11 @@ import TermDateUpdate from './Components/Pages/AdminPages/configuration/Weekly C
 import SessionPlanList from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/list.jsx';
 import SessionPlanCreate from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/Create.jsx';
 import SessionPlanPreview from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/Preview.jsx';
-import TrialLists from './Components/Pages/AdminPages/Configuration/Weekly Classes/Trials/List.jsx';
-import AddMembers from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/List.jsx';
-import MembershipSales from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/membershipSales.jsx';
-import AccountInformation from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Book a free trial/Account Information Book Free Trial/list.jsx';
-import PermissionRole from './Components/Pages/AdminPages/Configuration/Permissions/list.jsx';
+import TrialLists from './Components/Pages/AdminPages/Weekly Classes/Trials/List.jsx';
+import AddMembers from './Components/Pages/AdminPages/Weekly Classes/All Members/List.jsx';
+import MembershipSales from './Components/Pages/AdminPages/Weekly Classes/All Members/membershipSales.jsx';
+import AccountInformation from './Components/Pages/AdminPages/Weekly Classes/Find a class/Book a free trial/Account Information Book Free Trial/list.jsx';
+import PermissionRole from './Components/Pages/AdminPages/Permissions/list.jsx';
 // import { AccountInformationMembership } from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/Account Information Book Membership/List.jsx';
 
 // Import all context providers
@@ -58,18 +62,21 @@ import { FindClassProvider } from './Components/Pages/AdminPages/contexts/FindCl
 import { BookFreeTrialProvider } from './Components/Pages/AdminPages/contexts/BookAFreeTrialContext.jsx';
 
 import './App.css';
-import { PermissionProvider } from './Components/Pages/AdminPages/Common/permission.jsx';
-import AccountInfoBookMembership from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/Account Information Book Membership/List.jsx';
-import SeeDetails from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/See Details/list.jsx';
-import AddtoWaitingList from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Add to Waiting List/AddtoWaitingList.jsx';
-import WaitingList from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Add to Waiting List/List.jsx';
-import AccountInfoWaitingList from './Components/Pages/AdminPages/Configuration/Weekly Classes/Find a class/Add to Waiting List/Account Information Waiting List/List.jsx';
-import Capacity from './Components/Pages/AdminPages/Configuration/Weekly Classes/Capacity/list.jsx';
-import CancellationList from './Components/Pages/AdminPages/Configuration/Weekly Classes/Cancellation/list.jsx';
-import AccountInfoCancellation from './Components/Pages/AdminPages/Configuration/Weekly Classes/Cancellation/Account Information Cancellation/list.jsx';
+import { PermissionProvider, usePermission } from './Components/Pages/AdminPages/Common/permission.jsx';
+import AccountInfoBookMembership from './Components/Pages/AdminPages/Weekly Classes/All Members/Account Information Book Membership/List.jsx';
+import SeeDetails from './Components/Pages/AdminPages/Weekly Classes/All Members/See Details/list.jsx';
+import AddtoWaitingList from './Components/Pages/AdminPages/Weekly Classes/Find a class/Add to Waiting List/AddtoWaitingList.jsx';
+import WaitingList from './Components/Pages/AdminPages/Weekly Classes/Find a class/Add to Waiting List/List.jsx';
+import AccountInfoWaitingList from './Components/Pages/AdminPages/Weekly Classes/Find a class/Add to Waiting List/Account Information Waiting List/List.jsx';
+import Capacity from './Components/Pages/AdminPages/Weekly Classes/Capacity/list.jsx';
+import CancellationList from './Components/Pages/AdminPages/Weekly Classes/Cancellation/list.jsx';
+import AccountInfoCancellation from './Components/Pages/AdminPages/Weekly Classes/Cancellation/Account Information Cancellation/list.jsx';
 import { BookFreeTrialLoaderProvider } from './Components/Pages/AdminPages/contexts/BookAFreeTrialLoaderContext.jsx';
-import KeyInfomation from './Components/Pages/AdminPages/Configuration/Weekly Classes/Key Information/KeyInfomation.jsx';
+import KeyInfomation from './Components/Pages/AdminPages/Weekly Classes/Key Information/KeyInfomation.jsx';
 // Define roles
+import Account from './Components/Pages/AdminPages/Weekly Classes/account-information/Account.jsx';
+import Preview from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/Preview.jsx';
+
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
 // Role-based route component
@@ -105,14 +112,25 @@ const AuthRoutes = () => {
 // ----------------- MAIN ROUTES -----------------
 const AppRoutes = () => {
   const location = useLocation();
+  const { checkPermission } = usePermission();
+
+  useEffect(() => {
+    const container = document.getElementById("scrollable-content");
+    if (container) {
+      container.scrollTo({
+        top: 0,
+        behavior: "smooth", // change to "auto" if you don’t want animation
+      });
+    }
+  }, [location.pathname]);
   const isAuth = ['/admin-login', '/reset-password', '/admin-ForgotPassword'].includes(location.pathname);
 
   if (isAuth) return <AuthRoutes />;
   return (
     <Routes>
+
       {/* Public routes */}
       <Route path="/unauthorized" element={<Unauthorized />} />
-
       {/* Role-based routes */}
       <Route path="/" element={
         <ProtectedRoute>
@@ -134,350 +152,171 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
 
-      <Route path="/configuration/members/List" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <MemberList />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
+      <Route path="/members/list"
+        element={renderProtectedRoute(MemberList, [
+          { module: "member", action: "view-listing" },
+        ])} />
 
-      <Route path="/configuration/members/update" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <Update />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
+      <Route
+        path="/members/update"
+        element={renderProtectedRoute(Update, [
+          { module: "member", action: "update" },
+        ])}
+      />
+      <Route
+        path="/weekly-classes/account-information"
+        element={renderProtectedRoute(Account, [{ module: "account-information", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/weekly-classes/subscription-planManager"
+        element={renderProtectedRoute(SubscriptiontPlanManagerList, [{ module: "payment-plan", action: "view-listing" },{ module: "payment-group", action: "view-listing" }])}
+      />
 
-      <Route path="/configuration/weekly-classes/subscription-planManager" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <SubscriptiontPlanManagerList />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
+      <Route
+        path="/weekly-classes/add-subscription-plan-group"
+        element={renderProtectedRoute(AddMembershipPlanGroup, [{ module: "payment-group", action: "create" }])}
+      />
 
-      <Route path="/configuration/weekly-classes/add-subscription-plan-group" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <AddMembershipPlanGroup />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
+      <Route
+        path="/notification"
+        element={renderProtectedRoute(Notification, [{ module: "notification", action: "view-listing" }])}
+      />
+      <Route
+        path="/notification-list"
+        element={renderProtectedRoute(NotificationList, [{ module: "notification", action: "view-listing" }])}
+      />
+      <Route
+        path="/holiday-camps/discounts/list"
+        element={renderProtectedRoute(DiscountsList, [{ module: "discount", action: "view-listing" }])}
+      />
 
-      <Route path="/notification" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <Notification />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
+      <Route
+        path="/holiday-camps/discounts/create"
+        element={renderProtectedRoute(DiscountCreate, [{ module: "discount", action: "create" }])}
+      />
 
-      <Route path="/notification-list" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <NotificationList />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
+      <Route
+        path="/configuration/weekly-classes/venues"
+        element={renderProtectedRoute(List, [{ module: "venue", action: "view-listing" }])}
+      />
 
-      <Route path="/configuration/holiday-camps/discounts/list" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <DiscountsList />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/holiday-camps/discounts/create" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <DiscountCreate />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/venues" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <List />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/find-a-class" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <FindAClass />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/find-a-class/book-a-free-trial" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <BookFreeTrial />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/find-a-class/add-to-waiting-list" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <AddtoWaitingList />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/find-a-class/add-to-waiting-list/list" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <WaitingList />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/find-a-class/book-a-membership" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <BookMembership />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/find-a-class/book-a-free-trial/account-info/list" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <AccountInformation />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/cancellation/account-info/list" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <AccountInfoCancellation />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/cancellation" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <CancellationList />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/venues/class-schedule" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <ClassSchedule />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/venues/class-schedule/Sessions/viewSessions" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <Pending />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/venues/class-schedule/Sessions/completed" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <Completed />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/venues/class-schedule/Sessions/cancel" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <Cancel />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/term-dates/list" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <TermDateList />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/term-dates/create" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <TermDateCreate />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/term-dates/update" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <TermDateUpdate />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/session-plan-list" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <SessionPlanList />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/session-plan-create" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <SessionPlanCreate />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/session-plan-preview" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <SessionPlanPreview />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/trial/list" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <TrialLists />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/configuration/weekly-classes/all-members/list" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <AddMembers />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/all-members/membership-sales" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <MembershipSales />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/all-members/account-info" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <AccountInfoBookMembership />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/add-to-waiting-list/account-info" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <AccountInfoWaitingList />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/capacity" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <Capacity />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/weekly-classes/all-members/see-details" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <SeeDetails />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-      <Route path="/configuration/KeyInfomation" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <KeyInfomation />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
-
-      <Route path="/permission" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <PermissionRole />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
+      <Route
+        path="/weekly-classes/find-a-class"
+        element={renderProtectedRoute(FindAClass, [{ module: "find-class", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/find-a-class/book-a-free-trial"
+        element={renderProtectedRoute(BookFreeTrial, [{ module: "book-free-trial", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/find-a-class/add-to-waiting-list"
+        element={renderProtectedRoute(AddtoWaitingList, [{ module: "add-waiting-list", action: "create" }])}
+      />
+      <Route
+        path="/weekly-classes/find-a-class/add-to-waiting-list/list"
+        element={renderProtectedRoute(WaitingList, [{ module: "add-waiting-list", action: "create" }])}
+      />
+      <Route
+        path="/weekly-classes/find-a-class/book-a-membership"
+        element={renderProtectedRoute(BookMembership, [{ module: "book-membership", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/find-a-class/book-a-free-trial/account-info/list"
+        element={renderProtectedRoute(AccountInformation, [{ module: "book-free-trial", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/cancellation/account-info/list"
+        element={renderProtectedRoute(AccountInfoCancellation, [{ module: "cancellation", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/cancellation"
+        element={renderProtectedRoute(CancellationList, [{ module: "cancellation", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/weekly-classes/venues/class-schedule"
+        element={renderProtectedRoute(ClassSchedule, [{ module: "class-schedule", action: "view-listing" }])}
+      />
+     <Route
+      path="/configuration/weekly-classes/venues/class-schedule/Sessions/viewSessions"
+      element={renderProtectedRoute(Pending, [{ module: "class-schedule", action: "view-listing" }])}
+    />
+     
+    <Route
+      path="/configuration/weekly-classes/venues/class-schedule/Sessions/completed"
+      element={renderProtectedRoute(Completed, [{ module: "class-schedule", action: "view-listing" }])}
+    />
+    <Route
+      path="/configuration/weekly-classes/venues/class-schedule/Sessions/cancel"
+      element={renderProtectedRoute(Cancel, [{ module: "class-schedule", action: "view-listing" }])}
+    />
+    <Route
+      path="/configuration/weekly-classes/term-dates/list"
+      element={renderProtectedRoute(TermDateList, [{ module: "term-group", action: "view-listing" }])}
+    />
+    <Route
+      path="/weekly-classes/term-dates/create"
+      element={renderProtectedRoute(TermDateCreate, [{ module: "term-group", action: "view-listing" }])}
+    />
+     <Route
+      path="/weekly-classes/term-dates/update"
+      element={renderProtectedRoute(TermDateUpdate, [{ module: "term-group", action: "view-listing" }])}
+    />
+    <Route
+      path="/configuration/weekly-classes/session-plan-list"
+      element={renderProtectedRoute(SessionPlanList, [{ module: "session-plan-group", action: "view-listing" }])}
+    />
+    <Route
+      path="/configuration/weekly-classes/session-plan-preview"
+      element={renderProtectedRoute(Preview, [{ module: "session-plan-group", action: "view-listing" }])}
+    />
+    <Route
+      path="/configuration/weekly-classes/session-plan-create"
+      element={renderProtectedRoute(SessionPlanCreate, [{ module: "session-plan-group", action: "view-listing" }])}
+    />
+    <Route
+      path="/configuration/weekly-classes/session-plan-preview"
+      element={renderProtectedRoute(SessionPlanPreview, [{ module: "session-plan-group", action: "view-listing" }])}
+    />
+       <Route
+      path="/weekly-classes/trial/list"
+      element={renderProtectedRoute(TrialLists, [{ module: "book-free-trial", action: "view-listing" }])}
+    />
+       <Route
+      path="/weekly-classes/all-members/list"
+      element={renderProtectedRoute(AddMembers, [{ module: "book-membership", action: "view-listing" }])}
+    />
+    <Route
+      path="/weekly-classes/all-members/membership-sales"
+      element={renderProtectedRoute(MembershipSales, [{ module: "book-membership", action: "view-listing" }])}
+    />
+    <Route
+      path="/weekly-classes/all-members/account-info"
+      element={renderProtectedRoute(AccountInfoBookMembership, [{ module: "book-membership", action: "view-listing" }])}
+    />
+    <Route
+      path="/weekly-classes/add-to-waiting-list/account-info"
+      element={renderProtectedRoute(AccountInfoWaitingList, [{ module: "waiting-list", action: "view-listing" }])}
+    />
+        <Route
+      path="/test"
+      element={renderProtectedRoute(Test)}
+    />
+    <Route
+      path="/weekly-classes/capacity"
+      element={renderProtectedRoute(Capacity, [{ module: "capacity", action: "view-listing" }])}
+    />
+    <Route
+      path="/weekly-classes/all-members/see-details"
+      element={renderProtectedRoute(SeeDetails, [{ module: "book-membership", action: "view-listing" }])}
+    />
+    <Route
+      path="/KeyInfomation"
+      element={renderProtectedRoute(KeyInfomation, [{ module: "key-information", action: "view-listing" }])}
+    />
+    <Route
+      path="/permission"
+      element={renderProtectedRoute(PermissionRole, [{ module: "admin-role", action: "view-listing" }])}
+    />
 
 
       <Route path="*" element={<Navigate to="/" />} />
@@ -523,175 +362,3 @@ function App() {
 
 export default App;
 
-// Menu items configuration
-
-export const menuItems = [
-  {
-    title: 'Dashboard',
-    icon: '/demo/synco/SidebarLogos/Dashboard.png',
-    iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
-    link: '/',
-    role: commonRole
-  },
-  {
-    title: 'Weekly Classes',
-    icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
-    iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Find a class', link: '/configuration/weekly-classes/find-a-class', role: ['Admin', 'Call Agent'] },
-      { title: 'Venues', link: '/configuration/weekly-classes/venues', role: ['Admin'] },
-      { title: 'Term Dates & Session Plan mapping', link: '/configuration/weekly-classes/term-dates/list', role: ['Admin'] },
-      { title: 'Trials', link: '/configuration/weekly-classes/trial/list', role: ['Admin'] },
-      { title: 'All Members', link: '/configuration/weekly-classes/all-members/list', role: ['Admin'] },
-      { title: 'All Members', link: '/configuration/weekly-classes/all-members/membership-sales', role: ['Admin'] },
-
-    ]
-  },
-  {
-    title: 'One to One',
-    icon: '/demo/synco/SidebarLogos/OneTOOne.png',
-    iconHover: '/demo/synco/SidebarLogos/OneTOOneH.png',
-    role: commonRole,
-    subItems: [
-      {
-        title: 'Leads',
-        subItems: [
-          { title: 'Leads Database', link: '/notification-list', role: commonRole },
-          { title: 'Add New Lead', link: '#', role: commonRole }
-        ]
-      },
-      {
-        title: 'Sales',
-        subItems: [
-          { title: 'Sale X', link: '/one-to-one/sales/x', role: commonRole },
-          { title: 'Sale Y', link: '/one-to-one/sales/y', role: commonRole }
-        ]
-      }
-    ]
-  },
-  {
-    title: 'Holiday Camps',
-    icon: '/demo/synco/SidebarLogos/Holiday.png',
-    iconHover: '/demo/synco/SidebarLogos/HolidayH.png',
-    role: ['Admin'],
-    subItems: [
-      { title: 'Session Plan Library', link: '/configuration/weekly-classes/session-plan-list', role: ['Admin'] },
-      { title: 'Subscription Plan Manager', link: '/configuration/weekly-classes/subscription-planManager', role: ['Admin'] },
-      { title: 'Discounts', link: '/configuration/holiday-camps/discounts/list', role: ['Admin'] }
-    ]
-  },
-  {
-    title: 'Birthday parties',
-    icon: '/demo/synco/SidebarLogos/Birthday.png',
-    iconHover: '/demo/synco/SidebarLogos/BirthdayH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Party 1', link: '#', role: commonRole },
-      { title: 'Party 2', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Club',
-    icon: '/demo/synco/SidebarLogos/Club.png',
-    iconHover: '/demo/synco/SidebarLogos/ClubH.png',
-    role: commonRole,
-    subItems: [
-      {
-        title: 'Session A',
-        subItems: [
-          { title: 'Slot 1', link: '#', role: commonRole },
-          { title: 'Slot 2', link: '#', role: commonRole }
-        ]
-      },
-      {
-        title: 'Session B',
-        subItems: [
-          { title: 'Slot 3', link: '#', role: commonRole },
-          { title: 'Slot 4', link: '#', role: commonRole }
-        ]
-      },
-      { title: 'Session C', link: '#', role: commonRole }
-    ]
-  },
-  { title: 'Merchandise', icon: '/demo/synco/SidebarLogos/Merchandise.png', iconHover: '/demo/synco/SidebarLogos/MerchandiseH.png', link: '#', role: commonRole },
-  { title: 'Email management', icon: '/demo/synco/SidebarLogos/Management.png', iconHover: '/demo/synco/SidebarLogos/ManagementH.png', link: '#', role: commonRole },
-  {
-    title: 'Surveys',
-    icon: '/demo/synco/SidebarLogos/Survey.png',
-    iconHover: '/demo/synco/SidebarLogos/SurveyH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Survey 1', link: '#', role: commonRole },
-      { title: 'Survey 2', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Email marketing',
-    icon: '/demo/synco/SidebarLogos/Marketing.png',
-    iconHover: '/demo/synco/SidebarLogos/MarketingH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Campaign 1', link: '#', role: commonRole },
-      { title: 'Campaign 2', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Recruitment',
-    icon: '/demo/synco/SidebarLogos/Recruitment.png',
-    iconHover: '/demo/synco/SidebarLogos/RecruitmentH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Job 1', link: '#', role: commonRole },
-      { title: 'Job 2', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Reports',
-    icon: '/demo/synco/SidebarLogos/Reports.png',
-    iconHover: '/demo/synco/SidebarLogos/ReportsH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Report 1', link: '#', role: commonRole },
-      { title: 'Report 2', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Marketing reports',
-    icon: '/demo/synco/SidebarLogos/MarketingReports.png',
-    iconHover: '/demo/synco/SidebarLogos/MarketingReportsH.png',
-    role: commonRole,
-    subItems: [
-      { title: 'Report A', link: '#', role: commonRole },
-      { title: 'Report B', link: '#', role: commonRole }
-    ]
-  },
-  {
-    title: 'Recruitment reports',
-    icon: '/demo/synco/SidebarLogos/ReqReports.png',
-    iconHover: '/demo/synco/SidebarLogos/ReqReportsH.png',
-    link: '#',
-    role: commonRole
-  },
-  {
-    title: 'Synco Chat',
-    icon: '/demo/synco/SidebarLogos/bubble-chat.png',
-    iconHover: '/demo/synco/SidebarLogos/bubble-chatH.png',
-    link: '#',
-    role: commonRole
-  },
-  {
-    title: 'Templates',
-    icon: '/demo/synco/SidebarLogos/Template.png',
-    iconHover: '/demo/synco/SidebarLogos/TemplateH.png',
-    link: '#',
-    role: commonRole
-  },
-  {
-    title: 'Administration',
-    icon: '/demo/synco/SidebarLogos/Admistration.png',
-    iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
-    link: '/configuration/members/List',
-    role: ['Admin', 'Super Admin']
-  }
-];

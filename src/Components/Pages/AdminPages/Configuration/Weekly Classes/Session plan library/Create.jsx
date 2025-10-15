@@ -1,5 +1,5 @@
 import Select from "react-select";
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trash2, Eye, Check, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,13 +14,14 @@ import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 const Create = () => {
     const videoInputRef = useRef(null);
     const uploadInputRef = useRef(null);
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [planLoading, setPlanLoading] = useState(false);
     const MultiValue = () => null; // Hides the default selected boxes
     const exerciseRef = useRef(null);
     const [mounted, setMounted] = useState(false);
     const containerRef = useRef(null);
     const [editIndex, setEditIndex] = useState(null); // null = not editing
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const token = localStorage.getItem("adminToken");
 
     useEffect(() => {
         setMounted(true);
@@ -35,6 +36,7 @@ const Create = () => {
     const fileInputRef = useRef(null);
     const [page, setPage] = useState(1);
     const [photoPreview, setPhotoPreview] = useState([]);
+    console.log('photoPreview', photoPreview)
 
     const [groupName, setGroupName] = useState('');
     const [groupNameSection, setGroupNameSection] = useState('');
@@ -43,7 +45,7 @@ const Create = () => {
     const [descriptionSession, setDescriptionSession] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [previewShowModal, setPreviewShowModal] = useState(false);
-    const { fetchExercises, sessionGroup, groups, updateDiscount, createSessionExercise, deleteExercise,duplicatePlan, setLoading, updateSessionExercise, selectedGroup, fetchGroupById, loading, createGroup, selectedExercise, exercises, updateGroup, setExercises, createSessionGroup, fetchSessionGroup } = useSessionPlan();
+    const { fetchExercises, sessionGroup, groups, updateDiscount, createSessionExercise, deleteExercise, duplicatePlan, setLoading, updateSessionExercise, selectedGroup, loading, createGroup, selectedExercise, exercises, updateGroup, setExercises, createSessionGroup } = useSessionPlan();
     const [selectedPlans, setSelectedPlans] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -51,6 +53,8 @@ const Create = () => {
     const visibleTabs = level ? tabs.filter((tab) => tab.toLowerCase() == level.toLowerCase()) : tabs;
     // console.log('visibleTabs', visibleTabs)
     // console.log('tabs', tabs)
+
+    console.log('exercises',exercises)
     const [recording, setRecording] = useState(null); // stores Blob
     const [audioURL, setAudioURL] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -148,6 +152,8 @@ const Create = () => {
 
     });
 
+    console.log('formData', formData)
+
     const [openForm, setOpenForm] = useState(false);
     const navigate = useNavigate();
     useEffect(() => {
@@ -200,17 +206,48 @@ const Create = () => {
     };
 
     const handleImageChange = (e) => {
-        const files = Array.from(e.target.files);
-        const previews = files.map((file) => URL.createObjectURL(file));
-        setPhotoPreview(previews);
-        setFormData((prev) => ({ ...prev, images: files }));
+        const files = Array.from(e.target.files).filter(Boolean);
+
+        if (!files.length) return;
+
+        // Create new previews
+        const newPreviews = files.map((file) => URL.createObjectURL(file));
+
+        // Add to existing previews
+        setPhotoPreview((prev) => [...prev, ...newPreviews]);
+
+        // Add to formData.images (ensure it's always an array of Files)
+        setFormData((prev) => ({
+            ...prev,
+            images: [...(Array.isArray(prev.images) ? prev.images : []), ...files],
+        }));
     };
 
+
+
     const handleRemoveImage = (index) => {
-        const updatedPhotos = photoPreview.filter((_, i) => i !== index);
-        setPhotoPreview(updatedPhotos);
-        setFormData(prev => ({ ...prev, images: updatedPhotos }));
+        // 1️⃣ Remove preview
+        setPhotoPreview((prev) => {
+            // revoke old URL to avoid memory leak
+            URL.revokeObjectURL(prev[index]);
+            return prev.filter((_, i) => i !== index);
+        });
+
+        // 2️⃣ Remove corresponding file from images array (only files, not URLs)
+        setFormData((prev) => {
+            const existingFiles = Array.isArray(prev.images) ? prev.images : [];
+            return {
+                ...prev,
+                images: existingFiles.filter((_, i) => i !== index),
+            };
+        });
+
+        // 3️⃣ Optionally, handle removal of existing uploaded images
+        // If you also want to remove an image that was already saved in `imageUrl`, 
+        // maintain a separate array like `removedImages` and push the removed URL there
+        // e.g., removedImages: [...prev.removedImages, prev.imageUrl[index]]
     };
+
     const handleCreateSession = (finalSubmit = false) => {
         if (isProcessing) return;
 
@@ -229,6 +266,7 @@ const Create = () => {
         //     tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
         // }
         // console.log('selectedPlanssssssssssss', selectedPlans)
+
         const currentLevel = {
             level: activeTab,
             player,
@@ -253,6 +291,7 @@ const Create = () => {
             // Pass finalSubmit to handleNextTabOrSubmit
             handleNextTabOrSubmit(updated, finalSubmit);
 
+
             return updated;
         });
 
@@ -262,6 +301,7 @@ const Create = () => {
     const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
         const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
         const isLastTab = nextIndex >= tabs.length;
+        console.log('updatedLevels', updatedLevels)
 
         // ✅ Only send the activeTab when editing
         const levelsToSend = (isEditMode && id && level)
@@ -328,7 +368,10 @@ const Create = () => {
             setActiveTab(nextTab);
             setPage(1);
 
+
+            console.log('nextTab', nextTab)
             const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
+            console.log('existingLevel', existingLevel)
 
             if (existingLevel) {
                 setSkillOfTheDay(existingLevel.skillOfTheDay || "");
@@ -350,7 +393,7 @@ const Create = () => {
                 setDescriptionSession(existingLevel.descriptionSession || "");
                 setSelectedPlans(
                     existingLevel.sessionExerciseIds?.map(id =>
-                        planOptions.find(opt => opt.id === id)
+                        planOptions.find(opt => opt.value === id)
                     ).filter(Boolean) || []
                 );
             } else {
@@ -397,80 +440,121 @@ const Create = () => {
     useEffect(() => {
         if (id) {
             setIsEditMode(true);
-            fetchGroupById(id);
+            fetchGroupById();
         } else {
             setIsLoading(false);
         }
     }, [id]);
 
     // Load selectedGroup and levels initially
-    useEffect(() => {
-        if (!isEditMode || !selectedGroup) return;
 
-        let parsedLevels = selectedGroup.levels;
-        if (typeof parsedLevels === "string") {
-            try {
-                parsedLevels = JSON.parse(parsedLevels);
-            } catch (err) {
-                console.error("Failed to parse levels JSON:", err);
-                return;
+    const fetchGroupById = useCallback(async () => {
+        if (!token) return;
+        setLoading(true);
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const result = await response.json();
+            const data = result.data || {};
+
+            console.log('data-(main)', data);
+
+            // Parse levels safely
+            let parsedLevels = data.levels || {};
+            if (typeof parsedLevels === "string") {
+                try {
+                    parsedLevels = JSON.parse(parsedLevels);
+                } catch (err) {
+                    console.error("Failed to parse levels JSON:", err);
+                    parsedLevels = {};
+                }
             }
-        }
 
-        setGroupNameSection(selectedGroup.groupName || "");
-        setPlayer(selectedGroup.player || "");
-        console.log('visibleTabs', visibleTabs)
-        const videoMap = {}, videoPreviewMap = {}, uploadMap = {}, uploadPreviewMap = {};
+            // Prepare video/upload maps
+            const videoMap = {};
+            const videoPreviewMap = {};
+            const uploadMap = {};
+            const uploadPreviewMap = {};
 
-        (visibleTabs || []).forEach((levelKey) => {
-            const formattedLevel = levelKey;
-            const videoKey = `${levelKey}_video`;
-            const uploadKey = `${levelKey}_upload`;
-            if (selectedGroup[videoKey]) {
-                videoMap[formattedLevel] = selectedGroup[videoKey];
-                videoPreviewMap[formattedLevel] = selectedGroup[videoKey];
-            }
-            if (selectedGroup[uploadKey]) {
-                uploadMap[formattedLevel] = selectedGroup[uploadKey];
-                uploadPreviewMap[formattedLevel] = selectedGroup[uploadKey];
-            }
-        });
-        console.log('videoMap', videoMap)
-        console.log('uploadMap', uploadMap)
-        setUploadFiles(uploadMap);
-        setUploadPreviews(uploadPreviewMap);
-        setVideoFiles(videoMap);
-        setVideoPreviews(videoPreviewMap);
+            (visibleTabs || []).forEach((levelKey) => {
+                const videoKey = `${levelKey}_video`;
+                const uploadKey = `${levelKey}_upload`;
+                if (data[videoKey]) {
+                    videoMap[levelKey] = data[videoKey];
+                    videoPreviewMap[levelKey] = data[videoKey];
+                }
+                if (data[uploadKey]) {
+                    uploadMap[levelKey] = data[uploadKey];
+                    uploadPreviewMap[levelKey] = data[uploadKey];
+                }
+            });
 
-        setBannerFile(
-            selectedGroup.banner instanceof File
-                ? selectedGroup.banner
-                : selectedGroup.banner || ""
-        );
+            setUploadFiles(uploadMap);
+            setUploadPreviews(uploadPreviewMap);
+            setVideoFiles(videoMap);
+            setVideoPreviews(videoPreviewMap);
 
-        const loadedLevels = [];
-        Object.entries(parsedLevels || {}).forEach(([levelKey, sessions]) => {
-            sessions?.forEach((session) => {
-                loadedLevels.push({
-                    level: levelKey,
-                    player: session.player || "",
-                    skillOfTheDay: session.skillOfTheDay || "",
-                    recording:
-                        selectedGroup[`${levelKey}_upload`] ||
-                        session._upload ||
-                        "",
-                    descriptionSession: session.description || "",
-                    sessionExerciseId: session.sessionExerciseId || [],
-                    sessionExercises: session.sessionExercises || [],
-                    bannerFile: selectedGroup.banner,
-                    videoFile: selectedGroup[`${levelKey}_video`] || "",
-                    uploadFile: selectedGroup[`${levelKey}_upload`] || "",
+            setBannerFile(data.banner || '');
+
+            // Load all levels safely
+            const loadedLevels = [];
+            Object.entries(parsedLevels).forEach(([levelKey, sessions]) => {
+                (sessions || []).forEach((session) => {
+                    loadedLevels.push({
+                        level: levelKey,
+                        player: session.player || data.player || '',
+                        skillOfTheDay: session.skillOfTheDay || '',
+                        recording: data[`${levelKey}_upload`] || session._upload || '',
+                        descriptionSession: session.description || '',
+                        sessionExerciseId: session.sessionExerciseId || [],
+                        sessionExercises: session.sessionExercises || [],
+                        bannerFile: data.banner || '',
+                        videoFile: data[`${levelKey}_video`] || '',
+                        uploadFile: data[`${levelKey}_upload`] || '',
+                    });
                 });
             });
-        });
 
-        setLevels(loadedLevels);
-    }, [isEditMode, selectedGroup?.id]);
+            setLevels(loadedLevels);
+
+            // Safe access to existing level
+            const existingLevel = loadedLevels.find(
+                (lvl) => lvl.level?.toLowerCase() === activeTab?.toLowerCase()
+            );
+
+            if (!existingLevel) {
+                console.warn("No matching level found for activeTab:", activeTab);
+            }
+
+            setSkillOfTheDay(existingLevel?.skillOfTheDay || '');
+            setRecording(existingLevel?.recording || '');
+            setDescriptionSession(existingLevel?.descriptionSession || '');
+            setSessionExerciseId(existingLevel?.sessionExerciseId || []);
+            setGroupNameSection(data.groupName || '');
+            setPlayer(data.player || '');
+
+            const currentLevelData = loadedLevels.find((item) => item.level === activeTab);
+            setSelectedPlans(
+                (currentLevelData?.sessionExercises || []).map((exercise) => ({
+                    id: exercise.id,
+                    title: exercise.title || '',
+                    duration: exercise.duration || '',
+                    description: exercise.description || '',
+                    imageUrl: exercise.imageUrl || '',
+                    images: exercise.imageUrl || '',
+                }))
+            );
+
+        } catch (err) {
+            console.error("Failed to fetch group:", err);
+        } finally {
+            setLoading(false);
+        }
+    }, [token, id, activeTab, visibleTabs]);
+
 
     useEffect(() => {
         return () => {
@@ -479,13 +563,8 @@ const Create = () => {
             });
         };
     }, []);
-    useEffect(() => {
-        return () => {
-            Object.values(uploadPreviews).forEach((url) => {
-                if (url?.startsWith("blob:")) URL.revokeObjectURL(url);
-            });
-        };
-    }, []);
+
+
     // Update audio URL when tab changes
     useEffect(() => {
         if (levels.length > 0) {
@@ -510,68 +589,7 @@ const Create = () => {
 
 
 
-    useEffect(() => {
 
-        const existingLevel = levels.find((lvl) => lvl.level?.toLowerCase?.() === activeTab?.toLowerCase?.());
-        // console.log('existingLevel', existingLevel)
-        if (!existingLevel) {
-            setSkillOfTheDay('');
-            setRecording('');
-            setDescriptionSession('');
-            setSelectedPlans([]);
-            setSessionExerciseId([]);
-            return;
-        }
-
-        setSkillOfTheDay(existingLevel.skillOfTheDay || '');
-        setRecording(existingLevel.recording || '');
-        setDescriptionSession(existingLevel.descriptionSession || '');
-        // Step 1: Ensure sessionExerciseIds is set
-        // console.log('existingLevel', existingLevel)
-        setSessionExerciseId(existingLevel.sessionExerciseIds || []);
-        // setSelectedPlans(
-        //     existingLevel.sessionExerciseIds?.map(id =>
-        //         planOptions.find(opt => opt.id === id)
-        //     ).filter(Boolean) || []
-        // );
-        // Step 2: Match selected plans from planOptions using the ids
-        const selectedPlans = (planOptions || [])
-            .filter(option => (existingLevel.sessionExerciseIds || []).includes(option.value))
-            .map(option => ({
-                id: option.data.id,
-                title: option.data.title,
-                duration: option.data.duration
-            }));
-
-        // Optional: Logging for debug
-        // console.log('Selected Plan IDs:', existingLevel.sessionExerciseIds);
-        // console.log('Matched Selected Plans:', selectedPlans);
-
-
-        setSelectedPlans(selectedPlans);
-
-        // ✅ Handle videoFile (convert to previewable URL if File or string)
-
-
-        // console.log('existingLevel', existingLevel);
-    }, [activeTab, levels]);
-
-    //HOLDDD
-    useEffect(() => {
-        if (selectedGroup && isEditMode) {
-            // console.log('selectedGroup found ', selectedGroup)
-
-            const currentLevelData = levels.find((item) => item.level == activeTab);
-            setSelectedPlans(
-                (currentLevelData?.sessionExercises || []).map((exercise) => ({
-                    id: exercise.id,
-                    title: exercise.title || 'not found',
-                    duration: exercise.duration || 'not found',
-                }))
-            );
-
-        }
-    }, [activeTab, levels]);
 
 
     const planOptions = exercises?.map((plan) => ({
@@ -580,16 +598,23 @@ const Create = () => {
         data: plan, // to retain full plan data
     }));
 
+
+    console.log('planOptions', planOptions)
     const selectedOptions = selectedPlans.map((plan) => ({
         value: plan?.id,
         label: `${plan?.duration}: ${plan?.title}`,
         data: plan,
+        imageUrl: plan.imageUrl,
     }));
+
+
+    console.log('selectedPlans', selectedPlans)
     useEffect(() => {
         if (containerRef.current) {
             containerRef.current.scrollTop = containerRef.current.scrollHeight;
         }
     }, [selectedOptions]);
+
     const handleSelectChange = (selected) => {
         setSelectedPlans(selected ? selected.map((item) => item.data) : []);
     };
@@ -613,54 +638,52 @@ const Create = () => {
         setOpenForm(true);
 
     };
- useEffect(() => {
-  if (openForm) {
-    const isMobile = window.innerWidth <= 769; // mobile + tablet breakpoint
-    exerciseRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: isMobile ? '' : 'start', // scroll bottom on mobile, top on desktop
-    });
-  }
-}, [openForm]);
-
-  
-const handleDeletePlan = async (index, id) => {
-    const result = await Swal.fire({
-        title: 'Choose an action for this plan',
-        showCancelButton: true,
-        showDenyButton: true,
-        showConfirmButton: true,
-        confirmButtonText: 'Permanent Delete',
-        denyButtonText: 'Just Remove',
-        cancelButtonText: 'Do Nothing',
-    });
-
-    if (result.isConfirmed) {
-        // Permanent Delete
-        try {
-            await deleteExercise(id); // your API call
-            removeFromUI(index);      // remove from UI after backend success
-            Swal.fire('Deleted!', '', 'success');
-        } catch (error) {
-            Swal.fire('Error deleting!', '', 'error');
+    useEffect(() => {
+        if (openForm) {
+            const isMobile = window.innerWidth <= 769; // mobile + tablet breakpoint
+            exerciseRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: isMobile ? '' : 'start', // scroll bottom on mobile, top on desktop
+            });
         }
-    } else if (result.isDenied) {
-        // Just Remove from UI
-        removeFromUI(index);
-    }
-    // Cancel / Do Nothing → do nothing
-};
-const removeFromUI = (index) => {
-    const updated = [...selectedPlans];
-    updated.splice(index, 1);
-    setSelectedPlans(updated);
-};
-    const handleSavePlan = async () => {
-        console.log("🔹 handleSavePlan triggered");
-        console.log("Current formData:", formData);
-        console.log("editIndex:", editIndex);
+    }, [openForm]);
 
+
+    const handleDeletePlan = async (index, id) => {
+        const result = await Swal.fire({
+            title: 'Choose an action for this plan',
+            showCancelButton: true,
+            showDenyButton: true,
+            showConfirmButton: true,
+            confirmButtonText: 'Permanent Delete',
+            denyButtonText: 'Just Remove',
+            cancelButtonText: 'Do Nothing',
+        });
+
+        if (result.isConfirmed) {
+            // Permanent Delete
+            try {
+                await deleteExercise(id); // your API call
+                removeFromUI(index);      // remove from UI after backend success
+                Swal.fire('Deleted!', '', 'success');
+            } catch (error) {
+                Swal.fire('Error deleting!', '', 'error');
+            }
+        } else if (result.isDenied) {
+            // Just Remove from UI
+            removeFromUI(index);
+        }
+        // Cancel / Do Nothing → do nothing
+    };
+    const removeFromUI = (index) => {
+        const updated = [...selectedPlans];
+        updated.splice(index, 1);
+        setSelectedPlans(updated);
+    };
+    const handleSavePlan = async () => {
         const { title, duration, description, images } = formData;
+
+        console.log('formData---(35)',formData)
 
         const showAlert = ({ type = "info", message = "", title = "" }) => {
             Swal.fire({
@@ -672,6 +695,7 @@ const removeFromUI = (index) => {
             });
         };
 
+        // 🧩 Validation
         if (!title?.trim()) {
             showAlert({ type: "warning", message: "Title is required", title: "Missing Field" });
             return;
@@ -681,72 +705,105 @@ const removeFromUI = (index) => {
             return;
         }
 
-        const imageList = Array.isArray(images) ? images : [];
-        const hasValidImage = imageList.some(
-            (file) => file instanceof File || typeof file === "string"
-        );
-        if (!hasValidImage) {
-            showAlert({ type: "warning", message: "Please upload at least one image", title: "Missing Image" });
-            return;
-        }
-
         setPlanLoading(true);
 
         try {
+            // ---------------------- EDIT MODE ----------------------
             if (editIndex !== null) {
-                console.log("✏️ Editing existing plan");
                 const planToEdit = selectedPlans[editIndex];
                 const exerciseId = planToEdit?.id;
+                if (!exerciseId) throw new Error("Invalid exercise ID");
 
-                // 🔹 Update via API
-                const res = await updateSessionExercise(exerciseId, formData);
-                console.log("✅ API response:", res);
+                // ✅ Prepare API payload
+                const payload = {
+                    ...formData,
+                    existingImages: planToEdit.imageUrl || [], // keep previously saved images
+                    newImages: formData.images || [], // new uploaded files
+                };
 
-                // FIXED: use res.data (not res.data.data)
+                const res = await updateSessionExercise(exerciseId, payload);
                 const updatedExercise = res?.data?.data || res?.data;
+                if (!updatedExercise) throw new Error("Invalid API response");
 
-                if (!updatedExercise) {
-                    throw new Error("Invalid API response: missing exercise data");
-                }
+                // 🔧 Normalize image URLs before merging
+                const parseImageList = (val) => {
+                    if (!val) return [];
+                    try {
+                        if (Array.isArray(val)) return val;
+                        if (typeof val === "string") {
+                            const parsed = JSON.parse(val);
+                            return Array.isArray(parsed) ? parsed : [parsed];
+                        }
+                    } catch {
+                        // fallback: remove brackets/quotes manually
+                        return val
+                            .toString()
+                            .replace(/[\[\]"']/g, "")
+                            .split(",")
+                            .map((v) => v.trim())
+                            .filter(Boolean);
+                    }
+                    return [];
+                };
 
+                const oldImages = parseImageList(planToEdit.imageUrl);
+                const newImages = parseImageList(updatedExercise.images);
+
+                const mergedImages = Array.from(new Set([...oldImages, ...newImages])).filter(Boolean);
+
+                // 🔹 Update local state
                 const updatedPlans = selectedPlans.map((plan) =>
                     plan.id === exerciseId
                         ? {
                             ...plan,
-                            title: updatedExercise.title,
-                            duration: updatedExercise.duration,
-                            description: updatedExercise.description,
-                            imageUrl: updatedExercise.imageUrl, // ✅ URLs from backend
+                            title: updatedExercise.title || plan.title,
+                            duration: updatedExercise.duration || plan.duration,
+                            description: updatedExercise.description || plan.description,
+                            imageUrl: mergedImages,
                         }
                         : plan
                 );
 
-                console.log("✅ Updated plans:", updatedPlans);
-
                 setSelectedPlans(updatedPlans);
+
+                if (isEditMode) fetchGroupById();
+              
+
                 showAlert({ type: "success", message: "Exercise updated successfully!", title: "Updated" });
                 setEditIndex(null);
             }
+
+            // ---------------------- ADD MODE ----------------------
             else {
-                console.log("➕ Creating new plan");
                 const data = new FormData();
-                data.append("title", title);
-                data.append("duration", duration);
-                data.append("description", description);
-                imageList.forEach((file) => file instanceof File && data.append("images", file));
+
+                console.log('formDataaaaaaaaa',formData)
+                data.append("title", formData.title);
+                data.append("duration", formData.duration);
+                data.append("description", formData.description);
+
+                // append all image files
+                (formData.images || []).forEach((file) => {
+                    if (file instanceof File) data.append("images", file);
+                });
 
                 const res = await createSessionExercise(formData);
-                const newExercise = res?.data?.data;
+                const newExercise = res?.data?.data || res?.data;
+                if (!newExercise) throw new Error("Invalid API response");
 
                 showAlert({ type: "success", message: "Exercise saved successfully!", title: "Saved" });
-
-                // 🔹 Do NOT update selectedPlans here
-                // setSelectedPlans((prev) => [...prev, newExercise]);
+                // you can optionally refresh group if needed
+                // fetchGroupById();
             }
-            // ✅ Reset form
-            console.log("🧹 Clearing form");
-            setFormData({ title: "", duration: "", description: "", images: [] });
+
+            // ✅ Reset form and close modal
             setPhotoPreview([]);
+            setFormData({
+                title: "",
+                duration: "",
+                description: "",
+                images: [], // consistent field name (not image)
+            });
             setOpenForm(false);
         } catch (err) {
             console.error("❌ Error saving exercise:", err);
@@ -757,8 +814,10 @@ const removeFromUI = (index) => {
             });
         } finally {
             setPlanLoading(false);
+              fetchExercises()
         }
     };
+
 
 
 
@@ -821,6 +880,7 @@ const removeFromUI = (index) => {
         const doc = new DOMParser().parseFromString(html, 'text/html');
         return doc.body.textContent || '';
     };
+
     const handleTabClick = (tab) => {
         setActiveTab(tab);
         setPage(1);
@@ -832,19 +892,23 @@ const removeFromUI = (index) => {
 
         // 🔥 You were missing this line!
         // Handle per-tab video
-        const existingLevel = levels.find((lvl) => lvl.level === activeTab);
+        const existingLevel = levels.find((lvl) => lvl.level === tab);
+        console.log('tab', tab)
+        console.log('existingLevel (1)', existingLevel)
         if (existingLevel?.videoFile) {
             setVideoFiles((prev) => ({
                 ...prev,
-                [activeTab]: existingLevel.videoFile,
+                [tab]: existingLevel.videoFile,
             }));
         }
         if (existingLevel?.uploadFile) {
             setUploadFiles((prev) => ({
                 ...prev,
-                [activeTab]: existingLevel.uploadFile,
+                [tab]: existingLevel.uploadFile,
             }));
         }
+
+        console.log('existingLevel(1)', existingLevel)
 
         if (existingLevel) {
             setSkillOfTheDay(existingLevel.skillOfTheDay || "");
@@ -861,7 +925,7 @@ const removeFromUI = (index) => {
             setDescriptionSession(existingLevel.descriptionSession || "");
             setSelectedPlans(
                 existingLevel.sessionExerciseIds?.map(id =>
-                    planOptions.find(opt => opt.id === id)
+                    planOptions.find(opt => opt.value === id)
                 ).filter(Boolean) || []
             );
         } else {
@@ -883,12 +947,8 @@ const removeFromUI = (index) => {
         return 0; // keep original order if both selected or both unselected
     });
 
-    console.log('setFormData', formData)
-    console.log('photoPreview', photoPreview)
-    console.log('selectedPlans', selectedPlans)
-
     return (
-        <div className=" md:p-6 bg-gray-50 min-h-screen">
+        <div className=" md:p-6 md:pl-0 bg-gray-50 min-h-screen">
 
             <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2`}>
                 <h2
@@ -915,11 +975,11 @@ const removeFromUI = (index) => {
 
             </div>
 
-            <div className={`flex mobileBlock flex-col md:flex-row bg-white  rounded-3xl ${previewShowModal ? 'md:min-w-3/4  md:p-10' : 'w-full  md:p-12 p-4'}`}>
+            <div className={`flex mobileBlock flex-col gap-10 md:flex-row bg-white  rounded-3xl ${previewShowModal ? 'md:min-w-3/4  md:p-10' : 'w-full  md:p-12 p-4'}`}>
 
                 <>
                     <div className={`transition-all duration-300 fullWidthTabMobile w-full md:w-1/2`}>
-                        <div className="rounded-2xl  md:p-10 ">
+                        <div className="rounded-2xl  md:pe-10 mt-8 ">
                             <form className="mx-auto  space-y-4">
 
 
@@ -932,8 +992,9 @@ const removeFromUI = (index) => {
                                         onChange={(e) => setGroupNameSection(e.target.value)}
                                         type="text"
                                         required
+                                        disabled={isEditMode}
                                         placeholder="Enter Group Name"
-                                        className="w-full px-4 font-semibold text-[18px] py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className={`w-full px-4 font-semibold text-[18px] py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${isEditMode ? 'disabled cursor-not-allowed' : ''}`}
                                     />
                                 </div>
                                 {/* Description */}
@@ -1141,55 +1202,73 @@ const removeFromUI = (index) => {
                                             className="mt-4 space-y-2 border border-gray-200 px-4 py-3 rounded-lg max-h-28 overflow-auto"
                                         >
                                             {selectedPlans.length > 0 ? (
-                                                selectedPlans.map((plan, idx) => (
-                                                    <div
-                                                        key={plan.id || idx}
-                                                        className="flex items-center font-semibold justify-between"
-                                                    >
-                                                        <span>{`${plan.duration}: ${plan.title}`}</span>
+                                                selectedPlans.map((plan, idx) => {
+                                                    console.log('plan', plan)
+                                                    return (
+                                                        <div
+                                                            key={plan.id || idx}
+                                                            className="flex items-center font-semibold justify-between"
+                                                        >
+                                                            <span>{`${plan.duration || plan.data.duration}: ${plan.title || plan.label}`}</span>
 
-                                                        <div className="flex gap-2 i">
-                                                            <img
-                                                                src="/demo/synco/icons/edit2.png"
-                                                                alt="Edit"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setEditIndex(idx);
-                                                                    setFormData({
-                                                                        title: plan.title || "",
-                                                                        duration: plan.duration || "",
-                                                                        description: plan.description || "",
-                                                                        images: typeof plan.imageUrl === "string" ? JSON.parse(plan.imageUrl) : plan.imageUrl || [],
-                                                                    });
-                                                                    setPhotoPreview(
-                                                                        typeof plan.imageUrl === "string" ? JSON.parse(plan.imageUrl) : plan.imageUrl || []
-                                                                    );
-                                                                    setOpenForm(true);
-                                                                }}
-                                                                className="w-5 h-5 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
-                                                            />
-                                                            <button
-                                                            type="button"
-                                                                onClick={() =>
-                                                                    handleDuplicateExercise(plan.id)
-                                                                }
-                                                                className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
-                                                            >
-                                                                <Copy size={18} />
-                                                            </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleDeletePlan(idx, plan.id); // pass index and id
-                                                                }}
-                                                                className="text-gray-800 hover:text-red-500"
-                                                            >
-                                                                <Trash2 size={18} />
-                                                            </button>
+                                                            <div className="flex gap-2 i">
+                                                                <img
+                                                                    src="/demo/synco/icons/edit2.png"
+                                                                    alt="Edit"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setEditIndex(idx);
+
+                                                                        // Normalize existing images (from backend) for preview
+                                                                        const existingImages =
+                                                                            typeof plan.imageUrl === "string" && plan.imageUrl.trim() !== ""
+                                                                                ? JSON.parse(plan.imageUrl)
+                                                                                : Array.isArray(plan.imageUrl)
+                                                                                    ? plan.imageUrl
+                                                                                    : [];
+
+                                                                        setFormData({
+                                                                            title: plan.title || "",
+                                                                            duration: plan.duration || "",
+                                                                            description: plan.description || "",
+                                                                            images: [], // new uploads go here, always empty initially
+                                                                            imageUrl: existingImages, // backend URLs
+                                                                        });
+
+                                                                        // Previews show existing images
+                                                                        setPhotoPreview(existingImages);
+
+                                                                        setOpenForm(true);
+                                                                    }}
+
+                                                                    className="w-5 h-5 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        handleDuplicateExercise(plan.id)
+                                                                    }
+                                                                    className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                                                >
+                                                                    <Copy size={18} />
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleDeletePlan(idx, plan.id); // pass index and id
+                                                                    }}
+                                                                    className="text-gray-800 hover:text-red-500"
+                                                                >
+                                                                    <Trash2 size={18} />
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ))
+                                                    )
+                                                }
+
+
+                                                )
                                             ) : (
                                                 <div className="text-gray-400 italic py-3">  </div>
                                             )}

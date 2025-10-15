@@ -26,7 +26,7 @@ export const SessionPlanContextProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
-       console.log('result', result)
+      console.log('result', result)
       setSessionGroup(result.data || []);
     } catch (err) {
       console.error("Failed to fetch sessionGroup:", err);
@@ -38,7 +38,7 @@ export const SessionPlanContextProvider = ({ children }) => {
     async (formdata, shouldRedirect = false) => {
       if (!token) return;
 
-       console.log('formdata', formdata);
+      console.log('formdata', formdata);
 
       try {
         setLoading(true);
@@ -161,7 +161,7 @@ export const SessionPlanContextProvider = ({ children }) => {
         throw result;
       }
 
-       console.log("✅ Exercise created");
+      console.log("✅ Exercise created");
       await fetchExercises();
 
       return result; // return response if needed
@@ -170,47 +170,47 @@ export const SessionPlanContextProvider = ({ children }) => {
       throw err; // re-throw so caller can show dynamic alert
     }
   }, [token, fetchExercises]);
-const updateSessionExercise = useCallback(async (id, data) => {
-  if (!token) return;
-
-  try {
-    const formdata = new FormData();
-    formdata.append("title", data.title);
-    formdata.append("description", data.description);
-    formdata.append("duration", data.duration);
-
-    if (Array.isArray(data.images)) {
-      data.images.forEach((file) => {
-        formdata.append("images", file);
-      });
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/${id}`, {
-      method: "PUT", // ✅ Use PUT for update
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formdata,
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw result; // forward error to frontend
-    }
-
-    console.log("✅ Exercise updated");
-    await fetchExercises(); // refresh list after update
-
-    return result;
-  } catch (err) {
-    console.error("❌ Failed to update exercise:", err);
-    throw err;
-  }
-}, [token, fetchExercises]);
-    const duplicatePlan = useCallback(async (id) => {
+  const updateSessionExercise = useCallback(async (id, data) => {
     if (!token) return;
-     setLoading(true); // Start loading
+
+    try {
+      const formdata = new FormData();
+      formdata.append("title", data.title);
+      formdata.append("description", data.description);
+      formdata.append("duration", data.duration);
+
+
+      // ✅ send new uploaded files
+      if (Array.isArray(data.newImages) && data.newImages.length > 0) {
+        data.newImages.forEach((file) => {
+          if (file instanceof File) {
+            formdata.append("images", file);
+          }
+        });
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/${id}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formdata,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) throw result;
+
+      console.log("✅ Exercise updated");
+      await fetchExercises();
+      return result;
+    } catch (err) {
+      console.error("❌ Failed to update exercise:", err);
+      throw err;
+    }
+  }, [token, fetchExercises]);
+
+  const duplicatePlan = useCallback(async (id) => {
+    if (!token) return;
+    setLoading(true); // Start loading
     try {
       await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/${id}/duplicate`, {
         method: "POST",
@@ -218,7 +218,7 @@ const updateSessionExercise = useCallback(async (id, data) => {
       });
       await fetchExercises();
     } catch (err) {
-       setLoading(false); // Start loading
+      setLoading(false); // Start loading
       console.error("Failed :", err);
     }
   }, [token, fetchExercises]);
@@ -318,93 +318,93 @@ const updateSessionExercise = useCallback(async (id, data) => {
 
 
   // Update discount
-const updateDiscount = useCallback(async (id, data) => {
-  if (!token) return;
+  const updateDiscount = useCallback(async (id, data) => {
+    if (!token) return;
 
-  setLoading(true); // 🔵 Start loading
+    setLoading(true); // 🔵 Start loading
 
-  try {
-    const formdata = new FormData();
+    try {
+      const formdata = new FormData();
 
-    const appendMedia = (key, file) => {
-      if (file && typeof file !== "string") {
-        const fileName =
-          file instanceof File
-            ? file.name
-            : `${key}.${file.type === "audio/webm" ? "webm" : "mp3"}`;
-        formdata.append(key, file, fileName);
+      const appendMedia = (key, file) => {
+        if (file && typeof file !== "string") {
+          const fileName =
+            file instanceof File
+              ? file.name
+              : `${key}.${file.type === "audio/webm" ? "webm" : "mp3"}`;
+          formdata.append(key, file, fileName);
+        }
+      };
+
+      // Append media files
+      appendMedia("banner", data.banner);
+      appendMedia("banner_file", data.banner_file);
+      appendMedia("video_file", data.video_file);
+      appendMedia("video", data.video);
+
+      appendMedia("beginner_video", data.beginner_video);
+      appendMedia("beginner_banner", data.beginner_banner);
+
+      appendMedia("intermediate_video", data.intermediate_video);
+      appendMedia("intermediate_banner", data.intermediate_banner);
+
+      appendMedia("advanced_video", data.advanced_video);
+      appendMedia("advanced_banner", data.advanced_banner);
+      appendMedia("pro_video", data.pro_video);
+      appendMedia("pro_banner", data.pro_banner);
+
+      // 🔊 Append audio files dynamically (beginner_recording, intermediate_recording, etc.)
+      Object.keys(data).forEach((key) => {
+        if (key.endsWith("_upload")) {
+          appendMedia(key, data[key]);
+        }
+      });
+
+      // Append levels JSON
+      if (data.levels) {
+        formdata.append("levels", JSON.stringify(data.levels));
       }
-    };
 
-    // Append media files
-    appendMedia("banner", data.banner);
-    appendMedia("banner_file", data.banner_file);
-    appendMedia("video_file", data.video_file);
-    appendMedia("video", data.video);
-    
-    appendMedia("beginner_video", data.beginner_video);
-    appendMedia("beginner_banner", data.beginner_banner);
-    
-    appendMedia("intermediate_video", data.intermediate_video);
-    appendMedia("intermediate_banner", data.intermediate_banner);
-
-    appendMedia("advanced_video", data.advanced_video);
-    appendMedia("advanced_banner", data.advanced_banner);
-    appendMedia("pro_video", data.pro_video);
-    appendMedia("pro_banner", data.pro_banner);
-
-    // 🔊 Append audio files dynamically (beginner_recording, intermediate_recording, etc.)
-    Object.keys(data).forEach((key) => {
-      if (key.endsWith("_upload")) {
-        appendMedia(key, data[key]);
+      if (data.groupName) {
+        formdata.append("groupName", data.groupName);
       }
-    });
 
-    // Append levels JSON
-    if (data.levels) {
-      formdata.append("levels", JSON.stringify(data.levels));
+      if (data.player) {
+        formdata.append("player", data.player);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formdata,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) throw new Error(result.message || "Failed to update");
+
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: result.message || "Level updated successfully.",
+        confirmButtonColor: "#237FEA",
+      });
+
+      navigate("/configuration/weekly-classes/session-plan-list");
+      await fetchSessionGroup();
+    } catch (err) {
+      console.error("Failed to update discount:", err);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message || "Something went wrong.",
+      });
+    } finally {
+      setLoading(false); // 🔵 End loading
     }
-
-    if (data.groupName) {
-      formdata.append("groupName", data.groupName);
-    }
-
-    if (data.player) {
-      formdata.append("player", data.player);
-    }
-
-    const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formdata,
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) throw new Error(result.message || "Failed to update");
-
-    await Swal.fire({
-      icon: "success",
-      title: "Success",
-      text: result.message || "Level updated successfully.",
-      confirmButtonColor: "#237FEA",
-    });
-
-    navigate("/configuration/weekly-classes/session-plan-list");
-    await fetchSessionGroup();
-  } catch (err) {
-    console.error("Failed to update discount:", err);
-    await Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: err.message || "Something went wrong.",
-    });
-  } finally {
-    setLoading(false); // 🔵 End loading
-  }
-}, [token, fetchSessionGroup, navigate, setLoading]);
+  }, [token, fetchSessionGroup, navigate, setLoading]);
 
 
 
@@ -424,9 +424,9 @@ const updateDiscount = useCallback(async (id, data) => {
 
 
   //duplicate  
-    const duplicateSession = useCallback(async (id) => {
+  const duplicateSession = useCallback(async (id) => {
     if (!token) return;
-     setLoading(true); // Start loading
+    setLoading(true); // Start loading
     try {
       await fetch(`${API_BASE_URL}/api/admin/session-plan-group/${id}/duplicate`, {
         method: "POST",
@@ -434,7 +434,7 @@ const updateDiscount = useCallback(async (id, data) => {
       });
       await fetchSessionGroup();
     } catch (err) {
-       setLoading(false); // Start loading
+      setLoading(false); // Start loading
       console.error("Failed to delete discount:", err);
     }
   }, [token, fetchSessionGroup]);

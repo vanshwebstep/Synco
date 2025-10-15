@@ -18,8 +18,8 @@ const Create = () => {
     const [searchParams] = useSearchParams();
     const id = searchParams.get("id");
     const level = searchParams.get("level");
-    const tabs = ['beginner', 'intermediate', 'advanced', 'pro'];
-    const [activeTab, setActiveTab] = useState('beginner');
+    const tabs = ['beginners', 'intermediate', 'advanced', 'pro'];
+    const [activeTab, setActiveTab] = useState('beginners');
     const fileInputRef = useRef(null);
     const [page, setPage] = useState(1);
     const [groupName, setGroupName] = useState('');

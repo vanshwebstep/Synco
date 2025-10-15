@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Create from '../Create';
 import { Check } from "lucide-react";
 import Loader from '../../../../contexts/Loader';
@@ -21,6 +21,43 @@ const List = () => {
     const [sessionStates, setSessionStates] = useState({});
     const [openDropdownSessionId, setOpenDropdownSessionId] = useState(null);
 
+    const startRef = useRef(null);
+    const endRef = useRef(null);
+
+    // ✅ Scroll to 8:00 AM in the time list
+    const scrollTo8AM = () => {
+        requestAnimationFrame(() => {
+            const list = document.querySelector(".react-datepicker__time-list");
+            if (!list) return;
+
+            const target = Array.from(list.children).find((el) =>
+                el.textContent?.trim().includes("8:00")
+            );
+
+            if (target) target.scrollIntoView({ block: "center", behavior: "smooth" });
+        });
+    };
+
+    // ✅ Scroll to the start time dynamically (safe + formatted)
+    const scrollToStartTime = () => {
+        if (!formData?.startTime) return; // avoid running if undefined/null
+
+        requestAnimationFrame(() => {
+            const list = document.querySelector(".react-datepicker__time-list");
+            if (!list) return;
+
+            // Normalize the time (e.g., "08:00 AM" → "8:00", handle 24h/12h formats)
+            const normalizedTime = formData.startTime
+                .replace(/^0+/, "") // remove leading zero
+                .replace(/\s?(AM|PM)$/i, ""); // remove AM/PM if present
+
+            const target = Array.from(list.children).find((el) =>
+                el.textContent?.trim().includes(normalizedTime)
+            );
+
+            if (target) target.scrollIntoView({ block: "center", behavior: "smooth" });
+        });
+    };
 
     // console.log('openDropdownSessionId', openDropdownSessionId)
     const { fetchClassSchedules, createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
@@ -43,6 +80,9 @@ const List = () => {
         (item) => item.venueId == venueId
     );
 
+    console.log('classSchedules', classSchedules)
+    console.log('filteredSchedules', filteredSchedules)
+
     // console.log('Filtered Class Schedules:', classSchedules);
     const formatDateToTimeString = (date) => {
         if (!date) return "";
@@ -50,7 +90,6 @@ const List = () => {
     };
 
 
-    const [openTerms, setOpenTerms] = useState({});
 
     const [showModal, setShowModal] = useState(false);
     const [clickedIcon, setClickedIcon] = useState(null);
@@ -63,28 +102,43 @@ const List = () => {
         setIsEditing(true);
         setOpenForm(true);
     };
+    const [openTerms, setOpenTerms] = useState(() => {
+        const saved = localStorage.getItem("openTerms");
+        return saved ? JSON.parse(saved) : {};
+    });
+
     const toggleTerm = (termId) => {
-        setOpenTerms((prev) => ({
-            ...prev,
-            [termId]: !prev[termId],
-        }));
+        setOpenTerms((prev) => {
+            const updated = { ...prev, [termId]: !prev[termId] };
+            localStorage.setItem("openTerms", JSON.stringify(updated));
+            return updated;
+        });
     };
 
-    const [openClassIndex, setOpenClassIndex] = useState(null);
+    // --- CLASS OPEN STATE ---
+    const [openClassIndex, setOpenClassIndex] = useState(() => {
+        const saved = localStorage.getItem("openClassIndex");
+        return saved ? JSON.parse(saved) : null;
+    });
 
     const toggleSessions = (index) => {
-        setOpenClassIndex(openClassIndex === index ? null : index);
+        setOpenClassIndex((prev) => {
+            const newIndex = prev === index ? null : index;
+            localStorage.setItem("openClassIndex", JSON.stringify(newIndex));
+            return newIndex;
+        });
     };
+
     // Reset for new form
     const handleAddNew = () => {
         setFormData({
-    className: '',
-    capacity: '',
-    day: "Saturday", // default selected
-    startTime: null,
-    endTime: null,
-    allowFreeTrial: false
-})
+            className: '',
+            capacity: '',
+            day: classSchedules[0]?.day, // default selected
+            startTime: null,
+            endTime: null,
+            allowFreeTrial: false
+        })
         setIsEditing(false);
         setOpenForm(true);
     };
@@ -93,14 +147,14 @@ const List = () => {
     const [value, setValue] = useState('Some text');
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const { venues, isEditVenue, setIsEditVenue, fetchVenues } = useVenue()
-  const [formData, setFormData] = useState({
-    className: '',
-    capacity: '',
-    day: "Saturday", // default selected
-    startTime: null,
-    endTime: null,
-    allowFreeTrial: false
-});
+    const [formData, setFormData] = useState({
+        className: '',
+        capacity: '',
+        day: classSchedules[0]?.day, // default selected
+        startTime: null,
+        endTime: null,
+        allowFreeTrial: false
+    });
 
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const toggleCheckbox = (userId) => {
@@ -302,7 +356,12 @@ const List = () => {
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`md:flex pe-4 justify-between items-center mb-4 w-full`}>
-                <h2 onClick={() => navigate('/configuration/weekly-classes/venues/')} className="md:text-[28px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center  p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" /> Edit Class Schedule</h2>
+                <h2 onClick={() => {
+                    navigate('/configuration/weekly-classes/venues/');
+                    localStorage.removeItem("openClassIndex"); // clear all stored states
+                    localStorage.removeItem("openTerms"); // clear all stored states
+
+                }} className="md:text-[28px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center  p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" /> Edit Class Schedule</h2>
                 {canCreate &&
                     <button
                         onClick={() => handleAddNew()}
@@ -406,7 +465,7 @@ const List = () => {
                                                                             className="mb-4 mt-2 border-b border-gray-300 flex justify-between items-center cursor-pointer"
                                                                         >
 
-                                                                            <div className='flex mb-4 items-center gap-4 justify-start'>
+                                                                            <div className='flex mb-4 items-center gap-8 justify-start'>
                                                                                 <div><img src="/demo/synco/icons/blackarrowup.png" className={`${openTerms[term.id] ? "" : "rotate-180"} transition-transform`} alt="" /></div>
                                                                                 <div> <p className="font-semibold text-[16px] ">{term.termName}</p>
                                                                                     <p className="text-[14px]">
@@ -433,7 +492,7 @@ const List = () => {
                                                                                 const sessionMaps = session.sessionPlan || [];
                                                                                 // console.log('sessionsssss', session)
                                                                                 const sessionState = sessionStates[session.sessionPlanId] || {};
-
+console.log('sessionMaps',session?.sessionPlan)
                                                                                 const handleToggleDropdown = (sessionId) => {
                                                                                     // console.log('---handleToggleDropdown called---');
                                                                                     // console.log('Previous sessionStates:', sessionStates);
@@ -494,16 +553,17 @@ const List = () => {
                                                                                         // console.log('No sessionMap selected, navigation skipped');
                                                                                     }
                                                                                 };
+                                                                                console.log('session (10)', session)
 
                                                                                 return (
                                                                                     <div
                                                                                         key={session.id}
-                                                                                        className="grid grid-cols-1 md:grid-cols-[1fr_1fr_2.5fr] gap-4 items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
+                                                                                        className="flex justify-between gap-4 items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
                                                                                     >
                                                                                         {/* Title and Date */}
                                                                                         <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm">
                                                                                             <span className="text-[15px] font-semibold truncate md:min-w-[200px]">
-                                                                                                {session?.sessionPlan?.groupName}
+                                                                                                {session?.sessionPlan?.groupName || 'N/A'}
                                                                                             </span>
                                                                                             <span className="text-[15px] text-gray-600 truncate md:min-w-[200px]">
                                                                                                 {new Date(session.sessionDate).toLocaleDateString("en-US", {
@@ -517,17 +577,21 @@ const List = () => {
 
                                                                                         {/* Status */}
                                                                                         <div className="flex items-center gap-2 text-sm">
-                                                                                            <span className="rounded-full flex items-center gap-2 font-medium text-[15px]">
-                                                                                                {session?.classScheduleTermMaps?.status === "pending" && (
+                                                                                            <span className="rounded-full flex items-center gap-2 font-medium capitalize text-[15px]">
+                                                                                                {session?.sessionPlan?.status === "pending" && (
                                                                                                     <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" />
                                                                                                 )}
-                                                                                                {session?.classScheduleTermMaps?.status === "completed" && (
+                                                                                                {session?.sessionPlan?.status === "completed" && (
                                                                                                     <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="Complete" />
                                                                                                 )}
-                                                                                                {session?.classScheduleTermMaps?.status === "cancelled" && (
+                                                                                                {session?.sessionPlan?.status === "cancelled" && (
                                                                                                     <img src="/demo/synco/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
                                                                                                 )}
-                                                                                                {session?.classScheduleTermMaps?.status || "Pending"}
+                                                                                                {session?.sessionPlan?.status || (
+                                                                                                    <>
+                                                                                                        <img src="/demo/synco/icons/pending.png" className="w-4 h-4 inline" alt="Pending" /> Pending
+                                                                                                    </>
+                                                                                                )}
                                                                                             </span>
                                                                                         </div>
 
@@ -544,11 +608,11 @@ const List = () => {
                                                                                                                 venueId,
                                                                                                                 sessionDate: session.sessionDate,
                                                                                                                 classname: item,
-                                                                                                                statusIs: session?.classScheduleTermMaps?.status,
+                                                                                                                statusIs: session?.sessionPlan?.status,
                                                                                                             },
                                                                                                         })
                                                                                                     }
-                                                                                                    className="px-6 py-3 bg-[#237FEA] text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
+                                                                                                    className="px-4 py-3 bg-[#237FEA] text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
                                                                                                 >
                                                                                                     View Session Plan
                                                                                                 </button>
@@ -556,7 +620,7 @@ const List = () => {
 
                                                                                             <button
                                                                                                 onClick={() =>
-                                                                                                    navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/completed', {
+                                                                                                    navigate(`/configuration/weekly-classes/venues/class-schedule/Sessions/completed?id=${item.id}`, {
                                                                                                         state: {
                                                                                                             singleClassSchedules,
                                                                                                             sessionMap: session.sessionPlan,
@@ -564,7 +628,7 @@ const List = () => {
                                                                                                             venueId,
                                                                                                             sessionDate: session.sessionDate,
                                                                                                             classname: item,
-                                                                                                            statusIs: session?.classScheduleTermMaps?.status,
+                                                                                                            statusIs: session?.sessionPlan?.status,
                                                                                                         },
                                                                                                     })
                                                                                                 }
@@ -575,18 +639,21 @@ const List = () => {
 
                                                                                             {cancelSession && (
                                                                                                 <button
-                                                                                                    onClick={() =>
-                                                                                                        navigate(
-                                                                                                            "/configuration/weekly-classes/venues/class-schedule/Sessions/cancel",
-                                                                                                            {
-                                                                                                                state: {
-                                                                                                                    sessionId: session.classScheduleTermMaps.id || session.classScheduleTermMaps.classScheduleId,
-                                                                                                                    schedule: item,
-                                                                                                                    canceled: session?.classScheduleTermMaps?.status === "cancelled",
-                                                                                                                },
-                                                                                                            }
-                                                                                                        )
-                                                                                                    }
+                                                                                                    onClick={() => {
+                                                                                                        console.log("session:", session);
+                                                                                                        console.log("session.classScheduleTermMaps:", session?.classScheduleTermMaps);
+
+                                                                                                        navigate("/configuration/weekly-classes/venues/class-schedule/Sessions/cancel", {
+                                                                                                            state: {
+                                                                                                            statusIs: session?.classScheduleTermMaps?.status,
+
+                                                                                                                sessionId: session?.sessionPlan?.mapId,
+                                                                                                                schedule: item,
+                                                                                                                canceled: session?.classScheduleTermMaps?.status === "cancelled",
+                                                                                                            },
+                                                                                                        });
+                                                                                                    }}
+
                                                                                                     className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
           ${session?.classScheduleTermMaps?.status === "cancelled"
                                                                                                             ? "bg-white text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
@@ -617,7 +684,7 @@ const List = () => {
                             </div>
 
                         ) : (
-                            <p className='text-center  p-4 border-dotted border rounded-md'>No Members Found</p>
+                            <p className='text-center  p-4 border-dotted border rounded-md'>No Data Found</p>
                         )
                     }
                 </div>
@@ -676,7 +743,7 @@ const List = () => {
                                         <div className='w-1/2'>
                                             <label htmlFor="">Day</label>
                                             <select
-                                                value={formData.day }
+                                                value={formData.day}
                                                 onChange={(e) => handleChange('day', e.target.value)}
                                                 className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
                                             >
@@ -686,43 +753,39 @@ const List = () => {
                                                 ))}
                                             </select>
                                         </div>
-                                            <div className='flex w-1/2 gap-4'>
-                                                <div className='w-1/2'>
+                                        <div className='flex w-1/2 gap-4'>
+                                            <div className="flex gap-4">
+                                                <div className="w-1/2">
                                                     <label>Start Time</label>
                                                     <DatePicker
-                                                    
                                                         selected={parseTimeStringToDate(formData?.startTime)}
-                                                        onChange={(date) =>
-                                                            handleChange('startTime', formatDateToTimeString(date))
-                                                        }
-
+                                                        onChange={(date) => handleChange("startTime", formatDateToTimeString(date))}
                                                         showTimeSelect
                                                         showTimeSelectOnly
                                                         timeIntervals={15}
                                                         dateFormat="h:mm aa"
                                                         timeCaption="Time"
+                                                        onCalendarOpen={scrollTo8AM}
                                                         className="w-full px-3 py-2 border border-gray-300 rounded-xl"
                                                     />
                                                 </div>
 
-                                                <div className='w-1/2'>
+                                                <div className="w-1/2">
                                                     <label>End Time</label>
                                                     <DatePicker
                                                         selected={parseTimeStringToDate(formData?.endTime)}
-                                                        onChange={(date) =>
-                                                            handleChange('endTime', formatDateToTimeString(date))
-                                                        }
+                                                        onChange={(date) => handleChange("endTime", formatDateToTimeString(date))}
                                                         showTimeSelect
-
                                                         showTimeSelectOnly
                                                         timeIntervals={15}
                                                         dateFormat="h:mm aa"
                                                         timeCaption="Time"
+                                                        onCalendarOpen={scrollToStartTime}
                                                         className="w-full px-3 py-2 border border-gray-300 rounded-xl"
-
                                                     />
                                                 </div>
                                             </div>
+                                        </div>
 
 
                                     </div>

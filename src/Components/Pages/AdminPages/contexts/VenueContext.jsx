@@ -15,11 +15,13 @@ export const VenueProvider = ({ children }) => {
     name: "",
     address: "",
     facility: "",
+    termGroupId: [],
     parking: false,
     congestion: false,
     parkingNote: "",
     entryNote: "",
   });
+   const [openForm, setOpenForm] = useState(false);
 
   const fetchVenues = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
@@ -60,7 +62,7 @@ const createVenues = async (venueData) => {
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/admin/venue/`, requestOptions);
+    const response = await fetch(`${API_BASE_URL}/api/admin/venue`, requestOptions);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -89,7 +91,13 @@ const createVenues = async (venueData) => {
       confirmButtonText: "OK",
     });
 
-    fetchVenues();
+    await fetchVenues();
+     setOpenForm(null)
+     setFormData({
+      area: "", name: "", address: "", facility: "",
+      hasParking: false, isCongested: false, parkingNote: "",
+      howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
+    });
     return result;
   } catch (error) {
     console.error("Error creating venue:", error);
@@ -143,7 +151,8 @@ const createVenues = async (venueData) => {
         confirmButtonText: "OK",
       });
 
-      fetchVenues();
+      await fetchVenues();
+      setOpenForm(null)
       return result;
     } catch (error) {
       console.error("Error updating venue:", error);
@@ -182,6 +191,7 @@ const deleteVenue = useCallback(async (id) => {
     });
 
     await fetchVenues(); // Refresh the list
+    setIsEditVenue(null)
   } catch (err) {
     console.error("Failed to delete venue:", err);
     await Swal.fire({
@@ -196,7 +206,7 @@ const deleteVenue = useCallback(async (id) => {
 
   return (
     <VenueContext.Provider
-      value={{ venues, createVenues, updateVenues, deleteVenue, formData, setFormData, isEditVenue, setIsEditVenue, setVenues, fetchVenues, loading }}>
+      value={{ venues, createVenues, updateVenues, deleteVenue,openForm, setOpenForm, formData, setFormData, isEditVenue, setIsEditVenue, setVenues, fetchVenues, loading }}>
       {children}
     </VenueContext.Provider>
   );

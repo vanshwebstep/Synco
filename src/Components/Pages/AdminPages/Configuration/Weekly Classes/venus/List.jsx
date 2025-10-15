@@ -6,7 +6,7 @@ import Loader from '../../../contexts/Loader';
 import { useVenue } from '../../../contexts/VenueContext';
 import { usePayments } from '../../../contexts/PaymentPlanContext';
 import Swal from "sweetalert2"; // make sure it's installed
-import PlanTabs from '../../Weekly Classes/Find a class/PlanTabs';
+import PlanTabs from '../../../Weekly Classes/Find a class/PlanTabs';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useTermContext } from '../../../contexts/TermDatesSessionContext';
@@ -87,7 +87,7 @@ const List = () => {
   const { fetchTermGroup, termGroup, fetchTerm, termData } = useTermContext()
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading } = useVenue()
+  const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading,openForm, setOpenForm } = useVenue()
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
@@ -109,6 +109,7 @@ const List = () => {
 
 
   const handleDelete = (id) => {
+    setOpenForm(null);
     Swal.fire({
       title: 'Are you sure?',
       text: 'This action will permanently delete the venue.',
@@ -128,7 +129,7 @@ const List = () => {
     });
   };
 
-  const [openForm, setOpenForm] = useState(false);
+ 
 
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   useEffect(() => {
@@ -178,46 +179,47 @@ const List = () => {
     setToDate(null);
   };
 
-  const getDateStatus = (date) => {
-    let isStartOrEnd = false;
-    let isInBetween = false;
-    let isExcluded = false;
-    let isSessionDate = false; // NEW
+const getDateStatus = (date) => {
+  if (!date) return {};
 
-    congestionNote.forEach((term) => {
-      const start = new Date(term.startDate);
-      const end = new Date(term.endDate);
+  let isStartOrEnd = false;
+  let isInBetween = false;
+  let isExcluded = false;
+  let isSessionDate = false;
 
-      if (!date) return;
+  const targetDate = new Date(date);
 
-      // Start / End
-      if (isSameDate(date, start) || isSameDate(date, end)) {
-        isStartOrEnd = true;
+  congestionNote.forEach((term) => {
+    const start = new Date(term.startDate);
+    const end = new Date(term.endDate);
+
+    // Start / End
+    if (isSameDate(targetDate, start) || isSameDate(targetDate, end)) {
+      isStartOrEnd = true;
+    }
+    // In Between (excluding exact start/end)
+    else if (targetDate > start && targetDate < end) {
+      isInBetween = true;
+    }
+
+    // Exclusion Dates
+    term.exclusionDates?.forEach((ex) => {
+      if (isSameDate(targetDate, new Date(ex))) {
+        isExcluded = true;
       }
-      // In Between
-      else if (date >= start && date <= end) {
-        isInBetween = true;
-      }
-
-      // Exclusion Dates
-      term.exclusionDates?.forEach((ex) => {
-        const exclusionDate = new Date(ex);
-        if (isSameDate(date, exclusionDate)) {
-          isExcluded = true;
-        }
-      });
-
-      // Session Dates (NEW)
-      term.sessionsMap?.forEach((session) => {
-        const sessionDate = new Date(session.sessionDate);
-        if (isSameDate(date, sessionDate)) {
-          isSessionDate = true;
-        }
-      });
     });
 
-    return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
-  };
+    // Session Dates
+    term.sessionsMap?.forEach((session) => {
+      if (isSameDate(targetDate, new Date(session.sessionDate))) {
+        isSessionDate = true;
+      }
+    });
+  });
+
+  return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
+};
+
 
   // console.log('congestionNote',congestionNote)
   const isSameDate = (d1, d2) =>
@@ -606,7 +608,7 @@ const List = () => {
                 </table>
               </div>
             ) : (
-              <p className='text-center  p-4 border-dotted border rounded-md'>No Members Found</p>
+              <p className='text-center  p-4 border-dotted border rounded-md'>No Data Found</p>
             )
           }
         </div>

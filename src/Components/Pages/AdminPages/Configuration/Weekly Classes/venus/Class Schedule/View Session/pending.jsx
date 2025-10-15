@@ -15,6 +15,7 @@ const ViewSessions = ({ item, sessionData }) => {
   const sessionDate = location.state?.sessionDate;
   const className = location.state?.classname;
   const statusIs = location.state?.statusIs;
+  console.log('statusIs',statusIs)
 
 
   const selectedGroup = sessionMap;
@@ -120,6 +121,9 @@ const ViewSessions = ({ item, sessionData }) => {
 
   // Output: Sunday 23rd April 2023
 
+
+  console.log('currentContent', currentContent)
+
   return (
     <div className="md:p-6 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -164,10 +168,10 @@ const ViewSessions = ({ item, sessionData }) => {
         </div>
 
         {/* Right Content */}
-          <div className="w-full md:w-10/12 space-y-6">
+        <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
           <div className="flex w-full flex-col lg:flex-row gap-6">
-            <div className="w-full bg-white  lg:w-1/2 flex gap-4 border border-gray-300 p-2 rounded-2xl justify-between  flex-wrap me-5">
+            <div className="w-full bg-white  lg:w-1/2 flex gap-4 border border-gray-300 p-2 rounded-2xl   flex-wrap me-5">
               {dynamicTabs.map((tab) => (
                 <button
                   key={tab}
@@ -222,10 +226,25 @@ const ViewSessions = ({ item, sessionData }) => {
                   <img src="/demo/synco/icons/downloadicon.png" alt="" />
                 </div>
                 <div>
-                  <p className="text-sm flex items-center gap-2 text-gray-500  pb-3">
-                    <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
-                    {currentContent.videoUploadedAgo || 'N/A'}
-                  </p>
+                  {/* {currentContent.videoUploadedAgo && (
+                    <p className="text-sm flex flex-wrap items-center gap-3 text-gray-500 pb-3">
+                      <img
+                        src="/demo/synco/members/Time-Circle.png"
+                        className="w-4 h-4"
+                        alt=""
+                      />
+                      {Object.entries(currentContent.videoUploadedAgo)
+                        .filter(([_, value]) => value) // ignore nulls
+                        .map(([key, value]) => (
+                          <span key={key}>
+                            {key.replace("_video", "").replace(/^\w/, c => c.toUpperCase())}:{" "}
+                            {value}
+                          </span>
+                        ))}
+                    </p>
+                  )} */}
+
+
                 </div>
 
                 {currentContent.sessionExercises?.length > 0 && (
@@ -278,7 +297,7 @@ const ViewSessions = ({ item, sessionData }) => {
                   <div className="flex flex-wrap justify-start gap-2 w-full my-5 ">
                     {selectedExercise.imageUrl ? (
                       JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
-                       <img
+                        <img
                           key={index}
                           className="rounded-2xl object-cover lg:w-[400px] mr-2 min-h-50 max-h-[220px] mb-2"
                           src={`${imgUrl}`}

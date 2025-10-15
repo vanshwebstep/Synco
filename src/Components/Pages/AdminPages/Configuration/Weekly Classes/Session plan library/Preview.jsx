@@ -142,7 +142,7 @@ console.log(selectedExercise?.description);
 
   console.log('currentContent', currentContent)
   return (
-    <div className="md:py-6 bg-gray-50 min-h-screen">
+    <div className="md:py-6 bg-gray-50 min-h-screen preview-sec">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
         <h2
@@ -165,7 +165,7 @@ console.log(selectedExercise?.description);
         <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
           <div className="flex w-full flex-col lg:flex-row gap-6">
-            <div className="w-full bg-white  lg:w-1/2 flex gap-2 border border-gray-300 p-2 rounded-2xl justify-between  flex-wrap">
+            <div className="w-full bg-white  lg:w-1/2 flex gap-2 border border-gray-300 p-2 rounded-2xl flex-wrap">
               {dynamicTabs.map((tab) => (
                 <button
                   key={tab}
@@ -200,7 +200,7 @@ console.log(selectedExercise?.description);
                 <h2 className="font-semibold text-[28px] mb-0 mt-5">
                   Skill of the Day
                 </h2>
-                <p className="text-[20px] flex items-center gap-2 font-semibold">
+                <p className="text-[20px] flex items-center gap-2 font-semibold my-3">
                   {/* {currentContent?.player} */}
                   {currentContent.heading} <img
                     src="/demo/synco/icons/Volumeblue.png"
@@ -221,7 +221,7 @@ console.log(selectedExercise?.description);
                     className="w-full  pt-3 rounded-4xl"
                   />
                 )}
-                <div className='flex items-center  mb-0 justify-between' >
+                <div className='flex items-center  mb-0 mt-4 justify-between' >
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
                   </h2>
@@ -351,7 +351,7 @@ console.log(selectedExercise?.description);
                       <p>No images available</p>
                     )}
                   </div>
-                  <p className="text-blue-500 text-[14px] mt-4 font-semibold">
+                  <p className="text-blue-500 text-[14px] mt-7 font-semibold mb-5">
                     Time Duration: {selectedExercise.duration || '—'}
                   </p>
 
@@ -359,7 +359,7 @@ console.log(selectedExercise?.description);
                     <div>
                       
                       <div
-                      className="prose prose-sm max-w-none text-gray-700
+                      className="prose prose-sm space-y-6 max-w-none text-gray-700
     prose-p:mb-3 prose-li:mb-2
     prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
     prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5

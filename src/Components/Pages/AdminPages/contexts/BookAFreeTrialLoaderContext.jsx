@@ -220,7 +220,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/trial/list`)
+      navigate(`/weekly-classes/trial/list`)
       return result;
 
     } catch (error) {
@@ -421,7 +421,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/trial/list`)
+      navigate(`/weekly-classes/trial/list`)
       return result;
 
     } catch (error) {
@@ -467,7 +467,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         text: result.message || "Trialsssssss has been created successfully.",
         icon: "success",
         confirmButtonText: "OK",
-      }); navigate(`/configuration/weekly-classes/trial/list`)
+      }); navigate(`/weekly-classes/trial/list`)
 
       return result;
 
@@ -516,7 +516,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/trial/list`)
+      navigate(`/weekly-classes/trial/list`)
       return result;
 
     } catch (error) {
@@ -563,7 +563,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/trial/list`);
+      navigate(`/weekly-classes/trial/list`);
 
       return result;
 
@@ -739,7 +739,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/all-members/list`)
+      navigate(`/weekly-classes/all-members/list`)
       return result;
 
     } catch (error) {
@@ -767,7 +767,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/send-email`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/send/email`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -800,7 +800,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
       });
       throw error;
     } finally {
-      navigate(`/configuration/weekly-classes/all-members/list`);
+      navigate(`/weekly-classes/all-members/list`);
 
       await fetchBookMemberships();
       setLoading(false);
@@ -837,9 +837,9 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -888,9 +888,9 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -939,9 +939,9 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -1001,9 +1001,9 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
       });
 
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -1187,14 +1187,14 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
 
       await Swal.fire({
         title: "Success!",
-        text: result.message || "Trialsssssss has been created successfully.",
+        text: result.message || "Trials has been created successfully.",
         icon: "success",
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -1312,7 +1312,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/cancel/waiting-list-spot`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/waiting-list/from/remove`, {
         method: "PUT",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -1332,9 +1332,9 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -1514,7 +1514,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/find-a-class/add-to-waiting-list/list`)
+      navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`)
       return result;
 
     } catch (error) {

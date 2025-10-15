@@ -1,5 +1,6 @@
 // src/components/ServiceHistory.jsx
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 
 const formatDate = (dateString, withTime = false) => {
   if (!dateString) return "-";
@@ -21,8 +22,9 @@ const formatDate = (dateString, withTime = false) => {
 };
 
 
-const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
+const ServiceHistory = ({ serviceHistory, itemId ,labels = {}, comesFrom }) => {
   if (!serviceHistory) return null;
+  const navigate = useNavigate();
 
   const {
     bookingId,
@@ -48,7 +50,7 @@ const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
     cancelled: "bg-red-500 text-white",
     request_to_cancel: "bg-white text-red-500 border",
   };
-   console.log('comesFrom,cancellation', serviceHistory)
+   console.log('itemId,itemId', itemId)
   return (
     <div className="transition-all duration-300 flex-1 bg-white">
       <div className="rounded-4xl w-full">
@@ -270,6 +272,7 @@ const ServiceHistory = ({ serviceHistory, labels = {}, comesFrom }) => {
                     ]).map((btn, i) => (
                       <button
                         key={i}
+                         onClick={() => navigate(`/weekly-classes/all-members/see-details?id=${itemId}`)}
                         className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[15px] font-medium"
                       >
                         {btn}

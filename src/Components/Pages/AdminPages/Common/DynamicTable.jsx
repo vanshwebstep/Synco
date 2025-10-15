@@ -15,12 +15,12 @@ const DynamicTable = ({ columns, data, from, selectedIds, setSelectedStudents, o
 
 
   return (
-    <div className="overflow-auto mt-5 rounded-4xl w-full">
-      <table className="min-w-full rounded-4xl bg-white text-sm border border-[#E2E1E5]">
-        <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
+<div className="mt-5 w-full rounded-2xl overflow-hidden border border-[#E2E1E5]">
+   <div className="overflow-auto"> <table className="min-w-full bg-white text-sm border-separate border-spacing-0">
+      <thead className="bg-[#F5F5F5]">
           <tr className="font-semibold">
             {columns.map((col, idx) => (
-              <th key={idx} className="p-4 text-[#717073]">
+              <th key={idx} className="p-4 text-[#717073] whitespace-nowrap">
                 {col.header}
               </th>
             ))}
@@ -50,7 +50,7 @@ const DynamicTable = ({ columns, data, from, selectedIds, setSelectedStudents, o
                         return (
                           <td
                             key={cIdx}
-                            className="p-4 cursor-pointer"
+                            className="p-4 cursor-pointer whitespace-nowrap"
                           >
                             <div className="flex items-center gap-3">
                               <button
@@ -83,7 +83,7 @@ const DynamicTable = ({ columns, data, from, selectedIds, setSelectedStudents, o
                       // ✅ Custom render
                       if (col.render) {
                         return (
-                          <td key={cIdx} className="p-4   hj">
+                          <td key={cIdx} className="p-4   hj whitespace-nowrap">
                             {col.render(item, student)}
                           </td>
                         );
@@ -91,7 +91,7 @@ const DynamicTable = ({ columns, data, from, selectedIds, setSelectedStudents, o
 
                       // ✅ Default value lookup
                       return (
-                        <td key={cIdx} className="p-4">
+                        <td key={cIdx} className="p-4 whitespace-nowrap">
                           {item[col.key] || student[col.key] || "-"}
                         </td>
                       );
@@ -113,7 +113,8 @@ const DynamicTable = ({ columns, data, from, selectedIds, setSelectedStudents, o
           )}
         </tbody>
       </table>
-    </div>
+  
+  </div>  </div>
   );
 
 };

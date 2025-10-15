@@ -909,33 +909,36 @@ console.log('isExistingTerm',isExistingTerm)
                                                             Start Date
                                                         </label>
                                                         <DatePicker
-                                                            disabled={!term.day}
-                                                            placeholderText="Enter Start Date"
-                                                            selected={null}
-                                                            value={
-                                                                term.startDate
-                                                                    ? new Date(term.startDate + "T00:00:00").toLocaleDateString("en-GB", {
-                                                                        weekday: "long",
-                                                                        day: "2-digit",
-                                                                        month: "short",
-                                                                    }).replace(/(\w+)\s/, "$1, ") // Adds a comma after weekday
-                                                                    : ""
-                                                            }
+    disabled={!term.day}
+    placeholderText="Enter Start Date"
+    selected={null}
+    value={
+        term.startDate
+            ? new Date(term.startDate + "T00:00:00").toLocaleDateString("en-GB", {
+                  weekday: "long",
+                  day: "2-digit",
+                  month: "short",
+              }).replace(/(\w+)\s/, "$1, ") // Adds a comma after weekday
+            : ""
+    }
+    onChange={(date) => handleSessionDate(term.id, date)}
+    filterDate={(d) => filterSessionDay(d, term)}
+    dayClassName={(date) => {
+        const dateStr = date.toLocaleDateString("en-CA");
+        if (term.sessionsMap.map((s) => s.sessionDate).includes(dateStr))
+            return "selected-date";
+        if (term.exclusions.includes(dateStr)) return "exclusion-date";
+        return undefined;
+    }}
+    shouldCloseOnSelect={false}
+    dateFormat="EEEE, dd MMM"
+    className={`w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg ${
+        term.day ? "bg-white" : "bg-gray-200 cursor-not-allowed"
+    } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+    withPortal
+    minDate={new Date()} // 🔒 Disable all previous dates
+/>
 
-                                                            onChange={(date) => handleSessionDate(term.id, date)}
-                                                            filterDate={(d) => filterSessionDay(d, term)}
-                                                            dayClassName={(date) => {
-                                                                const dateStr = date.toLocaleDateString("en-CA");
-                                                                if (term.sessionsMap.map((s) => s.sessionDate).includes(dateStr))
-                                                                    return "selected-date";
-                                                                if (term.exclusions.includes(dateStr)) return "exclusion-date";
-                                                                return undefined;
-                                                            }}
-                                                            shouldCloseOnSelect={false}
-                                                            dateFormat="EEEE, dd MMM"
-                                                            className={`w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg ${term.day ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                                                            withPortal // this renders the calendar in a portal, fixed on screen
-                                                        />
                                                         <ul>
                                                             {selectedDates.map((d) => (
                                                                 <li key={d}>{d}</li>

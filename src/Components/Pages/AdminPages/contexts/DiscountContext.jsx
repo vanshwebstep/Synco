@@ -80,7 +80,7 @@ const createDiscount = useCallback(async (data) => {
       confirmButtonColor: '#237FEA'
     });
 
-    navigate('/configuration/holiday-camps/discounts/list');
+    navigate('/holiday-camps/discounts/list');
   } catch (err) {
     Swal.fire({
       icon: 'error',

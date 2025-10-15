@@ -9,7 +9,7 @@ import { Editor } from '@tinymce/tinymce-react';
 import Swal from 'sweetalert2'; // If not already imported
 
 import { usePayments } from '../../../contexts/PaymentPlanContext';
-import PlanTabs from "../Find a class/PlanTabs";
+import PlanTabs from "../../../Weekly Classes/Find a class/PlanTabs";
 import { usePermission } from "../../../Common/permission";
 
 const AddPaymentPlanGroup = () => {
@@ -39,7 +39,7 @@ const AddPaymentPlanGroup = () => {
             setIsEditMode(true);
             fetchGroupById(id);
         } else {
-            setIsLoading(false);
+            // setIsLoading(false);
         }
     }, [id]);
 

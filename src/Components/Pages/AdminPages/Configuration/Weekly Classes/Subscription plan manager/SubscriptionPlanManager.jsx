@@ -51,7 +51,7 @@ const PaymentPlanManagerList = () => {
    console.log('plan.groupByStudents', groupByStudents[activeTab])
   const handleEdit = (id) => {
      console.log("Edit group with ID:", id);
-    navigate(`/configuration/weekly-classes/add-subscription-plan-group?id=${id}`)
+    navigate(`/weekly-classes/add-subscription-plan-group?id=${id}`)
   };
 
   const handleDelete = async (id) => {
@@ -168,7 +168,7 @@ const PaymentPlanManagerList = () => {
                         £{plan?.price?.toFixed(2)}/<span className="text-sm">{plan.interval?.toLowerCase()}</span>
                       </p>
                       <hr className="mb-4 text-[#E2E1E5]" />
-                      <ul className="space-y-2 text-[14px] sm:text-[16px] font-semibold pb-10">
+                      <ul className="space-y-2 text-[14px] text-[16px] font-semibold pb-10">
                         {plan.HolidayCampPackage &&
                           // Decode HTML entities
                           new DOMParser()
@@ -212,7 +212,7 @@ const PaymentPlanManagerList = () => {
             <h2 className="text-2xl font-semibold">Subscription Plan Manager</h2>
             {canCreate &&
               <button
-                onClick={() => navigate(`/configuration/weekly-classes/add-subscription-plan-group`)}
+                onClick={() => navigate(`/weekly-classes/add-subscription-plan-group`)}
                 // onClick={() => setOpenForm(true)}
                 className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
               >

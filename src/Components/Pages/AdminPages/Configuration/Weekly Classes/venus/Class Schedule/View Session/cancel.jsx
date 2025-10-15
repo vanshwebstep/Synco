@@ -94,9 +94,9 @@ const ViewSessions = () => {
         roles,
       };
 
-       console.log("Cancellation Payload:", payload);
+       console.log("Cancellation Payload:", schedule.id,sessionId, payload);
 
-      await cancelClass(schedule.id,sessionId, payload); // ✅ await API call
+      await cancelClass(schedule.id,sessionId, payload ,  schedule.venueId); // ✅ await API call
     } catch (error) {
       console.error("Error cancelling class:", error);
     } finally {
@@ -113,7 +113,7 @@ const ViewSessions = () => {
           className="text-xl md:text-[28px] font-semibold flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
         >
           <img src="/demo/synco/icons/arrow-left.png" alt="Back" className="w-6 h-6" />
-          <span>View Class Register</span>
+          <span>Cancel Class</span>
         </h2>
       </div>
 
@@ -139,7 +139,7 @@ const ViewSessions = () => {
             {/* Left Form Area */}
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold mb-1">Reason for cancelling</label>
+                <label className="block text-[18px] font-semibold mb-2">Reason for cancelling</label>
                 <select
                   value={reasonForCancelling}
                   onChange={(e) => setReasonForCancelling(e.target.value)}
@@ -153,28 +153,28 @@ const ViewSessions = () => {
               </div>
 
               <div className="space-y-2 text-sm">
-                <p className="font-medium">Would you like to notify members?</p>
-                <div className="flex flex-wrap gap-4">
-                  <label><input type="radio" checked={notifyMembers} onChange={() => setNotifyMembers(true)} /> Yes</label>
-                  <label><input type="radio" checked={!notifyMembers} onChange={() => setNotifyMembers(false)} /> No</label>
+                <p className="font-semibold text-[18px]">Would you like to notify members?</p>
+                <div className="flex flex-wrap gap-4 mt-4">
+                  <label className='text-[18px]'><input type="radio" checked={notifyMembers} onChange={() => setNotifyMembers(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio" checked={!notifyMembers} onChange={() => setNotifyMembers(false)} /> No</label>
                 </div>
 
-                <p className="mt-3 font-medium">Credit members 1 session?</p>
-                <div className="flex flex-wrap gap-4">
-                  <label><input type="radio" checked={creditMembers} onChange={() => setcreditMembers(true)} /> Yes</label>
-                  <label><input type="radio" checked={!creditMembers} onChange={() => setcreditMembers(false)} /> No</label>
+                <p className="mt-3 font-semibold text-[18px]">Credit members 1 session?</p>
+                <div className="flex flex-wrap gap-4 mt-4">
+                  <label className='text-[18px]'><input type="radio" checked={creditMembers} onChange={() => setcreditMembers(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio" checked={!creditMembers} onChange={() => setcreditMembers(false)} /> No</label>
                 </div>
 
-                <p className="mt-3 font-medium">Would you like to notify trialists?</p>
-                <div className="flex flex-wrap gap-4">
-                  <label><input type="radio" checked={notifyTrialists} onChange={() => setnotifyTrialists(true)} /> Yes</label>
-                  <label><input type="radio" checked={!notifyTrialists} onChange={() => setnotifyTrialists(false)} /> No</label>
+                <p className="mt-3 font-semibold text-[18px]">Would you like to notify trialists?</p>
+                <div className="flex flex-wrap gap-4 mt-4">
+                  <label className='text-[18px]'><input type="radio" checked={notifyTrialists} onChange={() => setnotifyTrialists(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio" checked={!notifyTrialists} onChange={() => setnotifyTrialists(false)} /> No</label>
                 </div>
 
-                <p className="mt-3 font-medium">Would you like to notify coaches?</p>
-                <div className="flex flex-wrap gap-4">
-                  <label><input type="radio" checked={notifyCoaches} onChange={() => setNotifyCoaches(true)} /> Yes</label>
-                  <label><input type="radio" checked={!notifyCoaches} onChange={() => setNotifyCoaches(false)} /> No</label>
+                <p className="mt-3 font-semibold text-[18px]">Would you like to notify coaches?</p>
+                <div className="flex flex-wrap gap-4 mt-4">
+                  <label className='text-[18px]'><input type="radio" checked={notifyCoaches} onChange={() => setNotifyCoaches(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio" checked={!notifyCoaches} onChange={() => setNotifyCoaches(false)} /> No</label>
                 </div>
               </div>
             </div>
@@ -186,7 +186,7 @@ const ViewSessions = () => {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-4 py-1.5 border-b text-sm md:text-base min-w-24 font-medium transition ${activeTab === tab ? 'border-blue-500' : 'text-gray-500 border-b border-gray-200 hover:text-blue-500'
+                    className={`px-4 py-1.5 border-b text-sm md:text-base min-w-24 font-semibold text-[18px] transition ${activeTab === tab ? 'border-blue-500' : 'text-gray-500 border-b border-gray-200 hover:text-blue-500'
                       }`}
                   >
                     {tab}

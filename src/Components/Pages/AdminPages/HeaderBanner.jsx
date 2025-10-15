@@ -3,7 +3,7 @@ import React from 'react';
 const HeaderBanner = ({ title, icon: Icon }) => {
   return (
     <section
-      className="headerbanner mt-8 md:py-7 py-4 bg-no-repeat bg-cover bg-center rounded-4xl flex items-center md:p-10 p-5"
+      className="headerbanner mt-8 md:py-7 py-4 bg-no-repeat bg-cover bg-right rounded-4xl flex items-center md:p-10 p-5"
       style={{
         backgroundImage: "url('/demo/synco/members/headerbanner.png')",
       }}

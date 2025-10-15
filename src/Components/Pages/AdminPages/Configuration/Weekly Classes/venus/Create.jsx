@@ -3,10 +3,10 @@ import { useVenue } from "../../../contexts/VenueContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 
-const Create = ({ groups, termGroup, onClose }) => {
+const Create = ({ groups, termGroup }) => {
 
 
-  const { formData, setFormData, createVenues, isEditVenue, updateVenues, setIsEditVenue } = useVenue();
+  const { formData, setFormData, createVenues, isEditVenue, updateVenues, setIsEditVenue,openForm, setOpenForm } = useVenue();
 
 
   const handleInputChange = (e) => {
@@ -47,12 +47,8 @@ const Create = ({ groups, termGroup, onClose }) => {
     // Success flow
     // console.log("Venue Submitted:", formData);
     createVenues(formData);
-    setFormData({
-      area: "", name: "", address: "", facility: "",
-      hasParking: false, isCongested: false, parkingNote: "",
-      howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
-    });
-    onClose();
+
+
   };
 
 
@@ -62,7 +58,7 @@ const Create = ({ groups, termGroup, onClose }) => {
       hasParking: false, isCongested: false, parkingNote: "",
       howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
     });
-    onClose();
+   setOpenForm(null);
 
   };
 
@@ -72,40 +68,51 @@ const Create = ({ groups, termGroup, onClose }) => {
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
   };
-  const handleUpdate = (id) => {
-    const err = validateForm();
-    if (err) {
-      Swal.fire({
-        title: 'Validation Error',
-        text: err,
-        icon: 'error',
-        confirmButtonText: 'OK',
-      });
-      return; // stop here, don't close
-    }
-
-    // ✅ success flow only
-    console.log('formData.termGroupId', formData.termGroupId)
-    let termGroupId = formData.termGroupId;
-    if (typeof termGroupId === 'string') {
-      try {
-        termGroupId = JSON.parse(termGroupId);
-      } catch (e) {
-        console.error("Invalid JSON for termGroupId:", termGroupId);
-        termGroupId = [];
-      }
-    }
-    // Now it's [1, 10]
-    updateVenues(id, formData);
-
-    setFormData({
-      area: "", name: "", address: "", facility: "",
-      hasParking: false, isCongested: false, parkingNote: "",
-      howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
+const handleUpdate = (id) => {
+  const err = validateForm();
+  if (err) {
+    Swal.fire({
+      title: 'Validation Error',
+      text: err,
+      icon: 'error',
+      confirmButtonText: 'OK',
     });
-    onClose();
-    // console.log("Venue Updated:", formData);
-  };
+    return; // stop here, don't close
+  }
+
+  // Normalize termGroupId
+  let termGroupId = formData.termGroupId;
+
+  if (!Array.isArray(termGroupId)) {
+    try {
+      termGroupId = JSON.parse(termGroupId);
+    } catch (e) {
+      console.warn("termGroupId is not JSON, converting to array:", termGroupId);
+      termGroupId = termGroupId ? [Number(termGroupId)] : [];
+    }
+  }
+
+  // ensure all elements are numbers
+  termGroupId = termGroupId.map(x => Number(x));
+
+  console.log("Normalized termGroupId:", termGroupId);
+
+  // Create updated data object
+  const updatedVenueData = { ...formData, termGroupId };
+
+  // Send normalized data to API
+  updateVenues(id, updatedVenueData);
+
+  // Reset form
+  setFormData({
+    area: "", name: "", address: "", facility: "",
+    hasParking: false, isCongested: false, parkingNote: "",
+    howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
+  });
+
+  onClose();
+};
+
 
 
 
@@ -182,26 +189,29 @@ const Create = ({ groups, termGroup, onClose }) => {
       }
     }
 
+    console.log('formData.termGroupId', formData.termGroupId);
+
     // Handle term group ID
     if (formData?.termGroupId != null) {
       try {
-        const parsed = Array.isArray(formData.termGroupId)
+        const parsedTermGroup = Array.isArray(formData.termGroupId)
           ? formData.termGroupId
           : JSON.parse(formData.termGroupId);
-        setSelectedTermIds(parsed);
+        setSelectedTermIds(parsedTermGroup);
       } catch {
         setSelectedTermIds([]);
       }
     }
   }, [formData]);
 
+  console.log('selectedTermIds', selectedTermIds)
   // ✅ First one (line ~140):
-const labels = Array.isArray(termOptions) && Array.isArray(selectedTermIds)
-  ? termOptions
+  const labels = Array.isArray(termOptions) && Array.isArray(selectedTermIds)
+    ? termOptions
       .filter(opt => opt && selectedTermIds.includes(opt.id))
       .map(opt => opt.label)
       .filter(Boolean)
-  : [];
+    : [];
 
   return (
     <div className="max-w-md mx-auto">

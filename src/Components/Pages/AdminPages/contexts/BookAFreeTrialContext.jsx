@@ -318,7 +318,7 @@ export const BookFreeTrialProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/trial/list`)
+      navigate(`/weekly-classes/trial/list`)
       return result;
 
     } catch (error) {
@@ -427,7 +427,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       });
       throw error;
     } finally {
-        navigate(`/configuration/weekly-classes/trial/list`)
+        navigate(`/weekly-classes/trial/list`)
       setLoading(false);
     }
   };
@@ -568,7 +568,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/trial/list`)
+      navigate(`/weekly-classes/trial/list`)
       return result;
 
     } catch (error) {
@@ -614,7 +614,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         text: result.message || "Trialsssssss has been created successfully.",
         icon: "success",
         confirmButtonText: "OK",
-      }); navigate(`/configuration/weekly-classes/trial/list`)
+      }); navigate(`/weekly-classes/trial/list`)
 
       return result;
 
@@ -663,7 +663,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/trial/list`)
+      navigate(`/weekly-classes/trial/list`)
       return result;
 
     } catch (error) {
@@ -710,7 +710,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/trial/list`);
+      navigate(`/weekly-classes/trial/list`);
 
       return result;
 
@@ -947,7 +947,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       });
       throw error;
     } finally {
-       navigate(`/configuration/weekly-classes/all-members/list`)
+       navigate(`/weekly-classes/all-members/list`)
       setLoading(false);
     }
   };
@@ -1018,7 +1018,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/all-members/list`)
+      navigate(`/weekly-classes/all-members/list`)
       return result;
 
     } catch (error) {
@@ -1065,7 +1065,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/all-members/list`)
+      navigate(`/weekly-classes/all-members/list`)
       return result;
 
     } catch (error) {
@@ -1093,7 +1093,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/send-email`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/send/email`, {
         method: "POST",
         headers,
         body: JSON.stringify({
@@ -1126,7 +1126,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       });
       throw error;
     } finally {
-      navigate(`/configuration/weekly-classes/all-members/list`);
+      navigate(`/weekly-classes/all-members/list`);
 
       await fetchBookMemberships();
       setLoading(false);
@@ -1163,9 +1163,9 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -1214,9 +1214,9 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -1265,9 +1265,9 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -1327,9 +1327,9 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       });
 
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -1574,6 +1574,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
   // Add to Waiting List 
   const addtoWaitingListSubmit = async (bookingIds, comesfrom) => {
     setLoading(true);
+console.log('bookingIds',bookingIds)
 
     const headers = {
       "Content-Type": "application/json",
@@ -1583,7 +1584,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/waiting-list`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/add-to/waiting-list`, {
         method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -1603,9 +1604,9 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -1722,7 +1723,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       headers["Authorization"] = `Bearer ${token}`;
     }
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/cancel/waiting-list-spot`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/waiting-list/from/remove`, {
         method: "PUT",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
@@ -1742,9 +1743,9 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/configuration/weekly-classes/all-members/list`);
+        navigate(`/weekly-classes/all-members/list`);
       } else {
-        navigate(`/configuration/weekly-classes/all-members/membership-sales`);
+        navigate(`/weekly-classes/all-members/membership-sales`);
       }
 
       return result;
@@ -1924,7 +1925,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/configuration/weekly-classes/find-a-class/add-to-waiting-list/list`)
+      navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`)
       return result;
 
     } catch (error) {
@@ -2425,7 +2426,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       });
       throw error;
     } finally {
-       navigate(`/configuration/weekly-classes/find-a-class/add-to-waiting-list/list`)
+       navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`)
       setLoading(false);
     }
   };

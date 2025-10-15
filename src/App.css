@@ -38,22 +38,7 @@
 
 
 /* index.css or your global stylesheet */
-::-webkit-scrollbar {
-  width: 8px;
-}
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #c1c1c1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a0a0a0;
-}
 
 
 
@@ -357,23 +342,10 @@ aside.hidden.md\:w-2\/12.lg\:flex.w-72.bg-white.border-r.border-gray-100.flex-co
 }
 
 
-/* global.css or component CSS */
-.custom-scrollbar::-webkit-scrollbar {
-  height: 8px;
-  /* horizontal scrollbar height */
-}
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #f0f0f0;
-  border-radius: 4px;
-}
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #a0a0a0;
-  border-radius: 4px;
-  border: 2px solid #f0f0f0;
-  /* gives a padding effect */
-}
+
+
 
 .tox .tox-tbtn svg {
   display: block;
@@ -387,29 +359,29 @@ span.tox-tbtn.tox-split-button__chevron {
 
 
 .w-full.bg-white.lg\:w-1\/2.flex.gap-2 {
-    gap: 0;
+  gap: 0;
 }
 
 .prose p strong {
-    font-size: 18px;
-    font-weight: 600;
-    /* margin-bottom: 10px; */
-    line-height: 3;
-    color: #000;
+  font-size: 18px;
+  font-weight: 600;
+  /* margin-bottom: 10px; */
+  line-height: 3;
+  color: #000;
 }
 
 .prose p {
-    font-size: 14px;
-    line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .prose li {
-    list-style: auto;
-    margin-left: 15px;
+  list-style: auto;
+  margin-left: 15px;
 }
 
 .prose ol li {
-    list-style: disc;
+  list-style: disc;
 }
 
 /*  */
@@ -491,12 +463,14 @@ span.tox-tbtn.tox-split-button__chevron {
   button.min-w-50 {
     min-width: 30px;
   }
+
   .text-\[20px\] {
     font-size: 16px;
-}
-button.px-6.py-2.rounded-xl.text-\[18px\] {
+  }
+
+  button.px-6.py-2.rounded-xl.text-\[18px\] {
     padding: 8px 12px;
-}
+  }
 
 }
 
@@ -504,9 +478,11 @@ button.px-6.py-2.rounded-xl.text-\[18px\] {
   .text-\[19\.28px\] {
     font-size: 12px;
   }
-.w-full.bg-white.lg\:w-1\/2.flex.gap-2 {
+
+  .w-full.bg-white.lg\:w-1\/2.flex.gap-2 {
     gap: 0;
-}
+  }
+
   .text-\[18px\] {
     font-size: 14px;
   }
@@ -531,13 +507,63 @@ button.px-6.py-2.rounded-xl.text-\[18px\] {
   }
 }
 
-  .selected-date {
-          background-color: #3b82f6 !important;
-          color: white !important;
-          border-radius: 50%;
-        }
-        .exclusion-date {
-          background-color: #9ca3af !important; /* gray for disabled/excluded */
-          color: white !important;
-          border-radius: 50%;
-        }
+.selected-date {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  border-radius: 50%;
+}
+
+.exclusion-date {
+  background-color: #9ca3af !important;
+  /* gray for disabled/excluded */
+  color: white !important;
+  border-radius: 50%;
+}
+
+/* Hide country code in the dropdown */
+.react-tel-input .selected-flag .dial-code,
+.react-tel-input .country-list .dial-code {
+  display: none !important;
+}
+button.cursor-not-allowed{
+  cursor: not-allowed;
+}
+
+.preview-sec ul li{
+  list-style: disc;
+}
+.react-tel-input {
+    max-width: 60px;
+}
+
+.prose p strong{
+  line-height: normal;
+}
+ p strong{
+  line-height: normal;
+}
+ strong{
+  line-height: normal;
+}
+ p {
+  line-height: normal;
+}
+
+.prose p {
+    margin-bottom: 0;
+}
+
+ul.innersub li a .subitems {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+ }
+/*ul.innersub li a .subitems::after {
+  content: "+";
+  font-weight: bold;
+  margin-left: 8px;
+  transition: transform 0.2s ease;
+}
+
+ul.innersub li.opened a .subitems::after {
+  content: "–";
+} */

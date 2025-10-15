@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import Swal from "sweetalert2"; // make sure it's installed
+import { useNavigate } from 'react-router-dom';
 
 const ClassScheduleContext = createContext();
 
@@ -12,6 +13,7 @@ export const ClassScheduleProvider = ({ children }) => {
   const [isEditClassSchedule, setIsEditClassSchedule] = useState(false);
   const [singleClassSchedules, setSingleClassSchedules] = useState([]);
   const [singleClassSchedulesOnly, setSingleClassSchedulesOnly] = useState([]);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     area: "",
@@ -246,7 +248,8 @@ export const ClassScheduleProvider = ({ children }) => {
       });
     }
   }, [token, fetchClassSchedules]);
- const cancelClass = async  (classScheduleId, sessionId,updatedClassScheduleData) => {
+ const cancelClass = async  (classScheduleId, sessionId,updatedClassScheduleData,venueId) => {
+  console.log('classScheduleId, sessionId,updatedClassScheduleData',classScheduleId, sessionId,updatedClassScheduleData)
     setLoading(true);
 
     const myHeaders = new Headers();
@@ -292,6 +295,7 @@ export const ClassScheduleProvider = ({ children }) => {
       throw error;
     } finally {
       await fetchClassSchedules();
+      navigate(`/configuration/weekly-classes/venues/class-schedule?id=${venueId}`)
       setLoading(false);
     }
   };

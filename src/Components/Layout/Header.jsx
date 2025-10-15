@@ -89,12 +89,12 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'configuration/weekly-classes/find-a-class/': { title: 'Weekly Classes', },
     'synco-chat': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'members': { title: 'Admin Panel' },
-    'configuration/weekly-classes/session-plan-list': { title: 'Configuration' },
+    'configuration/configuration/weekly-classes/session-plan-list': { title: 'Configuration' },
     'configuration/weekly-classes/term-dates': { title: 'Configuration' },
 
     'configuration/weekly-classes/session-plan-create': { title: 'Configuration' },
     'configuration/weekly-classes/session-plan-preview': { title: 'Configuration' },
-    'configuration/weekly-classes/subscription-planManager': { title: 'Configuration' },
+    'configuration/configuration/weekly-classes/subscription-planManager': { title: 'Configuration' },
     'configuration/weekly-classes/add-subscription-plan-group': { title: 'Configuration' },
     'configuration/weekly-classes/find-a-class': { title: 'Configuration' },
 
@@ -106,12 +106,17 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'holiday-camps/session-plan': { title: 'Configuration', },
     'notification': { title: 'Notification' },
     'configuration/weekly-classes/all-members': { title: 'Members' },
-    'configuration/weekly-classes/venues': { title: 'Configuration', },
+    'configuration/configuration/weekly-classes/venues': { title: 'Configuration', },
     'configuration/weekly-classes/find-a-class/book-a-free-trial/account-info': { title: 'Account Information' },
     'configuration/weekly-classes/all-members/account-info': { title: 'Account Information' },
     
     'configuration/weekly-classes/cancellation': { title: 'Cancellation' },
     'configuration/weekly-classes/capacity': { title: 'Capacity' },
+    'configuration/members/List': { title: 'Admin Panel' },
+    'configuration/members/update': { title: 'Admin Panel' },
+    'configuration/weekly-classes/cancellation/account-info/list': { title: 'Account Information' },
+    'configuration/weekly-classes/term-dates/create': { title: 'Configuration' },
+    'configuration/weekly-classes/account-information': { title: 'Account Information' },
 
 
   };
@@ -209,7 +214,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     <>
       {/* HEADER */}
       {/* HEADER */}
-      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center py-4  bg-gray-50  gap-4 lg:gap-0">
+      <header className={`flex flex-col lg:flex-row justify-between items-start lg:items-center py-4  bg-gray-50  gap-4 lg:gap-0 ${location.pathname.includes("/members/List")?"px-8":""}`}>
 
         {/* Desktop LEFT: Greeting + Welcome */}
         <div className="hidden lg:block">
@@ -321,7 +326,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
           <div className="flex items-start sm:items-center justify-between w-full sm:w-auto">
             {/* Date */}
             <div className="block text-sm text-gray-600 border-r border-gray-300 pr-4 mr-4">
-              <span className="block text-base text-gray-800 font-semibold">{month}</span>
+              <span className="block text-right text-gray-800 font-semibold">{month}</span>
               <span className="font-semibold text-gray-600">
                 {day} {weekday} {year}
               </span>

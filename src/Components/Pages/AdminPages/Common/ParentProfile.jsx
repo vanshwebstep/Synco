@@ -32,7 +32,7 @@ const ParentProfile = ({ ParentProfile }) => {
     ];
 
     const handleCancel = () => {
-         console.log("Payload:", formData);
+        console.log("Payload:", formData);
         cancelFreeTrial(formData);
     };
 
@@ -76,8 +76,8 @@ const ParentProfile = ({ ParentProfile }) => {
         reasonForNonAttendance: "",
         additionalNote: "",
     });
-     console.log('cancelData', cancelData)
-     console.log('parents', ParentProfile)
+    console.log('cancelData', cancelData)
+    console.log('parents', ParentProfile)
     const studentsList = ParentProfile?.students || [];
     const parents = ParentProfile.parents || [];
     const [formData, setFormData] = useState({
@@ -88,7 +88,7 @@ const ParentProfile = ({ ParentProfile }) => {
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const emergency = ParentProfile.emergency || [];
-     console.log('matchedPlan', matchedPlan)
+    console.log('matchedPlan', matchedPlan)
 
     const { checkPermission } = usePermission();
 
@@ -383,10 +383,19 @@ const ParentProfile = ({ ParentProfile }) => {
                                     <div className="flex justify-between items-center">
                                         <div className="flex items-center gap-3">
                                             <img
-                                                src={c.avatar}
+                                                src={
+                                                    c?.avatar
+                                                        ? `${c.avatar}`
+                                                        : '/demo/synco/members/dummyuser.png'
+                                                }
+                                                onError={(e) => {
+                                                    e.currentTarget.onerror = null; // prevent infinite loop
+                                                    e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                }}
                                                 alt={c.name}
                                                 className="w-10 h-10 rounded-full object-cover mt-1"
                                             />
+
                                             <div>
 
                                                 <p className="font-semibold text-[#237FEA] text-[16px]">{c.name}</p>
@@ -401,7 +410,7 @@ const ParentProfile = ({ ParentProfile }) => {
                         </div>
                     </div>
                 </div>
-                <div className="md:min-w-[508px] bg-white max-h-fit rounded-full md:max-w-[508px] text-base space-y-5">
+                <div className="md:min-w-[508px] max-h-fit rounded-full md:max-w-[508px] text-base space-y-5">
                     {/* Card Wrapper */}
                     <div className="rounded-3xl bg-[#2E2F3E] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
@@ -431,133 +440,133 @@ const ParentProfile = ({ ParentProfile }) => {
                         </div>
 
 
-                            <div className="bg-[#2E2F3E] text-white px-6 py-6 space-y-6">
-                                {/* Avatar & Account Holder */}
-                                <div className="flex items-center gap-4">
-                                    <img
-                                        src={
-                                            (status === 'request_to_cancel' || status === 'cancelled') && bookedBy?.profile
-                                                ? `${bookedBy.profile}`
-                                                : "https://cdn-icons-png.flaticon.com/512/147/147144.png"
-                                        }
-                                        alt="avatar"
-                                        className="w-18 h-18 rounded-full"
-                                        onError={(e) => {
-                                            e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/147/147144.png"; // fallback if image fails to load
-                                        }}
-                                    />
-                                    <div>
-                                        <div className="text-[24px] font-semibold leading-tight">
-                                            {status === 'request_to_cancel' || status === 'cancelled'
-                                                ? 'Booked By'
-                                                : 'Account Holder'}
-                                        </div>
-                                        <div className="text-[16px] text-gray-300">
-                                            {status === 'request_to_cancel' || status === 'cancelled'
-                                                ? `${bookedBy.firstName} ${bookedBy.lastName}`
-                                                : ``}
-                                        </div>
+                        <div className="bg-[#2E2F3E] text-white px-6 py-6 space-y-6">
+                            {/* Avatar & Account Holder */}
+                            <div className="flex items-center gap-4">
+                                <img
+                                    src={
+                                        (status === 'request_to_cancel' || status === 'cancelled') && bookedBy?.profile
+                                            ? `${bookedBy.profile}`
+                                            : "https://cdn-icons-png.flaticon.com/512/147/147144.png"
+                                    }
+                                    alt="avatar"
+                                    className="w-18 h-18 rounded-full"
+                                    onError={(e) => {
+                                        e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/147/147144.png"; // fallback if image fails to load
+                                    }}
+                                />
+                                <div>
+                                    <div className="text-[24px] font-semibold leading-tight">
+                                        {status === 'request_to_cancel' || status === 'cancelled'
+                                            ? 'Booked By'
+                                            : 'Account Holder'}
                                     </div>
-                                </div>
-
-                                {/* Details */}
-                                <div className="space-y-4">
-                                    <div>
-                                        <div className="text-[20px] font-bold tracking-wide">Venue</div>
-                                        <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
-                                            {classSchedule?.venue?.name || "-"}
-                                        </div>
-                                    </div>
-
-                                    <div className="border-t border-[#495362] py-5">
-                                        {status === 'request_to_cancel' || status === 'cancelled' ? (
-                                            <>
-                                                <div className="text-[20px] text-white">Membership Plan</div>
-
-                                                {paymentPlan && (
-                                                    <div className="text-[16px] mt-1 text-gray-400">
-                                                        {paymentPlan.title}
-                                                    </div>
-                                                )}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <div className="text-[20px] text-white">Students</div>
-                                                <div className="text-[16px] mt-1 text-gray-400">{students?.length || 0}</div>
-                                            </>
-                                        )}
-
-                                    </div>
-
-                                    {status === 'request_to_cancel' || status === 'cancelled' ? (
-                                        <>
-                                            <div className="border-t border-[#495362] py-5">
-                                                <div className=" text-[20px] text-white">Price</div>
-                                                <div className="text-[16px]  mt-1 text-gray-400"> £{paymentPlan?.price} </div>
-                                            </div>
-
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="border-t border-[#495362] py-5">
-                                                <div className=" text-[20px] text-white">Booking Source</div>
-                                                <div className="text-[16px]  mt-1 text-gray-400"> {bookedBy?.firstName} {bookedBy?.lastName}</div>
-                                            </div>
-                                        </>
-                                    )}
-                                    <div className="border-t border-[#495362] py-5">
-                                        {status === 'request_to_cancel' || status === 'cancelled' ? (
-                                            <>
-                                                <div className=" text-[20px] text-white">Membership Start Date </div>
-                                                <div className="text-[16px]  mt-1 text-gray-400"> {formatDate(startDate, true)}</div>
-
-                                            </>
-                                        ) : (
-                                            <>
-
-                                                <div className=" text-[20px] text-white">Date of Booking</div>
-                                                <div className="text-[16px]  mt-1 text-gray-400"> {formatDate(createdAt, true)}</div>
-                                            </>
-                                        )}
-
-                                    </div>
-
-                                    <div className="border-t border-[#495362] py-5">
-                                        <div className=" text-[20px] text-white">Request to Cancel Date </div>
-                                        <div className="text-[16px]  mt-1 text-gray-400">{formatDate(cancelData.cancelDate) || formatDate(trialDate)}</div>
-                                    </div>
-
-                                    <div className="border-t border-[#495362] py-5">
-                                        <div className=" text-[20px] text-white">ID </div>
-                                        <div className="text-[16px]  mt-1 text-gray-400">{bookingId}</div>
-                                    </div>
-                                    {status === 'request_to_cancel' ? (
-                                        <div className="border-t border-[#495362] py-5">
-                                            <div className=" text-[20px] text-white">Membership Tenure </div>
-                                            <div className="text-[16px]  mt-1 text-gray-400">11 Months (static)</div>
-                                        </div>
-                                    ) : (
-                                        <>
-
-                                            <div className=" text-[20px] text-white">Lifecycle</div>
-                                            <div className="text-[16px] mt-1 text-gray-400">
-                                                {paymentPlan?.duration} {paymentPlan?.interval}{paymentPlan?.duration > 1 ? "s" : ""}
-                                            </div>
-                                        </>
-                                    )}
-                                    <div className="border-t border-[#495362] py-5">
-                                        <div className=" text-[20px] text-white">Request Cancellation Reason  </div>
-                                        <div className="text-[16px]  mt-1 text-gray-400">{'cancelReason'}</div>
+                                    <div className="text-[16px] text-gray-300">
+                                        {status === 'request_to_cancel' || status === 'cancelled'
+                                            ? `${bookedBy.firstName} ${bookedBy.lastName}`
+                                            : ``}
                                     </div>
                                 </div>
                             </div>
-                        
+
+                            {/* Details */}
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="text-[20px] font-bold tracking-wide">Venue</div>
+                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
+                                        {classSchedule?.venue?.name || "-"}
+                                    </div>
+                                </div>
+
+                                <div className="border-t border-[#495362] py-5">
+                                    {status === 'request_to_cancel' || status === 'cancelled' ? (
+                                        <>
+                                            <div className="text-[20px] text-white">Membership Plan</div>
+
+                                            {paymentPlan && (
+                                                <div className="text-[16px] mt-1 text-gray-400">
+                                                    {paymentPlan.title}
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="text-[20px] text-white">Students</div>
+                                            <div className="text-[16px] mt-1 text-gray-400">{students?.length || 0}</div>
+                                        </>
+                                    )}
+
+                                </div>
+
+                                {status === 'request_to_cancel' || status === 'cancelled' ? (
+                                    <>
+                                        <div className="border-t border-[#495362] py-5">
+                                            <div className=" text-[20px] text-white">Price</div>
+                                            <div className="text-[16px]  mt-1 text-gray-400"> £{paymentPlan?.price} </div>
+                                        </div>
+
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="border-t border-[#495362] py-5">
+                                            <div className=" text-[20px] text-white">Booking Source</div>
+                                            <div className="text-[16px]  mt-1 text-gray-400"> {bookedBy?.firstName} {bookedBy?.lastName}</div>
+                                        </div>
+                                    </>
+                                )}
+                                <div className="border-t border-[#495362] py-5">
+                                    {status === 'request_to_cancel' || status === 'cancelled' ? (
+                                        <>
+                                            <div className=" text-[20px] text-white">Membership Start Date </div>
+                                            <div className="text-[16px]  mt-1 text-gray-400"> {formatDate(startDate, true)}</div>
+
+                                        </>
+                                    ) : (
+                                        <>
+
+                                            <div className=" text-[20px] text-white">Date of Booking</div>
+                                            <div className="text-[16px]  mt-1 text-gray-400"> {formatDate(createdAt, true)}</div>
+                                        </>
+                                    )}
+
+                                </div>
+
+                                <div className="border-t border-[#495362] py-5">
+                                    <div className=" text-[20px] text-white">Request to Cancel Date </div>
+                                    <div className="text-[16px]  mt-1 text-gray-400">{formatDate(cancelData.cancelDate) || formatDate(trialDate)}</div>
+                                </div>
+
+                                <div className="border-t border-[#495362] py-5">
+                                    <div className=" text-[20px] text-white">ID </div>
+                                    <div className="text-[16px]  mt-1 text-gray-400">{bookingId}</div>
+                                </div>
+                                {status === 'request_to_cancel' ? (
+                                    <div className="border-t border-[#495362] py-5">
+                                        <div className=" text-[20px] text-white">Membership Tenure </div>
+                                        <div className="text-[16px]  mt-1 text-gray-400">11 Months (static)</div>
+                                    </div>
+                                ) : (
+                                    <>
+
+                                        <div className=" text-[20px] text-white">Lifecycle</div>
+                                        <div className="text-[16px] mt-1 text-gray-400">
+                                            {paymentPlan?.duration} {paymentPlan?.interval}{paymentPlan?.duration > 1 ? "s" : ""}
+                                        </div>
+                                    </>
+                                )}
+                                <div className="border-t border-[#495362] py-5">
+                                    <div className=" text-[20px] text-white">Request Cancellation Reason  </div>
+                                    <div className="text-[16px]  mt-1 text-gray-400">{ParentProfile?.cancelData?.cancelReason}</div>
+                                </div>
+                            </div>
+                        </div>
+
 
 
                     </div>
                     {status !== 'casdsncelled' && (
                         <>
-                            <div className="bg-white rounded-3xl p-6  space-y-4">
+                            <div className="bg-white rounded-3xl p-6  space-y-4 mt-4 mt-4">
 
                                 {/* Top Row: Email + Text */}
                                 <div className="flex gap-7">
@@ -748,7 +757,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 <div className="flex gap-4 pt-4">
                                     <button
                                         className="flex-1 border border-gray-400 rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() =>  console.log("Cancel clicked")}
+                                        onClick={() => console.log("Cancel clicked")}
                                     >
                                         Cancel
                                     </button>
