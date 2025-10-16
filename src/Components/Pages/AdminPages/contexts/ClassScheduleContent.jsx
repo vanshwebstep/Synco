@@ -13,6 +13,8 @@ export const ClassScheduleProvider = ({ children }) => {
   const [isEditClassSchedule, setIsEditClassSchedule] = useState(false);
   const [singleClassSchedules, setSingleClassSchedules] = useState([]);
   const [singleClassSchedulesOnly, setSingleClassSchedulesOnly] = useState([]);
+  const [cancelledClassData, setCancelledClassData] = useState([]);
+
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -300,6 +302,30 @@ export const ClassScheduleProvider = ({ children }) => {
     }
   };
 
+    const fetchCancelledClass = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-session/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setCancelledClassData(result);
+    } catch (error) {
+      console.error("Failed to fetch classSchedules:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return (
     <ClassScheduleContext.Provider
       value={{
@@ -308,6 +334,7 @@ export const ClassScheduleProvider = ({ children }) => {
         updateClassSchedules,
         deleteClassSchedule,
         fetchClassSchedulesID,
+        fetchCancelledClass,
         fetchClassSchedulesByID,
         fetchFindClassID,
         singleClassSchedules,

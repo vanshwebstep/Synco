@@ -1,6 +1,6 @@
 // src/components/StudentProfile.jsx
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState,useCallback } from 'react';
 
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
@@ -12,6 +12,9 @@ import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
 import Loader from '../../../contexts/Loader';
 import { usePermission } from '../../../Common/permission';
 import { addDays } from "date-fns";
+import { useNotification } from '../../../contexts/NotificationContext';
+import Swal from "sweetalert2";
+
 const StudentProfile = ({ StudentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [selectedDate, setSelectedDate] = useState(null);
@@ -21,6 +24,7 @@ console.log('StudentProfile',StudentProfile)
     const [freezeMembership, setFreezeMembership] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+   const { adminInfo, setAdminInfo } = useNotification();
 
     const [showRebookTrial, setshowRebookTrial] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
@@ -73,7 +77,44 @@ console.log('StudentProfile',StudentProfile)
         paymentPlan,
         paymentPlans,
     } = StudentProfile;
+    const token = localStorage.getItem("adminToken");
 
+     const goToPage = (page) => {
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        setCurrentPage(page);
+    };
+
+
+      const [commentsList, setCommentsList] = useState([]);
+        const [comment, setComment] = useState('');
+        const [currentPage, setCurrentPage] = useState(1);
+        const commentsPerPage = 5; // Number of comments per page
+    
+        // Pagination calculations
+        const indexOfLastComment = currentPage * commentsPerPage;
+        const indexOfFirstComment = indexOfLastComment - commentsPerPage;
+        const currentComments = commentsList.slice(indexOfFirstComment, indexOfLastComment);
+        const totalPages = Math.ceil(commentsList.length / commentsPerPage);
+
+
+         const formatTimeAgo = (timestamp) => {
+        const now = new Date();
+        const past = new Date(timestamp);
+        const diff = Math.floor((now - past) / 1000); // in seconds
+
+        if (diff < 60) return `${diff} sec${diff !== 1 ? 's' : ''} ago`;
+        if (diff < 3600) return `${Math.floor(diff / 60)} min${Math.floor(diff / 60) !== 1 ? 's' : ''} ago`;
+        if (diff < 86400) return `${Math.floor(diff / 3600)} hour${Math.floor(diff / 3600) !== 1 ? 's' : ''} ago`;
+        if (diff < 604800) return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) !== 1 ? 's' : ''} ago`;
+
+        // fallback: return exact date if older than 7 days
+        return past.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        });
+    };
     const [rebookFreeTrial, setRebookFreeTrial] = useState({
         bookingId: id || null,
         trialDate: "",
@@ -132,7 +173,99 @@ console.log('StudentProfile',StudentProfile)
     console.log('matchedPlan', matchedPlan)
 
     const { checkPermission } = usePermission();
+   const fetchComments = useCallback(async () => {
+        const token = localStorage.getItem("adminToken");
+        if (!token) return;
 
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/list`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const resultRaw = await response.json();
+            const result = resultRaw.data || [];
+            setCommentsList(result);
+        } catch (error) {
+            console.error("Failed to fetch comments:", error);
+
+            Swal.fire({
+                title: "Error",
+                text: error.message || error.error || "Failed to fetch comments. Please try again later.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchComments();
+    }, [])
+    const handleSubmitComment = async (e) => {
+
+        e.preventDefault();
+
+        const myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Authorization", `Bearer ${token}`);
+
+        const raw = JSON.stringify({
+            "comment": comment
+        });
+
+        const requestOptions = {
+            method: "POST",
+            headers: myHeaders,
+            body: raw,
+            redirect: "follow"
+        };
+
+        try {
+            Swal.fire({
+                title: "Creating ....",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+
+            const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/create`, requestOptions);
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed to Add Comment",
+                    text: result.message || "Something went wrong.",
+                });
+                return;
+            }
+
+
+            Swal.fire({
+                icon: "success",
+                title: "Comment Created",
+                text: result.message || " Comment has been  added successfully!",
+                showConfirmButton: false,
+            });
+
+
+            setComment('');
+            fetchComments();
+        } catch (error) {
+            console.error("Error creating member:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Network Error",
+                text:
+                    error.message || "An error occurred while submitting the form.",
+            });
+        }
+    }
     const canCancelTrial =
         checkPermission({ module: 'cancel-free-trial', action: 'create' })
     const canRebooking =
@@ -351,75 +484,96 @@ console.log('StudentProfile',StudentProfile)
 
                         </div>
                     ))} */}
-                    <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
+                    <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
 
                         {/* Input section */}
                         <div className="flex items-center gap-2">
                             <img
-                                src="https://i.pravatar.cc/40?img=3" // Replace with actual user image
+                                src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'}
                                 alt="User"
                                 className="w-14 h-14 rounded-full object-cover"
                             />
                             <input
                                 type="text"
+                                name='comment'
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
                                 placeholder="Add a comment"
                                 className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none"
                             />
-                            <button className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-[#237FEA]">
+                            <button
+                                className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
+                                onClick={handleSubmitComment}
+                            >
                                 <img src="/demo/synco/icons/sent.png" alt="" />
                             </button>
                         </div>
 
                         {/* Comment list */}
-                        <div className="space-y-4">
-                            {[
-                                {
-                                    name: "Ethan",
-                                    time: "8 min ago",
-                                    comment: "Not 100% sure she can attend but if she cant she will email us.",
-                                    avatar: "https://i.pravatar.cc/40?img=3",
-                                },
-                                {
-                                    name: "Nilio Bagga",
-                                    time: "8 min ago",
-                                    comment:
-                                        "Not 100% sure she can attend but if she cant she will email us. Not 100% sure she can attend but if she cant she will email us.",
-                                    avatar: "https://i.pravatar.cc/40?img=12",
-                                },
-                            ].map((c, i) => (
-                                <div
-                                    key={i}
-                                    className="bg-gray-50 rounded-xl p-4   text-sm"
-                                >
-                                    <p className="text-gray-700 text-[16px] font-semibold mb-1">{c.comment}</p>
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-3">
-                                            <img
-                                                src={
-                                                    c?.avatar
-                                                        ? `${c.avatar}`
+                        {commentsList && commentsList.length > 0 ? (
+                            <div className="space-y-4">
+                                {currentComments.map((c, i) => (
+                                    <div key={i} className="bg-gray-50 rounded-xl p-4 text-sm">
+                                        <p className="text-gray-700 text-[16px] font-semibold mb-1">{c.comment}</p>
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    src={
+                                                    c?.bookedByAdmin?.profile
+                                                        ? `${c?.bookedByAdmin?.profile}`
                                                         : '/demo/synco/members/dummyuser.png'
                                                 }
                                                 onError={(e) => {
                                                     e.currentTarget.onerror = null; // prevent infinite loop
                                                     e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                                                 }}
-                                                alt={c.name}
-                                                className="w-10 h-10 rounded-full object-cover mt-1"
-                                            />
-                                            <div>
-
-                                                <p className="font-semibold text-[#237FEA] text-[16px]">{c.name}</p>
+                                                    alt={c?.bookedByAdmin?.firstName}
+                                                    className="w-10 h-10 rounded-full object-cover mt-1"
+                                                />
+                                                <div>
+                                                    <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName}</p>
+                                                </div>
                                             </div>
+                                            <span className="text-gray-400 text-[16px] whitespace-nowrap mt-1">
+                                                {formatTimeAgo(c.createdAt)}
+                                            </span>
                                         </div>
-                                        <span className=" text-gray-400 text-[16px] whitespace-nowrap mt-1">
-                                            {c.time}
-                                        </span>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+
+                                {/* Pagination controls */}
+                                {totalPages > 1 && (
+                                    <div className="flex justify-center items-center gap-2 mt-4">
+                                        <button
+                                            className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-100"
+                                            onClick={() => goToPage(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                        >
+                                            Prev
+                                        </button>
+                                        {Array.from({ length: totalPages }, (_, i) => (
+                                            <button
+                                                key={i}
+                                                className={`px-3 py-1 rounded-lg border ${currentPage === i + 1 ? 'bg-blue-500 text-white border-blue-500' : 'border-gray-300 hover:bg-gray-100'}`}
+                                                onClick={() => goToPage(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </button>
+                                        ))}
+                                        <button
+                                            className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-100"
+                                            onClick={() => goToPage(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <p className="text-center">No Comments yet.</p>
+                        )}
                     </div>
                 </div>
                 <div className="md:min-w-[508px] max-h-fit rounded-full md:max-w-[508px] text-base space-y-5">

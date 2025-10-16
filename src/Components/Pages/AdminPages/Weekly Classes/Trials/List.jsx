@@ -41,7 +41,7 @@ const trialLists = () => {
                     'Date of Booking': new Date(item.createdAt || item.trialDate).toLocaleDateString(),
                     'Date of Trial': new Date(item.trialDate).toLocaleDateString(),
                     Source: item.parents?.[0]?.howDidYouHear || "-",
-                    Attempts: "static",
+                    Attempts: "(0)",
                     Status: item.status,
                 });
             });
@@ -387,7 +387,7 @@ const trialLists = () => {
         },
         {
             header: "Attempts",
-            render: () => "static", // replace with real attempts later if needed
+            render: () => "(0)", // replace with real attempts later if needed
         },
         {
             header: "Status",

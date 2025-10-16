@@ -49,7 +49,7 @@ const CancellationList = () => {
                     'Date of Booking': new Date(item.createdAt || item.trialDate).toLocaleDateString(),
                     'Date of Trial': new Date(item.trialDate).toLocaleDateString(),
                     Source: item.parents?.[0]?.howDidYouHear || "-",
-                    Attempts: "static",
+                    Attempts: "(0)",
                     Status: item.status,
                 });
             });

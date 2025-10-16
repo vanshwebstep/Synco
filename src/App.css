@@ -550,7 +550,7 @@ button.cursor-not-allowed{
 }
 
 .prose p {
-    margin-bottom: 0;
+    margin-bottom:15px;
 }
 
 ul.innersub li a .subitems {

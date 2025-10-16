@@ -55,7 +55,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { title: 'Cancellation', link: '/weekly-classes/cancellation', needPermissions: [{ module: 'cancellation', action: 'view-listing' }] },
         { title: 'Waiting List', link: '/weekly-classes/find-a-class/add-to-waiting-list/list', needPermissions: [{ module: 'waiting-list', action: 'view-listing' }] },
         { title: 'Capacity', link: '/weekly-classes/capacity', needPermissions: [{ module: 'capacity', action: 'view-listing' }] },
-        { title: 'Account Information', link: '/weekly-classes/account-information', needPermissions: [{ module: 'account-information', action: 'view-listing' }] },
+        { title: 'Account Information', link: '/weekly-classes/members-info', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
       ]
     },
     {
@@ -71,16 +71,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { title: 'Discounts', link: '/holiday-camps/discounts/list', needPermissions: [{ module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }] }
       ]
     },
-    {
-      title: 'Administration',
-      path: '/members',
-      icon: '/demo/synco/SidebarLogos/Admistration.png',
-      iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
-      needPermissions: [{ module: 'member', action: 'view-listing' }],
-      subItems: [
-        { title: 'Admin Panel', link: '/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] }
-      ]
-    },
+   
     ...(MyRole === 'Super Admin'
       ? [
         {
@@ -104,6 +95,16 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       needPermissions: [
         { module: 'key-information', action: 'view-listing' },
         { module: 'key-information', action: 'create' }
+      ]
+    },
+     {
+      title: 'Administration',
+      path: '/members',
+      icon: '/demo/synco/SidebarLogos/Admistration.png',
+      iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
+      needPermissions: [{ module: 'member', action: 'view-listing' }],
+      subItems: [
+        { title: 'Admin Panel', link: '/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] }
       ]
     },
     {

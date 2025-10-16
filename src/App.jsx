@@ -76,7 +76,8 @@ import KeyInfomation from './Components/Pages/AdminPages/Weekly Classes/Key Info
 // Define roles
 import Account from './Components/Pages/AdminPages/Weekly Classes/account-information/Account.jsx';
 import Preview from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/Preview.jsx';
-import MainTable from 'c:/Users/Vansh/Downloads/Synco (7)/src/Components/Pages/AdminPages/Configuration/Weekly Classes/account-information/MainTable.jsx';
+import MainTable from './Components/Pages/AdminPages/Weekly Classes/account-information/MainTable.jsx';
+import { AccountsInfoProvider } from './Components/Pages/AdminPages/contexts/AccountsInfoContext.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -170,7 +171,7 @@ const AppRoutes = () => {
       />
       <Route
         path="/configuration/weekly-classes/subscription-planManager"
-        element={renderProtectedRoute(SubscriptiontPlanManagerList, [{ module: "payment-plan", action: "view-listing" },{ module: "payment-group", action: "view-listing" }])}
+        element={renderProtectedRoute(SubscriptiontPlanManagerList, [{ module: "payment-plan", action: "view-listing" }, { module: "payment-group", action: "view-listing" }])}
       />
 
       <Route
@@ -237,89 +238,89 @@ const AppRoutes = () => {
         path="/configuration/weekly-classes/venues/class-schedule"
         element={renderProtectedRoute(ClassSchedule, [{ module: "class-schedule", action: "view-listing" }])}
       />
-     <Route
-      path="/configuration/weekly-classes/venues/class-schedule/Sessions/viewSessions"
-      element={renderProtectedRoute(Pending, [{ module: "class-schedule", action: "view-listing" }])}
-    />
-     
-    <Route
-      path="/configuration/weekly-classes/venues/class-schedule/Sessions/completed"
-      element={renderProtectedRoute(Completed, [{ module: "class-schedule", action: "view-listing" }])}
-    />
-    <Route
-      path="/configuration/weekly-classes/venues/class-schedule/Sessions/cancel"
-      element={renderProtectedRoute(Cancel, [{ module: "class-schedule", action: "view-listing" }])}
-    />
-    <Route
-      path="/configuration/weekly-classes/term-dates/list"
-      element={renderProtectedRoute(TermDateList, [{ module: "term-group", action: "view-listing" }])}
-    />
-    <Route
-      path="/weekly-classes/term-dates/create"
-      element={renderProtectedRoute(TermDateCreate, [{ module: "term-group", action: "view-listing" }])}
-    />
-     <Route
-      path="/weekly-classes/term-dates/update"
-      element={renderProtectedRoute(TermDateUpdate, [{ module: "term-group", action: "view-listing" }])}
-    />
-    <Route
-      path="/configuration/weekly-classes/session-plan-list"
-      element={renderProtectedRoute(SessionPlanList, [{ module: "session-plan-group", action: "view-listing" }])}
-    />
-    <Route
-      path="/configuration/weekly-classes/session-plan-preview"
-      element={renderProtectedRoute(Preview, [{ module: "session-plan-group", action: "view-listing" }])}
-    />
-    <Route
-      path="/configuration/weekly-classes/session-plan-create"
-      element={renderProtectedRoute(SessionPlanCreate, [{ module: "session-plan-group", action: "view-listing" }])}
-    />
-    <Route
-      path="/configuration/weekly-classes/session-plan-preview"
-      element={renderProtectedRoute(SessionPlanPreview, [{ module: "session-plan-group", action: "view-listing" }])}
-    />
-       <Route
-      path="/weekly-classes/trial/list"
-      element={renderProtectedRoute(TrialLists, [{ module: "book-free-trial", action: "view-listing" }])}
-    />
-       <Route
-      path="/weekly-classes/all-members/list"
-      element={renderProtectedRoute(AddMembers, [{ module: "book-membership", action: "view-listing" }])}
-    />
-    <Route
-      path="/weekly-classes/all-members/membership-sales"
-      element={renderProtectedRoute(MembershipSales, [{ module: "book-membership", action: "view-listing" }])}
-    />
-    <Route
-      path="/weekly-classes/all-members/account-info"
-      element={renderProtectedRoute(AccountInfoBookMembership, [{ module: "book-membership", action: "view-listing" }])}
-    />
-    <Route
-      path="/weekly-classes/add-to-waiting-list/account-info"
-      element={renderProtectedRoute(AccountInfoWaitingList, [{ module: "waiting-list", action: "view-listing" }])}
-    />
-        <Route
-      path="/test"
-      element={renderProtectedRoute(Test)}
-    />
-    <Route
-      path="/weekly-classes/capacity"
-      element={renderProtectedRoute(Capacity, [{ module: "capacity", action: "view-listing" }])}
-    />
-    <Route
-      path="/weekly-classes/all-members/see-details"
-      element={renderProtectedRoute(SeeDetails, [{ module: "book-membership", action: "view-listing" }])}
-    />
-    <Route
-      path="/KeyInfomation"
-      element={renderProtectedRoute(KeyInfomation, [{ module: "key-information", action: "view-listing" }])}
-    />
-    <Route
-      path="/permission"
-      element={renderProtectedRoute(PermissionRole, [{ module: "admin-role", action: "view-listing" }])}
-    />
+      <Route
+        path="/configuration/weekly-classes/venues/class-schedule/Sessions/viewSessions"
+        element={renderProtectedRoute(Pending, [{ module: "class-schedule", action: "view-listing" }])}
+      />
 
-  <Route path="/weekly-classes/members-info" element={
+      <Route
+        path="/configuration/weekly-classes/venues/class-schedule/Sessions/completed"
+        element={renderProtectedRoute(Completed, [{ module: "class-schedule", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/weekly-classes/venues/class-schedule/Sessions/cancel"
+        element={renderProtectedRoute(Cancel, [{ module: "class-schedule", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/weekly-classes/term-dates/list"
+        element={renderProtectedRoute(TermDateList, [{ module: "term-group", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/term-dates/create"
+        element={renderProtectedRoute(TermDateCreate, [{ module: "term-group", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/term-dates/update"
+        element={renderProtectedRoute(TermDateUpdate, [{ module: "term-group", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/weekly-classes/session-plan-list"
+        element={renderProtectedRoute(SessionPlanList, [{ module: "session-plan-group", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/weekly-classes/session-plan-preview"
+        element={renderProtectedRoute(Preview, [{ module: "session-plan-group", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/weekly-classes/session-plan-create"
+        element={renderProtectedRoute(SessionPlanCreate, [{ module: "session-plan-group", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/weekly-classes/session-plan-preview"
+        element={renderProtectedRoute(SessionPlanPreview, [{ module: "session-plan-group", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/trial/list"
+        element={renderProtectedRoute(TrialLists, [{ module: "book-free-trial", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/all-members/list"
+        element={renderProtectedRoute(AddMembers, [{ module: "book-membership", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/all-members/membership-sales"
+        element={renderProtectedRoute(MembershipSales, [{ module: "book-membership", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/all-members/account-info"
+        element={renderProtectedRoute(AccountInfoBookMembership, [{ module: "book-membership", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/add-to-waiting-list/account-info"
+        element={renderProtectedRoute(AccountInfoWaitingList, [{ module: "waiting-list", action: "view-listing" }])}
+      />
+      <Route
+        path="/test"
+        element={renderProtectedRoute(Test)}
+      />
+      <Route
+        path="/weekly-classes/capacity"
+        element={renderProtectedRoute(Capacity, [{ module: "capacity", action: "view-listing" }])}
+      />
+      <Route
+        path="/weekly-classes/all-members/see-details"
+        element={renderProtectedRoute(SeeDetails, [{ module: "book-membership", action: "view-listing" }])}
+      />
+      <Route
+        path="/KeyInfomation"
+        element={renderProtectedRoute(KeyInfomation, [{ module: "key-information", action: "view-listing" }])}
+      />
+      <Route
+        path="/permission"
+        element={renderProtectedRoute(PermissionRole, [{ module: "admin-role", action: "view-listing" }])}
+      />
+
+      <Route path="/weekly-classes/members-info" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -328,7 +329,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-       <Route path="/weekly-classes/account-information" element={
+      <Route path="/weekly-classes/account-information" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -350,29 +351,33 @@ function App() {
     <Router basename="/demo/synco/">
 
       <NotificationProvider>
-        <VenueProvider>
-          <MemberProvider>
-            <PaymentPlanContextProvider>
-              <DiscountContextProvider>
-                <SessionPlanContextProvider>
-                  <TermDatesSessionProvider>
-                    <ClassScheduleProvider>
-                      <FindClassProvider>
-                        <BookFreeTrialProvider>
-                          <BookFreeTrialLoaderProvider>
-                            <PermissionProvider>
-                              <AppRoutes />
-                            </PermissionProvider>
-                          </BookFreeTrialLoaderProvider>
-                        </BookFreeTrialProvider>
-                      </FindClassProvider>
-                    </ClassScheduleProvider>
-                  </TermDatesSessionProvider>
-                </SessionPlanContextProvider>
-              </DiscountContextProvider>
-            </PaymentPlanContextProvider>
-          </MemberProvider>
-        </VenueProvider>
+        <AccountsInfoProvider>
+
+
+          <VenueProvider>
+            <MemberProvider>
+              <PaymentPlanContextProvider>
+                <DiscountContextProvider>
+                  <SessionPlanContextProvider>
+                    <TermDatesSessionProvider>
+                      <ClassScheduleProvider>
+                        <FindClassProvider>
+                          <BookFreeTrialProvider>
+                            <BookFreeTrialLoaderProvider>
+                              <PermissionProvider>
+                                <AppRoutes />
+                              </PermissionProvider>
+                            </BookFreeTrialLoaderProvider>
+                          </BookFreeTrialProvider>
+                        </FindClassProvider>
+                      </ClassScheduleProvider>
+                    </TermDatesSessionProvider>
+                  </SessionPlanContextProvider>
+                </DiscountContextProvider>
+              </PaymentPlanContextProvider>
+            </MemberProvider>
+          </VenueProvider>
+        </AccountsInfoProvider>
       </NotificationProvider>
     </Router >
   );

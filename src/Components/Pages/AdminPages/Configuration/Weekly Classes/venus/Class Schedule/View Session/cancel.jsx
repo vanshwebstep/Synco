@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Check, X } from 'lucide-react';
 import { useLocation } from "react-router-dom";
@@ -7,7 +7,7 @@ import { useClassSchedule } from '../../../../../contexts/ClassScheduleContent';
 const ViewSessions = () => {
   const tabs = ['Members', 'Trials', 'Coaches'];
   const location = useLocation();
-  const { cancelClass, createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
+  const { cancelClass, fetchCancelledClass,createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
   const [activeTab, setActiveTab] = useState('Members');
   const [rolesData, setRolesData] = useState({
     Members: { subject: "", emailBody: "", deliveryMethod: "Email", templateKey: "cancel_member" },
@@ -32,6 +32,13 @@ const ViewSessions = () => {
   function formatDate(isoDate) {
     const date = new Date(isoDate);
 
+   useEffect(() => {
+        const fetchData = async () => {
+            await fetchClassSchedulesID(schedule.id);
+        };
+
+        fetchData();
+    }, [schedule.id]);
     // Day names
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const dayName = days[date.getUTCDay()];
@@ -63,6 +70,7 @@ const ViewSessions = () => {
     updated[index] = status;
     setAttendance(updated);
   };
+  
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent page reload
     setSubmitLoading(true); // ✅ Start loading

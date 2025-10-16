@@ -144,8 +144,17 @@ const ViewSessions = ({ item, sessionData }) => {
       </div>
       <div className="bg-white  rounded-3xl shadow p-6 flex flex-col md:flex-row gap-6">
         {/* Left Sidebar */}
-        <div className="w-full md:w-2/12 bg-[#F4F2EC] py-6  rounded-2xl  text-center">
-          <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
+<div
+  className={`
+    w-full md:w-2/12 
+    py-6 
+    rounded-2xl 
+    text-center
+    ${statusIs === "cancelled" ? "bg-gray-100" : ""}
+    ${statusIs === "complete" ? "bg-green-100" : ""}
+    ${statusIs !== "cancelled" && statusIs !== "complete" ? "bg-[#F4F2EC]" : ""}
+  `}
+>          <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
             {statusIs === "cancelled" ? (
               <img src="/demo/synco/icons/cancelBig.png" alt="Cancelled" />
             ) : statusIs === "complete" ? (

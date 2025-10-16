@@ -5,26 +5,15 @@ import Select from "react-select";
 import { FaPlus } from "react-icons/fa";
 import "react-datepicker/dist/react-datepicker.css";
 import { RxCross2 } from "react-icons/rx";
+import { useAccountsInfo } from "../../contexts/AccountsInfoContext";
+import { FaSave, FaEdit } from "react-icons/fa";
 
 const StudentProfile = () => {
   const [editStudent, setEditStudent] = useState({});
-  const [students, setStudents] = useState([
-    {
-      studentFirstName: "",
-      studentLastName: "",
-      dateOfBirth: null,
-      age: "",
-      gender: "",
-      medicalInformation: "",
-    }, {
-      studentFirstName: "",
-      studentLastName: "",
-      dateOfBirth: null,
-      age: "",
-      gender: "",
-      medicalInformation: "",
-    }
-  ]);
+
+  const { students, setStudents, handleUpdate, mainId } = useAccountsInfo();
+  console.log('students', students)
+
   const [showModal, setShowModal] = useState(false);
 
   const genderOptions = [
@@ -43,11 +32,13 @@ const StudentProfile = () => {
   });
 
   // --- Input handlers ---
+  // --- modal input change only updates newStudent ---
   const handleModalChange = (field, value) => {
     setNewStudent((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleDOBChange = (date, isModal = false, index = null) => {
+  // --- DOB change inside modal ---
+  const handleDOBChange = (index, date, isModal = false) => {
     const today = new Date();
     let age = "";
     if (date) {
@@ -63,11 +54,38 @@ const StudentProfile = () => {
       setNewStudent((prev) => ({ ...prev, dateOfBirth: date, age }));
     } else {
       const updated = [...students];
-      updated[index].dateOfBirth = date;
-      updated[index].age = age;
+      updated[index] = { ...updated[index], dateOfBirth: date, age };
       setStudents(updated);
     }
   };
+
+  // --- Add Student ---
+const handleAddStudent = () => {
+  if (!newStudent.studentFirstName && !newStudent.studentLastName) {
+    return alert("Please enter at least first or last name.");
+  }
+
+  // Create the updated students array
+  const updatedStudents = [...students, { ...newStudent }];
+
+  // Update local state
+  setStudents(updatedStudents);
+
+  // Call API update
+  handleUpdate(mainId, 'students', updatedStudents);
+
+  // Reset modal
+  setShowModal(false);
+  setNewStudent({
+    studentFirstName: "",
+    studentLastName: "",
+    dateOfBirth: null,
+    age: "",
+    gender: "",
+    medicalInformation: "",
+  });
+};
+
 
   const handleInputChange = (index, field, value) => {
     const updated = [...students];
@@ -75,30 +93,23 @@ const StudentProfile = () => {
     setStudents(updated);
   };
 
-  const handleAddStudent = () => {
-    setStudents((prev) => [...prev, newStudent]);
-    setShowModal(false);
-    setNewStudent({
-      studentFirstName: "",
-      studentLastName: "",
-      dateOfBirth: null,
-      age: "",
-      gender: "",
-      medicalInformation: "",
-    });
-  };
+  const handleEditStudents = () => {
+    handleUpdate(mainId, 'students', students)
+  }
 
   return (
     <div className="space-y-10  p-6">
       {/* Add Student Button */}
       <div className="flex justify-end mb-6">
-        <button
-          type="button"
-          onClick={() => setShowModal(true)}
-          className="bg-[#237FEA] absolute right-0 -top-0 text-sm px-4 py-3 rounded-xl text-white hover:bg-[#1e6fd2] flex items-center gap-2 transition"
-        >
-          Add Student <FaPlus />
-        </button>
+        {students.length < 3 && (
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            className="bg-[#237FEA] absolute right-0 -top-0 text-sm px-4 py-3 rounded-xl text-white hover:bg-[#1e6fd2] flex items-center gap-2 transition"
+          >
+            Add Student <FaPlus />
+          </button>
+        )}
       </div>
 
       {/* Student List */}
@@ -121,12 +132,13 @@ const StudentProfile = () => {
             className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
           >
             {editStudent?.[index] ? "Editing Student" : `Student ${index + 1} Information`}
-            <img
-              src="/demo/synco/members/editPencil.png"
-              className="w-5"
-              alt="edit"
-            />
+
+            {editStudent?.[index]
+              ? <FaSave onClick={handleEditStudents} />
+              : <FaEdit />}
+
           </h2>
+
 
           {/* Row 1: Names */}
           <div className="flex gap-4">
@@ -225,8 +237,8 @@ const StudentProfile = () => {
 
       {/* --- Modal for adding new student --- */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-[95%] max-w-lg shadow-lg relative">
+        <div className="fixed inset-0 bg-[#0202025c] bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-[95%] max-w-lg shadow-lg relative max-h-[800px] overflow-auto">
             <div className=" gap-7 relative  border-b border-gray-300 pb-3">
 
               <h3 className="text-xl font-semibold text-center text-[#282829]">Add Student</h3>
@@ -267,7 +279,7 @@ const StudentProfile = () => {
                 <DatePicker
                   withPortal
                   selected={newStudent.dateOfBirth}
-                  onChange={(date) => handleDOBChange(date, true)}
+                  onChange={(date) => handleDOBChange(null, date, true)} // index is null, isModal = true
                   className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
                   showYearDropdown
                   scrollableYearDropdown
@@ -277,6 +289,7 @@ const StudentProfile = () => {
                   minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))}
                   isClearable
                 />
+
               </div>
               <div className="mt-3">
                 <label className="block text-[15px] mb-1 font-semibold">Age</label>

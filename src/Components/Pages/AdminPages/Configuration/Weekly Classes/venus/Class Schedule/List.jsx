@@ -25,39 +25,39 @@ const List = () => {
     const endRef = useRef(null);
 
     // ✅ Scroll to 8:00 AM in the time list
-    const scrollTo8AM = () => {
-        requestAnimationFrame(() => {
-            const list = document.querySelector(".react-datepicker__time-list");
-            if (!list) return;
+  const scrollTo8AM = () => {
+    requestAnimationFrame(() => {
+        const list = document.querySelector(".react-datepicker__time-list");
+        if (!list) return;
 
-            const target = Array.from(list.children).find((el) =>
-                el.textContent?.trim().includes("8:00")
-            );
+        const target = Array.from(list.children).find((el) =>
+            el.textContent?.trim().includes("8:00")
+        );
 
-            if (target) target.scrollIntoView({ block: "center", behavior: "smooth" });
-        });
-    };
+        if (target) target.scrollIntoView({ block: "center" }); // no smooth
+    });
+};
 
-    // ✅ Scroll to the start time dynamically (safe + formatted)
-    const scrollToStartTime = () => {
-        if (!formData?.startTime) return; // avoid running if undefined/null
+// Scroll to the start time dynamically (instant)
+const scrollToStartTime = () => {
+    if (!formData?.startTime) return;
 
-        requestAnimationFrame(() => {
-            const list = document.querySelector(".react-datepicker__time-list");
-            if (!list) return;
+    requestAnimationFrame(() => {
+        const list = document.querySelector(".react-datepicker__time-list");
+        if (!list) return;
 
-            // Normalize the time (e.g., "08:00 AM" → "8:00", handle 24h/12h formats)
-            const normalizedTime = formData.startTime
-                .replace(/^0+/, "") // remove leading zero
-                .replace(/\s?(AM|PM)$/i, ""); // remove AM/PM if present
+        const normalizedTime = formData.startTime
+            .replace(/^0+/, "")
+            .replace(/\s?(AM|PM)$/i, "");
 
-            const target = Array.from(list.children).find((el) =>
-                el.textContent?.trim().includes(normalizedTime)
-            );
+        const target = Array.from(list.children).find((el) =>
+            el.textContent?.trim().includes(normalizedTime)
+        );
 
-            if (target) target.scrollIntoView({ block: "center", behavior: "smooth" });
-        });
-    };
+        if (target) target.scrollIntoView({ block: "center" }); // instant jump
+    });
+};
+
 
     // console.log('openDropdownSessionId', openDropdownSessionId)
     const { fetchClassSchedules, createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
@@ -645,22 +645,22 @@ console.log('sessionMaps',session?.sessionPlan)
 
                                                                                                         navigate("/configuration/weekly-classes/venues/class-schedule/Sessions/cancel", {
                                                                                                             state: {
-                                                                                                            statusIs: session?.classScheduleTermMaps?.status,
+                                                                                                            statusIs: session?.sessionPlan?.status,
 
                                                                                                                 sessionId: session?.sessionPlan?.mapId,
                                                                                                                 schedule: item,
-                                                                                                                canceled: session?.classScheduleTermMaps?.status === "cancelled",
+                                                                                                                canceled: session?.sessionPlan?.status === "cancelled",
                                                                                                             },
                                                                                                         });
                                                                                                     }}
 
                                                                                                     className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
-          ${session?.classScheduleTermMaps?.status === "cancelled"
+          ${session?.sessionPlan?.status === "cancelled"
                                                                                                             ? "bg-white text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
                                                                                                             : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
                                                                                                         }`}
                                                                                                 >
-                                                                                                    {session?.classScheduleTermMaps?.status === "cancelled"
+                                                                                                    {session?.sessionPlan?.status === "cancelled"
                                                                                                         ? "See details"
                                                                                                         : "Cancel Session"}
                                                                                                 </button>

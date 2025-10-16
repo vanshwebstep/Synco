@@ -4,31 +4,16 @@ import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
 import { useNotification } from "../../contexts/NotificationContext";
 import Swal from "sweetalert2";
+import { useAccountsInfo } from "../../contexts/AccountsInfoContext";
+import { FaSave, FaEdit } from "react-icons/fa";
 const ParentProfile = () => {
   const [editParent, setEditParent] = useState(false);
   const [editEmergency, setEditEmergency] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const { adminInfo, setAdminInfo } = useNotification();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const { formData, setFormData, emergency, setEmergency, handleUpdate } = useAccountsInfo();
 
-  const [formData, setFormData] = useState([
-    {
-      parentFirstName: "",
-      parentLastName: "",
-      parentEmail: "",
-      parentPhoneNumber: "",
-      relationToChild: "",
-      howDidYouHear: "",
-    },
-    {
-      parentFirstName: "",
-      parentLastName: "",
-      parentEmail: "",
-      parentPhoneNumber: "",
-      relationToChild: "",
-      howDidYouHear: "",
-    },
-  ]);
   const [commentsList, setCommentsList] = useState([]);
   const [comment, setComment] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,13 +30,7 @@ const ParentProfile = () => {
     if (page > totalPages) page = totalPages;
     setCurrentPage(page);
   };
-  const [emergency, setEmergency] = useState({
-    sameAsAbove: false,
-    emergencyFirstName: "",
-    emergencyLastName: "",
-    emergencyPhoneNumber: "",
-    emergencyRelation: "",
-  });
+
   const handleModalChange = (e) => {
     const { name, value } = e.target;
     setNewParent((prev) => ({ ...prev, [name]: value }));
@@ -139,7 +118,7 @@ const ParentProfile = () => {
     if (!token) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/comment/list`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/list`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -201,7 +180,7 @@ const ParentProfile = () => {
       });
 
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/comment/create`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/create`, requestOptions);
 
       const result = await response.json();
 
@@ -288,6 +267,11 @@ const ParentProfile = () => {
     }
   }, [emergency.sameAsAbove, formData]);
 
+  const handleUpdateParent = () => {
+    console.log('clicked')
+    handleUpdate("parents", formData)
+  }
+
   useEffect(() => {
     fetchComments();
   }, [fetchComments])
@@ -312,6 +296,8 @@ const ParentProfile = () => {
         {formData.map((parent, index) => (
           <div key={index} className="bg-white p-6  rounded-2xl shadow-sm rounded-2xl mb-6">
             {/* Header with Edit Toggle */}
+            <div className="flex items-center gap-2">
+
             <h2
               onClick={() =>
                 setEditParent((prev) => ({
@@ -319,15 +305,16 @@ const ParentProfile = () => {
                   [index]: !prev[index],
                 }))
               }
-              className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
+            className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
             >
               {editParent?.[index] ? "Editing Parent" : `Parent Information ${index + 1}`}
-              <img
-                src="/demo/synco/members/editPencil.png"
-                className="w-5"
-                alt="edit"
-              />
+
+              
             </h2>
+            {editParent?.[index]
+                ? <FaSave onClick={handleUpdateParent} />
+                : <FaEdit />}
+            </div>
 
             {/* Name Fields */}
             <div className="flex gap-6 mb-4 mt-3">
@@ -584,11 +571,9 @@ const ParentProfile = () => {
           className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
         >
           {editEmergency ? "Editing Emergency Contact Details" : "Emergency Contact Details"}
-          <img
-            src="/demo/synco/members/editPencil.png"
-            className="w-5"
-            alt="edit"
-          />
+          {editEmergency
+            ? <FaSave />
+            : <FaEdit />}
         </h2>
 
         <div className="flex items-center gap-2">
