@@ -557,6 +557,11 @@ ul.innersub li a .subitems {
     padding-left: 0 !important;
     padding-right: 0 !important;
  }
+ .reward {
+  background: url(/demo/synco/images/reward-card.png) ;
+  background-repeat: no-repeat ;
+  background-size: cover ;
+}
 /*ul.innersub li a .subitems::after {
   content: "+";
   font-weight: bold;

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
 import { useMembers } from '../../contexts/MemberContext';
 import Loader from '../../contexts/Loader';
-import { formatDistanceToNow } from 'date-fns';
 import { usePermission } from '../../Common/permission';
 
 const Feedback = () => {
@@ -11,9 +10,33 @@ const Feedback = () => {
   const [openResolve, setOpenResolve] = useState(null);
   const [resolveData, setResolveData] = useState('');
 
-  const MyRole = localStorage.getItem("role");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { members, fetchMembers, loading } = useMembers();
+  const members = [
+    {
+      id: 1,
+      createdAt: '14/03/2023',
+      role: { role: 'Positive' },
+      phoneNumber: '1234567890',
+      email: 'user1@example.com',
+      position: 'Coach'
+    },
+    {
+      id: 2,
+      createdAt: '15/03/2023',
+      role: { role: 'Negative' },
+      phoneNumber: '0987654321',
+      email: 'user2@example.com',
+      position: 'Assistant'
+    },
+    {
+      id: 3,
+      createdAt: '16/03/2023',
+      role: { role: 'Neutral' },
+      phoneNumber: '1122334455',
+      email: 'user3@example.com',
+      position: 'Manager'
+    }
+  ]; const { fetchMembers, loading } = useMembers();
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
@@ -147,13 +170,13 @@ const Feedback = () => {
         )}
 
         {openForm && (
-          <div className="fixed inset-0 bg-[#000] bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl w-[95%] md:w-[420px] shadow-lg relative">
-              <div className="flex justify-between items-center border-b border-[#E2E1E5] px-6 py-4">
+          <div className="fixed inset-0 bg-[#00000047] bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl w-[95%] md:w-[420px] md:h-[700px] overflow-auto shadow-lg relative">
+              <div className="flex relative justify-center items-center border-b border-[#E2E1E5] px-6 py-4">
                 <h2 className="text-lg font-semibold text-gray-800">Add Feedback</h2>
                 <button
                   onClick={() => setOpenForm(false)}
-                  className="text-gray-500 hover:text-gray-800 text-xl"
+                  className="text-gray-500 absolute left-5 top-4  hover:text-gray-800 text-xl"
                 >
                   ×
                 </button>
@@ -184,7 +207,7 @@ const Feedback = () => {
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-sm font-semibold text-[#282829] mb-1">Category</label>
                   <select className="w-full border border-[#E2E1E5] rounded-xl p-3 focus:ring-2 focus:ring-blue-400">
                     <option value="">Select Category</option>
                     <option value="Behavior">Behavior</option>
@@ -194,7 +217,7 @@ const Feedback = () => {
 
                 {/* Notes */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                  <label className="block text-sm font-semibold text-[#282829] mb-1">Notes</label>
                   <textarea
                     className="w-full border border-[#E2E1E5] rounded-xl p-3 h-24 resize-none focus:ring-2 focus:ring-blue-400"
                     placeholder="Write your notes here..."
@@ -203,7 +226,7 @@ const Feedback = () => {
 
                 {/* Assign Agent */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Assign agent</label>
+                  <label className="block text-sm font-semibold text-[#282829] mb-1">Assign agent</label>
                   <select className="w-full border border-[#E2E1E5] rounded-xl p-3 focus:ring-2 focus:ring-blue-400">
                     <option value="">Select Agent</option>
                     <option value="Agent A">Agent A</option>
@@ -234,7 +257,21 @@ const Feedback = () => {
         <div className="bg-white rounded-2xl w-full max-w-4xl shadow-sm p-6 md:p-8">
           {/* Header */}
           <div className="flex items-center gap-2 mb-6">
-            <h2 className="text-lg font-semibold text-gray-800">Feedback</h2>
+
+
+            <h2
+              className='text-lg font-semibold text-gray-800 flex items-center gap-2 '
+              onClick={() => {
+                setOpenResolve(false);
+                setResolveData('');
+              }}>
+              <img
+                src="/demo/synco/icons/arrow-left.png"
+                alt="Back"
+                className="w-5 h-5 md:w-6 md:h-6"
+              />
+              Feedback
+            </h2>
           </div>
 
           {/* Feedback Info Table */}

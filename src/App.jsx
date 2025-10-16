@@ -76,6 +76,7 @@ import KeyInfomation from './Components/Pages/AdminPages/Weekly Classes/Key Info
 // Define roles
 import Account from './Components/Pages/AdminPages/Weekly Classes/account-information/Account.jsx';
 import Preview from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/Preview.jsx';
+import MainTable from 'c:/Users/Vansh/Downloads/Synco (7)/src/Components/Pages/AdminPages/Configuration/Weekly Classes/account-information/MainTable.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -318,7 +319,24 @@ const AppRoutes = () => {
       element={renderProtectedRoute(PermissionRole, [{ module: "admin-role", action: "view-listing" }])}
     />
 
-
+  <Route path="/weekly-classes/members-info" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <MainTable />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+       <Route path="/weekly-classes/account-information" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <Account />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
       <Route path="*" element={<Navigate to="/" />} />
 
     </Routes>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState ,useRef,useEffect} from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
 import Select from "react-select";
@@ -229,7 +229,29 @@ const BookingCard = ({ booking }) => {
 const ServiceHistory = () => {
   const [showModal, setShowModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const servicesTypes = [
+  const filterModalRef = useRef(null);
+
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        filterModalRef.current &&
+        !filterModalRef.current.contains(event.target)
+      ) {
+        setShowFilterModal(false);
+      }
+    };
+
+    if (showFilterModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showFilterModal]);  const servicesTypes = [
     { value: "Weekly Classes Membership", label: "Weekly Classes Membership" },
     { value: "Birthday Party Booking", label: "Birthday Party Booking" },
     { value: "One to One Booking", label: "One to One Booking" },
@@ -237,12 +259,13 @@ const ServiceHistory = () => {
     { value: "Merchandise", label: "Merchandise" },
   ];
   const filterOptions = [
-    { label: "This Year", key: "thisyear", apiParam: "period", apiValue: "thisyear" },
-    { label: "This Month", key: "thismonth", apiParam: "period", apiValue: "thismonth" },
-    { label: "This Week", key: "thisweek", apiParam: "period", apiValue: "thisweek" },
-    { label: "Last Year", key: "lastyear", apiParam: "period", apiValue: "lastyear" },
-    { label: "Last Month", key: "lastmonth", apiParam: "period", apiValue: "lastmonth" },
-    { label: "Last Week", key: "lastweek", apiParam: "period", apiValue: "lastweek" },
+    { label: "All Time", key: "thisyear", apiParam: "period", apiValue: "thisyear" },
+    { label: "Weekly Classes", key: "thismonth", apiParam: "period", apiValue: "thismonth" },
+    { label: "Club", key: "thisweek", apiParam: "period", apiValue: "thisweek" },
+    { label: "One To One", key: "lastyear", apiParam: "period", apiValue: "lastyear" },
+    { label: "Merchandise", key: "lastmonth", apiParam: "period", apiValue: "lastmonth" },
+    { label: "All purchases", key: "lastweek", apiParam: "period", apiValue: "lastweek" },
+    { label: "Birthday", key: "birthday", apiParam: "period", apiValue: "birthday" },
   ];
   const [checkedStatuses, setCheckedStatuses] = useState(
     filterOptions.reduce((acc, option) => ({ ...acc, [option.key]: false }), {})
@@ -448,9 +471,9 @@ const ServiceHistory = () => {
         {showFilterModal && (
           <div className="fixed inset-0  bg-[#10101094] bg-opacity-40 flex items-center justify-end z-50">
 
-            <div className="bg-white rounded-xl p-4 mt-15 mr-5 md:max-w-[400px]">
+            <div     ref={filterModalRef} className="bg-white rounded-xl p-4 mt-15 mr-5 md:max-w-[508px]">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter by date</h3>
+                <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter</h3>
                 <button onClick={applyFilter} className="flex gap-2 items-center bg-blue-500 text-white px-3 py-2 rounded-lg text-sm text-[16px]">
                   <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                   Apply fiter
@@ -459,10 +482,10 @@ const ServiceHistory = () => {
 
               <div className="gap-2 text-sm bg-gray-100 p-4 my-6 rounded">
                 <label className="font-semibold text-[16px] sm:text-[18px] block mb-3">Choose type</label>
-                <div className="flex flex-wrap gap-3">
+                <div className="grid md:grid-cols-3 gap-3">
 
                   {filterOptions.map(({ label, key }) => (
-                    <label key={key} className="flex items-center w-full sm:w-[45%] text-[16px] font-semibold gap-3 cursor-pointer">
+                    <label key={key} className="flex items-center  text-[16px] font-semibold gap-3 cursor-pointer">
                       <input
                         type="checkbox"
                         className="peer hidden"

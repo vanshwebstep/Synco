@@ -5,8 +5,11 @@ import ServiceHistory from "./ServiceHistory";
 import Feedback from "./Feedback";
 import Rewards from "./Rewards";
 import Events from "./Events";
+import { useNavigate } from "react-router-dom";
+
 
 const Account = () => {
+  const navigate = useNavigate();
   const tabs = [
     { name: "Parent Profile", component: <ParentProfile /> },
     { name: "Student Profile", component: <StudentProfile /> },
@@ -21,7 +24,17 @@ const Account = () => {
   return (
     <div className="mt-8 relative">
   
-      <div className="flex md:w-7/12 bg-white p-3 gap-1 rounded-2xl p-1 space-x-2">
+      <div className="flex  items-center md:w-7/12 bg-white p-3 gap-1 rounded-2xl p-1 space-x-2">
+       <h2
+          onClick={() => {
+            navigate('/weekly-classes/members-info');
+          }}>
+          <img
+            src="/demo/synco/icons/arrow-left.png"
+            alt="Back"
+            className="w-5 h-5 md:w-6 md:h-6"
+          />
+        </h2>
         {tabs.map((tab) => (
           <button
             key={tab.name}
