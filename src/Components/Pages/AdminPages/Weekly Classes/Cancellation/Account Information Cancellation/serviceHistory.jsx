@@ -38,10 +38,11 @@ const ServiceHistory = ({ serviceHistory }) => {
                 const statusStyles = {
   attended: "bg-green-500 text-white",
   pending: "bg-yellow-500 text-black",
+    waiting_list: "bg-gray-300 text-white",
   cancelled: "bg-red-500 text-white",
   request_to_cancel: "bg-white text-red-500 border ",
 };
-   console.log('serviceHistory', serviceHistory)
+   console.log('status', status)
   return (
     <div className="transition-all duration-300 flex-1 bg-white">
       <div className="rounded-4xl w-full">

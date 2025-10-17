@@ -144,7 +144,7 @@ const MainTable = () => {
                                                     {safe(user?.venue?.name)}
                                                 </td>
                                                 <td className="p-4 whitespace-nowrap" onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}>
-                                                    {user?.trialDate ? new Date(user.trialDate).toLocaleDateString() : 'N/A'}
+                                                    {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                                                 </td>
                                                 <td className="p-4 whitespace-nowrap" onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}>
                                                     {`${safe(user?.bookedByAdmin?.firstName)} ${safe(user?.bookedByAdmin?.lastName)}`}

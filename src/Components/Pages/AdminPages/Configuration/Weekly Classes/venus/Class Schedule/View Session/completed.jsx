@@ -17,7 +17,7 @@ const ViewSessions = ({ item, sessionData }) => {
     const venueId = location.state?.venueId;
     const token = localStorage.getItem("adminToken");
     const statusIs = location.state?.statusIs;
-console.log('statusIs',location.state   )
+    console.log('statusIs', location.state)
     const fetchData = useCallback(async () => {
         if (!token) return;
 
@@ -43,7 +43,7 @@ console.log('statusIs',location.state   )
         fetchData();
     }, [fetchData]);
 
-console.log('data',data)
+    console.log('data', data)
 
     const toggleAttendance = async (idx, isAttended, tabKey, studentId) => {
         try {
@@ -211,11 +211,24 @@ console.log('data',data)
                 ) : (
                     <div className="bg-white rounded-3xl shadow p-6 flex flex-col md:flex-row gap-6">
                         {/* Left Sidebar */}
-                        <div className="w-full md:w-2/12 bg-gray-100 py-6 rounded-2xl text-center">
+                        <div
+                            className={`
+                            w-full md:w-2/12 py-6 rounded-2xl text-center
+                                ${statusIs === "cancelled" ? "bg-gray-100" : ""}
+                                ${statusIs === "complete" ? "bg-green-100" : ""}
+                                ${statusIs !== "cancelled" && statusIs !== "complete" ? "bg-[#F4F2EC]" : ""}
+                            `}
+                        >
                             <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
-                                <img src="/demo/synco/icons/completeBig.png" alt="Completed" />
+                                {statusIs === "cancelled" ? (
+                                    <img src="/demo/synco/icons/cancelBig.png" alt="Cancelled" />
+                                ) : statusIs === "complete" ? (
+                                    <img src="/demo/synco/icons/completeBig.png" alt="Complete" />
+                                ) : (
+                                    <img src="/demo/synco/icons/pendingBig.png" alt="Pending" />
+                                )}
                             </div>
-                            <p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4">Completed</p>
+                            <p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4 capitalize">{statusIs}</p>
                             <div className="text-sm p-6 text-gray-700 space-y-3 text-left">
                                 <p>
                                     <span className="font-semibold">Venue</span>

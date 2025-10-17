@@ -15,9 +15,11 @@ import ParentProfile from "./ParentProfile";
 import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
 import ServiceHistory from "../../../Common/serviceHistory";
 import StudentProfile from "./StudentProfile";
+import Loader from "../../../contexts/Loader";
+
 
 const AccountInfoBookMembership = () => {
-  const { serviceHistoryMembership, serviceHistory ,error } = useBookFreeTrial()
+  const { serviceHistoryMembership, serviceHistory, error, loading } = useBookFreeTrial()
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,8 +46,14 @@ const AccountInfoBookMembership = () => {
     fetchData();
   }, [itemId, serviceHistoryMembership]);
   const [activeTab, setActiveTab] = useState("Service History");
-
- console.log('error',error)
+  if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    )
+  }
+  console.log('error', error)
 
   return (
     <>
@@ -84,9 +92,9 @@ const AccountInfoBookMembership = () => {
             ))}
           </div>
         </div>
-           {activeTab === "Service History" && (
-        <div className=" flex items-start  gap-2 md:gap-3">
-          {/* <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
+        {activeTab === "Service History" && (
+          <div className=" flex items-start  gap-2 md:gap-3">
+            {/* <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
               src="/demo/synco/images/points.png"
               alt="Back"
@@ -97,39 +105,39 @@ const AccountInfoBookMembership = () => {
               <div className="text-[20px] font-semibold text-[#384455]">543</div>
             </div> 
           </div> */}
-          <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
-            <img
-              src="/demo/synco/images/totalPoints.png"
-              alt="Back"
-              className="md:w-11 md:h-11 w-6 h-6"
-            />
-            <div className="block">
-              <div className="whitespace-nowrap font-semibold text-[#717073] text-[14px]">Total Payments</div>
-              <div className="text-[20px] font-semibold text-[#384455]">£0.00</div>
+            <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
+              <img
+                src="/demo/synco/images/totalPoints.png"
+                alt="Back"
+                className="md:w-11 md:h-11 w-6 h-6"
+              />
+              <div className="block">
+                <div className="whitespace-nowrap font-semibold text-[#717073] text-[14px]">Total Payments</div>
+                <div className="text-[20px] font-semibold text-[#384455]">£0.00</div>
+              </div>
             </div>
-          </div>
 
-          <div className="flex gap-4  items-center    p-2 rounded-xl flex-wrap bg-white">
-            <img
-              src="/demo/synco/images/filterGray.png"
-              alt="Back"
-              className=""
-            />
-            <div className="block  pr-3">
-              <div className="whitespace-nowrap font-semibold text-[#717073] text-[16px]">Filters</div>
+            <div className="flex gap-4  items-center    p-2 rounded-xl flex-wrap bg-white">
+              <img
+                src="/demo/synco/images/filterGray.png"
+                alt="Back"
+                className=""
+              />
+              <div className="block  pr-3">
+                <div className="whitespace-nowrap font-semibold text-[#717073] text-[16px]">Filters</div>
+              </div>
             </div>
+            <button
+              className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
+            >
+              <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+              Add booking
+            </button>
           </div>
-          <button
-            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
-          >
-            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-            Add booking
-          </button>
-        </div>
-           )}
+        )}
       </div >
       {activeTab === "Service History" && (
-          <ServiceHistory
+        <ServiceHistory
           serviceHistory={serviceHistory}
           itemId={location.state.itemId}
           labels={{
@@ -139,7 +147,7 @@ const AccountInfoBookMembership = () => {
             venue: "  Venue",
             bookingId: "KGoCardless ID",
             price: "Monthly Price",
-            coach:"Coach",
+            coach: "Coach",
             dateOfBooking: "Date of Booking ",
             progress: "Progress",
             bookingSource: "Booking Source",
@@ -151,7 +159,7 @@ const AccountInfoBookMembership = () => {
       {activeTab === "Parent Profile" && (
         <ParentProfile profile={serviceHistory} />
       )}
-       {activeTab === "Student Profile" && (
+      {activeTab === "Student Profile" && (
         <StudentProfile profile={serviceHistory} />
       )}
     </>

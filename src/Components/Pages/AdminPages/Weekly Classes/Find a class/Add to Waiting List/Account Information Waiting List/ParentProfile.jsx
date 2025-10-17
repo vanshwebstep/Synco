@@ -24,7 +24,7 @@ const ParentProfile = ({ profile }) => {
         freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot, updateWaitingListFamily
     } = useBookFreeTrial() || {};
 
-console.log('profiless',profile)
+    console.log('profiless', profile)
     const [commentsList, setCommentsList] = useState([]);
     const [comment, setComment] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -220,7 +220,7 @@ console.log('profiless',profile)
         bookingId: bookingId,
         classScheduleId: null,
         venueId: classSchedule?.venue?.id || null,
-        preferredStartDate: null,
+        startDate: null,
         notes: "",
     });
     const [cancelData, setCancelData] = useState({
@@ -294,51 +294,51 @@ console.log('profiless',profile)
         : "";
 
     const dateBooked = profile?.dateBooked;
-        const startDate = profile?.startDate;
+    const startDate = profile?.startDate;
 
     const status = profile?.status;
 
     // console.log('Venue Name:', profile.dateBooked);
 
- function formatISODate(isoDateString, toTimezone = null) {
-    if (!isoDateString) return ""; // return empty or a fallback message
+    function formatISODate(isoDateString, toTimezone = null) {
+        if (!isoDateString) return "N/A"; // ✅ Handles null, undefined, or empty string
 
-    const date = new Date(isoDateString);
-    if (isNaN(date.getTime())) return ""; // check for invalid date
+        const date = new Date(isoDateString);
+        if (isNaN(date.getTime())) return "N/A"; // ✅ Handles invalid date formats
 
-    let year, month, day, hours, minutes;
+        let year, month, day, hours, minutes;
 
-    if (toTimezone) {
-        // Convert to target timezone using Intl.DateTimeFormat
-        const options = {
-            year: "numeric",
-            month: "short",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-            timeZone: toTimezone,
-        };
-        const formatter = new Intl.DateTimeFormat("en-US", options);
-        const parts = formatter.formatToParts(date);
+        if (toTimezone) {
+            // Convert to target timezone using Intl.DateTimeFormat
+            const options = {
+                year: "numeric",
+                month: "short",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+                timeZone: toTimezone,
+            };
+            const formatter = new Intl.DateTimeFormat("en-US", options);
+            const parts = formatter.formatToParts(date);
 
-        // Extract formatted parts
-        month = parts.find(p => p.type === "month").value;
-        day = parts.find(p => p.type === "day").value;
-        year = parts.find(p => p.type === "year").value;
-        hours = parts.find(p => p.type === "hour").value;
-        minutes = parts.find(p => p.type === "minute").value;
-    } else {
-        // Use local time
-        year = date.getFullYear();
-        month = date.toLocaleString("en-US", { month: "short" });
-        day = date.getDate().toString().padStart(2, "0");
-        hours = date.getHours().toString().padStart(2, "0");
-        minutes = date.getMinutes().toString().padStart(2, "0");
+            // Extract formatted parts
+            month = parts.find(p => p.type === "month").value;
+            day = parts.find(p => p.type === "day").value;
+            year = parts.find(p => p.type === "year").value;
+            hours = parts.find(p => p.type === "hour").value;
+            minutes = parts.find(p => p.type === "minute").value;
+        } else {
+            // Use local time
+            year = date.getFullYear();
+            month = date.toLocaleString("en-US", { month: "short" });
+            day = date.getDate().toString().padStart(2, "0");
+            hours = date.getHours().toString().padStart(2, "0");
+            minutes = date.getMinutes().toString().padStart(2, "0");
+        }
+
+        return `${month} ${day} ${year}, ${hours}:${minutes}`;
     }
-
-    return `${month} ${day} ${year}, ${hours}:${minutes}`;
-}
 
 
 
@@ -835,7 +835,9 @@ console.log('profiless',profile)
 
                                 <div className="border-t border-[#495362] py-5">
                                     <div className=" text-[20px] text-white">Price</div>
-                                    <div className="text-[16px]  mt-1 text-gray-400"> £{MembershipPrice} </div>
+                                    <div className="text-[16px] mt-1 text-gray-400">
+                                        {MembershipPrice !== null && MembershipPrice !== undefined ? `£${MembershipPrice}` : "N/A"}
+                                    </div>
                                 </div>
 
                             </div>
@@ -1018,8 +1020,8 @@ console.log('profiless',profile)
                                     <DatePicker
                                         withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
-                                        selected={waitingListData.preferredStartDate ? new Date(waitingListData.preferredStartDate) : null}
-                                        onChange={(date) => handleDateChange(date, "preferredStartDate", setWaitingListData)}
+                                        selected={waitingListData.startDate ? new Date(waitingListData.startDate) : null}
+                                        onChange={(date) => handleDateChange(date, "startDate", setWaitingListData)}
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                     />

@@ -25,38 +25,38 @@ const List = () => {
     const endRef = useRef(null);
 
     // ✅ Scroll to 8:00 AM in the time list
-  const scrollTo8AM = () => {
-    requestAnimationFrame(() => {
-        const list = document.querySelector(".react-datepicker__time-list");
-        if (!list) return;
+    const scrollTo8AM = () => {
+        requestAnimationFrame(() => {
+            const list = document.querySelector(".react-datepicker__time-list");
+            if (!list) return;
 
-        const target = Array.from(list.children).find((el) =>
-            el.textContent?.trim().includes("8:00")
-        );
+            const target = Array.from(list.children).find((el) =>
+                el.textContent?.trim().includes("8:00")
+            );
 
-        if (target) target.scrollIntoView({ block: "center" }); // no smooth
-    });
-};
+            if (target) target.scrollIntoView({ block: "center" }); // no smooth
+        });
+    };
 
-// Scroll to the start time dynamically (instant)
-const scrollToStartTime = () => {
-    if (!formData?.startTime) return;
+    // Scroll to the start time dynamically (instant)
+    const scrollToStartTime = () => {
+        if (!formData?.startTime) return;
 
-    requestAnimationFrame(() => {
-        const list = document.querySelector(".react-datepicker__time-list");
-        if (!list) return;
+        requestAnimationFrame(() => {
+            const list = document.querySelector(".react-datepicker__time-list");
+            if (!list) return;
 
-        const normalizedTime = formData.startTime
-            .replace(/^0+/, "")
-            .replace(/\s?(AM|PM)$/i, "");
+            const normalizedTime = formData.startTime
+                .replace(/^0+/, "")
+                .replace(/\s?(AM|PM)$/i, "");
 
-        const target = Array.from(list.children).find((el) =>
-            el.textContent?.trim().includes(normalizedTime)
-        );
+            const target = Array.from(list.children).find((el) =>
+                el.textContent?.trim().includes(normalizedTime)
+            );
 
-        if (target) target.scrollIntoView({ block: "center" }); // instant jump
-    });
-};
+            if (target) target.scrollIntoView({ block: "center" }); // instant jump
+        });
+    };
 
 
     // console.log('openDropdownSessionId', openDropdownSessionId)
@@ -492,7 +492,7 @@ const scrollToStartTime = () => {
                                                                                 const sessionMaps = session.sessionPlan || [];
                                                                                 // console.log('sessionsssss', session)
                                                                                 const sessionState = sessionStates[session.sessionPlanId] || {};
-console.log('sessionMaps',session?.sessionPlan)
+                                                                                console.log('sessionMaps', session?.sessionPlan)
                                                                                 const handleToggleDropdown = (sessionId) => {
                                                                                     // console.log('---handleToggleDropdown called---');
                                                                                     // console.log('Previous sessionStates:', sessionStates);
@@ -645,8 +645,8 @@ console.log('sessionMaps',session?.sessionPlan)
 
                                                                                                         navigate("/configuration/weekly-classes/venues/class-schedule/Sessions/cancel", {
                                                                                                             state: {
-                                                                                                            statusIs: session?.sessionPlan?.status,
-
+                                                                                                                statusIs: session?.sessionPlan?.status,
+                                                                                                                classScheduleId:session?.sessionPlan?.classScheduleId,
                                                                                                                 sessionId: session?.sessionPlan?.mapId,
                                                                                                                 schedule: item,
                                                                                                                 canceled: session?.sessionPlan?.status === "cancelled",

@@ -292,8 +292,11 @@ const StudentProfile = ({ profile }) => {
 
     // console.log('Venue Name:', profile.dateBooked);
 
-    function formatISODate(isoDateString, toTimezone = null) {
+   function formatISODate(isoDateString, toTimezone = null) {
+        if (!isoDateString) return "N/A"; // ✅ Handles null, undefined, or empty string
+
         const date = new Date(isoDateString);
+        if (isNaN(date.getTime())) return "N/A"; // ✅ Handles invalid date formats
 
         let year, month, day, hours, minutes;
 

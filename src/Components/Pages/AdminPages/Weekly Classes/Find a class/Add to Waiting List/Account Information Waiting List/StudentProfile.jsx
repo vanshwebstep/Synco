@@ -214,7 +214,7 @@ const StudentProfile = ({ profile }) => {
         bookingId: bookingId,
         classScheduleId: null,
         venueId: classSchedule?.venue?.id || null,
-        preferredStartDate: null,
+        startDate: null,
         notes: "",
     });
     const [cancelData, setCancelData] = useState({
@@ -293,8 +293,11 @@ const StudentProfile = ({ profile }) => {
 
     // console.log('Venue Name:', profile.dateBooked);
 
-    function formatISODate(isoDateString, toTimezone = null) {
+   function formatISODate(isoDateString, toTimezone = null) {
+        if (!isoDateString) return "N/A"; // ✅ Handles null, undefined, or empty string
+
         const date = new Date(isoDateString);
+        if (isNaN(date.getTime())) return "N/A"; // ✅ Handles invalid date formats
 
         let year, month, day, hours, minutes;
 
@@ -733,7 +736,7 @@ const StudentProfile = ({ profile }) => {
 
                                 <div className="border-t border-[#495362] py-5">
                                     <div className=" text-[20px] text-white">Price</div>
-                                    <div className="text-[16px]  mt-1 text-gray-400"> £{MembershipPrice} </div>
+                                    <div className="text-[16px]  mt-1 text-gray-400">{MembershipPrice !== null && MembershipPrice !== undefined ? `£${MembershipPrice}` : "N/A"} </div>
                                 </div>
 
                             </div>
@@ -923,8 +926,8 @@ const StudentProfile = ({ profile }) => {
                                     <DatePicker
                                         withPortal
                                         minDate={addDays(new Date(), 1)} // disables today and all past dates
-                                        selected={waitingListData.preferredStartDate ? new Date(waitingListData.preferredStartDate) : null}
-                                        onChange={(date) => handleDateChange(date, "preferredStartDate", setWaitingListData)}
+                                        selected={waitingListData.startDate ? new Date(waitingListData.startDate) : null}
+                                        onChange={(date) => handleDateChange(date, "startDate", setWaitingListData)}
                                         dateFormat="EEEE, dd MMMM yyyy"
                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                     />

@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Check, X } from 'lucide-react';
 import { useLocation } from "react-router-dom";
@@ -7,7 +7,7 @@ import { useClassSchedule } from '../../../../../contexts/ClassScheduleContent';
 const ViewSessions = () => {
   const tabs = ['Members', 'Trials', 'Coaches'];
   const location = useLocation();
-  const { cancelClass, fetchCancelledClass,createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
+  const { cancelClass, fetchCancelledClass, createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
   const [activeTab, setActiveTab] = useState('Members');
   const [rolesData, setRolesData] = useState({
     Members: { subject: "", emailBody: "", deliveryMethod: "Email", templateKey: "cancel_member" },
@@ -26,18 +26,18 @@ const ViewSessions = () => {
   const [subject, setSubject] = useState('Class cancellation');
   const [emailText, setEmailText] = useState('');
   const navigate = useNavigate();
-  const { schedule ,sessionId} = location.state || {};
-   console.log('sessionId',sessionId)
-   console.log("Filtered Schedules in cancel:", schedule);
+  const { schedule, sessionId, classScheduleId, statusIs } = location.state || {};
+  console.log('sessionId', sessionId)
+  console.log("Filtered Schedules in cancel:", schedule.cancelSessions);
   function formatDate(isoDate) {
     const date = new Date(isoDate);
 
-   useEffect(() => {
-        const fetchData = async () => {
-            await fetchClassSchedulesID(schedule.id);
-        };
+    useEffect(() => {
+      const fetchData = async () => {
+        await fetchClassSchedulesID(schedule.id);
+      };
 
-        fetchData();
+      fetchData();
     }, [schedule.id]);
     // Day names
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -70,7 +70,7 @@ const ViewSessions = () => {
     updated[index] = status;
     setAttendance(updated);
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent page reload
     setSubmitLoading(true); // ✅ Start loading
@@ -90,7 +90,7 @@ const ViewSessions = () => {
         };
       });
 
-       console.log("Final roles payload:", { roles });
+      console.log("Final roles payload:", { roles });
 
       // Gather all data
       const payload = {
@@ -102,9 +102,9 @@ const ViewSessions = () => {
         roles,
       };
 
-       console.log("Cancellation Payload:", schedule.id,sessionId, payload);
+      console.log("Cancellation Payload:", schedule.id, sessionId, payload);
 
-      await cancelClass(schedule.id,sessionId, payload ,  schedule.venueId); // ✅ await API call
+      await cancelClass(schedule.id, sessionId, payload, schedule.venueId); // ✅ await API call
     } catch (error) {
       console.error("Error cancelling class:", error);
     } finally {
@@ -127,11 +127,24 @@ const ViewSessions = () => {
 
       <div className="bg-white rounded-3xl shadow p-4 md:p-6 flex flex-col md:flex-row gap-6">
         {/* Left - Cancellation Summary */}
-        <div className="w-full md:w-3/12 bg-gray-100 py-6 rounded-2xl text-center">
+        <div
+           className={`
+                            w-full md:w-3/12  py-6 rounded-2xl text-center
+                                ${statusIs === "cancelled" ? "bg-gray-100" : ""}
+                                ${statusIs === "complete" ? "bg-green-100" : ""}
+                                ${statusIs !== "cancelled" && statusIs !== "complete" ? "bg-[#F4F2EC]" : ""}
+                            `}
+                            >
           <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-white mx-auto mb-4">
-            <img src="/demo/synco/icons/cancelBig.png" alt="Cancel" />
+            {statusIs === "cancelled" ? (
+              <img src="/demo/synco/icons/cancelBig.png" alt="Cancelled" />
+            ) : statusIs === "complete" ? (
+              <img src="/demo/synco/icons/completeBig.png" alt="Complete" />
+            ) : (
+              <img src="/demo/synco/icons/pendingBig.png" alt="Pending" />
+            )}
           </div>
-          <p className="text-base font-semibold mb-4 border-b border-gray-300 pb-4">Cancellation</p>
+          <p className="text-base font-semibold mb-4 border-b border-gray-300 pb-4 capitalize">{statusIs}</p>
           <div className="text-sm text-left px-6 text-gray-700 space-y-3">
             <p><strong>Venue</strong><br />{schedule?.venue?.name}</p>
             <p><strong>Class</strong><br />{schedule?.className}</p>

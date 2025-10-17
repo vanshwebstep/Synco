@@ -20,9 +20,12 @@ const DynamicTable = ({ columns, data, from, selectedIds, setSelectedStudents, o
       <thead className="bg-[#F5F5F5]">
           <tr className="font-semibold">
             {columns.map((col, idx) => (
-              <th key={idx} className="p-4 text-[#717073] whitespace-nowrap">
+              <th key={idx}  className={`p-4 whitespace-nowrap text-[#717073] ${
+        col.header === "Status" ? "text-center" : "text-left"
+      }`}>
                 {col.header}
               </th>
+              
             ))}
           </tr>
         </thead>
@@ -50,7 +53,7 @@ const DynamicTable = ({ columns, data, from, selectedIds, setSelectedStudents, o
                         return (
                           <td
                             key={cIdx}
-                            className="p-4 cursor-pointer whitespace-nowrap"
+                            className="p-4 text-left cursor-pointer whitespace-nowrap"
                           >
                             <div className="flex items-center gap-3">
                               <button

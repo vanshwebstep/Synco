@@ -168,13 +168,11 @@ const Create = () => {
           additionalMessage =
             " A reset password link has been sent to your registered email address.";
         }
-
         Swal.fire({
           icon: "success",
           title: result.message || "Member Created",
           text:
-            (result.message || "New member was added successfully!") +
-            additionalMessage,
+            (result.message || "New member was added successfully!"),
           timer: 10000,
           showConfirmButton: false,
         });

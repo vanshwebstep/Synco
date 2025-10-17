@@ -14,9 +14,10 @@ import ServiceHistory from "./serviceHistory";
 import ParentProfile from "./ParentProfile";
 import { useBookFreeTrial } from '../../../../contexts/BookAFreeTrialContext';
 import StudentProfile from "./StudentProfile";
+import Loader from "../../../../contexts/Loader";
 
 const AccountInfoWaitingList = () => {
-  const { serviceHistoryWaitingList, serviceHistory } = useBookFreeTrial()
+  const { serviceHistoryWaitingList, serviceHistory, loading } = useBookFreeTrial()
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -44,7 +45,13 @@ const AccountInfoWaitingList = () => {
   }, [itemId, serviceHistoryWaitingList]);
   const [activeTab, setActiveTab] = useState("Service History");
 
-
+  if (loading) {
+    return (
+      <>
+        <Loader />
+      </>
+    )
+  }
 
   return (
     <>
@@ -83,9 +90,9 @@ const AccountInfoWaitingList = () => {
             ))}
           </div>
         </div>
-           {activeTab === "Service History" && (
-        <div className=" flex items-start  gap-2 md:gap-3">
-          {/* <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
+        {activeTab === "Service History" && (
+          <div className=" flex items-start  gap-2 md:gap-3">
+            {/* <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
               src="/demo/synco/images/points.png"
               alt="Back"
@@ -96,44 +103,44 @@ const AccountInfoWaitingList = () => {
               <div className="text-[20px] font-semibold text-[#384455]">543</div>
             </div>
           </div> */}
-          <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
-            <img
-              src="/demo/synco/images/totalPoints.png"
-              alt="Back"
-              className="md:w-11 md:h-11 w-6 h-6"
-            />
-            <div className="block">
-              <div className="whitespace-nowrap font-semibold text-[#717073] text-[14px]">Total Payments</div>
-              <div className="text-[20px] font-semibold text-[#384455]">£0.00</div>
+            <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
+              <img
+                src="/demo/synco/images/totalPoints.png"
+                alt="Back"
+                className="md:w-11 md:h-11 w-6 h-6"
+              />
+              <div className="block">
+                <div className="whitespace-nowrap font-semibold text-[#717073] text-[14px]">Total Payments</div>
+                <div className="text-[20px] font-semibold text-[#384455]">£0.00</div>
+              </div>
             </div>
-          </div>
 
-          <div className="flex gap-4  items-center    p-2 rounded-xl flex-wrap bg-white">
-            <img
-              src="/demo/synco/images/filterGray.png"
-              alt="Back"
-              className=""
-            />
-            <div className="block  pr-3">
-              <div className="whitespace-nowrap font-semibold text-[#717073] text-[16px]">Filters</div>
+            <div className="flex gap-4  items-center    p-2 rounded-xl flex-wrap bg-white">
+              <img
+                src="/demo/synco/images/filterGray.png"
+                alt="Back"
+                className=""
+              />
+              <div className="block  pr-3">
+                <div className="whitespace-nowrap font-semibold text-[#717073] text-[16px]">Filters</div>
+              </div>
             </div>
+            <button
+              className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
+            >
+              <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+              Add booking
+            </button>
           </div>
-          <button
-            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
-          >
-            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-            Add booking
-          </button>
-        </div>
-           )}
+        )}
       </div >
       {activeTab === "Service History" && (
         <ServiceHistory serviceHistory={serviceHistory} />
       )}
       {activeTab === "Parent Profile" && (
         <ParentProfile profile={serviceHistory} />
-      )} 
-       {activeTab === "Student Profile" && (
+      )}
+      {activeTab === "Student Profile" && (
         <StudentProfile profile={serviceHistory} />
       )}
     </>

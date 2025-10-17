@@ -46,11 +46,12 @@ const ServiceHistory = ({ serviceHistory, itemId ,labels = {}, comesFrom }) => {
     attended: "bg-green-500 text-white",
     active: "bg-green-500 text-white",
     rebooked: "bg-blue-500 text-white",
+    waiting_list: "bg-gray-300 text-white",
     pending: "bg-yellow-500 text-white",
     cancelled: "bg-red-500 text-white",
     request_to_cancel: "bg-white text-red-500 border",
   };
-   console.log('itemId,itemId', itemId)
+   console.log('itemId,itemId', status)
   return (
     <div className="transition-all duration-300 flex-1 bg-white">
       <div className="rounded-4xl w-full">
