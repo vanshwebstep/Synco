@@ -67,7 +67,7 @@ export const SessionPlanContextProvider = ({ children }) => {
         // Append levels as JSON string
         fd.append("levels", JSON.stringify(formdata.levels));
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group/`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-group`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,

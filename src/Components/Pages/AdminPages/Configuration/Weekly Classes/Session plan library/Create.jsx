@@ -437,14 +437,29 @@ const Create = () => {
         }
     }, [level]);
 
-    useEffect(() => {
+useEffect(() => {
+    const loadData = async () => {
         if (id) {
             setIsEditMode(true);
-            fetchGroupById();
-        } else {
+            // Wait for group data to be fetched first
+            await fetchGroupById();
+        }
+
+        // Then fetch exercises/packages
+        try {
+            const response = await fetchExercises();
+            if (response?.status && Array.isArray(response.data)) {
+                setPlans(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching exercises:", error);
+        } finally {
             setIsLoading(false);
         }
-    }, [id]);
+    };
+
+    loadData();
+}, [id, fetchExercises]);
 
     // Load selectedGroup and levels initially
 
@@ -618,22 +633,7 @@ const Create = () => {
     const handleSelectChange = (selected) => {
         setSelectedPlans(selected ? selected.map((item) => item.data) : []);
     };
-    useEffect(() => {
-        const getPackages = async () => {
-            try {
-                const response = await fetchExercises();
-
-                if (response?.status && Array.isArray(response.data)) {
-                    setPlans(response.data); // Set the dynamic plans from backend
-                }
-
-            } catch (error) {
-                console.error("Error fetching exercises:", error);
-            }
-        };
-
-        getPackages();
-    }, [fetchExercises]);
+  
     const handleAddPlan = () => {
         setOpenForm(true);
 

@@ -78,6 +78,8 @@ import Account from './Components/Pages/AdminPages/Weekly Classes/account-inform
 import Preview from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/Preview.jsx';
 import MainTable from './Components/Pages/AdminPages/Weekly Classes/account-information/MainTable.jsx';
 import { AccountsInfoProvider } from './Components/Pages/AdminPages/contexts/AccountsInfoContext.jsx';
+import SessionPlan from './Components/Pages/AdminPages/one-to-one/SessionPlan.jsx';
+import Create from './Components/Pages/AdminPages/one-to-one/Create.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -334,6 +336,24 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <Account />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/one-to-one" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SessionPlan />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/one-to-one/session-plan-create" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <Create />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

@@ -383,7 +383,14 @@ const trialLists = () => {
         },
         {
             header: "Source",
-            render: (item) => item.parents?.[0]?.howDidYouHear || "-",
+            render: (item) => {
+                const firstName = item.bookedByAdmin?.firstName || "";
+                const lastName = item.bookedByAdmin?.lastName || "";
+
+                return firstName
+                    ? `${firstName}${lastName ? " " + lastName : ""}`
+                    : "-";
+            },
         },
         {
             header: "Attempts",

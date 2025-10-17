@@ -905,7 +905,14 @@ console.log('ParentProfile',ParentProfile)
                                 <div className="space-y-4">
                                     <div>
                                         <label className="block text-[16px] font-semibold">Time</label>
-                                        <DatePicker
+                                         <input
+                                        type="text"
+                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                        placeholder="Select Class"
+                                        value={classSchedule?.startTime || "-"}
+                                        readOnly
+                                    />
+                                        {/* <DatePicker
                                             withPortal
                                             selected={selectedTime}
                                             onChange={setSelectedTime}
@@ -916,7 +923,7 @@ console.log('ParentProfile',ParentProfile)
                                             dateFormat="h:mm aa"
                                             placeholderText="Select Time"
                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        />
+                                        /> */}
                                     </div>
 
                                     {/* Reason */}

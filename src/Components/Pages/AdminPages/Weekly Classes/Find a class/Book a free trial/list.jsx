@@ -53,27 +53,27 @@ const List = () => {
     const { keyInfoData, fetchKeyInfo } = useMembers();
     const { adminInfo, setAdminInfo } = useNotification();
 
-  const [country, setCountry] = useState("us"); // default country
-  const [country2, setCountry2] = useState("us"); // default country
-  const [dialCode, setDialCode] = useState("+1"); // store selected code silently
-  const [dialCode2, setDialCode2] = useState("+1"); // store selected code silently
-  const handleChange = (value, data) => {
-    // When library fires onChange, just update the dial code
-    setDialCode("+" + data.dialCode);
-  };
-  const handleChange2 = (value, data) => {
-    // When library fires onChange, just update the dial code
-    setDialCode("+" + data.dialCode);
-  };
+    const [country, setCountry] = useState("us"); // default country
+    const [country2, setCountry2] = useState("us"); // default country
+    const [dialCode, setDialCode] = useState("+1"); // store selected code silently
+    const [dialCode2, setDialCode2] = useState("+1"); // store selected code silently
+    const handleChange = (value, data) => {
+        // When library fires onChange, just update the dial code
+        setDialCode("+" + data.dialCode);
+    };
+    const handleChange2 = (value, data) => {
+        // When library fires onChange, just update the dial code
+        setDialCode("+" + data.dialCode);
+    };
 
-  const handleCountryChange = (countryData) => {
-    setCountry(countryData.countryCode);
-    setDialCode2("+" + countryData.dialCode);
-  };
-  const handleCountryChange2 = (countryData) => {
-    setCountry2(countryData.countryCode);
-    setDialCode2("+" + countryData.dialCode);
-  };
+    const handleCountryChange = (countryData) => {
+        setCountry(countryData.countryCode);
+        setDialCode2("+" + countryData.dialCode);
+    };
+    const handleCountryChange2 = (countryData) => {
+        setCountry2(countryData.countryCode);
+        setDialCode2("+" + countryData.dialCode);
+    };
     const [activePopup, setActivePopup] = useState(null);
     const togglePopup = (id) => {
         setActivePopup((prev) => (prev === id ? null : id));
@@ -117,7 +117,22 @@ const List = () => {
             year: "numeric",
         });
     };
-
+  const handleCancel = () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Your changes will not be saved!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, leave",
+            cancelButtonText: "Stay here",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate("/weekly-classes/find-a-class");
+            }
+        });
+    };
     const relationOptions = [
         { value: "Mother", label: "Mother" },
         { value: "Father", label: "Father" },
@@ -421,7 +436,7 @@ const List = () => {
         setStudents(updatedStudents);
     };
 
-  useEffect(() => {
+    useEffect(() => {
         setStudents((prevStudents) => {
             const n = Number(numberOfStudents) || 0; // safety for null/undefined
 
@@ -815,7 +830,18 @@ const List = () => {
         hasInitialized.current = true; // ✅ mark as done
     }, [sessionDatesSet]);
 
-
+    const handleSubmitClick = (e) => {
+        if (!selectedDate) {
+            e.preventDefault();
+            Swal.fire({
+                icon: "warning",
+                title: "Please select a trial date",
+                confirmButtonColor: "#237FEA",
+            });
+            return;
+        }
+        handleSubmit();
+    };
     if (loading) {
         return (
             <>
@@ -994,7 +1020,7 @@ const List = () => {
 
                     <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
                         <div className="">
-                            <h2 className="text-[24px] font-semibold">Select trial Date </h2>
+                            <h2 className="text-[24px] font-semibold">Select trial Date</h2>
 
                             <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
                                 {/* Header */}
@@ -1559,15 +1585,15 @@ const List = () => {
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center gap-3">
                                                     <img
-                                                    src={
-                                                    c?.bookedByAdmin?.profile
-                                                        ? `${c?.bookedByAdmin?.profile}`
-                                                        : '/demo/synco/members/dummyuser.png'
-                                                }
-                                                onError={(e) => {
-                                                    e.currentTarget.onerror = null; // prevent infinite loop
-                                                    e.currentTarget.src = '/demo/synco/members/dummyuser.png';
-                                                }}
+                                                        src={
+                                                            c?.bookedByAdmin?.profile
+                                                                ? `${c?.bookedByAdmin?.profile}`
+                                                                : '/demo/synco/members/dummyuser.png'
+                                                        }
+                                                        onError={(e) => {
+                                                            e.currentTarget.onerror = null; // prevent infinite loop
+                                                            e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                        }}
                                                         alt={c?.bookedByAdmin?.firstName}
                                                         className="w-10 h-10 rounded-full object-cover mt-1"
                                                     />
@@ -1617,6 +1643,7 @@ const List = () => {
                         </div>
                         <div className="flex justify-end  pb-10 gap-4">
                             <button
+                            onClick={handleCancel}
                                 type="button"
                                 className="flex items-center justify-center gap-1 border border-[#717073] text-[#717073] px-12 text-[18px]  py-2 rounded-lg font-semibold bg-none"
                             >
@@ -1625,12 +1652,14 @@ const List = () => {
 
                             <button
                                 type="submit"
-                                onClick={handleSubmit}
-                                disabled={isSubmitting}
-                                className="bg-[#237FEA] text-white  text-[18px]  font-semibold border  border-[#237FEA] px-6 py-3 rounded-lg"
+                                onClick={handleSubmitClick}
+                                disabled={isSubmitting || selectedDate == null}
+                                className={`${isSubmitting || selectedDate == null
+                                        ? "bg-gray-400 border-gray-400 cursor-not-allowed"
+                                        : "bg-[#237FEA] border-[#237FEA] hover:bg-[#1f6dc9] cursor-pointer"
+                                    } text-white text-[18px] font-semibold border  px-6 py-3 rounded-lg transition`}
                             >
                                 {isSubmitting ? "Submitting..." : "Book FREE Trial"}
-
                             </button>
 
                         </div>

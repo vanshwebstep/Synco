@@ -168,7 +168,43 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         },
       ],
     },
+    {
+      title: "One To One",
+      icon: "/demo/synco/SidebarLogos/config.png",
+      path: '/configuration',
+      link: '/one-to-one',
+      iconHover: "/demo/synco/SidebarLogos/configH.png",
+      needPermissions: [
+        { module: 'session-exercise-one-to-one', action: 'view-listing' },
 
+      ],
+      // subItems: [
+      //   {
+      //     title: "Leads Database",
+      //     link: "#",
+      //     needPermissions: [
+      //       { module: "venue", action: "view-listing" },
+      //       { module: "term-group", action: "view-listing" },
+      //       { module: "session-plan-group", action: "view-listing" },
+      //       { module: "payment-group", action: "view-listing" },
+      //     ],
+
+
+      //   },
+      //   {
+      //     title: "Sales",
+      //     link: "#",
+      //     needPermissions: [
+      //       { module: "venue", action: "view-listing" },
+      //       { module: "term-group", action: "view-listing" },
+      //       { module: "session-plan-group", action: "view-listing" },
+      //       { module: "payment-group", action: "view-listing" },
+      //     ],
+
+
+      //   },
+      // ],
+    },
   ];
 
   let menuItems = [];
