@@ -304,7 +304,6 @@ const handleUpdate = (id) => {
                 setFormData((prev) => ({
                   ...prev,
                   isCongested: checked,
-                  howToEnterFacility: checked ? prev.howToEnterFacility : '',
                 }));
               }}
               className="sr-only"

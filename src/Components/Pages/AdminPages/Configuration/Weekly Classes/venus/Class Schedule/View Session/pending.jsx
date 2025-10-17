@@ -172,7 +172,7 @@ const ViewSessions = ({ item, sessionData }) => {
             <p><b className="">Venue</b><br /> {singleClassSchedules?.name}</p>
             <p><b className="">Class</b><br />   {className?.className}</p>
             <p><b className="">Date:</b> <br />{formatDateWithSuffix(sessionDate)} </p>
-            <p><b className="">Time:</b> <br />{className?.startTime} – {className.endTime}</p>
+            <p><b className="">Time:</b> <br />{className?.startTime} – {className?.endTime}</p>
           </div>
         </div>
 
@@ -317,21 +317,26 @@ const ViewSessions = ({ item, sessionData }) => {
                       <p>No images available</p>
                     )}
                   </div>
-                  <p className="text-blue-500 text-[14px] font-semibold pb-4">
+                  <p className="text-blue-500 text-[14px] mt-7 font-semibold mb-5">
                     Time Duration: {selectedExercise.duration || '—'}
                   </p>
 
-                  <div className="text-sm space-y-3">
+                  <div className="text-sm space-y-6">
                     <div>
-                      <p className="font-semibold text-[18px] pb-2">Description</p>
+                      
                       <div
-                        className="text-gray-500 text-[14px] font-semibold"
+                      className="prose prose-sm space-y-6 max-w-none text-gray-700
+    prose-p:mb-3 prose-li:mb-2
+    prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
+    prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5
+    marker:text-gray-700"
                         dangerouslySetInnerHTML={{
-                          __html: selectedExercise.description || '<p>No description available.</p>',
+                          __html:
+                            selectedExercise.description ||
+                            "<p class='text-gray-400 italic'>No description available.</p>",
                         }}
                       />
                     </div>
-                    {/* Add other sections like Rules, Conditions, etc. if you have them in exercise */}
                   </div>
                 </div>
               )}

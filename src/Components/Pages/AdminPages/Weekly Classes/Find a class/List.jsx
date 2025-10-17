@@ -994,37 +994,43 @@ useEffect(() => {
                             </div>
                           </div>
                         )}
-                        {openMapId === venue.venueId && (
-                          <div ref={iconContainerRef} >
-                            <div
-                              ref={(el) => (modalRefs.current[venue.venueId] = el)} // ✅ DOM ref here
-                              className="mt-4 h-[450px] w-full rounded-lg overflow-hidden"
-                            >
-                              <MapContainer
-                                center={[venue.latitude, venue.longitude]}
-                                zoom={13}
-                                scrollWheelZoom={false}
-                                zoomControl={false}
-                                style={{ height: '100%', width: '100%' }}
-                              >
-                                <TileLayer
-                                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                  attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                                />
-                                <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
-                                  <Popup>
-                                    <strong>{venue.venueName}</strong>
-                                    <br />
-                                    {venue.address}
-                                  </Popup>
-                                </Marker>
-                                <ZoomControl position="bottomright" />
+                 {openMapId === venue.venueId && (
+  <div ref={iconContainerRef}>
+    <div
+      ref={(el) => (modalRefs.current[venue.venueId] = el)}
+      className="mt-4 h-[450px] w-full rounded-lg overflow-hidden"
+    >
+      {venue.latitude && venue.longitude ? (
+        <MapContainer
+          center={[venue.latitude, venue.longitude]}
+          zoom={13}
+          scrollWheelZoom={false}
+          zoomControl={false}
+          style={{ height: "100%", width: "100%" }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+          />
+          <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
+            <Popup>
+              <strong>{venue.venueName}</strong>
+              <br />
+              {venue.address}
+            </Popup>
+          </Marker>
+          <ZoomControl position="bottomright" />
+          <ResizeMap />
+        </MapContainer>
+      ) : (
+        <div className="flex items-center justify-center h-full bg-gray-100 text-gray-500 text-lg font-medium">
+          No map location found
+        </div>
+      )}
+    </div>
+  </div>
+)}
 
-                                <ResizeMap /> {/* ✅ fixes the 30% render issue */}
-                              </MapContainer>
-                            </div>
-                          </div>
-                        )}
 
 
                       </div>
