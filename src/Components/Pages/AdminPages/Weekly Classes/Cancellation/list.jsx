@@ -49,7 +49,7 @@ const CancellationList = () => {
                     'Date of Booking': new Date(item.createdAt || item.trialDate).toLocaleDateString(),
                     'Date of Trial': new Date(item.trialDate).toLocaleDateString(),
                     Source: item.parents?.[0]?.howDidYouHear || "-",
-                    Attempts: "(0)",
+                    Attempts: "0",
                     Status: item.status,
                 });
             });
@@ -96,24 +96,24 @@ const CancellationList = () => {
 
     const navigate = useNavigate();
 
-     // console.log('bookedByAdmin', bookedByAdmin)
+    // console.log('bookedByAdmin', bookedByAdmin)
 
     useEffect(() => {
         const venueName = selectedVenue?.label || "";
-         // console.log('venueName', venueName)
+        // console.log('venueName', venueName)
         if (active === "request") {
             fetchRequestToCancellations("", venueName);
-             // console.log('1')
+            // console.log('1')
         } else if (active === "full") {
             fetchFullCancellations("", venueName);
-             // console.log('2')
+            // console.log('2')
 
         } else if (active === "all") {
 
-             // console.log('3')
+            // console.log('3')
             fetchAllCancellations("", venueName);
         } else {
-             // console.log('4')
+            // console.log('4')
             // fallback
             fetchFullCancellations();
         }
@@ -312,7 +312,7 @@ const CancellationList = () => {
         let styles =
             "bg-red-100 text-red-500"; // default fallback
         if (s === "attended" || s === "active")
-            styles = "bg-green-100 text-green-600";
+            styles = "bg-yellow-100 text-yellow-600";
         else if (s === "pending") styles = "bg-yellow-100 text-yellow-600";
         else if (s === "frozen") styles = "bg-blue-100 text-blue-600";
         else if (s === "waiting list") styles = "bg-gray-200 text-gray-700";
@@ -360,7 +360,7 @@ const CancellationList = () => {
                 (agent) => `${agent.id}`
             );
             setSavedAgent(selectedNames); // ✅ saves full names as strings
-             // console.log("selectedNames", tempSelectedAgents);
+            // console.log("selectedNames", tempSelectedAgents);
         } else {
             setSavedAgent([]); // nothing selected → clear
         }
@@ -379,7 +379,7 @@ const CancellationList = () => {
             fetchAllCancellations(value);
         }
     };
-     // console.log('statsFreeTrial', statsFreeTrial)
+    // console.log('statsFreeTrial', statsFreeTrial)
     const { checkPermission } = usePermission();
 
     const canServicehistory =
@@ -407,6 +407,11 @@ const CancellationList = () => {
                 item.startDate ? new Date(item.startDate).toLocaleDateString() : "-",
         },
         {
+            header: "Membership End Date",
+            render: (item) =>
+                item.endDate ? new Date(item.endDate).toLocaleDateString() : "-",
+        },
+        {
             header: "Request Date",
             render: (item) =>
                 item.cancelDate ? new Date(item.cancelDate).toLocaleDateString() : "-",
@@ -415,8 +420,8 @@ const CancellationList = () => {
             header: "Membership Plan",
             render: (item) => item.paymentPlan?.title || "-",
         },
-        {
-            header: "Tenure",
+         {
+            header: "Life Cycle",
             render: (item) => {
                 if (!item.paymentPlan) return "-";
                 const { duration, interval } = item.paymentPlan;
@@ -429,10 +434,10 @@ const CancellationList = () => {
             render: (item) => (
                 <div
                     className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status?.toLowerCase() === "cancelled"
-                        ? "bg-[#eda6001f] text-[#EDA600]"
+                        ? "bg-yellow-100 text-yellow-600"
                         : item.status?.toLowerCase() === "pending"
-                            ? "bg-[#eda6001f] text-[#EDA600]"
-                            : "bg-green-100 text-green-600"
+                            ? "bg-yellow-100 text-yellow-600"
+                            : "bg-yellow-100 text-yellow-600"
                         } capitalize`}
                 >
                     {item.cancelReason || item.status}
@@ -489,7 +494,7 @@ const CancellationList = () => {
                         ? "bg-[#eda6001f] text-[#EDA600]"
                         : item.status?.toLowerCase() === "pending"
                             ? "bg-[#eda6001f] text-[#EDA600]"
-                            : "bg-green-100 text-green-600"
+                            : "bg-yellow-100 text-yellow-600"
                         } capitalize`}
                 >
                     {item.cancelReason || item.status}
@@ -543,10 +548,10 @@ const CancellationList = () => {
             render: (item) => (
                 <div
                     className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status?.toLowerCase() === "cancelled"
-                        ? "bg-[#eda6001f] text-[#EDA600]"
+                        ? "bg-yellow-100 text-yellow-600"
                         : item.status?.toLowerCase() === "pending"
-                            ? "bg-[#eda6001f] text-[#EDA600]"
-                            : "bg-green-100 text-green-600"
+                            ? "bg-yellow-100 text-yellow-600"
+                            : "bg-yellow-100 text-yellow-600"
                         } capitalize`}
                 >
                     {item.cancelReason || item.status}
@@ -577,8 +582,8 @@ const CancellationList = () => {
                                     setSelectedStudents([]);
                                 }}
                                 className={`w-full md:w-auto flex gap-2 items-center px-3 py-2 rounded-xl text-sm text-[16px] transition ${active === btn.key
-                                        ? "bg-[#237FEA] text-white" // active
-                                        : "text-gray-700 font-semibold border border-gray-300" // inactive
+                                    ? "bg-[#237FEA] text-white" // active
+                                    : "text-gray-700 font-semibold border border-gray-300" // inactive
                                     }`}
                             >
                                 {btn.label}
@@ -590,7 +595,8 @@ const CancellationList = () => {
                     ) : (
                         <>
                             <StatsGrid stats={stats} variant="A" />
-                            <div className="flex justify-end ">
+                            <div className="flex justify-between items-center ">
+                                <h2 className='text-2xl font-semibold'>{active == "request" ? "Request to cancel" : "Full to cancel"}</h2>
                                 <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
                                     <img onClick={() => navigate("/weekly-classes/find-a-class")}
                                         src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
@@ -926,7 +932,7 @@ const CancellationList = () => {
                         </button>
                     </div>
 
-                    
+
                 </div>
 
 

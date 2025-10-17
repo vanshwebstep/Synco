@@ -171,7 +171,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     {
       title: "One To One",
       icon: "/demo/synco/SidebarLogos/config.png",
-      path: '/configuration',
+      path: '/one-to-one',
       link: '/one-to-one',
       iconHover: "/demo/synco/SidebarLogos/configH.png",
       needPermissions: [

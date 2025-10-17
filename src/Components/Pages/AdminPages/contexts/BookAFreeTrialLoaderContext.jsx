@@ -1313,7 +1313,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
     }
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/waiting-list/from/remove`, {
-        method: "PUT",
+        method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
         ),

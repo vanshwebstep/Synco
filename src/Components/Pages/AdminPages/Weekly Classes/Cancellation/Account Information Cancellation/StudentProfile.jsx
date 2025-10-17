@@ -270,7 +270,7 @@ console.log('StudentProfile',StudentProfile)
         checkPermission({ module: 'cancel-free-trial', action: 'create' })
     const canRebooking =
         checkPermission({ module: 'rebooking', action: 'create' })
-    if (loading) return <Loader />;
+
 
     const handleInputChange = (e, stateSetter) => {
         const { name, value } = e.target;
@@ -336,6 +336,7 @@ console.log('StudentProfile',StudentProfile)
         { value: 6, label: "6 Months" },
         { value: 12, label: "12 Months" },
     ];
+        if (loading) return <Loader />;
     return (
         <>
             <div className="md:flex w-full gap-4">
@@ -702,7 +703,7 @@ console.log('StudentProfile',StudentProfile)
 
                                 <div className="border-t border-[#495362] py-5">
                                     <div className=" text-[20px] text-white">Request to Cancel Date </div>
-                                    <div className="text-[16px]  mt-1 text-gray-400">{formatDate(trialDate)}</div>
+                                    <div className="text-[16px]  mt-1 text-gray-400">{formatDate(StudentProfile.cancelData.cancelDate)}</div>
                                 </div>
 
                                 <div className="border-t border-[#495362] py-5">

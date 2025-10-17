@@ -53,7 +53,7 @@ const AccountInfoBookMembership = () => {
       </>
     )
   }
-  console.log('error', error)
+  console.log('memberInfo', memberInfo)
 
   return (
     <>

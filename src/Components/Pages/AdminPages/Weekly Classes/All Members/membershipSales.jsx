@@ -388,7 +388,7 @@ const membershipColumns = [
                                               from={'membership'}
                                             onRowClick={(row) =>
                                                 navigate("/weekly-classes/all-members/account-info", {
-                                                    state: { itemId: row.bookingId, memberInfo: "allMembers" },
+                                                    state: { itemId: row.bookingId, memberInfo: "" },
                                                 })
                                             }
                                         />

@@ -1724,7 +1724,7 @@ console.log('bookingIds',bookingIds)
     }
     try {
       const response = await fetch(`${API_BASE_URL}/api/admin/waiting-list/from/remove`, {
-        method: "PUT",
+        method: "POST",
         headers,
         body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
         ),
@@ -1744,7 +1744,9 @@ console.log('bookingIds',bookingIds)
       });
       if (comesfrom === "allMembers") {
         navigate(`/weekly-classes/all-members/list`);
-      } else {
+      } else if (comesfrom === "waitingList"){
+        navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`);
+      }else {
         navigate(`/weekly-classes/all-members/membership-sales`);
       }
 

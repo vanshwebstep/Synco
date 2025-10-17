@@ -25,20 +25,61 @@ const ViewSessions = () => {
   const [messageType, setMessageType] = useState('Email');
   const [subject, setSubject] = useState('Class cancellation');
   const [emailText, setEmailText] = useState('');
+
   const navigate = useNavigate();
-  const { schedule, sessionId, classScheduleId, statusIs } = location.state || {};
+  const { schedule, sessionId, classScheduleId, statusIs, cancelSession } = location.state || {};
   console.log('sessionId', sessionId)
-  console.log("Filtered Schedules in cancel:", schedule.cancelSessions);
+  console.log("Filtered Schedules in cancessl:", cancelSession);
+
+useEffect(() => {
+  if (cancelSession && Object.keys(cancelSession).length > 0) {
+    // Prefill basic fields
+    setReasonForCancelling(cancelSession.reasonForCancelling || "");
+    setNotifyMembers(cancelSession.notifyMembers === "Yes");
+    setcreditMembers(cancelSession.creditMembers === "Yes");
+    setnotifyTrialists(cancelSession.notifyTrialists === "Yes");
+    setNotifyCoaches(cancelSession.notifyCoaches === "Yes");
+
+    // Parse notifications JSON
+    const parsedNotifications = JSON.parse(cancelSession.notifications || "[]");
+
+    const newRolesData = { ...rolesData };
+
+   const roleMap = {
+  Member: "Members",
+  Trialist: "Trials",
+  Coach: "Coaches"
+};
+
+parsedNotifications.forEach((n) => {
+  const key = roleMap[n.role];
+  if (key) {
+    newRolesData[key] = {
+      ...newRolesData[key],
+      subject: n.subjectLine || "",
+      emailBody: n.emailBody || "",
+      deliveryMethod: n.deliveryMethod || "Email",
+    };
+  }
+});
+
+    setRolesData(newRolesData);
+  }
+}, [cancelSession]);
+
+
+
+
   function formatDate(isoDate) {
     const date = new Date(isoDate);
 
-    useEffect(() => {
-      const fetchData = async () => {
-        await fetchClassSchedulesID(schedule.id);
-      };
+    // useEffect(() => {
+    //   const fetchData = async () => {
+    //     // await fetchClassSchedulesID(schedule.id);
+    //   };
 
-      fetchData();
-    }, [schedule.id]);
+    //   fetchData();
+    // }, [schedule.id]);
     // Day names
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const dayName = days[date.getUTCDay()];
@@ -111,7 +152,11 @@ const ViewSessions = () => {
       setSubmitLoading(false); // ✅ Stop loading regardless of success/failure
     }
   };
+  console.log('cancelSession', cancelSession)
+  const isCancel = cancelSession && Object.keys(cancelSession).length > 0;
 
+
+  console.log('isCancel', isCancel)
 
   return (
     <div className="p-4 md:p-6 bg-gray-50 ">
@@ -128,13 +173,13 @@ const ViewSessions = () => {
       <div className="bg-white rounded-3xl shadow p-4 md:p-6 flex flex-col md:flex-row gap-6">
         {/* Left - Cancellation Summary */}
         <div
-           className={`
+          className={`
                             w-full md:w-3/12  py-6 rounded-2xl text-center
                                 ${statusIs === "cancelled" ? "bg-gray-100" : ""}
                                 ${statusIs === "complete" ? "bg-green-100" : ""}
                                 ${statusIs !== "cancelled" && statusIs !== "complete" ? "bg-[#F4F2EC]" : ""}
                             `}
-                            >
+        >
           <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-white mx-auto mb-4">
             {statusIs === "cancelled" ? (
               <img src="/demo/synco/icons/cancelBig.png" alt="Cancelled" />
@@ -161,41 +206,42 @@ const ViewSessions = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-[18px] font-semibold mb-2">Reason for cancelling</label>
-                <select
-                  value={reasonForCancelling}
-                  onChange={(e) => setReasonForCancelling(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
-                >
-                  <option>Weather</option>
-                  <option>Illness</option>
-                  <option>Unavailable Venue</option>
-                  <option>Other</option>
-                </select>
+             <select
+  value={reasonForCancelling}
+  onChange={(e) => setReasonForCancelling(e.target.value)}
+  disabled={isCancel}
+  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+>
+  <option>Weather</option>
+  <option>Illness</option>
+  <option>Unavailable Venue</option>
+  <option>Other</option>
+</select>
               </div>
 
               <div className="space-y-2 text-sm">
                 <p className="font-semibold text-[18px]">Would you like to notify members?</p>
                 <div className="flex flex-wrap gap-4 mt-4">
-                  <label className='text-[18px]'><input type="radio" checked={notifyMembers} onChange={() => setNotifyMembers(true)} /> Yes</label>
-                  <label className='text-[18px]'><input type="radio" checked={!notifyMembers} onChange={() => setNotifyMembers(false)} /> No</label>
+                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={notifyMembers} onChange={() => setNotifyMembers(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={!notifyMembers} onChange={() => setNotifyMembers(false)} /> No</label>
                 </div>
 
                 <p className="mt-3 font-semibold text-[18px]">Credit members 1 session?</p>
                 <div className="flex flex-wrap gap-4 mt-4">
-                  <label className='text-[18px]'><input type="radio" checked={creditMembers} onChange={() => setcreditMembers(true)} /> Yes</label>
-                  <label className='text-[18px]'><input type="radio" checked={!creditMembers} onChange={() => setcreditMembers(false)} /> No</label>
+                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={creditMembers} onChange={() => setcreditMembers(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={!creditMembers} onChange={() => setcreditMembers(false)} /> No</label>
                 </div>
 
                 <p className="mt-3 font-semibold text-[18px]">Would you like to notify trialists?</p>
                 <div className="flex flex-wrap gap-4 mt-4">
-                  <label className='text-[18px]'><input type="radio" checked={notifyTrialists} onChange={() => setnotifyTrialists(true)} /> Yes</label>
-                  <label className='text-[18px]'><input type="radio" checked={!notifyTrialists} onChange={() => setnotifyTrialists(false)} /> No</label>
+                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={notifyTrialists} onChange={() => setnotifyTrialists(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={!notifyTrialists} onChange={() => setnotifyTrialists(false)} /> No</label>
                 </div>
 
                 <p className="mt-3 font-semibold text-[18px]">Would you like to notify coaches?</p>
                 <div className="flex flex-wrap gap-4 mt-4">
-                  <label className='text-[18px]'><input type="radio" checked={notifyCoaches} onChange={() => setNotifyCoaches(true)} /> Yes</label>
-                  <label className='text-[18px]'><input type="radio" checked={!notifyCoaches} onChange={() => setNotifyCoaches(false)} /> No</label>
+                  <label className='text-[18px]'><input type="radio" disabled={isCancel}  checked={notifyCoaches} onChange={() => setNotifyCoaches(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={!notifyCoaches} onChange={() => setNotifyCoaches(false)} /> No</label>
                 </div>
               </div>
             </div>
@@ -224,6 +270,7 @@ const ViewSessions = () => {
                 <label className="block text-sm md:text-base font-semibold mt-2">Subject Line</label>
                 <input
                   className="w-full border border-gray-300 rounded-lg p-3"
+                    readOnly={isCancel}
                   value={rolesData[activeTab].subject}
                   onChange={(e) =>
                     setRolesData({
@@ -234,6 +281,7 @@ const ViewSessions = () => {
                 />
                 {rolesData[activeTab].deliveryMethod === 'Text' ? 'Text' : 'Email'}
                 <textarea
+                 readOnly={isCancel}
                   className="w-full bg-gray-100 border border-gray-300 rounded-lg p-3 h-60"
                   value={rolesData[activeTab].emailBody}
                   onChange={(e) =>
@@ -248,6 +296,7 @@ const ViewSessions = () => {
                   <label>
                     <input
                       type="radio"
+                       disabled={isCancel} 
                       checked={rolesData[activeTab].deliveryMethod === "Email"}
                       onChange={() =>
                         setRolesData({
@@ -274,13 +323,21 @@ const ViewSessions = () => {
                 <div className="text-end ">
                   <button
                     onClick={handleSubmit}
-                    disabled={submitLoading} // ✅ disable while loading
-                    className={`mt-4 w-full md:w-auto cursor-pointer text-sm md:text-base px-6 py-3 md:px-20 rounded-lg 
-    ${submitLoading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600 cursor-pointer text-white"}
+                    disabled={submitLoading || isCancel}  // 🚫 disable if loading OR already canceled
+                    className={`mt-4 w-full md:w-auto text-sm md:text-base px-6 py-3 md:px-20 rounded-lg 
+    ${(submitLoading || isCancel)
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-500 hover:bg-blue-600 cursor-pointer text-white"}
   `}
                   >
-                    {submitLoading ? "Sending..." : "Send"}
+                    {isCancel
+                      ? "Already Canceled"
+                      : submitLoading
+                        ? "Sending..."
+                        : "Send"}
                   </button>
+
+
 
                 </div>
               </div>

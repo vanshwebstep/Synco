@@ -691,7 +691,7 @@ const StudentProfile = ({ profile }) => {
                                     <div className="text-[20px] text-white">Membership Plan</div>
 
                                     <div className="text-[1s6px] mt-1 text-gray-400">
-                                        {MembershipPlan} Plan
+                                       {MembershipPlan ? `${MembershipPlan} Plan` : "N/A"}
                                     </div>
 
                                 </div>

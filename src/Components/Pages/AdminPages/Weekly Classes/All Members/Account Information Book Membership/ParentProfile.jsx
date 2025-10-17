@@ -879,7 +879,8 @@ const ParentProfile = ({ profile }) => {
                                 )}
 
 
-                                {status == 'active' && canCancelTrial && (
+                                {status == 'active' && canCancelTrial && !profile.freezeBooking &&  (
+                                    // parent.freezeBooking
                                     <button
                                         onClick={() => setFreezeMembership(true)}
                                         className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"

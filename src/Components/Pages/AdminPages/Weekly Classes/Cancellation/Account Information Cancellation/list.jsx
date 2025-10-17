@@ -15,9 +15,10 @@ import ParentProfile from "./ParentProfile";
 import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
 import ServiceHistory from "../../../Common/serviceHistory";
 import StudentProfile from "./StudentProfile";
+import Loader from "../../../contexts/Loader";
 
 const AccountInfoCancellation = () => {
-  const { ServiceHistoryRequestto, serviceHistory } = useBookFreeTrial()
+  const { ServiceHistoryRequestto, serviceHistory ,loading} = useBookFreeTrial()
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,6 +39,7 @@ const AccountInfoCancellation = () => {
   }, [itemId, ServiceHistoryRequestto]);
   const [activeTab, setActiveTab] = useState("Service History");
    console.log('serviceHistory', serviceHistory)
+        if (loading) return <Loader />;
 
 
   return (

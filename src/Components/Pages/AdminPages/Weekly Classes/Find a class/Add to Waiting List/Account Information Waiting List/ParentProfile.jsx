@@ -790,7 +790,7 @@ const ParentProfile = ({ profile }) => {
                                     <div className="text-[20px] text-white">Membership Plan</div>
 
                                     <div className="text-[1s6px] mt-1 text-gray-400">
-                                        {MembershipPlan} Plan
+                                     {MembershipPlan ? `${MembershipPlan} Plan` : "N/A"}
                                     </div>
 
                                 </div>
@@ -1346,7 +1346,7 @@ const ParentProfile = ({ profile }) => {
                                 {/* Buttons */}
                                 <div className="flex justify-end gap-4 pt-4">
                                     <button
-                                        onClick={() => cancelWaitingListSpot(cancelWaitingList, 'allMembers')}
+                                        onClick={() => cancelWaitingListSpot(cancelWaitingList, 'waitingList')}
 
                                         className="w-1/2  bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                     >

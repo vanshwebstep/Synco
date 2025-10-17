@@ -646,7 +646,8 @@ const List = () => {
                                                                                                         navigate("/configuration/weekly-classes/venues/class-schedule/Sessions/cancel", {
                                                                                                             state: {
                                                                                                                 statusIs: session?.sessionPlan?.status,
-                                                                                                                classScheduleId:session?.sessionPlan?.classScheduleId,
+                                                                                                                classScheduleId: session?.sessionPlan?.classScheduleId,
+                                                                                                                cancelSession: session?.sessionPlan?.cancelSession,
                                                                                                                 sessionId: session?.sessionPlan?.mapId,
                                                                                                                 schedule: item,
                                                                                                                 canceled: session?.sessionPlan?.status === "cancelled",
