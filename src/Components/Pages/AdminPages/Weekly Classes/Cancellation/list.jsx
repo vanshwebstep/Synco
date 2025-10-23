@@ -411,12 +411,12 @@ const CancellationList = () => {
             render: (item) =>
                 item.endDate ? new Date(item.endDate).toLocaleDateString() : "-",
         },
-       
+
         {
             header: "Membership Plan",
             render: (item) => item.paymentPlan?.title || "-",
         },
-         {
+        {
             header: "Life Cycle",
             render: (item) => {
                 if (!item.paymentPlan) return "-";
@@ -436,7 +436,7 @@ const CancellationList = () => {
                             : "bg-yellow-100 text-yellow-600"
                         } capitalize`}
                 >
-                    {item.cancelReason || item.status}
+                    {item.cancelReason || 'Other'}
                 </div>
             ),
         },
@@ -493,7 +493,7 @@ const CancellationList = () => {
                             : "bg-yellow-100 text-yellow-600"
                         } capitalize`}
                 >
-                    {item.cancelReason || item.status}
+                    {item.cancelReason || 'Other'}
                 </div>
             ),
         },
@@ -550,7 +550,7 @@ const CancellationList = () => {
                             : "bg-yellow-100 text-yellow-600"
                         } capitalize`}
                 >
-                    {item.cancelReason || item.status}
+                    {item.cancelReason || 'Other'}
                 </div>
             ),
         },
@@ -563,6 +563,12 @@ const CancellationList = () => {
         if (active === "all") return allCancellationTable;
         return fullCancellationTable; // fallback
     }, [active]);
+    // compute cancelType before rendering
+    let cancelType = "";
+
+    if (active === "request") cancelType = "request to cancel";
+    else if (active === "all") cancelType = "all cancel";
+    else if (active === "full") cancelType = "full cancel";
 
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
@@ -598,19 +604,22 @@ const CancellationList = () => {
                                         src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
                                 </div>
                             </div>
+
                             <DynamicTable
                                 columns={currentColumns}
                                 data={bookFreeTrials}
                                 selectedIds={selectedStudents}
                                 setSelectedStudents={setSelectedStudents}
-                                from={'cancellation'}
+                                from={cancelType}
                                 onRowClick={
                                     canServicehistory
                                         ? (item) =>
-                                            navigate(
-                                                "/weekly-classes/cancellation/account-info/list",
-                                                { state: { itemId: item.id || item.bookingId } }
-                                            )
+                                            navigate("/weekly-classes/cancellation/account-info/list", {
+                                                state: {
+                                                    itemId: item.id || item.bookingId,
+                                                    cancelType,
+                                                },
+                                            })
                                         : undefined
                                 }
                             />

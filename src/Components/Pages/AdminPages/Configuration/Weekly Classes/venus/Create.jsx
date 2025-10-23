@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useVenue } from "../../../contexts/VenueContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
+import Select from "react-select";
 
 const Create = ({ groups, termGroup }) => {
 
@@ -213,7 +214,11 @@ const handleUpdate = (id) => {
       .map(opt => opt.label)
       .filter(Boolean)
     : [];
-
+const facilityOptions = [
+  { value: "", label: "Facility" },
+  { value: "Indoor", label: "Indoor" },
+  { value: "Outdoor", label: "Outdoor" },
+];
   return (
     <div className="max-w-md mx-auto">
       <h2 onClick={handleCancel } className="md:text-[24px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center border-[#E2E1E5] border-b p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" />{isEditVenue ? 'Edit Venue' : 'Add New Venue'}</h2>
@@ -254,16 +259,16 @@ const handleUpdate = (id) => {
 
         <div>
           <label className="block font-semibold text-[16px] pb-2">Facility</label>
-          <select
-            name="facility"
-            value={formData.facility}
-            onChange={handleInputChange}
-            className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073]"
-          >
-            <option value="">Facility</option>
-            <option value="Indoor">Indoor</option>
-            <option value="Outdoor">Outdoor</option>
-          </select>
+        <Select
+  name="facility"
+  value={facilityOptions.find(option => option.value === formData.facility)}
+  onChange={(selectedOption) =>
+    handleInputChange({ target: { name: "facility", value: selectedOption.value } })
+  }
+  options={facilityOptions}
+  className="w-full text-sm"
+  classNamePrefix="react-select"
+/>
         </div>
 
         <div className="flex py-2 items-center justify-between gap-6">

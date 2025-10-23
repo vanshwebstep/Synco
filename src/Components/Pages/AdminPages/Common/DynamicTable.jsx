@@ -9,7 +9,7 @@ const DynamicTable = ({
   selectedIds = [],
   setSelectedStudents,
   onRowClick,
-  
+
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -61,28 +61,27 @@ const DynamicTable = ({
         <table className="min-w-full bg-white text-sm border-separate border-spacing-0">
           <thead className="bg-[#F5F5F5]">
             <tr className="font-semibold">
-{columns.map((col, idx) => {
-  const header = col.header.toLowerCase();
+              {columns.map((col, idx) => {
+                const header = col.header.toLowerCase();
 
-  const shouldWrap =
-    col.header === "No. Of Students" ||
-    header.includes("date") ||
-    header.includes("cycle") ||
-    header.includes("membership plan");
+                const shouldWrap =
+                  col.header === "No. Of Students" ||
+                  header.includes("date") ||
+                  header.includes("cycle") ||
+                  header.includes("membership plan");
 
-  const shouldCenter = header.includes("status");
+                const shouldCenter = header.includes("status");
 
-  return (
-    <th
-      key={idx}
-      className={`p-4 text-[#717073] ${shouldWrap ? "" : "whitespace-nowrap"} ${
-        shouldCenter ? "text-center" : "text-left"
-      }`}
-    >
-      {col.header}
-    </th>
-  );
-})}
+                return (
+                  <th
+                    key={idx}
+                    className={`p-4 text-[#717073] ${shouldWrap ? "" : "whitespace-nowrap"} ${shouldCenter ? "text-center" : "text-left"
+                      }`}
+                  >
+                    {col.header}
+                  </th>
+                );
+              })}
 
             </tr>
           </thead>
@@ -104,7 +103,7 @@ const DynamicTable = ({
                   // KEY FIX: use the flattened entry's studentIndex (stable) together with uniqueId
                   <tr
                     key={`${uniqueId}-${studentIndex}`}
-                    onClick={onRowClick ? () => onRowClick(item) : undefined}
+                    onClick={onRowClick ? () => onRowClick(item ,  from) : undefined}
                     className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
                   >
                     {columns.map((col, cIdx) => {
@@ -117,22 +116,19 @@ const DynamicTable = ({
                                   e.stopPropagation();
                                   toggleSelect(uniqueId);
                                 }}
-                                className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 ${
-                                  isSelected
+                                className={`lg:w-5 lg:h-5 me-2 flex items-center justify-center rounded-md border-2 ${isSelected
                                     ? "bg-blue-500 border-blue-500 text-white"
                                     : "border-gray-300 text-transparent"
-                                }`}
+                                  }`}
                               >
                                 {isSelected && <Check size={14} />}
                               </button>
 
                               <span>
                                 {col.header === "Parent Name"
-                                  ? `${item.parents?.[0]?.parentFirstName || ""} ${
-                                      item.parents?.[0]?.parentLastName || ""
+                                  ? `${item.parents?.[0]?.parentFirstName || ""} ${item.parents?.[0]?.parentLastName || ""
                                     }`.trim() || "N/A"
-                                  : `${student?.studentFirstName || ""} ${
-                                      student?.studentLastName || ""
+                                  : `${student?.studentFirstName || ""} ${student?.studentLastName || ""
                                     }`.trim() || "N/A"}
                               </span>
                             </div>
@@ -193,9 +189,8 @@ const DynamicTable = ({
             <button
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
               disabled={currentPage === 1}
-              className={`px-3 py-1 rounded-md border ${
-                currentPage === 1 ? "text-gray-400 border-gray-200" : "hover:bg-gray-100 border-gray-300"
-              }`}
+              className={`px-3 py-1 rounded-md border ${currentPage === 1 ? "text-gray-400 border-gray-200" : "hover:bg-gray-100 border-gray-300"
+                }`}
             >
               Prev
             </button>
@@ -207,9 +202,8 @@ const DynamicTable = ({
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
-                  className={`px-3 py-1 rounded-md border ${
-                    currentPage === pageNum ? "bg-blue-500 text-white border-blue-500" : "hover:bg-gray-100 border-gray-300"
-                  }`}
+                  className={`px-3 py-1 rounded-md border ${currentPage === pageNum ? "bg-blue-500 text-white border-blue-500" : "hover:bg-gray-100 border-gray-300"
+                    }`}
                 >
                   {pageNum}
                 </button>
@@ -219,9 +213,8 @@ const DynamicTable = ({
             <button
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
               disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded-md border ${
-                currentPage === totalPages ? "text-gray-400 border-gray-200" : "hover:bg-gray-100 border-gray-300"
-              }`}
+              className={`px-3 py-1 rounded-md border ${currentPage === totalPages ? "text-gray-400 border-gray-200" : "hover:bg-gray-100 border-gray-300"
+                }`}
             >
               Next
             </button>

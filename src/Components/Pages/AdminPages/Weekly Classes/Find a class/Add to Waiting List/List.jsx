@@ -18,7 +18,47 @@ const WaitingList = () => {
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    // const [selectedDate, setSelectedDate] = useState(null);
+    const { fetchAddtoWaitingList, statsFreeTrial, bookFreeTrials, setSearchTerm, bookedByAdmin, searchTerm, loading, selectedVenue, setStatus, status, setSelectedVenue, myVenues, setMyVenues, sendWaitingListMail, setLoading } = useBookFreeTrial() || {};
 
+
+
+    const navigate = useNavigate();
+
+    console.log('bookedByAdmin', bookedByAdmin)
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (selectedVenue) {
+                    await fetchAddtoWaitingList("", selectedVenue.label); // Using label as venueName
+                } else if (status) {
+                    await fetchAddtoWaitingList("", "", status); // Using status
+                } else {
+                    setLoading(true);
+                    await fetchAddtoWaitingList();
+                    setLoading(false);
+                    // No filter
+                }
+            } catch (error) {
+                console.error("Error fetching waiting list:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [selectedVenue, status, fetchAddtoWaitingList]);
+
+
+    const formatLabel = (str) => {
+        if (!str) return "-";
+
+        return str
+            .replace(/_/g, " ")                  // snake_case → snake case
+            .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase → camel Case
+            .toLowerCase()                       // everything lowercase first
+            .replace(/\b\w/g, (c) => c.toUpperCase()); // capitalize each word
+    };
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
     const [selectedStudents, setSelectedStudents] = useState([]);
     const toggleSelect = (studentId) => {
@@ -43,7 +83,7 @@ const WaitingList = () => {
             <div
                 className={`flex text-center justify-center rounded-lg p-1 gap-2 ${styles} capitalize`}
             >
-                {status}
+                {formatLabel(status)}
             </div>
         );
     };
@@ -61,12 +101,12 @@ const WaitingList = () => {
                     Venue: item.venue?.name || "-",
                     "Date Added": new Date(item.createdAt).toLocaleDateString(),
                     "Added By": `${item.bookedByAdmin?.firstName || ""} ${item.bookedByAdmin?.lastName && item.bookedByAdmin?.lastName !== "null"
-                            ? item.bookedByAdmin.lastName
-                            : ""
+                        ? item.bookedByAdmin.lastName
+                        : ""
                         }`.trim(),
                     "Days Waiting": item.waitingDays || "N/A",
                     "Interest level": item.interest || "-",
-                    Status: item.status || "-",
+                    Status: formatLabel(item.status) || "-",
                 });
             });
         });
@@ -106,23 +146,7 @@ const WaitingList = () => {
             }
         });
     };
-    // const [selectedDate, setSelectedDate] = useState(null);
-    const { fetchAddtoWaitingList, statsFreeTrial, bookFreeTrials, setSearchTerm, bookedByAdmin, searchTerm, loading, selectedVenue, setStatus, status, setSelectedVenue, myVenues, setMyVenues, sendWaitingListMail } = useBookFreeTrial() || {};
 
-
-
-    const navigate = useNavigate();
-
-     console.log('bookedByAdmin', bookedByAdmin)
-    useEffect(() => {
-        if (selectedVenue) {
-            fetchAddtoWaitingList("", selectedVenue.label); // Using label as venueName
-        } else if (status) {
-            fetchAddtoWaitingList("", "", status); // Using label as venueName
-        } else {
-            fetchAddtoWaitingList(); // No filter
-        }
-    }, [selectedVenue, fetchAddtoWaitingList]);
 
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
@@ -322,7 +346,7 @@ const WaitingList = () => {
                 (agent) => `${agent.firstName}`
             );
             setSavedAgent(selectedNames); // ✅ saves full names as strings
-             console.log("selectedNames", tempSelectedAgents);
+            console.log("selectedNames", tempSelectedAgents);
         } else {
             setSavedAgent([]); // nothing selected → clear
         }
@@ -335,7 +359,7 @@ const WaitingList = () => {
         // Fetch data with search value (debounce optional)
         fetchAddtoWaitingList(value);
     };
-     console.log('bookedByAdmin', bookedByAdmin)
+    console.log('bookedByAdmin', bookedByAdmin)
     const { checkPermission } = usePermission();
 
     const canServicehistory =
@@ -345,29 +369,29 @@ const WaitingList = () => {
         { header: "Name", key: "name", selectable: true }, // ✅ checkbox + student name
         { header: "Age", render: (item, student) => student.age },
         { header: "Venue", render: (item) => item.venue?.name || "-" },
-     
+
         {
-  header: "Date Added",
-  render: (item) => {
-    const date = new Date(item.updatedAt);
+            header: "Date Added",
+            render: (item) => {
+                const date = new Date(item.updatedAt);
 
-    const day = date.getDate();
-    const suffix =
-      day % 10 === 1 && day !== 11
-        ? "st"
-        : day % 10 === 2 && day !== 12
-        ? "nd"
-        : day % 10 === 3 && day !== 13
-        ? "rd"
-        : "th";
+                const day = date.getDate();
+                const suffix =
+                    day % 10 === 1 && day !== 11
+                        ? "st"
+                        : day % 10 === 2 && day !== 12
+                            ? "nd"
+                            : day % 10 === 3 && day !== 13
+                                ? "rd"
+                                : "th";
 
-    const weekday = date.toLocaleDateString("en-GB", { weekday: "short" }); // Sat
-    const month = date.toLocaleDateString("en-GB", { month: "short" });     // Sep
-    const year = date.getFullYear();                                        // 2025
+                const weekday = date.toLocaleDateString("en-GB", { weekday: "short" }); // Sat
+                const month = date.toLocaleDateString("en-GB", { month: "short" });     // Sep
+                const year = date.getFullYear();                                        // 2025
 
-    return `${weekday} ${day}${suffix} ${month} ${year}`;
-  },
-},
+                return `${weekday} ${day}${suffix} ${month} ${year}`;
+            },
+        },
         {
             header: "Added By",
             render: (item) =>
@@ -390,15 +414,15 @@ const WaitingList = () => {
             render: (item) => (
                 <div
                     className={`flex text-center justify-center rounded-lg p-1 gap-2 ${item.status.toLowerCase() === "attended" ||
-                            item.status.toLowerCase() === "active"
-                            ? "bg-green-100 text-green-600"
-                            : item.status.toLowerCase() === "pending"
-                                ? "bg-yellow-100 text-yellow-600"
-                                : item.status.toLowerCase() === "frozen"
-                                    ? "bg-blue-100 text-blue-600"
-                                    : item.status.toLowerCase() === "waiting list"
-                                        ? "bg-gray-200 text-gray-700"
-                                        : "bg-red-100 text-red-500"
+                        item.status.toLowerCase() === "active"
+                        ? "bg-green-100 text-green-600"
+                        : item.status.toLowerCase() === "pending"
+                            ? "bg-yellow-100 text-yellow-600"
+                            : item.status.toLowerCase() === "frozen"
+                                ? "bg-blue-100 text-blue-600"
+                                : item.status.toLowerCase() === "waiting list"
+                                    ? "bg-gray-200 text-gray-700"
+                                    : "bg-red-100 text-red-500"
                         } capitalize`}
                 >
                     {item.status}

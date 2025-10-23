@@ -584,7 +584,7 @@ const handleChange = (field, value) => {
                                                                                 return (
                                                                                     <div
                                                                                         key={session.id}
-                                                                                        className="flex justify-between gap-4 items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
+                                                                                        className="flex justify gap-4 items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
                                                                                     >
                                                                                         {/* Title and Date */}
                                                                                         <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm">
@@ -603,7 +603,7 @@ const handleChange = (field, value) => {
 
                                                                                         {/* Status */}
                                                                                         <div className="flex items-center gap-2 text-sm">
-                                                                                            <span className="rounded-full flex items-center gap-2 font-medium capitalize text-[15px]">
+                                                                                            <span className="rounded-full flex items-center gap-2 font-medium capitalize text-[15px] md:min-w-[120px]">
                                                                                                 {session?.sessionPlan?.status === "pending" && (
                                                                                                     <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" />
                                                                                                 )}
@@ -674,7 +674,7 @@ const handleChange = (field, value) => {
                                                                                                                 statusIs: session?.sessionPlan?.status,
                                                                                                                 classScheduleId: session?.sessionPlan?.classScheduleId,
                                                                                                                 cancelSession: session?.sessionPlan?.cancelSession,
-                                                                                                                sessionId: session?.sessionPlan?.mapId,
+                                                                                                                sessionId: session?.sessionPlan?.mapId || sessionPlanId,
                                                                                                                 schedule: item,
                                                                                                                 canceled: session?.sessionPlan?.status === "cancelled",
                                                                                                             },

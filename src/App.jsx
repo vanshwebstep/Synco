@@ -84,6 +84,9 @@ import SessionPreview from './Components/Pages/AdminPages/one-to-one/SessionPrev
 import LeadsDashboard from './Components/Pages/AdminPages/one-to-one/LeadsDashboard.jsx';
 import SalesDashboard from './Components/Pages/AdminPages/one-to-one/SalesDashboard.jsx';
 import BookingForm from './Components/Pages/AdminPages/one-to-one/BookingForm.jsx';
+import Leads from './Components/Pages/AdminPages/one-to-one/Leads.jsx';
+import AccountMain from './Components/Pages/AdminPages/one-to-one/AccountMain.jsx';
+import SeeDetailsAccount from './Components/Pages/AdminPages/one-to-one/SeeDetailsAccount.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -348,7 +351,7 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <SessionPlan />
+              <Leads />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -371,15 +374,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-      <Route path="/one-to-one/leads" element={
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <LeadsDashboard/>
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
-      } />
+   
       <Route path="/one-to-one/leads/booking-form" element={
         <ProtectedRoute>
           <AdminLayout>
@@ -389,15 +384,25 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-      <Route path="/one-to-one/sales" element={
+      <Route path="/one-to-one/sales/account-information" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <SalesDashboard/>
+              <AccountMain/>
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
       } />
+      <Route path="/one-to-one/sales/account-information/see-details" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SeeDetailsAccount/>
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      
       <Route path="*" element={<Navigate to="/" />} />
 
     </Routes>

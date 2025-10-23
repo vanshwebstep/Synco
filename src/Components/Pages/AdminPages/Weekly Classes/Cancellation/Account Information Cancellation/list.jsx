@@ -17,9 +17,9 @@ import ServiceHistory from "../../../Common/serviceHistory";
 import StudentProfile from "./StudentProfile";
 import Loader from "../../../contexts/Loader";
 
-const AccountInfoCancellation = () => {
+const AccountInfoCancellation = (cancelType , from) => {
   const { ServiceHistoryRequestto, serviceHistory ,loading} = useBookFreeTrial()
-
+console.log('cancelType',cancelType)
   const navigate = useNavigate();
   const location = useLocation();
   const [itemId, setItemId] = useState(null);

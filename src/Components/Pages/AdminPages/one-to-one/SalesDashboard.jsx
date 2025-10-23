@@ -8,13 +8,12 @@ import {
     ChevronLeft,
     ChevronRight,
     Check,
-    CirclePoundSterling,
-    UserRoundPlus, X, CircleDollarSign
+    CirclePoundSterling, X, CircleDollarSign
 } from "lucide-react";
-import { TiUserAdd } from "react-icons/ti";
 import { FiUsers } from "react-icons/fi";
 
 import { PiUsersThreeBold } from "react-icons/pi";
+import { useNavigate } from "react-router-dom";
 const SalesDashboard = () => {
     const summaryCards = [
         { icon: CircleDollarSign, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: "£30.300", change: "+28.14%" },
@@ -22,6 +21,7 @@ const SalesDashboard = () => {
         { icon: PiUsersThreeBold, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: '£20.000', change: "+9.31%" },
         { icon: FiUsers, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: "Ben Marcus" },
     ];
+    const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [formData, setFormData] = useState({
         parentName: "",
@@ -143,70 +143,71 @@ const SalesDashboard = () => {
                         })}
                     </div>
 
-                 
-                        {/* Table */}
-                        <div className="overflow-auto mt-4 rounded-2xl bg-white shadow-sm">
-                            <table className="min-w-full text-sm">
-                                <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
-                                    <tr className="font-semibold text-[#717073]">
-                                        <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Child Age</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Location</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Date Of Class</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Package</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Source</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Coach</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {leadsData.map((lead, i) => {
-                                        const isChecked = selectedUserIds.includes(lead.id);
-                                        return (
-                                            <tr
-                                                key={i}
-                                                className="border-b border-[#EFEEF2] hover:bg-gray-50 transition"
-                                            >
-                                                <td className="py-3 px-4 whitespace-nowrap font-semibold">
-                                                    <div className="flex items-center gap-3">
-                                                        <button
-                                                            onClick={() => toggleCheckbox(lead.id)}
-                                                            className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked
-                                                                ? "border-gray-500"
-                                                                : "border-gray-300"
-                                                                }`}
-                                                        >
-                                                            {isChecked && (
-                                                                <Check
-                                                                    size={16}
-                                                                    strokeWidth={3}
-                                                                    className="text-gray-500"
-                                                                />
-                                                            )}
-                                                        </button>
-                                                        {lead.parent}
-                                                    </div>
-                                                </td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.location}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.date}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.package}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.price}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.coach}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">
-                                                    <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium">
-                                                        {lead.status}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                  
+
+                    {/* Table */}
+                    <div className="overflow-auto mt-4 rounded-2xl bg-white shadow-sm">
+                        <table className="min-w-full text-sm">
+                            <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
+                                <tr className="font-semibold text-[#717073]">
+                                    <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
+                                    <th className="py-3 px-4 whitespace-nowrap">Child Age</th>
+                                    <th className="py-3 px-4 whitespace-nowrap">Location</th>
+                                    <th className="py-3 px-4 whitespace-nowrap">Date Of Class</th>
+                                    <th className="py-3 px-4 whitespace-nowrap">Package</th>
+                                    <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
+                                    <th className="py-3 px-4 whitespace-nowrap">Source</th>
+                                    <th className="py-3 px-4 whitespace-nowrap">Coach</th>
+                                    <th className="py-3 px-4 whitespace-nowrap">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {leadsData.map((lead, i) => {
+                                    const isChecked = selectedUserIds.includes(lead.id);
+                                    return (
+                                        <tr
+                                            key={i}
+                                            onClick={() => navigate("/one-to-one/sales/account-information")}
+                                            className="border-b cursor-pointer border-[#EFEEF2] hover:bg-gray-50 transition"
+                                        >
+                                            <td className="py-3 px-4 whitespace-nowrap font-semibold">
+                                                <div className="flex items-center gap-3">
+                                                    <button
+                                                        onClick={() => toggleCheckbox(lead.id)}
+                                                        className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked
+                                                            ? "border-gray-500"
+                                                            : "border-gray-300"
+                                                            }`}
+                                                    >
+                                                        {isChecked && (
+                                                            <Check
+                                                                size={16}
+                                                                strokeWidth={3}
+                                                                className="text-gray-500"
+                                                            />
+                                                        )}
+                                                    </button>
+                                                    {lead.parent}
+                                                </div>
+                                            </td>
+                                            <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
+                                            <td className="py-3 px-4 whitespace-nowrap">{lead.location}</td>
+                                            <td className="py-3 px-4 whitespace-nowrap">{lead.date}</td>
+                                            <td className="py-3 px-4 whitespace-nowrap">{lead.package}</td>
+                                            <td className="py-3 px-4 whitespace-nowrap">{lead.price}</td>
+                                            <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
+                                            <td className="py-3 px-4 whitespace-nowrap">{lead.coach}</td>
+                                            <td className="py-3 px-4 whitespace-nowrap">
+                                                <span className="bg-[#FBEECE] text-[#EDA600] px-7 py-2 rounded-xl text-xs font-medium">
+                                                    {lead.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
 
                 {/* Right Sidebar */}
@@ -237,7 +238,7 @@ const SalesDashboard = () => {
                         <div className="flex justify-between items-center mb-2">
                             <h3 className="font-semibold text-gray-700 text-lg">Filter by date</h3>
                             <button className="px-5 mt-4 bg-[#237FEA] hover:bg-blue-700 text-white flex gap-2 items-center text-sm py-2 rounded-lg transition">
-                                <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-3 h-3 sm:w-5 sm:h-5' alt="" />
+                                <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-2 h-2 sm:w-3 sm:h-3'  alt="" />
                                 Apply Filter
                             </button>
 
@@ -245,7 +246,7 @@ const SalesDashboard = () => {
                         <div className=" p-4 bg-[#FAFAFA] rounded-lg mb-4">
                             <p className="text-[17px] font-medium mb-2 text-gray-700">Choose type</p>
                             <div className="grid md:grid-cols-2 gap-1 text-[16px] mb-4">
-                                {["Package", "Date Of Party", "Source" ,"Agent Name","Coach Name"].map((label) => (
+                                {["Package", "Date Of Party", "Source", "Agent Name", "Coach Name"].map((label) => (
                                     <label key={label} className="flex items-center gap-2">
                                         <input type="checkbox" />
                                         {label}
@@ -258,14 +259,14 @@ const SalesDashboard = () => {
                             <div className="flex justify-center gap-5 items-center mb-2">
                                 <button
                                     onClick={prevMonth}
-                                    className="p-1 rounded-full hover:bg-[#717073]"
+                                    className="p-1 rounded-full hover:bg-[#282829] border border-[#282829] rounded-full  "
                                 >
                                     <ChevronLeft size={16} />
                                 </button>
-                                <p className="font-medium">{`${monthName} ${year}`}</p>
+                                <p className="font-medium text-[17px]">{`${monthName} ${year}`}</p>
                                 <button
                                     onClick={nextMonth}
-                                    className="p-1 rounded-full hover:bg-[#717073]"
+                                    className="p-1 rounded-full hover:bg-[#282829] border border-[#282829] rounded-full "
                                 >
                                     <ChevronRight size={16} />
                                 </button>

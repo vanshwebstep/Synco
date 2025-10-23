@@ -19,7 +19,7 @@ const StudentProfile = ({ StudentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [selectedDate, setSelectedDate] = useState(null);
 console.log('StudentProfile',StudentProfile)
-    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit, reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit } = useBookFreeTrial() || {};
+    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit, reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit , sendAllmail, sendFullTomail, sendRequestTomail} = useBookFreeTrial() || {};
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [freezeMembership, setFreezeMembership] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);
@@ -700,11 +700,13 @@ console.log('StudentProfile',StudentProfile)
                                     )}
 
                                 </div>
-
-                                <div className="border-t border-[#495362] py-5">
-                                    <div className=" text-[20px] text-white">Request to Cancel Date </div>
-                                    <div className="text-[16px]  mt-1 text-gray-400">{formatDate(StudentProfile.cancelData.cancelDate)}</div>
-                                </div>
+  {StudentProfile.cancelData.cancelDate && (
+                                    <div className="border-t border-[#495362] py-5">
+                                        <div className=" text-[20px] text-white">Request to Cancel Date </div>
+                                        <div className="text-[16px]  mt-1 text-gray-400">{formatDate(StudentProfile.cancelData.cancelDate)}</div>
+                                    </div>
+                                )}
+                              
 
                                 <div className="border-t border-[#495362] py-5">
                                     <div className=" text-[20px] text-white">ID </div>
@@ -724,10 +726,12 @@ console.log('StudentProfile',StudentProfile)
                                         </div>
                                     </>
                                 )}
+                                  {StudentProfile.cancelData.cancelReason && (
                                 <div className="border-t border-[#495362] py-5">
                                     <div className=" text-[20px] text-white">Request Cancellation Reason  </div>
                                     <div className="text-[16px]  mt-1 text-gray-400">{StudentProfile?.cancelData.cancelReason}</div>
                                 </div>
+                                  )}
                             </div>
                         </div>
 
@@ -741,18 +745,27 @@ console.log('StudentProfile',StudentProfile)
                                 {/* Top Row: Email + Text */}
                                 <div className="flex gap-7">
 
-                                    <button onClick={() => sendCancelFreeTrialmail([id])} className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium">
-                                        <img src="/demo/synco/icons/mail.png" alt="" /> Send Email
-                                    </button>
+                               <button
+  onClick={() => {
+    if (status === "request_to_cancel") {
+      sendRequestTomail([id]);
+    } else if (status === "cancelled") {
+      sendFullTomail([id]);
+    } else {
+      sendAllmail([id]);
+    }
+  }}
+  className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium"
+>
+  <img src="/demo/synco/icons/mail.png" alt="" /> Send Email
+</button>
+
 
                                     <button className="flex-1 border border-[#717073] rounded-xl py-3 flex  text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-[#717073] font-medium">
                                         <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
                                     </button>
                                 </div>
-                                {status == 'cancelled' && (
-                                    <>
-                                        {status == 'cancelled' && (
-                                            <>
+                             
                                                 <div className="bg-white rounded-3xl   space-y-4">
 
                                                     {/* Top Row: Email + Text */}
@@ -838,14 +851,11 @@ console.log('StudentProfile',StudentProfile)
 
 
                                                 </div>
-                                            </>
-                                        )}
+                                         
 
 
 
 
-                                    </>
-                                )}
                                
 
                             </div>

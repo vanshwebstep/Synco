@@ -96,7 +96,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'configuration/weekly-classes/session-plan-preview': { title: 'Configuration' },
     'configuration/configuration/weekly-classes/subscription-planManager': { title: 'Configuration' },
     'configuration/weekly-classes/add-subscription-plan-group': { title: 'Configuration' },
-    'configuration/weekly-classes/find-a-class': { title: 'Configuration' },
+    'weekly-classes/find-a-class': { title: 'Configuration' },
 
     'holiday-camps/payment-planManager': { title: 'Configuration' },
     'configuration/weekly-classes/trial/list': { title: 'Trials Information' },
@@ -110,13 +110,13 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'configuration/weekly-classes/find-a-class/book-a-free-trial/account-info': { title: 'Account Information' },
     'configuration/weekly-classes/all-members/account-info': { title: 'Account Information' },
     
-    'configuration/weekly-classes/cancellation': { title: 'Cancellation' },
-    'configuration/weekly-classes/capacity': { title: 'Capacity' },
-    'configuration/members/List': { title: 'Admin Panel' },
-    'configuration/members/update': { title: 'Admin Panel' },
-    'configuration/weekly-classes/cancellation/account-info/list': { title: 'Account Information' },
-    'configuration/weekly-classes/term-dates/create': { title: 'Configuration' },
-    'configuration/weekly-classes/account-information': { title: 'Account Information' },
+    'weekly-classes/cancellation': { title: 'Cancellation' },
+    'weekly-classes/capacity': { title: 'Capacity' },
+    'members/List': { title: 'Admin Panel' },
+    'members/update': { title: 'Admin Panel' },
+    'weekly-classes/cancellation/account-info/list': { title: 'Account Information' },
+    'weekly-classes/term-dates/create': { title: 'Configuration' },
+    'weekly-classes/account-information': { title: 'Account Information' },
     'weekly-classes/cancellation/account-info/': { title: 'Account Information' },
 
 

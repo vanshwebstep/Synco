@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { MdOutlineWatchLater } from "react-icons/md";
 import { HiOutlineSpeakerWave } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
 
 const SessionPreview = () => {
     // === Right Side Content Array ===
     const [activeTab, setActiveTab] = useState("Beginners");
-
+    const navigate = useNavigate();
     const sessionDetails = [
         {
             title: "Organisation",
@@ -65,8 +66,8 @@ const SessionPreview = () => {
     const videoUrl = 'https://cdn.pixabay.com/video/2017/04/10/10392-212474043_large.mp4';
 
     return (
-        <div className="min-h-screen bg-white p-8">
-            <div className="flex gap-2 items-center ">
+        <div className="min-h-screen  p-8">
+            <div className="flex gap-2 items-center cursor-pointer" onClick={() => navigate('/one-to-one')}>
                 <img
                     src="/demo/synco/icons/arrow-left.png"
                     alt="Back"
@@ -77,9 +78,9 @@ const SessionPreview = () => {
 
             <div className="max-w-7xl  rounded-lg p-6">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-0">
+                <div className="flex items-center justify-between  mb-0">
 
-                    <div className="flex border border-[#E2E1E5] rounded-2xl p-2 mb-6">
+                    <div className="flex border bg-white  border-[#E2E1E5] rounded-2xl p-2 mb-6">
                         {["Beginners", "Intermediate", "Advanced", "Pro"].map((tab) => (
                             <button
                                 key={tab}

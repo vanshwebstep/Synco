@@ -3,8 +3,10 @@ import Select from "react-select";
 import { FaEye } from "react-icons/fa";
 const tabs = ["Beginners", "Intermediate", "Advanced", "Pro"];
 import { Trash2, Copy } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 export default function Create() {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("Beginners");
     const [showExerciseModal, setShowExerciseModal] = useState(false);
     const [groupData, setGroupData] = useState({
@@ -16,7 +18,7 @@ export default function Create() {
         video: null,
         banner: null,
     });
-const [savedTabsData, setSavedTabsData] = useState({});
+    const [savedTabsData, setSavedTabsData] = useState({});
 
     const [exercise, setExercise] = useState({
         title: "",
@@ -81,46 +83,46 @@ const [savedTabsData, setSavedTabsData] = useState({});
     };
 
 
- const gotoNextTab = () => {
-    const currentIndex = tabs.indexOf(activeTab);
+    const gotoNextTab = () => {
+        const currentIndex = tabs.indexOf(activeTab);
 
-    // Validate required fields (example: groupName, player, skill)
-    if (!groupData.groupName || !groupData.player || !groupData.skill) {
-        alert("Please fill all required fields in this tab");
-        return;
-    }
+        // Validate required fields (example: groupName, player, skill)
+        if (!groupData.groupName || !groupData.player || !groupData.skill) {
+            alert("Please fill all required fields in this tab");
+            return;
+        }
 
-    // Save current tab data
-    setSavedTabsData(prev => ({
-        ...prev,
-        [activeTab]: groupData,
-    }));
+        // Save current tab data
+        setSavedTabsData(prev => ({
+            ...prev,
+            [activeTab]: groupData,
+        }));
 
-    // Reset only tab-specific fields for next tab
-    setGroupData(prev => ({
-        ...prev,
-        skill: "",
-        description: "",
-        exercises: [],
-        video: null,
-        banner: null,
-    }));
+        // Reset only tab-specific fields for next tab
+        setGroupData(prev => ({
+            ...prev,
+            skill: "",
+            description: "",
+            exercises: [],
+            video: null,
+            banner: null,
+        }));
 
-    // Move to next tab
-    if (currentIndex < tabs.length - 1) {
-        setActiveTab(tabs[currentIndex + 1]);
-    }
-};
+        // Move to next tab
+        if (currentIndex < tabs.length - 1) {
+            setActiveTab(tabs[currentIndex + 1]);
+        }
+    };
 
 
     return (
         <>
-            <div className="flex gap-2 items-center py-5">
+            <div className="flex gap-2 items-center cursor-pointer mb-5" onClick={() => navigate('/one-to-one')}>
                 <img
-                        src="/demo/synco/icons/arrow-left.png"
-                        alt="Back"
-                        className="w-5 h-5 md:w-6 md:h-6"
-                    />
+                    src="/demo/synco/icons/arrow-left.png"
+                    alt="Back"
+                    className="w-5 h-5 md:w-6 md:h-6"
+                />
                 <h2 className="font-bold text-2xl">  Add a Session Plan Structure</h2>
             </div>
 
@@ -341,7 +343,7 @@ const [savedTabsData, setSavedTabsData] = useState({});
                 {/* === RIGHT SIDE: EXERCISE MODAL & Preview === */}
                 <div className="w-6/12 flex flex-col gap-4">
 
-              
+
                     {showExerciseModal && (
                         <div className="bg-white rounded-3xl shadow-md w-full p-6 relative">
                             <button
@@ -428,10 +430,10 @@ const [savedTabsData, setSavedTabsData] = useState({});
                             </div>
                         </div>
                     )}
-                      <div className="flex justify-end gap-3 mt-5">
-                    <button className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex gap-2 items-center">Preview Sessions <FaEye/> </button>
-                    <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700">Create Group</button>
-                </div>
+                    <div className="flex justify-end gap-3 mt-5">
+                        <button className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex gap-2 items-center">Preview Sessions <FaEye /> </button>
+                        <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700">Create Group</button>
+                    </div>
 
 
                 </div>

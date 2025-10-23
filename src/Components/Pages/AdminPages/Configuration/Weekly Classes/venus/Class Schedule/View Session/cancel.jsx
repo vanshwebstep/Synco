@@ -143,7 +143,7 @@ parsedNotifications.forEach((n) => {
         roles,
       };
 
-      console.log("Cancellation Payload:", schedule.id, sessionId, payload);
+      console.log("Cancellation Payload:", schedule.id, schedule, sessionId, payload);
 
       await cancelClass(schedule.id, sessionId, payload, schedule.venueId); // ✅ await API call
     } catch (error) {

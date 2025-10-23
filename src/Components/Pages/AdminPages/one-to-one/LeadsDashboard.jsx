@@ -14,7 +14,9 @@ import {
 import { TiUserAdd } from "react-icons/ti";
 
 import { PiUsersThreeBold } from "react-icons/pi";
+import { useNavigate } from "react-router-dom";
 const LeadsDashboard = () => {
+  const navigate = useNavigate();
   const summaryCards = [
     { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: 945, change: "+28.14%" },
     { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: 245, change: "+12.47%" },
@@ -175,7 +177,8 @@ const LeadsDashboard = () => {
                     return (
                       <tr
                         key={i}
-                        className="border-b border-[#EFEEF2] hover:bg-gray-50 transition"
+                        onClick={() => navigate(`/one-to-one/leads/booking-form?${lead.id}`)}
+                        className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
                       >
                         <td className="py-3 px-4 whitespace-nowrap font-semibold">
                           <div className="flex items-center gap-3">
@@ -204,7 +207,7 @@ const LeadsDashboard = () => {
                         <td className="py-3 px-4 whitespace-nowrap">{lead.availability}</td>
                         <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
                         <td className="py-3 px-4 whitespace-nowrap">
-                          <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium">
+                          <span className="bg-[#FBEECE] text-[#EDA600] px-7 py-2 rounded-xl text-xs font-medium">
                             {lead.status}
                           </span>
                         </td>
@@ -221,7 +224,7 @@ const LeadsDashboard = () => {
         <div className="md:w-[27%] flex-shrink-0  gap-5 ps-3">
           {/* Search */}
           <div className="mb-4 bg-white rounded-2xl p-4">
-            <h3 className="font-semibold text-gray-700 mb-2">Search now</h3>
+            <h3 className="font-semibold text-black text-[17px] mb-2">Search now</h3>
             <label htmlFor="" className="text-[14px]">Search Student</label>
             <div className="relative mt-1">
               <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
@@ -238,7 +241,7 @@ const LeadsDashboard = () => {
             <div className="flex justify-between items-center mb-2">
               <h3 className="font-semibold text-gray-700 text-lg">Filter by date</h3>
               <button className="px-5 mt-4 bg-[#237FEA] hover:bg-blue-700 text-white flex gap-2 items-center text-sm py-2 rounded-lg transition">
-                <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-3 h-3 sm:w-5 sm:h-5' alt="" />
+                <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-2 h-2 sm:w-3 sm:h-3' alt="" />
                 Apply Filter
               </button>
 
@@ -259,14 +262,14 @@ const LeadsDashboard = () => {
               <div className="flex justify-center gap-5 items-center mb-2">
                 <button
                   onClick={prevMonth}
-                  className="p-1 rounded-full hover:bg-[#717073]"
+                  className="p-1 rounded-full hover:bg-[#282829] border border-[#282829] rounded-full  "
                 >
                   <ChevronLeft size={16} />
                 </button>
-                <p className="font-medium">{`${monthName} ${year}`}</p>
+                <p className="font-medium text-[17px]">{`${monthName} ${year}`}</p>
                 <button
                   onClick={nextMonth}
-                  className="p-1 rounded-full hover:bg-[#717073]"
+                  className="p-1 rounded-full hover:bg-[#282829] border border-[#282829] rounded-full "
                 >
                   <ChevronRight size={16} />
                 </button>

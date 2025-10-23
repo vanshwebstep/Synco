@@ -2472,6 +2472,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       value={{// Free Trials
         bookFreeTrials,
         createBookFreeTrials,
+        setLoading,
         updateBookFreeTrials,
         deleteBookFreeTrial,
         updateBookFreeTrialsFamily,
