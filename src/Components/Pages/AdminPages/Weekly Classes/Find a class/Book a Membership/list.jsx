@@ -79,6 +79,10 @@ const List = () => {
     const popup1Ref = useRef(null);
     const popup2Ref = useRef(null);
     const popup3Ref = useRef(null);
+    const img3Ref = useRef(null); // add a ref for the image
+    const img1Ref = useRef(null); // add a ref for the image
+    const img2Ref = useRef(null); // add a ref for the image
+
     const [showPopup, setShowPopup] = useState(false);
     const [directDebitData, setDirectDebitData] = useState([]);
     const [payment, setPayment] = useState({
@@ -254,9 +258,9 @@ const List = () => {
         fetchData();
     }, [finalClassId, fetchFindClassID, fetchKeyInfo]);
     const [activePopup, setActivePopup] = useState(null);
-    const togglePopup = (id) => {
-        setActivePopup((prev) => (prev === id ? null : id));
-    };
+  const togglePopup = (id) => {
+    setActivePopup((prev) => (prev === id ? null : id));
+};
     const [openForm, setOpenForm] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedPlans, setSelectedPlans] = useState([]);
@@ -665,21 +669,22 @@ const List = () => {
             );
         });
     };
-    const handleClickOutside = (e) => {
-        if (
-            activePopup === 1 && popup1Ref.current && !popup1Ref.current.contains(e.target)
-            || activePopup === 2 && popup2Ref.current && !popup2Ref.current.contains(e.target)
-            || activePopup === 3 && popup3Ref.current && !popup3Ref.current.contains(e.target)
-        ) {
-            togglePopup(null);
-        }
+const handleClickOutside = (e) => {
+    if (
+        (activePopup === 1 && popup1Ref.current && !popup1Ref.current.contains(e.target) && img1Ref.current && !img1Ref.current.contains(e.target)) ||
+        (activePopup === 2 && popup2Ref.current && !popup2Ref.current.contains(e.target) && img2Ref.current && !img2Ref.current.contains(e.target)) ||
+        (activePopup === 3 && popup3Ref.current && !popup3Ref.current.contains(e.target) && img3Ref.current && !img3Ref.current.contains(e.target))
+    ) {
+        togglePopup(null);
+    }
+};
+
+useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
     };
-    useEffect(() => {
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, [activePopup]);
+}, [activePopup]);
     useEffect(() => {
         if (singleClassSchedulesOnly?.venue?.paymentGroups?.length > 0) {
             const cleanedPlans = singleClassSchedulesOnly.venue.paymentGroups[0].paymentPlans.map(plan => ({
@@ -910,6 +915,7 @@ const List = () => {
                 </h2>
                 <div className="flex gap-3 relative items-center">
                     <img
+                    ref={img1Ref}
                         src="/demo/synco/members/booktrial1.png"
                         className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 1 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
                         onClick={() => togglePopup(1)}
@@ -931,6 +937,7 @@ const List = () => {
                         </div>
                     )}
                     <img
+                        ref={img2Ref}
                         onClick={() => togglePopup(2)}
                         src="/demo/synco/members/booktrial2.png"
                         className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 2 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
@@ -997,23 +1004,26 @@ const List = () => {
 
 
 
-                    <img
-                        src="/demo/synco/members/booktrial3.png"
-                        alt=""
-                        onClick={() => togglePopup(3)}
-                        className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 3 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
-                    />
-                    {activePopup === 3 && (
-                        <div ref={popup3Ref} className="absolute top-full z-99 mt-8 right-0 w-100 p-4 bg-white rounded-2xl shadow-lg text-sm leading-relaxed text-gray-700">
-                            <div className="font-semibold mb-2 text-[18px]">Phone Script</div>
-                            <textarea
-                                readOnly
-                                className="w-full  min-h-[100px] max-w-[375px]  min-w-[375px]  resize text-[16px]  leading-relaxed bg-transparent focus:outline-none"
-                                defaultValue="In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface."
-                            />
-                        </div>
+                    <img    ref={img3Ref}
 
-                    )}
+    src="/demo/synco/members/booktrial3.png"
+    alt=""
+    onClick={() => togglePopup(3)}
+    className={`rounded-full hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 3 ? 'bg-[#0DD180]' : 'bg-gray-700'}`}
+/>
+{activePopup === 3 && (
+    <div
+        ref={popup3Ref}
+        className="absolute top-full z-50 mt-2 right-0 w-[300px] p-4 bg-white rounded-2xl shadow-lg text-sm text-gray-700"
+    >
+        <div className="font-semibold mb-2 text-[18px]">Phone Script</div>
+        <textarea
+            readOnly
+            className="w-full min-h-[100px] resize-none text-[16px] leading-relaxed bg-transparent focus:outline-none"
+            defaultValue="In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface."
+        />
+    </div>
+)}
 
                 </div>
             </div>
@@ -1694,7 +1704,7 @@ const List = () => {
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
                                     placeholder="Add a comment"
-                                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none md:w-full w-5/12"
+                                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none"
                                 />
                                 <button
                                     className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
@@ -1867,7 +1877,7 @@ const List = () => {
 
                                         <h3 className="font-semibold text-[20px] pt-2">Bank Details</h3>
 
-                                        <div className="md:flex gap-6 mt-3">
+                                        <div className="flex gap-6 mt-3">
                                             <label className="flex items-center gap-2">
                                                 <input
                                                     type="radio"

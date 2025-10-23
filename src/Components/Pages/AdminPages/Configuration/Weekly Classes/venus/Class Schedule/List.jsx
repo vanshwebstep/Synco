@@ -81,15 +81,15 @@ const List = () => {
     );
 const allDays = Array.from(
   new Set(
-    filteredSchedules.flatMap(schedule =>
-      schedule.venue?.termGroups?.flatMap(termGroup =>
-        termGroup.terms?.map(term => term.day?.toLowerCase().trim()) || []
-      ) || []
-    )
+    (singleClassSchedules?.termGroups || [])
+      .flatMap(termGroup =>
+        (termGroup.terms || []).map(term => term.day?.toLowerCase().trim())
+      )
   )
 );
+
     console.log('classSchedules', classSchedules)
-    console.log('filteredSchedules', filteredSchedules)
+    console.log('singleClassSchedules', singleClassSchedules)
 
     // console.log('Filtered Class Schedules:', classSchedules);
     const formatDateToTimeString = (date) => {
