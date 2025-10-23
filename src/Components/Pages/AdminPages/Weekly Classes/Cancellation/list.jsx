@@ -411,11 +411,7 @@ const CancellationList = () => {
             render: (item) =>
                 item.endDate ? new Date(item.endDate).toLocaleDateString() : "-",
         },
-        {
-            header: "Request Date",
-            render: (item) =>
-                item.cancelDate ? new Date(item.cancelDate).toLocaleDateString() : "-",
-        },
+       
         {
             header: "Membership Plan",
             render: (item) => item.paymentPlan?.title || "-",

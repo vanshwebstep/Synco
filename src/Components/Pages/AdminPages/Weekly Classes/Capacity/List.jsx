@@ -180,7 +180,7 @@ const Capacity = () => {
         setFromDate(null);// toggles between true and false
     };
     if (loading) return <Loader />;
-
+console.log('capacityData',capacityData)
     return (
         <div>
 
@@ -412,7 +412,7 @@ const Capacity = () => {
                 ) :
                     capacityData && capacityData.venues ? (
                         capacityData.venues.length > 0 ? (
-                            capacityData.venues.map((venue) => {
+                            capacityData.venues.map((venue ) => {
                                 const totalCapacity = venue.classes.reduce((sum, cls) => sum + cls.stats.totalCapacity, 0);
                                 const totalBooked = venue.classes.reduce((sum, cls) => sum + cls.stats.totalBooked, 0);
                                 const freeTrials = venue.classes.reduce((sum, cls) => sum + cls.stats.freeTrials, 0);
@@ -454,7 +454,7 @@ const Capacity = () => {
                                                     <div className='overflow-x-auto custom-scrollbar'>
                                                         <div className='flex row gap-4 justify-start items-center'>
                                                             {venue.classes && venue.classes.length > 0 ? (
-                                                                venue.classes.map((cls) => {
+                                                                venue.classes.map((cls , index) => {
 
                                                                     const statsItems = [
                                                                         { label: "Total Students", color: "#F9FAFB", borderColor: "#ccc", value: cls.stats.totalBooked, textColor: "#414141" },
@@ -477,7 +477,7 @@ const Capacity = () => {
                                                                             className="block text-center pr-10 border-r border-[#ccc]"
                                                                         >
                                                                             <div className="whitespace-nowrap font-semibold text-[14px]">
-                                                                                {`Class: ${cls.day}, ${cls.startTime} - ${cls.endTime}`}
+                                                                                {`Class  ${index + 1} : ${cls.day}, ${cls.startTime} - ${cls.endTime}`}
                                                                             </div>
                                                                             <div className="text-[16px] py-4 font-semibold text-[#384455]">
                                                                                 <div className="flex items-center gap-3">

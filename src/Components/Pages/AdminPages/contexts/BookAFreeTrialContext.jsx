@@ -2433,29 +2433,40 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     }
   };
 
-  const ServiceHistoryRequestto = useCallback(async (ID) => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+ const ServiceHistoryRequestto = useCallback(async (ID) => {
 
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/request-to-cancel/service-history/${ID}`, {
+  const token = localStorage.getItem("adminToken");
+  if (!token) return;
+
+  setLoading(true);
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/cancellation/request-to-cancel/service-history/${ID}`,
+      {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-      });
+      }
+    );
 
-      const resultRaw = await response.json();
-      const result = resultRaw.data || [];
-      setServiceHistory(result);
-    } catch (error) {
-      console.error("Failed to fetch bookFreeTrials:", error);
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      // If the API returns a non-200 response, navigate immediately
+      navigate("/weekly-classes/cancellation");
+      return;
     }
-  }, []);
+
+    const resultRaw = await response.json();
+    const result = resultRaw.data || [];
+    setServiceHistory(result);
+  } catch (error) {
+    console.error("Failed to fetch service history:", error);
+    navigate("/weekly-classes/cancellation");
+  } finally {
+    setLoading(false);
+  }
+}, []);
   return (
     <BookFreeTrialContext.Provider
       value={{// Free Trials

@@ -175,18 +175,7 @@ const ServiceHistory = ({ serviceHistory, itemId ,labels = {}, comesFrom }) => {
                       </div>
                     </div>
                   )}
-                  {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
-                    <div className="block pr-3">
-                      <div className="whitespace-nowrap font-semibold text-[14px]">
-                        {labels.dateOfBooking || "Date of Booking"}
-                      </div>
-                <div className="text-[16px] font-semibold text-[#384455]">
-  {dateBooked ? formatDate(dateBooked, true) : createdAt ? formatDate(createdAt, true) : "—"}
-</div>
-                    </div>
-                  )}
                   
-
                   {(comesFrom === "cancellation" || comesFrom === "membership") && (
                     <div className="block pr-3">
                       <div className="whitespace-nowrap font-semibold text-[14px]">
@@ -204,6 +193,18 @@ const ServiceHistory = ({ serviceHistory, itemId ,labels = {}, comesFrom }) => {
                       </div>
                     </div>
                   )}
+                  {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
+                    <div className="block pr-3">
+                      <div className="whitespace-nowrap font-semibold text-[14px]">
+                        {labels.dateOfBooking || "Date of Booking"}
+                      </div>
+                <div className="text-[16px] font-semibold text-[#384455]">
+  {dateBooked ? formatDate(dateBooked, true) : createdAt ? formatDate(createdAt, true) : "—"}
+</div>
+                    </div>
+                  )}
+                  
+
 
 
 

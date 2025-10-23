@@ -639,12 +639,12 @@ const StudentProfile = ({ profile }) => {
                                                 : "url('/demo/synco/frames/Pending.png')",
 
 
-                                backgroundSize: "contain",
+                                backgroundSize: "cover",
                             }}>
                             <div>
                                 <div className="text-[20px] font-bold text-[#1F2937]">Account Status</div>
                                 <div className="text-[16px] font-semibold capitalize text-[#1F2937]">      <span>
-                                    {status}
+                                     {status ? status.replaceAll("_", " ") : "Unknown"}
                                 </span>
                                 </div>
                             </div>
@@ -951,7 +951,7 @@ const StudentProfile = ({ profile }) => {
                                 {/* Button */}
                                 <div className="flex gap-4 pt-4">
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => addtoWaitingListSubmit(waitingListData, 'allMembers')}
                                     >
                                         Join Waiting List
@@ -1067,7 +1067,7 @@ const StudentProfile = ({ profile }) => {
                                 {/* Button */}
                                 <div className="flex gap-4 pt-4">
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => reactivateDataSubmit(reactivateData, 'allMembers')}
 
                                     >
@@ -1356,7 +1356,7 @@ const StudentProfile = ({ profile }) => {
 
 
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => transferMembershipSubmit(transferData, 'allMembers')}
                                     >
                                         Submit Transfer

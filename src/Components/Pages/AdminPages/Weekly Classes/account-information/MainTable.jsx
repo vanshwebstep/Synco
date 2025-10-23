@@ -58,10 +58,23 @@ const MainTable = () => {
         fetchMembers();
     }, [fetchMembers]);
 
-    const safe = (val) => {
-        if (val === null || val === undefined || val === '' || val === 'null' || val === 'undefined') return 'N/A';
-        return val;
-    };
+  const safe = (val) => {
+  if (
+    val === null ||
+    val === undefined ||
+    val === '' ||
+    val === 'null' ||
+    val === 'undefined'
+  ) {
+    return 'N/A';
+  }
+
+  // Convert to string, replace underscores with spaces, and trim
+  const formatted = String(val).replace(/_/g, ' ').trim();
+
+  return formatted;
+};
+
 
     if (loading) return <Loader />;
 
@@ -156,7 +169,7 @@ const MainTable = () => {
                                                         : 'N/A'}
                                                 </td>
                                                 <td className="p-4 whitespace-nowrap">
-                                                    <span className={`px-3 py-1 rounded-xl font-semibold ${statusColors[user.status] || 'bg-gray-100 text-gray-800'}`}>
+                                                    <span className={`px-3 py-1 rounded-xl capitalize font-semibold ${statusColors[user.status] || 'bg-gray-100 text-gray-800'}`}>
                                                         {safe(user.status)}
                                                     </span>
                                                 </td>

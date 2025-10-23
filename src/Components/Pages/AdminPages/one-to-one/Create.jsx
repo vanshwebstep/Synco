@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Select from "react-select";
-
+import { FaEye } from "react-icons/fa";
 const tabs = ["Beginners", "Intermediate", "Advanced", "Pro"];
 import { Trash2, Copy } from 'lucide-react';
 
@@ -115,8 +115,13 @@ const [savedTabsData, setSavedTabsData] = useState({});
 
     return (
         <>
-            <div className="flex py-5">
-                <h2 className="font-bold text-2xl">Add a Session Plan Structure</h2>
+            <div className="flex gap-2 items-center py-5">
+                <img
+                        src="/demo/synco/icons/arrow-left.png"
+                        alt="Back"
+                        className="w-5 h-5 md:w-6 md:h-6"
+                    />
+                <h2 className="font-bold text-2xl">  Add a Session Plan Structure</h2>
             </div>
 
             <div className="p-6 flex flex-col lg:flex-row justify-center gap-10 bg-gray-50 min-h-screen rounded-2xl items-start bg-white">
@@ -136,7 +141,7 @@ const [savedTabsData, setSavedTabsData] = useState({});
                                 name="groupName"
                                 value={groupData.groupName}
                                 onChange={handleGroupChange}
-                                className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 mt-1"
+                                className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 py-2 mt-1"
                             />
                         </div>
                         <div>
@@ -148,10 +153,10 @@ const [savedTabsData, setSavedTabsData] = useState({});
                                 name="player"
                                 value={groupData.player}
                                 onChange={handleGroupChange}
-                                className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 mt-1"
+                                className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 py-2 mt-1"
                             />
                         </div>
-                        <label className="w-full block cursor-pointer border border-[#237FEA] text-[#237FEA] rounded-xl p-3 hover:bg-blue-50 transition text-center">
+                        <label className="w-full block cursor-pointer border border-[#237FEA] text-[#237FEA] rounded-xl p-3 py-2 hover:bg-blue-50 transition text-center">
                             {groupData.banner ? "Change Banner" : "Add Banner"}
 
                             <input
@@ -173,7 +178,7 @@ const [savedTabsData, setSavedTabsData] = useState({});
                             {tabs.map((tab) => (
                                 <button
                                     key={tab}
-                                    className={`flex-1 p-2 px-4 rounded-xl text-[19px] font-semibold transition-all ${activeTab === tab
+                                    className={`flex-1 p-2 px-4 rounded-xl text-[17px] font-semibold transition-all ${activeTab === tab
                                         ? "bg-[#237FEA] text-white"
                                         : "text-gray-600 hover:text-[#237FEA]"
                                         }`}
@@ -194,10 +199,10 @@ const [savedTabsData, setSavedTabsData] = useState({});
                                 name="skill"
                                 value={groupData.skill}
                                 onChange={handleGroupChange}
-                                className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 mt-1"
+                                className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 py-2 mt-1"
                             />
                         </div>
-                        <label className="w-full block cursor-pointer border border-[#237FEA] text-[#237FEA] rounded-xl p-3 hover:bg-blue-50 transition text-center">
+                        <label className="w-full block cursor-pointer border border-[#237FEA] text-[#237FEA] rounded-xl p-3 py-2 hover:bg-blue-50 transition text-center">
                             {groupData.video ? "Change Video" : "Add Video"}
 
                             <input
@@ -225,7 +230,7 @@ const [savedTabsData, setSavedTabsData] = useState({});
                                 name="description"
                                 value={groupData.description}
                                 onChange={handleGroupChange}
-                                className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 mt-1"
+                                className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 py-2 mt-1"
                             />
                         </div>
 
@@ -271,7 +276,7 @@ const [savedTabsData, setSavedTabsData] = useState({});
                                     </div>
                                 ))}
                                 {groupData.exercises.length === 0 && (
-                                    <div className="px-3 p-3 text-gray-400 text-sm">
+                                    <div className="px-3 p-3 py-2 text-gray-400 text-sm">
                                         No exercises added yet
                                     </div>
                                 )}
@@ -320,13 +325,13 @@ const [savedTabsData, setSavedTabsData] = useState({});
 
                         <button
                             onClick={() => setShowExerciseModal(true)}
-                            className="w-full bg-[#237FEA] text-white p-3 rounded-xl mt-2 hover:bg-blue-700"
+                            className="w-full bg-[#237FEA] text-white p-3 py-2 rounded-xl mt-2 hover:bg-blue-700"
                         >
                             Add New Exercise
                         </button>
 
                         <div className="flex justify-end" onClick={gotoNextTab}>
-                            <button className="w-auto bg-[#237FEA] text-white p-3 px-10 rounded-xl mt-2 hover:bg-blue-700">
+                            <button className="w-auto bg-[#237FEA] text-white p-3 py-2 px-10 rounded-xl mt-2 hover:bg-blue-700">
                                 Create Session
                             </button>
                         </div>
@@ -335,6 +340,8 @@ const [savedTabsData, setSavedTabsData] = useState({});
 
                 {/* === RIGHT SIDE: EXERCISE MODAL & Preview === */}
                 <div className="w-6/12 flex flex-col gap-4">
+
+              
                     {showExerciseModal && (
                         <div className="bg-white rounded-3xl shadow-md w-full p-6 relative">
                             <button
@@ -356,7 +363,7 @@ const [savedTabsData, setSavedTabsData] = useState({});
                                         name="title"
                                         value={exercise.title}
                                         onChange={handleExerciseChange}
-                                        className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 mt-1"
+                                        className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 py-2 mt-1"
                                     />
                                 </div>
 
@@ -369,7 +376,7 @@ const [savedTabsData, setSavedTabsData] = useState({});
                                         name="duration"
                                         value={exercise.duration}
                                         onChange={handleExerciseChange}
-                                        className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 mt-1"
+                                        className="w-full border outline-none border-[#E2E1E5] rounded-xl px-3 p-3 py-2 mt-1"
                                     />
                                 </div>
 
@@ -382,14 +389,14 @@ const [savedTabsData, setSavedTabsData] = useState({});
                                         rows="4"
                                         value={exercise.description}
                                         onChange={handleExerciseChange}
-                                        className="w-full border outline-none border-[#E2E1E5] outline-none rounded-xl px-3 p-3 mt-1"
+                                        className="w-full border outline-none border-[#E2E1E5] outline-none rounded-xl px-3 p-3 py-2 mt-1"
                                     />
                                 </div>
 
                                 <div>
 
 
-                                    <label className="w-full block cursor-pointer border border-[#237FEA] text-[#237FEA] rounded-xl p-3 hover:bg-blue-50 transition text-center">
+                                    <label className="w-full block cursor-pointer border border-[#237FEA] text-[#237FEA] rounded-xl p-3 py-2 hover:bg-blue-50 transition text-center">
                                         {exercise.image ? "Update Image" : "Upload Image"}
 
                                         <input
@@ -413,7 +420,7 @@ const [savedTabsData, setSavedTabsData] = useState({});
                                 <div className="flex justify-end">
                                     <button
                                         onClick={saveExercise}
-                                        className="bg-[#237FEA] text-white rounded-xl p-3 px-14 mt-3 hover:bg-blue-700"
+                                        className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-10 mt-3 hover:bg-blue-700"
                                     >
                                         Save Exercise
                                     </button>
@@ -421,6 +428,10 @@ const [savedTabsData, setSavedTabsData] = useState({});
                             </div>
                         </div>
                     )}
+                      <div className="flex justify-end gap-3 mt-5">
+                    <button className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex gap-2 items-center">Preview Sessions <FaEye/> </button>
+                    <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700">Create Group</button>
+                </div>
 
 
                 </div>

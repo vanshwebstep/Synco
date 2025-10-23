@@ -570,7 +570,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                                     : "url('/demo/synco/frames/Pending.png')",
 
 
-                                backgroundSize: "contain",
+                                backgroundSize: "cover",
                             }}
                         >
                             <div>
@@ -721,9 +721,9 @@ const ParentProfile = ({ ParentProfile }) => {
                                         <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
                                     </button>
                                 </div>
-                                {status !== 'cancelled' && (
+                                {status == 'cancelled' && (
                                     <>
-                                        {status !== 'cancelled' && (
+                                        {status == 'cancelled' && (
                                             <>
                                                 <div className="bg-white rounded-3xl   space-y-4">
 
@@ -796,18 +796,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </button>
                                 )} */}
 
-                                                    {status === 'attended' && (
-                                                        <div className="flex gap-7">
-                                                            <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
-                                                                No Membership
-                                                            </button>
-
-                                                            <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
-                                                                Book a Membership
-                                                            </button>
-                                                        </div>
-                                                    )}
-
+                                                  
 
                                                 </div>
                                             </>
@@ -818,18 +807,7 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                     </>
                                 )}
-                                {status === 'cancelled' && (
-                                    <div className="flex gap-7">
-                                        <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
-                                            No Membership
-                                        </button>
-
-                                        <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
-                                            Book a Membership
-                                        </button>
-                                    </div>
-                                )}
-
+                                
                             </div>
                         </>
                     )}
@@ -944,7 +922,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 </div>
 
                                 {/* Buttons */}
-                                <div className="flex gap-4 pt-4">
+                                <div className=" justify-end flex gap-4 pt-4">
                                     <button
                                         className="flex-1 border border-gray-400 rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() =>  console.log("Cancel clicked")}
@@ -953,7 +931,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </button>
 
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => rebookFreeTrialsubmit(rebookFreeTrial)}
                                     >
                                         Rebook Trial
@@ -1183,9 +1161,9 @@ const ParentProfile = ({ ParentProfile }) => {
                                 </div>
 
                                 {/* Button */}
-                                <div className="flex gap-4 pt-4">
+                                <div className=" justify-end flex gap-4 pt-4">
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => addtoWaitingListSubmit(waitingListData, 'allMembers')}
                                     >
                                         Join Waiting List
@@ -1390,9 +1368,9 @@ const ParentProfile = ({ ParentProfile }) => {
                                 </div>
 
                                 {/* Button */}
-                                <div className="flex gap-4 pt-4">
+                                <div className=" justify-end flex gap-4 pt-4">
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => reactivateDataSubmit(reactivateData, 'allMembers')}
 
                                     >

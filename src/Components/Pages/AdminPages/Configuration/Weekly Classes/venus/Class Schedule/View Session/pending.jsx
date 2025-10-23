@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from 'date-fns';
 const ViewSessions = ({ item, sessionData }) => {
@@ -7,6 +7,9 @@ const ViewSessions = ({ item, sessionData }) => {
   const [activeTab, setActiveTab] = useState('Beginners');
   const [myData, setMyData] = useState({});
   const [page, setPage] = useState(1);
+    const [recording, setRecording] = useState(null);
+    const audioRef = useRef(null);
+  
   const location = useLocation();
   const sessionMap = location.state?.sessionMap;
   const venueId = location.state?.venueId;
@@ -16,6 +19,9 @@ const ViewSessions = ({ item, sessionData }) => {
   const className = location.state?.classname;
   const statusIs = location.state?.statusIs;
   console.log('statusIs',statusIs)
+  const [videoUrl, setVideoUrl] = useState(null);
+    const [videoDuration, setVideoDuration] = useState(null);
+  const [currentRecording, setCurrentRecording] = useState(null); // url of playing recording
 
 
   const selectedGroup = sessionMap;
@@ -33,43 +39,34 @@ const ViewSessions = ({ item, sessionData }) => {
     if (selectedGroup?.levels) {
       const buildContentMap = () => {
         const content = {};
+        Object.entries(selectedGroup.levels).forEach(([levelKey, items]) => {
+          const label = levelKeyToLabel[levelKey];
+          const banner = selectedGroup.banner || null;
+          const video = selectedGroup.video || null;
+          const videoUploadedAgo = selectedGroup.videoUploadedAgo || null;
+          const id = selectedGroup.id || null;
+console.log('items',items)
+          content[label] = items.map((entry, index) => ({
+            
+            title: `${label} – Page ${index + 1}`,
+            heading: entry.skillOfTheDay || 'No Skill',
+            player: entry.player || 'player',
+            videoUrl: video ? `${video}` : '',
+            videoUploadedAgo: videoUploadedAgo,
+            id: id,
 
-        let levelsData = selectedGroup.levels;
-        if (typeof levelsData === 'string') {
-          try {
-            levelsData = JSON.parse(levelsData);
-          } catch (e) {
-            console.error('Invalid JSON format in selectedGroup.levels:', e);
-            levelsData = {};
-          }
-        }
-        Object.entries(levelsData).forEach(([levelKey, items]) => {
-          const label = levelKeyToLabel[levelKey] || levelKey;
-          const banner = selectedGroup[`${levelKey}_banner`] || selectedGroup.banner;
-          const video = selectedGroup[`${levelKey}_video`] || selectedGroup.video;
-
-
-          content[label] = items.map((entry, index) => {
-            return {
-              title: `${label} – Page ${index + 1}`,
-              heading: entry.skillOfTheDay || 'No Skill',
-              player: entry.player || 'player',
-              videoUrl: video || '',
-              bannerUrl: banner || '',
-              description: entry.description || '',
-              videoUploadedAgo: selectedGroup.videoUploadedAgo || '',
-              // Use the sessionExercises directly from the entry
-              sessionExercises: entry.sessionExercises || [],
-            };
-          });
+            bannerUrl: banner ? `${banner}` : '',
+            description: entry.description || '',
+            sessionExercises: entry.sessionExercises || [],
+          }));
         });
-
         return content;
       };
 
       const dynamicContent = buildContentMap();
       setMyData(dynamicContent);
 
+      // Set first tab by default
       const firstTab = Object.keys(dynamicContent)[0];
       setActiveTab(firstTab);
       setPage(1);
@@ -88,6 +85,35 @@ const ViewSessions = ({ item, sessionData }) => {
       setSelectedExercise(currentContent.sessionExercises[0]);
     }
   }, [currentContent]);
+    useEffect(() => {
+      if (selectedGroup && activeTab) {
+
+        console.log('activeTab',selectedGroup)
+        const tabKey = activeTab.toLowerCase().replace(/s$/, "");
+        const fieldName = `${tabKey}_upload`;
+        const fieldVideoName = `${tabKey}_video`;
+        const videoDuration = `${tabKey}_video_duration`;
+        console.log('selectedGroup', selectedGroup)
+        console.log('fieldName', fieldName)
+  
+        // check if that recording field exists in selectedGroup
+        if (selectedGroup[fieldName]) {
+          setRecording(selectedGroup[fieldName]);
+        } else {
+          setRecording(null); // no match found
+        }
+        if (selectedGroup[fieldVideoName]) {
+          setVideoUrl(selectedGroup[fieldVideoName]);
+        } else {
+          setVideoUrl(null); // no match found
+        }
+         if (selectedGroup[videoDuration]) {
+          setVideoDuration(selectedGroup[videoDuration]);
+        } else {
+          setVideoDuration(null); // no match found
+        }
+      }
+    }, [selectedGroup, activeTab]);
   const ageGroups = {
     "Beginners": "4–5 Years",
     "Intermediate": "6–7 Years",
@@ -125,7 +151,7 @@ const ViewSessions = ({ item, sessionData }) => {
   console.log('currentContent', currentContent)
 
   return (
-    <div className="md:p-6 bg-gray-50 min-h-screen">
+    <div className="md:p-6 bg-gray-50 min-h-screen preview-sec">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
         <h2
@@ -201,7 +227,7 @@ const ViewSessions = ({ item, sessionData }) => {
           </div>
           {/* Main Page Content */}
           {currentContent && (
-            <div className="flex w-full flex-col border-t border-[#E2E1E5] pt-6 lg:flex-row gap-6">
+         <div className="flex w-full flex-col border-t border-[#E2E1E5] pt-6 lg:flex-row gap-6">
               {/* Left - Video and Info */}
               <div className="w-full lg:w-1/2 space-y-2">
                 {currentContent.bannerUrl && (
@@ -212,49 +238,98 @@ const ViewSessions = ({ item, sessionData }) => {
 
                   />
                 )}
-                <h2 className="font-semibold text-[28px] mb-0">
-                  {currentContent.heading}
+                <h2 className="font-semibold text-[28px] mb-0 mt-5">
+                  Skill of the Day
                 </h2>
-                <p className="text-[20px] flex items-center gap-2 font-semibold">
-                  {currentContent?.player} <img src="/demo/synco/icons/Volumeblue.png" alt="" />
+                <p className="text-[20px] flex items-center gap-2 font-semibold my-3">
+                  {/* {currentContent?.player} */}
+                  {currentContent.heading} <img
+                    src="/demo/synco/icons/Volumeblue.png"
+                    alt="Play Recording"
+                    className={`w-6 h-6 cursor-pointer ${currentRecording === recording ? "opacity-100" : "opacity-40"
+                      }`}
+                    onClick={() => handlePlayRecording(recording)}
+                  />
+                  <audio ref={audioRef} onEnded={() => setCurrentRecording(null)} />
                 </p>
-                <p className="text-sm text-gray-500 border-b border-gray-300 pb-3 ">
+                <p className="text-[16px] text-[#717073] font-semibold border-b border-gray-300 pb-4 ">
                   {currentContent.description}
                 </p>
-                {currentContent.videoUrl && (
+                {videoUrl && (
                   <video
-                    src={currentContent.videoUrl}
+                    src={videoUrl}
                     controls
                     className="w-full  pt-3 rounded-4xl"
                   />
                 )}
-                <div className='flex items-center  mb-0 justify-between' >
+                <div className='flex items-center  mb-0 mt-4 justify-between' >
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
                   </h2>
-                  <img src="/demo/synco/icons/downloadicon.png" alt="" />
+
+                  <img
+                    src="/demo/synco/icons/downloadicon.png"
+                    alt="Download"
+                    className="cursor-pointer"
+                    onClick={async () => {
+                      try {
+                        const token = localStorage.getItem("adminToken");
+                        const response = await fetch(
+                          `${API_BASE_URL}/api/admin/session-plan-group/${currentContent.id}/download-video?videolinkrandom=${encodeURIComponent(currentContent.videoUrl)}`,
+                          {
+                            method: "GET",
+                            headers: {
+                              Authorization: `Bearer ${token}`,
+                            },
+                          }
+                        );
+
+                        if (!response.ok) {
+                          throw new Error("Failed to download video");
+                        }
+
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+
+                        // Generate a professional-looking filename
+                        const safeGroup = currentContent?.groupName
+                          ?.toLowerCase()
+                          .replace(/\s+/g, "-")
+                          .replace(/[^a-z0-9\-]/g, "");
+                        const safeLevel = currentContent?.level
+                          ?.toLowerCase()
+                          .replace(/\s+/g, "-")
+                          .replace(/[^a-z0-9\-]/g, "");
+
+                        const filename = `${safeGroup || "session"}-${safeLevel || "video"}.mp4`;
+
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+
+                        window.URL.revokeObjectURL(url);
+                      } catch (err) {
+                        console.error("Download failed:", err);
+                      }
+                    }}
+                  />
+
+
+
+
+
                 </div>
-                <div>
-                  {/* {currentContent.videoUploadedAgo && (
-                    <p className="text-sm flex flex-wrap items-center gap-3 text-gray-500 pb-3">
-                      <img
-                        src="/demo/synco/members/Time-Circle.png"
-                        className="w-4 h-4"
-                        alt=""
-                      />
-                      {Object.entries(currentContent.videoUploadedAgo)
-                        .filter(([_, value]) => value) // ignore nulls
-                        .map(([key, value]) => (
-                          <span key={key}>
-                            {key.replace("_video", "").replace(/^\w/, c => c.toUpperCase())}:{" "}
-                            {value}
-                          </span>
-                        ))}
+                {videoDuration && (
+                  <div>
+                    <p className="text-sm flex items-center gap-2 text-gray-500 pb-3">
+                      <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                      {videoDuration || 'N/A'}
                     </p>
-                  )} */}
-
-
-                </div>
+                  </div>
+                )}
 
                 {currentContent.sessionExercises?.length > 0 && (
                   <div className="mt-1 space-y-6">
@@ -301,9 +376,9 @@ const ViewSessions = ({ item, sessionData }) => {
 
               {/* Right - Placeholder Drill Info */}
               {selectedExercise && (
-                <div className="w-full border-l pl-6 border-gray-300 lg:w-1/2 bg-white">
-                  <h2 className="font-semibold text-[24px] mb-0">{selectedExercise.title}</h2>
-                  <div className="flex flex-wrap justify-start gap-2 w-full my-5 ">
+                <div className="w-full  pl-6  lg:w-1/2 ">
+                  <h2 className="font-semibold text-[24px] mb-4">{selectedExercise.title}</h2>
+                  <div className=" ">
                     {selectedExercise.imageUrl ? (
                       JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
                         <img
@@ -321,9 +396,9 @@ const ViewSessions = ({ item, sessionData }) => {
                     Time Duration: {selectedExercise.duration || '—'}
                   </p>
 
-                  <div className="text-sm space-y-6">
+                <div className="text-sm space-y-6">
                     <div>
-                      
+
                       <div
                       className="prose prose-sm space-y-6 max-w-none text-gray-700
     prose-p:mb-3 prose-li:mb-2
@@ -338,6 +413,7 @@ const ViewSessions = ({ item, sessionData }) => {
                       />
                     </div>
                   </div>
+
                 </div>
               )}
 

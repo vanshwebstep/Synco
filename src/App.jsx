@@ -80,6 +80,10 @@ import MainTable from './Components/Pages/AdminPages/Weekly Classes/account-info
 import { AccountsInfoProvider } from './Components/Pages/AdminPages/contexts/AccountsInfoContext.jsx';
 import SessionPlan from './Components/Pages/AdminPages/one-to-one/SessionPlan.jsx';
 import Create from './Components/Pages/AdminPages/one-to-one/Create.jsx';
+import SessionPreview from './Components/Pages/AdminPages/one-to-one/SessionPreview.jsx';
+import LeadsDashboard from './Components/Pages/AdminPages/one-to-one/LeadsDashboard.jsx';
+import SalesDashboard from './Components/Pages/AdminPages/one-to-one/SalesDashboard.jsx';
+import BookingForm from './Components/Pages/AdminPages/one-to-one/BookingForm.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -354,6 +358,42 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <Create />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/one-to-one/session-plan-preview" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SessionPreview/>
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/one-to-one/leads" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <LeadsDashboard/>
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/one-to-one/leads/booking-form" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <BookingForm/>
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/one-to-one/sales" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SalesDashboard/>
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

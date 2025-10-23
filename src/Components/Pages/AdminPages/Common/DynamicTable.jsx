@@ -61,11 +61,29 @@ const DynamicTable = ({
         <table className="min-w-full bg-white text-sm border-separate border-spacing-0">
           <thead className="bg-[#F5F5F5]">
             <tr className="font-semibold">
-              {columns.map((col, idx) => (
-                <th key={idx} className="p-4 text-[#717073] whitespace-nowrap">
-                  {col.header}
-                </th>
-              ))}
+{columns.map((col, idx) => {
+  const header = col.header.toLowerCase();
+
+  const shouldWrap =
+    col.header === "No. Of Students" ||
+    header.includes("date") ||
+    header.includes("cycle") ||
+    header.includes("membership plan");
+
+  const shouldCenter = header.includes("status");
+
+  return (
+    <th
+      key={idx}
+      className={`p-4 text-[#717073] ${shouldWrap ? "" : "whitespace-nowrap"} ${
+        shouldCenter ? "text-center" : "text-left"
+      }`}
+    >
+      {col.header}
+    </th>
+  );
+})}
+
             </tr>
           </thead>
 

@@ -603,7 +603,7 @@ console.log('StudentProfile',StudentProfile)
                                                 : "url('/demo/synco/frames/Pending.png')",
 
 
-                                backgroundSize: "contain",
+                                backgroundSize: "cover",
                             }}>
                             <div>
                                 <div className="text-[20px] font-bold text-[#1F2937]">Account Status</div>
@@ -634,7 +634,7 @@ console.log('StudentProfile',StudentProfile)
 
                                     {/* Status text */}
                                     <span className="capitalize">
-                                        {formatStatus(status)}
+                                         {status ? status.replaceAll("_", " ") : "Unknown"}
                                     </span>
                                 </div>
 
@@ -914,7 +914,7 @@ console.log('StudentProfile',StudentProfile)
                                     </button>
 
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => rebookFreeTrialsubmit(rebookFreeTrial)}
                                     >
                                         Rebook Trial

@@ -566,7 +566,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                                 : "url('/demo/synco/frames/Pending.png')",
 
 
-                                backgroundSize: "contain",
+                                backgroundSize: "cover",
                             }}
                         >
                             <div>
@@ -901,7 +901,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </button>
 
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => rebookFreeTrialsubmit(rebookFreeTrial)}
                                     >
                                         Rebook Trial

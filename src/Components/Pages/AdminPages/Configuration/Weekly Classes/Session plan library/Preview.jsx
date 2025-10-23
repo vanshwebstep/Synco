@@ -89,6 +89,8 @@ const Preview = ({ item, sessionData }) => {
   }, [currentContent]);
   useEffect(() => {
     if (selectedGroup && activeTab) {
+        console.log('activeTab',selectedGroup)
+
       const tabKey = activeTab.toLowerCase().replace(/s$/, "");
       const fieldName = `${tabKey}_upload`;
       const fieldVideoName = `${tabKey}_video`;
@@ -357,7 +359,7 @@ console.log(selectedExercise?.description);
 
                   <div className="text-sm space-y-6">
                     <div>
-                      
+
                       <div
                       className="prose prose-sm space-y-6 max-w-none text-gray-700
     prose-p:mb-3 prose-li:mb-2

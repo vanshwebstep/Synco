@@ -27,7 +27,7 @@ const ParentProfile = ({ profile }) => {
     const classSchedule = profile?.classSchedule;
     const bookingId = profile?.bookingId;
     const id = profile?.id;
-    console.log('profile',profile)
+    console.log('profile', profile)
     const paymentPlans = profile?.paymentPlans;
     const [editingIndex, setEditingIndex] = useState(null);
     const [commentsList, setCommentsList] = useState([]);
@@ -71,7 +71,7 @@ const ParentProfile = ({ profile }) => {
         ? profile.payments[0]
         : profile?.payments;
     const ID = profile?.bookedId || firstPayment?.pan;
-  const formatTimeAgo = (timestamp) => {
+    const formatTimeAgo = (timestamp) => {
         const now = new Date();
         const past = new Date(timestamp);
         const diff = Math.floor((now - past) / 1000); // in seconds
@@ -291,7 +291,7 @@ const ParentProfile = ({ profile }) => {
 
     // console.log('Venue Name:', profile.dateBooked);
 
-  function formatISODate(isoDateString, toTimezone = null) {
+    function formatISODate(isoDateString, toTimezone = null) {
         if (!isoDateString) return "N/A"; // ✅ Handles null, undefined, or empty string
 
         const date = new Date(isoDateString);
@@ -552,78 +552,7 @@ const ParentProfile = ({ profile }) => {
                                 </div>
                             ))}
                         </div>
-                        {emergencyContacts.map((emergency, index) => (
-                            <div key={index} className="bg-white p-6 rounded-3xl shadow-sm space-y-6">
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-[20px] font-semibold">Emergency contact details</h2>
-                                    <button
-                                        onClick={() => toggleEditEmergency(index)}
-                                        className="text-gray-600 hover:text-blue-600"
-                                    >
-                                        {editingEmergency === index ? <FaSave /> : <FaEdit />}
-                                    </button>
-                                </div>
 
-                                <div className="flex items-center gap-2">
-                                    <input type="checkbox" checked={emergency.sameAsAbove} readOnly disabled />
-                                    <label className="text-base font-semibold text-gray-700">
-                                        Fill same as above
-                                    </label>
-                                </div>
-
-                                {/* First / Last Name */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">First name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={emergency.emergencyFirstName}
-                                            readOnly={editingEmergency !== index}
-                                            onChange={(e) =>
-                                                handleEmergencyChange(index, "emergencyFirstName", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Last name</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={emergency.emergencyLastName}
-                                            readOnly={editingEmergency !== index}
-                                            onChange={(e) =>
-                                                handleEmergencyChange(index, "emergencyLastName", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Phone / Relation */}
-                                <div className="flex gap-4">
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Phone number</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={emergency.emergencyPhoneNumber}
-                                            readOnly={editingEmergency !== index}
-                                            onChange={(e) =>
-                                                handleEmergencyChange(index, "emergencyPhoneNumber", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                    <div className="w-1/2">
-                                        <label className="block text-[16px] font-semibold">Relation to child</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={emergency.emergencyRelation}
-                                            readOnly={editingEmergency !== index}
-                                            onChange={(e) =>
-                                                handleEmergencyChange(index, "emergencyRelation", e.target.value)
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
                     </div>
 
                     <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
@@ -662,14 +591,14 @@ const ParentProfile = ({ profile }) => {
                                             <div className="flex items-center gap-3">
                                                 <img
                                                     src={
-                                                    c?.bookedByAdmin?.profile
-                                                        ? `${c?.bookedByAdmin?.profile}`
-                                                        : '/demo/synco/members/dummyuser.png'
-                                                }
-                                                onError={(e) => {
-                                                    e.currentTarget.onerror = null; // prevent infinite loop
-                                                    e.currentTarget.src = '/demo/synco/members/dummyuser.png';
-                                                }}
+                                                        c?.bookedByAdmin?.profile
+                                                            ? `${c?.bookedByAdmin?.profile}`
+                                                            : '/demo/synco/members/dummyuser.png'
+                                                    }
+                                                    onError={(e) => {
+                                                        e.currentTarget.onerror = null; // prevent infinite loop
+                                                        e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                    }}
                                                     alt={c?.bookedByAdmin?.firstName}
                                                     className="w-10 h-10 rounded-full object-cover mt-1"
                                                 />
@@ -730,17 +659,19 @@ const ParentProfile = ({ profile }) => {
                                         ? "url('/demo/synco/frames/Frozen.png')"
                                         : status === "active"
                                             ? "url('/demo/synco/frames/Active.png')"
-                                            : status === "waiting list"
-                                                ? "url('/demo/synco/frames/Waiting.png')"
-                                                : "url('/demo/synco/frames/Pending.png')",
+                                            : status === "request_to_cancel"
+                                                ? "url('/demo/synco/frames/reqCancel.png')"
+                                                : status === "waiting list"
+                                                    ? "url('/demo/synco/frames/Waiting.png')"
+                                                    : "url('/demo/synco/frames/Pending.png')",
 
 
-                                backgroundSize: "contain",
+                                backgroundSize: "cover",
                             }}>
                             <div>
                                 <div className="text-[20px] font-bold text-[#1F2937]">Account Status</div>
                                 <div className="text-[16px] font-semibold capitalize text-[#1F2937]">      <span>
-                                    {status}
+                                    {status ? status.replaceAll("_", " ") : "Unknown"}
                                 </span>
                                 </div>
                             </div>
@@ -865,7 +796,7 @@ const ParentProfile = ({ profile }) => {
                                     </button>
                                 )}
 
-                                {(status === "active" || status === "frozen" || status === "cancelled") && (
+                                {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel") && (
                                     <button
                                         onClick={() => setaddToWaitingList(true)}
                                         className={`w-full rounded-xl py-3 text-[18px] font-medium transition-shadow duration-300 
@@ -878,17 +809,23 @@ const ParentProfile = ({ profile }) => {
                                     </button>
                                 )}
 
-
-                                {status == 'active' && canCancelTrial && !profile.freezeBooking &&  (
-                                    // parent.freezeBooking
+                                {status === "active" || status === "request_to_cancel" && canCancelTrial && !profile.freezeBooking ? (
                                     <button
                                         onClick={() => setFreezeMembership(true)}
                                         className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
                                     >
                                         Freeze Membership
                                     </button>
-                                )}
-                                {status == 'active' && canCancelTrial && (
+                                ) : (status === "active") && canCancelTrial && profile.freezeBooking ? (
+                                    <button
+                                        onClick={() => setReactivateMembership(true)}
+                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                    >
+                                        (Freezeing Progress)   Reactivate Membership
+                                    </button>
+                                ) : null}
+
+                                {status == 'active' || status === "request_to_cancel" && canCancelTrial && (
                                     <button
                                         onClick={() => setTransferVenue(true)}
                                         className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
@@ -904,7 +841,7 @@ const ParentProfile = ({ profile }) => {
                                         Remove Waiting List
                                     </button>
                                 )}
-                                {(status == 'active' || status == 'frozen') && canCancelTrial && (
+                                {(status == 'active' || status == 'frozen' || status === "request_to_cancel") && canCancelTrial && (
                                     <button
                                         onClick={() => setshowCancelTrial(true)}
                                         className={`w-full border text-[18px] rounded-xl py-3 font-medium transition-shadow duration-300
@@ -934,6 +871,47 @@ const ParentProfile = ({ profile }) => {
                                             Book a Membership
                                         </button>
                                     </div>
+                                )}
+
+
+                            </div>
+                        </>
+                    )}
+                    {status == 'cancelled' && (
+                        <>
+                            <div className="bg-white rounded-3xl p-6  space-y-4 mt-4">
+
+                                {/* Top Row: Email + Text */}
+                                <div className="flex gap-7">
+
+                                    <button onClick={() => sendBookMembershipMail([bookingId])} className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium">
+                                        <img src="/demo/synco/icons/mail.png" alt="" /> Send Email
+                                    </button>
+
+                                    <button className="flex-1 border border-[#717073] rounded-xl py-3 flex  text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-[#717073] font-medium">
+                                        <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
+                                    </button>
+                                </div>
+                                {(status === "frozen" || status === "cancelled") && canRebooking && (
+                                    <button
+                                        onClick={() => setReactivateMembership(true)}
+                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                    >
+                                        Reactivate Membership
+                                    </button>
+                                )}
+
+                                {(status === "active" || status === "frozen" || status === "cancelled") && (
+                                    <button
+                                        onClick={() => setaddToWaitingList(true)}
+                                        className={`w-full rounded-xl py-3 text-[18px] font-medium transition-shadow duration-300 
+            ${addToWaitingList
+                                                ? "bg-[#237FEA] text-white shadow-md"   // Active state
+                                                : "bg-white  border border-gray-300  hover:bg-blue-700 text-[#717073] hover:text-white hover:shadow-md"
+                                            }`}
+                                    >
+                                        Add to the waiting list
+                                    </button>
                                 )}
 
 
@@ -1038,9 +1016,9 @@ const ParentProfile = ({ profile }) => {
                                 </div>
 
                                 {/* Button */}
-                                <div className="flex gap-4 pt-4">
+                                <div className="justify-end flex gap-4 pt-4">
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => addtoWaitingListSubmit(waitingListData, 'allMembers')}
                                     >
                                         Join Waiting List
@@ -1154,9 +1132,9 @@ const ParentProfile = ({ profile }) => {
                                 </div>
 
                                 {/* Button */}
-                                <div className="flex gap-4 pt-4">
+                                <div className="flex gap-4 pt-4 justify-end ">
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => reactivateDataSubmit(reactivateData, 'allMembers')}
 
                                     >
@@ -1446,11 +1424,11 @@ const ParentProfile = ({ profile }) => {
                                 </div>
 
                                 {/* Buttons */}
-                                <div className="flex gap-4 pt-4">
+                                <div className="flex gap-4 pt-4 justify-end ">
 
 
                                     <button
-                                        className="flex-1 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                         onClick={() => transferMembershipSubmit(transferData, 'allMembers')}
                                     >
                                         Submit Transfer
@@ -1560,3 +1538,78 @@ const ParentProfile = ({ profile }) => {
 };
 
 export default ParentProfile;
+
+
+
+//    {emergencyContacts.map((emergency, index) => (
+//                         <div key={index} className="bg-white p-6 rounded-3xl shadow-sm space-y-6">
+//                                 <div className="flex justify-between items-start">
+//                                     <h2 className="text-[20px] font-semibold">Emergency contact details</h2>
+//                                     <button
+//                                         onClick={() => toggleEditEmergency(index)}
+//                                         className="text-gray-600 hover:text-blue-600"
+//                                     >
+//                                         {editingEmergency === index ? <FaSave /> : <FaEdit />}
+//                                     </button>
+//                                 </div>
+
+//                                 <div className="flex items-center gap-2">
+//                                     <input type="checkbox" checked={emergency.sameAsAbove} readOnly disabled />
+//                                     <label className="text-base font-semibold text-gray-700">
+//                                         Fill same as above
+//                                     </label>
+//                                 </div>
+
+//                                 {/* First / Last Name */}
+//                                 <div className="flex gap-4">
+//                                     <div className="w-1/2">
+//                                         <label className="block text-[16px] font-semibold">First name</label>
+//                                         <input
+//                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+//                                             value={emergency.emergencyFirstName}
+//                                             readOnly={editingEmergency !== index}
+//                                             onChange={(e) =>
+//                                                 handleEmergencyChange(index, "emergencyFirstName", e.target.value)
+//                                             }
+//                                         />
+//                                     </div>
+//                                     <div className="w-1/2">
+//                                         <label className="block text-[16px] font-semibold">Last name</label>
+//                                         <input
+//                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+//                                             value={emergency.emergencyLastName}
+//                                             readOnly={editingEmergency !== index}
+//                                             onChange={(e) =>
+//                                                 handleEmergencyChange(index, "emergencyLastName", e.target.value)
+//                                             }
+//                                         />
+//                                     </div>
+//                                 </div>
+
+//                                 {/* Phone / Relation */}
+//                                 <div className="flex gap-4">
+//                                     <div className="w-1/2">
+//                                         <label className="block text-[16px] font-semibold">Phone number</label>
+//                                         <input
+//                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+//                                             value={emergency.emergencyPhoneNumber}
+//                                             readOnly={editingEmergency !== index}
+//                                             onChange={(e) =>
+//                                                 handleEmergencyChange(index, "emergencyPhoneNumber", e.target.value)
+//                                             }
+//                                         />
+//                                     </div>
+//                                     <div className="w-1/2">
+//                                         <label className="block text-[16px] font-semibold">Relation to child</label>
+//                                         <input
+//                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+//                                             value={emergency.emergencyRelation}
+//                                             readOnly={editingEmergency !== index}
+//                                             onChange={(e) =>
+//                                                 handleEmergencyChange(index, "emergencyRelation", e.target.value)
+//                                             }
+//                                         />
+//                                     </div>
+//                                 </div>
+//                             </div>
+//                         ))}

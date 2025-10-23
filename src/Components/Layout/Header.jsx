@@ -117,6 +117,8 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'configuration/weekly-classes/cancellation/account-info/list': { title: 'Account Information' },
     'configuration/weekly-classes/term-dates/create': { title: 'Configuration' },
     'configuration/weekly-classes/account-information': { title: 'Account Information' },
+    'weekly-classes/cancellation/account-info/': { title: 'Account Information' },
+
 
 
   };

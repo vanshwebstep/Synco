@@ -79,7 +79,15 @@ const List = () => {
     const filteredSchedules = classSchedules.filter(
         (item) => item.venueId == venueId
     );
-
+const allDays = Array.from(
+  new Set(
+    filteredSchedules.flatMap(schedule =>
+      schedule.venue?.termGroups?.flatMap(termGroup =>
+        termGroup.terms?.map(term => term.day?.toLowerCase().trim()) || []
+      ) || []
+    )
+  )
+);
     console.log('classSchedules', classSchedules)
     console.log('filteredSchedules', filteredSchedules)
 
@@ -128,13 +136,28 @@ const List = () => {
             return newIndex;
         });
     };
+console.log('allDays',allDays)
+const uniqueDays = [...new Set(allDays.map(item => item))];
 
+const dayOrder = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+];
+
+const days = uniqueDays.sort(
+  (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)
+);
     // Reset for new form
     const handleAddNew = () => {
         setFormData({
             className: '',
             capacity: '',
-            day: classSchedules[0]?.day, // default selected
+            day: days[0], // default selected
             startTime: null,
             endTime: null,
             allowFreeTrial: false
@@ -147,10 +170,11 @@ const List = () => {
     const [value, setValue] = useState('Some text');
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const { venues, isEditVenue, setIsEditVenue, fetchVenues } = useVenue()
+    console.log('filteredSchedules',filteredSchedules)
     const [formData, setFormData] = useState({
         className: '',
         capacity: '',
-        day: classSchedules[0]?.day, // default selected
+        day: days[0], // default selected
         startTime: null,
         endTime: null,
         allowFreeTrial: false
@@ -164,8 +188,10 @@ const List = () => {
                 : [...prev, userId]
         );
     };
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const handleChange = (field, value) => {
+console.log('filteredSchedules',filteredSchedules)
+
+
+const handleChange = (field, value) => {
         setFormData({ ...formData, [field]: value });
     };
     const parseTimeToMinutes = (timeStr) => {
@@ -746,7 +772,7 @@ const List = () => {
                                             <select
                                                 value={formData.day}
                                                 onChange={(e) => handleChange('day', e.target.value)}
-                                                className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
+                                                className="w-full border border-[#E2E1E5] rounded-xl capitalize p-3 text-sm"
                                             >
                                                 <option value="">Day</option>
                                                 {days.map((day) => (

@@ -43,6 +43,10 @@ const routeTitleMap = {
   '/weekly-classes/cancellation/account-info/list': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
   '/weekly-classes/term-dates/create': { title: 'Term Dates & Session Plan Mapping', icon: '/demo/synco/members/termCondition.png' },
   '/weekly-classes/account-information': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
+  '/weekly-classes/members-info': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
+  '/weekly-classes/cancellation/account-info/': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
+
+
 
 };
 
