@@ -117,7 +117,7 @@ const PaymentPlanManagerList = () => {
               alt="Back"
               className="w-5 h-5 md:w-6 md:h-6"
             />
-            <span className="truncate">{selectedGroup?.name}</span>
+            <span className="truncate">{selectedGroup?.name}Preview</span>
           </h2>
           <div className="flex items-center rounded-3xl max-w-fit justify-left bg-white w-full px-4 py-6 sm:px-6 md:py-10">
             <div className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">

@@ -564,7 +564,7 @@ const StudentProfile = ({ profile }) => {
                             <input
                                 type="text"
                                 placeholder="Add a comment"
-                                className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none"
+                                className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none md:w-full w-5/12"
                             />
                             <button className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-[#237FEA]">
                                 <img src="/demo/synco/icons/sent.png" alt="" />

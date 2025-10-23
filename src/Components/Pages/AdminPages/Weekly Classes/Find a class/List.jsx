@@ -529,6 +529,7 @@ useEffect(() => {
   return () => document.removeEventListener("mousedown", handleClickOutside);
 }, []);
 
+const weekOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 
   if (loading) {
@@ -726,7 +727,7 @@ useEffect(() => {
 
                         <div className="p-5 flex flex-col lg:flex-row gap-8  bg-[#FCF9F6] "> {/* ✅ responsive layout */}
                           {/* Meta Info */}
-                          <div className="w-full lg:w-3/12 space-y-1 border-r border-[#ccc]">
+                          <div className="w-full lg:w-3/12 space-y-1 pr-4 border-r border-[#ccc]">
                             <div className='flex gap-5 items-center'>
                               <div>
                                 <div className="font-semibold text-[20px] text-black max-w-30 min-w-30  truncate ">{venue.venueName}</div>
@@ -736,7 +737,9 @@ useEffect(() => {
                               </div>
 
                               <div className="">
-                                <div className="text-[16px] font-semibold text-[#384455]">{'day'}</div>
+                                <div className="text-[16px] font-semibold text-[#384455]">{["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+    .filter(day => venue.classes[day])
+    .join(", ")}</div>
                                 <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
                               </div>
                             </div>

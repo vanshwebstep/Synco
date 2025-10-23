@@ -1694,7 +1694,7 @@ const List = () => {
                                     value={comment}
                                     onChange={(e) => setComment(e.target.value)}
                                     placeholder="Add a comment"
-                                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none"
+                                    className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none md:w-full w-5/12"
                                 />
                                 <button
                                     className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"

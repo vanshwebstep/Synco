@@ -87,7 +87,7 @@ const List = () => {
   const { fetchTermGroup, termGroup, fetchTerm, termData } = useTermContext()
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading,openForm, setOpenForm } = useVenue()
+  const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading, openForm, setOpenForm } = useVenue()
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
@@ -129,7 +129,7 @@ const List = () => {
     });
   };
 
- 
+
 
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   useEffect(() => {
@@ -179,46 +179,46 @@ const List = () => {
     setToDate(null);
   };
 
-const getDateStatus = (date) => {
-  if (!date) return {};
+  const getDateStatus = (date) => {
+    if (!date) return {};
 
-  let isStartOrEnd = false;
-  let isInBetween = false;
-  let isExcluded = false;
-  let isSessionDate = false;
+    let isStartOrEnd = false;
+    let isInBetween = false;
+    let isExcluded = false;
+    let isSessionDate = false;
 
-  const targetDate = new Date(date);
+    const targetDate = new Date(date);
 
-  congestionNote.forEach((term) => {
-    const start = new Date(term.startDate);
-    const end = new Date(term.endDate);
+    congestionNote.forEach((term) => {
+      const start = new Date(term.startDate);
+      const end = new Date(term.endDate);
 
-    // Start / End
-    if (isSameDate(targetDate, start) || isSameDate(targetDate, end)) {
-      isStartOrEnd = true;
-    }
-    // In Between (excluding exact start/end)
-    else if (targetDate > start && targetDate < end) {
-      isInBetween = true;
-    }
-
-    // Exclusion Dates
-    term.exclusionDates?.forEach((ex) => {
-      if (isSameDate(targetDate, new Date(ex))) {
-        isExcluded = true;
+      // Start / End
+      if (isSameDate(targetDate, start) || isSameDate(targetDate, end)) {
+        isStartOrEnd = true;
       }
+      // In Between (excluding exact start/end)
+      else if (targetDate > start && targetDate < end) {
+        isInBetween = true;
+      }
+
+      // Exclusion Dates
+      term.exclusionDates?.forEach((ex) => {
+        if (isSameDate(targetDate, new Date(ex))) {
+          isExcluded = true;
+        }
+      });
+
+      // Session Dates
+      term.sessionsMap?.forEach((session) => {
+        if (isSameDate(targetDate, new Date(session.sessionDate))) {
+          isSessionDate = true;
+        }
+      });
     });
 
-    // Session Dates
-    term.sessionsMap?.forEach((session) => {
-      if (isSameDate(targetDate, new Date(session.sessionDate))) {
-        isSessionDate = true;
-      }
-    });
-  });
-
-  return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
-};
+    return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
+  };
 
 
   // console.log('congestionNote',congestionNote)
@@ -535,18 +535,18 @@ const getDateStatus = (date) => {
                                   alt="currency"
                                 />
                               </div>
-                           {user.isCongested && (
-  <div
-    onClick={() => handleIconClick("group", user.howToEnterFacility)}
-    className="cursor-pointer"
-  >
-    <img
-      src="/demo/synco/members/Group-c.png"
-      className="min-w-6 min-h-6 max-w-6 max-h-6"
-      alt="group"
-    />
-  </div>
-)}
+                              {user.isCongested && (
+                                <div
+                                  onClick={() => handleIconClick("group", user.howToEnterFacility)}
+                                  className="cursor-pointer"
+                                >
+                                  <img
+                                    src="/demo/synco/members/Group-c.png"
+                                    className="min-w-6 min-h-6 max-w-6 max-h-6"
+                                    alt="group"
+                                  />
+                                </div>
+                              )}
 
                               <div
                                 onClick={() =>

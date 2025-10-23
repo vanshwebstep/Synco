@@ -89,7 +89,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'configuration/weekly-classes/find-a-class/': { title: 'Weekly Classes', },
     'synco-chat': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'members': { title: 'Admin Panel' },
-    'configuration/configuration/weekly-classes/session-plan-list': { title: 'Configuration' },
+    'configuration/weekly-classes/session-plan-list': { title: 'Configuration' },
     'configuration/weekly-classes/term-dates': { title: 'Configuration' },
 
     'configuration/weekly-classes/session-plan-create': { title: 'Configuration' },
@@ -97,18 +97,20 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'configuration/configuration/weekly-classes/subscription-planManager': { title: 'Configuration' },
     'configuration/weekly-classes/add-subscription-plan-group': { title: 'Configuration' },
     'weekly-classes/find-a-class': { title: 'Configuration' },
+    'weekly-classes/find-a-class/add-to-waiting-list': { title: 'Waiting List' },
+    'weekly-classes/add-to-waiting-list': { title: 'Waiting List' },
 
     'holiday-camps/payment-planManager': { title: 'Configuration' },
-    'configuration/weekly-classes/trial/list': { title: 'Trials Information' },
+    'weekly-classes/trial/list': { title: 'Trials Information' },
 
     'holiday-camps/add-subscription-plan-group': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
     'holiday-camps/discounts': { title: 'Discounts' },
     'holiday-camps/session-plan': { title: 'Configuration', },
     'notification': { title: 'Notification' },
-    'configuration/weekly-classes/all-members': { title: 'Members' },
+    'weekly-classes/all-members': { title: 'Members' },
     'configuration/configuration/weekly-classes/venues': { title: 'Configuration', },
-    'configuration/weekly-classes/find-a-class/book-a-free-trial/account-info': { title: 'Account Information' },
-    'configuration/weekly-classes/all-members/account-info': { title: 'Account Information' },
+    'find-a-class/book-a-free-trial/account-info': { title: 'Account Information' },
+    'weekly-classes/all-members/account-info': { title: 'Account Information' },
     
     'weekly-classes/cancellation': { title: 'Cancellation' },
     'weekly-classes/capacity': { title: 'Capacity' },

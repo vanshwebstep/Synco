@@ -157,7 +157,7 @@ console.log(selectedExercise?.description);
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
-          <span className="truncate">     {selectedGroup?.groupName || 'View Session Plans'}</span>
+          <span className="truncate">     {selectedGroup?.groupName || 'View Session Plans'} Preview</span>
         </h2>
       </div>
       <div className=" rounded-3xl  p-6 flex flex-col md:flex-row gap-6">
