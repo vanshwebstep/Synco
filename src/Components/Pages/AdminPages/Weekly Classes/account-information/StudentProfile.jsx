@@ -105,7 +105,7 @@ const handleAddStudent = () => {
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            className="bg-[#237FEA] absolute right-0 -top-0 text-sm px-4 py-3 rounded-xl text-white hover:bg-[#1e6fd2] flex items-center gap-2 transition"
+            className="bg-[#237FEA] md:absolute right-0 -top-0 text-sm px-4 py-3 rounded-xl text-white hover:bg-[#1E6FD2] flex items-center gap-2 transition"
           >
             Add Student <FaPlus />
           </button>

@@ -14,9 +14,9 @@ const Rewards = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#F9F9FB] p-4 md:p-8 flex flex-col">
+    <div className="min-h-screen bg-[#F9F9FB] md:p-4 md:p-8 flex flex-col">
       {/* Tabs */}
-      <div className="grid grid-cols-2 gap-3 mb-6 bg-white w-3/12 p-2 border border-[#E2E1E5]  rounded-2xl ">
+      <div className="grid grid-cols-2 gap-3 mb-6 bg-white md:w-3/12 p-2 border border-[#E2E1E5]  rounded-2xl ">
         <button
           onClick={() => setActiveTab("referrals")}
           className={`px-6 py-3 rounded-xl text-[16px] font-semibold ${activeTab === "referrals"

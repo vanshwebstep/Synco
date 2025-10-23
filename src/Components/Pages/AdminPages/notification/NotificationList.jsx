@@ -192,7 +192,12 @@ const recipientOptions = [
     });
 
      console.log('filteredNotifications', filteredNotifications)
-    
+      const categoryOptions = [
+    { value: "Complaints", label: "Complaints" },
+    { value: "Cancelled Memberships", label: "Cancelled Memberships" },
+    { value: "Payments", label: "Payments" },
+  ];
+
    if (loading && loadingCustomNotification) {
         return (
             <>
@@ -332,6 +337,9 @@ const recipientOptions = [
                                             recipients: selectedOptions,
                                         }))
                                     }
+                                              components={{
+    IndicatorSeparator: () => null, // 🚀 removes the "|" separator
+  }}
                                     styles={{
                                         control: (base) => ({
                                             ...base,
@@ -344,24 +352,48 @@ const recipientOptions = [
                                 />
                             </div>
 
-                            <div>
-                                <label className="block mb-1 text-[16px] font-medium text-[#282829]">
-                                    Category
-                                </label>
-                                <select
-                                    name="category"
-                                    value={form.category}
-                                    onChange={handleChange}
-                                    className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value=""></option>
-                                    <option value="Complaints">Complaints</option>
-                                    <option value="Cancelled Memberships">
-                                        Cancelled Memberships
-                                    </option>
-                                    <option value="Payments">Payments</option>
-                                </select>
-                            </div>
+                          
+    <div>
+      <label className="block mb-1 text-[16px] font-medium text-[#282829]">
+        Category
+      </label>
+      <Select
+        name="category"
+        value={categoryOptions.find(option => option.value === form.category) || null}
+        onChange={selected => handleChange({ target: { name: "category", value: selected?.value || "" } })}
+        options={categoryOptions}
+        placeholder="Select Category"
+        className="react-select-container"
+        classNamePrefix="react-select"
+        components={{
+          IndicatorSeparator: () => null, // 🚀 removes the "|" separator
+        }}
+        styles={{
+          control: (provided, state) => ({
+            ...provided,
+            borderColor: "#E2E1E5",
+            borderRadius: "0.75rem",
+            padding: "4px",
+            boxShadow: state.isFocused ? "0 0 0 2px #3b82f6" : "none",
+            "&:hover": { borderColor: "#E2E1E5" },
+          }),
+          placeholder: (provided) => ({
+            ...provided,
+            color: "#717073",
+            fontSize: "14px",
+          }),
+          singleValue: (provided) => ({
+            ...provided,
+            color: "#282829",
+            fontSize: "14px",
+          }),
+          dropdownIndicator: (provided) => ({
+            ...provided,
+            color: "#717073",
+          }),
+        }}
+      />
+    </div>
 
                             <div>
                                 <label className="block mb-1 text-[16px] font-medium text-[#282829]">

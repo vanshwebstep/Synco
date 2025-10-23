@@ -112,7 +112,7 @@ const SalesDashboard = () => {
 
             <div className="min-h-screen overflow-hidden bg-gray-50 py-6 flex flex-col lg:flex-row ">
                 {/* Left Section */}
-                <div className="md:w-[73%] gap-6 pe-3">
+                <div className="md:w-[73%] gap-6 md:pe-3 mb-4 md:mb-0">
                     {/* Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {summaryCards.map((card, i) => {
@@ -211,7 +211,7 @@ const SalesDashboard = () => {
                 </div>
 
                 {/* Right Sidebar */}
-                <div className="md:w-[27%] flex-shrink-0  gap-5 ps-3">
+                <div className="md:w-[27%] flex-shrink-0  gap-5 md:ps-3">
                     {/* Search */}
                     <div className="mb-4 bg-white rounded-2xl p-4">
                         <h3 className="font-semibold text-xl mb-2">Search now</h3>
@@ -317,7 +317,7 @@ const SalesDashboard = () => {
                 </div>
             </div>
             {isOpen && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 px-5">
                     {/* Modal box */}
                     <div className="bg-white rounded-2xl max-h-[90vh] overflow-auto w-full max-w-md p-6 relative shadow-xl">
                         {/* Close button */}

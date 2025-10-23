@@ -105,7 +105,7 @@ const handleAddStudent = () => {
           <button
             type="button"
             onClick={() => setShowModal(true)}
-            className="bg-[#237FEA] absolute right-0 -top-0 text-sm px-4 py-3 rounded-xl text-white hover:bg-[#1e6fd2] flex items-center gap-2 transition"
+            className="bg-[#237FEA] md:absolute right-0 -top-0 text-sm px-4 py-3 rounded-xl text-white hover:bg-[#1e6fd2] flex items-center gap-2 transition"
           >
             Add Student <FaPlus />
           </button>
@@ -142,7 +142,7 @@ const handleAddStudent = () => {
 
           {/* Row 1: Names */}
           <div className="flex gap-4">
-            <div className="w-1/2">
+            <div className="md:w-1/2">
               <label className="block text-[16px] font-semibold">First name</label>
               <input
                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
@@ -154,7 +154,7 @@ const handleAddStudent = () => {
                 readOnly={!editStudent?.[index]}
               />
             </div>
-            <div className="w-1/2">
+            <div className="md:w-1/2">
               <label className="block text-[16px] font-semibold">Last name</label>
               <input
                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
@@ -170,7 +170,7 @@ const handleAddStudent = () => {
 
           {/* Row 2: DOB + Age */}
           <div className="flex gap-4">
-            <div className="w-1/2">
+            <div className="md:w-1/2">
               <label className="block text-[16px] font-semibold">Date of birth</label>
               <DatePicker
                 withPortal
@@ -189,7 +189,7 @@ const handleAddStudent = () => {
               />
             </div>
 
-            <div className="w-1/2">
+            <div className="md:w-1/2">
               <label className="block text-[16px] font-semibold">Age</label>
               <input
                 type="text"
@@ -203,7 +203,7 @@ const handleAddStudent = () => {
 
           {/* Row 3: Gender + Medical Info */}
           <div className="flex gap-4">
-            <div className="w-1/2">
+            <div className="md:w-1/2">
               <label className="block text-[16px] font-semibold">Gender</label>
               <Select
                 className="w-full mt-2 text-base"
@@ -218,7 +218,7 @@ const handleAddStudent = () => {
               />
             </div>
 
-            <div className="w-1/2">
+            <div className="md:w-1/2">
               <label className="block text-[16px] font-semibold">Medical information</label>
               <input
                 type="text"

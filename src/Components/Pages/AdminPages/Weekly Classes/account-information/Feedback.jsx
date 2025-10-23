@@ -73,12 +73,12 @@ const Feedback = () => {
 
   return (
     <>
-      <div className={`pt-1 bg-gray-50 min-h-screen px-4 ${openResolve ? 'hidden' : 'block'}`}>
+      <div className={`pt-1 bg-gray-50 min-h-screen md:px-4 ${openResolve ? 'hidden' : 'block'}`}>
         {checkPermission(
           { module: "member", action: "create" }) && (
             <button
               onClick={() => setOpenForm(true)}
-              className="bg-[#237FEA] absolute right-0 -top-0 flex items-center gap-2 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-blue-700 text-sm md:text-base font-semibold"
+              className="bg-[#237FEA] md:absolute right-0 -top-0 flex items-center gap-2 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-blue-700 text-sm md:text-base font-semibold"
             >
               <img src="/demo/synco/members/add.png" className="w-5" alt="" />
               Add Feedback
@@ -86,7 +86,7 @@ const Feedback = () => {
           )}
 
         {checkPermission({ module: "account-information", action: "view-listing" }) ? (
-          <div className="md:flex md:gap-6">
+          <div className="md:flex md:gap-6 md:mt-0 mt-5">
 
             <div className={`transition-all duration-300 w-full`}>
 

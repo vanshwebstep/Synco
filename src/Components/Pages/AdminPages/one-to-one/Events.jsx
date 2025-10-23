@@ -196,7 +196,7 @@ const Events = () => {
   };
 
   return (
-    <div className="flex gap-8">
+    <div className="md:flex gap-8">
       <div className="bg-white shadow-sm rounded-2xl p-6 md:w-8/12">
         {activities.map((activity, index) => (
           <div
@@ -251,7 +251,7 @@ const Events = () => {
           </div>
         ))}
       </div>
-      <div className="md:w-4/12">
+      <div className="md:w-4/12 md:mt-0 mt-4">
         <div className="bg-white rounded-xl p-4 ">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter Event</h3>

@@ -117,18 +117,18 @@ export default function Create() {
 
     return (
         <>
-            <div className="flex gap-2 items-center cursor-pointer mb-5" onClick={() => navigate('/one-to-one')}>
+            <div className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start mb-5" onClick={() => navigate('/one-to-one')}>
                 <img
                     src="/demo/synco/icons/arrow-left.png"
                     alt="Back"
                     className="w-5 h-5 md:w-6 md:h-6"
                 />
-                <h2 className="font-bold text-2xl">  Add a Session Plan Structure</h2>
+                <h2 className="font-bold md:text-2xl">  Add a Session Plan Structure</h2>
             </div>
 
             <div className="p-6 flex flex-col lg:flex-row justify-center gap-10 bg-gray-50 min-h-screen rounded-2xl items-start bg-white">
                 {/* === LEFT SIDE: GROUP FORM === */}
-                <div className="w-full p-6 md:w-6/12">
+                <div className="w-full md:p-6 lg:w-6/12">
                     {/* Tabs */}
 
 
@@ -176,7 +176,7 @@ export default function Create() {
                                 className="w-full mt-2 rounded-xl"
                             />
                         )}
-                        <div className="flex border border-[#E2E1E5] rounded-2xl p-2 mb-6">
+                        <div className="flex border border-[#E2E1E5] rounded-2xl p-2 mb-6 overflow-auto">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab}
@@ -341,7 +341,7 @@ export default function Create() {
                 </div>
 
                 {/* === RIGHT SIDE: EXERCISE MODAL & Preview === */}
-                <div className="w-6/12 flex flex-col gap-4">
+                <div className="lg:w-6/12 flex flex-col gap-4">
 
 
                     {showExerciseModal && (

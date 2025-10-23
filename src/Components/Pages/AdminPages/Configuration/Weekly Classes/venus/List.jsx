@@ -457,7 +457,7 @@ const List = () => {
         }
       </div>
 
-      <div className="md:flex gap-6">
+      <div className="md:md:flex gap-6">
         <div
           className={`transition-all duration-300 ${openForm ? 'md:w-3/4' : 'w-full'} `}>
           {

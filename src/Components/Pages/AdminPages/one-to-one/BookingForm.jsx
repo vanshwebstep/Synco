@@ -459,7 +459,7 @@ const BookingForm = () => {
   );
 
   return (
-    <div className="p-6 min-h-screen">
+    <div className="md:p-6 min-h-screen">
       <div className="flex justify-end mb-5">
         <ul  className="flex gap-4 items-center">
           <li className="max-w-[40px]"><img src="/demo/synco/images/icon1.png" alt="" /></li>
@@ -698,7 +698,7 @@ const BookingForm = () => {
       </div>
 
       {showPayment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-5">
           <div className="bg-white rounded-2xl max-h-[90vh] overflow-auto w-full max-w-md p-6 relative shadow-lg">
             {/* Close Button */}
             <button

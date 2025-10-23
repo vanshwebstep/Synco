@@ -358,7 +358,7 @@ const Create = () => {
                                     <button
                                         type="button"
                                         onClick={() => videoInputRef.current.click()}
-                                        className="flex w-1/2 items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
+                                        className="flex md:w-1/2 items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
                                     >
                                         {videoUrl ? "Change Video" : "Add Video"}
                                     </button>
@@ -374,7 +374,7 @@ const Create = () => {
                                     <button
                                         type="button"
                                         onClick={() => bannerInputRef.current.click()}
-                                        className="flex w-1/2 items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
+                                        className="flex md:w-1/2 items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50"
                                     >
                                         {bannerUrl ? "Change Banner" : "Add Banner"}
                                     </button>

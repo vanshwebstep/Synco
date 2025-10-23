@@ -402,7 +402,7 @@ const trialLists = () => {
 
                 </div>
 
-                <div className="md:w-4/12 text-base space-y-5">
+                <div className="md:w-4/12 md:mt-0 mt-4 text-base space-y-5">
                     <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
                         <h2 className="text-[24px] font-semibold">Search Now </h2>
                         <div className="">

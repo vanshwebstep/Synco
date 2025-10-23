@@ -66,7 +66,7 @@ const SessionPreview = () => {
     const videoUrl = 'https://cdn.pixabay.com/video/2017/04/10/10392-212474043_large.mp4';
 
     return (
-        <div className="min-h-screen  p-8">
+        <div className="min-h-screen  lg:p-8">
             <div className="flex gap-2 items-center cursor-pointer" onClick={() => navigate('/one-to-one')}>
                 <img
                     src="/demo/synco/icons/arrow-left.png"
@@ -76,11 +76,11 @@ const SessionPreview = () => {
                 <h2 className="text-xl font-bold text-gray-800">Gold Package</h2>
             </div>
 
-            <div className="max-w-7xl  rounded-lg p-6">
+            <div className="md:max-w-7xl w-full  rounded-lg md:p-6">
                 {/* Header */}
-                <div className="flex items-center justify-between  mb-0">
+                <div className="flex items-center justify-between  mb-0 w-full">
 
-                    <div className="flex border bg-white  border-[#E2E1E5] rounded-2xl p-2 mb-6">
+                    <div className="flex border bg-white  border-[#E2E1E5] rounded-2xl p-2 mb-6 w-full overflow-auto">
                         {["Beginners", "Intermediate", "Advanced", "Pro"].map((tab) => (
                             <button
                                 key={tab}

@@ -500,7 +500,7 @@ const Create = () => {
                                                 <div className="w-full md:block hidden " />
                                                 <div className="w-full md:flex items-center gap-2 space-y-2 md:space-y-0">
                                                     <button
-                                                        className="flex whitespace-nowrap md:w-4/12 w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-blue-50"
+                                                        className="flex whitespace-nowrap md:w-4/12 md:mt-0 mt-4 w-full items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-blue-50"
                                                         onClick={handleMapSession}
                                                     >
                                                         Map Session

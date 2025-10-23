@@ -69,7 +69,7 @@ const List = () => {
       </div>
 
       {checkPermission({ module: "member", action: "view-listing" }) ? (
-        <div className="md:flex md:gap-6">
+        <div className="md:flex md:gap-6 md:mt-0 mt-5">
 
           <div className={`transition-all duration-300 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
 

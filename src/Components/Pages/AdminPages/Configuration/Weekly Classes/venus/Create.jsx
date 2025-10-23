@@ -3,11 +3,12 @@ import { useVenue } from "../../../contexts/VenueContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 import Select from "react-select";
+import { ChevronDown } from "lucide-react"; // you can replace with plain "<" if you prefer
 
 const Create = ({ groups, termGroup }) => {
 
 
-  const { formData, setFormData, createVenues, isEditVenue, updateVenues, setIsEditVenue,openForm, setOpenForm } = useVenue();
+  const { formData, setFormData, createVenues, isEditVenue, updateVenues, setIsEditVenue, openForm, setOpenForm } = useVenue();
 
 
   const handleInputChange = (e) => {
@@ -60,7 +61,7 @@ const Create = ({ groups, termGroup }) => {
       howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
     });
     setIsEditVenue(false);
-   setOpenForm(null);
+    setOpenForm(null);
 
   };
 
@@ -70,50 +71,50 @@ const Create = ({ groups, termGroup }) => {
       prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
   };
-const handleUpdate = (id) => {
-  const err = validateForm();
-  if (err) {
-    Swal.fire({
-      title: 'Validation Error',
-      text: err,
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-    return; // stop here, don't close
-  }
-
-  // Normalize termGroupId
-  let termGroupId = formData.termGroupId;
-
-  if (!Array.isArray(termGroupId)) {
-    try {
-      termGroupId = JSON.parse(termGroupId);
-    } catch (e) {
-      console.warn("termGroupId is not JSON, converting to array:", termGroupId);
-      termGroupId = termGroupId ? [Number(termGroupId)] : [];
+  const handleUpdate = (id) => {
+    const err = validateForm();
+    if (err) {
+      Swal.fire({
+        title: 'Validation Error',
+        text: err,
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+      return; // stop here, don't close
     }
-  }
 
-  // ensure all elements are numbers
-  termGroupId = termGroupId.map(x => Number(x));
+    // Normalize termGroupId
+    let termGroupId = formData.termGroupId;
 
-  console.log("Normalized termGroupId:", termGroupId);
+    if (!Array.isArray(termGroupId)) {
+      try {
+        termGroupId = JSON.parse(termGroupId);
+      } catch (e) {
+        console.warn("termGroupId is not JSON, converting to array:", termGroupId);
+        termGroupId = termGroupId ? [Number(termGroupId)] : [];
+      }
+    }
 
-  // Create updated data object
-  const updatedVenueData = { ...formData, termGroupId };
+    // ensure all elements are numbers
+    termGroupId = termGroupId.map(x => Number(x));
 
-  // Send normalized data to API
-  updateVenues(id, updatedVenueData);
+    console.log("Normalized termGroupId:", termGroupId);
 
-  // Reset form
-  setFormData({
-    area: "", name: "", address: "", facility: "",
-    hasParking: false, isCongested: false, parkingNote: "",
-    howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
-  });
+    // Create updated data object
+    const updatedVenueData = { ...formData, termGroupId };
 
-  onClose();
-};
+    // Send normalized data to API
+    updateVenues(id, updatedVenueData);
+
+    // Reset form
+    setFormData({
+      area: "", name: "", address: "", facility: "",
+      hasParking: false, isCongested: false, parkingNote: "",
+      howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
+    });
+
+    onClose();
+  };
 
 
 
@@ -214,14 +215,14 @@ const handleUpdate = (id) => {
       .map(opt => opt.label)
       .filter(Boolean)
     : [];
-const facilityOptions = [
-  { value: "", label: "Facility" },
-  { value: "Indoor", label: "Indoor" },
-  { value: "Outdoor", label: "Outdoor" },
-];
+  const facilityOptions = [
+    { value: "", label: "Facility" },
+    { value: "Indoor", label: "Indoor" },
+    { value: "Outdoor", label: "Outdoor" },
+  ];
   return (
     <div className="max-w-md mx-auto">
-      <h2 onClick={handleCancel } className="md:text-[24px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center border-[#E2E1E5] border-b p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" />{isEditVenue ? 'Edit Venue' : 'Add New Venue'}</h2>
+      <h2 onClick={handleCancel} className="md:text-[24px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center border-[#E2E1E5] border-b p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" />{isEditVenue ? 'Edit Venue' : 'Add New Venue'}</h2>
       <form className="space-y-2  p-5 pt-1">
 
         <div>
@@ -259,16 +260,19 @@ const facilityOptions = [
 
         <div>
           <label className="block font-semibold text-[16px] pb-2">Facility</label>
-        <Select
-  name="facility"
-  value={facilityOptions.find(option => option.value === formData.facility)}
-  onChange={(selectedOption) =>
-    handleInputChange({ target: { name: "facility", value: selectedOption.value } })
-  }
-  options={facilityOptions}
-  className="w-full text-sm"
-  classNamePrefix="react-select"
-/>
+          <Select
+            name="facility"
+            value={facilityOptions.find(option => option.value === formData.facility)}
+            onChange={(selectedOption) =>
+              handleInputChange({ target: { name: "facility", value: selectedOption.value } })
+            }
+             components={{
+    IndicatorSeparator: () => null, // 🚀 removes the "|" separator
+  }}
+            options={facilityOptions}
+            className="w-full text-sm"
+            classNamePrefix="react-select"
+          />
         </div>
 
         <div className="flex py-2 items-center justify-between gap-6">
@@ -358,10 +362,12 @@ const facilityOptions = [
             <label className="block font-semibold text-[16px] pb-2">
               Term Date Linkage
             </label>
-            <div
-              onClick={() => setShowTermDropdown(!showTermDropdown)}
-              className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white cursor-pointer"
-            >
+          <div
+  onClick={() => setShowTermDropdown(!showTermDropdown)}
+  className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white relative cursor-pointer 
+  after:content-[''] after:absolute after:right-4 after:top-1/2 after:-translate-y-1/2 
+  after:w-2 after:h-2 after:border-r-2 after:border-b-2 after:border-[#717073] after:rotate-45"
+>
               {labels.length > 0
                 ? labels.join(", ")
                 : "Select Term Date Linkage"}
@@ -409,7 +415,9 @@ const facilityOptions = [
             </label>
             <div
               onClick={() => setShowSubDropdown(!showSubDropdown)}
-              className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white cursor-pointer"
+              className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white relative cursor-pointer
+              after:content-[''] after:absolute after:right-4 after:top-1/2 after:-translate-y-1/2 
+  after:w-2 after:h-2 after:border-r-2 after:border-b-2 after:border-[#717073] after:rotate-45"
             >
               {selectedSub
                 ? subOptions.find(opt => opt.id === selectedSub)?.label

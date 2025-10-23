@@ -1867,7 +1867,7 @@ const List = () => {
 
                                         <h3 className="font-semibold text-[20px] pt-2">Bank Details</h3>
 
-                                        <div className="flex gap-6 mt-3">
+                                        <div className="md:flex gap-6 mt-3">
                                             <label className="flex items-center gap-2">
                                                 <input
                                                     type="radio"

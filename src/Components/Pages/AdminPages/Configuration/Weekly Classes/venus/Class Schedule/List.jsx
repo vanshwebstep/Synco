@@ -398,7 +398,7 @@ const handleChange = (field, value) => {
                 }
             </div>
 
-            <div className="md:flex gap-6">
+            <div className="md:md:flex gap-6">
                 <div
                     className={`transition-all duration-300 w-full `}>
                     {
@@ -745,7 +745,7 @@ const handleChange = (field, value) => {
 
                                 <div className="space-y-4">
                                     <div className="flex gap-4">
-                                        <div className='block w-1/2'>
+                                        <div className='block md:w-1/2'>
                                             <label htmlFor="" className='text-base'>Class 1 Name </label>
                                             <input
                                                 type="text"
@@ -755,7 +755,7 @@ const handleChange = (field, value) => {
                                                 className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
                                             />
                                         </div>
-                                        <div className='block w-1/2'>
+                                        <div className='block md:w-1/2'>
                                             <label htmlFor="">Capacity</label>
                                             <input
                                                 type="number"
@@ -780,7 +780,7 @@ const handleChange = (field, value) => {
                                                 ))}
                                             </select>
                                         </div>
-                                        <div className='flex w-1/2 gap-4'>
+                                        <div className='flex md:w-1/2 gap-4'>
                                             <div className="flex gap-4">
                                                 <div className="w-1/2">
                                                     <label>Start Time</label>

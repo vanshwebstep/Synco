@@ -286,7 +286,7 @@ const ParentProfile = () => {
             type="button"
             onClick={() => setShowModal(true)}
 
-            className="bg-[#237FEA] absolute right-0 -top-0 text-sm px-4 py-2 rounded-xl text-white hover:bg-[#1e6fd2] transition"
+            className="bg-[#237FEA] md:absolute right-0 -top-0 text-sm px-4 py-2 rounded-xl text-white hover:bg-[#1e6fd2] transition"
           >
             Add Parent
           </button>
@@ -317,8 +317,8 @@ const ParentProfile = () => {
             </div>
 
             {/* Name Fields */}
-            <div className="flex gap-6 mb-4 mt-3">
-              <div className="w-1/2">
+            <div className="md:flex gap-6 mb-4 mt-3">
+              <div className="md:w-1/2">
                 <label className="block text-[16px] font-semibold">
                   First name
                 </label>
@@ -331,7 +331,7 @@ const ParentProfile = () => {
                 />
               </div>
 
-              <div className="w-1/2">
+              <div className="md:w-1/2">
                 <label className="block text-[16px] font-semibold">
                   Last name
                 </label>
@@ -346,8 +346,8 @@ const ParentProfile = () => {
             </div>
 
             {/* Email + Phone */}
-            <div className="flex gap-6  mb-4">
-              <div className="w-1/2">
+            <div className="md:flex gap-6  mb-4">
+              <div className="md:w-1/2">
                 <label className="block text-[16px] font-semibold">Email</label>
                 <input
                   type="email"
@@ -359,7 +359,7 @@ const ParentProfile = () => {
                 />
               </div>
 
-              <div className="w-1/2">
+              <div className="md:w-1/2">
                 <label className="block text-[16px] font-semibold">
                   Phone number
                 </label>
@@ -391,8 +391,8 @@ const ParentProfile = () => {
             </div>
 
             {/* Relation + How Did You Hear */}
-            <div className="flex gap-6 mt-2">
-              <div className="w-1/2">
+            <div className="md:flex gap-6 mt-2">
+              <div className="md:w-1/2">
                 <label className="block text-[16px] font-semibold">
                   Relation to child
                 </label>
@@ -412,7 +412,7 @@ const ParentProfile = () => {
                 />
               </div>
 
-              <div className="w-1/2">
+              <div className="md:w-1/2">
                 <label className="block text-[16px] font-semibold">
                   How did you hear about us?
                 </label>
@@ -444,8 +444,8 @@ const ParentProfile = () => {
               </h3>
 
               {/* Name Fields */}
-              <div className="flex gap-6  mb-4">
-                <div className="w-1/2">
+              <div className="md:flex gap-6  mb-4">
+                <div className="md:w-1/2">
                   <label className="block text-sm font-semibold">First name</label>
                   <input
                     name="parentFirstName"
@@ -454,7 +454,7 @@ const ParentProfile = () => {
                     onChange={handleModalChange}
                   />
                 </div>
-                <div className="w-1/2">
+                <div className="md:w-1/2">
                   <label className="block text-sm font-semibold">Last name</label>
                   <input
                     name="parentLastName"
@@ -466,8 +466,8 @@ const ParentProfile = () => {
               </div>
 
               {/* Email + Phone */}
-              <div className="flex gap-6  mb-4">
-                <div className="w-1/2">
+              <div className="md:flex gap-6  mb-4">
+                <div className="md:w-1/2">
                   <label className="block text-sm font-semibold">Email</label>
                   <input
                     type="email"
@@ -478,7 +478,7 @@ const ParentProfile = () => {
                   />
                 </div>
 
-                <div className="w-1/2">
+                <div className="md:w-1/2">
                   <label className="block text-sm font-semibold">Phone</label>
                   <div className="flex items-center border border-gray-300 rounded-xl px-3 py-3 mt-1">
                     <PhoneInput
@@ -511,8 +511,8 @@ const ParentProfile = () => {
               </div>
 
               {/* Relation + How Did You Hear */}
-              <div className="flex gap-6 mb-6">
-                <div className="w-1/2">
+              <div className="md:flex gap-6 mb-6">
+                <div className="md:w-1/2">
                   <label className="block text-sm font-semibold">
                     Relation to child
                   </label>
@@ -528,7 +528,7 @@ const ParentProfile = () => {
                     onChange={handleSelectChange}
                   />
                 </div>
-                <div className="w-1/2">
+                <div className="md:w-1/2">
                   <label className="block text-sm font-semibold">
                     How did you hear?
                   </label>
@@ -593,8 +593,8 @@ const ParentProfile = () => {
           </label>
         </div>
 
-        <div className="flex gap-6">
-          <div className="w-1/2">
+        <div className="md:flex gap-6">
+          <div className="md:w-1/2">
             <label className="block text-[16px] font-semibold">First name</label>
             <input
               className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
@@ -609,7 +609,7 @@ const ParentProfile = () => {
               }
             />
           </div>
-          <div className="w-1/2">
+          <div className="md:w-1/2">
             <label className="block text-[16px] font-semibold">Last name</label>
             <input
               className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
@@ -626,8 +626,8 @@ const ParentProfile = () => {
           </div>
         </div>
 
-        <div className="flex gap-6">
-          <div className="w-1/2">
+        <div className="md:flex gap-6">
+          <div className="md:w-1/2">
             <label className="block text-[16px] font-semibold">Phone number</label>
             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
               {/* Flag Dropdown */}
@@ -665,7 +665,7 @@ const ParentProfile = () => {
 
             </div>
           </div>
-          <div className="w-1/2">
+          <div className="md:w-1/2">
             <label className="block text-[16px] font-semibold">Relation to child</label>
             <Select
               options={relationOptions}

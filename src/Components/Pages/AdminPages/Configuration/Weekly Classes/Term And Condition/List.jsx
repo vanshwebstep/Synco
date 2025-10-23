@@ -213,7 +213,7 @@ const List = () => {
 
 
   return (
-    <div className="pt-1 bg-gray-50 min-h-screen px-4 md:px-6">
+    <div className="pt-1 bg-gray-50 min-h-screen md:px-4 md:px-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
         <h2 className="text-[22px] md:text-[28px] font-semibold">

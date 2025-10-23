@@ -851,7 +851,7 @@ const Update = () => {
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-semibold text-[24px]">Permissions</h3>
           </div>
-          <div className="mb-4 md:w-4/12">
+          <div className="mb-4 md:w-4/12 md:mt-0 mt-4">
             <label className="block text-[14px] font-semibold mb-2">Role Name</label>
 
             {MyRole === 'Super Admin' ? (

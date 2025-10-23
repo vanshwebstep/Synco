@@ -1137,7 +1137,7 @@ console.log('isExistingTerm',isExistingTerm)
                                         </label>
                                     </div>
                                     <div className="flex justify-between gap-4 w-full text-[18px] mb-4 font-semibold">
-                                        <label className=" w-1/2">Session Date</label> <label className=" w-1/2 md:pl-5">Session Plan</label>
+                                        <label className=" md:w-1/2">Session Date</label> <label className=" md:w-1/2 md:pl-5">Session Plan</label>
                                     </div>
                                     {Array.from({ length: activeTerm?.sessionsMap?.length || 0 }).map((_, index) => (
                                         <div key={index} className="md:flex w-full items-start gap-4 justify-between mb-4">

@@ -94,9 +94,9 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
 
     'configuration/weekly-classes/session-plan-create': { title: 'Configuration' },
     'configuration/weekly-classes/session-plan-preview': { title: 'Configuration' },
-    'configuration/configuration/weekly-classes/subscription-planManager': { title: 'Configuration' },
+    'configuration/weekly-classes/subscription-planManager': { title: 'Configuration' },
     'configuration/weekly-classes/add-subscription-plan-group': { title: 'Configuration' },
-    'weekly-classes/find-a-class': { title: 'Configuration' },
+    'weekly-classes/find-a-class': { title: 'Weekly Classes' },
     'weekly-classes/find-a-class/add-to-waiting-list': { title: 'Waiting List' },
     'weekly-classes/add-to-waiting-list': { title: 'Waiting List' },
 
@@ -108,7 +108,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'holiday-camps/session-plan': { title: 'Configuration', },
     'notification': { title: 'Notification' },
     'weekly-classes/all-members': { title: 'Members' },
-    'configuration/configuration/weekly-classes/venues': { title: 'Configuration', },
+    'configuration/weekly-classes/venues': { title: 'Configuration', },
     'find-a-class/book-a-free-trial/account-info': { title: 'Account Information' },
     'weekly-classes/all-members/account-info': { title: 'Account Information' },
     
