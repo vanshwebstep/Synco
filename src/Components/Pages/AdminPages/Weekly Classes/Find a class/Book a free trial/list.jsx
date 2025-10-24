@@ -44,6 +44,9 @@ const List = () => {
     const popup1Ref = useRef(null);
     const popup2Ref = useRef(null);
     const popup3Ref = useRef(null);
+      const img3Ref = useRef(null); // add a ref for the image
+        const img1Ref = useRef(null); // add a ref for the image
+        const img2Ref = useRef(null); 
     const { pathname } = useLocation();
     const [isOpen, setIsOpen] = useState(false);
     // console.log('classId', classId)
@@ -763,10 +766,10 @@ const List = () => {
     ];
     const handleClickOutside = (e) => {
         if (
-            activePopup === 1 && popup1Ref.current && !popup1Ref.current.contains(e.target)
-            || activePopup === 2 && popup2Ref.current && !popup2Ref.current.contains(e.target)
-            || activePopup === 3 && popup3Ref.current && !popup3Ref.current.contains(e.target)
-        ) {
+        (activePopup === 1 && popup1Ref.current && !popup1Ref.current.contains(e.target) && img1Ref.current && !img1Ref.current.contains(e.target)) ||
+        (activePopup === 2 && popup2Ref.current && !popup2Ref.current.contains(e.target) && img2Ref.current && !img2Ref.current.contains(e.target)) ||
+        (activePopup === 3 && popup3Ref.current && !popup3Ref.current.contains(e.target) && img3Ref.current && !img3Ref.current.contains(e.target))
+    ) {
             togglePopup(null);
         }
     };
@@ -870,6 +873,8 @@ const List = () => {
                 </h2>
                 <div className="flex gap-3 relative items-center">
                     <img
+                    ref={img1Ref}
+
                         src="/demo/synco/members/booktrial1.png"
                         className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 1 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
                         onClick={() => togglePopup(1)}
@@ -891,6 +896,7 @@ const List = () => {
                         </div>
                     )}
                     <img
+                        ref={img2Ref}
                         onClick={() => togglePopup(2)}
                         src="/demo/synco/members/booktrial2.png"
                         className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 2 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
@@ -958,6 +964,7 @@ const List = () => {
 
 
                     <img
+                        ref={img3Ref}
                         src="/demo/synco/members/booktrial3.png"
                         alt=""
                         onClick={() => togglePopup(3)}

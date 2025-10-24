@@ -31,10 +31,21 @@ const ParentProfile = () => {
     setCurrentPage(page);
   };
 
-  const handleModalChange = (e) => {
-    const { name, value } = e.target;
-    setNewParent((prev) => ({ ...prev, [name]: value }));
-  };
+// For normal inputs
+const handleModalChange = (e) => {
+  const { name, value } = e.target;
+  setNewParent((prev) => ({ ...prev, [name]: value }));
+};
+
+// For react-select
+const handleSelectChangeNew = (selectedOption, { name }) => {
+  setNewParent((prev) => ({ ...prev, [name]: selectedOption?.value || "" }));
+};
+
+// For phone input
+const handlePhoneChangeNew = (value) => {
+  setNewParent((prev) => ({ ...prev, parentPhoneNumber: value }));
+};
 
   const relationOptions = [
     { value: "Mother", label: "Mother" },
@@ -215,20 +226,25 @@ const ParentProfile = () => {
     }
   }
   // Add parent from modal
-  const handleAddParent = () => {
-    setFormData((prev) => [...prev, newParent]);
-    setShowModal(false);
-    setNewParent({
-      parentFirstName: "",
-      parentLastName: "",
-      parentEmail: "",
-      parentPhoneNumber: "",
-      relationToChild: "",
-      howDidYouHear: "",
-    });
-    setDialCode("+1");
-    setCountry("us");
-  };
+ const handleAddParent = () => {
+  const updatedParents = [...formData, newParent];
+  setFormData(updatedParents);
+
+  handleUpdate("parents", updatedParents); // ✅ pass full array, not spread
+  setShowModal(false);
+
+  setNewParent({
+    parentFirstName: "",
+    parentLastName: "",
+    parentEmail: "",
+    parentPhoneNumber: "",
+    relationToChild: "",
+    howDidYouHear: "",
+  });
+  setDialCode("+1");
+  setCountry("us");
+};
+
   const handleCountryChange = (index, countryData) => {
     setCountries((prev) =>
       prev.map((country, i) =>
@@ -481,31 +497,34 @@ const ParentProfile = () => {
                 <div className="w-1/2">
                   <label className="block text-sm font-semibold">Phone</label>
                   <div className="flex items-center border border-gray-300 rounded-xl px-3 py-3 mt-1">
+             
+
+
                     <PhoneInput
-                      country={country}
-                      value={dialCode}
-                      onChange={handleChangeDial}
-                      onCountryChange={handleCountryChange}
-                      disableDropdown={false}
-                      disableCountryCode={true}
-                      countryCodeEditable={false}
-                      inputStyle={{
-                        width: "0px",
-                        opacity: 0,
-                        position: "absolute",
-                        pointerEvents: "none",
-                      }}
-                      buttonClass="!bg-white !border-none !p-0"
-                    />
-                    <span className="text-gray-600 mr-2">{dialCode}</span>
-                    <input
-                      type="tel"
-                      name="parentPhoneNumber"
-                      value={newParent.parentPhoneNumber}
-                      onChange={handlePhoneChange}
-                      placeholder="Enter number"
-                      className="border-none focus:outline-none flex-1"
-                    />
+  country={country}
+  value={newParent.parentPhoneNumber || ""}
+  onChange={handlePhoneChangeNew}
+  onCountryChange={handleCountryChange}
+  disableDropdown={false}
+  disableCountryCode={true}
+  countryCodeEditable={false}
+  inputStyle={{
+    width: "0px",
+    opacity: 0,
+    position: "absolute",
+    pointerEvents: "none",
+  }}
+  buttonClass="!bg-white !border-none !p-0"
+/>
+<span className="text-gray-600 mr-2">{dialCode}</span>
+<input
+  type="tel"
+  name="parentPhoneNumber"
+  value={newParent.parentPhoneNumber || ""}
+  onChange={handleModalChange}
+  placeholder="Enter number"
+  className="border-none focus:outline-none flex-1"
+/>
                   </div>
                 </div>
               </div>
@@ -525,7 +544,7 @@ const ParentProfile = () => {
                     value={relationOptions.find(
                       (o) => o.value === newParent.relationToChild
                     )}
-                    onChange={handleSelectChange}
+                    onChange={handleSelectChangeNew}
                   />
                 </div>
                 <div className="w-1/2">
@@ -541,7 +560,7 @@ const ParentProfile = () => {
                     value={hearOptions.find(
                       (o) => o.value === newParent.howDidYouHear
                     )}
-                    onChange={handleSelectChange}
+                    onChange={handleSelectChangeNew}
                   />
                 </div>
               </div>

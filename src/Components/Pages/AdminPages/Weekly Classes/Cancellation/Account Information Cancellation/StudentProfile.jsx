@@ -131,7 +131,7 @@ console.log('StudentProfile',StudentProfile)
     });
     const [cancelData, setCancelData] = useState({
         bookingId: id,
-        cancellationType: "",      // corresponds to selected radio
+        cancellationType: "immediate",      // corresponds to selected radio
         cancelReason: "",          // corresponds to Select value
         cancelDate: null,          // corresponds to DatePicker
         additionalNote: "",        // textarea

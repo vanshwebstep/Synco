@@ -281,45 +281,55 @@ const Create = () => {
     });
     // e.g., {value: "sunday", label: "Sunday"}
 
-    // Handle multi-date selection for session dates
     const handleSessionDate = (termId, date) => {
         if (!selectedDay) {
             Swal.fire({ icon: "warning", title: "Oops...", text: "Select a day first!" });
             return;
         }
 
-        const dateStr = date.toLocaleDateString("en-CA");
-
         setTerms((prev) =>
             prev.map((t) => {
-                if (t.id === termId) {
-                    let updatedDates = t.sessionsMap.map((s) => s.sessionDate);
+                if (t.id !== termId) return t;
 
-                    if (updatedDates.includes(dateStr)) {
-                        // Deselect
-                        updatedDates = updatedDates.filter((d) => d !== dateStr);
-                    } else {
-                        updatedDates.push(dateStr);
-                        updatedDates.sort();
-                    }
-
-                    const updatedSessionsMap = updatedDates.map((d, i) => ({
-                        sessionDate: d,
-                        sessionPlanId: t.sessionsMap[i]?.sessionPlanId || null,
-                        sessionPlan: t.sessionsMap[i]?.sessionPlan || null,
-                    }));
-
+                // if user clears the picker
+                if (!date) {
                     return {
                         ...t,
-                        startDate: updatedDates[0] || "",
-                        endDate: updatedDates[updatedDates.length - 1] || "",
-                        sessionsMap: updatedSessionsMap,
+                        startDate: null,
+                        endDate: null,
+                        sessionsMap: [],
                     };
                 }
-                return t;
+
+                const dateStr = date.toLocaleDateString("en-CA");
+
+                let updatedDates = t.sessionsMap.map((s) => s.sessionDate);
+
+                if (updatedDates.includes(dateStr)) {
+                    updatedDates = updatedDates.filter((d) => d !== dateStr);
+                } else {
+                    updatedDates.push(dateStr);
+                }
+
+                updatedDates.sort((a, b) => new Date(a) - new Date(b));
+
+                const updatedSessionsMap = updatedDates.map((d) => {
+                    const existing = t.sessionsMap.find((s) => s.sessionDate === d);
+                    return existing || { sessionDate: d, sessionPlanId: null, sessionPlan: null };
+                });
+
+                return {
+                    ...t,
+                    startDate: updatedDates.length ? updatedDates[0] : null,
+                    endDate: updatedDates.length ? updatedDates[updatedDates.length - 1] : null,
+                    sessionsMap: updatedSessionsMap,
+                };
             })
         );
     };
+
+
+
     // Handle exclusion dates
     const handleExclusionChange = (termId, idx, dateStr) => {
         setTerms((prev) =>
@@ -590,7 +600,7 @@ const Create = () => {
             : `${API_BASE_URL}/api/admin/term`;
         const method = isExistingTerm ? "PUT" : "POST";
 
-console.log('isExistingTerm',isExistingTerm)
+        console.log('isExistingTerm', isExistingTerm)
         setIsLoading(true);
         try {
             const response = await fetch(requestUrl, {
@@ -625,7 +635,7 @@ console.log('isExistingTerm',isExistingTerm)
                 return t;
             }));
 
-           await fetchTerm();
+            await fetchTerm();
             setSavedTermIds(prev => new Set(prev).add(data.data.id || term.id));
 
             Swal.fire({
@@ -876,13 +886,48 @@ console.log('isExistingTerm',isExistingTerm)
                                                         <Select
                                                             options={options}
                                                             value={options.find(option => option.value === term.day) || null}
-                                                            onChange={(selectedOption) => {
-                                                                const newTerms = terms.map(t =>
-                                                                    t.id === term.id ? { ...t, day: selectedOption?.value || "" } : t
-                                                                );
-                                                                setSelectedDay(selectedOption?.value)
-                                                                setTerms(newTerms); // update state
-                                                            }}
+                                                           onChange={async (selectedOption, { action }) => {
+    if (action === 'clear') {
+        const newTerms = terms.map(t =>
+            t.id === term.id
+                ? { ...t, day: "", sessionsMap: [], exclusions: [], startDate: "", endDate: "" }
+                : t
+        );
+        setTerms(newTerms);
+        setSelectedDay("");
+        return;
+    }
+
+    const newDay = selectedOption?.value;
+    if (!newDay) return;
+
+    // If changing the day (not initial select)
+    if (term.day && term.day !== newDay) {
+        const confirmChange = await Swal.fire({
+            title: "Change Day?",
+            text: "Changing the day will reset all selected dates and exclusions. Do you want to continue?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, change it",
+            cancelButtonText: "No, keep current day",
+        });
+
+        if (!confirmChange.isConfirmed) return; // user cancelled
+    }
+
+    // ✅ Proceed with change (reset sessionMap, exclusions, startDate, endDate)
+    const newTerms = terms.map(t =>
+        t.id === term.id
+            ? { ...t, day: newDay, sessionsMap: [], exclusions: [], startDate: "", endDate: "" }
+            : t
+    );
+
+    setSelectedDay(newDay);
+    setTerms(newTerms);
+}}
+
                                                             placeholder="Select a day"
                                                             className="rounded-lg px-0 py-0"
                                                             classNamePrefix="react-select"
@@ -901,6 +946,7 @@ console.log('isExistingTerm',isExistingTerm)
                                                             }}
                                                         />
 
+
                                                     </div>
                                                 </div>
                                                 <div className="md:flex gap-4 px-2 mb-5 justify-between">
@@ -909,35 +955,28 @@ console.log('isExistingTerm',isExistingTerm)
                                                             Start Date
                                                         </label>
                                                         <DatePicker
-    disabled={!term.day}
-    placeholderText="Enter Start Date"
-    selected={null}
-    value={
-        term.startDate
-            ? new Date(term.startDate + "T00:00:00").toLocaleDateString("en-GB", {
-                  weekday: "long",
-                  day: "2-digit",
-                  month: "short",
-              }).replace(/(\w+)\s/, "$1, ") // Adds a comma after weekday
-            : ""
-    }
-    onChange={(date) => handleSessionDate(term.id, date)}
-    filterDate={(d) => filterSessionDay(d, term)}
-    dayClassName={(date) => {
-        const dateStr = date.toLocaleDateString("en-CA");
-        if (term.sessionsMap.map((s) => s.sessionDate).includes(dateStr))
-            return "selected-date";
-        if (term.exclusions.includes(dateStr)) return "exclusion-date";
-        return undefined;
-    }}
-    shouldCloseOnSelect={false}
-    dateFormat="EEEE, dd MMM"
-    className={`w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg ${
-        term.day ? "bg-white" : "bg-gray-200 cursor-not-allowed"
-    } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-    withPortal
-    minDate={new Date()} // 🔒 Disable all previous dates
-/>
+                                                            disabled={!term.day}
+                                                            placeholderText="Enter Start Date"
+                                                            selected={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
+                                                            onChange={(date) => handleSessionDate(term.id, date)}
+                                                            filterDate={(d) => filterSessionDay(d, term)}
+                                                            dayClassName={(date) => {
+                                                                const dateStr = date.toLocaleDateString("en-CA");
+                                                                if (term.sessionsMap.map((s) => s.sessionDate).includes(dateStr))
+                                                                    return "selected-date";
+                                                                if (term.exclusions.includes(dateStr)) return "exclusion-date";
+                                                                return undefined;
+                                                            }}
+                                                            shouldCloseOnSelect={false}
+                                                            dateFormat="EEEE, dd MMM"
+                                                            isClearable
+                                                            className={`w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg ${term.day ? "bg-white" : "bg-gray-200 cursor-not-allowed"
+                                                                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                                                            withPortal
+                                                            minDate={new Date()}
+                                                        />
+
+
 
                                                         <ul>
                                                             {selectedDates.map((d) => (
@@ -954,7 +993,6 @@ console.log('isExistingTerm',isExistingTerm)
                                                             End Date
                                                         </label>
                                                         <DatePicker
-
                                                             readOnly
                                                             placeholderText="End Date"
                                                             selected={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
@@ -965,9 +1003,9 @@ console.log('isExistingTerm',isExistingTerm)
                                                             dateFormat="EEEE, dd MMM"
                                                             minDate={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
                                                             className="w-full px-4 font-semibold text-base py-3 cursor-default border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-white"
-                                                            withPortal // this renders the calendar in a portal, fixed on screen
-
+                                                            withPortal
                                                         />
+
 
 
                                                     </div>

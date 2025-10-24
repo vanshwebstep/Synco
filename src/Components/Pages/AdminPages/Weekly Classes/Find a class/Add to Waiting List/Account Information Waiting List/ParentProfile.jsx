@@ -225,7 +225,7 @@ const ParentProfile = ({ profile }) => {
     });
     const [cancelData, setCancelData] = useState({
         bookingId: bookingId,
-        cancellationType: "",      // corresponds to selected radio
+        cancellationType: "immediate",      // corresponds to selected radio
         cancelReason: "",          // corresponds to Select value
         cancelDate: null,          // corresponds to DatePicker
         additionalNote: "",        // textarea

@@ -140,7 +140,7 @@ export default function Reports() {
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
                     {statCards.map((s, i) => {
                         const Icon = s.icon;
-
+                                        
                         return (
                             <div
                                 key={i}

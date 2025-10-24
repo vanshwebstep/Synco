@@ -404,7 +404,7 @@ const handleChange = (field, value) => {
                     {
                         venues.length > 0 ? (
 
-                            <div className="bg-white rounded-3xl p-6 shadow">
+                            <div className="bg-white rounded-3xl p-6 shadow-xl">
                                 <h2 className="font-semibold text-lg text-[18px]">{singleClassSchedules.name || null}</h2>
                                 <p className="text-[14px]   mb-4 border-b pb-4 border-gray-200">{singleClassSchedules.address || null}</p>
 
@@ -674,7 +674,7 @@ const handleChange = (field, value) => {
                                                                                                                 statusIs: session?.sessionPlan?.status,
                                                                                                                 classScheduleId: session?.sessionPlan?.classScheduleId,
                                                                                                                 cancelSession: session?.sessionPlan?.cancelSession,
-                                                                                                                sessionId: session?.sessionPlan?.mapId || sessionPlanId,
+                                                                                                                sessionId: session?.sessionPlan?.mapId || session?.sessionPlanId,
                                                                                                                 schedule: item,
                                                                                                                 canceled: session?.sessionPlan?.status === "cancelled",
                                                                                                             },
@@ -683,7 +683,7 @@ const handleChange = (field, value) => {
 
                                                                                                     className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
           ${session?.sessionPlan?.status === "cancelled"
-                                                                                                            ? "bg-white text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
+                                                                                                            ? "bg-white w-fit text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
                                                                                                             : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
                                                                                                         }`}
                                                                                                 >

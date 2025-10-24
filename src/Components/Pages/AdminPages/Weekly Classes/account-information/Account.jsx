@@ -21,7 +21,10 @@ const tabs = [
 const Account = () => {
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   const navigate = useNavigate();
-  const { loading, setMainId ,fetchMembers } = useAccountsInfo();
+  const accountsInfo = useAccountsInfo();
+ 
+  const { loading, setMainId, fetchMembers } = accountsInfo;
+
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("id"); // <-- this will be "9"  console.log('id',id)
@@ -34,7 +37,7 @@ const Account = () => {
   }, [])
 
   if (loading) return <Loader />;
-
+ if (!accountsInfo) return <div>Loading...</div>; // or throw Error
   return (
     <div className="mt-8 relative">
 

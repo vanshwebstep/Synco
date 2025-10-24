@@ -51,7 +51,7 @@ const customStyles = {
 };
 
 const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
-  const { fetchSessionGroup, sessionGroup } = useSessionPlan();
+  const { fetchSessionGroup, sessionGroup, loading } = useSessionPlan();
   const [options, setOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
 
@@ -59,7 +59,7 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
     const getPackages = async () => {
       try {
         const response = await fetchSessionGroup();
-         console.log("Fetched packages:", response);
+        console.log("Fetched packages:", response);
       } catch (error) {
         console.error("Error fetching packages:", error);
       }
@@ -93,16 +93,21 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
   };
 
   return (
-    <div className="relative  w-full mb-5">
-      <Select
-        options={options}
-        value={selectedOption}
-        onChange={handleChange}
-        placeholder="Search Session Plan Group"
-        styles={customStyles}
-        isSearchable
-      />
+    <div className="relative w-full mb-5">
+      {loading ? (
+        'Loading...'
+      ) : (
+        <Select
+          options={options}
+          value={selectedOption}
+          onChange={handleChange}
+          placeholder="Search Session Plan Group"
+          styles={customStyles}
+          isSearchable
+        />
+      )}
     </div>
+
   );
 };
 
