@@ -700,6 +700,10 @@ useEffect(() => {
             showAlert({ type: "warning", message: "Title is required", title: "Missing Field" });
             return;
         }
+          if (!images) {
+            showAlert({ type: "warning", message: "Image is required", title: "Missing Field" });
+            return;
+        }
         if (!duration?.trim()) {
             showAlert({ type: "warning", message: "Duration is required", title: "Missing Field" });
             return;

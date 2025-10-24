@@ -103,7 +103,7 @@ const DynamicTable = ({
                   // KEY FIX: use the flattened entry's studentIndex (stable) together with uniqueId
                   <tr
                     key={`${uniqueId}-${studentIndex}`}
-                    onClick={onRowClick ? () => onRowClick(item ,  from) : undefined}
+                    onClick={onRowClick ? () => onRowClick(item ,from) : undefined}
                     className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
                   >
                     {columns.map((col, cIdx) => {

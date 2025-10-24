@@ -737,7 +737,7 @@ const weekOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satu
                               </div>
 
                               <div className="">
-                                <div className="text-[16px] font-semibold text-[#384455]">{["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+                                <div className="text-[16px] capitalize font-semibold text-[#384455]">{["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday","monday","tuesday","wednesday","thursday","friday","saturday","sunday"]
     .filter(day => venue.classes[day])
     .join(", ")}</div>
                                 <div className="whitespace-nowrap font-semibold text-[14px]">{venue.facility || "N/A"}</div>
@@ -878,7 +878,7 @@ const weekOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satu
                             >
                               <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
                                 {/* Header */}
-                                <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
+                                <div ref={(el) => (modalRefs.current[venue.venueId] = el)}  className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
                                   <h2 className="text-[24px]  font-semibold">Team Dates</h2>
                                   <button onClick={() => setShowteamModal(null)}>
                                     <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
@@ -886,7 +886,7 @@ const weekOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satu
                                 </div>
 
                                 {/* Term List */}
-                                <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="space-y-6 max-h-80 overflow-y-scroll text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
+                                <div className="space-y-6 max-h-80 overflow-y-scroll text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
                                   {calendarData.map((term) => (
                                     <div key={term.id}>
                                       <h3 className="md:text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>

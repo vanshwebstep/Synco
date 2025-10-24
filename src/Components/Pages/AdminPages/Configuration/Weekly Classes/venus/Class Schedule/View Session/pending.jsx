@@ -176,9 +176,9 @@ console.log('items',items)
     py-6 
     rounded-2xl 
     text-center
-    ${statusIs === "cancelled" ? "bg-gray-100" : ""}
-    ${statusIs === "complete" ? "bg-green-100" : ""}
-    ${statusIs !== "cancelled" && statusIs !== "complete" ? "bg-[#F4F2EC]" : ""}
+    ${statusIs === "cancelled" ? "bg-[#f8f8f8]" : ""}
+    ${statusIs === "complete" ? "bg-[#f8f8f8]" : ""}
+    ${statusIs !== "cancelled" && statusIs !== "complete" ? "bg-[#f8f8f8] " : ""}
   `}
 >          <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
             {statusIs === "cancelled" ? (

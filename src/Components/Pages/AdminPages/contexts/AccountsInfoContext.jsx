@@ -24,14 +24,12 @@ export const AccountsInfoProvider = ({ children }) => {
     let raw;
     if (title == "students") {
       raw = JSON.stringify({
-        bookingTrialId: data.id,
         'students': mainData,
       });
 
     }
     if (title == "parents") {
       raw = JSON.stringify({
-        bookingTrialId: data.id,
 
         'parents': mainData,
       });
@@ -39,7 +37,6 @@ export const AccountsInfoProvider = ({ children }) => {
     }
     if (title == "emergency") {
       raw = JSON.stringify({
-        bookingTrialId: data.id,
         'emergency': mainData,
       });
 
@@ -64,7 +61,7 @@ export const AccountsInfoProvider = ({ children }) => {
         },
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/account-information`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/account-information/${data.id}`, requestOptions);
 
       if (!response.ok) {
         const errorText = await response.text();

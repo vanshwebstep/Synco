@@ -1,4 +1,4 @@
-import React, { useState ,useRef,useEffect} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
 import Select from "react-select";
@@ -251,7 +251,7 @@ const ServiceHistory = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showFilterModal]);  const servicesTypes = [
+  }, [showFilterModal]); const servicesTypes = [
     { value: "Weekly Classes Membership", label: "Weekly Classes Membership" },
     { value: "Birthday Party Booking", label: "Birthday Party Booking" },
     { value: "One to One Booking", label: "One to One Booking" },
@@ -426,7 +426,7 @@ const ServiceHistory = () => {
         </div>
       </div>
 
-      <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="p-6  min-h-screen">
         {bookings.map((booking, index) => (
           <BookingCard key={index} booking={booking} />
         ))}
@@ -471,7 +471,7 @@ const ServiceHistory = () => {
         {showFilterModal && (
           <div className="fixed inset-0  bg-[#10101094] bg-opacity-40 flex items-center justify-end z-50">
 
-            <div     ref={filterModalRef} className="bg-white rounded-xl p-4 mt-15 mr-5 md:max-w-[508px]">
+            <div ref={filterModalRef} className="bg-white rounded-xl p-4 mt-15 mr-5 md:max-w-[508px]">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter</h3>
                 <button onClick={applyFilter} className="flex gap-2 items-center bg-blue-500 text-white px-3 py-2 rounded-lg text-sm text-[16px]">

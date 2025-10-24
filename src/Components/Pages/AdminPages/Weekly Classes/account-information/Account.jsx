@@ -41,7 +41,7 @@ const Account = () => {
   return (
     <div className="mt-8 relative">
 
-      <div className="flex  items-center md:w-7/12 bg-white p-3 gap-1 rounded-2xl p-1 space-x-2">
+      <div className="flex w-max items-center bg-white p-3 gap-1 rounded-2xl p-1 ">
         <h2
           onClick={() => {
             navigate('/weekly-classes/members-info');
@@ -56,8 +56,8 @@ const Account = () => {
           <button
             key={tab.name}
             onClick={() => setActiveTab(tab.name)}
-            className={`relative flex-1 text-[15px] md:text-base font-semibold py-3 rounded-xl transition-all ${activeTab === tab.name
-              ? "bg-[#237FEA] shadow text-white"
+            className={`w-max relative flex-1 whitespace-nowrap px-4 text-[16px] font-semibold py-3 rounded-xl transition-all ${activeTab === tab.name
+              ? "bg-[#237FEA] shadow text-white "
               : "text-[#282829] hover:text-[#282829]"
               }`}
           >

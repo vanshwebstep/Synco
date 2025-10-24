@@ -72,7 +72,7 @@ const handleAddStudent = () => {
   setStudents(updatedStudents);
 
   // Call API update
-  handleUpdate(mainId, 'students', updatedStudents);
+  handleUpdate('students', updatedStudents);
 
   // Reset modal
   setShowModal(false);
@@ -94,7 +94,7 @@ const handleAddStudent = () => {
   };
 
   const handleEditStudents = () => {
-    handleUpdate(mainId, 'students', students)
+    handleUpdate('students', students)
   }
 
   return (
@@ -238,7 +238,7 @@ const handleAddStudent = () => {
       {/* --- Modal for adding new student --- */}
       {showModal && (
         <div className="fixed inset-0 bg-[#0202025c] bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 w-[95%] max-w-lg shadow-lg relative max-h-[800px] overflow-auto">
+          <div className="bg-white rounded-2xl p-6  shadow-lg relative max-h-[90vh] md:w-3/12 overflow-auto">
             <div className=" gap-7 relative  border-b border-gray-300 pb-3">
 
               <h3 className="text-xl font-semibold text-center text-[#282829]">Add Student</h3>

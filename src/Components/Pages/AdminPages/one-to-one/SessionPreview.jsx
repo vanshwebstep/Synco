@@ -1,12 +1,53 @@
-import  { useState } from "react";
+import { useEffect, useState,useCallback } from "react";
 import { MdOutlineWatchLater } from "react-icons/md";
 import { HiOutlineSpeakerWave } from "react-icons/hi2";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const SessionPreview = () => {
     // === Right Side Content Array ===
     const [activeTab, setActiveTab] = useState("Beginners");
+
+    const [sessionGroup, setSessionGroup] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const token = localStorage.getItem("adminToken");
+const [searchParams] = useSearchParams();
+const id = searchParams.get("id");
     const navigate = useNavigate();
+
+    const fetchSessionGroup = useCallback(async () => {
+        if (!token) return;
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/listing/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+                // If response is not OK, throw error
+                const errData = await response.json();
+                throw new Error(errData.message || "Failed to fetch session groups");
+            }
+
+            const result = await response.json();
+            console.log('result', result);
+            setSessionGroup(result.data || []);
+        } catch (err) {
+            console.error("Failed to fetch sessionGroup:", err);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: err.message || "Something went wrong while fetching session groups",
+                confirmButtonColor: '#d33',
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, [token, API_BASE_URL]);
+
+    useEffect(() => {
+        fetchSessionGroup();
+    }, [fetchSessionGroup])
     const sessionDetails = [
         {
             title: "Organisation",
@@ -80,7 +121,7 @@ const SessionPreview = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between  mb-0 w-full">
 
-                    <div className="flex border bg-white  border-[#E2E1E5] rounded-2xl p-2 mb-6 w-full overflow-auto">
+                    <div className="flex border bg-white  border-[#E2E1E5] rounded-2xl p-2 mb-6 w-max overflow-auto">
                         {["Beginners", "Intermediate", "Advanced", "Pro"].map((tab) => (
                             <button
                                 key={tab}

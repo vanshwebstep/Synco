@@ -2271,7 +2271,7 @@ const shouldShowLoader =
         icon: "success",
         confirmButtonText: "OK",
       });
-
+      navigate("/weekly-classes/cancellation");
       return result;
 
     } catch (error) {
@@ -2319,7 +2319,7 @@ const shouldShowLoader =
         icon: "success",
         confirmButtonText: "OK",
       });
-
+      navigate("/weekly-classes/cancellation", { state: 'allCancellation' });
       return result;
 
     } catch (error) {
@@ -2367,6 +2367,7 @@ const shouldShowLoader =
         icon: "success",
         confirmButtonText: "OK",
       });
+           navigate("/weekly-classes/cancellation", { state: 'fullCancellation' });
 
       return result;
 

@@ -171,7 +171,7 @@ const Feedback = () => {
 
         {openForm && (
           <div className="fixed inset-0 bg-[#00000047] bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl w-[95%] md:w-[420px] md:h-[700px] overflow-auto shadow-lg relative">
+            <div className="bg-white rounded-2xl w-[95%] md:w-[420px] md:max-h-[90vh] overflow-auto shadow-lg relative">
               <div className="flex relative justify-center items-center border-b border-[#E2E1E5] px-6 py-4">
                 <h2 className="text-lg font-semibold text-gray-800">Add Feedback</h2>
                 <button

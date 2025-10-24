@@ -60,11 +60,12 @@ const SessionPlan = () => {
             </div>
 
             <div className="p-6 bg-white min-h-[600px] rounded-3xl">
-                <div className="flex flex-wrap gap-6">
+                <div className="grid md:grid-cols-4 gap-6">
                     {/* Left Section */}
                     {
                         sessionGroup.map((group, index) => {
                             const levelInfo = {
+                                beginner: { title: "Beginners", age: "4–5 Years" },
                                 beginners: { title: "Beginners", age: "4–5 Years" },
                                 intermediate: { title: "Intermediate", age: "6–7 Years" },
                                 advanced: { title: "Advanced", age: "8–9 Years" },
@@ -78,14 +79,14 @@ const SessionPlan = () => {
                                 data: group.levels[key], // exercises or whatever is inside levels
                             }));
                             return (
-                                <div key={index} className="bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl w-full md:w-[375px] h-auto">
+                                <div key={index} className="bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl w-full  h-auto">
                                     {/* Header */}
                                     <div className="flex items-center justify-between p-5">
                                         <h2 className="text-[24px] font-semibold text-[#282829]">{group.groupName}</h2>
                                         <div className="flex items-center gap-1">
                                             <button
                                                 className="p-1.5 rounded-lg hover:bg-gray-100"
-                                                onClick={() => navigate(`/one-to-one/session-plan-preview`)}
+                                                onClick={() => navigate(`/one-to-one/session-plan-preview?id=${group.id}`)}
                                             >
                                                 <Eye className="w-5 h-5 text-black" />
                                             </button>

@@ -174,10 +174,10 @@ parsedNotifications.forEach((n) => {
         {/* Left - Cancellation Summary */}
         <div
           className={`
-                            w-full md:w-3/12  py-6 rounded-2xl text-center
-                                ${statusIs === "cancelled" ? "bg-gray-100" : ""}
-                                ${statusIs === "complete" ? "bg-green-100" : ""}
-                                ${statusIs !== "cancelled" && statusIs !== "complete" ? "bg-[#F4F2EC]" : ""}
+                            w-full md:w-2/12  py-6 rounded-2xl text-center
+                                ${statusIs === "cancelled" ? "bg-[#f8f8f8]" : ""}
+                                ${statusIs === "complete" ? "bg-[#f8f8f8]" : ""}
+                                ${statusIs !== "cancelled" && statusIs !== "complete" ? "bg-[#f8f8f8]" : ""}
                             `}
         >
           <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-white mx-auto mb-4">
@@ -199,7 +199,7 @@ parsedNotifications.forEach((n) => {
         </div>
 
         {/* Right - Form Section */}
-        <div className="w-full md:w-9/12 space-y-6 px-4 md:px-0">
+        <div className="w-full md:w-10/12 space-y-6 px-4 md:px-0">
           {/* Form Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Form Area */}

@@ -1945,7 +1945,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
-
+       navigate("/weekly-classes/cancellation", { state: 'fullCancellation' });
       return result;
 
     } catch (error) {

@@ -803,7 +803,7 @@ const StudentProfile = ({ profile }) => {
         onClick={() => setReactivateMembership(true)}
         className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
     >
-        (Freezeing Progress) Reactivate Membership
+        (Freezing Progress) Reactivate Membership
     </button>
 ) : null}
 

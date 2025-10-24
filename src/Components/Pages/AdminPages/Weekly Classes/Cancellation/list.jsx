@@ -9,6 +9,7 @@ import Loader from '../../contexts/Loader';
 import { usePermission } from '../../Common/permission';
 import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
+import { useLocation } from "react-router-dom";
 
 import { saveAs } from "file-saver";
 import StatsGrid from '../../Common/StatsGrid';
@@ -19,6 +20,8 @@ const CancellationList = () => {
     const [toDate, setToDate] = useState(null);
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
     const [selectedStudents, setSelectedStudents] = useState([]);
+      const location = useLocation();
+
     const [active, setActive] = useState("request"); // default selected
 
     const buttons = [
@@ -26,6 +29,14 @@ const CancellationList = () => {
         { key: "full", label: "Full Cancellation" },
         { key: "all", label: "All" },
     ];
+      useEffect(() => {
+    if (location.state === "fullCancellation") {
+      setActive("full");
+    } else if (location.state === "allCancellation") {
+      setActive("all");
+    }
+  }, [location.state]);
+
     const { fetchFullCancellations, fetchRequestToCancellations, fetchAllCancellations, statsFreeTrial, bookFreeTrials, setSearchTerm, bookedByAdmin, searchTerm, loading, selectedVenue, setSelectedVenue, myVenues, sendRequestTomail, sendAllmail, sendFullTomail } = useBookFreeTrial() || {};
 
     const toggleSelect = (studentId) => {
@@ -617,7 +628,7 @@ const CancellationList = () => {
                                             navigate("/weekly-classes/cancellation/account-info/list", {
                                                 state: {
                                                     itemId: item.id || item.bookingId,
-                                                    cancelType,
+                                                    cancelType:active,
                                                 },
                                             })
                                         : undefined

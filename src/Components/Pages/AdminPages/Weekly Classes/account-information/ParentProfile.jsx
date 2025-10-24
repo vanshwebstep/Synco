@@ -31,21 +31,21 @@ const ParentProfile = () => {
     setCurrentPage(page);
   };
 
-// For normal inputs
-const handleModalChange = (e) => {
-  const { name, value } = e.target;
-  setNewParent((prev) => ({ ...prev, [name]: value }));
-};
+  // For normal inputs
+  const handleModalChange = (e) => {
+    const { name, value } = e.target;
+    setNewParent((prev) => ({ ...prev, [name]: value }));
+  };
 
-// For react-select
-const handleSelectChangeNew = (selectedOption, { name }) => {
-  setNewParent((prev) => ({ ...prev, [name]: selectedOption?.value || "" }));
-};
+  // For react-select
+  const handleSelectChangeNew = (selectedOption, { name }) => {
+    setNewParent((prev) => ({ ...prev, [name]: selectedOption?.value || "" }));
+  };
 
-// For phone input
-const handlePhoneChangeNew = (value) => {
-  setNewParent((prev) => ({ ...prev, parentPhoneNumber: value }));
-};
+  // For phone input
+  const handlePhoneChangeNew = (value) => {
+    setNewParent((prev) => ({ ...prev, parentPhoneNumber: value }));
+  };
 
   const relationOptions = [
     { value: "Mother", label: "Mother" },
@@ -226,24 +226,24 @@ const handlePhoneChangeNew = (value) => {
     }
   }
   // Add parent from modal
- const handleAddParent = () => {
-  const updatedParents = [...formData, newParent];
-  setFormData(updatedParents);
+  const handleAddParent = () => {
+    const updatedParents = [...formData, newParent];
+    setFormData(updatedParents);
 
-  handleUpdate("parents", updatedParents); // ✅ pass full array, not spread
-  setShowModal(false);
+    handleUpdate("parents", updatedParents); // ✅ pass full array, not spread
+    setShowModal(false);
 
-  setNewParent({
-    parentFirstName: "",
-    parentLastName: "",
-    parentEmail: "",
-    parentPhoneNumber: "",
-    relationToChild: "",
-    howDidYouHear: "",
-  });
-  setDialCode("+1");
-  setCountry("us");
-};
+    setNewParent({
+      parentFirstName: "",
+      parentLastName: "",
+      parentEmail: "",
+      parentPhoneNumber: "",
+      relationToChild: "",
+      howDidYouHear: "",
+    });
+    setDialCode("+1");
+    setCountry("us");
+  };
 
   const handleCountryChange = (index, countryData) => {
     setCountries((prev) =>
@@ -284,8 +284,10 @@ const handlePhoneChangeNew = (value) => {
   }, [emergency.sameAsAbove, formData]);
 
   const handleUpdateParent = () => {
-    console.log('clicked')
     handleUpdate("parents", formData)
+  }
+  const handleUpdateEmergency = () => {
+    handleUpdate("emergency", emergency)
   }
 
   useEffect(() => {
@@ -314,22 +316,27 @@ const handlePhoneChangeNew = (value) => {
             {/* Header with Edit Toggle */}
             <div className="flex items-center gap-2">
 
-            <h2
-              onClick={() =>
-                setEditParent((prev) => ({
-                  ...prev,
-                  [index]: !prev[index],
-                }))
-              }
-            className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
-            >
-              {editParent?.[index] ? "Editing Parent" : `Parent Information ${index + 1}`}
+              <h2
+                onClick={() =>
+                  setEditParent((prev) => ({
+                    ...prev,
+                    [index]: !prev[index],
+                  }))
+                }
+                className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
+              >
+                {editParent?.[index] ? "Editing Parent" : `Parent Information ${index + 1}`}
 
-              
-            </h2>
-            {editParent?.[index]
-                ? <FaSave onClick={handleUpdateParent} />
-                : <FaEdit />}
+
+              </h2>
+              {editParent?.[index]
+                ? <FaSave onClick={handleUpdateParent} className="cursor-pointer" />
+                : <FaEdit className="cursor-pointer" onClick={() =>
+                  setEditParent((prev) => ({
+                    ...prev,
+                    [index]: !prev[index],
+                  }))
+                } />}
             </div>
 
             {/* Name Fields */}
@@ -497,34 +504,34 @@ const handlePhoneChangeNew = (value) => {
                 <div className="w-1/2">
                   <label className="block text-sm font-semibold">Phone</label>
                   <div className="flex items-center border border-gray-300 rounded-xl px-3 py-3 mt-1">
-             
+
 
 
                     <PhoneInput
-  country={country}
-  value={newParent.parentPhoneNumber || ""}
-  onChange={handlePhoneChangeNew}
-  onCountryChange={handleCountryChange}
-  disableDropdown={false}
-  disableCountryCode={true}
-  countryCodeEditable={false}
-  inputStyle={{
-    width: "0px",
-    opacity: 0,
-    position: "absolute",
-    pointerEvents: "none",
-  }}
-  buttonClass="!bg-white !border-none !p-0"
-/>
-<span className="text-gray-600 mr-2">{dialCode}</span>
-<input
-  type="tel"
-  name="parentPhoneNumber"
-  value={newParent.parentPhoneNumber || ""}
-  onChange={handleModalChange}
-  placeholder="Enter number"
-  className="border-none focus:outline-none flex-1"
-/>
+                      country={country}
+                      value={newParent.parentPhoneNumber || ""}
+                      onChange={handlePhoneChangeNew}
+                      onCountryChange={handleCountryChange}
+                      disableDropdown={false}
+                      disableCountryCode={true}
+                      countryCodeEditable={false}
+                      inputStyle={{
+                        width: "0px",
+                        opacity: 0,
+                        position: "absolute",
+                        pointerEvents: "none",
+                        display: "none"
+                      }}
+                      buttonClass="!bg-white !border-none !p-0"
+                    />
+                    <input
+                      type="tel"
+                      name="parentPhoneNumber"
+                      value={newParent.parentPhoneNumber || ""}
+                      onChange={handleModalChange}
+                      placeholder="Enter number"
+                      className="border-none focus:outline-none flex-1"
+                    />
                   </div>
                 </div>
               </div>
@@ -585,25 +592,42 @@ const handlePhoneChangeNew = (value) => {
         )}
       </div>
       <div className="bg-white p-6 rounded-3xl mt-5 shadow-sm space-y-6">
-        <h2
-          onClick={() => setEditEmergency((prev) => !prev)}
-          className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
-        >
-          {editEmergency ? "Editing Emergency Contact Details" : "Emergency Contact Details"}
-          {editEmergency
-            ? <FaSave />
-            : <FaEdit />}
-        </h2>
+        {/* Header */}
+        <div className="flex gap-3 items-center">
+          <h2
+            onClick={() => setEditEmergency((prev) => !prev)}
+            className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
+          >
+            {editEmergency
+              ? "Editing Emergency Contact Details"
+              : "Emergency Contact Details"}
+          </h2>
 
+          {editEmergency ? (
+            <FaSave
+              onClick={handleUpdateEmergency}
+              className="cursor-pointer text-[#237FEA]"
+              title="Save Emergency Details"
+            />
+          ) : (
+            <FaEdit
+              className="cursor-pointer text-gray-600"
+              title="Edit Emergency Details"
+              onClick={() => setEditEmergency(true)}
+            />
+          )}
+        </div>
+
+        {/* Same as above checkbox */}
         <div className="flex items-center gap-2">
           <input
             type="checkbox"
             disabled={!editEmergency}
-            checked={emergency.sameAsAbove}
+            checked={emergency?.sameAsAbove || false}
             onChange={() =>
-              setEmergency(prev => ({
+              setEmergency((prev) => ({
                 ...prev,
-                sameAsAbove: !prev.sameAsAbove
+                sameAsAbove: !prev.sameAsAbove,
               }))
             }
           />
@@ -612,18 +636,21 @@ const handlePhoneChangeNew = (value) => {
           </label>
         </div>
 
+        {/* Form fields */}
         <div className="md:flex gap-6">
           <div className="w-1/2">
-            <label className="block text-[16px] font-semibold">First name</label>
+            <label className="block text-[16px] font-semibold">
+              First name
+            </label>
             <input
               className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
               placeholder="Enter first name"
               readOnly={!editEmergency}
-              value={emergency.emergencyFirstName}
-              onChange={e =>
-                setEmergency(prev => ({
+              value={emergency?.emergencyFirstName || ""}
+              onChange={(e) =>
+                setEmergency((prev) => ({
                   ...prev,
-                  emergencyFirstName: e.target.value
+                  emergencyFirstName: e.target.value,
                 }))
               }
             />
@@ -633,12 +660,12 @@ const handlePhoneChangeNew = (value) => {
             <input
               className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
               placeholder="Enter last name"
-              value={emergency.emergencyLastName}
               readOnly={!editEmergency}
-              onChange={e =>
-                setEmergency(prev => ({
+              value={emergency?.emergencyLastName || ""}
+              onChange={(e) =>
+                setEmergency((prev) => ({
                   ...prev,
-                  emergencyLastName: e.target.value
+                  emergencyLastName: e.target.value,
                 }))
               }
             />
@@ -646,14 +673,15 @@ const handlePhoneChangeNew = (value) => {
         </div>
 
         <div className="md:flex gap-6">
+          {/* Phone number */}
           <div className="w-1/2">
-            <label className="block text-[16px] font-semibold">Phone number</label>
+            <label className="block text-[16px] font-semibold">
+              Phone number
+            </label>
             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
-              {/* Flag Dropdown */}
               <PhoneInput
                 country={countryEmergency}
                 value={dialCodeEmergency}
-
                 onChange={handleChangeEmergency}
                 onCountryChange={handleCountryChangeEmergency}
                 disableDropdown={false}
@@ -661,10 +689,10 @@ const handlePhoneChangeNew = (value) => {
                 countryCodeEditable={false}
                 inputStyle={{
                   width: "0px",
-                  maxWidth: '20px',
+                  maxWidth: "20px",
                   height: "0px",
                   opacity: 0,
-                  pointerEvents: "none", // ✅ prevents blocking typing
+                  pointerEvents: "none",
                   position: "absolute",
                 }}
                 buttonClass="!bg-white !border-none !p-0"
@@ -672,28 +700,34 @@ const handlePhoneChangeNew = (value) => {
               <input
                 type="tel"
                 readOnly={!editEmergency}
-                value={emergency.emergencyPhoneNumber}
+                value={emergency?.emergencyPhoneNumber || ""}
                 onChange={(e) =>
                   setEmergency((prev) => ({
                     ...prev,
                     emergencyPhoneNumber: e.target.value,
                   }))
                 }
-                className='border-none focus:outline-none' placeholder="Enter phone number"
+                className="border-none focus:outline-none w-full"
+                placeholder="Enter phone number"
               />
-
             </div>
           </div>
+
+          {/* Relation */}
           <div className="w-1/2">
-            <label className="block text-[16px] font-semibold">Relation to child</label>
+            <label className="block text-[16px] font-semibold">
+              Relation to child
+            </label>
             <Select
               options={relationOptions}
               isDisabled={!editEmergency}
-              value={relationOptions.find(option => option.value === emergency.emergencyRelation)}
-              onChange={selectedOption =>
-                setEmergency(prev => ({
+              value={relationOptions.find(
+                (option) => option.value === emergency?.emergencyRelation
+              )}
+              onChange={(selectedOption) =>
+                setEmergency((prev) => ({
                   ...prev,
-                  emergencyRelation: selectedOption?.value || ""
+                  emergencyRelation: selectedOption?.value || "",
                 }))
               }
               placeholder="Select Relation"

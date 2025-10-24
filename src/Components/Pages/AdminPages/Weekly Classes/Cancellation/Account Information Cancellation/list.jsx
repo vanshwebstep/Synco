@@ -17,12 +17,14 @@ import ServiceHistory from "../../../Common/serviceHistory";
 import StudentProfile from "./StudentProfile";
 import Loader from "../../../contexts/Loader";
 
-const AccountInfoCancellation = (cancelType , from) => {
-  const { ServiceHistoryRequestto, serviceHistory ,loading} = useBookFreeTrial()
-console.log('cancelType',cancelType)
+const AccountInfoCancellation = (from) => {
+  const { ServiceHistoryRequestto, serviceHistory, loading } = useBookFreeTrial()
   const navigate = useNavigate();
   const location = useLocation();
   const [itemId, setItemId] = useState(null);
+
+  const myCancelType = location.state?.cancelType;
+  console.log('cancelType', location.state?.cancelType)
   useEffect(() => {
     if (location.state?.itemId) {
       setItemId(location.state.itemId);
@@ -38,17 +40,29 @@ console.log('cancelType',cancelType)
     fetchData();
   }, [itemId, ServiceHistoryRequestto]);
   const [activeTab, setActiveTab] = useState("Service History");
-   console.log('serviceHistory', serviceHistory)
-        if (loading) return <Loader />;
+  console.log('serviceHistory', serviceHistory)
+  if (loading) return <Loader />;
 
 
   return (
     <>
       <div className=" flex items-end mb-5 gap-2 md:gap-3">
         <div className=" flex items-center gap-2 md:gap-3">
-          <h2 onClick={() => {
-            navigate('/weekly-classes/cancellation');
-          }}
+          <h2
+            onClick={() => {
+              let stateValue;
+
+              if (myCancelType === "all") {
+                stateValue = "allCancellation";
+              } else if (myCancelType === "full") {
+                stateValue = "fullCancellation";
+              } else {
+                stateValue = "request";
+              }
+
+              navigate("/weekly-classes/cancellation", { state: stateValue });
+            }}
+
 
             className="text-xl md:text-2xl font-semibold cursor-pointer hover:opacity-80 transition-opacity duration-200"
           >
@@ -75,9 +89,9 @@ console.log('cancelType',cancelType)
             ))}
           </div>
         </div>
-           {activeTab === "Service History" && (
-        <div className=" flex items-start  gap-2 md:gap-3">
-          {/* <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
+        {activeTab === "Service History" && (
+          <div className=" flex items-start  gap-2 md:gap-3">
+            {/* <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
               src="/demo/synco/images/points.png"
               alt="Back"
@@ -88,36 +102,36 @@ console.log('cancelType',cancelType)
               <div className="text-[20px] font-semibold text-[#384455]">543</div>
             </div>
           </div> */}
-          <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
-            <img
-              src="/demo/synco/images/totalPoints.png"
-              alt="Back"
-              className="md:w-11 md:h-11 w-6 h-6"
-            />
-            <div className="block">
-              <div className="whitespace-nowrap font-semibold text-[#717073] text-[14px]">Total Payments</div>
-              <div className="text-[20px] font-semibold text-[#384455]">£0.00</div>
+            <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
+              <img
+                src="/demo/synco/images/totalPoints.png"
+                alt="Back"
+                className="md:w-11 md:h-11 w-6 h-6"
+              />
+              <div className="block">
+                <div className="whitespace-nowrap font-semibold text-[#717073] text-[14px]">Total Payments</div>
+                <div className="text-[20px] font-semibold text-[#384455]">£0.00</div>
+              </div>
             </div>
-          </div>
 
-          <div className="flex gap-4  items-center    p-2 rounded-xl flex-wrap bg-white">
-            <img
-              src="/demo/synco/images/filterGray.png"
-              alt="Back"
-              className=""
-            />
-            <div className="block  pr-3">
-              <div className="whitespace-nowrap font-semibold text-[#717073] text-[16px]">Filters</div>
+            <div className="flex gap-4  items-center    p-2 rounded-xl flex-wrap bg-white">
+              <img
+                src="/demo/synco/images/filterGray.png"
+                alt="Back"
+                className=""
+              />
+              <div className="block  pr-3">
+                <div className="whitespace-nowrap font-semibold text-[#717073] text-[16px]">Filters</div>
+              </div>
             </div>
+            <button
+              className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
+            >
+              <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+              Add booking
+            </button>
           </div>
-          <button
-            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
-          >
-            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-            Add booking
-          </button>
-        </div>
-           )}
+        )}
       </div>
       {activeTab === "Service History" && (
         <ServiceHistory
