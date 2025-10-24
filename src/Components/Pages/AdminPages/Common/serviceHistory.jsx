@@ -41,7 +41,7 @@ const ServiceHistory = ({ serviceHistory, itemId ,labels = {}, comesFrom }) => {
     icon,    // header icon
     progress // e.g. "6/12 months"
   } = serviceHistory;
-
+console.log('bookedBy')
   const statusStyles = {
     attended: "bg-green-500 text-white",
     active: "bg-green-500 text-white",
@@ -171,7 +171,7 @@ const ServiceHistory = ({ serviceHistory, itemId ,labels = {}, comesFrom }) => {
                         {labels.trialAttempt || "Trial Attempt"}
                       </div>
                       <div className="text-[16px] font-semibold text-[#384455]">
-                        {'1' || "-"}
+                        {'-' || "-"}
                       </div>
                     </div>
                   )}
@@ -244,9 +244,9 @@ const ServiceHistory = ({ serviceHistory, itemId ,labels = {}, comesFrom }) => {
                           {labels.bookingSource || "Booking Source"}
                         </div>
                        <div className="text-[16px] font-semibold text-[#384455]">
-  {bookedBy?.firstName && bookedBy?.lastName ? `${bookedBy.firstName} ${bookedBy.lastName}` : ""}
+  {bookedBy?.firstName  ? `${bookedBy?.firstName} ${bookedBy?.lastName}` : ""}
   {bookedBy && paymentData ? " || " : ""}
-  {paymentData?.firstName && paymentData?.lastName ? `${paymentData.firstName} ${paymentData.lastName}` : ""}
+  {paymentData?.firstName && paymentData?.lastName ? `${paymentData.firstName} ${paymentData?.lastName}` : ""}
 </div>
 
                       </div>
