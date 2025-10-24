@@ -73,20 +73,20 @@ const SessionPlan = () => {
                             };
 
                             // Get only the levels that exist in group.levels
-                            const groupsToShow = Object.keys(group.levels).map((key) => ({
+                            const groupsToShow = Object.keys(group.group.levels).map((key) => ({
                                 key,
                                 ...levelInfo[key], // title + age
-                                data: group.levels[key], // exercises or whatever is inside levels
+                                data: group.group.levels[key], // exercises or whatever is inside levels
                             }));
                             return (
                                 <div key={index} className="bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl w-full  h-auto">
                                     {/* Header */}
                                     <div className="flex items-center justify-between p-5">
-                                        <h2 className="text-[24px] font-semibold text-[#282829]">{group.groupName}</h2>
+                                        <h2 className="text-[24px] font-semibold text-[#282829]">{group.group.groupName}</h2>
                                         <div className="flex items-center gap-1">
                                             <button
                                                 className="p-1.5 rounded-lg hover:bg-gray-100"
-                                                onClick={() => navigate(`/one-to-one/session-plan-preview?id=${group.id}`)}
+                                                onClick={() => navigate(`/one-to-one/session-plan-preview?id=${group.group.id}`)}
                                             >
                                                 <Eye className="w-5 h-5 text-black" />
                                             </button>

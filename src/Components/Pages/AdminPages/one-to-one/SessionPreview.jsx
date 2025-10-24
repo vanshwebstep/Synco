@@ -1,4 +1,4 @@
-import { useEffect, useState,useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { MdOutlineWatchLater } from "react-icons/md";
 import { HiOutlineSpeakerWave } from "react-icons/hi2";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -11,8 +11,8 @@ const SessionPreview = () => {
     const [loading, setLoading] = useState(false);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
-const [searchParams] = useSearchParams();
-const id = searchParams.get("id");
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
     const navigate = useNavigate();
 
     const fetchSessionGroup = useCallback(async () => {
