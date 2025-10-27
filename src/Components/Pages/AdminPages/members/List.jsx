@@ -82,7 +82,7 @@ const List = () => {
                         <div className="flex gap-2 items-center">
                           <button
                             onClick={toggleSelectAll}
-                            className="w-5 h-5 flex items-center justify-center rounded-md border-2 border-gray-500"
+                            className="min-w-5 min-h-5 flex items-center justify-center rounded-md border-2 border-gray-500"
                           >
                             {isAllSelected && <Check size={16} strokeWidth={3} className="text-gray-500" />}
                           </button>

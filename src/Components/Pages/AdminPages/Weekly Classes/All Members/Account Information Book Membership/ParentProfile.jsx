@@ -763,7 +763,11 @@ const ParentProfile = ({ profile }) => {
 
                                 <div className="border-t border-[#495362] py-5">
                                     <div className=" text-[20px] text-white">Price</div>
-                                    <div className="text-[16px]  mt-1 text-gray-400"> £{MembershipPrice} </div>
+                                    <div className="text-[16px] mt-1 text-gray-400">
+                                        {MembershipPrice
+                                            ? `£${MembershipPrice}`
+                                            : "-"}
+                                    </div>
                                 </div>
 
                             </div>
@@ -809,21 +813,21 @@ const ParentProfile = ({ profile }) => {
                                     </button>
                                 )}
 
-                              {(!profile.freezeBooking && (status === "active" || (status === "request_to_cancel" && canCancelTrial))) ? (
-    <button
-        onClick={() => setFreezeMembership(true)}
-        className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-    >
-        Freeze Membership
-    </button>
-) : profile.freezeBooking ? (
-    <button
-        onClick={() => setReactivateMembership(true)}
-        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
-    >
-        (Freezing Progress) Reactivate Membership
-    </button>
-) : null}
+                                {(!profile.freezeBooking && (status === "active" || (status === "request_to_cancel" && canCancelTrial))) ? (
+                                    <button
+                                        onClick={() => setFreezeMembership(true)}
+                                        className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                    >
+                                        Freeze Membership
+                                    </button>
+                                ) : profile.freezeBooking ? (
+                                    <button
+                                        onClick={() => setReactivateMembership(true)}
+                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                    >
+                                        (Freezing Progress) Reactivate Membership
+                                    </button>
+                                ) : null}
 
 
                                 {status == 'active' || status === "request_to_cancel" && canCancelTrial && (
@@ -1020,7 +1024,19 @@ const ParentProfile = ({ profile }) => {
                                 <div className="justify-end flex gap-4 pt-4">
                                     <button
                                         className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => addtoWaitingListSubmit(waitingListData, 'allMembers')}
+                                        onClick={() => {
+                                            if (!waitingListData.classScheduleId) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Please select a class before joining the waiting list!",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
+
+                                            // ✅ Proceed if class is selected
+                                            addtoWaitingListSubmit(waitingListData, "allMembers");
+                                        }}
                                     >
                                         Join Waiting List
                                     </button>
@@ -1136,8 +1152,19 @@ const ParentProfile = ({ profile }) => {
                                 <div className="flex gap-4 pt-4 justify-end ">
                                     <button
                                         className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => reactivateDataSubmit(reactivateData, 'allMembers')}
+                                        onClick={() => {
+                                            if (!reactivateData?.reactivateOn) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Please select a reactivation date first!",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
 
+                                            // ✅ Proceed if valid
+                                            reactivateDataSubmit(reactivateData, "allMembers");
+                                        }}
                                     >
                                         Reactivate Membership
                                     </button>
@@ -1166,7 +1193,7 @@ const ParentProfile = ({ profile }) => {
                                         Cancellation Type
                                     </label>
 
-                                    {cancelType.map((option) => (
+                                 {cancelType.map((option) => (
                                         <label key={option.value} className="flex mt-4  items-center mb-2 cursor-pointer">
                                             <label className="flex items-center cursor-pointer space-x-2">
                                                 <input
@@ -1194,8 +1221,9 @@ const ParentProfile = ({ profile }) => {
 
                                         </label>
                                     ))}
+
                                 </div>
-                                {cancelData.cancellationType !== 'immediately' && (
+                                {cancelData.cancellationType !== 'immediate' && (
                                     <>
                                         <div>
 
@@ -1254,10 +1282,40 @@ const ParentProfile = ({ profile }) => {
 
                                 {/* Buttons */}
                                 <div className="flex justify-end gap-4 pt-4">
-                                    <button
-                                        onClick={() => cancelMembershipSubmit(cancelData, 'allMembers')}
+                                     <button
+                                        onClick={() => {
+                                            // Validation
+                                            if (!cancelData.cancellationType) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Missing Field",
+                                                    text: "Please select a cancellation type.",
+                                                });
+                                                return;
+                                            }
 
-                                        className="w-1/2  bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                            if (cancelData.cancellationType !== "immediate" && !cancelData.cancelDate) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Missing Field",
+                                                    text: "Please select a cancellation effective date.",
+                                                });
+                                                return;
+                                            }
+
+                                            if (!cancelData.cancelReason) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Missing Field",
+                                                    text: "Please select a reason for cancellation.",
+                                                });
+                                                return;
+                                            }
+
+                                            // If all validations pass → call submit function
+                                            cancelMembershipSubmit(cancelData, "allMembers");
+                                        }}
+                                        className="w-1/2 bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                     >
                                         Cancel Membership
                                     </button>
@@ -1522,7 +1580,30 @@ const ParentProfile = ({ profile }) => {
                                 <div className="flex w-full justify-end gap-4 pt-4">
                                     <button
                                         className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => freezerMembershipSubmit(freezeData, 'allMembers')}
+                                        onClick={() => {
+                                            if (!freezeData.freezeStartDate || !freezeData.freezeDurationMonths || !freezeData.reactivateOn) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Incomplete Form",
+                                                    html: `
+                                            <div style="font-size:16px; text-align:left; line-height:1.6;">
+                                              Please fill in all the required fields before submitting:
+                                              <ul style="margin-top:10px; list-style-type:disc; margin-left:20px;">
+                                                ${!freezeData.freezeStartDate ? "<li><b>Freeze Start Date</b> is missing.</li>" : ""}
+                                                ${!freezeData.freezeDurationMonths ? "<li><b>Freeze Duration</b> is missing.</li>" : ""}
+                                                ${!freezeData.reactivateOn ? "<li><b>Reactivate On</b> date is missing.</li>" : ""}
+                                              </ul>
+                                            </div>
+                                          `,
+                                                    confirmButtonText: "Okay",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
+
+                                            // ✅ Submit when all fields are filled
+                                            freezerMembershipSubmit(freezeData, "allMembers");
+                                        }}
                                     >
                                         Freeze Membership
                                     </button>

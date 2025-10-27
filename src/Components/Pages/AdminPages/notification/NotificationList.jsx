@@ -5,6 +5,7 @@ import Loader from "../contexts/Loader";
 import Select from 'react-select';
 import { useNotification } from "../contexts/NotificationContext";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 
 export default function NotificationList() {
@@ -197,6 +198,7 @@ const recipientOptions = [
     { value: "Cancelled Memberships", label: "Cancelled Memberships" },
     { value: "Payments", label: "Payments" },
   ];
+  const navigate = useNavigate();
 
    if (loading && loadingCustomNotification) {
         return (
@@ -209,8 +211,11 @@ const recipientOptions = [
         <>
             <div className="md:p-6 bg-gray-50 ">
                 <div className="md:flex justify-between items-center mb-6">
-                    <h1 className="text-[24px] font-semibold">Notification List</h1>
-                    <div className="flex mt-3 md:mt-0 flex-wrap items-center gap-4">
+<div className="flex items-center gap-3 cursor-pointer transition-transform duration-300 hover:scale-105"   onClick={() => navigate('/notification')}>
+  <img className="w-6" alt="" src="/demo/synco/members/Arrow - Left.png" />
+  <h1 className="text-[24px] font-semibold">Notification List</h1>
+</div>
+                        <div className="flex mt-3 md:mt-0 flex-wrap items-center gap-4">
                         <button
                             onClick={() => setShowTimePeriodPopup(true)}
                             className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-[#E2E1E5] text-[#717073] text-[16px] hover:bg-gray-100"

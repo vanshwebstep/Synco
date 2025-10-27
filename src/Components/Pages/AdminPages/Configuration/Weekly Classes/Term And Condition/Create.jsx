@@ -362,26 +362,28 @@ const Create = () => {
         );
     };
 
-    const filterSessionDay = (date, term) => {
-        if (!selectedDay) return false;
+  const filterSessionDay = (date, term) => {
+    if (!term.day) return false; // use the term's specific selected day
 
-        const dayMap = {
-            sunday: 0,
-            monday: 1,
-            tuesday: 2,
-            wednesday: 3,
-            thursday: 4,
-            friday: 5,
-            saturday: 6,
-        };
-        const dayOk = date.getDay() === dayMap[selectedDay];
-
-        const dateStr = date.toLocaleDateString("en-CA");
-        // disable if in exclusions
-        const notExcluded = !term.exclusions.includes(dateStr);
-
-        return dayOk && notExcluded;
+    const dayMap = {
+        sunday: 0,
+        monday: 1,
+        tuesday: 2,
+        wednesday: 3,
+        thursday: 4,
+        friday: 5,
+        saturday: 6,
     };
+
+    const dayOk = date.getDay() === dayMap[term.day.toLowerCase()];
+    const dateStr = date.toLocaleDateString("en-CA");
+
+    // disable if in exclusions
+    const notExcluded = !term.exclusions.includes(dateStr);
+
+    return dayOk && notExcluded;
+};
+
 
     const filterExclusionDay = (date, term) => {
         if (!selectedDay) return false;
@@ -886,47 +888,47 @@ const Create = () => {
                                                         <Select
                                                             options={options}
                                                             value={options.find(option => option.value === term.day) || null}
-                                                           onChange={async (selectedOption, { action }) => {
-    if (action === 'clear') {
-        const newTerms = terms.map(t =>
-            t.id === term.id
-                ? { ...t, day: "", sessionsMap: [], exclusions: [], startDate: "", endDate: "" }
-                : t
-        );
-        setTerms(newTerms);
-        setSelectedDay("");
-        return;
-    }
+                                                            onChange={async (selectedOption, { action }) => {
+                                                                if (action === 'clear') {
+                                                                    const newTerms = terms.map(t =>
+                                                                        t.id === term.id
+                                                                            ? { ...t, day: "", sessionsMap: [], exclusions: [], startDate: "", endDate: "" }
+                                                                            : t
+                                                                    );
+                                                                    setTerms(newTerms);
+                                                                    setSelectedDay("");
+                                                                    return;
+                                                                }
 
-    const newDay = selectedOption?.value;
-    if (!newDay) return;
+                                                                const newDay = selectedOption?.value;
+                                                                if (!newDay) return;
 
-    // If changing the day (not initial select)
-    if (term.day && term.day !== newDay) {
-        const confirmChange = await Swal.fire({
-            title: "Change Day?",
-            text: "Changing the day will reset all selected dates and exclusions. Do you want to continue?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, change it",
-            cancelButtonText: "No, keep current day",
-        });
+                                                                // If changing the day (not initial select)
+                                                                if (term.day && term.day !== newDay) {
+                                                                    const confirmChange = await Swal.fire({
+                                                                        title: "Change Day?",
+                                                                        text: "Changing the day will reset all selected dates and exclusions. Do you want to continue?",
+                                                                        icon: "warning",
+                                                                        showCancelButton: true,
+                                                                        confirmButtonColor: "#3085d6",
+                                                                        cancelButtonColor: "#d33",
+                                                                        confirmButtonText: "Yes, change it",
+                                                                        cancelButtonText: "No, keep current day",
+                                                                    });
 
-        if (!confirmChange.isConfirmed) return; // user cancelled
-    }
+                                                                    if (!confirmChange.isConfirmed) return; // user cancelled
+                                                                }
 
-    // ✅ Proceed with change (reset sessionMap, exclusions, startDate, endDate)
-    const newTerms = terms.map(t =>
-        t.id === term.id
-            ? { ...t, day: newDay, sessionsMap: [], exclusions: [], startDate: "", endDate: "" }
-            : t
-    );
+                                                                // ✅ Proceed with change (reset sessionMap, exclusions, startDate, endDate)
+                                                                const newTerms = terms.map(t =>
+                                                                    t.id === term.id
+                                                                        ? { ...t, day: newDay, sessionsMap: [], exclusions: [], startDate: "", endDate: "" }
+                                                                        : t
+                                                                );
 
-    setSelectedDay(newDay);
-    setTerms(newTerms);
-}}
+                                                                setSelectedDay(newDay);
+                                                                setTerms(newTerms);
+                                                            }}
 
                                                             placeholder="Select a day"
                                                             className="rounded-lg px-0 py-0"

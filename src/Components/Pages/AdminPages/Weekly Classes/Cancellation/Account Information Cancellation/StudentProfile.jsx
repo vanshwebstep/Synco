@@ -1,6 +1,6 @@
 // src/components/StudentProfile.jsx
 
-import React, { useEffect, useRef, useState,useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
@@ -18,13 +18,13 @@ import Swal from "sweetalert2";
 const StudentProfile = ({ StudentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [selectedDate, setSelectedDate] = useState(null);
-console.log('StudentProfile',StudentProfile)
-    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit, reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit , sendAllmail, sendFullTomail, sendRequestTomail} = useBookFreeTrial() || {};
+    console.log('StudentProfile', StudentProfile)
+    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit, reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit, sendAllmail, sendFullTomail, sendRequestTomail } = useBookFreeTrial() || {};
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [freezeMembership, setFreezeMembership] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-   const { adminInfo, setAdminInfo } = useNotification();
+    const { adminInfo, setAdminInfo } = useNotification();
 
     const [showRebookTrial, setshowRebookTrial] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
@@ -79,26 +79,26 @@ console.log('StudentProfile',StudentProfile)
     } = StudentProfile;
     const token = localStorage.getItem("adminToken");
 
-     const goToPage = (page) => {
+    const goToPage = (page) => {
         if (page < 1) page = 1;
         if (page > totalPages) page = totalPages;
         setCurrentPage(page);
     };
 
 
-      const [commentsList, setCommentsList] = useState([]);
-        const [comment, setComment] = useState('');
-        const [currentPage, setCurrentPage] = useState(1);
-        const commentsPerPage = 5; // Number of comments per page
-    
-        // Pagination calculations
-        const indexOfLastComment = currentPage * commentsPerPage;
-        const indexOfFirstComment = indexOfLastComment - commentsPerPage;
-        const currentComments = commentsList.slice(indexOfFirstComment, indexOfLastComment);
-        const totalPages = Math.ceil(commentsList.length / commentsPerPage);
+    const [commentsList, setCommentsList] = useState([]);
+    const [comment, setComment] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const commentsPerPage = 5; // Number of comments per page
+
+    // Pagination calculations
+    const indexOfLastComment = currentPage * commentsPerPage;
+    const indexOfFirstComment = indexOfLastComment - commentsPerPage;
+    const currentComments = commentsList.slice(indexOfFirstComment, indexOfLastComment);
+    const totalPages = Math.ceil(commentsList.length / commentsPerPage);
 
 
-         const formatTimeAgo = (timestamp) => {
+    const formatTimeAgo = (timestamp) => {
         const now = new Date();
         const past = new Date(timestamp);
         const diff = Math.floor((now - past) / 1000); // in seconds
@@ -173,7 +173,7 @@ console.log('StudentProfile',StudentProfile)
     console.log('matchedPlan', matchedPlan)
 
     const { checkPermission } = usePermission();
-   const fetchComments = useCallback(async () => {
+    const fetchComments = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
         if (!token) return;
 
@@ -336,7 +336,7 @@ console.log('StudentProfile',StudentProfile)
         { value: 6, label: "6 Months" },
         { value: 12, label: "12 Months" },
     ];
-        if (loading) return <Loader />;
+    if (loading) return <Loader />;
     return (
         <>
             <div className="md:flex w-full gap-4">
@@ -521,14 +521,14 @@ console.log('StudentProfile',StudentProfile)
                                             <div className="flex items-center gap-3">
                                                 <img
                                                     src={
-                                                    c?.bookedByAdmin?.profile
-                                                        ? `${c?.bookedByAdmin?.profile}`
-                                                        : '/demo/synco/members/dummyuser.png'
-                                                }
-                                                onError={(e) => {
-                                                    e.currentTarget.onerror = null; // prevent infinite loop
-                                                    e.currentTarget.src = '/demo/synco/members/dummyuser.png';
-                                                }}
+                                                        c?.bookedByAdmin?.profile
+                                                            ? `${c?.bookedByAdmin?.profile}`
+                                                            : '/demo/synco/members/dummyuser.png'
+                                                    }
+                                                    onError={(e) => {
+                                                        e.currentTarget.onerror = null; // prevent infinite loop
+                                                        e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                    }}
                                                     alt={c?.bookedByAdmin?.firstName}
                                                     className="w-10 h-10 rounded-full object-cover mt-1"
                                                 />
@@ -700,13 +700,13 @@ console.log('StudentProfile',StudentProfile)
                                     )}
 
                                 </div>
-  {StudentProfile.cancelData.cancelDate && (
+                                {StudentProfile.cancelData.cancelDate && (
                                     <div className="border-t border-[#495362] py-5">
                                         <div className=" text-[20px] text-white">Request to Cancel Date </div>
                                         <div className="text-[16px]  mt-1 text-gray-400">{formatDate(StudentProfile.cancelData.cancelDate)}</div>
                                     </div>
                                 )}
-                              
+
 
                                 <div className="border-t border-[#495362] py-5">
                                     <div className=" text-[20px] text-white">ID </div>
@@ -726,12 +726,12 @@ console.log('StudentProfile',StudentProfile)
                                         </div>
                                     </>
                                 )}
-                                  {StudentProfile.cancelData.cancelReason && (
-                                <div className="border-t border-[#495362] py-5">
-                                    <div className=" text-[20px] text-white">Request Cancellation Reason  </div>
-                                    <div className="text-[16px]  mt-1 text-gray-400">{StudentProfile?.cancelData.cancelReason}</div>
-                                </div>
-                                  )}
+                                {StudentProfile.cancelData.cancelReason && (
+                                    <div className="border-t border-[#495362] py-5">
+                                        <div className=" text-[20px] text-white">Request Cancellation Reason  </div>
+                                        <div className="text-[16px]  mt-1 text-gray-400">{StudentProfile?.cancelData.cancelReason}</div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -745,118 +745,118 @@ console.log('StudentProfile',StudentProfile)
                                 {/* Top Row: Email + Text */}
                                 <div className="flex gap-7">
 
-                               <button
-  onClick={() => {
-    if (status === "request_to_cancel") {
-      sendRequestTomail([id]);
-    } else if (status === "cancelled") {
-      sendFullTomail([id]);
-    } else {
-      sendAllmail([id]);
-    }
-  }}
-  className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium"
->
-  <img src="/demo/synco/icons/mail.png" alt="" /> Send Email
-</button>
+                                    <button
+                                        onClick={() => {
+                                            if (status === "request_to_cancel") {
+                                                sendRequestTomail([id]);
+                                            } else if (status === "cancelled") {
+                                                sendFullTomail([id]);
+                                            } else {
+                                                sendAllmail([id]);
+                                            }
+                                        }}
+                                        className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium"
+                                    >
+                                        <img src="/demo/synco/icons/mail.png" alt="" /> Send Email
+                                    </button>
 
 
                                     <button className="flex-1 border border-[#717073] rounded-xl py-3 flex  text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-[#717073] font-medium">
                                         <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
                                     </button>
                                 </div>
-                             
-                                                <div className="bg-white rounded-3xl   space-y-4">
 
-                                                    {/* Top Row: Email + Text */}
+                                <div className="bg-white rounded-3xl   space-y-4">
 
-                                                    {(status === "frozen" || status === "cancelled") && canRebooking && (
-                                                        <button
-                                                            onClick={() => setReactivateMembership(true)}
-                                                            className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
-                                                        >
-                                                            Reactivate Membership
-                                                        </button>
-                                                    )}
+                                    {/* Top Row: Email + Text */}
 
-                                                    {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel") && (
-                                                        <button
-                                                            onClick={() => setaddToWaitingList(true)}
-                                                            className={`w-full rounded-xl py-3 text-[18px] font-medium transition-shadow duration-300 
+                                    {(status === "frozen" || status === "cancelled") && canRebooking && (
+                                        <button
+                                            onClick={() => setReactivateMembership(true)}
+                                            className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                        >
+                                            Reactivate Membership
+                                        </button>
+                                    )}
+
+                                    {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel") && (
+                                        <button
+                                            onClick={() => setaddToWaitingList(true)}
+                                            className={`w-full rounded-xl py-3 text-[18px] font-medium transition-shadow duration-300 
             ${addToWaitingList
-                                                                    ? "bg-[#237FEA] text-white shadow-md"   // Active state
-                                                                    : "bg-white  border border-gray-300  hover:bg-blue-700 text-[#717073] hover:text-white hover:shadow-md"
-                                                                }`}
-                                                        >
-                                                            Add to the waiting list
-                                                        </button>
-                                                    )}
+                                                    ? "bg-[#237FEA] text-white shadow-md"   // Active state
+                                                    : "bg-white  border border-gray-300  hover:bg-blue-700 text-[#717073] hover:text-white hover:shadow-md"
+                                                }`}
+                                        >
+                                            Add to the waiting list
+                                        </button>
+                                    )}
 
 
-                                                    {(status === "active" || status === "request_to_cancel") && canCancelTrial && (
-                                                        <button
-                                                            onClick={() => setFreezeMembership(true)}
-                                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                                        >
-                                                            Freeze Membership
-                                                        </button>
-                                                    )}
-                                                    {(status === "active" || status === "request_to_cancel") && canCancelTrial && (
-                                                        <button
-                                                            onClick={() => setTransferVenue(true)}
-                                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                                        >
-                                                            Transfer Class
-                                                        </button>
-                                                    )}
-                                                    {status == 'waiting list' && canCancelTrial && (
-                                                        <button
-                                                            onClick={() => setRemoveWaiting(true)}
-                                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                                        >
-                                                            Remove Waiting List
-                                                        </button>
-                                                    )}
-                                                    {(status === "active" || status === "frozen" || status === "request_to_cancel") && canCancelTrial && (
-                                                        <button
-                                                            onClick={() => setshowCancelTrial(true)}
-                                                            className={`w-full border text-[18px] rounded-xl py-3 font-medium transition-shadow duration-300
+                                    {(status === "active" || status === "request_to_cancel") && canCancelTrial && (
+                                        <button
+                                            onClick={() => setFreezeMembership(true)}
+                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                        >
+                                            Freeze Membership
+                                        </button>
+                                    )}
+                                    {(status === "active" || status === "request_to_cancel") && canCancelTrial && (
+                                        <button
+                                            onClick={() => setTransferVenue(true)}
+                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                        >
+                                            Transfer Class
+                                        </button>
+                                    )}
+                                    {status == 'waiting list' && canCancelTrial && (
+                                        <button
+                                            onClick={() => setRemoveWaiting(true)}
+                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                        >
+                                            Remove Waiting List
+                                        </button>
+                                    )}
+                                    {(status === "active" || status === "frozen" || status === "request_to_cancel") && canCancelTrial && (
+                                        <button
+                                            onClick={() => setshowCancelTrial(true)}
+                                            className={`w-full border text-[18px] rounded-xl py-3 font-medium transition-shadow duration-300
     ${showCancelTrial
-                                                                    ? "bg-[#FF6C6C] text-white shadow-md border-transparent"
-                                                                    : "border-gray-300 text-[#717073] hover:bg-[#FF6C6C] hover:text-white hover:shadow-md"
-                                                                }`}
-                                                        >
-                                                            Cancel Membership
-                                                        </button>
+                                                    ? "bg-[#FF6C6C] text-white shadow-md border-transparent"
+                                                    : "border-gray-300 text-[#717073] hover:bg-[#FF6C6C] hover:text-white hover:shadow-md"
+                                                }`}
+                                        >
+                                            Cancel Membership
+                                        </button>
 
-                                                    )}
+                                    )}
 
-                                                    {/* {status !== 'pending' && status !== 'attended' && (
+                                    {/* {status !== 'pending' && status !== 'attended' && (
                                     <button className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium">
                                         Book a Membership
                                     </button>
                                 )} */}
 
-                                                    {status === 'attended' && (
-                                                        <div className="flex gap-7">
-                                                            <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
-                                                                No Membership
-                                                            </button>
+                                    {status === 'attended' && (
+                                        <div className="flex gap-7">
+                                            <button className="flex-1 border bg-[#FF6C6C] border-[#FF6C6C] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-white font-medium">
+                                                No Membership
+                                            </button>
 
-                                                            <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
-                                                                Book a Membership
-                                                            </button>
-                                                        </div>
-                                                    )}
+                                            <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
+                                                Book a Membership
+                                            </button>
+                                        </div>
+                                    )}
 
 
-                                                </div>
-                                         
-
+                                </div>
 
 
 
-                               
+
+
+
 
                             </div>
                         </>
@@ -981,11 +981,32 @@ console.log('StudentProfile',StudentProfile)
                                     </button>
 
                                     <button
-                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => rebookFreeTrialsubmit(rebookFreeTrial)}
-                                    >
-                                        Rebook Trial
-                                    </button>
+  className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+  onClick={() => {
+    if (!selectedDate) {
+      Swal.fire({
+        icon: "warning",
+        title: "Please select a date first!",
+        confirmButtonColor: "#237FEA",
+      });
+      return;
+    }
+
+    if (!reason) {
+      Swal.fire({
+        icon: "warning",
+        title: "Please select a reason for non-attendance!",
+        confirmButtonColor: "#237FEA",
+      });
+      return;
+    }
+
+    // ✅ Proceed only if both selectedDate and reason exist
+    rebookFreeTrialsubmit(rebookFreeTrial);
+  }}
+>
+  Rebook Trial
+</button>
                                 </div>
                             </div>
                         </div>
@@ -1042,7 +1063,7 @@ console.log('StudentProfile',StudentProfile)
                                     ))}
                                 </div>
                                 <div>
-                                    {cancelData.cancellationType !== 'immediately' && (
+                                    {cancelData.cancellationType !== 'immediate' && (
                                         <>
                                             <label className="block text-[16px] font-semibold">
                                                 Cancellation Effective Date
@@ -1101,10 +1122,40 @@ console.log('StudentProfile',StudentProfile)
 
                                 {/* Buttons */}
                                 <div className="flex justify-end gap-4 pt-4">
-                                    <button
-                                        onClick={() => cancelMembershipSubmit(cancelData, 'allMembers')}
+                                     <button
+                                        onClick={() => {
+                                            // Validation
+                                            if (!cancelData.cancellationType) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Missing Field",
+                                                    text: "Please select a cancellation type.",
+                                                });
+                                                return;
+                                            }
 
-                                        className="w-1/2  bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                            if (cancelData.cancellationType !== "immediate" && !cancelData.cancelDate) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Missing Field",
+                                                    text: "Please select a cancellation effective date.",
+                                                });
+                                                return;
+                                            }
+
+                                            if (!cancelData.cancelReason) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Missing Field",
+                                                    text: "Please select a reason for cancellation.",
+                                                });
+                                                return;
+                                            }
+
+                                            // If all validations pass → call submit function
+                                            cancelMembershipSubmit(cancelData, "allMembers");
+                                        }}
+                                        className="w-1/2 bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                     >
                                         Cancel Membership
                                     </button>
@@ -1304,12 +1355,35 @@ console.log('StudentProfile',StudentProfile)
 
                                 {/* Buttons */}
                                 <div className="flex w-full justify-end gap-4 pt-4">
-                                    <button
-                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => freezerMembershipSubmit(freezeData, 'allMembers')}
-                                    >
-                                        Freeze Membership
-                                    </button>
+                                     <button
+                                                                           className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                                                           onClick={() => {
+                                                                               if (!freezeData.freezeStartDate || !freezeData.freezeDurationMonths || !freezeData.reactivateOn) {
+                                                                                   Swal.fire({
+                                                                                       icon: "warning",
+                                                                                       title: "Incomplete Form",
+                                                                                       html: `
+                                             <div style="font-size:16px; text-align:left; line-height:1.6;">
+                                               Please fill in all the required fields before submitting:
+                                               <ul style="margin-top:10px; list-style-type:disc; margin-left:20px;">
+                                                 ${!freezeData.freezeStartDate ? "<li><b>Freeze Start Date</b> is missing.</li>" : ""}
+                                                 ${!freezeData.freezeDurationMonths ? "<li><b>Freeze Duration</b> is missing.</li>" : ""}
+                                                 ${!freezeData.reactivateOn ? "<li><b>Reactivate On</b> date is missing.</li>" : ""}
+                                               </ul>
+                                             </div>
+                                           `,
+                                                                                       confirmButtonText: "Okay",
+                                                                                       confirmButtonColor: "#237FEA",
+                                                                                   });
+                                                                                   return;
+                                                                               }
+                                   
+                                                                               // ✅ Submit when all fields are filled
+                                                                               freezerMembershipSubmit(freezeData, "allMembers");
+                                                                           }}
+                                                                       >
+                                                                           Freeze Membership
+                                                                       </button>
                                 </div>
                             </div>
                         </div>

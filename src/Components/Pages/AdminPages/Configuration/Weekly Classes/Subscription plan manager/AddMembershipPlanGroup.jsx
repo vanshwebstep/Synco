@@ -28,14 +28,14 @@ const AddPaymentPlanGroup = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [searchParams] = useSearchParams();
     const id = searchParams.get("id");
-       const [mounted, setMounted] = useState(false);
-    
-        useEffect(() => {
-            setMounted(true);
-        }, [])
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, [])
     useEffect(() => {
         if (id) {
-             console.log('id foud');
+            console.log('id foud');
             setIsEditMode(true);
             fetchGroupById(id);
         } else {
@@ -89,7 +89,7 @@ const AddPaymentPlanGroup = () => {
         const getPackages = async () => {
             try {
                 const response = await fetchPackages();
-                 console.log("Fetched packages:", response);
+                console.log("Fetched packages:", response);
 
                 if (response?.status && Array.isArray(response.data)) {
                     setPlans(response.data); // Set the dynamic plans from backend
@@ -171,6 +171,15 @@ const AddPaymentPlanGroup = () => {
     };
 
     const handleSavePlan = async () => {
+        if (Number(formData.price) < 100) {
+  Swal.fire({
+    icon: "warning",
+    title: "Price must be at least €100!",
+    confirmButtonColor: "#237FEA",
+  });
+  return;
+}
+
         const { title, price, priceLesson, interval, duration, joiningFee, students } = formData;
 
         // ✅ Validation
@@ -262,7 +271,7 @@ const AddPaymentPlanGroup = () => {
     const canCreate =
         checkPermission({ module: 'payment-plan', action: 'create' });
 
-     console.log('formData.HolidayCampPackage', formData.HolidayCampPackage)
+    console.log('formData.HolidayCampPackage', formData.HolidayCampPackage)
     return (
         <div className=" md:p-6 bg-gray-50 min-h-screen">
 
@@ -452,7 +461,7 @@ const AddPaymentPlanGroup = () => {
                                                                         ? "0 0 0 3px rgba(59, 130, 246, 0.2)"
                                                                         : "0 1px 2px rgba(0,0,0,0.05)",
                                                                     transition: "all 0.2s ease",
-                                                                  
+
                                                                     padding: "4px 8px",
                                                                     backgroundColor: "#fff",
                                                                     fontSize: "15px",
@@ -603,131 +612,131 @@ const AddPaymentPlanGroup = () => {
                                     </button>
                                     {/* Add your form content here */}
                                     <div className="text-[24px] font-semibold mb-4">Membership Plan</div>
-{[
-  { label: "Title", name: "title", type: "text" },
-  { label: "Price (€)", name: "price", type: "number" },
-  { label: "Price per lesson(€)", name: "priceLesson", type: "number" },
-  {
-    label: "Interval",
-    name: "interval",
-    type: "dropdown",
-    options: ["Month", "Quarter", "Year"]
-  },
-  { label: "Duration", name: "duration", type: "number" },
-  { label: "Number of Students", name: "students", type: "number" },
-  { label: "Joining Fee (€)", name: "joiningFee", type: "number" }
-].map((field) => {
-  // Duration options for dropdown
-  let durationOptions = [];
-  if (field.name === "duration") {
-    if (formData.interval === "Month") {
-      durationOptions = Array.from({ length: 12 }, (_, i) => ({
-        label: `${i + 1} month${i + 1 > 1 ? "s" : ""}`,
-        value: i + 1
-      }));
-    } else if (formData.interval === "Year") {
-      durationOptions = Array.from({ length: 20 }, (_, i) => ({
-        label: `${i + 1} year${i + 1 > 1 ? "s" : ""}`,
-        value: i + 1
-      }));
-    } else if (formData.interval === "Quarter") {
-      durationOptions = Array.from({ length: 8 }, (_, i) => ({
-        label: `${i + 1} quarter${i + 1 > 1 ? "s" : ""}`,
-        value: i + 1
-      }));
-    }
-  }
+                                    {[
+                                        { label: "Title", name: "title", type: "text" },
+                                        { label: "Price (€)", name: "price", type: "number" },
+                                        { label: "Price per lesson(€)", name: "priceLesson", type: "number" },
+                                        {
+                                            label: "Interval",
+                                            name: "interval",
+                                            type: "dropdown",
+                                            options: ["Month", "Quarter", "Year"]
+                                        },
+                                        { label: "Duration", name: "duration", type: "number" },
+                                        { label: "Number of Students", name: "students", type: "number" },
+                                        { label: "Joining Fee (€)", name: "joiningFee", type: "number" }
+                                    ].map((field) => {
+                                        // Duration options for dropdown
+                                        let durationOptions = [];
+                                        if (field.name === "duration") {
+                                            if (formData.interval === "Month") {
+                                                durationOptions = Array.from({ length: 12 }, (_, i) => ({
+                                                    label: `${i + 1} month${i + 1 > 1 ? "s" : ""}`,
+                                                    value: i + 1
+                                                }));
+                                            } else if (formData.interval === "Year") {
+                                                durationOptions = Array.from({ length: 20 }, (_, i) => ({
+                                                    label: `${i + 1} year${i + 1 > 1 ? "s" : ""}`,
+                                                    value: i + 1
+                                                }));
+                                            } else if (formData.interval === "Quarter") {
+                                                durationOptions = Array.from({ length: 8 }, (_, i) => ({
+                                                    label: `${i + 1} quarter${i + 1 > 1 ? "s" : ""}`,
+                                                    value: i + 1
+                                                }));
+                                            }
+                                        }
 
-  return (
-    <div key={field.name} className="mb-4">
-      <label className="block text-base font-semibold text-gray-700 mb-2">
-        {field.label}
-      </label>
+                                        return (
+                                            <div key={field.name} className="mb-4">
+                                                <label className="block text-base font-semibold text-gray-700 mb-2">
+                                                    {field.label}
+                                                </label>
 
-      {field.name === "interval" ? (
-        <Select
-          options={field.options.map((opt) => ({ label: opt, value: opt }))}
-          value={
-            formData.interval
-              ? { label: formData.interval, value: formData.interval }
-              : null
-          }
-          onChange={(selected) =>
-            setFormData({ ...formData, interval: selected.value })
-          }
-          className="text-base font-semibold"
-          classNamePrefix="react-select"
-          styles={{
-            control: (provided) => ({
-              ...provided,
-              borderRadius: "0.5rem",
-              padding: "4px",
-              borderColor: "#E5E7EB", // gray-200
-              boxShadow: "none",
-              "&:hover": { borderColor: "#3B82F6" } // blue-500
-            }),
-            dropdownIndicator: (provided) => ({
-              ...provided,
-              display: "none" // hides arrow icon
-            }),
-            indicatorSeparator: () => ({ display: "none" })
-          }}
-          placeholder=""
-        />
-      ) : field.name === "duration" && formData.interval ? (
-        <select
-          value={formData.duration}
-          onChange={(e) =>
-            setFormData({ ...formData, duration: e.target.value })
-          }
-          className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
-        >
-          <option value="" disabled>
-            Select Duration
-          </option>
-          {durationOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      ) : field.type === "number" ? (
-        <input
-          type="text" // numbers are text but validated
-          value={formData[field.name]}
-          onChange={(e) => {
-            let value = e.target.value;
+                                                {field.name === "interval" ? (
+                                                    <Select
+                                                        options={field.options.map((opt) => ({ label: opt, value: opt }))}
+                                                        value={
+                                                            formData.interval
+                                                                ? { label: formData.interval, value: formData.interval }
+                                                                : null
+                                                        }
+                                                        onChange={(selected) =>
+                                                            setFormData({ ...formData, interval: selected.value })
+                                                        }
+                                                        className="text-base font-semibold"
+                                                        classNamePrefix="react-select"
+                                                        styles={{
+                                                            control: (provided) => ({
+                                                                ...provided,
+                                                                borderRadius: "0.5rem",
+                                                                padding: "4px",
+                                                                borderColor: "#E5E7EB", // gray-200
+                                                                boxShadow: "none",
+                                                                "&:hover": { borderColor: "#3B82F6" } // blue-500
+                                                            }),
+                                                            dropdownIndicator: (provided) => ({
+                                                                ...provided,
+                                                                display: "none" // hides arrow icon
+                                                            }),
+                                                            indicatorSeparator: () => ({ display: "none" })
+                                                        }}
+                                                        placeholder=""
+                                                    />
+                                                ) : field.name === "duration" && formData.interval ? (
+                                                    <select
+                                                        value={formData.duration}
+                                                        onChange={(e) =>
+                                                            setFormData({ ...formData, duration: e.target.value })
+                                                        }
+                                                        className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
+                                                    >
+                                                        <option value="" disabled>
+                                                            Select Duration
+                                                        </option>
+                                                        {durationOptions.map((opt) => (
+                                                            <option key={opt.value} value={opt.value}>
+                                                                {opt.label}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                ) : field.type === "number" ? (
+                                                    <input
+                                                        type="text" // numbers are text but validated
+                                                        value={formData[field.name]}
+                                                        onChange={(e) => {
+                                                            let value = e.target.value;
 
-            // Allow only whole numbers (no decimals)
-            if (/^\d*$/.test(value)) {
-              // Restrict max for students
-              if (field.name === "students" && Number(value) > 3) {
-                value = "3";
-              }
-              setFormData({ ...formData, [field.name]: value });
-            }
-          }}
-          onPaste={(e) => {
-            const paste = e.clipboardData.getData("text");
-            if (!/^\d*$/.test(paste)) {
-              e.preventDefault(); // block non-numeric paste
-            }
-          }}
-          className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
-        />
-      ) : (
-        <input
-          type="text"
-          value={formData[field.name]}
-          onChange={(e) =>
-            setFormData({ ...formData, [field.name]: e.target.value })
-          }
-          className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
-        />
-      )}
-    </div>
-  );
-})}
+                                                            // Allow only whole numbers (no decimals)
+                                                            if (/^\d*$/.test(value)) {
+                                                                // Restrict max for students
+                                                                if (field.name === "students" && Number(value) > 3) {
+                                                                    value = "3";
+                                                                }
+                                                                setFormData({ ...formData, [field.name]: value });
+                                                            }
+                                                        }}
+                                                        onPaste={(e) => {
+                                                            const paste = e.clipboardData.getData("text");
+                                                            if (!/^\d*$/.test(paste)) {
+                                                                e.preventDefault(); // block non-numeric paste
+                                                            }
+                                                        }}
+                                                        className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
+                                                    />
+                                                ) : (
+                                                    <input
+                                                        type="text"
+                                                        value={formData[field.name]}
+                                                        onChange={(e) =>
+                                                            setFormData({ ...formData, [field.name]: e.target.value })
+                                                        }
+                                                        className="w-full px-4 py-3 font-semibold text-base border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-transparent"
+                                                    />
+                                                )}
+                                            </div>
+                                        );
+                                    })}
 
 
 
@@ -846,7 +855,7 @@ const AddPaymentPlanGroup = () => {
                                                     },
                                                 }}
                                                 onInit={(evt, editor) => {
-                                                     console.log('Editor initialized', editor);
+                                                    console.log('Editor initialized', editor);
                                                 }}
                                             />
                                         </div>

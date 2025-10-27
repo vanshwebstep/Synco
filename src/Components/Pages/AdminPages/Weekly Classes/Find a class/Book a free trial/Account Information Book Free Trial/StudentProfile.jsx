@@ -25,7 +25,7 @@ const StudentProfile = ({ StudentProfile }) => {
     const [comment, setComment] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const commentsPerPage = 5; // Number of comments per page
-console.log('StudentProfile',StudentProfile)
+    console.log('StudentProfile', StudentProfile)
     // Pagination calculations
     const indexOfLastComment = currentPage * commentsPerPage;
     const indexOfFirstComment = indexOfLastComment - commentsPerPage;
@@ -634,7 +634,7 @@ console.log('StudentProfile',StudentProfile)
 
                                     {/* Status text */}
                                     <span className="capitalize">
-                                         {status ? status.replaceAll("_", " ") : "Unknown"}
+                                        {status ? status.replaceAll("_", " ") : "Unknown"}
                                     </span>
                                 </div>
 
@@ -656,7 +656,7 @@ console.log('StudentProfile',StudentProfile)
                                         e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/147/147144.png"; // fallback if image fails to load
                                     }}
                                 />
-                                <div>
+                               <div>
                                     <div className="text-[24px] font-semibold leading-tight">
                                         {status === 'pending' || status === 'attended'
                                             ? 'Booked By'
@@ -664,8 +664,8 @@ console.log('StudentProfile',StudentProfile)
                                     </div>
                                     <div className="text-[16px] text-gray-300">
                                         {status === 'pending' || status === 'attended'
-                                            ? `${StudentProfile?.bookedBy.firstName} ${StudentProfile?.bookedBy.lastName}`
-                                            : ``}
+                                            ? `${bookedBy.firstName} ${bookedBy.lastName}`
+                                            : `${StudentProfile?.parents[0]?.parentFirstName} / ${StudentProfile?.parents[0].relationToChild}`}
                                     </div>
                                 </div>
                             </div>
@@ -741,11 +741,16 @@ console.log('StudentProfile',StudentProfile)
                                 </div>
 
 
-                                {status?.trim().toLowerCase() !== "pending" &&
+                                 {status?.trim().toLowerCase() !== "pending" &&
                                     status?.trim().toLowerCase() !== "attended" &&
-                                    status?.trim().toLowerCase() !== "no_membersip" &&
+                                    status?.trim().toLowerCase() !== "no_membership" &&
                                     status?.trim().toLowerCase() !== "rebooked" &&
-                                    canRebooking && (
+                                    canRebooking &&
+                                    (() => {
+                                        const today = new Date();
+                                        const trialDateObj = new Date(trialDate);
+                                        return trialDateObj <= today; // ✅ show only if date has passed
+                                    })() && (
                                         <button
                                             onClick={() => setshowRebookTrial(true)}
                                             className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
@@ -788,12 +793,24 @@ console.log('StudentProfile',StudentProfile)
                             </div>
                         </>
                     )}
-                    {status == 'cancelled' && (<button
-                        onClick={() => setshowRebookTrial(true)}
-                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
-                    >
-                        Rebook FREE Trial
-                    </button>)}
+                    {status === 'cancelled' && (() => {
+                        const today = new Date();
+                        const trialDateObj = new Date(trialDate);
+
+                        // ✅ Strip time portion for fair date-only comparison
+                        today.setHours(0, 0, 0, 0);
+                        trialDateObj.setHours(0, 0, 0, 0);
+
+                        // ✅ Only show if trial date is *before* today
+                        return trialDateObj < today;
+                    })() && (
+                            <button
+                                onClick={() => setshowRebookTrial(true)}
+                                className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                            >
+                                Rebook FREE Trial
+                            </button>
+                        )}
                 </div>
                 {showRebookTrial && (
                     <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
@@ -915,7 +932,28 @@ console.log('StudentProfile',StudentProfile)
 
                                     <button
                                         className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => rebookFreeTrialsubmit(rebookFreeTrial)}
+                                        onClick={() => {
+                                            if (!selectedDate) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Please select a date first!",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
+
+                                            if (!reason) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Please select a reason for non-attendance!",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
+
+                                            // ✅ Proceed only if both selectedDate and reason exist
+                                            rebookFreeTrialsubmit(rebookFreeTrial);
+                                        }}
                                     >
                                         Rebook Trial
                                     </button>

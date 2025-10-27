@@ -27,7 +27,7 @@ const ParentProfile = ({ ParentProfile }) => {
     const [comment, setComment] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const commentsPerPage = 5; // Number of comments per page
-console.log('ParentProfile',ParentProfile)
+    console.log('ParentProfile', ParentProfile)
     // Pagination calculations
     const indexOfLastComment = currentPage * commentsPerPage;
     const indexOfFirstComment = indexOfLastComment - commentsPerPage;
@@ -229,7 +229,7 @@ console.log('ParentProfile',ParentProfile)
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const emergency = ParentProfile.emergency;
-    console.log('matchedPlan', matchedPlan)
+    console.log('trialDate', trialDate)
 
     const { checkPermission } = usePermission();
 
@@ -795,11 +795,16 @@ console.log('ParentProfile',ParentProfile)
                                 </div>
 
 
-                                {status?.trim().toLowerCase() !== "pending" &&
+                                {status?.trim().toLowerCase() == "pending" &&
                                     status?.trim().toLowerCase() !== "attended" &&
-                                    status?.trim().toLowerCase() !== "no_membersip" &&
+                                    status?.trim().toLowerCase() !== "no_membership" &&
                                     status?.trim().toLowerCase() !== "rebooked" &&
-                                    canRebooking && (
+                                    canRebooking &&
+                                    (() => {
+                                        const today = new Date();
+                                        const trialDateObj = new Date(trialDate);
+                                        return trialDateObj <= today; // ✅ show only if date has passed
+                                    })() && (
                                         <button
                                             onClick={() => setshowRebookTrial(true)}
                                             className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
@@ -816,7 +821,7 @@ console.log('ParentProfile',ParentProfile)
                                         Cancel Trial
                                     </button>
                                 )}
-
+                           
                                 {status !== 'pending' && status !== 'attended' && (
                                     <button
                                         onClick={handleBookMembership}
@@ -842,12 +847,25 @@ console.log('ParentProfile',ParentProfile)
                             </div>
                         </>
                     )}
-                    {status == 'cancelled' && (<button
-                        onClick={() => setshowRebookTrial(true)}
-                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
-                    >
-                        Rebook FREE Trial
-                    </button>)}
+                    {status === 'cancelled' && (() => {
+                        const today = new Date();
+                        const trialDateObj = new Date(trialDate);
+
+                        // ✅ Strip time portion for fair date-only comparison
+                        today.setHours(0, 0, 0, 0);
+                        trialDateObj.setHours(0, 0, 0, 0);
+
+                        // ✅ Only show if trial date is *before* today
+                        return trialDateObj < today;
+                    })() && (
+                            <button
+                                onClick={() => setshowRebookTrial(true)}
+                                className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                            >
+                                Rebook FREE Trial
+                            </button>
+                        )}
+
                 </div>
                 {showRebookTrial && (
                     <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
@@ -905,13 +923,13 @@ console.log('ParentProfile',ParentProfile)
                                 <div className="space-y-4">
                                     <div>
                                         <label className="block text-[16px] font-semibold">Time</label>
-                                         <input
-                                        type="text"
-                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                        placeholder="Select Class"
-                                        value={classSchedule?.startTime || "-"}
-                                        readOnly
-                                    />
+                                        <input
+                                            type="text"
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            placeholder="Select Class"
+                                            value={classSchedule?.startTime || "-"}
+                                            readOnly
+                                        />
                                         {/* <DatePicker
                                             withPortal
                                             selected={selectedTime}
@@ -976,7 +994,28 @@ console.log('ParentProfile',ParentProfile)
 
                                     <button
                                         className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => rebookFreeTrialsubmit(rebookFreeTrial)}
+                                        onClick={() => {
+                                            if (!selectedDate) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Please select a date first!",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
+
+                                            if (!reason) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Please select a reason for non-attendance!",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
+
+                                            // ✅ Proceed only if both selectedDate and reason exist
+                                            rebookFreeTrialsubmit(rebookFreeTrial);
+                                        }}
                                     >
                                         Rebook Trial
                                     </button>

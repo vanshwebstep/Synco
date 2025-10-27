@@ -17,7 +17,7 @@ export default function Notification() {
     checkPermission({ module: 'custom-notification', action: 'view-listing' });
 
   const hasMarkAsRead =
-    checkPermission({ module: 'notification ', action: 'read' })
+    checkPermission({ module: 'notification', action: 'read' });
 
      console.log('hasMarkAsRead',hasMarkAsRead)
   return (
@@ -27,7 +27,7 @@ export default function Notification() {
         <div className="flex gap-4 items-center">
           {hasPermission && (
             <button
-              className="text-[#717073] underline cursor-pointer"
+              className="text-[#717073] underline cursor-pointer transition-transform duration-300 hover:scale-105  "
               onClick={() => navigate("/notification-list")}
             >
               Create Notification
@@ -35,8 +35,8 @@ export default function Notification() {
           )}
 
 
-          {hasPermission && (
-            < button className="text-[#717073] underline cursor-pointer" onClick={() => fetchMarkAsRead(activeTab)}>Mark as read</button>
+          {hasMarkAsRead && (
+            < button className="text-[#717073] underline cursor-pointer transition-transform duration-300 hover:scale-105" onClick={() => fetchMarkAsRead(activeTab)}>Mark as read</button>
             )}
         </div> </div >
       <div className="md:flex gap-5 bg-gray-50">

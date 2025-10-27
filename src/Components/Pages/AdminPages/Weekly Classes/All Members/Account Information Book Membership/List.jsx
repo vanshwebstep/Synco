@@ -128,6 +128,9 @@ const AccountInfoBookMembership = () => {
               </div>
             </div>
             <button
+            onClick={() => {
+                    navigate('/weekly-classes/find-a-class');
+                }}
               className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
             >
               <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
@@ -141,7 +144,7 @@ const AccountInfoBookMembership = () => {
           serviceHistory={serviceHistory}
           itemId={location.state.itemId}
           labels={{
-            header: "Weekly Classes Membership",
+            header: serviceHistory.serviceType,
             membershipPlan: "Membership Plan ",
             students: "Students",
             venue: "  Venue",

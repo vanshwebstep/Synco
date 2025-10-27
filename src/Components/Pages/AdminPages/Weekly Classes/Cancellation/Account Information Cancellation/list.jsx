@@ -137,7 +137,7 @@ const AccountInfoCancellation = (from) => {
         <ServiceHistory
           serviceHistory={serviceHistory}
           labels={{
-            header: "Weekly Classes Membership",
+            header: serviceHistory.serviceType,
             membershipPlan: "Membership Plan ",
             students: "Students",
             venue: "  Venue",

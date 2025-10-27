@@ -22,7 +22,7 @@ const formatDate = (dateString, withTime = false) => {
 };
 
 
-const ServiceHistory = ({ serviceHistory, itemId ,labels = {}, comesFrom }) => {
+const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
   if (!serviceHistory) return null;
   const navigate = useNavigate();
 
@@ -41,7 +41,7 @@ const ServiceHistory = ({ serviceHistory, itemId ,labels = {}, comesFrom }) => {
     icon,    // header icon
     progress // e.g. "6/12 months"
   } = serviceHistory;
-console.log('bookedBy')
+  console.log('bookedBy')
   const statusStyles = {
     attended: "bg-green-500 text-white",
     active: "bg-green-500 text-white",
@@ -51,7 +51,7 @@ console.log('bookedBy')
     cancelled: "bg-red-500 text-white",
     request_to_cancel: "bg-white text-red-500 border",
   };
-   console.log('itemId,itemId', comesFrom)
+  console.log('itemId,itemId', comesFrom)
   return (
     <div className="transition-all duration-300 flex-1 bg-white">
       <div className="rounded-4xl w-full">
@@ -65,7 +65,7 @@ console.log('bookedBy')
                   <img src={icon || "/demo/synco/icons/crown.png"} alt="icon" />
                 )}
 
-                <span className="font-medium text-[20px]">
+                <span className="font-medium capitalize text-[20px]">
                   {title || labels.header || "Service History"}
                 </span>
               </div>
@@ -175,35 +175,42 @@ console.log('bookedBy')
                       </div>
                     </div>
                   )}
-                  
+
                   {(comesFrom === "cancellation" || comesFrom === "membership") && (
                     <div className="block pr-3">
                       <div className="whitespace-nowrap font-semibold text-[14px]">
                         {labels.price || "Price"}
                       </div>
                       <div className="text-[16px] font-semibold text-[#384455]">
-                        £
-                        {paymentPlan?.interval === "Month"
-                          ? paymentPlan?.price / paymentPlan?.duration
-                          : paymentPlan?.interval === "Year"
-                            ? paymentPlan?.price / (paymentPlan?.duration / 12)
-                            : paymentPlan?.interval === "Annual"
-                              ? paymentPlan?.price
-                              : paymentPlan?.price}
+                        {paymentPlan?.price ? (
+                          <>
+                            £
+                            {paymentPlan?.interval === "Month"
+                              ? paymentPlan?.price / paymentPlan?.duration
+                              : paymentPlan?.interval === "Year"
+                                ? paymentPlan?.price / (paymentPlan?.duration / 12)
+                                : paymentPlan?.interval === "Annual"
+                                  ? paymentPlan?.price
+                                  : paymentPlan?.price}
+                          </>
+                        ) : (
+                          "-"
+                        )}
                       </div>
                     </div>
                   )}
+
                   {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
                     <div className="block pr-3">
                       <div className="whitespace-nowrap font-semibold text-[14px]">
                         {labels.dateOfBooking || "Date of Booking"}
                       </div>
-                <div className="text-[16px] font-semibold text-[#384455]">
-  {dateBooked ? formatDate(dateBooked, true) : createdAt ? formatDate(createdAt, true) : "—"}
-</div>
+                      <div className="text-[16px] font-semibold text-[#384455]">
+                        {dateBooked ? formatDate(dateBooked, true) : createdAt ? formatDate(createdAt, true) : "—"}
+                      </div>
                     </div>
                   )}
-                  
+
 
 
 
@@ -243,11 +250,18 @@ console.log('bookedBy')
                         <div className="whitespace-nowrap font-semibold text-[14px]">
                           {labels.bookingSource || "Booking Source"}
                         </div>
-                       <div className="text-[16px] font-semibold text-[#384455]">
-  {bookedBy?.firstName  ? `${bookedBy?.firstName} ${bookedBy?.lastName}` : ""}
-  {bookedBy && paymentData ? " || " : ""}
-  {paymentData?.firstName && paymentData?.lastName ? `${paymentData.firstName} ${paymentData?.lastName}` : ""}
-</div>
+                        <div className="text-[16px] font-semibold text-[#384455]">
+                          {
+                            bookedBy?.firstName
+                              ? `${bookedBy.firstName} ${bookedBy?.lastName || ""}`
+                              : bookedByAdmin?.firstName
+                                ? `${bookedByAdmin.firstName} ${bookedByAdmin?.lastName || ""}`
+                                : paymentData?.firstName
+                                  ? `${paymentData.firstName} ${paymentData?.lastName || ""}`
+                                  : ""
+                          }
+
+                        </div>
 
                       </div>
                       <div>
@@ -274,7 +288,7 @@ console.log('bookedBy')
                     ]).map((btn, i) => (
                       <button
                         key={i}
-                         onClick={() => navigate(`/weekly-classes/all-members/see-details?id=${itemId}`)}
+                        onClick={() => navigate(`/weekly-classes/all-members/see-details?id=${itemId}`)}
                         className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[15px] font-medium"
                       >
                         {btn}

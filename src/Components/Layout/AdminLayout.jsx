@@ -29,7 +29,7 @@ const routeTitleMap = {
   '/weekly-classes/trial/list': { title: 'Trialists', icon: '' },
   '/weekly-classes/all-members/list': { title: 'All Members', icon: '/demo/synco/members/allMembers.png' },
   '/weekly-classes/find-a-class/book-a-membership': { title: 'Book a Membership', icon: '/demo/synco/members/bookMembership.png' },
-  '/weekly-classes/find-a-class/book-a-free-trial/account-info/list': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
+  '/weekly-classes/trial/find-a-class/book-a-free-trial/account-info/list': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
   '/weekly-classes/all-members/membership-sales': { title: 'Membership Sales', icon: '/demo/synco/members/Profile.png' },
   '/weekly-classes/find-a-class/add-to-waiting-list': { title: 'Add to Waiting List', icon: '/demo/synco/members/waiting.png' },
   '/weekly-classes/find-a-class/add-to-waiting-list/list': { title: ' Waiting List', icon: '/demo/synco/members/waiting.png' },

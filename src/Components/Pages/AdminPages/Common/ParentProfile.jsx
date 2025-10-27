@@ -30,7 +30,7 @@ const ParentProfile = ({ ParentProfile }) => {
         { value: "Health issue", label: "Health issue" },
         { value: "Schedule conflict", label: "Schedule conflict" },
     ];
- const [commentsList, setCommentsList] = useState([]);
+    const [commentsList, setCommentsList] = useState([]);
     const [comment, setComment] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const commentsPerPage = 5; // Number of comments per page
@@ -97,10 +97,10 @@ const ParentProfile = ({ ParentProfile }) => {
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
     const emergency = ParentProfile.emergency || [];
-    console.log('matchedPlan', matchedPlan)
+    console.log('trialDate', trialDate)
 
     const { checkPermission } = usePermission();
- const formatTimeAgo = (timestamp) => {
+    const formatTimeAgo = (timestamp) => {
         const now = new Date();
         const past = new Date(timestamp);
         const diff = Math.floor((now - past) / 1000); // in seconds
@@ -456,7 +456,7 @@ const ParentProfile = ({ ParentProfile }) => {
 
                         </div>
                     ))} */}
-                        <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
+                    <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
 
                         {/* Input section */}
@@ -492,14 +492,14 @@ const ParentProfile = ({ ParentProfile }) => {
                                             <div className="flex items-center gap-3">
                                                 <img
                                                     src={
-                                                    c?.bookedByAdmin?.profile
-                                                        ? `${c?.bookedByAdmin?.profile}`
-                                                        : '/demo/synco/members/dummyuser.png'
-                                                }
-                                                onError={(e) => {
-                                                    e.currentTarget.onerror = null; // prevent infinite loop
-                                                    e.currentTarget.src = '/demo/synco/members/dummyuser.png';
-                                                }}
+                                                        c?.bookedByAdmin?.profile
+                                                            ? `${c?.bookedByAdmin?.profile}`
+                                                            : '/demo/synco/members/dummyuser.png'
+                                                    }
+                                                    onError={(e) => {
+                                                        e.currentTarget.onerror = null; // prevent infinite loop
+                                                        e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                    }}
                                                     alt={c?.bookedByAdmin?.firstName}
                                                     className="w-10 h-10 rounded-full object-cover mt-1"
                                                 />
@@ -823,7 +823,7 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                 {/* Date */}
                                 <div>
-                                    <label className="block text-[16px] font-semibold">Date</label>
+                                    <label className="block text-[16px] font-semibold">Date*</label>
                                     <DatePicker
                                         selected={selectedDate}
                                         onChange={handleDateChange}
@@ -902,7 +902,28 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                     <button
                                         className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-                                        onClick={() => rebookFreeTrialsubmit(rebookFreeTrial)}
+                                        onClick={() => {
+                                            if (!selectedDate) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Please select a date first!",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
+
+                                            if (!reason) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Please select a reason for non-attendance!",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
+
+                                            // ✅ Proceed only if both selectedDate and reason exist
+                                            rebookFreeTrialsubmit(rebookFreeTrial);
+                                        }}
                                     >
                                         Rebook Trial
                                     </button>

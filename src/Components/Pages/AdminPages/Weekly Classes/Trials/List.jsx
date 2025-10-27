@@ -443,7 +443,7 @@ const trialLists = () => {
                             canServicehistory
                                 ? (item) =>
                                     navigate(
-                                        "/weekly-classes/find-a-class/book-a-free-trial/account-info/list",
+                                        "/weekly-classes/trial/find-a-class/book-a-free-trial/account-info/list",
                                         { state: { itemId: item.id } }
                                     )
                                 : undefined

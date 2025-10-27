@@ -55,7 +55,7 @@ const ServiceHistory = ({ serviceHistory }) => {
         <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
             <img src="/demo/synco/icons/crown.png" alt="" />
-            <span className="font-medium text-[20px]">Weekly Classes Trial</span>
+            <span className="font-medium text-[20px] capitalize">{serviceHistory.serviceType}</span>
           </div>
           <div className="flex relative items-center gap-4">
             {/* Student Count */}
@@ -69,15 +69,15 @@ const ServiceHistory = ({ serviceHistory }) => {
             </div> */}
             {/* Status */}
             <div
-              className={`flex gap-2 items-center p-2 rounded-xl flex-wrap ${status === "active"
-                ? "bg-green-500"
+              className={`flex gap-2 items-center p-2 rounded-xl flex-wrap  ${status === "active"
+                ? "bg-green-500 text-white " :  status === 'waiting list' ? "bg-gray-300 text-black"
                 : status === "pending"
-                  ? "bg-yellow-500"
-                  : "bg-red-500"
+                  ? "bg-yellow-500 text-white  "
+                  : "bg-red-500 text-white  "
                 }`}
             >
               <div className="block">
-                <div className="whitespace-nowrap capitalize font-semibold text-white text-[16px]">
+                <div className="whitespace-nowrap capitalize font-semibold text-[16px]">
                   {status}
                 </div>
               </div>

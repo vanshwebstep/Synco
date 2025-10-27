@@ -232,7 +232,7 @@ const AppRoutes = () => {
         element={renderProtectedRoute(BookMembership, [{ module: "book-membership", action: "view-listing" }])}
       />
       <Route
-        path="/weekly-classes/find-a-class/book-a-free-trial/account-info/list"
+        path="/weekly-classes/trial/find-a-class/book-a-free-trial/account-info/list"
         element={renderProtectedRoute(AccountInformation, [{ module: "book-free-trial", action: "view-listing" }])}
       />
       <Route

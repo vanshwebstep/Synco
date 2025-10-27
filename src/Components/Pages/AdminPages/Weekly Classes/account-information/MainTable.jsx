@@ -95,14 +95,14 @@ const MainTable = () => {
                 {members.length > 0 ? (
                     <>
                         <div className="overflow-auto rounded-2xl bg-white shadow-sm">
-                            <table className="min-w-full text-sm">
+                            <table className="min-w-full text-sm ss">
                                 <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
                                     <tr className="font-semibold text-[#717073]">
                                         <th className="p-4">
                                             <div className="flex gap-2 items-center">
                                                 <button
                                                     onClick={toggleSelectAll}
-                                                    className="w-5 h-5 flex items-center justify-center rounded-md border-2 border-gray-500"
+                                                    className="min-w-5 min-h-5  flex items-center justify-center rounded-md border-2 border-gray-500"
                                                 >
                                                     {isAllSelected && <Check size={16} strokeWidth={3} className="text-gray-500" />}
                                                 </button>
@@ -128,7 +128,7 @@ const MainTable = () => {
                                                     <div className="flex items-center gap-3">
                                                         <button
                                                             onClick={() => toggleCheckbox(user.id)}
-                                                            className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-500' : 'border-gray-300'}`}
+                                                            className={`min-w-5 min-h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-500' : 'border-gray-300'}`}
                                                         >
                                                             {isChecked && <Check size={16} strokeWidth={3} className="text-gray-500" />}
                                                         </button>

@@ -7,16 +7,77 @@ import { Link, useLocation } from 'react-router-dom';
 import { usePermission } from "../Pages/AdminPages/Common/permission";
 import { X } from 'lucide-react'; // Add this to your imports
 
+function normalizePath(path) {
+  if (!path) return "";
+
+  return path
+    .split(/[?#]/)[0] // remove query/hash
+    .replace(/\/+$/, "") // remove trailing slash
+    // remove non-core suffixes
+    .replace(
+      /\/(list|lists|create|update|edit|details|view|account-info|add-to-waiting-list|book-a-free-trial|book-a-membership)(\/.*)?$/,
+      ""
+    );
+}
+
+
+
+// 🔁 Recursively find active item & its parents
+function findActiveItemAndParents(items, currentPath, parents = []) {
+  const normalizedCurrent = normalizePath(currentPath);
+
+  for (const item of items) {
+    const normalizedItemLink = normalizePath(item.link);
+
+    // 🔹 Main logic: mark parent active if path includes its link
+    if (
+      normalizedItemLink &&
+      normalizedCurrent.includes(normalizedItemLink)
+    ) {
+      return { item, parents };
+    }
+
+    if (item.subItems) {
+      const found = findActiveItemAndParents(item.subItems, currentPath, [...parents, item]);
+      if (found) return found;
+    }
+
+    if (item.innerSubItems) {
+      const foundInner = findActiveItemAndParents(item.innerSubItems, currentPath, [...parents, item]);
+      if (foundInner) return foundInner;
+    }
+  }
+
+  return null;
+}
+
+
 const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const [openDropdowns, setOpenDropdowns] = useState({});
   const [hoveredItem, setHoveredItem] = useState(null);
+      const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const sidebarRef = useRef();
   const { checkPermission } = usePermission();
   const MyRole = localStorage.getItem("role");
-  const [activeTab, setActiveTab] = useState(location.pathname); // track active link
+  useEffect(() => {
+    const result = findActiveItemAndParents(menuItems, location.pathname);
+    if (result) {
+      const { item, parents } = result;
+      setActiveTab(item.link);
+
+      // Auto-expand parent dropdowns
+      const expanded = {};
+      parents.forEach((p) => (expanded[p.title] = true));
+      setOpenDropdowns((prev) => ({ ...prev, ...expanded }));
+    }
+  }, [location.pathname]);
+  const [activeTab, setActiveTab] = useState(null); // track active link
   const [activeItem, setActiveItem] = useState(null);
   // Helper to check if this item or any of its subItems matches the current path
+  useEffect(() => {
+  setActiveTab(location.pathname);
+}, [location.pathname]);  
   const isItemActive = (item) => {
     console.log('item11', item)
     if (item.link && activeTab === item.link) return true; // submenu or direct link
@@ -25,6 +86,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     }
     return false;
   };
+  
   // Existing menuItemsRaw logic remains unchanged
   const menuItemsRaw = [
     {
@@ -335,7 +397,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   };
 
   const renderMenuItems = (items, level = 0) => {
-    const location = useLocation();
+
 
     return (
       <ul

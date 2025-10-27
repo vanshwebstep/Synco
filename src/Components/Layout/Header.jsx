@@ -11,7 +11,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [showNotificationPopup, setShowNotificationPopup] = useState(null);
-  const { notification, customnotificationAll, setNotification, stopFetching, fetchNotification,adminInfo,setAdminInfo } = useNotification();
+  const { notification, customnotificationAll, setNotification, stopFetching, fetchNotification, adminInfo, setAdminInfo } = useNotification();
   const currentDate = new Date();
 
   const month = currentDate.toLocaleString("default", { month: "long" }); // e.g., January
@@ -111,7 +111,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'configuration/weekly-classes/venues': { title: 'Configuration', },
     'find-a-class/book-a-free-trial/account-info': { title: 'Account Information' },
     'weekly-classes/all-members/account-info': { title: 'Account Information' },
-    
+
     'weekly-classes/cancellation': { title: 'Cancellation' },
     'weekly-classes/capacity': { title: 'Capacity' },
     'members/List': { title: 'Admin Panel' },
@@ -218,7 +218,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     <>
       {/* HEADER */}
       {/* HEADER */}
-      <header className={`flex flex-col lg:flex-row justify-between items-start lg:items-center py-4  bg-gray-50  gap-4 lg:gap-0 ${location.pathname.includes("/members/List")?"px-8":""}`}>
+      <header className={`flex flex-col lg:flex-row justify-between items-start lg:items-center py-4  bg-gray-50  gap-4 lg:gap-0 ${location.pathname.includes("/members/List") ? "px-8" : ""}`}>
 
         {/* Desktop LEFT: Greeting + Welcome */}
         <div className="hidden lg:block">
@@ -237,10 +237,10 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
             {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
 
-       <div className="flex items-center justify-center gap-0.5">
-          <img src='/demo/synco/images/synco-text.png' alt="Welcome" className="  h-10" />
-          <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className=" h-10 mb-0.5 animate-spin [animation-duration:5s]" />
-</div>
+          <div className="flex items-center justify-center gap-0.5">
+            <img src='/demo/synco/images/synco-text.png' alt="Welcome" className="  h-10" />
+            <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className=" h-10 mb-0.5 animate-spin [animation-duration:5s]" />
+          </div>
 
           {/* Profile Image */}
           <div className="relative">
@@ -250,12 +250,12 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
             >
               <div className="w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
                 <img
-                    src={
-                      adminInfo?.profile
-                        ? `${adminInfo.profile}`
-                        : '/demo/synco/members/dummyuser.png'
-                    }
-                    className="w-full h-full object-cover" />
+                  src={
+                    adminInfo?.profile
+                      ? `${adminInfo.profile}`
+                      : '/demo/synco/members/dummyuser.png'
+                  }
+                  className="w-full h-full object-cover" />
               </div>
             </div>
 
@@ -317,12 +317,13 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
               <p className="text-[16px] font-semibold text-black">
                 {latestUnread.description}
               </p>
-              <a
-                href="/demo/synco/notification"
-                className="text-[#237FEA] text-[16px] font-semibold mt-2 inline-block underline"
-              >
-                See more
-              </a>
+          <a
+  onClick={() => navigate('/notification')}
+  className="text-[#237FEA] cursor-pointer text-[16px] font-semibold mt-2 inline-block underline"
+>
+  See more
+</a>
+
             </div>
           )}
 
