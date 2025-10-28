@@ -4,12 +4,11 @@ import { RxCross2 } from "react-icons/rx";
 import Select from "react-select";
 import { Check, Plus } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useAccountsInfo } from "../../contexts/AccountsInfoContext";
 
 // Sample data
 const bookings = [
   {
-    serviceType: "weekly class membership",
+    type: "Weekly Classes Membership",
     plan: "12 month plan",
     students: 2,
     venue: "Acton",
@@ -21,69 +20,69 @@ const bookings = [
     status: "Active",
     statusColor: "green",
   },
-  // {
-  //   serviceType: "Birthday Party Booking",
-  //   package: "Gold",
-  //   pricePaid: "£315.00",
-  //   stripeID: "XHDJDHLS314",
-  //   bookingDate: "Nov 18 2021, 17:00",
-  //   partyDate: "Nov 18 2021, 17:00",
-  //   coach: "Ethan Bond-Vaughan",
-  //   source: "Abdul Ali",
-  //   status: "Completed",
-  //   statusColor: "red",
-  // },
-  // {
-  //   serviceType: "One to One Booking",
-  //   package: "Gold",
-  //   students: 1,
-  //   pricePaid: "£3999",
-  //   stripeID: "XHDJDHLS314",
-  //   bookingDate: "Nov 18 2021, 17:00",
-  //   venue: "Chelsea Park",
-  //   coach: "Ethan Bond-Vaughan",
-  //   source: "Abdul Ali",
-  //   status: "Expired",
-  //   statusColor: "red",
-  // },
-  // {
-  //   serviceType: "Holiday Camp",
-  //   camp: "Easter",
-  //   students: 2,
-  //   pricePaid: "£3999",
-  //   stripeID: "XHDJDHLS314",
-  //   bookingDate: "Nov 18 2021, 17:00",
-  //   venue: "Chelsea Park",
-  //   discount: "15% Early Bird Discount",
-  //   source: "Abdul Ali",
-  //   status: "Expired",
-  //   statusColor: "red",
-  // },
-  // {
-  //   serviceType: "Merchandise",
-  //   item: "Full Set",
-  //   quantity: 2,
-  //   pricePaid: "£3999",
-  //   transactionID: "XHDJDHLS314",
-  //   bookingDate: "Nov 18 2021, 17:00",
-  //   discount: 0,
-  //   fulfillment: "Fulfilled",
-  //   source: "Online Store",
-  //   status: "Paid",
-  //   statusColor: "green",
-  // },
+  {
+    type: "Birthday Party Booking",
+    package: "Gold",
+    pricePaid: "£315.00",
+    stripeID: "XHDJDHLS314",
+    bookingDate: "Nov 18 2021, 17:00",
+    partyDate: "Nov 18 2021, 17:00",
+    coach: "Ethan Bond-Vaughan",
+    source: "Abdul Ali",
+    status: "Completed",
+    statusColor: "red",
+  },
+  {
+    type: "One to One Booking",
+    package: "Gold",
+    students: 1,
+    pricePaid: "£3999",
+    stripeID: "XHDJDHLS314",
+    bookingDate: "Nov 18 2021, 17:00",
+    venue: "Chelsea Park",
+    coach: "Ethan Bond-Vaughan",
+    source: "Abdul Ali",
+    status: "Expired",
+    statusColor: "red",
+  },
+  {
+    type: "Holiday Camp",
+    camp: "Easter",
+    students: 2,
+    pricePaid: "£3999",
+    stripeID: "XHDJDHLS314",
+    bookingDate: "Nov 18 2021, 17:00",
+    venue: "Chelsea Park",
+    discount: "15% Early Bird Discount",
+    source: "Abdul Ali",
+    status: "Expired",
+    statusColor: "red",
+  },
+  {
+    type: "Merchandise",
+    item: "Full Set",
+    quantity: 2,
+    pricePaid: "£3999",
+    transactionID: "XHDJDHLS314",
+    bookingDate: "Nov 18 2021, 17:00",
+    discount: 0,
+    fulfillment: "Fulfilled",
+    source: "Online Store",
+    status: "Paid",
+    statusColor: "green",
+  },
 ];
 
 // Helper function for images
-const renderImage = (serviceType) => {
+const renderImage = (type) => {
   const images = {
-    "weekly class membership": "/demo/synco/icons/crown.png",
+    "Weekly Classes Membership": "/demo/synco/icons/crown.png",
     "Birthday Party Booking": "/demo/synco/icons/crown.png",
     "One to One Booking": "/demo/synco/icons/crown.png",
     "Holiday Camp": "/demo/synco/icons/crown.png",
     "Merchandise": "/demo/synco/icons/crown.png",
   };
-  return images[serviceType] || "/demo/synco/icons/default.png";
+  return images[type] || "/demo/synco/icons/default.png";
 };
 
 // Render field helper
@@ -98,22 +97,22 @@ const renderField = (label, value) => {
 
 const BookingCard = ({ booking }) => {
   const statusColors = {
-    active: "bg-green-500 text-white",
-    cancelled: "bg-red-500 text-white",
-    pending: "bg-orange-500 text-white",
+    green: "bg-green-500 text-white",
+    red: "bg-red-500 text-white",
+    orange: "bg-orange-500 text-white",
   };
-  console.log('booking', booking)
+
   return (
     <div className="bg-white rounded-2xl shadow p-3 mb-6">
       {/* Header */}
       <div className="flex justify-between items-center bg-[#3D444F] rounded-2xl p-4">
         <div className="flex items-center gap-3">
           <img
-            src={renderImage(booking.serviceType)}
-            alt={booking.serviceType}
+            src={renderImage(booking.type)}
+            alt={booking.type}
             className="w-8 h-8 rounded-full"
           />
-          <h3 className="text-white capitalize font-semibold">{booking.serviceType}</h3>
+          <h3 className="text-white font-semibold">{booking.type}</h3>
         </div>
         <div className="flex items-center gap-2">
           <button className="px-3 py-2 flex items-center gap-2 rounded-lg text-sm bg-white">
@@ -125,7 +124,7 @@ const BookingCard = ({ booking }) => {
             396
           </button>
           <span
-            className={`px-3 py-2 capitalize rounded-lg text-sm ${statusColors[booking.status]}`}
+            className={`px-3 py-2 rounded-lg text-sm ${statusColors[booking.statusColor]}`}
           >
             {booking.status}
           </span>
@@ -135,22 +134,20 @@ const BookingCard = ({ booking }) => {
       {/* Details */}
       <div className="bg-[#FCF9F6] rounded-2xl p-4 mt-4">
         <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4 mb-4`}>
-          {booking.serviceType === "weekly class membership" && (
+          {booking.type === "Weekly Classes Membership" && (
             <>
-              {renderField("Membership Plan", booking?.paymentPlan?.title)}
-              {renderField("Students", booking?.totalStudents)}
-              {renderField("Venue", booking?.classSchedule?.venue?.name)}
-              {renderField("KGo/Cardless ID", booking?.bookingId)}
-              {renderField("Monthly Price", `£${booking?.paymentPlan?.priceLesson}`)}
-              {renderField("Date Of Booking", booking?.startDate)}
-              {renderField("Progress", '70%')}
-              {renderField(
-                "Booking Source",
-                booking?.bookedByAdmin?.lastName ? booking.bookedByAdmin.lastName : ""
-              )}            </>
+              {renderField("Membership Plan", booking.plan)}
+              {renderField("Students", booking.students)}
+              {renderField("Venue", booking.venue)}
+              {renderField("KGo/Cardless ID", booking.id)}
+              {renderField("Monthly Price", booking.price)}
+              {renderField("Date Of Booking", booking.bookingDate)}
+              {renderField("Progress", booking.progress)}
+              {renderField("Booking Source", booking.source)}
+            </>
           )}
 
-          {booking.serviceType === "Birthday Party Booking" && (
+          {booking.type === "Birthday Party Booking" && (
             <>
               {renderField("Package", booking.package)}
               {renderField("Price Paid", booking.pricePaid)}
@@ -162,7 +159,7 @@ const BookingCard = ({ booking }) => {
             </>
           )}
 
-          {booking.serviceType === "One to One Booking" && (
+          {booking.type === "One to One Booking" && (
             <>
               {renderField("Package", booking.package)}
               {renderField("Students", booking.students)}
@@ -175,7 +172,7 @@ const BookingCard = ({ booking }) => {
             </>
           )}
 
-          {booking.serviceType === "Holiday Camp" && (
+          {booking.type === "Holiday Camp" && (
             <>
               {renderField("Camp", booking.camp)}
               {renderField("Students", booking.students)}
@@ -189,7 +186,7 @@ const BookingCard = ({ booking }) => {
             </>
           )}
 
-          {booking.serviceType === "Merchandise" && (
+          {booking.type === "Merchandise" && (
             <>
               {renderField("Item", booking.item)}
               {renderField("Quantity", booking.quantity)}
@@ -208,7 +205,7 @@ const BookingCard = ({ booking }) => {
           <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
             See details
           </button>
-          {booking.serviceType !== "Merchandise" && (
+          {booking.type !== "Merchandise" && (
             <>
               <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
                 See payments
@@ -230,11 +227,6 @@ const BookingCard = ({ booking }) => {
 };
 
 const ServiceHistory = () => {
-
-    const { data } = useAccountsInfo();
-
-
- 
   const [showModal, setShowModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const filterModalRef = useRef(null);
@@ -260,7 +252,7 @@ const ServiceHistory = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showFilterModal]); const servicesTypes = [
-    { value: "weekly class membership", label: "weekly class membership" },
+    { value: "Weekly Classes Membership", label: "Weekly Classes Membership" },
     { value: "Birthday Party Booking", label: "Birthday Party Booking" },
     { value: "One to One Booking", label: "One to One Booking" },
     { value: "Holiday Camp", label: "Holiday Camp" },
@@ -435,7 +427,7 @@ const ServiceHistory = () => {
       </div>
 
       <div className="p-6  min-h-screen">
-        {[data].map((booking, index) => (
+        {bookings.map((booking, index) => (
           <BookingCard key={index} booking={booking} />
         ))}
 

@@ -1,20 +1,26 @@
 import React, { useState, useCallback, useEffect } from "react";
 import Select from "react-select";
 import { FaEye } from "react-icons/fa";
-const tabs = ["Beginner", "Intermediate", "Advanced", "Pro"];
 import { Trash2, Copy } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Editor } from '@tinymce/tinymce-react';
 import Loader from "../contexts/Loader";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
-export default function Create() {
+export default function OnetoOneUpdate() {
     const navigate = useNavigate();
+
+    const [sessionGroup, setSessionGroup] = useState([]);
+    const [searchParams] = useSearchParams();
+    const id = searchParams.get("id");
+    const groupName = searchParams.get("groupName");
+const tabs = [];
+
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
     const [mounted, setMounted] = useState(false);
-    const [activeTab, setActiveTab] = useState("Beginner");
+    const [activeTab, setActiveTab] = useState(groupName);
     const [showExerciseModal, setShowExerciseModal] = useState(false);
     const [groupData, setGroupData] = useState({
         groupName: "",
@@ -51,6 +57,81 @@ export default function Create() {
         setSavedTabsData(null);
     }
 
+
+    // edit fuctionality  
+
+    const fetchSessionGroup = useCallback(async () => {
+        if (!token) return;
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/listing/${id}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+                // If response is not OK, throw error
+                const errData = await response.json();
+                throw new Error(errData.message || "Failed to fetch session groups");
+            }
+
+            const result = await response.json();
+            console.log('result', result);
+            setSessionGroup(result.data || []);
+        } catch (err) {
+            console.error("Failed to fetch sessionGroup:", err);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: err.message || "Something went wrong while fetching session groups",
+                confirmButtonColor: '#d33',
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, [token, API_BASE_URL]);
+
+useEffect(() => {
+  if (sessionGroup && Object.keys(sessionGroup).length > 0) {
+    const selectedGroupName = searchParams.get("groupName"); // e.g. Beginner, Intermediate
+    const selectedLevelKey = selectedGroupName?.toLowerCase(); // match keys like beginner, intermediate, etc.
+
+    // fallback to first level if not found
+    const levelKey = sessionGroup.levels?.[selectedLevelKey]
+      ? selectedLevelKey
+      : Object.keys(sessionGroup.levels || {})[0];
+
+    const levelData = sessionGroup.levels?.[levelKey]?.[0];
+
+    // 🟢 Transform exercises into value/label pair
+    const formattedExercises = (levelData?.sessionExercises || []).map((ex) => ({
+      value: ex.id,
+      label: `${ex.title?.trim()} - ${ex.duration?.trim()}`,
+    }));
+
+    setGroupData({
+      groupName: sessionGroup.groupName || "",
+      player: sessionGroup.player || "",
+      skill: levelData?.skillOfTheDay || "",
+      description: levelData?.description || "",
+      exercises: formattedExercises, // ✅ formatted array
+      video: sessionGroup[`${levelKey}_video`]
+        ? {
+            url: sessionGroup[`${levelKey}_video`],
+            file: null,
+          }
+        : null,
+      banner: sessionGroup.banner
+        ? { url: sessionGroup.banner, file: null }
+        : null,
+    });
+  }
+}, [sessionGroup, searchParams]);
+
+
+console.log('exercises',groupData.exercises)
+
+
+    // edit fuctionality  end 
 
 
     const emptyExcerCises = () => {
@@ -366,8 +447,12 @@ export default function Create() {
 
 
     useEffect(() => {
-        fetchExercises();
-    }, [])
+        const init = async () => {
+            await fetchExercises();
+            await fetchSessionGroup();
+        };
+        init();
+    }, [fetchSessionGroup, fetchExercises]);
 
     const handleExerciseChange = (e) => {
         const { name, value } = e.target;
@@ -379,22 +464,22 @@ export default function Create() {
         setGroupData((prev) => ({ ...prev, [name]: value }));
     };
 
-const handleFileUpload = (e, type) => {
-  const file = e.target.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    console.log("📂 Uploaded file:", file);
-    console.log("🌐 Preview URL:", url);
-    console.log("🗂 Type:", type);
+    const handleFileUpload = (e, type) => {
+        const file = e.target.files[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            console.log("📂 Uploaded file:", file);
+            console.log("🌐 Preview URL:", url);
+            console.log("🗂 Type:", type);
 
-    setGroupData((prev) => ({ ...prev, [type]: { file, url } }));
+            setGroupData((prev) => ({ ...prev, [type]: { file, url } }));
 
-    // ✅ Reset input value to allow re-uploading same file later
-    e.target.value = "";
-  } else {
-    console.warn("⚠️ No file selected.");
-  }
-};
+            // ✅ Reset input value to allow re-uploading same file later
+            e.target.value = "";
+        } else {
+            console.warn("⚠️ No file selected.");
+        }
+    };
 
 
     const handleExerciseSelect = (selected) => {
@@ -479,7 +564,7 @@ const handleFileUpload = (e, type) => {
         }
     };
 
-
+console.log('SavedTabsData',savedTabsData)
     if (loading) {
         return (
             <>
@@ -547,64 +632,17 @@ const handleFileUpload = (e, type) => {
                             />
                         )}
                         <div className="flex border border-[#E2E1E5] rounded-2xl p-2 mb-6 overflow-auto">
-                            {tabs.map((tab, index) => {
-                                // Determine if the tab should be disabled
-                                const currentIndex = tabs.indexOf(activeTab);
-                                const isDisabled = index > currentIndex && !groupData.skill;
-
-                                return (
+                  
                                     <button
-                                        key={tab}
-                                        disabled={isDisabled}
-                                        className={`flex-1 p-2 px-4 rounded-xl text-[17px] font-semibold transition-all 
-                ${activeTab === tab ? "bg-[#237FEA] text-white" : "text-gray-600 hover:text-[#237FEA]"} 
-                ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                                        onClick={() => {
-                                            if (isDisabled) {
-                                                Swal.fire({
-                                                    icon: "warning",
-                                                    title: "Incomplete Data",
-                                                    text: "Please fill the skill for the current tab before proceeding.",
-                                                    confirmButtonColor: "#237FEA",
-                                                });
-                                                return;
-                                            }
-
-                                            // Save current tab data (excluding banner)
-                                            setSavedTabsData((prev) => ({
-                                                ...prev,
-                                                [activeTab]: {
-                                                    groupName: groupData.groupName,
-                                                    player: groupData.player,
-                                                    skill: groupData.skill,
-                                                    description: groupData.description,
-                                                    exercises: groupData.exercises,
-                                                    video: groupData.video,
-                                                },
-                                            }));
-
-                                            // Move to new tab
-                                            setActiveTab(tab);
-
-                                            // Restore saved data for new tab or initialize defaults
-                                            setGroupData((prev) => {
-                                                const savedData = savedTabsData[tab] || {};
-                                                return {
-                                                    groupName: prev.groupName,
-                                                    player: prev.player || savedData.player,
-                                                    skill: savedData.skill || "",
-                                                    description: savedData.description || "",
-                                                    exercises: savedData.exercises || [],
-                                                    video: savedData.video || null,
-                                                    banner: prev.banner, // always keep the same banner
-                                                };
-                                            });
-                                        }}
+                                        // disabled={isDisabled}
+                                        className={` w-fit p-2 px-4 rounded-xl text-[17px] font-semibold transition-all 
+                ${activeTab === groupName ? "bg-[#237FEA] text-white" : "text-gray-600 hover:text-[#237FEA]"} 
+              `}
+                                    
                                     >
-                                        {tab}
+                                        {groupName}
                                     </button>
-                                );
-                            })}
+                          
 
 
                         </div>

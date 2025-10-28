@@ -21,7 +21,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const { activeTab, setActiveTab } = useMembers();
 
   const storedAdmin = localStorage.getItem("adminInfo");
-
+  // console.log('localStorage',localStorage)
   useEffect(() => {
     // ✅ Load adminInfo from localStorage
     if (storedAdmin) {
@@ -120,6 +120,8 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'weekly-classes/term-dates/create': { title: 'Configuration' },
     'weekly-classes/account-information': { title: 'Account Information' },
     'weekly-classes/cancellation/account-info/': { title: 'Account Information' },
+    'one-to-one': { title: 'One to One ' },
+
 
 
 
@@ -317,12 +319,16 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
               <p className="text-[16px] font-semibold text-black">
                 {latestUnread.description}
               </p>
-          <a
-  onClick={() => navigate('/notification')}
-  className="text-[#237FEA] cursor-pointer text-[16px] font-semibold mt-2 inline-block underline"
->
-  See more
-</a>
+              <a
+                onClick={() => {
+                  navigate('/notification');
+                  setShowNotificationPopup();
+                }}
+                className="text-[#237FEA] cursor-pointer text-[16px] font-semibold mt-2 inline-block underline"
+              >
+                See more
+              </a>
+
 
             </div>
           )}
@@ -367,7 +373,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
                     {profileOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                   </div>
                   <span className="text-sm text-gray-600 font-semibold">
-                    {localStorage.getItem("role") || adminInfo?.role?.role}
+                    {adminInfo?.role?.role}
                   </span>
 
                 </div>

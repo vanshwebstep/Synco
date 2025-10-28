@@ -4,7 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
 const ViewSessions = ({ item, sessionData }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const [activeTab, setActiveTab] = useState('Beginners');
+  const [activeTab, setActiveTab] = useState('Beginner');
   const [myData, setMyData] = useState({});
   const [page, setPage] = useState(1);
     const [recording, setRecording] = useState(null);
@@ -26,7 +26,7 @@ const ViewSessions = ({ item, sessionData }) => {
 
   const selectedGroup = sessionMap;
   const levelKeyToLabel = {
-    beginner: "Beginners",
+    beginner: "Beginner",
     intermediate: "Intermediate",
     advanced: "Advanced",
     pro: "Pro",
@@ -115,7 +115,7 @@ console.log('items',items)
       }
     }, [selectedGroup, activeTab]);
   const ageGroups = {
-    "Beginners": "4–5 Years",
+    "Beginner": "4–5 Years",
     "Intermediate": "6–7 Years",
     "Advanced": "8–9 Years",
     "Pro": "10–12 Years"

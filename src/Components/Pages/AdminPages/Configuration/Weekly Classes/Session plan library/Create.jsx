@@ -54,7 +54,7 @@ const Create = () => {
     // console.log('visibleTabs', visibleTabs)
     // console.log('tabs', tabs)
 
-    console.log('exercises',exercises)
+    console.log('exercises', exercises)
     const [recording, setRecording] = useState(null); // stores Blob
     const [audioURL, setAudioURL] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -437,29 +437,29 @@ const Create = () => {
         }
     }, [level]);
 
-useEffect(() => {
-    const loadData = async () => {
-        if (id) {
-            setIsEditMode(true);
-            // Wait for group data to be fetched first
-            await fetchGroupById();
-        }
-
-        // Then fetch exercises/packages
-        try {
-            const response = await fetchExercises();
-            if (response?.status && Array.isArray(response.data)) {
-                setPlans(response.data);
+    useEffect(() => {
+        const loadData = async () => {
+            if (id) {
+                setIsEditMode(true);
+                // Wait for group data to be fetched first
+                await fetchGroupById();
             }
-        } catch (error) {
-            console.error("Error fetching exercises:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
-    loadData();
-}, [id, fetchExercises]);
+            // Then fetch exercises/packages
+            try {
+                const response = await fetchExercises();
+                if (response?.status && Array.isArray(response.data)) {
+                    setPlans(response.data);
+                }
+            } catch (error) {
+                console.error("Error fetching exercises:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadData();
+    }, [id, fetchExercises]);
 
     // Load selectedGroup and levels initially
 
@@ -633,7 +633,7 @@ useEffect(() => {
     const handleSelectChange = (selected) => {
         setSelectedPlans(selected ? selected.map((item) => item.data) : []);
     };
-  
+
     const handleAddPlan = () => {
         setOpenForm(true);
 
@@ -680,10 +680,26 @@ useEffect(() => {
         updated.splice(index, 1);
         setSelectedPlans(updated);
     };
+    function cleanDescriptionHtml(html) {
+        if (!html) return "";
+
+        return html
+            // remove empty paragraphs like <p>&nbsp;</p>
+            .replace(/<p>(&nbsp;|\s|&nbsp;\s)*<\/p>/gi, "")
+            // replace non-breaking spaces with regular spaces
+            .replace(/&nbsp;/g, " ")
+            // trim spaces inside list items
+            .replace(/<li[^>]*>\s*(.*?)\s*<\/li>/gi, "<li>$1</li>")
+            // ensure ul stays ul and ol stays ol — don't change them
+            // (this line just to be safe if malformed nesting happens)
+            .replace(/<\/(ul|ol)><\/p>/gi, "</$1>")
+            .trim();
+    }
+
     const handleSavePlan = async () => {
         const { title, duration, description, images } = formData;
 
-        console.log('formData---(35)',formData)
+        console.log('formData---(35)', formData)
 
         const showAlert = ({ type = "info", message = "", title = "" }) => {
             Swal.fire({
@@ -700,7 +716,7 @@ useEffect(() => {
             showAlert({ type: "warning", message: "Title is required", title: "Missing Field" });
             return;
         }
-          if (!images) {
+        if (!images) {
             showAlert({ type: "warning", message: "Image is required", title: "Missing Field" });
             return;
         }
@@ -771,7 +787,7 @@ useEffect(() => {
                 setSelectedPlans(updatedPlans);
 
                 if (isEditMode) fetchGroupById();
-              
+
 
                 showAlert({ type: "success", message: "Exercise updated successfully!", title: "Updated" });
                 setEditIndex(null);
@@ -781,11 +797,11 @@ useEffect(() => {
             else {
                 const data = new FormData();
 
-                console.log('formDataaaaaaaaa',formData)
+                console.log('formDataaaaaaaaa', formData)
                 data.append("title", formData.title);
                 data.append("duration", formData.duration);
-                data.append("description", formData.description);
-
+                const cleanedDescription = cleanDescriptionHtml(formData.description);
+                data.append("description", cleanedDescription);
                 // append all image files
                 (formData.images || []).forEach((file) => {
                     if (file instanceof File) data.append("images", file);
@@ -818,7 +834,7 @@ useEffect(() => {
             });
         } finally {
             setPlanLoading(false);
-              fetchExercises()
+            fetchExercises()
         }
     };
 
@@ -1427,41 +1443,62 @@ useEffect(() => {
                                                 }
                                                 init={{
                                                     menubar: false,
-                                                    plugins: 'lists advlist code',
+                                                    plugins: "lists advlist code",
                                                     toolbar:
-                                                        'fontsizeselect capitalize bold italic underline alignleft aligncenter bullist  ',
+                                                        "fontsizeselect capitalize bold italic underline alignleft aligncenter bullist numlist",
                                                     height: 200,
                                                     branding: false,
                                                     content_style: `
-                                                            body {
-                                                                background-color: #f3f4f6;
-                                                                font-family: inherit;
-                                                                font-size: 1rem;
-                                                                padding: 12px;
-                                                                color: #111827;
-                                                            }
-                                                            `,
+      body {
+        background-color: #f3f4f6;
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 12px;
+        color: #111827;
+      }
+    `,
                                                     setup: (editor) => {
+                                                        // 🔹 Add custom capitalize icon
                                                         editor.ui.registry.addIcon(
-                                                            'capitalize-icon',
+                                                            "capitalize-icon",
                                                             '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
                                                         );
 
-                                                        editor.ui.registry.addButton('capitalize', {
-                                                            icon: 'capitalize-icon',
-                                                            tooltip: 'Capitalize Text',
+                                                        // 🔹 Add custom capitalize button
+                                                        editor.ui.registry.addButton("capitalize", {
+                                                            icon: "capitalize-icon",
+                                                            tooltip: "Capitalize Text",
                                                             onAction: () => {
-                                                                editor.formatter.register('capitalize', {
-                                                                    inline: 'span',
-                                                                    styles: { textTransform: 'capitalize' },
+                                                                editor.formatter.register("capitalize", {
+                                                                    inline: "span",
+                                                                    styles: { textTransform: "capitalize" },
                                                                 });
-
-                                                                editor.formatter.toggle('capitalize');
+                                                                editor.formatter.toggle("capitalize");
                                                             },
+                                                        });
+
+                                                        // 🔹 Swap list commands
+                                                        editor.on("init", () => {
+                                                            // Save original execCommand reference
+                                                            const originalExecCommand = editor.execCommand;
+
+                                                            // Override execCommand
+                                                            editor.execCommand = function (command, ui, value) {
+                                                                if (command === "InsertUnorderedList") {
+                                                                    // bullet → use <ol>
+                                                                    return originalExecCommand.call(editor, "InsertOrderedList", ui, value);
+                                                                }
+                                                                if (command === "InsertOrderedList") {
+                                                                    // number → use <ul>
+                                                                    return originalExecCommand.call(editor, "InsertUnorderedList", ui, value);
+                                                                }
+                                                                return originalExecCommand.call(editor, command, ui, value);
+                                                            };
                                                         });
                                                     },
                                                 }}
                                             />
+
 
 
                                         </div>

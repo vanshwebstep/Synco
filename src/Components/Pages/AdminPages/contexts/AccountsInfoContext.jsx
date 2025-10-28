@@ -95,49 +95,49 @@ export const AccountsInfoProvider = ({ children }) => {
     }
   };
 
-const fetchMembers = useCallback(async (id) => {
-  const token = localStorage.getItem("adminToken");
-  if (!token) return;
+  const fetchMembers = useCallback(async (id) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
 
-  setLoading(true);
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/admin/account-information/${id}`, {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/account-information/${id}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    const resultRaw = await response.json();
+      const resultRaw = await response.json();
 
-    // Check API response status
-    if (!resultRaw.status) {
+      // Check API response status
+      if (!resultRaw.status) {
+        Swal.fire({
+          icon: "error",
+          title: "Fetch Failed",
+          text: resultRaw.message || "Something went wrong while fetching account information.",
+          confirmButtonText: "Ok",
+        });
+        return; // Stop further execution
+      }
+
+      const result = resultRaw.data || [];
+
+      setData(result.accountInformation || []);
+      setStudents(result.accountInformation.students || []);
+      setFormData(result.accountInformation.parents || []);
+      setEmergency(result.accountInformation.emergency[0] || []);
+    } catch (error) {
+      console.error("Failed to fetch members:", error);
+
       Swal.fire({
         icon: "error",
         title: "Fetch Failed",
-        text: resultRaw.message || "Something went wrong while fetching account information.",
+        text: error.message || "Something went wrong while fetching account information.",
         confirmButtonText: "Ok",
       });
-      return; // Stop further execution
+    } finally {
+      setLoading(false);
     }
-
-    const result = resultRaw.data || [];
-
-    setData(result.accountInformation || []);
-    setStudents(result.accountInformation.students || []);
-    setFormData(result.accountInformation.parents || []);
-    setEmergency(result.accountInformation.emergency[0] || []);
-  } catch (error) {
-    console.error("Failed to fetch members:", error);
-
-    Swal.fire({
-      icon: "error",
-      title: "Fetch Failed",
-      text: error.message || "Something went wrong while fetching account information.",
-      confirmButtonText: "Ok",
-    });
-  } finally {
-    setLoading(false);
-  }
-}, [API_BASE_URL]);
+  }, [API_BASE_URL]);
 
   return (
     <AccountsInfoContext.Provider value={{ data, fetchMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>

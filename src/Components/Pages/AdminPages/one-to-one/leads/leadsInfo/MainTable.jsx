@@ -58,20 +58,23 @@ const MainTable = () => {
         fetchMembers();
     }, [fetchMembers]);
 
-    const safe = (val) => {
-        if (
-            val === null ||
-            val === undefined ||
-            val === '' ||
-            val === 'null' ||
-            val === 'undefined'
-        ) {
-            return '';
-        }
-        // Convert to string, replace underscores with spaces, and trim
-        const formatted = String(val).replace(/_/g, ' ').trim();
-        return formatted;
-    };
+  const safe = (val) => {
+  if (
+    val === null ||
+    val === undefined ||
+    val === '' ||
+    val === 'null' ||
+    val === 'undefined'
+  ) {
+    return '';
+  }
+
+  // Convert to string, replace underscores with spaces, and trim
+  const formatted = String(val).replace(/_/g, ' ').trim();
+
+  return formatted;
+};
+
 
     if (loading) return <Loader />;
 

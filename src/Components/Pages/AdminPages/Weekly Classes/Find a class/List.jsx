@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
-import { Check } from "lucide-react";
+import { Check, ListRestartIcon } from "lucide-react";
 import Loader from '../../contexts/Loader';
 import { FiSearch, FiFilter } from "react-icons/fi";
 import { Switch } from "@headlessui/react";
@@ -295,24 +295,34 @@ const List = () => {
         selectedVenues.includes(venue.venueName);
 
       // Normalize class list into an array regardless of whether venue.classes is {} or { Saturday: [...], ... }
-      const classList = venue.classes && typeof venue.classes === "object"
-        ? Object.values(venue.classes).flat()
-        : [];
+      const classList =
+        venue.classes && typeof venue.classes === "object"
+          ? Object.values(venue.classes).flat()
+          : [];
 
+      // Case-insensitive day match
       const dayMatch =
         selectedDays.length === 0 ||
-        selectedDays.some((selectedDay) =>
-          (venue.classes?.[selectedDay] || []).length > 0
-        );
+        selectedDays.some((selectedDay) => {
+          const lowerDay = selectedDay.toLowerCase();
+          // Find a matching key ignoring case
+          const matchedKey = Object.keys(venue.classes || {}).find(
+            (key) => key.toLowerCase() === lowerDay
+          );
+          return matchedKey && (venue.classes[matchedKey] || []).length > 0;
+        });
 
       const availableMatch =
         !showAvailableOnly ||
         classList.some((cls) => cls.capacity > 0);
 
-      // console.log(`🧪 Venue: ${venue.venueName}`);
-      // console.log({ nameMatch, postcodeMatch, venueMatch, dayMatch, availableMatch });
-
-      return nameMatch && postcodeMatch && venueMatch && dayMatch && availableMatch;
+      return (
+        nameMatch &&
+        postcodeMatch &&
+        venueMatch &&
+        dayMatch &&
+        availableMatch
+      );
     })
     : [];
 
@@ -549,7 +559,7 @@ const List = () => {
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center gap-2 px-4 py-2 bg-[#0098d9] text-white rounded-xl mb-4"
           >
-           
+
             {isOpen ? "Hide" : "Show"}
           </button>
 
@@ -560,8 +570,25 @@ const List = () => {
                 exit={{ opacity: 0 }}>
                 {/* Search */}
                 <div className="space-y-3">
-                  <h2 className="text-[24px] font-semibold">Search by filter</h2>
+                  <div className='flex justify-between '>
+                    <h2 className="text-[24px] font-semibold">Search by filter</h2>
 
+<div className="relative group inline-block">
+<ListRestartIcon
+  className="cursor-pointer"
+  onClick={() => {
+    setSelectedVenues([]);
+    setSelectedDays([]);
+    setSearchVenue('')
+    setSearchPostcode('')
+    setShowAvailableOnly(false);
+  }}
+/>
+  <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-white border  border-gray-200 text-gray-700 text-xs rounded py-1 px-2 whitespace-nowrap transition-opacity duration-200">
+    Reset Filters
+  </span>
+</div>
+                  </div>
                   <div className="relative">
                     <input
                       type="text"
@@ -686,7 +713,7 @@ const List = () => {
 
                             </div>
                           </div>
-                         <div ref={iconContainerRef} className=" md:mt-0 mt-5 flex relative items-center gap-4">
+                          <div ref={iconContainerRef} className=" md:mt-0 mt-5 flex relative items-center gap-4">
                             <img
                               src="/demo/synco/icons/fcDollar.png"
                               onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentGroups[0]?.paymentPlans)} alt=""
@@ -795,7 +822,7 @@ const List = () => {
                                         {s.capacity === 0 && canAddToWaitingList ? (
                                           <button
                                             onClick={() => handleAddToWaitingList(s.classId)}
-                                            className="bg-[#237FEA] text-white border border-[#237FEA] px-3 py-1 rounded-xl text-sm font-medium"
+                                            className=" z-[999] bg-[#237FEA] text-white border border-[#237FEA] px-3 py-1 rounded-xl text-sm font-medium"
                                           >
                                             Add to Waiting List
                                           </button>
@@ -804,7 +831,7 @@ const List = () => {
                                             {s.allowFreeTrial && canBookFreeTrial && (
                                               <button
                                                 onClick={() => handleBookFreeTrial(s.classId)}
-                                                className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium"
+                                                className="z-[999] font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium"
                                               >
                                                 Book a FREE Trial
                                               </button>
@@ -812,7 +839,7 @@ const List = () => {
                                             {canBookMembership && (
                                               <button
                                                 onClick={() => handleBookMembership(s.classId)}
-                                                className="font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium"
+                                                className="z-[999] font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium"
                                               >
                                                 Book a Membership
                                               </button>

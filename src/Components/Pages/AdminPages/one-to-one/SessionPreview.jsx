@@ -5,7 +5,9 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 const SessionPreview = () => {
     // === Right Side Content Array ===
-    const [activeTab, setActiveTab] = useState("Beginners");
+    const [activeTab, setActiveTab] = useState("Beginner");
+    const [selectedExercise, setSelectedExercise] = useState(null);
+    // Select video URL based on tab
 
     const [sessionGroup, setSessionGroup] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -48,64 +50,49 @@ const SessionPreview = () => {
     useEffect(() => {
         fetchSessionGroup();
     }, [fetchSessionGroup])
-    const sessionDetails = [
-        {
-            title: "Organisation",
-            content: `
-        <p>Set up two small-sided games. You will need the following:</p>
-        <ul class="list-disc ml-5 mt-1 space-y-1">
-          <li>Approx 8–10 grids</li>
-          <li>Bibs to clearly divide teams</li>
-          <li>Sticks or cones to divide the two pitches</li>
-          <li>5 footballs</li>
-        </ul>
-      `,
-        },
-        {
-            title: "Description",
-            content: `
-        <p>Begin the lesson with two small-sided games. Organise players based on ability into fair teams.</p>
-        <p>If you do not have many students, use one pitch only. Keep an eye on both games unless you have a support coach working with you.</p>
-      `,
-        },
-        {
-            title: "Rules",
-            content: `
-        <ul class="list-disc ml-5 space-y-1">
-          <li>In the wide sidelines.</li>
-          <li>If the ball goes out of play, students should all freeze and wait for a new ball.</li>
-          <li>Include how to restart nearby quickly.</li>
-        </ul>
-      `,
-        },
-        {
-            title: "Conditions",
-            content: `
-        <p>You can add a condition before asking students to restart (such as clapping the ball once or playing one-touch passes). Keep students active by rotating their conditions each week.</p>
-      `,
-        },
-        {
-            title: "How to maintain tone & intensity",
-            content: `
-        <ul class="list-disc ml-5 space-y-1">
-          <li>Approx 8–10 grids</li>
-          <li>Bibs to clearly divide teams</li>
-          <li>5 footballs</li>
-        </ul>
-      `,
-        },
-    ];
 
+    const group = sessionGroup || {};
+    const levels = group?.levels || {};
+    const levelMap = {
+        Beginner: "Beginner",
+        Intermediate: "intermediate",
+        Advanced: "advanced",
+        Pro: "pro",
+    };
+
+    const currentLevelKey = levelMap[activeTab];
+    const currentLevel = levels[currentLevelKey]?.[0]; // each is an array with 1 object
+
+    // Select video URL based on tab
+    const videoMap = {
+        Beginner: group?.beginner_video,
+        Intermediate: group?.intermediate_video,
+        Advanced: group?.advanced_video,
+        Pro: group?.pro_video,
+    };
+
+    const videoUrl = videoMap[activeTab];
+    const sessionPlan = currentLevel?.sessionExercises || [];
+
+
+    // console.log('sessionGroup', sessionGroup)
     // === Left Side Session Plan ===
-    const sessionPlan = [
-        "Small-sided games",
-        "Introduction (Head coach)",
-        "Warm up activity",
-        "Technical exercise",
-        "Lesson debrief",
-    ];
-    const videoUrl = 'https://cdn.pixabay.com/video/2017/04/10/10392-212474043_large.mp4';
+    // const sessionPlan = [
+    //     "Small-sided games",
+    //     "Introduction (Head coach)",
+    //     "Warm up activity",
+    //     "Technical sessionGroup",
+    //     "Lesson debrief",
+    // ];
+    // const videoUrl = 'https://cdn.pixabay.com/video/2017/04/10/10392-212474043_large.mp4';
+    useEffect(() => {
+        if (currentLevel?.sessionExercises.length > 0) {
+            setSelectedExercise(currentLevel?.sessionExercises[0]);
+        }
+    }, [currentLevel?.sessionExercises]);
+   
 
+    console.log('SelectedExercise', selectedExercise)
     return (
         <div className="min-h-screen  lg:p-8">
             <div className="flex gap-2 items-center cursor-pointer" onClick={() => navigate('/one-to-one')}>
@@ -122,7 +109,7 @@ const SessionPreview = () => {
                 <div className="flex items-center justify-between  mb-0 w-full">
 
                     <div className="flex border bg-white  border-[#E2E1E5] rounded-2xl p-2 mb-6 w-max overflow-auto">
-                        {["Beginners", "Intermediate", "Advanced", "Pro"].map((tab) => (
+                        {["Beginner", "Intermediate", "Advanced", "Pro"].map((tab) => (
                             <button
                                 key={tab}
                                 className={`flex-1 p-2 px-8 rounded-xl text-[17px] font-semibold transition-all ${activeTab === tab
@@ -143,26 +130,32 @@ const SessionPreview = () => {
                 <div className="grid md:grid-cols-2 gap-10 border-t border-[#E2E1E5] pt-4">
                     {/* Left Side */}
                     <div className="flex flex-col">
-                        <img src="/demo/synco/images/playLikePele.png" alt="" />
+                        <img src={`${sessionGroup?.banner}`} className="rounded-xl w-full object-cover max-h-[130px]  mb-2"
+                            alt="" />
 
                         <div className="mt-4 border-b border-[#E2E1E5] pb-4">
                             <h3 className="text-[24px] font-semibold text-gray-800">
                                 Skill of the day
                             </h3>
-                            <h5 className="flex gap-2 font-semibold items-center text-[18px]">The Pingium <HiOutlineSpeakerWave className="text-blue-600 font-bold" /></h5>
+                            <h5 className="flex gap-2 font-semibold items-center text-[18px]">
+                                {currentLevel?.skillOfTheDay}
+                                <HiOutlineSpeakerWave className="text-blue-600 font-bold" />
+                            </h5>
                             <p className="text-[16px] text-[#717073] font-semibold mt-1">
-                                In today's lesson, students will learn to perform the Penguin.
+                                {currentLevel?.description}
                             </p>
 
                         </div>
                         <div>
 
-                            {videoUrl && (
-                                <video
-                                    src={videoUrl}
-                                    controls
-                                    className="w-full  pt-3 h-[300px] rounded-4xl"
-                                />
+                            {videoUrl && videoUrl.trim() !== "" && (
+                                <div className="mt-4">
+                                    <video
+                                        src={videoUrl}
+                                        controls
+                                        className="w-full pt-3 h-[300px] rounded-2xl"
+                                    />
+                                </div>
                             )}
                         </div>
 
@@ -172,18 +165,30 @@ const SessionPreview = () => {
                             </h4>
                             <span className="text-sm flex gap-2 items-center mb-3 text-[#676774]"><MdOutlineWatchLater /> 4 Hours</span>
                             <div className="space-y-4">
-                                {sessionPlan.map((item, index) => (
-                                    <div key={index} className="flex gap-5">
-                                        <div className="img">
-                                            <img src="/demo/synco/images/cardimgSmall.png" alt="" />
+                                {sessionPlan.map((exercise, index) => (
+                                    <div key={index} onClick={() => setSelectedExercise(exercise)} className="flex gap-5">
+                                        <div className="img w-[80px] h-[80px] flex-shrink-0">
+                                            <img
+                                                src={
+                                                    JSON.parse(exercise.imageUrl || "[]")[0] ||
+                                                    "/demo/synco/images/cardimgSmall.png"
+                                                }
+                                                alt=""
+                                                className="w-full h-full object-cover rounded-xl"
+                                            />
                                         </div>
                                         <div>
-                                            <h5 className="font-semibold text-gray-800">{item}</h5>
-                                            <p className="text-sm text-[#676774] font-semibold">
-                                                This skills tutorial will help you understand how to
-                                                perform the Penguin.
+                                            <h5 className="font-semibold text-gray-800">
+                                                {exercise.title}
+                                            </h5>
+                                            <p className="text-sm text-[#676774] font-semibold line-clamp-3">
+                                                {exercise.description
+                                                    ?.replace(/<[^>]+>/g, "")
+                                                    .slice(0, 150) + "..."}
                                             </p>
-                                            <span className="mt-2 block text-sm text-[#676774] font-semibold">10 Mins</span>
+                                            <span className="mt-2 block text-sm text-[#676774] font-semibold">
+                                                {exercise.duration}
+                                            </span>
                                         </div>
                                     </div>
                                 ))}
@@ -193,27 +198,48 @@ const SessionPreview = () => {
 
                     {/* Right Side */}
                     <div>
-                        <h3 className="text-2xl font-semibold text-gray-800 mb-3">
-                            Small-sided games
+                        <h3 className="text-2xl  text-left font-semibold text-gray-800 mb-3">
+                            {selectedExercise?.title}
                         </h3>
-                        <img src="/demo/synco/images/cardimgSmall.png" alt="" className="w-[300px]" />
+                        {selectedExercise?.imageUrl ? (
+                            JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
+                                <img
+                                    key={index}
+                                    className="rounded-3xl w-full max-h-[114px] object-cover mr-2 mb-2"
+                                    src={`${imgUrl}`}
+                                    alt={`${selectedExercise.title} ${index + 1}`}
+                                />
+                            ))
+                        ) : (
+                            <p>No images available</p>
+                        )}
                         <p className="text-sm text-blue-600 font-medium my-4">
-                            Time Duration: 10 mins
+                            Time Duration: {selectedExercise?.duration}
                         </p>
 
                         {/* Render from Array */}
-                        <div className="space-y-6 text-gray-700">
-                            {sessionDetails.map((section, idx) => (
-                                <div key={idx}>
-                                    <h4 className="font-semibold text-gray-800 mb-1">
-                                        {section.title}
-                                    </h4>
+                        <div className="space-y-6 text-left text-gray-700">
+                          
+                                <div >
+                                    {/* <h4 className="font-semibold text-gray-800 mb-1">
+                                        {selectedExercise?.title}
+                                    </h4> */}
+                                           <div>
                                     <div
-                                        className="text-sm leading-relaxed"
-                                        dangerouslySetInnerHTML={{ __html: section.content }}
+                                        className="prose prose-sm space-y-6 max-w-none text-gray-700
+    prose-p:mb-3 prose-li:mb-2
+    prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
+    prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5
+    marker:text-gray-700"
+                                        dangerouslySetInnerHTML={{
+                                            __html:
+                                                selectedExercise?.description ||
+                                                "<p class='text-gray-400 italic'>No description available.</p>",
+                                        }}
                                     />
                                 </div>
-                            ))}
+                                </div>
+                       
                         </div>
                     </div>
                 </div>

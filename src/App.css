@@ -388,9 +388,12 @@ span.tox-tbtn.tox-split-button__chevron {
 }
 
 .prose ol li {
-  list-style: disc;
+  list-style: decimal;
 }
 
+.prose ul li {
+  list-style: disc;
+}
 /*  */
 @media (min-width: 1200px) and (max-width: 1550px) {
   .md\:text-\[38px\] {
@@ -538,6 +541,9 @@ button.cursor-not-allowed{
 
 .preview-sec ul li{
   list-style: disc;
+}
+.preview-sec ol li{
+  list-style: decimal;
 }
 .react-tel-input {
     max-width: 60px;

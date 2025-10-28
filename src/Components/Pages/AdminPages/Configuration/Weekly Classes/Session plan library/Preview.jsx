@@ -5,7 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import Loader from '../../../contexts/Loader';
 
 const levelKeyToLabel = {
-  beginner: "Beginners",
+  beginner: "Beginner",
   intermediate: "Intermediate",
   advanced: "Advanced",
   pro: "Pro",
@@ -18,7 +18,7 @@ const Preview = ({ item, sessionData }) => {
   const [videoDuration, setVideoDuration] = useState(null);
   const [currentRecording, setCurrentRecording] = useState(null); // url of playing recording
   const audioRef = useRef(null);
-  const [activeTab, setActiveTab] = useState('Beginners');
+  const [activeTab, setActiveTab] = useState('Beginner');
   const [myData, setMyData] = useState({});
   const [page, setPage] = useState(1);
   const [searchParams] = useSearchParams();

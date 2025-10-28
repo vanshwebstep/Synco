@@ -55,7 +55,7 @@ function findActiveItemAndParents(items, currentPath, parents = []) {
 const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const [openDropdowns, setOpenDropdowns] = useState({});
   const [hoveredItem, setHoveredItem] = useState(null);
-      const location = useLocation();
+  const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const sidebarRef = useRef();
   const { checkPermission } = usePermission();
@@ -76,8 +76,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const [activeItem, setActiveItem] = useState(null);
   // Helper to check if this item or any of its subItems matches the current path
   useEffect(() => {
-  setActiveTab(location.pathname);
-}, [location.pathname]);  
+    setActiveTab(location.pathname);
+  }, [location.pathname]);
   const isItemActive = (item) => {
     console.log('item11', item)
     if (item.link && activeTab === item.link) return true; // submenu or direct link
@@ -86,7 +86,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     }
     return false;
   };
-  
+
   // Existing menuItemsRaw logic remains unchanged
   const menuItemsRaw = [
     {
@@ -102,12 +102,12 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
       iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
       needPermissions: [
-          { module: 'book-membership', action: 'view-listing' },
-          { module: 'book-free-trial', action: 'view-listing' },
-          { module: 'find-class', action: 'view-listing' },
-          { module: 'cancellation', action: 'view-listing' },
-          { module: 'waiting-list', action: 'view-listing' },
-          { module: 'account-information', action: 'view-listing' }
+        { module: 'book-membership', action: 'view-listing' },
+        { module: 'book-free-trial', action: 'view-listing' },
+        { module: 'find-class', action: 'view-listing' },
+        { module: 'cancellation', action: 'view-listing' },
+        { module: 'waiting-list', action: 'view-listing' },
+        { module: 'account-information', action: 'view-listing' }
       ],
       subItems: [
         { title: 'Find a class', link: '/weekly-classes/find-a-class', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
@@ -133,7 +133,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { title: 'Discounts', link: '/holiday-camps/discounts/list', needPermissions: [{ module: 'discount', action: 'view-listing' }, { module: 'discount', action: 'create' }] }
       ]
     },
-   
+
     ...(MyRole === 'Super Admin'
       ? [
         {
@@ -159,7 +159,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { module: 'key-information', action: 'create' }
       ]
     },
-     {
+    {
       title: 'Administration',
       path: '/members',
       icon: '/demo/synco/SidebarLogos/Admistration.png',
@@ -240,32 +240,34 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { module: 'session-exercise-one-to-one', action: 'view-listing' },
 
       ],
-      // subItems: [
-      //   {
-      //     title: "Leads Database",
-      //     link: "#",
-      //     needPermissions: [
-      //       { module: "venue", action: "view-listing" },
-      //       { module: "term-group", action: "view-listing" },
-      //       { module: "session-plan-group", action: "view-listing" },
-      //       { module: "payment-group", action: "view-listing" },
-      //     ],
+      subItems: [
+        {
+          title: "Leads Database",
+          link: '/one-to-one/central-leads',
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
 
 
-      //   },
-      //   {
-      //     title: "Sales",
-      //     link: "#",
-      //     needPermissions: [
-      //       { module: "venue", action: "view-listing" },
-      //       { module: "term-group", action: "view-listing" },
-      //       { module: "session-plan-group", action: "view-listing" },
-      //       { module: "payment-group", action: "view-listing" },
-      //     ],
+        },
+        {
+          title: "Sales",
+          link: '/one-to-one',
 
 
-      //   },
-      // ],
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+
+        },
+      ],
     },
   ];
 
@@ -583,7 +585,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       {/* Desktop- Sidebar */}
       <aside
         className={`hidden lg:flex flex-col bg-white border-r border-gray-100 shadow-lg transition-all duration-300
-          ${isSidebarCollapsed ? 'w-20' : 'w-72'}
+          ${isSidebarCollapsed ? 'w-20 opacity-0' : 'w-72'}
         `}
       >
         <div className="p-6 font-semibold text-2xl text-center flex items-center gap-0.5 justify-center">

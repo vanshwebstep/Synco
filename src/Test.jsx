@@ -70,7 +70,7 @@ const Test = () => {
         <div className="w-full flex items-center justify-between space-x-2">
           <div className="flex space-x-3 items-center">
             <div className="font-bold text-[16px] text-black whitespace-nowrap">Class 1</div>
-            <div className="font-semibold text-[16px] min-w-25 max-w-25">Yoga Beginners</div>
+            <div className="font-semibold text-[16px] min-w-25 max-w-25">Yoga Beginner</div>
             <div className="font-semibold text-[16px] whitespace-nowrap flex gap-2 items-center min-w-40">
               <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />
               7:00 AM - 8:00 AM

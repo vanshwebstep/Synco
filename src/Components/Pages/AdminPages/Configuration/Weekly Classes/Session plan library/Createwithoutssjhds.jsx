@@ -13,8 +13,8 @@ const Create = () => {
     const videoInputRef = useRef(null);
     const bannerInputRef = useRef(null);
     const tabRef = useRef(null);
-    const tabs = ['Beginners', 'Intermediate', 'Advanced', 'Pro'];
-    const [activeTab, setActiveTab] = useState('Beginners');
+    const tabs = ['Beginner', 'Intermediate', 'Advanced', 'Pro'];
+    const [activeTab, setActiveTab] = useState('Beginner');
     const fileInputRef = useRef(null);
     const [page, setPage] = useState(1);
     const [groupName, setGroupName] = useState('');

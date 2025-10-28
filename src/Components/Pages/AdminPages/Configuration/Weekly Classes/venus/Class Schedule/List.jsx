@@ -140,13 +140,13 @@ console.log('allDays',allDays)
 const uniqueDays = [...new Set(allDays.map(item => item))];
 
 const dayOrder = [
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-  "sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
 ];
 
 const days = uniqueDays.sort(

@@ -49,6 +49,7 @@ import AccountInformation from './Components/Pages/AdminPages/Weekly Classes/Fin
 import PermissionRole from './Components/Pages/AdminPages/Permissions/list.jsx';
 // import { AccountInformationMembership } from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/Account Information Book Membership/List.jsx';
 
+
 // Import all context providers
 import { MemberProvider } from './Components/Pages/AdminPages/contexts/MemberContext.jsx';
 import { PaymentPlanContextProvider } from './Components/Pages/AdminPages/contexts/PaymentPlanContext.jsx';
@@ -80,6 +81,8 @@ import MainTable from './Components/Pages/AdminPages/Weekly Classes/account-info
 import { AccountsInfoProvider } from './Components/Pages/AdminPages/contexts/AccountsInfoContext.jsx';
 import SessionPlan from './Components/Pages/AdminPages/one-to-one/SessionPlan.jsx';
 import Create from './Components/Pages/AdminPages/one-to-one/Create.jsx';
+import OnetoOneUpdate from './Components/Pages/AdminPages/one-to-one/Update.jsx';
+
 import SessionPreview from './Components/Pages/AdminPages/one-to-one/SessionPreview.jsx';
 import LeadsDashboard from './Components/Pages/AdminPages/one-to-one/LeadsDashboard.jsx';
 import SalesDashboard from './Components/Pages/AdminPages/one-to-one/SalesDashboard.jsx';
@@ -87,7 +90,9 @@ import BookingForm from './Components/Pages/AdminPages/one-to-one/BookingForm.js
 import Leads from './Components/Pages/AdminPages/one-to-one/Leads.jsx';
 import AccountMain from './Components/Pages/AdminPages/one-to-one/AccountMain.jsx';
 import SeeDetailsAccount from './Components/Pages/AdminPages/one-to-one/SeeDetailsAccount.jsx';
-
+import CreateLead from './Components/Pages/AdminPages/one-to-one/leads/CreateLead.jsx';
+import Lead from './Components/Pages/AdminPages/one-to-one/leads/Lead.jsx';
+import { LeadsContextProvider } from './Components/Pages/AdminPages/contexts/LeadsContext.jsx';
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
 // Role-based route component
@@ -365,6 +370,15 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
+        <Route path="/one-to-one/session-plan-update" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <OnetoOneUpdate />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
       <Route path="/one-to-one/session-plan-preview" element={
         <ProtectedRoute>
           <AdminLayout>
@@ -402,7 +416,24 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-      
+        <Route path="/one-to-one/central-leads" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <Lead />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/one-to-one/central-leads/create" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <CreateLead />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
       <Route path="*" element={<Navigate to="/" />} />
 
     </Routes>
@@ -417,6 +448,7 @@ function App() {
 
       <NotificationProvider>
         <AccountsInfoProvider>
+          <LeadsContextProvider>
 
 
           <VenueProvider>
@@ -442,6 +474,7 @@ function App() {
               </PaymentPlanContextProvider>
             </MemberProvider>
           </VenueProvider>
+          </LeadsContextProvider>
         </AccountsInfoProvider>
       </NotificationProvider>
     </Router >

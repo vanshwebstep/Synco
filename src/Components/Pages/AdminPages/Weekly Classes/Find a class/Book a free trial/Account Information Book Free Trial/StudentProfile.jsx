@@ -741,7 +741,7 @@ const StudentProfile = ({ StudentProfile }) => {
                                 </div>
 
 
-                                 {status?.trim().toLowerCase() !== "pending" &&
+                                 {status?.trim().toLowerCase() == "pending" &&
                                     status?.trim().toLowerCase() !== "attended" &&
                                     status?.trim().toLowerCase() !== "no_membership" &&
                                     status?.trim().toLowerCase() !== "rebooked" &&

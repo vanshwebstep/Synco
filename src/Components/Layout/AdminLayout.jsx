@@ -46,6 +46,7 @@ const routeTitleMap = {
   '/weekly-classes/members-info': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
   '/weekly-classes/cancellation/account-info/': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
   '/weekly-classes/add-to-waiting-list': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
+    '/one-to-one': { title: 'One to One ',icon: '/demo/synco/members/Profile.png'  },
 
 
 

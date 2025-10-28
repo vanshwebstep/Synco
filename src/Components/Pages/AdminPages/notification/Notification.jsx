@@ -24,7 +24,7 @@ export default function Notification() {
     <>
       <div className="md:flex justify-between items-center mb-4">
         <h1 className="text-[28px] font-semibold py-2">Notification</h1>
-        <div className="flex gap-4 items-center">
+        <div className="flex gap-4 items-center pr-2">
           {hasPermission && (
             <button
               className="text-[#717073] underline cursor-pointer transition-transform duration-300 hover:scale-105  "

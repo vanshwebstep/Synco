@@ -65,28 +65,27 @@ const SessionPlan = () => {
                     {
                         sessionGroup.map((group, index) => {
                             const levelInfo = {
-                                beginner: { title: "Beginners", age: "4–5 Years" },
-                                beginners: { title: "Beginners", age: "4–5 Years" },
+                                beginner: { title: "Beginner", age: "4–5 Years" },
                                 intermediate: { title: "Intermediate", age: "6–7 Years" },
                                 advanced: { title: "Advanced", age: "8–9 Years" },
                                 pro: { title: "Pro", age: "10–12 Years" },
                             };
 
                             // Get only the levels that exist in group.levels
-                            const groupsToShow = Object.keys(group.group.levels).map((key) => ({
+                            const groupsToShow = Object.keys(group.levels).map((key) => ({
                                 key,
                                 ...levelInfo[key], // title + age
-                                data: group.group.levels[key], // exercises or whatever is inside levels
+                                data: group.levels[key], // exercises or whatever is inside levels
                             }));
                             return (
                                 <div key={index} className="bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl w-full  h-auto">
                                     {/* Header */}
                                     <div className="flex items-center justify-between p-5">
-                                        <h2 className="text-[24px] font-semibold text-[#282829]">{group.group.groupName}</h2>
+                                        <h2 className="text-[24px] font-semibold text-[#282829]">{group.groupName}</h2>
                                         <div className="flex items-center gap-1">
                                             <button
                                                 className="p-1.5 rounded-lg hover:bg-gray-100"
-                                                onClick={() => navigate(`/one-to-one/session-plan-preview?id=${group.group.id}`)}
+                                                onClick={() => navigate(`/one-to-one/session-plan-preview?id=${group.id}`)}
                                             >
                                                 <Eye className="w-5 h-5 text-black" />
                                             </button>
@@ -98,17 +97,24 @@ const SessionPlan = () => {
 
                                     {/* Groups */}
                                     <div className="p-4 pt-0 flex flex-col gap-3">
-                                        {groupsToShow.map((group, index) => (
+                                        {groupsToShow.map((groups, index) => (
                                             <div
                                                 key={index}
                                                 className="flex justify-between items-center bg-white border border-[#E2E1E5] rounded-2xl p-4 hover:shadow-md transition-all"
                                             >
                                                 <div>
-                                                    <p className="font-semibold text-[#282829]">{group.title}</p>
-                                                    <p className="text-sm text-gray-500 pt-1">{group.age}</p>
+                                                    <p className="font-semibold text-[#282829]">{groups.title}</p>
+                                                    <p className="text-sm text-gray-500 pt-1">{groups.age}</p>
                                                 </div>
                                                 <div class="flex gap-2">
-                                                    <button class="text-gray-500 hover:text-blue-600"><img alt="Edit" class="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer" src="/demo/synco/icons/edit.png" /></button>
+                                                    <button className="text-gray-500 hover:text-blue-600">
+                                                        <img
+                                                            onClick={() => navigate(`/one-to-one/session-plan-update?id=${group.id}&groupName=${encodeURIComponent(groups.title)}`)}
+                                                            alt="Edit"
+                                                            className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                                            src="/demo/synco/icons/edit.png"
+                                                        />
+                                                    </button>
                                                     <button class="text-gray-500 hover:text-red-500"><img alt="Delete" class="w-6 h-6  transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer" src="/demo/synco/icons/deleteIcon.png" /></button></div>
                                             </div>
                                         ))}
