@@ -66,7 +66,7 @@ const MainTable = () => {
     val === 'null' ||
     val === 'undefined'
   ) {
-    return 'N/A';
+    return '';
   }
 
   // Convert to string, replace underscores with spaces, and trim
@@ -134,7 +134,7 @@ const MainTable = () => {
                                                         </button>
 
                                                         <img
-                                                            src={safe(user.profile) !== 'N/A' ? user.profile : '/demo/synco/members/dummyuser.png'}
+                                                            src={safe(user.profile) !== '' ? user.profile : '/demo/synco/members/dummyuser.png'}
                                                             alt={safe(user.firstName)}
                                                             onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}
                                                             className="w-10 h-10 rounded-full object-contain"
@@ -166,7 +166,7 @@ const MainTable = () => {
                                                 <td className="p-4 whitespace-nowrap">
                                                     {user?.paymentPlan?.duration && user?.paymentPlan?.interval
                                                         ? `${user.paymentPlan.duration} ${user.paymentPlan.interval}${user.paymentPlan.duration > 1 ? 's' : ''}`
-                                                        : 'N/A'}
+                                                        : ''}
                                                 </td>
                                                 <td className="p-4 whitespace-nowrap">
                                                     <span className={`px-3 py-1 rounded-xl capitalize font-semibold ${statusColors[user.status] || 'bg-gray-100 text-gray-800'}`}>

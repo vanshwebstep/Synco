@@ -775,14 +775,14 @@ const ParentProfile = ({ ParentProfile }) => {
                                         Freeze Membership
                                     </button>
                                 )}
-                                {(status === "active" || status === "request_to_cancel") && canCancelTrial && (
+                                {/* {(status === "active" || status === "request_to_cancel") && canCancelTrial && (
                                     <button
                                         onClick={() => setTransferVenue(true)}
                                         className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
                                     >
                                         Transfer Class
                                     </button>
-                                )}
+                                )} */}
                                 {status == 'waiting list' && canCancelTrial && (
                                     <button
                                         onClick={() => setRemoveWaiting(true)}
