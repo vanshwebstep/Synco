@@ -5,14 +5,13 @@ import Select from "react-select";
 import { FaPlus } from "react-icons/fa";
 import "react-datepicker/dist/react-datepicker.css";
 import { RxCross2 } from "react-icons/rx";
-import { useAccountsInfo } from "../../contexts/AccountsInfoContext";
 import { FaSave, FaEdit } from "react-icons/fa";
+import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 
 const StudentProfile = () => {
   const [editStudent, setEditStudent] = useState({});
 
   const { students, setStudents, handleUpdate, mainId } = useAccountsInfo();
-  console.log('students', students)
 
   const [showModal, setShowModal] = useState(false);
 

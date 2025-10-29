@@ -1,21 +1,34 @@
-import { useEffect, useState, useCallback } from "react";
-import { MdOutlineWatchLater } from "react-icons/md";
-import { HiOutlineSpeakerWave } from "react-icons/hi2";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState, useRef ,useCallback } from "react";
 
-const SessionPreview = () => {
-    // === Right Side Content Array ===
-    const [activeTab, setActiveTab] = useState("Beginner");
-    const [selectedExercise, setSelectedExercise] = useState(null);
-    // Select video URL based on tab
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { formatDistanceToNow } from 'date-fns';
+import Loader from '../contexts/Loader';
 
-    const [sessionGroup, setSessionGroup] = useState([]);
+const levelKeyToLabel = {
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+  pro: "Pro",
+};
+
+const SessionPreview = ({ item, sessionData }) => {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const [recording, setRecording] = useState(null);
+  const [videoUrl, setVideoUrl] = useState(null);
+      const token = localStorage.getItem("adminToken");
+
+  const [videoDuration, setVideoDuration] = useState(null);
+  const [currentRecording, setCurrentRecording] = useState(null); // url of playing recording
+  const audioRef = useRef(null);
+  const [activeTab, setActiveTab] = useState('Beginner');
+  const [myData, setMyData] = useState({});
+    const [selectedGroup, setSelectedGroup] = useState([]);
     const [loading, setLoading] = useState(false);
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const token = localStorage.getItem("adminToken");
-    const [searchParams] = useSearchParams();
-    const id = searchParams.get("id");
-    const navigate = useNavigate();
+  const [page, setPage] = useState(1);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const id = searchParams.get("id");
 
     const fetchSessionGroup = useCallback(async () => {
         if (!token) return;
@@ -33,7 +46,7 @@ const SessionPreview = () => {
 
             const result = await response.json();
             console.log('result', result);
-            setSessionGroup(result.data || []);
+            setSelectedGroup(result.data || []);
         } catch (err) {
             console.error("Failed to fetch sessionGroup:", err);
             await Swal.fire({
@@ -46,206 +59,395 @@ const SessionPreview = () => {
             setLoading(false);
         }
     }, [token, API_BASE_URL]);
+  // Fetch group on load
+  useEffect(() => {
+    if (id) {
+      fetchSessionGroup(id);
+    }
+  }, [id]);
 
-    useEffect(() => {
-        fetchSessionGroup();
-    }, [fetchSessionGroup])
+  // Build dynamic content after fetch
+  console.log('selectedGroup', selectedGroup)
+  useEffect(() => {
+    if (selectedGroup?.levels) {
+      const buildContentMap = () => {
+        const content = {};
+        Object.entries(selectedGroup.levels).forEach(([levelKey, items]) => {
+          const label = levelKeyToLabel[levelKey];
+          const banner = selectedGroup.banner || null;
+          const video = selectedGroup.video || null;
+          const videoUploadedAgo = selectedGroup.videoUploadedAgo || null;
+          const id = selectedGroup.id || null;
 
-    const group = sessionGroup || {};
-    const levels = group?.levels || {};
-    const levelMap = {
-        Beginner: "Beginner",
-        Intermediate: "intermediate",
-        Advanced: "advanced",
-        Pro: "pro",
-    };
+          content[label] = items.map((entry, index) => ({
+            title: `${label} – Page ${index + 1}`,
+            heading: entry.skillOfTheDay || 'No Skill',
+            player: entry.player || 'player',
+            videoUrl: video ? `${video}` : '',
+            videoUploadedAgo: videoUploadedAgo,
+            id: id,
 
-    const currentLevelKey = levelMap[activeTab];
-    const currentLevel = levels[currentLevelKey]?.[0]; // each is an array with 1 object
+            bannerUrl: banner ? `${banner}` : '',
+            description: entry.description || '',
+            sessionExercises: entry.sessionExercises || [],
+          }));
+        });
+        return content;
+      };
 
-    // Select video URL based on tab
-    const videoMap = {
-        Beginner: group?.beginner_video,
-        Intermediate: group?.intermediate_video,
-        Advanced: group?.advanced_video,
-        Pro: group?.pro_video,
-    };
+      const dynamicContent = buildContentMap();
+      setMyData(dynamicContent);
 
-    const videoUrl = videoMap[activeTab];
-    const sessionPlan = currentLevel?.sessionExercises || [];
+      // Set first tab by default
+      const firstTab = Object.keys(dynamicContent)[0];
+      setActiveTab(firstTab);
+      setPage(1);
+    }
+  }, [selectedGroup]);
 
+  console.log('videoUrl', videoUrl)
+  const dynamicTabs = Object.keys(myData);
+  const currentContent = myData[activeTab]?.[page - 1] || {};
+  const totalPages = myData[activeTab]?.length || 0;
 
-    // console.log('sessionGroup', sessionGroup)
-    // === Left Side Session Plan ===
-    // const sessionPlan = [
-    //     "Small-sided games",
-    //     "Introduction (Head coach)",
-    //     "Warm up activity",
-    //     "Technical sessionGroup",
-    //     "Lesson debrief",
-    // ];
-    // const videoUrl = 'https://cdn.pixabay.com/video/2017/04/10/10392-212474043_large.mp4';
-    useEffect(() => {
-        if (currentLevel?.sessionExercises.length > 0) {
-            setSelectedExercise(currentLevel?.sessionExercises[0]);
-        }
-    }, [currentLevel?.sessionExercises]);
-   
+  console.log(selectedGroup)
+  const [selectedExercise, setSelectedExercise] = useState(
+    currentContent.sessionExercises?.[0] || null
+  );
+  useEffect(() => {
+    if (currentContent.sessionExercises?.length > 0) {
+      setSelectedExercise(currentContent.sessionExercises[0]);
+    }
+  }, [currentContent]);
+  useEffect(() => {
+    if (selectedGroup && activeTab) {
+        console.log('activeTab',selectedGroup)
 
-    console.log('SelectedExercise', selectedExercise)
+      const tabKey = activeTab.toLowerCase().replace(/s$/, "");
+      const fieldName = `${tabKey}_upload`;
+      const fieldVideoName = `${tabKey}_video`;
+      const videoDuration = `${tabKey}_video_duration`;
+      console.log('selectedGroup', selectedGroup)
+      console.log('fieldName', fieldName)
+
+      // check if that recording field exists in selectedGroup
+      if (selectedGroup[fieldName]) {
+        setRecording(selectedGroup[fieldName]);
+      } else {
+        setRecording(null); // no match found
+      }
+      if (selectedGroup[fieldVideoName]) {
+        setVideoUrl(selectedGroup[fieldVideoName]);
+      } else {
+        setVideoUrl(null); // no match found
+      }
+       if (selectedGroup[videoDuration]) {
+        setVideoDuration(selectedGroup[videoDuration]);
+      } else {
+        setVideoDuration(null); // no match found
+      }
+    }
+  }, [selectedGroup, activeTab]);
+  console.log('setRecording', recording)
+  const handlePlayRecording = (url) => {
+    if (!audioRef.current) return;
+
+    if (currentRecording === url) {
+      // 🔴 If the same recording is playing → stop it
+      audioRef.current.pause();
+      setCurrentRecording(null);
+    } else {
+      // 🟢 Play new recording
+      audioRef.current.src = url;
+      audioRef.current.play();
+      setCurrentRecording(url);
+    }
+  };
+
+  if (loading) {
     return (
-        <div className="min-h-screen  lg:p-8">
-            <div className="flex gap-2 items-center cursor-pointer" onClick={() => navigate('/one-to-one')}>
-                <img
-                    src="/demo/synco/icons/arrow-left.png"
-                    alt="Back"
-                    className="w-5 h-5 md:w-6 md:h-6"
-                />
-                <h2 className="text-xl font-bold text-gray-800">Gold Package</h2>
+      <>
+        <Loader />
+      </>
+    )
+  }
+  
+console.log(selectedExercise?.description);
+
+  console.log('currentContent', currentContent)
+  return (
+    <div className="md:py-6 bg-gray-50 min-h-screen preview-sec">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
+        <h2
+          onClick={() => {
+            navigate('/one-to-one');
+          }}
+          className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
+          <img
+            src="/demo/synco/icons/arrow-left.png"
+            alt="Back"
+            className="w-5 h-5 md:w-6 md:h-6"
+          />
+          <span className="truncate">     {selectedGroup?.groupName || 'View Session Plans'} Preview</span>
+        </h2>
+      </div>
+      <div className=" rounded-3xl  p-6 flex flex-col md:flex-row gap-6">
+
+
+        {/* Right Content */}
+        <div className="w-full md:w-10/12 space-y-6">
+          {/* Tabs */}
+          <div className="flex w-full flex-col lg:flex-row gap-6">
+            <div className="w-full bg-white justify-between lg:w-1/2 flex gap-2 border border-gray-300 p-2 rounded-2xl flex-wrap">
+              {dynamicTabs.map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setPage(1);
+                  }}
+                  className={`px-6 py-2 rounded-xl text-[18px] font-semibold transition ${activeTab === tab
+                    ? 'bg-blue-500 text-white'
+                    : 'text-[#717073] hover:text-blue-500'
+                    }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
+            <div className="w-full pl-6  lg:w-1/2 "></div>
+          </div>
+          {/* Main Page Content */}
+          {currentContent && (
+            <div className="flex w-full flex-col border-t border-[#E2E1E5] pt-6 lg:flex-row gap-6">
+              {/* Left - Video and Info */}
+              <div className="w-full lg:w-1/2 space-y-2">
+                {currentContent.bannerUrl && (
+                  <img
+                    src={currentContent.bannerUrl}
+                    alt="Play like Pele "
+                    className="rounded-xl w-full object-cover max-h-[130px]  mb-2"
 
-            <div className="md:max-w-7xl w-full  rounded-lg md:p-6">
-                {/* Header */}
-                <div className="flex items-center justify-between  mb-0 w-full">
+                  />
+                )}
+                <h2 className="font-semibold text-[28px] mb-0 mt-5">
+                  Skill of the Day
+                </h2>
+                <p className="text-[20px] flex items-center gap-2 font-semibold my-3">
+                  {/* {currentContent?.player} */}
+                  {currentContent.heading} <img
+                    src="/demo/synco/icons/Volumeblue.png"
+                    alt="Play Recording"
+                    className={`w-6 h-6 cursor-pointer ${currentRecording === recording ? "opacity-100" : "opacity-40"
+                      }`}
+                    onClick={() => handlePlayRecording(recording)}
+                  />
+                  <audio ref={audioRef} onEnded={() => setCurrentRecording(null)} />
+                </p>
+                <p className="text-[16px] text-[#717073] font-semibold border-b border-gray-300 pb-4 ">
+                  {currentContent.description}
+                </p>
+                {videoUrl && (
+                  <video
+                    src={videoUrl}
+                    controls
+                    className="w-full  pt-3 rounded-4xl"
+                  />
+                )}
+                <div className='flex items-center  mb-0 mt-4 justify-between' >
+                  <h2 className="font-semibold text-[24px] mb-0">
+                    Session Plan
+                  </h2>
 
-                    <div className="flex border bg-white  border-[#E2E1E5] rounded-2xl p-2 mb-6 w-max overflow-auto">
-                        {["Beginner", "Intermediate", "Advanced", "Pro"].map((tab) => (
-                            <button
-                                key={tab}
-                                className={`flex-1 p-2 px-8 rounded-xl text-[17px] font-semibold transition-all ${activeTab === tab
-                                    ? "bg-[#237FEA] text-white"
-                                    : "text-gray-600 hover:text-[#237FEA]"
-                                    }`}
-                                onClick={() => setActiveTab(tab)}
-                            >
-                                {tab}
-                            </button>
-                        ))}
-                    </div>
+                  <img
+                    src="/demo/synco/icons/downloadicon.png"
+                    alt="Download"
+                    className="cursor-pointer"
+                    onClick={async () => {
+                      try {
+                        const token = localStorage.getItem("adminToken");
+                        const response = await fetch(
+                          `${API_BASE_URL}/api/admin/session-plan-group/${currentContent.id}/download-video?videolinkrandom=${encodeURIComponent(videoUrl)}`,
+                          {
+                            method: "GET",
+                            headers: {
+                              Authorization: `Bearer ${token}`,
+                            },
+                          }
+                        );
+
+                        if (!response.ok) {
+                          throw new Error("Failed to download video");
+                        }
+
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+
+                        // Generate a professional-looking filename
+                        const safeGroup = currentContent?.groupName
+                          ?.toLowerCase()
+                          .replace(/\s+/g, "-")
+                          .replace(/[^a-z0-9\-]/g, "");
+                        const safeLevel = currentContent?.level
+                          ?.toLowerCase()
+                          .replace(/\s+/g, "-")
+                          .replace(/[^a-z0-9\-]/g, "");
+
+                        const filename = `${safeGroup || "session"}-${safeLevel || "video"}.mp4`;
+
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+
+                        window.URL.revokeObjectURL(url);
+                      } catch (err) {
+                        console.error("Download failed:", err);
+                      }
+                    }}
+                  />
+
+
+
 
 
                 </div>
+                {videoDuration && (
+                  <div>
+                    <p className="text-sm flex items-center gap-2 text-gray-500 pb-3">
+                      <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                      {videoDuration || 'N/A'}
+                    </p>
+                  </div>
+                )}
 
-                {/* Main Content */}
-                <div className="grid md:grid-cols-2 gap-10 border-t border-[#E2E1E5] pt-4">
-                    {/* Left Side */}
-                    <div className="flex flex-col">
-                        <img src={`${sessionGroup?.banner}`} className="rounded-xl w-full object-cover max-h-[130px]  mb-2"
-                            alt="" />
-
-                        <div className="mt-4 border-b border-[#E2E1E5] pb-4">
-                            <h3 className="text-[24px] font-semibold text-gray-800">
-                                Skill of the day
-                            </h3>
-                            <h5 className="flex gap-2 font-semibold items-center text-[18px]">
-                                {currentLevel?.skillOfTheDay}
-                                <HiOutlineSpeakerWave className="text-blue-600 font-bold" />
-                            </h5>
-                            <p className="text-[16px] text-[#717073] font-semibold mt-1">
-                                {currentLevel?.description}
-                            </p>
-
-                        </div>
-                        <div>
-
-                            {videoUrl && videoUrl.trim() !== "" && (
-                                <div className="mt-4">
-                                    <video
-                                        src={videoUrl}
-                                        controls
-                                        className="w-full pt-3 h-[300px] rounded-2xl"
-                                    />
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="mt-6">
-                            <h4 className="text-[24px] font-semibold text-gray-800 ">
-                                Session Plan
-                            </h4>
-                            <span className="text-sm flex gap-2 items-center mb-3 text-[#676774]"><MdOutlineWatchLater /> 4 Hours</span>
-                            <div className="space-y-4">
-                                {sessionPlan.map((exercise, index) => (
-                                    <div key={index} onClick={() => setSelectedExercise(exercise)} className="flex gap-5">
-                                        <div className="img w-[80px] h-[80px] flex-shrink-0">
-                                            <img
-                                                src={
-                                                    JSON.parse(exercise.imageUrl || "[]")[0] ||
-                                                    "/demo/synco/images/cardimgSmall.png"
-                                                }
-                                                alt=""
-                                                className="w-full h-full object-cover rounded-xl"
-                                            />
-                                        </div>
-                                        <div>
-                                            <h5 className="font-semibold text-gray-800">
-                                                {exercise.title}
-                                            </h5>
-                                            <p className="text-sm text-[#676774] font-semibold line-clamp-3">
-                                                {exercise.description
-                                                    ?.replace(/<[^>]+>/g, "")
-                                                    .slice(0, 150) + "..."}
-                                            </p>
-                                            <span className="mt-2 block text-sm text-[#676774] font-semibold">
-                                                {exercise.duration}
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Side */}
-                    <div>
-                        <h3 className="text-2xl  text-left font-semibold text-gray-800 mb-3">
-                            {selectedExercise?.title}
-                        </h3>
-                        {selectedExercise?.imageUrl ? (
-                            JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
-                                <img
-                                    key={index}
-                                    className="rounded-3xl w-full max-h-[114px] object-cover mr-2 mb-2"
-                                    src={`${imgUrl}`}
-                                    alt={`${selectedExercise.title} ${index + 1}`}
-                                />
+                {currentContent.sessionExercises?.length > 0 && (
+                  <div className="mt-1 space-y-6">
+                    {currentContent.sessionExercises.map((exercise) => (
+                      <div
+                        key={exercise.id}
+                        className={`flex items-center gap-6 cursor-pointer py-2 rounded ${selectedExercise?.id === exercise.id ? '' : ''
+                          }`}
+                        onClick={() => setSelectedExercise(exercise)}
+                      >
+                        <div className="w-4/12">
+                          {exercise.imageUrl ? (
+                            JSON.parse(exercise.imageUrl).map((imgUrl, index) => (
+                              <img
+                                key={index}
+                                className="rounded-3xl w-full max-h-[114px] object-cover mr-2 mb-2"
+                                src={`${imgUrl}`}
+                                alt={`${exercise.title} ${index + 1}`}
+                              />
                             ))
-                        ) : (
+                          ) : (
                             <p>No images available</p>
-                        )}
-                        <p className="text-sm text-blue-600 font-medium my-4">
-                            Time Duration: {selectedExercise?.duration}
-                        </p>
+                          )}
+                        </div>
+                        <div className="w-8/12">
+                          <h6 className="text-[18px]  font-semibold">{exercise.title}</h6>
+                          {/* <div
+                            className="text-[16px] text-gray-700"
+                            dangerouslySetInnerHTML={{
+                              __html: exercise.description || '<p>No description available.</p>',
+                            }}
+                          /> */}
+                          <span className="text-[14px] text-gray-500">
+                            {exercise.duration || '—'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-                        {/* Render from Array */}
-                        <div className="space-y-6 text-left text-gray-700">
-                          
-                                <div >
-                                    {/* <h4 className="font-semibold text-gray-800 mb-1">
-                                        {selectedExercise?.title}
-                                    </h4> */}
-                                           <div>
-                                    <div
-                                        className="prose prose-sm space-y-6 max-w-none text-gray-700
+
+              </div>
+
+              {/* Right - Placeholder Drill Info */}
+              {selectedExercise && (
+                <div className="w-full  pl-6  lg:w-1/2 ">
+                  <h2 className="font-semibold text-[24px] mb-4">{selectedExercise.title}</h2>
+                  <div className=" ">
+                    {selectedExercise.imageUrl ? (
+                      JSON.parse(selectedExercise.imageUrl).map((imgUrl, index) => (
+                        <img
+                          key={index}
+                          className="rounded-2xl object-cover lg:w-[400px] mr-2 min-h-50 max-h-[220px] mb-2"
+                          src={`${imgUrl}`}
+                          alt={`${selectedExercise.title} ${index + 1}`}
+                        />
+                      ))
+                    ) : (
+                      <p>No images available</p>
+                    )}
+                  </div>
+                  <p className="text-blue-500 text-[14px] mt-7 font-semibold mb-5">
+                    Time Duration: {selectedExercise.duration || '—'}
+                  </p>
+
+                  <div className="text-sm space-y-6">
+                    <div>
+
+                      <div
+                      className="prose prose-sm space-y-6 max-w-none text-gray-700
     prose-p:mb-3 prose-li:mb-2
     prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
     prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5
     marker:text-gray-700"
-                                        dangerouslySetInnerHTML={{
-                                            __html:
-                                                selectedExercise?.description ||
-                                                "<p class='text-gray-400 italic'>No description available.</p>",
-                                        }}
-                                    />
-                                </div>
-                                </div>
-                       
-                        </div>
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            selectedExercise.description ||
+                            "<p class='text-gray-400 italic'>No description available.</p>",
+                        }}
+                      />
                     </div>
+                  </div>
+
                 </div>
+              )}
+
             </div>
+          )}
+
+          {/* Pagination Buttons
+        <div className="flex justify-between items-center pt-4 border-t mt-6">
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            disabled={page === 1}
+            className={`px-4 py-2 text-sm rounded-xl border ${
+              page === 1
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-white text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white transition'
+            }`}
+          >
+            ← Previous
+          </button>
+
+          <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
+
+          <button
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
+            disabled={page === totalPages}
+            className={`px-4 py-2 text-sm rounded-xl border ${
+              page === totalPages
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-white text-blue-500 border-blue-500 hover:bg-blue-500 hover:text-white transition'
+            }`}
+          >
+            Next →
+          </button>
+        </div> */}
         </div>
-    );
+      </div>
+
+
+
+    </div>
+  );
 };
 
 export default SessionPreview;

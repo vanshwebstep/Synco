@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { Editor } from '@tinymce/tinymce-react';
 import Loader from "../contexts/Loader";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { usePermission } from "../Common/permission";
 
 export default function OnetoOneUpdate() {
     const navigate = useNavigate();
@@ -359,90 +360,112 @@ console.log('exercises',groupData.exercises)
         [token, fetchExercises]
     );
 
+const handleSavePlan = async (id) => {
+    if (!token) return;
 
-    const handleSavePlan = async () => {
-        if (!token) return;
+    try {
+        setLoading(true);
 
-        try {
-            setLoading(true);
+        // Ensure active tab data is merged properly
+        const finalTabsData = {
+            ...savedTabsData,
+            [activeTab.toLowerCase()]: {
+                ...groupData,
+                banner: groupData.banner,
+            },
+        };
 
-            const formData = new FormData();
+        console.log("🧩 finalTabsData:", finalTabsData);
 
-            const levels = {};
-            Object.keys(savedTabsData).forEach((level) => {
-                const data = savedTabsData[level];
-                if (!data) return;
+        const formData = new FormData();
+        const levels = {};
 
-                levels[level.toLowerCase()] = [
-                    {
-                        skillOfTheDay: data.skill || "",
-                        description: data.description || "",
-                        sessionExerciseId: data.exercises?.map((ex) => ex.value) || [],
-                    },
-                ];
+        Object.entries(finalTabsData).forEach(([level, data]) => {
+            if (!data) return;
 
-                // Append level-specific files
-                if (data.video?.file) {
-                    formData.append(`${level.toLowerCase()}_video`, data.video.file, data.video.file.name);
-                }
-                if (data.banner?.file) {
-                    formData.append(`${level.toLowerCase()}_upload`, data.banner.file, data.banner.file.name);
-                }
-            });
+            const levelKey = level.toLowerCase();
 
-            // Append group-level fields
-            formData.append("levels", JSON.stringify(levels));
-            formData.append("groupName", groupData.groupName || "");
-            formData.append("player", groupData.player || "");
-            if (groupData.banner?.file) {
-                formData.append("banner", groupData.banner.file, groupData.banner.file.name);
-            }
-            if (groupData.video?.file) {
-                formData.append("video", groupData.video.file, groupData.video.file.name);
+            levels[levelKey] = [
+                {
+                    skillOfTheDay: data.skill || "",
+                    description: data.description || "",
+                    sessionExerciseId: Array.isArray(data.exercises)
+                        ? data.exercises.map((ex) => ex.value)
+                        : [],
+                },
+            ];
+
+            // ✅ Append files only if new
+            if (data.video?.file instanceof File) {
+                formData.append(`${levelKey}_video`, data.video.file, data.video.file.name);
             }
 
+            if (data.banner?.file instanceof File) {
+                formData.append(`${levelKey}_upload`, data.banner.file, data.banner.file.name);
+            }
+        });
 
-            const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/create`, {
-                method: "POST",
+        console.log("✅ levels before sending:", levels);
+
+        // ✅ Append all fields
+        formData.append("id", id); // 👈 must include if updating existing
+        formData.append("levels", JSON.stringify(levels));
+        formData.append("groupName", groupData.groupName || "");
+        formData.append("player", groupData.player || "");
+
+        // ✅ Group-level banner/video
+        if (groupData.banner?.file instanceof File) {
+            formData.append("banner", groupData.banner.file, groupData.banner.file.name);
+        }
+        if (groupData.video?.file instanceof File) {
+            formData.append("video", groupData.video.file, groupData.video.file.name);
+        }
+
+        // ✅ API call
+        const response = await fetch(
+            `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/update/${id}`,
+            {
+                method: "PUT",
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
                 body: formData,
-            });
-
-
-
-            const data = await response.json();
-
-            if (response.ok && data.status) {
-                await Swal.fire({
-                    icon: "success",
-                    title: "Success",
-                    text: data.message || "Group created successfully.",
-                    confirmButtonColor: "#237FEA",
-                });
-                emptySession();
-            } else {
-                await Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: data.message || "Failed to create session group.",
-                    confirmButtonColor: "#d33",
-                });
-                console.error("API Error:", data.message || "Unknown error");
             }
-        } catch (err) {
-            console.error("Failed to create session group:", err);
+        );
+
+        const data = await response.json();
+        console.log("📦 API Response:", data);
+
+        if (response.ok && data.status) {
+            await Swal.fire({
+                icon: "success",
+                title: "Success",
+                text: data.message || "Group updated successfully.",
+                confirmButtonColor: "#237FEA",
+            });
+            emptySession();
+        } else {
             await Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "Something went wrong while creating the session group.",
+                text: data.message || "Failed to update session group.",
                 confirmButtonColor: "#d33",
             });
-        } finally {
-            setLoading(false);
         }
-    };
+    } catch (err) {
+        console.error("❌ Failed to create session group:", err);
+        await Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Something went wrong while creating the session group.",
+            confirmButtonColor: "#d33",
+        });
+    } finally {
+        setLoading(false);
+    }
+};
+
+
 
 
 
@@ -502,67 +525,7 @@ console.log('exercises',groupData.exercises)
     };
 
     // Save current tab data excluding banner
-    const saveCurrentTab = () => {
-        setSavedTabsData((prev) => ({
-            ...prev,
-            [activeTab]: {
-                ...groupData, // save all fields
-                banner: undefined, // banner is same for all tabs
-            },
-        }));
-    };
-    const gotoNextTab = () => {
-        if (!groupData.skill) {
-            Swal.fire({
-                icon: "warning",
-                title: "Incomplete Data",
-                text: "Please fill the skill for this tab before proceeding.",
-                confirmButtonColor: "#237FEA",
-            });
-            return;
-        }
-
-        saveCurrentTab();
-
-        const currentIndex = tabs.indexOf(activeTab);
-        if (currentIndex < tabs.length - 1) {
-            const nextTab = tabs[currentIndex + 1];
-            setActiveTab(nextTab);
-
-            const nextData = savedTabsData[nextTab] || {};
-            setGroupData({
-                skill: nextData.skill || "",
-                description: nextData.description || "",
-                exercises: nextData.exercises || [],
-                video: nextData.video || null,
-                groupName: nextData.groupName || groupData.groupName,
-                player: nextData.player || groupData.player,
-                banner: groupData.banner, // keep same banner
-            });
-        }
-    };
-
-    const handleCreateSessionClick = () => {
-        // Save current tab
-        saveCurrentTab();
-
-        const currentIndex = tabs.indexOf(activeTab);
-
-        if (!groupData.skill) {
-            Swal.fire({
-                icon: "warning",
-                title: "Incomplete Data",
-                text: "Please fill the skill for this tab before proceeding.",
-                confirmButtonColor: "#237FEA",
-            });
-            return;
-        }
-
-        // Move to next tab if exists
-        if (currentIndex < tabs.length - 1) {
-            gotoNextTab();
-        }
-    };
+  
 
 console.log('SavedTabsData',savedTabsData)
     if (loading) {
@@ -801,9 +764,9 @@ console.log('SavedTabsData',savedTabsData)
                             Add New Exercise
                         </button>
 
-                        <div className="flex justify-end" onClick={handleCreateSessionClick}>
+                        <div className="flex justify-end" onClick={() => handleSavePlan(sessionGroup.id)}>
                             <button className="w-auto bg-[#237FEA] text-white p-3 py-2 px-10 rounded-xl mt-2 hover:bg-blue-700">
-                                Create Session
+                                Update session 
                             </button>
                         </div>
                     </div>
@@ -965,7 +928,7 @@ console.log('SavedTabsData',savedTabsData)
                     )}
                     <div className="flex justify-end gap-3 mt-5">
                         <button className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex gap-2 items-center">Preview Sessions <FaEye /> </button>
-                        <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700" onClick={handleSavePlan}>Create Group</button>
+                        <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700" onClick={() => handleSavePlan(sessionGroup.id)}>Create Group</button>
                     </div>
 
 

@@ -3,12 +3,16 @@ import { Eye, User, Edit2, Trash2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../contexts/Loader";
 import Swal from "sweetalert2";
+import { usePermission } from "../Common/permission";
 const SessionPlan = () => {
     const [sessionGroup, setSessionGroup] = useState([]);
     const [loading, setLoading] = useState(false);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
+    const { checkPermission } = usePermission();
 
+    const canDelete = checkPermission({ module: 'session-plan-structure', action: 'delete' });
+    const canEdit = checkPermission({ module: 'session-plan-structure', action: 'update' });
 
     const navigate = useNavigate();
 
@@ -41,7 +45,45 @@ const SessionPlan = () => {
             setLoading(false);
         }
     }, [token, API_BASE_URL]);
+    const handleDelete = async (groupId, level) => {
+        const myLevel = level.toLowerCase();
+        const confirm = await Swal.fire({
+            title: "Are you sure?",
+            text: "This will permanently delete the session plan.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+        });
 
+        if (!confirm.isConfirmed) return;
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/${groupId}/level/${myLevel}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (response.ok) {
+                Swal.fire("Deleted!", "Session plan has been deleted.", "success");
+                // optionally trigger reload or remove item from state
+            } else {
+                Swal.fire("Error", data.message || "Failed to delete session plan", "error");
+            }
+        } catch (error) {
+            console.error("Delete error:", error);
+            Swal.fire("Error", "Something went wrong while deleting.", "error");
+        }
+    };
     useEffect(() => {
         fetchSessionGroup();
     }, [fetchSessionGroup]);
@@ -52,6 +94,7 @@ const SessionPlan = () => {
             </>
         )
     }
+    console.log('sessionGroup', sessionGroup)
     return (
         <>
             <div className="flex justify-between py-5">
@@ -62,14 +105,18 @@ const SessionPlan = () => {
             <div className="p-6 bg-white min-h-[600px] rounded-3xl">
                 <div className="grid md:grid-cols-4 gap-6">
                     {/* Left Section */}
-                    {
-                        sessionGroup.map((group, index) => {
+                    {sessionGroup
+                        // filter only groups that have at least one level key
+                        .filter(group => group.levels && Object.keys(group.levels).length > 0)
+                        // now safely map through them
+                        .map((group, index) => {
                             const levelInfo = {
                                 beginner: { title: "Beginner", age: "4–5 Years" },
                                 intermediate: { title: "Intermediate", age: "6–7 Years" },
                                 advanced: { title: "Advanced", age: "8–9 Years" },
                                 pro: { title: "Pro", age: "10–12 Years" },
                             };
+
 
                             // Get only the levels that exist in group.levels
                             const groupsToShow = Object.keys(group.levels).map((key) => ({
@@ -107,15 +154,29 @@ const SessionPlan = () => {
                                                     <p className="text-sm text-gray-500 pt-1">{groups.age}</p>
                                                 </div>
                                                 <div class="flex gap-2">
-                                                    <button className="text-gray-500 hover:text-blue-600">
-                                                        <img
-                                                            onClick={() => navigate(`/one-to-one/session-plan-update?id=${group.id}&groupName=${encodeURIComponent(groups.title)}`)}
-                                                            alt="Edit"
-                                                            className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
-                                                            src="/demo/synco/icons/edit.png"
-                                                        />
-                                                    </button>
-                                                    <button class="text-gray-500 hover:text-red-500"><img alt="Delete" class="w-6 h-6  transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer" src="/demo/synco/icons/deleteIcon.png" /></button></div>
+                                                    {canEdit &&
+                                                        <button className="text-gray-500 hover:text-blue-600">
+                                                            <img
+                                                                onClick={() => navigate(`/one-to-one/session-plan-update?id=${group.id}&groupName=${encodeURIComponent(groups.title)}`)}
+                                                                alt="Edit"
+                                                                className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                                                src="/demo/synco/icons/edit.png"
+                                                            />
+                                                        </button>
+                                                    }
+                                                    {canDelete &&
+                                                        <button
+                                                            className="text-gray-500 hover:text-red-500"
+                                                            onClick={() => handleDelete(group.id, groups.title)}
+                                                        >
+                                                            <img
+                                                                alt="Delete"
+                                                                className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                                                src="/demo/synco/icons/deleteIcon.png"
+                                                            />
+                                                        </button>
+                                                    }
+                                                </div>
                                             </div>
                                         ))}
                                     </div>

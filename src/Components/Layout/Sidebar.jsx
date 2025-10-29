@@ -242,18 +242,6 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       ],
       subItems: [
         {
-          title: "Leads Database",
-          link: '/one-to-one/central-leads',
-          needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-
-        },
-        {
           title: "Sales",
           link: '/one-to-one',
 
@@ -267,6 +255,19 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
 
         },
+        {
+          title: "Leads Database",
+          link: '/one-to-one/central-leads',
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+
+        }
+        
       ],
     },
   ];

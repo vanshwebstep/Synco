@@ -248,14 +248,17 @@ body#tinymce {
   width: 18px !important;
   height: 18px !important;
 }
+
 .dayssss {
-    position: absolute;
-    left: -6em;
+  position: absolute;
+  left: -6em;
 }
+
 .facility {
-    position: absolute;
-    left: -6.8em;
+  position: absolute;
+  left: -6.8em;
 }
+
 .directDebitBg {
   background-image: url(/public/images/directDebitBG.png);
   object-fit: contain;
@@ -394,6 +397,7 @@ span.tox-tbtn.tox-split-button__chevron {
 .prose ul li {
   list-style: disc;
 }
+
 /*  */
 @media (min-width: 1200px) and (max-width: 1550px) {
   .md\:text-\[38px\] {
@@ -535,46 +539,54 @@ span.tox-tbtn.tox-split-button__chevron {
 .react-tel-input .country-list .dial-code {
   display: none !important;
 }
-button.cursor-not-allowed{
+
+button.cursor-not-allowed {
   cursor: not-allowed;
 }
 
-.preview-sec ul li{
+.preview-sec ul li {
   list-style: disc;
 }
-.preview-sec ol li{
+
+.preview-sec ol li {
   list-style: decimal;
 }
+
 .react-tel-input {
-    max-width: 60px;
+  max-width: 60px;
 }
 
-.prose p strong{
+.prose p strong {
   line-height: normal;
 }
- p strong{
+
+p strong {
   line-height: normal;
 }
- strong{
+
+strong {
   line-height: normal;
 }
- p {
+
+p {
   line-height: normal;
 }
 
 .prose p {
-    margin-bottom:15px;
+  margin-bottom: 15px;
 }
 
 ul.innersub li a .subitems {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
- }
- .reward {
-  background: url(/demo/synco/images/reward-card.png) ;
-  background-repeat: no-repeat ;
-  background-size: cover ;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
+
+.reward {
+  background: url(/demo/synco/images/reward-card.png);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
 /*ul.innersub li a .subitems::after {
   content: "+";
   font-weight: bold;
@@ -585,3 +597,60 @@ ul.innersub li a .subitems {
 ul.innersub li.opened a .subitems::after {
   content: "–";
 } */
+
+
+@media(min-width:1200px) and (max-width:1600px) {
+  .fullwidth20 {
+    width: 23%;
+  }
+  .fullwidth20 .rounded.p-4.mt-6.text-center.text-base.w-full.max-w-md.mx-auto {
+    padding: 0;
+}
+
+  .fullwidth80 {
+    width: 77%;
+  }
+  .blockButton{
+    display: block;
+  }
+  .blockButton button{
+  width: 100%; 
+  margin: 10px 0;
+  }
+
+ .fullwidth20 .rounded.p-4.mt-6.text-center.text-base.w-full.max-w-md.mx-auto {
+    padding: 0;
+}
+
+.fullwidth20 .w-full.h-12.aspect-square.flex.items-center.justify-center.transition-all.duration-200.hover\:bg-gray-100.text-gray-800 {
+    font-size: 13px;
+}
+
+.fullwidth20 .font-medium.text-center {
+    font-size: 13px;
+}
+
+.fullwidth20 span {
+    font-size: 13px;
+}
+
+.fullwidth20 button.w-8.h-8.rounded-full.bg-white.text-black.hover\:bg-black.hover\:text-white.border.border-black.flex.items-center.justify-center {
+    height: 23px;
+    width: 23px;
+}
+
+.fullwidth20 h3.font-semibold.text-black.text-\[24px\] {
+    font-size: 16px;
+}
+
+.fullwidth20 button.px-5.mt-4.bg-\[\#237FEA\].hover\:bg-blue-700.text-white.flex.gap-2.items-center.text-sm.py-2.rounded-lg.transition {
+    padding: 8px;
+}
+p {
+    line-height: 1.4;
+}
+
+.fullwidth20  .p-4.bg-\[\#FAFAFA\].rounded-lg.mb-4 {
+    padding: 5px;
+}
+}

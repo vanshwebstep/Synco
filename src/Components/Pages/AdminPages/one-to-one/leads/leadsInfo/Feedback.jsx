@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
-import { useMembers } from '../../contexts/MemberContext';
-import Loader from '../../contexts/Loader';
-import { usePermission } from '../../Common/permission';
+import { usePermission } from '../../../Common/permission';
 
 const Feedback = () => {
   const { checkPermission } = usePermission();
   const [openResolve, setOpenResolve] = useState(null);
   const [resolveData, setResolveData] = useState('');
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const members = [
     {
       id: 1,
@@ -36,7 +33,8 @@ const Feedback = () => {
       email: 'user3@example.com',
       position: 'Manager'
     }
-  ]; const { fetchMembers, loading } = useMembers();
+  ]; 
+  
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
@@ -59,17 +57,9 @@ const Feedback = () => {
 
   const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
-  useEffect(() => {
-    fetchMembers();
-  }, [fetchMembers]);
 
-  if (loading) {
-    return (
-      <>
-        <Loader />
-      </>
-    )
-  }
+
+
 
   return (
     <>

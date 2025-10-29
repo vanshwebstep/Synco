@@ -10,16 +10,18 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Lead = () => {
-    const { activeTab, setActiveTab, tabs, fetchData } = useLeads();
+    const leadsData = useLeads();
+    const { activeTab, setActiveTab, tabs, fetchData } = leadsData;
     const navigate = useNavigate();
     useEffect(() => {
         fetchData();
     }, [activeTab]);
+    if(!leadsData) return (<>Loading</>)
     return (
         <div className="min-h-screen overflow-hidden bg-gray-50 py-6 flex flex-col lg:flex-row ">
 
 
-            <div className="md:w-[73%] gap-6 md:pe-3 mb-4 md:mb-0">
+            <div className="md:w-[73%] fullwidth80 gap-6 md:pe-3 mb-4 md:mb-0">
                 <Cards />
                 <div className="flex justify-between items-center mt-5">
 

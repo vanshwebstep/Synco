@@ -6,8 +6,8 @@ import Feedback from "./Feedback";
 import Rewards from "./Rewards";
 import Events from "./Events";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAccountsInfo } from "../../contexts/AccountsInfoContext";
-import Loader from '../../contexts/Loader';
+import Loader from "../../../contexts/Loader";
+import { useLeads } from "../../../contexts/LeadsContext";
 
 const tabs = [
   { name: "Parent Profile", component: <ParentProfile /> },
@@ -21,30 +21,28 @@ const tabs = [
 const AccountInfo = () => {
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   const navigate = useNavigate();
-  const accountsInfo = useAccountsInfo();
+  const leads = useLeads();
  
-  const { loading, setMainId, fetchMembers } = accountsInfo;
+  const { fetchDataById ,loading } = leads;
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const id = queryParams.get("id"); // <-- this will be "9"  console.log('id',id)
+  const id = queryParams.get("id"); 
 
   useEffect(() => {
-    fetchMembers(id);
-    if (id) {
-      setMainId(id);
-    }
+    fetchDataById(id);
+  
   }, [])
 
   if (loading) return <Loader />;
- if (!accountsInfo) return <div>Loading...</div>; // or throw Error
+ if (!leads) return <div>Loading...</div>; // or throw Error
   return (
     <div className="mt-8 relative">
 
       <div className="flex w-max items-center bg-white p-3 gap-1 rounded-2xl p-1 ">
         <h2
           onClick={() => {
-            navigate('/weekly-classes/members-info');
+            navigate('/one-to-one/central-leads');
           }}>
           <img
             src="/demo/synco/icons/arrow-left.png"

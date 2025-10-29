@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { useNotification } from "../../contexts/NotificationContext";
+import { useNotification } from "../../../contexts/NotificationContext";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { Mail, MessageSquare } from "lucide-react";
 
 const ParentProfile = () => {
   const { adminInfo } = useNotification();
@@ -211,14 +212,7 @@ const ParentProfile = () => {
 
   return (
     <>
-      <h2 onClick={() => navigate('/one-to-one/central-leads/')} className="flex gap-2 items-center font-bold text-[24px] mt-3">
-        <img
-          src="/demo/synco/icons/arrow-left.png"
-          alt="Back"
-          className="w-5 h-5 md:w-6 md:h-6"
-        />
-        Add a New Lead
-      </h2>
+    
 
       <div className="flex">
         <div className="md:w-[66%] ">
@@ -432,45 +426,41 @@ const ParentProfile = () => {
 
               <div className="text-white rounded-2xl p-4 relative overflow-hidden" style={{ backgroundImage: "url('/demo/synco/frames/Active.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
-                <p className="text-[20px] text-black font-bold relative z-10">Status</p>
-                <p className="text-sm text-black relative z-10">Active</p>
+                <p className="text-[20px] text-black font-bold relative z-10">Account Status</p>
+                <p className="text-sm text-black relative z-10">Lead</p>
               </div>
               <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
                 <div><img src="/demo/synco/members/user2.png" alt="" /></div>
-                <div>  <h3 className="text-lg font-semibold">Coach</h3>
+                <div>  <h3 className="text-lg font-semibold">Assigned Agent</h3>
                   <p className="text-gray-300 text-sm">Ethan Bond-Vaughan</p></div>
               </div>
 
               <div className="border-b border-[#495362] pb-3">
-                <p className="text-white text-[18px] font-semibold">Venue</p>
+                <p className="text-white text-[18px] font-semibold">Nearest Venue</p>
                 <span className="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded-md mt-1">
                   Aston
                 </span>
               </div>
 
               <div className="border-b border-[#495362] pb-3">
-                <p className="text-white text-[18px] font-semibold">Parent Name</p>
-                <p className="text-[16px] mt-1 text-[#BDC0C3]">Tom Jones</p>
-              </div>
-
-              <div className="border-b border-[#495362] pb-3">
-                <p className="text-white text-[18px] font-semibold">Date of class</p>
-                <p className="text-[16px] mt-1 text-[#BDC0C3]">10th–Oct 2023</p>
-              </div>
-
-              <div className="border-b border-[#495362] pb-3">
-                <p className="text-white text-[18px] font-semibold">Package</p>
-                <p className="text-[16px] mt-1 text-[#BDC0C3]">Gold</p>
+                <p className="text-white text-[18px] font-semibold">Date lead was added</p>
+              
+                <p className="text-[16px] mt-1 text-[#BDC0C3]">Nov 18 2021, 17:00</p>
               </div>
 
               <div className="border-b border-[#495362] pb-3">
                 <p className="text-white text-[18px] font-semibold">Source</p>
-                <p className="text-[16px] mt-1 text-[#BDC0C3]">Referral</p>
+                <p className="text-[16px] mt-1 text-[#BDC0C3]">Facebook</p>
+              </div>
+
+              <div className="border-b border-[#495362] pb-3">
+                <p className="text-white text-[18px] font-semibold">Last Contact Date</p>
+                <p className="text-[16px] mt-1 text-[#BDC0C3]">Nov 18 2021, 17:00</p>
               </div>
 
               <div>
-                <p className="text-white text-[18px] font-semibold">Price</p>
-                <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">£350.00</p>
+                <p className="text-white text-[18px] font-semibold">Current status</p>
+                <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">1 Voicemail</p>
               </div>
             </div>
 
@@ -485,14 +475,14 @@ const ParentProfile = () => {
                 </button>
               </div>
 
-              <button className="w-full bg-[#FF6C6C] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-red-600 transition flex items-center justify-center">
+              <button className="w-full bg-[#237FEA] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-blue-600 transition flex items-center justify-center">
                 Book A Free Trial
               </button>
-              <button className="w-full bg-[#FF6C6C] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-red-600 transition flex items-center justify-center">
+              <button className="w-full bg-[#237FEA] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-blue-600 transition flex items-center justify-center">
                 Book A Membership
               </button>
 
-              <button className="w-full bg-[#237FEA] text-white text-[18px] py-3 rounded-xl  font-medium hover:bg-blue-700 transition">
+              <button className="w-full border text-gray-400 border-gray-200 text-[18px] py-3 rounded-xl  font-medium hover:bg-blue-700 transition">
                 Add To Waiting List
               </button>
             </div>

@@ -15,29 +15,29 @@ const Cards = () => {
             icon: PiUsersThreeBold,
             iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]",
             title: "Total Leads",
-            value: `${analytics?.totalLeads?.count}`,
-            change: `${analytics?.totalLeads?.conversion}`,
+            value: analytics?.totalLeads?.count ?? "_",
+            change: analytics?.totalLeads?.conversion ?? "_",
         },
         {
             icon: UserRoundPlus,
             iconStyle: "text-[#099699] bg-[#E0F7F7]",
             title: "New Leads",
-            value: `${analytics?.newLeads?.count}`,
-            change: `${analytics?.newLeads?.conversion}`,
+            value: analytics?.newLeads?.count ?? "_",
+            change: analytics?.newLeads?.conversion ?? "_",
         },
         {
             icon: LogIn,
             iconStyle: "text-[#F38B4D] bg-[#FFF2E8]",
             title: "Leads to Trials",
-            value: `${analytics?.leadsToTrials?.count}`,
-            change: `${analytics?.leadsToTrials?.conversion}`,
+            value: analytics?.leadsToTrials?.count ?? "_",
+            change: analytics?.leadsToTrials?.conversion ?? "_",
         },
         {
             icon: CirclePoundSterling,
             iconStyle: "text-[#6F65F1] bg-[#E9E8FF]",
             title: "Leads to Sales",
-            value: `${analytics?.leadsToSales?.count}`,
-            change: `${analytics?.leadsToSales?.conversion}`,
+            value: analytics?.leadsToSales?.count ?? "_",
+            change: analytics?.leadsToSales?.conversion ?? "_",
         },
     ];
 
@@ -46,31 +46,32 @@ const Cards = () => {
             icon: PiUsersThreeBold,
             iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]",
             title: "Total Referrals",
-            value: 945,
-            change: "+28.14%",
+            value: 945 ?? "_",
+            change: "+28.14%" ?? "_",
         },
         {
             icon: UserRoundPlus,
             iconStyle: "text-[#099699] bg-[#E0F7F7]",
             title: "New Referrals",
-            value: 245,
-            change: "+12.47%",
+            value: 245 ?? "_",
+            change: "+12.47%" ?? "_",
         },
         {
             icon: LogIn,
             iconStyle: "text-[#F38B4D] bg-[#FFF2E8]",
             title: "Referrals to Trials",
-            value: 120,
-            change: "+9.31%",
+            value: 120 ?? "_",
+            change: "+9.31%" ?? "_",
         },
         {
             icon: CirclePoundSterling,
             iconStyle: "text-[#6F65F1] bg-[#E9E8FF]",
             title: "Referrals to Sales",
-            value: 120,
-            change: "+9.31%",
+            value: 120 ?? "_",
+            change: "+9.31%" ?? "_",
         },
     ];
+
 
     // Select which cards to render based on activeTab
     const cardsToRender = activeTab === "Referral" ? summaryCards2 : summaryCards;

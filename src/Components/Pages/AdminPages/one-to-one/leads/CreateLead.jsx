@@ -193,7 +193,7 @@ const CreateLead = () => {
                 childAge: "",
             });
 
-            navigate('/one-to-one/central-leads/')
+            navigate('/one-to-one/central-leads')
         } catch (error) {
             console.error("Error creating lead:", error);
             Swal.fire({

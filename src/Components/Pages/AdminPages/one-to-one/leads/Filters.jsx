@@ -127,7 +127,7 @@ const Filters = () => {
 
 
     return (
-        <div className="md:w-[27%] flex-shrink-0 gap-5 md:ps-3">
+        <div className="md:w-[27%]  fullwidth20 flex-shrink-0 gap-5 md:ps-3">
             {/* Search */}
             <div className="mb-4 bg-white rounded-2xl p-4">
                 <h3 className="font-semibold text-black text-[24px] mb-2">
@@ -305,7 +305,7 @@ const Filters = () => {
             </div>
 
             {/* Actions */}
-            <div className="grid md:grid-cols-3 gap-3 mt-4">
+            <div className="grid blockButton md:grid-cols-3 gap-3 mt-4">
                 <button className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-2 text-sm hover:bg-gray-50">
                     <Mail size={16} className="text-[#717073]" /> Send Email
                 </button>
