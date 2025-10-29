@@ -1458,13 +1458,13 @@ const Create = () => {
       }
     `,
                                                     setup: (editor) => {
-                                                        // 🔹 Add custom capitalize icon
+                                                        // 🔹 Custom capitalize icon
                                                         editor.ui.registry.addIcon(
                                                             "capitalize-icon",
                                                             '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
                                                         );
 
-                                                        // 🔹 Add custom capitalize button
+                                                        // 🔹 Custom capitalize button
                                                         editor.ui.registry.addButton("capitalize", {
                                                             icon: "capitalize-icon",
                                                             tooltip: "Capitalize Text",
@@ -1477,27 +1477,20 @@ const Create = () => {
                                                             },
                                                         });
 
-                                                        // 🔹 Swap list commands
+                                                        // ✅ Keep default list behavior (don’t swap)
                                                         editor.on("init", () => {
-                                                            // Save original execCommand reference
                                                             const originalExecCommand = editor.execCommand;
 
-                                                            // Override execCommand
                                                             editor.execCommand = function (command, ui, value) {
-                                                                if (command === "InsertUnorderedList") {
-                                                                    // bullet → use <ol>
-                                                                    return originalExecCommand.call(editor, "InsertOrderedList", ui, value);
-                                                                }
-                                                                if (command === "InsertOrderedList") {
-                                                                    // number → use <ul>
-                                                                    return originalExecCommand.call(editor, "InsertUnorderedList", ui, value);
-                                                                }
+                                                                // Only override custom behavior if you want to modify something
+                                                                // Otherwise, just call the default command
                                                                 return originalExecCommand.call(editor, command, ui, value);
                                                             };
                                                         });
                                                     },
                                                 }}
                                             />
+
 
 
 

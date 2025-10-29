@@ -30,7 +30,6 @@ export default function NotificationList() {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const token = localStorage.getItem("adminToken");
@@ -44,29 +43,36 @@ export default function NotificationList() {
             return;
         }
 
+        // ✅ Determine final recipient IDs
+        let finalRecipients = [];
+        const selectedValues = form.recipients.map((r) => r.value);
 
-
+        if (selectedValues.includes("all")) {
+            // ✅ If "All" selected → include all member IDs (except admin)
+            finalRecipients = members
+                .filter((m) => m.id !== adminId)
+                .map((m) => m.id);
+        } else {
+            // ✅ Otherwise, use selected recipients
+            finalRecipients = selectedValues.filter((v) => v);
+        }
 
         const myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
         myHeaders.append("Authorization", `Bearer ${token}`);
 
-
         const raw = JSON.stringify({
-            "title": form.title,
-            "description": form.description,
-            "category": form.category,
-            "recipients": form.recipients
-                .map((r) => r.value)
-                .filter((v) => v !== undefined && v !== null && v !== "")
-                .join(",")
+            title: form.title,
+            description: form.description,
+            category: form.category,
+            recipients: finalRecipients.join(","), // ✅ Send all IDs
         });
 
         const requestOptions = {
             method: "POST",
             headers: myHeaders,
             body: raw,
-            redirect: "follow"
+            redirect: "follow",
         };
 
         try {
@@ -77,11 +83,7 @@ export default function NotificationList() {
             });
 
             const response = await fetch(`${API_BASE_URL}/api/admin/custom-notification`, requestOptions);
-
             const result = await response.json();
-
-
-
 
             if (!response.ok) {
                 Swal.fire({
@@ -95,51 +97,46 @@ export default function NotificationList() {
             Swal.fire({
                 icon: "success",
                 title: "Notification Created",
-                text: result.message || result.error || "New notification was added successfully!",
+                text: result.message || "New notification was added successfully!",
                 timer: 2000,
                 showConfirmButton: false,
             });
 
-            setForm({
-                title: "",
-                recipients: [],
-                category: "",
-                description: "",
-            });
+            setForm({ title: "", recipients: [], category: "", description: "" });
             setOpenForm(null);
             fetchCustomNotification();
-
         } catch (error) {
             console.error("Error creating notification:", error);
             Swal.fire({
                 icon: "error",
                 title: "Network Error",
-                text: error.message || error.error || "An error occurred while submitting the form.",
+                text: error.message || "An error occurred while submitting the form.",
             });
         }
     };
 
-  const storedAdmin = localStorage.getItem("adminInfo");
-let adminId = null;
 
-if (storedAdmin) {
-  try {
-    const parsedAdmin = JSON.parse(storedAdmin);
-    adminId = parsedAdmin?.id || null;
-  } catch (e) {
-    console.error("Invalid adminInfo JSON in localStorage:", e);
-  }
-}
+    const storedAdmin = localStorage.getItem("adminInfo");
+    let adminId = null;
 
-const recipientOptions = [
-  { value: "all", label: "All" },
-  ...members
-    .filter((member) => member.id !== adminId) // ✅ Exclude logged-in admin
-    .map((member) => ({
-      value: member.id,
-      label: `${member.name || member.firstName} (${member.email})`,
-    })),
-];
+    if (storedAdmin) {
+        try {
+            const parsedAdmin = JSON.parse(storedAdmin);
+            adminId = parsedAdmin?.id || null;
+        } catch (e) {
+            console.error("Invalid adminInfo JSON in localStorage:", e);
+        }
+    }
+
+    const recipientOptions = [
+        { value: "all", label: "All" },
+        ...members
+            .filter((member) => member.id !== adminId) // ✅ Exclude logged-in admin
+            .map((member) => ({
+                value: member.id,
+                label: `${member.name || member.firstName} (${member.email})`,
+            })),
+    ];
 
     useEffect(() => {
         fetchMembers();
@@ -167,7 +164,7 @@ const recipientOptions = [
     }
 
 
- 
+
     const handleRecipientPopup = (recipients) => {
         const content = recipients.map(r =>
             `<li>${r.recipientEmail}</li>`
@@ -192,15 +189,15 @@ const recipientOptions = [
         return startMatch && endMatch && matchCategory;
     });
 
-     console.log('filteredNotifications', filteredNotifications)
-      const categoryOptions = [
-    { value: "Complaints", label: "Complaints" },
-    { value: "Cancelled Memberships", label: "Cancelled Memberships" },
-    { value: "Payments", label: "Payments" },
-  ];
-  const navigate = useNavigate();
+    console.log('filteredNotifications', filteredNotifications)
+    const categoryOptions = [
+        { value: "Complaints", label: "Complaints" },
+        { value: "Cancelled Memberships", label: "Cancelled Memberships" },
+        { value: "Payments", label: "Payments" },
+    ];
+    const navigate = useNavigate();
 
-   if (loading && loadingCustomNotification) {
+    if (loading && loadingCustomNotification) {
         return (
             <>
                 <Loader />
@@ -211,11 +208,11 @@ const recipientOptions = [
         <>
             <div className="md:p-6 bg-gray-50 ">
                 <div className="md:flex justify-between items-center mb-6">
-<div className="flex items-center gap-3 cursor-pointer transition-transform duration-300 hover:scale-105"   onClick={() => navigate('/notification')}>
-  <img className="w-6" alt="" src="/demo/synco/members/Arrow - Left.png" />
-  <h1 className="text-[24px] font-semibold">Notification List</h1>
-</div>
-                        <div className="flex mt-3 md:mt-0 flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-3 cursor-pointer transition-transform duration-300 hover:scale-105" onClick={() => navigate('/notification')}>
+                        <img className="w-6" alt="" src="/demo/synco/members/Arrow - Left.png" />
+                        <h1 className="text-[24px] font-semibold">Notification List</h1>
+                    </div>
+                    <div className="flex mt-3 md:mt-0 flex-wrap items-center gap-4">
                         <button
                             onClick={() => setShowTimePeriodPopup(true)}
                             className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-[#E2E1E5] text-[#717073] text-[16px] hover:bg-gray-100"
@@ -342,9 +339,9 @@ const recipientOptions = [
                                             recipients: selectedOptions,
                                         }))
                                     }
-                                              components={{
-    IndicatorSeparator: () => null, // 🚀 removes the "|" separator
-  }}
+                                    components={{
+                                        IndicatorSeparator: () => null, // 🚀 removes the "|" separator
+                                    }}
                                     styles={{
                                         control: (base) => ({
                                             ...base,
@@ -357,48 +354,48 @@ const recipientOptions = [
                                 />
                             </div>
 
-                          
-    <div>
-      <label className="block mb-1 text-[16px] font-medium text-[#282829]">
-        Category
-      </label>
-      <Select
-        name="category"
-        value={categoryOptions.find(option => option.value === form.category) || null}
-        onChange={selected => handleChange({ target: { name: "category", value: selected?.value || "" } })}
-        options={categoryOptions}
-        placeholder="Select Category"
-        className="react-select-container"
-        classNamePrefix="react-select"
-        components={{
-          IndicatorSeparator: () => null, // 🚀 removes the "|" separator
-        }}
-        styles={{
-          control: (provided, state) => ({
-            ...provided,
-            borderColor: "#E2E1E5",
-            borderRadius: "0.75rem",
-            padding: "4px",
-            boxShadow: state.isFocused ? "0 0 0 2px #3b82f6" : "none",
-            "&:hover": { borderColor: "#E2E1E5" },
-          }),
-          placeholder: (provided) => ({
-            ...provided,
-            color: "#717073",
-            fontSize: "14px",
-          }),
-          singleValue: (provided) => ({
-            ...provided,
-            color: "#282829",
-            fontSize: "14px",
-          }),
-          dropdownIndicator: (provided) => ({
-            ...provided,
-            color: "#717073",
-          }),
-        }}
-      />
-    </div>
+
+                            <div>
+                                <label className="block mb-1 text-[16px] font-medium text-[#282829]">
+                                    Category
+                                </label>
+                                <Select
+                                    name="category"
+                                    value={categoryOptions.find(option => option.value === form.category) || null}
+                                    onChange={selected => handleChange({ target: { name: "category", value: selected?.value || "" } })}
+                                    options={categoryOptions}
+                                    placeholder="Select Category"
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                    components={{
+                                        IndicatorSeparator: () => null, // 🚀 removes the "|" separator
+                                    }}
+                                    styles={{
+                                        control: (provided, state) => ({
+                                            ...provided,
+                                            borderColor: "#E2E1E5",
+                                            borderRadius: "0.75rem",
+                                            padding: "4px",
+                                            boxShadow: state.isFocused ? "0 0 0 2px #3b82f6" : "none",
+                                            "&:hover": { borderColor: "#E2E1E5" },
+                                        }),
+                                        placeholder: (provided) => ({
+                                            ...provided,
+                                            color: "#717073",
+                                            fontSize: "14px",
+                                        }),
+                                        singleValue: (provided) => ({
+                                            ...provided,
+                                            color: "#282829",
+                                            fontSize: "14px",
+                                        }),
+                                        dropdownIndicator: (provided) => ({
+                                            ...provided,
+                                            color: "#717073",
+                                        }),
+                                    }}
+                                />
+                            </div>
 
                             <div>
                                 <label className="block mb-1 text-[16px] font-medium text-[#282829]">
@@ -434,7 +431,16 @@ const recipientOptions = [
             {showTimePeriodPopup && (
                 <div className="fixed inset-0 bg-black/10 z-50 flex items-center justify-center">
                     <div className="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-xl">
+                         <div className="flex items-center mb-6 md:gap-20 gap-5">
+                            <button
+                                onClick={() => setShowTimePeriodPopup(null)}
+                                className="text-gray-500 hover:text-black"
+                            >
+                                <X />
+                            </button>
                         <h2 className="text-lg font-semibold mb-4">Select Time Period</h2>
+                           
+                        </div>
                         <div className="flex items-center gap-2 mb-6">
                             <input
                                 type="date"
@@ -473,7 +479,16 @@ const recipientOptions = [
             {showCategoryPopup && (
                 <div className="fixed inset-0 bg-black/10 z-50 flex items-center justify-center">
                     <div className="bg-white rounded-2xl p-6 w-[90%] max-w-md shadow-xl">
+                            <div className="flex items-center mb-6 md:gap-20 gap-5">
+                            <button
+                                onClick={() => setShowCategoryPopup(null)}
+                                className="text-gray-500 hover:text-black"
+                            >
+                                <X />
+                            </button>
                         <h2 className="text-lg font-semibold mb-4">Filter by Category</h2>
+                           
+                        </div>
                         <select
                             value={selectedCategory}
                             onChange={(e) => setSelectedCategory(e.target.value)}

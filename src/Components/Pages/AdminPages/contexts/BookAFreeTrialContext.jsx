@@ -16,9 +16,11 @@ export const BookFreeTrialProvider = ({ children }) => {
   const [statsMembership, setStatsMembership] = useState([]);
   const [statsFreeTrial, setStatsFreeTrial] = useState([]);
   const [bookedByAdmin, setBookedByAdmin] = useState([]);
-
+  const [addToWaitingList, setaddToWaitingList] = useState(null);
+    const [showCancelTrial, setshowCancelTrial] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
+    const [removeWaiting, setRemoveWaiting] = useState(false);
 
   const [isEditBookFreeTrial, setIsEditBookFreeTrial] = useState(false);
   const [singleBookFreeTrials, setSingleBookFreeTrials] = useState([]);
@@ -64,11 +66,11 @@ export const BookFreeTrialProvider = ({ children }) => {
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
-       // console.log('status1', status1)
-       // console.log('satus2', status2)
-       // console.log('otherDateRange', otherDateRange)
-       // console.log('dateoftrial', dateoftrial)
-       // console.log('forOtherDate', forOtherDate)
+      // console.log('status1', status1)
+      // console.log('satus2', status2)
+      // console.log('otherDateRange', otherDateRange)
+      // console.log('dateoftrial', dateoftrial)
+      // console.log('forOtherDate', forOtherDate)
 
       const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
       // if (shouldShowLoader) setLoading(true);
@@ -143,104 +145,103 @@ export const BookFreeTrialProvider = ({ children }) => {
     },
     []
   );
-  
- const fetchBookFreeTrialsLoading = useCallback(
-  async (
-    studentName = "",
-    venueName = "",
-    status1 = false,
-    status2 = false,
-    otherDateRange = [],
-    dateoftrial = [],
-    forOtherDate = [],
-    BookedBy = []
-  ) => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
 
-    const hasFilters =
-      studentName ||
-      venueName ||
-      status1 ||
-      status2 ||
-      (Array.isArray(otherDateRange) && otherDateRange.length === 2) ||
-      (Array.isArray(dateoftrial) && dateoftrial.length === 2) ||
-      (Array.isArray(forOtherDate) && forOtherDate.length === 2) ||
-      (Array.isArray(BookedBy) && BookedBy.length > 0);
+  const fetchBookFreeTrialsLoading = useCallback(
+    async (
+      studentName = "",
+      venueName = "",
+      status1 = false,
+      status2 = false,
+      otherDateRange = [],
+      dateoftrial = [],
+      forOtherDate = [],
+      BookedBy = []
+    ) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
 
-   setLoading(true); // ✅ start loader
+      const hasFilters =
+        studentName ||
+        venueName ||
+        status1 ||
+        status2 ||
+        (Array.isArray(otherDateRange) && otherDateRange.length === 2) ||
+        (Array.isArray(dateoftrial) && dateoftrial.length === 2) ||
+        (Array.isArray(forOtherDate) && forOtherDate.length === 2) ||
+        (Array.isArray(BookedBy) && BookedBy.length > 0);
 
-    try {
-      const queryParams = new URLSearchParams();
+      setLoading(true); // ✅ start loader
 
-      // Student & Venue filters
-      if (studentName) queryParams.append("studentName", studentName);
-      if (venueName) queryParams.append("venueName", venueName);
+      try {
+        const queryParams = new URLSearchParams();
 
-      // Status filters
-      if (status1) queryParams.append("status", "attended");
-      if (status2) queryParams.append("status", "not attend");
+        // Student & Venue filters
+        if (studentName) queryParams.append("studentName", studentName);
+        if (venueName) queryParams.append("venueName", venueName);
 
-      // BookedBy filter
-      if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
-        BookedBy.forEach((agent) => queryParams.append("bookedBy", agent));
-      }
+        // Status filters
+        if (status1) queryParams.append("status", "attended");
+        if (status2) queryParams.append("status", "not attend");
 
-      // Trial date range
-      if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
-        const [from, to] = dateoftrial;
-        if (from && to) {
-          queryParams.append("dateTrialFrom", formatLocalDate(from));
-          queryParams.append("dateTrialTo", formatLocalDate(to));
+        // BookedBy filter
+        if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
+          BookedBy.forEach((agent) => queryParams.append("bookedBy", agent));
         }
-      }
 
-      // CreatedAt range (general)
-      if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
-        const [from, to] = otherDateRange;
-        if (from && to) {
-          queryParams.append("fromDate", formatLocalDate(from));
-          queryParams.append("toDate", formatLocalDate(to));
+        // Trial date range
+        if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
+          const [from, to] = dateoftrial;
+          if (from && to) {
+            queryParams.append("dateTrialFrom", formatLocalDate(from));
+            queryParams.append("dateTrialTo", formatLocalDate(to));
+          }
         }
-      }
 
-      // Other date range
-      if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
-        const [from, to] = forOtherDate;
-        if (from && to) {
-          queryParams.append("fromDate", formatLocalDate(from));
-          queryParams.append("toDate", formatLocalDate(to));
+        // CreatedAt range (general)
+        if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+          const [from, to] = otherDateRange;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
         }
+
+        // Other date range
+        if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
+          const [from, to] = forOtherDate;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+
+        const url = `${API_BASE_URL}/api/admin/book/free-trials${queryParams.toString() ? `?${queryParams.toString()}` : ""
+          }`;
+
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const resultRaw = await response.json();
+        const result = resultRaw.data.trials || [];
+        const venues = resultRaw.data.venue || [];
+        const bookedByAdmin = resultRaw.data.bookedByAdmin || [];
+
+        setBookedByAdmin(bookedByAdmin);
+        setMyVenues(venues);
+        setStatsFreeTrial(resultRaw.data.stats);
+        setBookFreeTrials(result);
+      } catch (error) {
+        console.error("Failed to fetch bookFreeTrials:", error);
+      } finally {
+        setLoading(false); // ✅ stop loader
       }
-
-      const url = `${API_BASE_URL}/api/admin/book/free-trials${
-        queryParams.toString() ? `?${queryParams.toString()}` : ""
-      }`;
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const resultRaw = await response.json();
-      const result = resultRaw.data.trials || [];
-      const venues = resultRaw.data.venue || [];
-      const bookedByAdmin = resultRaw.data.bookedByAdmin || [];
-
-      setBookedByAdmin(bookedByAdmin);
-      setMyVenues(venues);
-      setStatsFreeTrial(resultRaw.data.stats);
-      setBookFreeTrials(result);
-    } catch (error) {
-      console.error("Failed to fetch bookFreeTrials:", error);
-    } finally {
-     setLoading(false); // ✅ stop loader
-    }
-  },
-  []
-);
+    },
+    []
+  );
 
   const fetchBookFreeTrialsID = useCallback(async (ID) => {
     const token = localStorage.getItem("adminToken");
@@ -385,7 +386,7 @@ export const BookFreeTrialProvider = ({ children }) => {
   };
   const updateBookFreeTrialsFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
     setLoading(true);
- // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
+    // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     if (token) {
@@ -395,8 +396,8 @@ export const BookFreeTrialProvider = ({ children }) => {
     const requestOptions = {
       method: "PUT",
       headers: myHeaders,
-body: JSON.stringify({ students: updatedBookFreeTrialData })
-,     redirect: "follow",
+      body: JSON.stringify({ students: updatedBookFreeTrialData })
+      , redirect: "follow",
     };
 
     try {
@@ -427,11 +428,11 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       });
       throw error;
     } finally {
-        navigate(`/weekly-classes/trial/list`)
+      navigate(`/weekly-classes/trial/list`)
       setLoading(false);
     }
   };
-  
+
   const deleteBookFreeTrial = useCallback(async (id) => {
     if (!token) return;
 
@@ -496,7 +497,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -544,7 +545,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -591,7 +592,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -638,7 +639,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -686,7 +687,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -840,7 +841,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         dateRangeMembership.length ||
         otherDateRange.length;
 
-     setLoading(true);
+      setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
@@ -898,14 +899,14 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       } catch (error) {
         console.error("Failed to fetch bookMemberships:", error);
       } finally {
-       setLoading(false);
+        setLoading(false);
       }
     },
     [API_BASE_URL]
   );
   const updateBookMembershipFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
     setLoading(true);
- // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
+    // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     if (token) {
@@ -915,8 +916,8 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const requestOptions = {
       method: "PUT",
       headers: myHeaders,
-body: JSON.stringify({ students: updatedBookFreeTrialData })
-,     redirect: "follow",
+      body: JSON.stringify({ students: updatedBookFreeTrialData })
+      , redirect: "follow",
     };
 
     try {
@@ -947,7 +948,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       });
       throw error;
     } finally {
-       navigate(`/weekly-classes/all-members/list`)
+      navigate(`/weekly-classes/all-members/list`)
       setLoading(false);
     }
   };
@@ -1035,7 +1036,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       setLoading(false);
     }
   };
-   const createBookMembershipByfreeTrial = async (bookFreeMembershipData , trialId) => {
+  const createBookMembershipByfreeTrial = async (bookFreeMembershipData, trialId) => {
     setLoading(true);
 
     const headers = {
@@ -1088,7 +1089,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1138,7 +1139,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1189,7 +1190,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1240,7 +1241,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1435,7 +1436,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     },
     [API_BASE_URL]
   );
-    const fetchMembershipSalesLoading = useCallback(
+  const fetchMembershipSalesLoading = useCallback(
     async (
       studentName = "",
       venueName = "",
@@ -1459,7 +1460,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         dateRangeMembership.length ||
         otherDateRange.length;
 
-       setLoading(true);
+      setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
@@ -1528,7 +1529,7 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1573,57 +1574,79 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
 
   // Add to Waiting List 
   const addtoWaitingListSubmit = async (bookingIds, comesfrom) => {
-    setLoading(true);
-console.log('bookingIds',bookingIds)
-
-    const headers = {
-      "Content-Type": "application/json",
-    };
-     // console.log('bookingIds', bookingIds)
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/add-to/waiting-list`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
-        ),
+    if (!bookingIds || bookingIds.length === 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "No Bookings Selected",
+        text: "Please select at least one booking to add to the waiting list.",
       });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+      };
+
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/book-membership/add-to/waiting-list`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify(bookingIds), // bookingIds should be like [96, 97]
+        }
+      );
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || "Failed to create Membership");
+        // Handle API-level errors gracefully
+        Swal.fire({
+          icon: "error",
+          title: "Failed to Add to Waiting List",
+          text: result.message || result.error || "Something went wrong.",
+        });
+        return;
       }
 
+      // ✅ Success alert
       await Swal.fire({
         title: "Success!",
-        text: result.message || "Trialsssssss has been created successfully.",
+        text: result.message || "Members have been successfully added to the waiting list.",
         icon: "success",
         confirmButtonText: "OK",
+        timer: 2000,
+        showConfirmButton: false,
       });
+
+      // ✅ Navigate safely based on source
       if (comesfrom === "allMembers") {
-        navigate(`/weekly-classes/all-members/list`);
+        navigate("/weekly-classes/all-members/list");
       } else {
-        navigate(`/weekly-classes/all-members/membership-sales`);
+        navigate("/weekly-classes/all-members/membership-sales");
       }
+      setaddToWaitingList(false)
 
       return result;
-
     } catch (error) {
-      console.error("Error creating class schedule:", error);
-      await Swal.fire({
-        title: "Error",
-        text: error.message || "Something went wrong while creating class schedule.",
+      console.error("Error adding to waiting list:", error);
+      Swal.fire({
+        title: "Network Error",
+        text: error.message || "Something went wrong while processing the request.",
         icon: "error",
         confirmButtonText: "OK",
       });
-      throw error;
     } finally {
       setLoading(false);
     }
   };
+
   const fetchAddtoWaitingList = useCallback(
     async (
       studentName = "",
@@ -1639,11 +1662,11 @@ console.log('bookingIds',bookingIds)
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
-       // console.log('status1', status1)
-       // console.log('satus2', status2)
-       // console.log('otherDateRange', otherDateRange)
-       // console.log('dateoftrial', dateoftrial)
-       // console.log('forOtherDate', forOtherDate)
+      // console.log('status1', status1)
+      // console.log('satus2', status2)
+      // console.log('otherDateRange', otherDateRange)
+      // console.log('dateoftrial', dateoftrial)
+      // console.log('forOtherDate', forOtherDate)
 
       const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
       // if (shouldShowLoader) setLoading(true);
@@ -1718,7 +1741,7 @@ console.log('bookingIds',bookingIds)
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1744,11 +1767,14 @@ console.log('bookingIds',bookingIds)
       });
       if (comesfrom === "allMembers") {
         navigate(`/weekly-classes/all-members/list`);
-      } else if (comesfrom === "waitingList"){
+      } else if (comesfrom === "waitingList") {
         navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`);
-      }else {
+      } else {
         navigate(`/weekly-classes/all-members/membership-sales`);
       }
+      setRemoveWaiting(false);
+            setshowCancelTrial(false)
+
 
       return result;
 
@@ -1771,7 +1797,7 @@ console.log('bookingIds',bookingIds)
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -1960,19 +1986,19 @@ console.log('bookingIds',bookingIds)
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
-       // console.log('status1', status1)
-       // console.log('satus2', status2)
-       // console.log('otherDateRange', otherDateRange)
-       // console.log('dateoftrial', dateoftrial)
-       // console.log('forOtherDate', forOtherDate)
+      // console.log('status1', status1)
+      // console.log('satus2', status2)
+      // console.log('otherDateRange', otherDateRange)
+      // console.log('dateoftrial', dateoftrial)
+      // console.log('forOtherDate', forOtherDate)
 
-const shouldShowLoader =
-  !studentName && !venueName && !status1 && !status2 &&
-  (!Array.isArray(otherDateRange) || otherDateRange.length === 0) &&
-  (!Array.isArray(dateoftrial) || dateoftrial.length === 0) &&
-  (!Array.isArray(forOtherDate) || forOtherDate.length === 0) &&
-  (!Array.isArray(BookedBy) || BookedBy.length === 0);
-if (shouldShowLoader) setLoading(true);
+      const shouldShowLoader =
+        !studentName && !venueName && !status1 && !status2 &&
+        (!Array.isArray(otherDateRange) || otherDateRange.length === 0) &&
+        (!Array.isArray(dateoftrial) || dateoftrial.length === 0) &&
+        (!Array.isArray(forOtherDate) || forOtherDate.length === 0) &&
+        (!Array.isArray(BookedBy) || BookedBy.length === 0);
+      if (shouldShowLoader) setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
@@ -2058,18 +2084,18 @@ if (shouldShowLoader) setLoading(true);
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
-       // console.log('status1', status1)
-       // console.log('satus2', status2)
-       // console.log('otherDateRange', otherDateRange)
-       // console.log('dateoftrial', dateoftrial)
-       // console.log('forOtherDate', forOtherDate)
+      // console.log('status1', status1)
+      // console.log('satus2', status2)
+      // console.log('otherDateRange', otherDateRange)
+      // console.log('dateoftrial', dateoftrial)
+      // console.log('forOtherDate', forOtherDate)
 
-const shouldShowLoader =
-  !studentName && !venueName && !status1 && !status2 &&
-  (!Array.isArray(otherDateRange) || otherDateRange.length === 0) &&
-  (!Array.isArray(dateoftrial) || dateoftrial.length === 0) &&
-  (!Array.isArray(forOtherDate) || forOtherDate.length === 0) &&
-  (!Array.isArray(BookedBy) || BookedBy.length === 0);
+      const shouldShowLoader =
+        !studentName && !venueName && !status1 && !status2 &&
+        (!Array.isArray(otherDateRange) || otherDateRange.length === 0) &&
+        (!Array.isArray(dateoftrial) || dateoftrial.length === 0) &&
+        (!Array.isArray(forOtherDate) || forOtherDate.length === 0) &&
+        (!Array.isArray(BookedBy) || BookedBy.length === 0);
       if (shouldShowLoader) setLoading(true);
 
       try {
@@ -2156,18 +2182,18 @@ const shouldShowLoader =
     ) => {
       const token = localStorage.getItem("adminToken");
       if (!token) return;
-       // console.log('status1', status1)
-       // console.log('satus2', status2)
-       // console.log('otherDateRange', otherDateRange)
-       // console.log('dateoftrial', dateoftrial)
-       // console.log('forOtherDate', forOtherDate)
+      // console.log('status1', status1)
+      // console.log('satus2', status2)
+      // console.log('otherDateRange', otherDateRange)
+      // console.log('dateoftrial', dateoftrial)
+      // console.log('forOtherDate', forOtherDate)
 
-const shouldShowLoader =
-  !studentName && !venueName && !status1 && !status2 &&
-  (!Array.isArray(otherDateRange) || otherDateRange.length === 0) &&
-  (!Array.isArray(dateoftrial) || dateoftrial.length === 0) &&
-  (!Array.isArray(forOtherDate) || forOtherDate.length === 0) &&
-  (!Array.isArray(BookedBy) || BookedBy.length === 0);
+      const shouldShowLoader =
+        !studentName && !venueName && !status1 && !status2 &&
+        (!Array.isArray(otherDateRange) || otherDateRange.length === 0) &&
+        (!Array.isArray(dateoftrial) || dateoftrial.length === 0) &&
+        (!Array.isArray(forOtherDate) || forOtherDate.length === 0) &&
+        (!Array.isArray(BookedBy) || BookedBy.length === 0);
       if (shouldShowLoader) setLoading(true);
 
       try {
@@ -2246,7 +2272,7 @@ const shouldShowLoader =
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -2294,7 +2320,7 @@ const shouldShowLoader =
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -2342,7 +2368,7 @@ const shouldShowLoader =
     const headers = {
       "Content-Type": "application/json",
     };
-     // console.log('bookingIds', bookingIds)
+    // console.log('bookingIds', bookingIds)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -2367,7 +2393,7 @@ const shouldShowLoader =
         icon: "success",
         confirmButtonText: "OK",
       });
-           navigate("/weekly-classes/cancellation", { state: 'fullCancellation' });
+      navigate("/weekly-classes/cancellation", { state: 'fullCancellation' });
 
       return result;
 
@@ -2387,7 +2413,7 @@ const shouldShowLoader =
   };
   const updateWaitingListFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
     setLoading(true);
- // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
+    // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     if (token) {
@@ -2397,8 +2423,8 @@ const shouldShowLoader =
     const requestOptions = {
       method: "PUT",
       headers: myHeaders,
-body: JSON.stringify({ students: updatedBookFreeTrialData })
-,     redirect: "follow",
+      body: JSON.stringify({ students: updatedBookFreeTrialData })
+      , redirect: "follow",
     };
 
     try {
@@ -2429,45 +2455,91 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
       });
       throw error;
     } finally {
-       navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`)
+      navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`)
       setLoading(false);
     }
   };
 
- const ServiceHistoryRequestto = useCallback(async (ID) => {
+  const ServiceHistoryRequestto = useCallback(async (ID) => {
 
-  const token = localStorage.getItem("adminToken");
-  if (!token) return;
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
 
-  setLoading(true);
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/admin/cancellation/request-to-cancel/service-history/${ID}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/cancellation/request-to-cancel/service-history/${ID}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        // If the API returns a non-200 response, navigate immediately
+        navigate("/weekly-classes/cancellation");
+        return;
       }
-    );
 
-    if (!response.ok) {
-      // If the API returns a non-200 response, navigate immediately
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setServiceHistory(result);
+    } catch (error) {
+      console.error("Failed to fetch service history:", error);
       navigate("/weekly-classes/cancellation");
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    const resultRaw = await response.json();
-    const result = resultRaw.data || [];
-    setServiceHistory(result);
-  } catch (error) {
-    console.error("Failed to fetch service history:", error);
-    navigate("/weekly-classes/cancellation");
-  } finally {
-    setLoading(false);
-  }
-}, []);
+  }, []);
+   const ServiceHistoryFulltto = useCallback(async (ID) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
+  
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/full-cancellation/service-history/${ID}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+  
+        const resultRaw = await response.json();
+        const result = resultRaw.data || [];
+        setServiceHistory(result);
+      } catch (error) {
+        console.error("Failed to fetch bookFreeTrials:", error);
+      } finally {
+        setLoading(false);
+      }
+    }, []);
+       const ServiceHistoryAlltto = useCallback(async (ID) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
+  
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/all/service-history/${ID}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+  
+        const resultRaw = await response.json();
+        const result = resultRaw.data || [];
+        setServiceHistory(result);
+      } catch (error) {
+        console.error("Failed to fetch bookFreeTrials:", error);
+      } finally {
+        setLoading(false);
+      }
+    }, []);
   return (
     <BookFreeTrialContext.Provider
       value={{// Free Trials
@@ -2560,11 +2632,13 @@ body: JSON.stringify({ students: updatedBookFreeTrialData })
         sendFullTomail,
         sendAllmail,
         ServiceHistoryRequestto,
-updateBookMembershipFamily,
-
+        updateBookMembershipFamily,
+removeWaiting, setRemoveWaiting,
         fetchBookFreeTrialsLoading,
         fetchBookMembershipsLoading,
-        fetchMembershipSalesLoading,
+        ServiceHistoryFulltto,
+        ServiceHistoryAlltto,
+        fetchMembershipSalesLoading, addToWaitingList, setaddToWaitingList,showCancelTrial, setshowCancelTrial
       }}>
       {children}
     </BookFreeTrialContext.Provider>

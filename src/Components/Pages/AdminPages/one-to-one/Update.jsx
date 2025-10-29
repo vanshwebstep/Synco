@@ -405,7 +405,6 @@ const handleSavePlan = async (id) => {
             }
         });
 
-        console.log("✅ levels before sending:", levels);
 
         // ✅ Append all fields
         formData.append("id", id); // 👈 must include if updating existing
@@ -444,6 +443,7 @@ const handleSavePlan = async (id) => {
                 confirmButtonColor: "#237FEA",
             });
             emptySession();
+            navigate('/one-to-one')
         } else {
             await Swal.fire({
                 icon: "error",

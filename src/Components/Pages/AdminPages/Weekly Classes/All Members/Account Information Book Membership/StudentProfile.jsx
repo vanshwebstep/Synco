@@ -21,7 +21,7 @@ const StudentProfile = ({ profile }) => {
         loading,
         addtoWaitingListSubmit, cancelMembershipSubmit,
         sendBookMembershipMail, transferMembershipSubmit,
-        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot, updateBookMembershipFamily
+        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot, updateBookMembershipFamily,removeWaiting, setRemoveWaiting,addToWaitingList, setaddToWaitingList,showCancelTrial, setshowCancelTrial
     } = useBookFreeTrial() || {};
     console.log('profile', profile)
 
@@ -53,9 +53,7 @@ const StudentProfile = ({ profile }) => {
     const [students, setStudents] = useState(profile?.students || []);
     const [editingIndex, setEditingIndex] = useState(null);
     const bookedBy = profile?.bookedByAdmin;
-    const [addToWaitingList, setaddToWaitingList] = useState(false);
-    const [showCancelTrial, setshowCancelTrial] = useState(false);
-    const [removeWaiting, setRemoveWaiting] = useState(false);
+ 
 
     const [transferVenue, setTransferVenue] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);

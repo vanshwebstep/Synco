@@ -94,6 +94,7 @@ import CreateLead from './Components/Pages/AdminPages/one-to-one/leads/CreateLea
 import Lead from './Components/Pages/AdminPages/one-to-one/leads/Lead.jsx';
 import { LeadsContextProvider } from './Components/Pages/AdminPages/contexts/LeadsContext.jsx';
 import AccountInfo from './Components/Pages/AdminPages/one-to-one/leads/leadsInfo/AccountInfo.jsx';
+import MembersDashboard from './Components/Pages/AdminPages/reports/MembersDashboard.jsx';
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
 // Role-based route component
@@ -439,7 +440,43 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-      <Route path="/one-to-one/central-leads/accont-info" element={
+      <Route path="/reports" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <AccountInfo />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/reports/members" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <MembersDashboard />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/reports/trials" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <AccountInfo />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/reports/class-capacity" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <AccountInfo />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/reports/attendance" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>

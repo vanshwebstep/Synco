@@ -18,7 +18,7 @@ import StudentProfile from "./StudentProfile";
 import Loader from "../../../contexts/Loader";
 
 const AccountInfoCancellation = (from) => {
-  const { ServiceHistoryRequestto, serviceHistory, loading } = useBookFreeTrial()
+  const { ServiceHistoryRequestto, ServiceHistoryFulltto,ServiceHistoryAlltto, serviceHistory, loading } = useBookFreeTrial()
   const navigate = useNavigate();
   const location = useLocation();
   const [itemId, setItemId] = useState(null);
@@ -33,12 +33,24 @@ const AccountInfoCancellation = (from) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (itemId) {
-        await ServiceHistoryRequestto(itemId);
+      if (!itemId) return;
+
+      try {
+        if (myCancelType === "full") {
+          await ServiceHistoryFulltto(itemId);
+        } else if (myCancelType === "all") {
+          await ServiceHistoryAlltto(itemId);
+        } else {
+          await ServiceHistoryRequestto(itemId);
+        }
+      } catch (error) {
+        console.error("Error fetching service history:", error);
       }
     };
+
     fetchData();
-  }, [itemId, ServiceHistoryRequestto]);
+  }, [itemId, myCancelType, ServiceHistoryFulltto, ServiceHistoryAlltto, ServiceHistoryRequestto]);
+
   const [activeTab, setActiveTab] = useState("Service History");
   console.log('serviceHistory', serviceHistory)
   if (loading) return <Loader />;

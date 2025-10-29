@@ -1987,6 +1987,29 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+    const ServiceHistoryFulltto = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/full-cancellation/service-history/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setServiceHistory(result);
+    } catch (error) {
+      console.error("Failed to fetch bookFreeTrials:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   return (
     <BookFreeTrialLoaderContext.Provider
       value={{// Free Trials
@@ -2075,6 +2098,7 @@ export const BookFreeTrialLoaderProvider = ({ children }) => {
         sendFullTomail,
         sendAllmail,
         ServiceHistoryRequestto,
+        ServiceHistoryFulltto,
       }}>
       {children}
     </BookFreeTrialLoaderContext.Provider>

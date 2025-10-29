@@ -236,7 +236,7 @@ console.log(selectedExercise?.description);
                       try {
                         const token = localStorage.getItem("adminToken");
                         const response = await fetch(
-                          `${API_BASE_URL}/api/admin/session-plan-group/${currentContent.id}/download-video?videolinkrandom=${encodeURIComponent(videoUrl)}`,
+                          `${API_BASE_URL}/api/admin/session-plan-group/${currentContent.id}/download-video?level=${activeTab.toLowerCase()}`,
                           {
                             method: "GET",
                             headers: {

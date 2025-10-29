@@ -231,11 +231,100 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       ],
     },
     {
+      title: "Reports",
+      icon: "/demo/synco/SidebarLogos/Reports.png",
+      path: '/reports',
+      iconHover: "/demo/synco/SidebarLogos/ReportsH.png",
+      needPermissions: [
+        { module: 'configuration', action: 'view' },
+
+      ],
+      subItems: [
+        {
+          title: "Members",
+          link: "/reports/members",
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+        },
+        {
+          title: "Trials and conversions",
+          link: "/reports/trials",
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+        },
+        {
+          title: "Sales",
+          link: "#",
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+        },
+        {
+          title: "Class Capacity",
+          link: "/reports/class-capacity",
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+        },
+        {
+          title: "Attendance",
+          link: "/reports/attendance",
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+        },
+        {
+          title: "Cancellations",
+          link: "/reports/cancellations",
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+        },
+        {
+          title: "Weekly Classes",
+          link: "/reports/weekly-classes",
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+        },
+      ],
+    },
+    {
       title: "One To One",
-      icon: "/demo/synco/SidebarLogos/config.png",
+      icon: "/demo/synco/SidebarLogos/OneTOOne.png",
       path: '/one-to-one',
       link: '/one-to-one',
-      iconHover: "/demo/synco/SidebarLogos/configH.png",
+      iconHover: "/demo/synco/SidebarLogos/OneTOOneH.png",
       needPermissions: [
         { module: 'session-exercise-one-to-one', action: 'view-listing' },
 
@@ -267,7 +356,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
 
         }
-        
+
       ],
     },
   ];
@@ -383,12 +472,14 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const toggleDropdown = (title) => {
     localStorage.removeItem("openClassIndex");
     localStorage.removeItem("openTerms");
+    localStorage.removeItem("activeTab");
     setOpenDropdowns((prev) => ({ ...prev, [title]: !prev[title] }));
   };
 
   const removeLocalstorage = () => {
     localStorage.removeItem("openClassIndex");
     localStorage.removeItem("openTerms");
+    localStorage.removeItem("activeTab");
   };
 
   const toggleMobileMenu = () => {

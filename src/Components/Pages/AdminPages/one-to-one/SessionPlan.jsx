@@ -3,8 +3,11 @@ import { Eye, User, Edit2, Trash2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../contexts/Loader";
 import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
 import { usePermission } from "../Common/permission";
 const SessionPlan = () => {
+    const MySwal = withReactContent(Swal);
     const [sessionGroup, setSessionGroup] = useState([]);
     const [loading, setLoading] = useState(false);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -46,20 +49,45 @@ const SessionPlan = () => {
         }
     }, [token, API_BASE_URL]);
     const handleDelete = async (groupId, level) => {
-        const myLevel = level.toLowerCase();
+        const myLevel = level?.toLowerCase();
+        if (!groupId || !myLevel) return;
+
         const confirm = await Swal.fire({
-            title: "Are you sure?",
-            text: "This will permanently delete the session plan.",
+            title: "Delete Session Plan?",
+            html: `
+      <p class="text-gray-700 text-sm">
+        You’re about to delete the <b>${level}</b> session plan.<br/>
+        This action cannot be undone.
+      </p>
+    `,
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!",
+            confirmButtonText: "Yes, delete it",
+            cancelButtonText: "Cancel",
+            reverseButtons: true,
+            confirmButtonColor: "#e53935",
+            cancelButtonColor: "#6c757d",
+            customClass: {
+                popup: "rounded-2xl shadow-xl",
+                confirmButton: "px-4 py-2 font-semibold",
+                cancelButton: "px-4 py-2 font-semibold",
+            },
         });
 
         if (!confirm.isConfirmed) return;
 
         try {
+            // show loading modal
+            Swal.fire({
+                title: "Deleting...",
+                html: `<div class="text-gray-600 text-sm mt-2">Please wait while we remove the session plan.</div>`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
             const response = await fetch(
                 `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/${groupId}/level/${myLevel}`,
                 {
@@ -73,15 +101,107 @@ const SessionPlan = () => {
 
             const data = await response.json();
 
-            if (response.ok) {
-                Swal.fire("Deleted!", "Session plan has been deleted.", "success");
-                // optionally trigger reload or remove item from state
-            } else {
-                Swal.fire("Error", data.message || "Failed to delete session plan", "error");
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to delete session plan");
             }
+
+            Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                text: `${level} session plan has been successfully removed.`,
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true,
+            });
+
+            fetchSessionGroup(); // refresh list
+
         } catch (error) {
             console.error("Delete error:", error);
-            Swal.fire("Error", "Something went wrong while deleting.", "error");
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.message || "Something went wrong while deleting.",
+                confirmButtonColor: "#d33",
+            });
+        }
+    };
+      const handleDeleteGroup = async (groupId, level) => {
+        const myLevel = level?.toLowerCase();
+        if (!groupId || !myLevel) return;
+
+        const confirm = await Swal.fire({
+            title: "Delete Session Plan Group?",
+            html: `
+      <p class="text-gray-700 text-sm">
+        You’re about to delete the session plan Group.<br/>
+        This action cannot be undone.
+      </p>
+    `,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it",
+            cancelButtonText: "Cancel",
+            reverseButtons: true,
+            confirmButtonColor: "#e53935",
+            cancelButtonColor: "#6c757d",
+            customClass: {
+                popup: "rounded-2xl shadow-xl",
+                confirmButton: "px-4 py-2 font-semibold",
+                cancelButton: "px-4 py-2 font-semibold",
+            },
+        });
+
+        if (!confirm.isConfirmed) return;
+
+        try {
+            // show loading modal
+            Swal.fire({
+                title: "Deleting...",
+                html: `<div class="text-gray-600 text-sm mt-2">Please wait while we remove the session plan group.</div>`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/delete/${groupId}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Failed to delete session plan group");
+            }
+
+            Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                text: data.message || `session plan group has been successfully removed.`,
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true,
+            });
+
+            fetchSessionGroup(); // refresh list
+
+        } catch (error) {
+            console.error("Delete error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.message || "Something went wrong while deleting.",
+                confirmButtonColor: "#d33",
+            });
         }
     };
     useEffect(() => {
@@ -124,6 +244,7 @@ const SessionPlan = () => {
                                 ...levelInfo[key], // title + age
                                 data: group.levels[key], // exercises or whatever is inside levels
                             }));
+                            console.log('groupsToShow', groupsToShow)
                             return (
                                 <div key={index} className="bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl w-full  h-auto">
                                     {/* Header */}
@@ -134,10 +255,14 @@ const SessionPlan = () => {
                                                 className="p-1.5 rounded-lg hover:bg-gray-100"
                                                 onClick={() => navigate(`/one-to-one/session-plan-preview?id=${group.id}`)}
                                             >
-                                                <Eye className="w-5 h-5 text-black" />
+                                                <Eye className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer" />
                                             </button>
                                             <button className="p-1.5 rounded-lg hover:bg-gray-100">
-                                                <User className="w-5 h-5 text-black" />
+                                                <img
+                                    src="/demo/synco/icons/PinIcon.png"
+                                    alt="Edit"
+                                    className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                  />
                                             </button>
                                         </div>
                                     </div>
@@ -164,18 +289,40 @@ const SessionPlan = () => {
                                                             />
                                                         </button>
                                                     }
-                                                    {canDelete &&
-                                                        <button
-                                                            className="text-gray-500 hover:text-red-500"
-                                                            onClick={() => handleDelete(group.id, groups.title)}
-                                                        >
-                                                            <img
-                                                                alt="Delete"
-                                                                className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
-                                                                src="/demo/synco/icons/deleteIcon.png"
-                                                            />
-                                                        </button>
-                                                    }
+                                                 {canDelete && (
+  <button
+    onClick={() => {
+      if (groupsToShow.length === 1) {
+        // Delete the whole group
+        handleDeleteGroup(group.id, groups.title);
+      } else {
+        // Delete only this level
+        handleDelete(group.id, groups.title);
+      }
+    }}
+    className="relative group"
+    title="Delete session plan"
+  >
+    <img
+      alt="Delete"
+      src="/demo/synco/icons/deleteIcon.png"
+      className="w-6 h-6 opacity-90 transform transition-all duration-200 
+                 group-hover:scale-110 group-hover:opacity-100 cursor-pointer"
+    />
+    {/* Tooltip */}
+    <span
+      className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 
+                 transition-all duration-200 bg-gray-800 text-white text-xs 
+                 px-2 py-1 rounded-md whitespace-nowrap shadow-md"
+    >
+      {groupsToShow.length === 1
+        ? `Delete Entire Group (${groups.title})`
+        : `Delete ${groups.title} Level`}
+    </span>
+  </button>
+)}
+
+
                                                 </div>
                                             </div>
                                         ))}

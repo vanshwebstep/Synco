@@ -341,6 +341,7 @@ export default function Create() {
                     confirmButtonColor: "#237FEA",
                 });
                 emptySession();
+                navigate(`/one-to-one`)
             } else {
                 await Swal.fire({
                     icon: "error",

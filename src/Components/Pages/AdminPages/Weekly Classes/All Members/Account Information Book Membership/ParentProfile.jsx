@@ -22,7 +22,8 @@ const ParentProfile = ({ profile }) => {
         loading,
         addtoWaitingListSubmit, cancelMembershipSubmit,
         sendBookMembershipMail, transferMembershipSubmit,
-        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot, updateBookMembershipFamily
+        addToWaitingList, setaddToWaitingList,
+        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot, updateBookMembershipFamily,removeWaiting, setRemoveWaiting,showCancelTrial, setshowCancelTrial
     } = useBookFreeTrial() || {};
     const classSchedule = profile?.classSchedule;
     const bookingId = profile?.bookingId;
@@ -50,9 +51,6 @@ const ParentProfile = ({ profile }) => {
     };
     const studentsList = profile?.students || [];
     const bookedBy = profile?.bookedByAdmin;
-    const [addToWaitingList, setaddToWaitingList] = useState(false);
-    const [showCancelTrial, setshowCancelTrial] = useState(false);
-    const [removeWaiting, setRemoveWaiting] = useState(false);
 
     const [transferVenue, setTransferVenue] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);

@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LeadsDashboard from "./LeadsDashboard";
 import SalesDashboard from "./SalesDashboard";
 import SessionPlan from "./SessionPlan";
-
+import { Handler } from "leaflet";
 
 const tabs = [
   { name: "Leads", component: <LeadsDashboard /> },
@@ -12,47 +12,34 @@ const tabs = [
 ];
 
 const Leads = () => {
-  const [activeTab, setActiveTab] = useState(tabs[0].name);
-  const navigate = useNavigate();
-//   const { loading, setMainId ,fetchMembers } = useAccountsInfo();
-//   const location = useLocation();
-//   const queryParams = new URLSearchParams(location.search);
-//   const id = queryParams.get("id"); // <-- this will be "9"  console.log('id',id)
 
-//   useEffect(() => {
-//     fetchMembers(id);
-//     if (id) {
-//       setMainId(id);
-//     }
-//   }, [])
+  const [activeTab, setActiveTab] = useState(
+    localStorage.getItem("activeTab") || tabs[0].name
+  );
 
-//   if (loading) return <Loader />;
+  useEffect(() => {
+    localStorage.setItem("activeTab", activeTab);
+  }, [activeTab]);
+
+ const handleTabChange =(tab)=>{
+    setActiveTab(tab);
+     localStorage.setItem("activeTab", tab);
+  }
 
   return (
     <div className="mt-3 relative">
-
-      <div className="flex md:max-w-[300px] items-center p-3 gap-1 rounded-2xl p-1 space-x-2">
-        {/* <h2
-          onClick={() => {
-            navigate('/weekly-classes/members-info');
-          }}>
-          <img
-            src="/demo/synco/icons/arrow-left.png"
-            alt="Back"
-            className="w-5 h-5 md:w-6 md:h-6"
-          />
-        </h2> */}
+      <div className="flex md:max-w-[300px] items-center p-3 gap-1 rounded-2xl space-x-2">
         {tabs.map((tab) => (
           <button
             key={tab.name}
-            onClick={() => setActiveTab(tab.name)}
-            className={`relative flex-1 w-auto text-[15px] md:text-base font-semibold py-3 px-4 rounded-xl transition-all ${activeTab === tab.name
-              ? "bg-[#237FEA] shadow text-white"
-              : "text-[#282829] bg-white border border-[#E2E1E5] hover:text-[#282829]"
-              }`}
+            onClick={()=> handleTabChange(tab.name)}
+            className={`relative flex-1 w-auto text-[15px] md:text-base font-semibold py-3 px-4 rounded-xl transition-all ${
+              activeTab === tab.name
+                ? "bg-[#237FEA] shadow text-white"
+                : "text-[#282829] bg-white border border-[#E2E1E5] hover:text-[#282829]"
+            }`}
           >
             {tab.name}
-
           </button>
         ))}
       </div>
