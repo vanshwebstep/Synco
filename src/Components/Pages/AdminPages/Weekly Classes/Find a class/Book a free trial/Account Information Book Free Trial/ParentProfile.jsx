@@ -350,25 +350,26 @@ const ParentProfile = ({ ParentProfile }) => {
             .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
             .join(" ");           // join with space
     };
-    const handleBookMembership = () => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "Do you want to book a membership?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#237FEA",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Book it!",
-            cancelButtonText: "Cancel",
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Navigate to your component/route
-                navigate("/weekly-classes/find-a-class/book-a-membership", {
-                    state: { TrialData: ParentProfile },
-                });
-            }
-        });
-    };
+  const handleBookMembership = () => {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to book a membership?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonColor: "#237FEA",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, Book it!",
+        cancelButtonText: "Cancel",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Navigate to your component/route
+            navigate("/weekly-classes/find-a-class/book-a-membership", {
+                state: { TrialData: ParentProfile, comesFrom: "Trials" },
+            });
+        }
+    });
+};
+
     if (loading) return <Loader />;
     console.log('parents', parents)
     return (

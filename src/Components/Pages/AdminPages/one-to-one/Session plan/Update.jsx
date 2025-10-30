@@ -4,9 +4,9 @@ import { FaEye } from "react-icons/fa";
 import { Trash2, Copy } from 'lucide-react';
 import Swal from "sweetalert2";
 import { Editor } from '@tinymce/tinymce-react';
-import Loader from "../contexts/Loader";
+import Loader from "../../contexts/Loader";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { usePermission } from "../Common/permission";
+import { usePermission } from "../../Common/permission";
 
 export default function OnetoOneUpdate() {
     const navigate = useNavigate();
@@ -927,7 +927,7 @@ console.log('SavedTabsData',savedTabsData)
                         </div>
                     )}
                     <div className="flex justify-end gap-3 mt-5">
-                        <button className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex gap-2 items-center">Preview Sessions <FaEye /> </button>
+                        <button onClick={() => navigate(`/one-to-one/session-plan-preview?id=${id}`)}  className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex gap-2 items-center">Preview Sessions <FaEye /> </button>
                         <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700" onClick={() => handleSavePlan(sessionGroup.id)}>Create Group</button>
                     </div>
 

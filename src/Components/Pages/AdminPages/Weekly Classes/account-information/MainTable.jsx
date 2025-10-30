@@ -47,12 +47,13 @@ const MainTable = () => {
         else setSelectedUserIds(members.map((user) => user.id));
     };
 
-    const statusColors = {
-        active: "bg-green-100 text-green-800",
-        "In Progress": "bg-yellow-100 text-yellow-800",
-        cancelled: "bg-red-100 text-red-800",
-        "waiting list": "bg-gray-200 text-gray-800",
-    };
+     const statusColors = {
+    active: "bg-green-500 text-white",
+    cancelled: "bg-red-500 text-white",
+    request_to_cancel : "bg-red-500 text-white",
+    pending: "bg-yellow-500 text-white",
+    frozen: "bg-blue-500 text-white",
+  };
 
     useEffect(() => {
         fetchMembers();

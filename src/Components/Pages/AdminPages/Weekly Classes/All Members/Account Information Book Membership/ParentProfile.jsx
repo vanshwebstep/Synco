@@ -23,7 +23,7 @@ const ParentProfile = ({ profile }) => {
         addtoWaitingListSubmit, cancelMembershipSubmit,
         sendBookMembershipMail, transferMembershipSubmit,
         addToWaitingList, setaddToWaitingList,
-        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot, updateBookMembershipFamily,removeWaiting, setRemoveWaiting,showCancelTrial, setshowCancelTrial
+        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot, updateBookMembershipFamily, removeWaiting, setRemoveWaiting, showCancelTrial, setshowCancelTrial
     } = useBookFreeTrial() || {};
     const classSchedule = profile?.classSchedule;
     const bookingId = profile?.bookingId;
@@ -1033,6 +1033,7 @@ const ParentProfile = ({ profile }) => {
                                             }
 
                                             // ✅ Proceed if class is selected
+                                            setaddToWaitingList(false)
                                             addtoWaitingListSubmit(waitingListData, "allMembers");
                                         }}
                                     >
@@ -1191,7 +1192,7 @@ const ParentProfile = ({ profile }) => {
                                         Cancellation Type
                                     </label>
 
-                                 {cancelType.map((option) => (
+                                    {cancelType.map((option) => (
                                         <label key={option.value} className="flex mt-4  items-center mb-2 cursor-pointer">
                                             <label className="flex items-center cursor-pointer space-x-2">
                                                 <input
@@ -1280,9 +1281,9 @@ const ParentProfile = ({ profile }) => {
 
                                 {/* Buttons */}
                                 <div className="flex justify-end gap-4 pt-4">
-                                     <button
+                                    <button
                                         onClick={() => {
-                                            // Validation
+                                            // Validation: cancellation type
                                             if (!cancelData.cancellationType) {
                                                 Swal.fire({
                                                     icon: "warning",
@@ -1292,6 +1293,7 @@ const ParentProfile = ({ profile }) => {
                                                 return;
                                             }
 
+                                            // Validation: cancel date (only if not immediate)
                                             if (cancelData.cancellationType !== "immediate" && !cancelData.cancelDate) {
                                                 Swal.fire({
                                                     icon: "warning",
@@ -1301,6 +1303,7 @@ const ParentProfile = ({ profile }) => {
                                                 return;
                                             }
 
+                                            // Validation: reason
                                             if (!cancelData.cancelReason) {
                                                 Swal.fire({
                                                     icon: "warning",
@@ -1310,13 +1313,17 @@ const ParentProfile = ({ profile }) => {
                                                 return;
                                             }
 
-                                            // If all validations pass → call submit function
+                                            // ✅ All validations passed → close modal immediately
+
+                                            setshowCancelTrial(false)
+                                            // 🔥 Then call API (don’t wait for response)
                                             cancelMembershipSubmit(cancelData, "allMembers");
                                         }}
                                         className="w-1/2 bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
                                     >
                                         Cancel Membership
                                     </button>
+
                                 </div>
                             </div>
                         </div>
@@ -1598,7 +1605,7 @@ const ParentProfile = ({ profile }) => {
                                                 });
                                                 return;
                                             }
-
+                                            setFreezeMembership(false)
                                             // ✅ Submit when all fields are filled
                                             freezerMembershipSubmit(freezeData, "allMembers");
                                         }}

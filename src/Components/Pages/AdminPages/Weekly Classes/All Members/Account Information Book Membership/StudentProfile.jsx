@@ -1269,6 +1269,8 @@ const StudentProfile = ({ profile }) => {
                                             }
 
                                             // If all validations pass → call submit function
+                                            
+                                            setshowCancelTrial(false)
                                             cancelMembershipSubmit(cancelData, "allMembers");
                                         }}
                                         className="w-1/2 bg-[#FF6C6C] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
@@ -1558,6 +1560,7 @@ const StudentProfile = ({ profile }) => {
                                             }
 
                                             // ✅ Submit when all fields are filled
+                                            setFreezeMembership(false)
                                             freezerMembershipSubmit(freezeData, "allMembers");
                                         }}
                                     >

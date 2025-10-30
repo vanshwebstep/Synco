@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LeadsDashboard from "./LeadsDashboard";
 import SalesDashboard from "./SalesDashboard";
-import SessionPlan from "./SessionPlan";
 import { Handler } from "leaflet";
+import SessionPlan from "./Session plan/SessionPlan";
 
 const tabs = [
   { name: "Leads", component: <LeadsDashboard /> },

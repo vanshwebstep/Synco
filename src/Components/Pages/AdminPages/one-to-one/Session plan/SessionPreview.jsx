@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef ,useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { formatDistanceToNow } from 'date-fns';
-import Loader from '../contexts/Loader';
+import Loader from '../../contexts/Loader';
 
 const levelKeyToLabel = {
   beginner: "Beginner",
@@ -15,50 +15,50 @@ const SessionPreview = ({ item, sessionData }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [recording, setRecording] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
-      const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("adminToken");
 
   const [videoDuration, setVideoDuration] = useState(null);
   const [currentRecording, setCurrentRecording] = useState(null); // url of playing recording
   const audioRef = useRef(null);
   const [activeTab, setActiveTab] = useState('Beginner');
   const [myData, setMyData] = useState({});
-    const [selectedGroup, setSelectedGroup] = useState([]);
-    const [loading, setLoading] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const id = searchParams.get("id");
 
-    const fetchSessionGroup = useCallback(async () => {
-        if (!token) return;
-        setLoading(true);
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/listing/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+  const fetchSessionGroup = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/listing/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-            if (!response.ok) {
-                // If response is not OK, throw error
-                const errData = await response.json();
-                throw new Error(errData.message || "Failed to fetch session groups");
-            }
+      if (!response.ok) {
+        // If response is not OK, throw error
+        const errData = await response.json();
+        throw new Error(errData.message || "Failed to fetch session groups");
+      }
 
-            const result = await response.json();
-            console.log('result', result);
-            setSelectedGroup(result.data || []);
-        } catch (err) {
-            console.error("Failed to fetch sessionGroup:", err);
-            await Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: err.message || "Something went wrong while fetching session groups",
-                confirmButtonColor: '#d33',
-            });
-        } finally {
-            setLoading(false);
-        }
-    }, [token, API_BASE_URL]);
+      const result = await response.json();
+      console.log('result', result);
+      setSelectedGroup(result.data || []);
+    } catch (err) {
+      console.error("Failed to fetch sessionGroup:", err);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message || "Something went wrong while fetching session groups",
+        confirmButtonColor: '#d33',
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [token, API_BASE_URL]);
   // Fetch group on load
   useEffect(() => {
     if (id) {
@@ -121,7 +121,7 @@ const SessionPreview = ({ item, sessionData }) => {
   }, [currentContent]);
   useEffect(() => {
     if (selectedGroup && activeTab) {
-        console.log('activeTab',selectedGroup)
+      console.log('activeTab', selectedGroup)
 
       const tabKey = activeTab.toLowerCase().replace(/s$/, "");
       const fieldName = `${tabKey}_upload`;
@@ -141,7 +141,7 @@ const SessionPreview = ({ item, sessionData }) => {
       } else {
         setVideoUrl(null); // no match found
       }
-       if (selectedGroup[videoDuration]) {
+      if (selectedGroup[videoDuration]) {
         setVideoDuration(selectedGroup[videoDuration]);
       } else {
         setVideoDuration(null); // no match found
@@ -171,10 +171,10 @@ const SessionPreview = ({ item, sessionData }) => {
       </>
     )
   }
-  
-console.log(selectedExercise?.description);
 
-  console.log('currentContent', currentContent)
+  console.log(selectedExercise?.description);
+
+  console.log('videoUrl', videoUrl)
   return (
     <div className="md:py-6 bg-gray-50 min-h-screen preview-sec">
       {/* Header */}
@@ -248,13 +248,15 @@ console.log(selectedExercise?.description);
                 <p className="text-[16px] text-[#717073] font-semibold border-b border-gray-300 pb-4 ">
                   {currentContent.description}
                 </p>
-                {videoUrl && (
+                {videoUrl && videoUrl.trim() !== "" && (
                   <video
                     src={videoUrl}
                     controls
-                    className="w-full  pt-3 rounded-4xl"
+                    className="w-full pt-3 rounded-[2rem]"
                   />
                 )}
+
+
                 <div className='flex items-center  mb-0 mt-4 justify-between' >
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
@@ -393,7 +395,7 @@ console.log(selectedExercise?.description);
                     <div>
 
                       <div
-                      className="prose prose-sm space-y-6 max-w-none text-gray-700
+                        className="prose prose-sm space-y-6 max-w-none text-gray-700
     prose-p:mb-3 prose-li:mb-2
     prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
     prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5

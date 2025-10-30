@@ -100,7 +100,9 @@ const BookingCard = ({ booking }) => {
   const statusColors = {
     active: "bg-green-500 text-white",
     cancelled: "bg-red-500 text-white",
+    request_to_cancel : "bg-red-500 text-white",
     pending: "bg-orange-500 text-white",
+    frozen: "bg-blue-500 text-white",
   };
   console.log('booking', booking)
   return (

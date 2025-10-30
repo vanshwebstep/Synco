@@ -950,7 +950,7 @@ const AddtoWaitingList = () => {
 
           <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
             <div className="">
-              <h2 className="text-[24px] font-semibold">Select trial Date </h2>
+              <h2 className="text-[24px] font-semibold">Select Trial Date </h2>
 
               <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
                 {/* Header */}

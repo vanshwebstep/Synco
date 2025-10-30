@@ -75,14 +75,14 @@ const List = () => {
     const [result, setResult] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
-    const { classId, TrialData } = location.state || {};
+    const { classId, TrialData, comesFrom } = location.state || {};
     const popup1Ref = useRef(null);
     const popup2Ref = useRef(null);
     const popup3Ref = useRef(null);
     const img3Ref = useRef(null); // add a ref for the image
     const img1Ref = useRef(null); // add a ref for the image
     const img2Ref = useRef(null); // add a ref for the image
-
+    console.log('comesFrom', comesFrom)
     const [showPopup, setShowPopup] = useState(false);
     const [directDebitData, setDirectDebitData] = useState([]);
     const [payment, setPayment] = useState({
@@ -258,9 +258,9 @@ const List = () => {
         fetchData();
     }, [finalClassId, fetchFindClassID, fetchKeyInfo]);
     const [activePopup, setActivePopup] = useState(null);
-  const togglePopup = (id) => {
-    setActivePopup((prev) => (prev === id ? null : id));
-};
+    const togglePopup = (id) => {
+        setActivePopup((prev) => (prev === id ? null : id));
+    };
     const [openForm, setOpenForm] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedPlans, setSelectedPlans] = useState([]);
@@ -669,22 +669,22 @@ const List = () => {
             );
         });
     };
-const handleClickOutside = (e) => {
-    if (
-        (activePopup === 1 && popup1Ref.current && !popup1Ref.current.contains(e.target) && img1Ref.current && !img1Ref.current.contains(e.target)) ||
-        (activePopup === 2 && popup2Ref.current && !popup2Ref.current.contains(e.target) && img2Ref.current && !img2Ref.current.contains(e.target)) ||
-        (activePopup === 3 && popup3Ref.current && !popup3Ref.current.contains(e.target) && img3Ref.current && !img3Ref.current.contains(e.target))
-    ) {
-        togglePopup(null);
-    }
-};
-
-useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
+    const handleClickOutside = (e) => {
+        if (
+            (activePopup === 1 && popup1Ref.current && !popup1Ref.current.contains(e.target) && img1Ref.current && !img1Ref.current.contains(e.target)) ||
+            (activePopup === 2 && popup2Ref.current && !popup2Ref.current.contains(e.target) && img2Ref.current && !img2Ref.current.contains(e.target)) ||
+            (activePopup === 3 && popup3Ref.current && !popup3Ref.current.contains(e.target) && img3Ref.current && !img3Ref.current.contains(e.target))
+        ) {
+            togglePopup(null);
+        }
     };
-}, [activePopup]);
+
+    useEffect(() => {
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [activePopup]);
     useEffect(() => {
         if (singleClassSchedulesOnly?.venue?.paymentGroups?.length > 0) {
             const cleanedPlans = singleClassSchedulesOnly.venue.paymentGroups[0].paymentPlans.map(plan => ({
@@ -900,7 +900,11 @@ useEffect(() => {
             <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
 
                 <h2 onClick={() => {
-                    navigate('/weekly-classes/find-a-class');
+                    if (comesFrom && comesFrom.toLowerCase() === "trials") {
+                        navigate("/weekly-classes/trial/list");
+                    } else {
+                        navigate("/weekly-classes/find-a-class");
+                    }
                 }}
                     className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
                 >
@@ -915,7 +919,7 @@ useEffect(() => {
                 </h2>
                 <div className="flex gap-3 relative items-center">
                     <img
-                    ref={img1Ref}
+                        ref={img1Ref}
                         src="/demo/synco/members/booktrial1.png"
                         className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 1 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
                         onClick={() => togglePopup(1)}
@@ -1004,26 +1008,26 @@ useEffect(() => {
 
 
 
-                    <img    ref={img3Ref}
+                    <img ref={img3Ref}
 
-    src="/demo/synco/members/booktrial3.png"
-    alt=""
-    onClick={() => togglePopup(3)}
-    className={`rounded-full hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 3 ? 'bg-[#0DD180]' : 'bg-gray-700'}`}
-/>
-{activePopup === 3 && (
-    <div
-        ref={popup3Ref}
-        className="absolute top-full z-50 mt-2 right-0 w-[300px] p-4 bg-white rounded-2xl shadow-lg text-sm text-gray-700"
-    >
-        <div className="font-semibold mb-2 text-[18px]">Phone Script</div>
-        <textarea
-            readOnly
-            className="w-full min-h-[100px] resize-none text-[16px] leading-relaxed bg-transparent focus:outline-none"
-            defaultValue="In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface."
-        />
-    </div>
-)}
+                        src="/demo/synco/members/booktrial3.png"
+                        alt=""
+                        onClick={() => togglePopup(3)}
+                        className={`rounded-full hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 3 ? 'bg-[#0DD180]' : 'bg-gray-700'}`}
+                    />
+                    {activePopup === 3 && (
+                        <div
+                            ref={popup3Ref}
+                            className="absolute top-full z-50 mt-2 right-0 w-[300px] p-4 bg-white rounded-2xl shadow-lg text-sm text-gray-700"
+                        >
+                            <div className="font-semibold mb-2 text-[18px]">Phone Script</div>
+                            <textarea
+                                readOnly
+                                className="w-full min-h-[100px] resize-none text-[16px] leading-relaxed bg-transparent focus:outline-none"
+                                defaultValue="In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface."
+                            />
+                        </div>
+                    )}
 
                 </div>
             </div>
@@ -1247,7 +1251,7 @@ useEffect(() => {
                                     className="bg-white p-6 rounded-3xl shadow-sm space-y-6"
                                 >
                                     <h2 className="text-[20px] font-semibold">
-                                        Student {index + 1} Information
+                                        Student {index > 0 ? `${index + 1} ` : ''}Information
                                     </h2>
 
                                     {/* Row 1 */}

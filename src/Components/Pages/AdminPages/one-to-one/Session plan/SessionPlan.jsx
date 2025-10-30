@@ -2,12 +2,12 @@ import React, { useEffect, useState, useCallback } from "react";
 
 import { Eye, User, Edit2, Trash2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Loader from "../contexts/Loader";
+import Loader from "../../contexts/Loader";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { Loader2 } from "lucide-react";
 
-import { usePermission } from "../Common/permission";
+import { usePermission } from "../../Common/permission";
 const SessionPlan = () => {
     const MySwal = withReactContent(Swal);
     const [sessionGroup, setSessionGroup] = useState([]);
@@ -207,45 +207,45 @@ const SessionPlan = () => {
             });
         }
     };
-const handlePinToggle = async (groupId, pinned = false, forceRePin = false) => {
-    try {
-        setLoadingPinId(groupId);
+    const handlePinToggle = async (groupId, pinned = false, forceRePin = false) => {
+        try {
+            setLoadingPinId(groupId);
 
-        // ✅ Logic: if already pinned, make unpin (0); if not pinned, make pin (1)
-        // If forceRePin is true (from "Re-pin All"), always set pinned = 1
-        const payload = { pinned: forceRePin ? 1 : pinned ? 0 : 1 };
+            // ✅ Logic: if already pinned, make unpin (0); if not pinned, make pin (1)
+            // If forceRePin is true (from "Re-pin All"), always set pinned = 1
+            const payload = { pinned: forceRePin ? 1 : pinned ? 0 : 1 };
 
-        const response = await fetch(
-            `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/${groupId}/repin`,
-            {
-                method: "PATCH",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/${groupId}/repin`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
-        );
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const data = await response.json();
+            console.log("Pin/Unpin success:", data);
+
+            fetchSessionGroup();
+            setSessionGroup(prev =>
+                prev.map(g =>
+                    g.id === groupId ? { ...g, pinned: payload.pinned === 1 } : g
+                )
+            );
+        } catch (error) {
+            console.error("Error pinning/unpinning:", error);
+        } finally {
+            setLoadingPinId(null);
         }
-
-        const data = await response.json();
-        console.log("Pin/Unpin success:", data);
-
-        fetchSessionGroup();
-        setSessionGroup(prev =>
-            prev.map(g =>
-                g.id === groupId ? { ...g, pinned: payload.pinned === 1 } : g
-            )
-        );
-    } catch (error) {
-        console.error("Error pinning/unpinning:", error);
-    } finally {
-        setLoadingPinId(null);
-    }
-};
+    };
 
 
     useEffect(() => {
@@ -264,22 +264,22 @@ const handlePinToggle = async (groupId, pinned = false, forceRePin = false) => {
             <div className="flex justify-between py-5">
                 <h2 className="font-bold text-2xl">Session Plan Structure</h2>
                 <button
-    className="bg-[#237FEA] text-white p-3 px-4 rounded-2xl hover:bg-[#1f6fd2] transition"
-    // onClick={async () => {
-    //     setLoadingPinId("all");
+                    className="bg-[#237FEA] text-white p-3 px-4 rounded-2xl hover:bg-[#1f6fd2] transition"
+                    // onClick={async () => {
+                    //     setLoadingPinId("all");
 
-    //     for (const group of sessionGroup) {
-    //         if (group.pinned) { // ✅ only re-pin pinned ones
-    //             await handlePinToggle(group.id, true, true);
-    //         }
-    //     }
+                    //     for (const group of sessionGroup) {
+                    //         if (group.pinned) { // ✅ only re-pin pinned ones
+                    //             await handlePinToggle(group.id, true, true);
+                    //         }
+                    //     }
 
-    //     setLoadingPinId(null);
-    // }}
-    disabled={loadingPinId !== null}
->
-    {loadingPinId ? "Re-pinning..." : "Re Pin Group"}
-</button>
+                    //     setLoadingPinId(null);
+                    // }}
+                    disabled={loadingPinId !== null}
+                >
+                    {loadingPinId ? "Re-pinning..." : "Re Pin Group"}
+                </button>
 
             </div>
 
@@ -311,33 +311,32 @@ const handlePinToggle = async (groupId, pinned = false, forceRePin = false) => {
                                     {/* Header */}
                                     <div className="flex items-center justify-between p-5">
                                         <h2 className="text-[24px] font-semibold text-[#282829]">{group.groupName}</h2>
-                                        <div className="flex items-center gap-1">
+                                        <div className="flex items-center gap-2">
                                             <button
-                                                className="p-1.5 rounded-lg hover:bg-gray-100"
+                                                className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                                 onClick={() => navigate(`/one-to-one/session-plan-preview?id=${group.id}`)}
                                             >
-                                                <Eye className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer" />
+                                                <Eye size={24} />
                                             </button>
-                                           <button
-    className="p-1.5 rounded-lg hover:bg-gray-100"
-    onClick={() => handlePinToggle(group.id, group.pinned)}
-    disabled={loadingPinId === group.id}
->
-    {loadingPinId === group.id ? (
-        <Loader2 className="w-6 h-6 opacity-70 animate-spin " />
-    ) : (
-        <img
-            src={
-                group.pinned
-                    ? "/demo/synco/icons/PinIcon.png"
-                    : "/demo/synco/icons/PinIcon.png"
-            }
-            alt="Pin"
-className={`w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100  cursor-pointer rounded-full ${
-  group.pinned ? " opacity-90 " : "opacity-20"
-}`}        />
-    )}
-</button>
+                                            <button
+                                                className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                                onClick={() => handlePinToggle(group.id, group.pinned)}
+                                                disabled={loadingPinId === group.id}
+                                            >
+                                                {loadingPinId === group.id ? (
+                                                    <Loader2 className="w-6 h-6 opacity-70 animate-spin " />
+                                                ) : (
+                                                    <img
+                                                        src={
+                                                            group.pinned
+                                                                ? "/demo/synco/icons/PinIcon.png"
+                                                                : "/demo/synco/icons/PinIcon.png"
+                                                        }
+                                                        alt="Pin"
+                                                        className={`w-5 h-5 transition-transform duration-200 transform hover:scale-110 hover:opacity-100  cursor-pointer  ${group.pinned ? " opacity-90 " : "opacity-20"
+                                                            }`} />
+                                                )}
+                                            </button>
 
 
                                         </div>
@@ -392,7 +391,7 @@ className={`w-6 h-6 transition-transform duration-200 transform hover:scale-110 
                  px-2 py-1 rounded-md whitespace-nowrap shadow-md"
                                                             >
                                                                 {groupsToShow.length === 1
-                                                                    ? `Delete Entire Group (${groups.title})`
+                                                                    ? `Delete Entire Group`
                                                                     : `Delete ${groups.title} Level`}
                                                             </span>
                                                         </button>

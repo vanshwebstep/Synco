@@ -500,19 +500,24 @@ console.log('capacityData',capacityData)
 
                                                                                         return (
                                                                                             <div
-                                                                                                key={idx}
-                                                                                                className="w-10 h-10 rounded-md border flex items-center justify-center"
-                                                                                                style={{
-                                                                                                    backgroundColor: item.color,
-                                                                                                    borderColor: item.borderColor,
-                                                                                                    color: item.textColor
-                                                                                                }}
-                                                                                                title={`${item.label}: ${item.value}`}
-                                                                                            >
-                                                                                                <span className="text-[18px] font-semibold flex">
-                                                                                                    {item.icon} {displayValue}
-                                                                                                </span>
-                                                                                            </div>
+  key={idx}
+  className="w-10 h-10 rounded-md border flex items-center justify-center"
+  style={{
+    backgroundColor: item.color,
+    borderColor: item.borderColor,
+    color: item.textColor,
+    whiteSpace: "nowrap", // 🔹 Prevents wrapping
+    overflow: "hidden", // Optional: hides overflow if too long
+    textOverflow: "ellipsis", // Optional: adds "..." for long text
+  }}
+  title={`${item.label}: ${item.value}`}
+>
+  <span className="text-[18px] font-semibold flex items-center justify-center gap-1">
+    {item.icon}
+    {displayValue}
+  </span>
+</div>
+
                                                                                         );
                                                                                     })}
 

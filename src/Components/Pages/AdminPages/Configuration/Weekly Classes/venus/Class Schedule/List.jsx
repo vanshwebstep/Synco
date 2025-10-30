@@ -427,7 +427,7 @@ const List = () => {
                                                 </div>
                                                 <div className='text-[#717073] font-semibold text-[16px]'>
                                                     <p className="text-[#717073]">Day</p>
-                                                    <p className="font-semibold">{item.day}</p>
+                                                    <p className="font-semibold capitalize">{item.day}</p>
                                                 </div>
                                                 <div className='text-[#717073] font-semibold text-[16px]'>
                                                     <p className="text-[#717073]">Start time</p>

@@ -79,11 +79,11 @@ import Account from './Components/Pages/AdminPages/Weekly Classes/account-inform
 import Preview from './Components/Pages/AdminPages/configuration/Weekly Classes/Session plan library/Preview.jsx';
 import MainTable from './Components/Pages/AdminPages/Weekly Classes/account-information/MainTable.jsx';
 import { AccountsInfoProvider } from './Components/Pages/AdminPages/contexts/AccountsInfoContext.jsx';
-import SessionPlan from './Components/Pages/AdminPages/one-to-one/SessionPlan.jsx';
-import Create from './Components/Pages/AdminPages/one-to-one/Create.jsx';
-import OnetoOneUpdate from './Components/Pages/AdminPages/one-to-one/Update.jsx';
+import SessionPlan from './Components/Pages/AdminPages/one-to-one/Session plan/SessionPlan.jsx';
+import Create from './Components/Pages/AdminPages/one-to-one/Session plan/Create.jsx';
+import OnetoOneUpdate from './Components/Pages/AdminPages/one-to-one/Session plan/Update.jsx';
 
-import SessionPreview from './Components/Pages/AdminPages/one-to-one/SessionPreview.jsx';
+import SessionPreview from './Components/Pages/AdminPages/one-to-one/Session plan/SessionPreview.jsx';
 import LeadsDashboard from './Components/Pages/AdminPages/one-to-one/LeadsDashboard.jsx';
 import SalesDashboard from './Components/Pages/AdminPages/one-to-one/SalesDashboard.jsx';
 import BookingForm from './Components/Pages/AdminPages/one-to-one/BookingForm.jsx';
@@ -365,6 +365,15 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <Leads />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+            <Route path="/one-to-one/session-plan" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SessionPlan />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
