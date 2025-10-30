@@ -232,9 +232,9 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     },
     {
       title: "Reports",
-      icon: "/demo/synco/SidebarLogos/Reports.png",
+      icon: "/demo/synco/reportsIcons/reports.png",
       path: '/reports',
-      iconHover: "/demo/synco/SidebarLogos/ReportsH.png",
+      iconHover: "/demo/synco/reportsIcons/camper.png",
       needPermissions: [
         { module: 'configuration', action: 'view' },
 
@@ -264,7 +264,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         },
         {
           title: "Sales",
-          link: "#",
+          link: "/reports/sales",
           needPermissions: [
             { module: "venue", action: "view-listing" },
             { module: "term-group", action: "view-listing" },
@@ -321,10 +321,10 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     },
     {
       title: "One To One",
-      icon: "/demo/synco/SidebarLogos/OneTOOne.png",
+      icon: "/demo/synco/reportsIcons/user.png",
       path: '/one-to-one',
       link: '/one-to-one',
-      iconHover: "/demo/synco/SidebarLogos/OneTOOneH.png",
+      iconHover: "/demo/synco/reportsIcons/userH.png",
       needPermissions: [
         { module: 'session-exercise-one-to-one', action: 'view-listing' },
 

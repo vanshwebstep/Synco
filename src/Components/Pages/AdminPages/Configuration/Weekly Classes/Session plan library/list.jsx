@@ -396,7 +396,7 @@ const handleSaveWeekTitle = useCallback(
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className={`bg-gray-100 rounded-2xl p-4 w-full md:min-w-[374px] md:max-w-xs transform ${snapshot.isDragging ? 'scale-105 shadow-xl transition-transform duration-200' : ''
+                      className={`bg-[#FAFAFA] rounded-2xl border border-gray-300  p-4 w-full md:min-w-[374px] md:max-w-xs transform ${snapshot.isDragging ? 'scale-105 shadow-xl transition-transform duration-200' : ''
                         }`}
                     >
                       <div className="flex items-center justify-between p-2 w-full gap-2">

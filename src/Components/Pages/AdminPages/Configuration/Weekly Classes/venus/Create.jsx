@@ -216,7 +216,7 @@ const Create = ({ groups, termGroup }) => {
       .filter(Boolean)
     : [];
   const facilityOptions = [
-    { value: "", label: "Facility" },
+    // { value: "", label: "Facility" },  
     { value: "Indoor", label: "Indoor" },
     { value: "Outdoor", label: "Outdoor" },
   ];
@@ -370,7 +370,7 @@ const Create = ({ groups, termGroup }) => {
 >
               {labels.length > 0
                 ? labels.join(", ")
-                : "Select Term Date Linkage"}
+                : "Select Term Date Group"}
             </div>
 
             <AnimatePresence>
@@ -413,16 +413,17 @@ const Create = ({ groups, termGroup }) => {
             <label className="block font-semibold text-[16px] pb-2">
               Subscription Plan Linkage
             </label>
-            <div
-              onClick={() => setShowSubDropdown(!showSubDropdown)}
-              className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white relative cursor-pointer
-              after:content-[''] after:absolute after:right-4 after:top-1/2 after:-translate-y-1/2 
-  after:w-2 after:h-2 after:border-r-2 after:border-b-2 after:border-[#717073] after:rotate-45"
-            >
-              {selectedSub
-                ? subOptions.find(opt => opt.id === selectedSub)?.label
-                : "Select Subscription Plan"}
-            </div>
+       <div
+  onClick={() => setShowSubDropdown(!showSubDropdown)}
+  className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white relative cursor-pointer
+  after:content-[''] after:absolute after:right-4 after:top-1/2 after:-translate-y-1/2 
+  after:w-2 after:h-2 after:border-r-2 after:border-b-2 after:border-[#717073] after:rotate-45 min-h-[40px] flex items-center"
+>
+  {selectedSub
+    ? subOptions.find(opt => opt.id === selectedSub)?.label
+    : <span className="invisible">placeholder</span>}
+</div>
+
 
             <AnimatePresence>
               {showSubDropdown && (

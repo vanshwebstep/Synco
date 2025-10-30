@@ -46,7 +46,14 @@ const routeTitleMap = {
   '/weekly-classes/members-info': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
   '/weekly-classes/cancellation/account-info/': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
   '/weekly-classes/add-to-waiting-list': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
-    '/one-to-one': { title: 'One to One ',icon: '/demo/synco/members/Profile.png'  },
+  '/one-to-one': { title: 'One to One ', icon: '/demo/synco/members/Profile.png' },
+  '/reports/members': { title: 'Members ', icon: '/demo/synco/reportsIcons/report.png' },
+  '/reports/trials': { title: 'Trials and conversions ', icon: '/demo/synco/reportsIcons/report.png' },
+  '/reports/sales': { title: 'Sales', icon: '/demo/synco/reportsIcons/report.png' },
+  '/reports/class-capacity': { title: 'Class Capacity', icon: '/demo/synco/reportsIcons/report.png' },
+  '/reports/attendance': { title: 'Student Attendance', icon: '/demo/synco/reportsIcons/report.png' },
+  '/reports/cancellations': { title: 'Cancellations', icon: '/demo/synco/reportsIcons/report.png' },
+  '/reports/weekly-classes': { title: 'Parent Feedback', icon: '/demo/synco/reportsIcons/report.png' },
 
 
 

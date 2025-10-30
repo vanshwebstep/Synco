@@ -553,19 +553,19 @@ const List = () => {
     <div className="pt-1 bg-gray-50 min-h-screen">
 
       <div className="md:flex w-full gap-4">
-        <div>
+        <div className={`transition-all duration-300 ${isOpen ? "w-3/12" : " overflow-hidden"}`}>
           {/* Toggle Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center gap-2 px-4 py-2 bg-[#0098d9] text-white rounded-xl mb-4"
           >
-
             {isOpen ? "Hide" : "Show"}
           </button>
 
+
           <AnimatePresence>
             {isOpen && (
-              <motion.div className="md:min-w-[322px] md:max-w-[322px] bg-white p-6 rounded-3xl shadow-sm text-sm space-y-5 transition-all duration-300" initial={{ opacity: 0 }}
+              <motion.div className=" bg-white p-6 rounded-3xl shadow-sm text-sm space-y-5 transition-all duration-300" initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}>
                 {/* Search */}
@@ -573,21 +573,21 @@ const List = () => {
                   <div className='flex justify-between '>
                     <h2 className="text-[24px] font-semibold">Search by filter</h2>
 
-<div className="relative group inline-block">
-<ListRestartIcon
-  className="cursor-pointer"
-  onClick={() => {
-    setSelectedVenues([]);
-    setSelectedDays([]);
-    setSearchVenue('')
-    setSearchPostcode('')
-    setShowAvailableOnly(false);
-  }}
-/>
-  <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-white border  border-gray-200 text-gray-700 text-xs rounded py-1 px-2 whitespace-nowrap transition-opacity duration-200">
-    Reset Filters
-  </span>
-</div>
+                    <div className="relative group inline-block">
+                      <ListRestartIcon
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setSelectedVenues([]);
+                          setSelectedDays([]);
+                          setSearchVenue('')
+                          setSearchPostcode('')
+                          setShowAvailableOnly(false);
+                        }}
+                      />
+                      <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 bg-white border  border-gray-200 text-gray-700 text-xs rounded py-1 px-2 whitespace-nowrap transition-opacity duration-200">
+                        Reset Filters
+                      </span>
+                    </div>
                   </div>
                   <div className="relative">
                     <input
@@ -686,7 +686,7 @@ const List = () => {
           </AnimatePresence>
         </div>
         <div
-          className={`transition-all duration-300 flex-1 `}>
+          className={`${isOpen ? "w-12/12" : "w-9/12"} transition-all   duration-300 flex-1 `}>
           {
             venues.length > 1 ? (
 
@@ -753,7 +753,7 @@ const List = () => {
 
                         </div>
 
-                        <div className="p-5 flex flex-col lg:flex-row gap-8  bg-[#FCF9F6] overflow-x-scroll "> {/* ✅ responsive layout */}
+                        <div className=' overflow-x-scroll'><div className="p-5 flex flex-col lg:flex-row gap-8 min-w-[900px]  bg-[#FCF9F6]  "> {/* ✅ responsive layout */}
                           {/* Meta Info */}
                           <div className="w-full lg:w-3/12 space-y-1 ">
                             <div className='flex gap-5 items-center'>
@@ -796,7 +796,7 @@ const List = () => {
                                         <div className="font-bold text-[16px] text-black whitespace-nowrap">Class {i + 1}</div>
 
                                         {/* Class Name */}
-                                        <div className="font-semibold text-[16px] min-w-25 max-w-25 ">{s.className}</div>
+                                        <div className="font-semibold text-[16px] min-w-22 max-w-22 ">{s.className}</div>
 
                                         {/* Time */}
                                         <div className="font-semibold text-[16px] whitespace-nowrap flex gap-2 items-center min-w-40">
@@ -1016,61 +1016,62 @@ const List = () => {
                           )}
 
                         </div>
-                        {showModal === venue.venueId && (
-                          <div className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
-                            <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="flex z-[999999999] items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
-                              <div ref={iconContainerRef} className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
-                                {/* Header */}
-                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-                                  <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
-                                  <button className="text-gray-400 hover:text-black text-xl font-bold">
-                                    <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
-                                  </button>
+                          {showModal === venue.venueId && (
+                            <div className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
+                              <div ref={iconContainerRef} className="flex z-[999999999] items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
+                                <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+                                  {/* Header */}
+                                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
+                                    <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
+                                    <button className="text-gray-400 hover:text-black text-xl font-bold">
+                                      <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
+                                    </button>
+                                  </div>
+                                  <PlanTabs selectedPlans={selectedPlans} />
                                 </div>
-                                <PlanTabs selectedPlans={selectedPlans} />
                               </div>
                             </div>
-                          </div>
-                        )}
-                        {openMapId === venue.venueId && (
-                          <div ref={iconContainerRef}>
-                            <div
-                              ref={(el) => (modalRefs.current[venue.venueId] = el)}
-                              className="mt-4 h-[450px] w-full rounded-lg overflow-hidden"
-                            >
-                              {venue.latitude && venue.longitude ? (
-                                <MapContainer
-                                  center={[venue.latitude, venue.longitude]}
-                                  zoom={13}
-                                  scrollWheelZoom={false}
-                                  zoomControl={false}
-                                  style={{ height: "100%", width: "100%" }}
-                                >
-                                  <TileLayer
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                                  />
-                                  <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
-                                    <Popup>
-                                      <strong>{venue.venueName}</strong>
-                                      <br />
-                                      {venue.address}
-                                    </Popup>
-                                  </Marker>
-                                  <ZoomControl position="bottomright" />
-                                  <ResizeMap />
-                                </MapContainer>
-                              ) : (
-                                <div className="flex items-center justify-center h-full bg-gray-100 text-gray-500 text-lg font-medium">
-                                  No map location found
-                                </div>
-                              )}
+                          )}
+                          {openMapId === venue.venueId && (
+                            <div ref={iconContainerRef}>
+                              <div
+                                ref={(el) => (modalRefs.current[venue.venueId] = el)}
+                                className="mt-4 h-[450px] w-full rounded-lg overflow-hidden"
+                              >
+                                {venue.latitude && venue.longitude ? (
+                                  <MapContainer
+                                    center={[venue.latitude, venue.longitude]}
+                                    zoom={13}
+                                    scrollWheelZoom={false}
+                                    zoomControl={false}
+                                    style={{ height: "100%", width: "100%" }}
+                                  >
+                                    <TileLayer
+                                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                      attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                                    />
+                                    <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
+                                      <Popup>
+                                        <strong>{venue.venueName}</strong>
+                                        <br />
+                                        {venue.address}
+                                      </Popup>
+                                    </Marker>
+                                    <ZoomControl position="bottomright" />
+                                    <ResizeMap />
+                                  </MapContainer>
+                                ) : (
+                                  <div className="flex items-center justify-center h-full bg-gray-100 text-gray-500 text-lg font-medium">
+                                    No map location found
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
 
 
+                        </div>
                       </div>
 
                     ))

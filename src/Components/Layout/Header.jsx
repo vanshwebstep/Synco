@@ -121,6 +121,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'weekly-classes/account-information': { title: 'Account Information' },
     'weekly-classes/cancellation/account-info/': { title: 'Account Information' },
     'one-to-one': { title: 'One to One ' },
+    'reports': { title: 'Weekly Classes Reports ' },
 
 
 

@@ -26,29 +26,13 @@ import {
 } from "recharts";
 import Loader from "../contexts/Loader";
 
-const MembersDashboard = () => {
+const SaleDashboard = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [activeTab, setActiveTab] = useState("age");
     const [membersData, setMembersData] = useState([]);
     const [loading, setLoading] = useState(false);
-    const ageData = [
-        { label: "4", value: 60 },
-        { label: "5", value: 70 },
-        { label: "6", value: 40 },
-        { label: "7", value: 80 },
-        { label: "8", value: 65 },
-        { label: "9", value: 50 },
-        { label: "10", value: 90 },
-        { label: "11", value: 55 },
-        { label: "12", value: 75 },
-    ];
+
     const [mainData, setMainData] = useState([]);
-
-    const genderData = [
-        { label: "Male", value: 65 },
-        { label: "Female", value: 35 },
-    ];
-
 
     const venueOptions = [
         { value: "all", label: "All venues" },
@@ -74,19 +58,17 @@ const MembersDashboard = () => {
 
     const stats = [
         {
-            icon: <Users size={18} />,
+            icon: "/demo/synco/reportsIcons/user-group.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
-
-            title: "Total Members",
+            title: "Total New Students",
             value: "3,200",
             diff: "+12%",
             sub: "vs. prev period ",
             subvalue: '2,900'
         },
         {
-            icon: <PoundSterling size={18} />,
+            icon: "/demo/synco/reportsIcons/pound.png",
             iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
-
             title: "Monthly Revenue",
             value: "£67,000",
             diff: "+8%",
@@ -94,9 +76,8 @@ const MembersDashboard = () => {
             subvalue: '£57,000'
         },
         {
-            icon: <Calendar size={18} />,
+            icon: "/demo/synco/reportsIcons/pound2.png",
             iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
-
             title: "Average Monthly Fee",
             value: "£43.94",
             diff: "+6%",
@@ -104,30 +85,27 @@ const MembersDashboard = () => {
             subvalue: '£57,000'
         },
         {
-            icon: <Clock size={18} />,
+            icon: "/demo/synco/reportsIcons/chart2.png",
             iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
-
-            title: "Average Life Cycle",
+            title: "Growth Comparison",
             value: "18 months",
             diff: "+6%",
             sub: "vs. prev period ",
             subvalue: '16.8 months'
         },
         {
-            icon: <UserPlus size={18} />,
+            icon: "/demo/synco/reportsIcons/cancelled.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
-
-            title: "New Students",
+            title: "Total Cancellations",
             value: "82",
             diff: "+3%",
             sub: "vs. prev period ",
             subvalue: '16.8 months'
         },
         {
-            icon: <RotateCcw size={18} />,
+            icon: "/demo/synco/reportsIcons/Userremove.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
-
-            title: "Retention",
+            title: "Variance",
             value: "82",
             diff: "+3%",
             sub: "vs. prev period ",
@@ -168,7 +146,7 @@ const MembersDashboard = () => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/member`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/sales`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -259,19 +237,7 @@ const MembersDashboard = () => {
             paddingRight: "0.5rem",
         }),
     };
-    const yearlyGrouped = membersData?.yealyGrouped || {};
-    const yearKeys = Object.keys(yearlyGrouped);
 
-    const latestYear = yearKeys.length ? yearKeys.sort().pop() : null;
-    const monthlyGrouped = latestYear ? yearlyGrouped[latestYear]?.monthlyGrouped || {} : {};
-    const monthKeys = Object.keys(monthlyGrouped);
-
-    const latestMonth = monthKeys.length ? monthKeys.sort().pop() : null;
-
-    // ✅ Get duration data safely
-    const durationData =
-        (latestYear && latestMonth && yearlyGrouped[latestYear]?.monthlyGrouped?.[latestMonth]?.durationOfMembership) ||
-        {};
 
     if (loading) return (<><Loader /></>)
 
@@ -279,7 +245,7 @@ const MembersDashboard = () => {
         <div className="lg:p-6 bg-gray-50 min-h-screen">
 
             <div className="flex flex-wrap justify-between items-center mb-6">
-                <h1 className="text-3xl font-semibold text-gray-800">Members</h1>
+                <h1 className="text-3xl font-semibold text-gray-800">Sales</h1>
                 <div className="flex flex-wrap gap-3 items-center">
                     <Select
                         options={venueOptions}
@@ -323,7 +289,7 @@ const MembersDashboard = () => {
                             <div
                                 className={`p-2 h-[50px] w-[50px] rounded-full flex items-center justify-center ${s.iconStyle}`}
                             >
-                                <div className={s.iconStyle}>{s.icon}</div>
+                                <div className={s.iconStyle}><img src={s.icon} className="p-1" alt="" /></div>
                             </div>
                         </div>
                         <div>
@@ -338,12 +304,12 @@ const MembersDashboard = () => {
                 ))}
             </div>
 
-            <div className="flex  gap-6">
+            <div className="md:flex  gap-6">
                 <div className="md:w-[75%]">
 
                     <div className="bg-white rounded-2xl p-4">
                         <h2 className="text-gray-800 font-semibold text-[20px] mb-4">
-                            Members vs Members in Previous Period
+                            Sales
                         </h2>
 
                         <div className="w-full h-[320px]">
@@ -487,7 +453,7 @@ const MembersDashboard = () => {
                         <div className="bg-white rounded-2xl p-6">
 
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-gray-800 font-semibold text-[24px]">Members</h2>
+                                <h2 className="text-gray-800 font-semibold text-[24px]">Membership plans</h2>
                                 <EllipsisVertical className="text-gray-500" />
                             </div>
 
@@ -569,34 +535,7 @@ const MembersDashboard = () => {
 
                 <div className="md:w-[25%]">
 
-                    <div className="bg-white rounded-2xl p-4 ">
-                        <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Duration of memberships ({latestYear}-{latestMonth})
-                        </h2>
 
-                        {Object.entries(durationData).map(([duration, values], i) => {
-                            const totalStudents = Object.values(durationData).reduce(
-                                (sum, d) => sum + d.students,
-                                0
-                            );
-                            const percent = ((values.students / totalStudents) * 100).toFixed(1);
-
-                            return (
-                                <div key={i} className="mb-4">
-                                    <p className="text-xs text-[#344054] font-semibold mb-1">{duration}</p>
-                                    <div className="flex gap-2 items-center">
-                                        <div className="w-full bg-gray-100 h-2 rounded-full">
-                                            <div
-                                                className="bg-[#237FEA] h-2 rounded-full"
-                                                style={{ width: `${percent}%` }}
-                                            ></div>
-                                        </div>
-                                        <span className="text-xs text-[#344054] font-semibold">{percent}%</span>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
 
                     <div className="bg-white rounded-2xl p-4 mt-5">
                         <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
@@ -624,6 +563,39 @@ const MembersDashboard = () => {
                         ))}
                     </div>
 
+                    <div className="bg-white rounded-2xl p-4 mt-3">
+                        <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
+                            Top Sales Agents <EllipsisVertical />
+                        </h2>
+
+                        {data.map((item, i) => (
+                            <div key={i} className="mb-4">
+                                <div className="flex gap-5 justify-between">
+
+                                    <div className="w-10 h-10">
+                                        <img src="/demo/synco/reportsIcons/agent.png" alt="" />
+                                    </div>
+                                    <div className="w-full">  <div className="flex justify-between items-center mb-1">
+                                        <p className="text-xs text-[#344054] font-semibold">{item.label}</p>
+
+                                    </div >
+                                        <div className="flex items-center gap-2">
+
+                                            <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                <div
+                                                    className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
+                                                    style={{ width: `${item.value}%` }}
+                                                ></div>
+                                            </div>
+                                            <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
+
+                                        </div></div>
+                                </div>
+
+                            </div>
+                        ))}
+                    </div>
+
 
                 </div>
             </div>
@@ -631,4 +603,4 @@ const MembersDashboard = () => {
     );
 };
 
-export default MembersDashboard;
+export default SaleDashboard;

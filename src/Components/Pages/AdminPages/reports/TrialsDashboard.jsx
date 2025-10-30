@@ -9,6 +9,11 @@ import {
     RotateCcw,
     Download,
     EllipsisVertical,
+    CalendarDays,
+    CalendarCheck,
+    UserCheck,
+    BarChart3,
+    MoreVertical,
 
 } from "lucide-react";
 import {
@@ -26,27 +31,52 @@ import {
 } from "recharts";
 import Loader from "../contexts/Loader";
 
-const MembersDashboard = () => {
+const TrialsDashboard = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [activeTab, setActiveTab] = useState("age");
     const [membersData, setMembersData] = useState([]);
     const [loading, setLoading] = useState(false);
-    const ageData = [
-        { label: "4", value: 60 },
-        { label: "5", value: 70 },
-        { label: "6", value: 40 },
-        { label: "7", value: 80 },
-        { label: "8", value: 65 },
-        { label: "9", value: 50 },
-        { label: "10", value: 90 },
-        { label: "11", value: 55 },
-        { label: "12", value: 75 },
-    ];
-    const [mainData, setMainData] = useState([]);
 
-    const genderData = [
-        { label: "Male", value: 65 },
-        { label: "Female", value: 35 },
+    const [mainData, setMainData] = useState([]);
+    const metrics = [
+        {
+            icon: <Users className="text-teal-500" size={24} />,
+            title: "Leads generated",
+            value: 200,
+            change: "+100%",
+            prev: 1200,
+        },
+        {
+            icon: <CalendarDays className="text-purple-500" size={24} />,
+            title: "Trials Booked",
+            value: 100,
+            change: "+87%",
+            prev: 120,
+            conversion: "86%",
+        },
+        {
+            icon: <CalendarCheck className="text-sky-500" size={24} />,
+            title: "Trials Attended",
+            value: 50,
+            change: "+87%",
+            prev: 42,
+            conversion: "50%",
+        },
+        {
+            icon: <UserCheck className="text-pink-400" size={24} />,
+            title: "Memberships Sold",
+            value: 25,
+            change: "+87%",
+            prev: 42,
+            conversion: "50%",
+        },
+        {
+            icon: <BarChart3 className="text-orange-400" size={24} />,
+            title: "Conversion Rate lead to Sale",
+            value: "12,5%",
+            change: "+87%",
+            prev: 42,
+        },
     ];
 
 
@@ -61,7 +91,7 @@ const MembersDashboard = () => {
         { label: "Other", value: 10 },
     ];
     const ageOptions = [
-        { value: "all", label: "All ages" },
+        { value: "all", label: "All Classes" },
         { value: "under18", label: "Under 18" },
         { value: "18-25", label: "18–25" },
     ];
@@ -74,60 +104,54 @@ const MembersDashboard = () => {
 
     const stats = [
         {
-            icon: <Users size={18} />,
+            icon: "/demo/synco/reportsIcons/user-group.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
-
-            title: "Total Members",
+            title: "Free Trials Booked",
             value: "3,200",
             diff: "+12%",
             sub: "vs. prev period ",
             subvalue: '2,900'
         },
         {
-            icon: <PoundSterling size={18} />,
-            iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
-
-            title: "Monthly Revenue",
+            icon: "/demo/synco/reportsIcons/attendent.png",
+            iconStyle: "text-[#E769BD] bg-[#F3FAFD]",
+            title: "How many attended",
             value: "£67,000",
             diff: "+8%",
             sub: "vs. prev period",
             subvalue: '£57,000'
         },
         {
-            icon: <Calendar size={18} />,
-            iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
-
-            title: "Average Monthly Fee",
+            icon: "/demo/synco/reportsIcons/Percent.png",
+            iconStyle: "text-[#F38B4D] bg-[#F3FAFD]",
+            title: "Attendance Rate",
             value: "£43.94",
             diff: "+6%",
             sub: "vs. prev period ",
             subvalue: '£57,000'
         },
         {
-            icon: <Clock size={18} />,
-            iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
-
-            title: "Average Life Cycle",
+            icon: "/demo/synco/reportsIcons/user-group2.png",
+            iconStyle: "text-[#6F65F1] bg-[#F3FAFD]",
+            title: "Trials to Members",
             value: "18 months",
             diff: "+6%",
             sub: "vs. prev period ",
             subvalue: '16.8 months'
         },
         {
-            icon: <UserPlus size={18} />,
-            iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
-
-            title: "New Students",
+            icon: "/demo/synco/reportsIcons/Chart.png",
+            iconStyle: "text-[#FF5353] bg-[#FEF8F4]",
+            title: "Conversion Rate",
             value: "82",
             diff: "+3%",
             sub: "vs. prev period ",
             subvalue: '16.8 months'
         },
         {
-            icon: <RotateCcw size={18} />,
-            iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
-
-            title: "Retention",
+            icon: "/demo/synco/reportsIcons/calender.png",
+            iconStyle: "text-[#FF5353] bg-[#FEF8F4]",
+            title: "No. of Rebooks",
             value: "82",
             diff: "+3%",
             sub: "vs. prev period ",
@@ -168,7 +192,7 @@ const MembersDashboard = () => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/member`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/free-trail`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -259,19 +283,7 @@ const MembersDashboard = () => {
             paddingRight: "0.5rem",
         }),
     };
-    const yearlyGrouped = membersData?.yealyGrouped || {};
-    const yearKeys = Object.keys(yearlyGrouped);
 
-    const latestYear = yearKeys.length ? yearKeys.sort().pop() : null;
-    const monthlyGrouped = latestYear ? yearlyGrouped[latestYear]?.monthlyGrouped || {} : {};
-    const monthKeys = Object.keys(monthlyGrouped);
-
-    const latestMonth = monthKeys.length ? monthKeys.sort().pop() : null;
-
-    // ✅ Get duration data safely
-    const durationData =
-        (latestYear && latestMonth && yearlyGrouped[latestYear]?.monthlyGrouped?.[latestMonth]?.durationOfMembership) ||
-        {};
 
     if (loading) return (<><Loader /></>)
 
@@ -279,7 +291,7 @@ const MembersDashboard = () => {
         <div className="lg:p-6 bg-gray-50 min-h-screen">
 
             <div className="flex flex-wrap justify-between items-center mb-6">
-                <h1 className="text-3xl font-semibold text-gray-800">Members</h1>
+                <h1 className="text-3xl font-semibold text-gray-800">Trials and conversions</h1>
                 <div className="flex flex-wrap gap-3 items-center">
                     <Select
                         options={venueOptions}
@@ -311,7 +323,7 @@ const MembersDashboard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 lg:grid-cols-4 gap-4 mb-8">
                 {stats.map((s, i) => (
 
 
@@ -321,9 +333,9 @@ const MembersDashboard = () => {
                     >
                         <div>
                             <div
-                                className={`p-2 h-[50px] w-[50px] rounded-full flex items-center justify-center ${s.iconStyle}`}
+                                className={`p-2 h-[50px] w-[50px] p-2 rounded-full flex items-center justify-center ${s.iconStyle}`}
                             >
-                                <div className={s.iconStyle}>{s.icon}</div>
+                                <div className={s.iconStyle}><img className="p-1" src={s.icon} alt="" /></div>
                             </div>
                         </div>
                         <div>
@@ -338,12 +350,12 @@ const MembersDashboard = () => {
                 ))}
             </div>
 
-            <div className="flex  gap-6">
+            <div className="md:flex  gap-6">
                 <div className="md:w-[75%]">
 
                     <div className="bg-white rounded-2xl p-4">
                         <h2 className="text-gray-800 font-semibold text-[20px] mb-4">
-                            Members vs Members in Previous Period
+                            Total Trials
                         </h2>
 
                         <div className="w-full h-[320px]">
@@ -433,7 +445,7 @@ const MembersDashboard = () => {
                             </div>
 
                             {/* Tabs */}
-                            <div className="flex border border-[#E2E1E5] rounded-lg p-1 max-w-[300px] mb-5">
+                            <div className="flex border border-[#E2E1E5] rounded-lg p-1 w-full mb-5">
                                 <button
                                     onClick={() => setActiveTab("age")}
                                     className={`flex-1 text-sm font-medium py-2 rounded-md transition-all ${activeTab === "age"
@@ -451,6 +463,15 @@ const MembersDashboard = () => {
                                         }`}
                                 >
                                     By Gender
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab("venue")}
+                                    className={`flex-1 text-sm font-medium py-2 rounded-md transition-all ${activeTab === "venue"
+                                        ? "bg-[#237FEA] text-white shadow-sm"
+                                        : "text-gray-600 hover:text-gray-800"
+                                        }`}
+                                >
+                                    By Venue
                                 </button>
                             </div>
 
@@ -487,7 +508,7 @@ const MembersDashboard = () => {
                         <div className="bg-white rounded-2xl p-6">
 
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-gray-800 font-semibold text-[24px]">Members</h2>
+                                <h2 className="text-gray-800 font-semibold text-[24px]">Membership plans acquired post-trial</h2>
                                 <EllipsisVertical className="text-gray-500" />
                             </div>
 
@@ -564,64 +585,136 @@ const MembersDashboard = () => {
                                 </div>
                             </div>
                         </div>
+                        <div className="bg-white rounded-2xl p-4 mt-3">
+                            <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
+                                Marketing channel performance <EllipsisVertical />
+                            </h2>
+
+                            {data.map((item, i) => (
+                                <div key={i} className="mb-4">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <p className="text-xs text-[#344054] font-semibold">{item.label}</p>
+
+                                    </div>
+                                    <div className="flex items-center gap-2">
+
+                                        <div className="w-full bg-gray-100 h-2 rounded-full">
+                                            <div
+                                                className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
+                                                style={{ width: `${item.value}%` }}
+                                            ></div>
+                                        </div>
+                                        <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
+
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="bg-white rounded-2xl p-4 mt-3">
+                            <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
+                                Top Agents <EllipsisVertical />
+                            </h2>
+
+                            {data.map((item, i) => (
+                                <div key={i} className="mb-4">
+                                    <div className="flex gap-5 justify-between">
+
+                                        <div className="w-10 h-10">
+                                            <img src="/demo/synco/reportsIcons/agent.png" alt="" />
+                                        </div>
+                                        <div className="w-full">  <div className="flex justify-between items-center mb-1">
+                                            <p className="text-xs text-[#344054] font-semibold">{item.label}</p>
+
+                                        </div >
+                                            <div className="flex items-center gap-2">
+
+                                                <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                    <div
+                                                        className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
+                                                        style={{ width: `${item.value}%` }}
+                                                    ></div>
+                                                </div>
+                                                <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
+
+                                            </div></div>
+                                    </div>
+
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
                 <div className="md:w-[25%]">
+                    <div className="bg-white rounded-2xl p-4 mt-3">
 
-                    <div className="bg-white rounded-2xl p-4 ">
-                        <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Duration of memberships ({latestYear}-{latestMonth})
-                        </h2>
+                        <div className="flex justify-between">
 
-                        {Object.entries(durationData).map(([duration, values], i) => {
-                            const totalStudents = Object.values(durationData).reduce(
-                                (sum, d) => sum + d.students,
-                                0
-                            );
-                            const percent = ((values.students / totalStudents) * 100).toFixed(1);
 
-                            return (
-                                <div key={i} className="mb-4">
-                                    <p className="text-xs text-[#344054] font-semibold mb-1">{duration}</p>
-                                    <div className="flex gap-2 items-center">
-                                        <div className="w-full bg-gray-100 h-2 rounded-full">
-                                            <div
-                                                className="bg-[#237FEA] h-2 rounded-full"
-                                                style={{ width: `${percent}%` }}
-                                            ></div>
-                                        </div>
-                                        <span className="text-xs text-[#344054] font-semibold">{percent}%</span>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                            <h2 className="text-gray-800 font-semibold mb-3 gap-3 text-[20px] flex justify-between items-center">
+                                <img src="/demo/synco/reportsIcons/Revenue.png" className="h-7 w-7" alt="" />  Revenue
+                            </h2>
+                            <EllipsisVertical />
+                        </div>
+
+                        <h1 className="text-[48px] font-semibold">£1.123</h1>
+                        <p className="font-semibold text-[16px] text-[#717073]">Revenue generated from memberships acquired through free trials.</p>
+                    </div>
+                    <div className="bg-white rounded-2xl p-4 mt-3">
+                        <div className="flex justify-between">
+
+
+                            <h2 className="text-gray-800 font-semibold mb-3 gap-3 text-[20px] flex justify-between items-center">
+                                <img src="/demo/synco/reportsIcons/Growth.png" className="h-7 w-7" alt="" /> Insights
+                            </h2>
+                            <EllipsisVertical />
+
+                        </div>
+
+                        <h6 className="text-[18px] font-semibold">Reason for non attendance</h6>
+                        <p className="font-semibold text-[16px] text-[#717073]">Time</p>
+                        <div className="mt-1"> <h6 className="text-[18px] font-semibold">Reason for not becoming members</h6>
+                            <p className="font-semibold text-[16px] text-[#717073]">Time</p></div>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-4 mt-5">
-                        <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Source of memberships <EllipsisVertical />
-                        </h2>
 
-                        {data.map((item, i) => (
-                            <div key={i} className="mb-4">
-                                <div className="flex justify-between items-center mb-1">
-                                    <p className="text-xs text-[#344054] font-semibold">{item.label}</p>
+                    <div className="bg-white rounded-2xl p-5 mt-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className=" font-semibold text-lg">Facebook Performance</h2>
+                            <MoreVertical className="text-gray-500" size={18} />
+                        </div>
 
-                                </div>
-                                <div className="flex items-center gap-2">
-
-                                    <div className="w-full bg-gray-100 h-2 rounded-full">
-                                        <div
-                                            className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                            style={{ width: `${item.value}%` }}
-                                        ></div>
+                        <div className="space-y-5">
+                            {metrics.map((item, idx) => (
+                                <div key={idx} className="flex justify-between items-start">
+                                    <div className="flex items-start space-x-3">
+                                        <div className="bg-gray-50 p-2 rounded-full">{item.icon}</div>
+                                        <div>
+                                            <p className="text-[#717073] font-semibold text-[15px]">
+                                                {item.title}
+                                            </p>
+                                            <p className="text-lg font-semibold text-gray-900 flex items-center">
+                                                {item.value}
+                                                <span className="text-green-500 text-sm font-normal ml-1">
+                                                    ({item.change})
+                                                </span>
+                                            </p>
+                                            <p className="text-sm text-gray-400">
+                                                vs. prev period{" "}
+                                                <span className="text-red-500 font-medium">{item.prev}</span>
+                                            </p>
+                                        </div>
                                     </div>
-                                    <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
 
+                                    {item.conversion && (
+                                        <div className="text-right">
+                                            <p className="text-gray-800 font-semibold">{item.conversion}</p>
+                                            <p className="text-green-500 text-sm">(Conversion)</p>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
 
 
@@ -631,4 +724,4 @@ const MembersDashboard = () => {
     );
 };
 
-export default MembersDashboard;
+export default TrialsDashboard;

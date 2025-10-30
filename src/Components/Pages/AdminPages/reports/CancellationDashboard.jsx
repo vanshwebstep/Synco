@@ -26,7 +26,7 @@ import {
 } from "recharts";
 import Loader from "../contexts/Loader";
 
-const MembersDashboard = () => {
+const CancellationDashboard = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [activeTab, setActiveTab] = useState("age");
     const [membersData, setMembersData] = useState([]);
@@ -279,7 +279,7 @@ const MembersDashboard = () => {
         <div className="lg:p-6 bg-gray-50 min-h-screen">
 
             <div className="flex flex-wrap justify-between items-center mb-6">
-                <h1 className="text-3xl font-semibold text-gray-800">Members</h1>
+                <h1 className="text-3xl font-semibold text-gray-800">Cancellations</h1>
                 <div className="flex flex-wrap gap-3 items-center">
                     <Select
                         options={venueOptions}
@@ -343,7 +343,7 @@ const MembersDashboard = () => {
 
                     <div className="bg-white rounded-2xl p-4">
                         <h2 className="text-gray-800 font-semibold text-[20px] mb-4">
-                            Members vs Members in Previous Period
+                          Cancellations
                         </h2>
 
                         <div className="w-full h-[320px]">
@@ -427,7 +427,7 @@ const MembersDashboard = () => {
                         <div className="bg-white rounded-2xl p-4 md:max-h-[500px] overflow-auto">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-gray-800 font-semibold text-[24px]">
-                                    Enrolled Students
+                                   Cancelled Students
                                 </h2>
                                 <EllipsisVertical className="text-gray-500" />
                             </div>
@@ -471,7 +471,7 @@ const MembersDashboard = () => {
                                                 {/* Example floating label (only for first item) */}
                                                 {i === 0 && (
                                                     <div className="absolute -top-6 left-[60%] transform -translate-x-1/2 bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded-full shadow-md">
-                                                        {item.count} students
+                                                        {item.count} 
                                                     </div>
                                                 )}
                                             </div>
@@ -487,7 +487,7 @@ const MembersDashboard = () => {
                         <div className="bg-white rounded-2xl p-6">
 
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-gray-800 font-semibold text-[24px]">Members</h2>
+                                <h2 className="text-gray-800 font-semibold text-[24px]">Membership plans most cancelled</h2>
                                 <EllipsisVertical className="text-gray-500" />
                             </div>
 
@@ -569,38 +569,10 @@ const MembersDashboard = () => {
 
                 <div className="md:w-[25%]">
 
-                    <div className="bg-white rounded-2xl p-4 ">
-                        <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Duration of memberships ({latestYear}-{latestMonth})
-                        </h2>
-
-                        {Object.entries(durationData).map(([duration, values], i) => {
-                            const totalStudents = Object.values(durationData).reduce(
-                                (sum, d) => sum + d.students,
-                                0
-                            );
-                            const percent = ((values.students / totalStudents) * 100).toFixed(1);
-
-                            return (
-                                <div key={i} className="mb-4">
-                                    <p className="text-xs text-[#344054] font-semibold mb-1">{duration}</p>
-                                    <div className="flex gap-2 items-center">
-                                        <div className="w-full bg-gray-100 h-2 rounded-full">
-                                            <div
-                                                className="bg-[#237FEA] h-2 rounded-full"
-                                                style={{ width: `${percent}%` }}
-                                            ></div>
-                                        </div>
-                                        <span className="text-xs text-[#344054] font-semibold">{percent}%</span>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-
+               
                     <div className="bg-white rounded-2xl p-4 mt-5">
                         <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Source of memberships <EllipsisVertical />
+                         Reasons for Cancellation <EllipsisVertical />
                         </h2>
 
                         {data.map((item, i) => (
@@ -631,4 +603,4 @@ const MembersDashboard = () => {
     );
 };
 
-export default MembersDashboard;
+export default CancellationDashboard;

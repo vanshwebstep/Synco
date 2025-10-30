@@ -474,7 +474,7 @@ const applyFilter = () => {
                   </button>
                 </div>
 
-                <div className="gap-2 text-sm bg-gray-100 p-4 my-6 rounded">
+                <div className="gap-2 text-sm bg-gray-100 p-4 my-6 rounded-xl">
                   <label className="font-semibold text-[16px] sm:text-[18px] block mb-3">Choose type</label>
                   <div className="flex flex-wrap gap-3">
                    

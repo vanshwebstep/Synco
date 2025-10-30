@@ -1069,14 +1069,14 @@ const Create = () => {
                                         </div>
                                     )}
                                 </div>
-                                <div className="md:flex gap-4 justify-between my-10 border w-full border-gray-300 p-1 tabBar rounded-xl  flex-wrap">
+                                <div className="md:flex gap-2 justify-between my-10 border w-full border-gray-300 p-1 tabBar rounded-xl  flex-wrap">
                                     {visibleTabs.map((tab) => (
                                         <button
                                             type="button"
                                             ref={tabRef}
                                             key={tab}
                                             onClick={() => handleTabClick(tab)}
-                                            className={`px-4 py-1.5 rounded-xl text-[19.28px] font-medium capitalize transition ${activeTab == tab ? 'bg-blue-500 text-white' : 'text-gray-500 hover:text-blue-500'
+                                            className={`px-4 py-1.5 rounded-xl text-[19.28px] py-2  capitalize transition ${activeTab == tab ? 'bg-blue-500 font-medium  text-white' : 'text-gray-500 font-semibold  hover:text-blue-500'
                                                 }`}
                                         >
                                             {tab}

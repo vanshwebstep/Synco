@@ -95,8 +95,8 @@ const Preview = ({ item, sessionData }) => {
       const fieldName = `${tabKey}_upload`;
       const fieldVideoName = `${tabKey}_video`;
       const videoDuration = `${tabKey}_video_duration`;
-      console.log('selectedGroup', selectedGroup)
-      console.log('fieldName', fieldName)
+      // console.log('selectedGroup', selectedGroup)
+      // console.log('fieldName', fieldName)
 
       // check if that recording field exists in selectedGroup
       if (selectedGroup[fieldName]) {

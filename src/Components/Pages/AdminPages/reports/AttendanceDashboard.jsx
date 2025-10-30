@@ -9,6 +9,11 @@ import {
     RotateCcw,
     Download,
     EllipsisVertical,
+    CalendarDays,
+    CalendarCheck,
+    UserCheck,
+    BarChart3,
+    MoreVertical,
 
 } from "lucide-react";
 import {
@@ -26,27 +31,52 @@ import {
 } from "recharts";
 import Loader from "../contexts/Loader";
 
-const MembersDashboard = () => {
+const AttendanceDashboard = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [activeTab, setActiveTab] = useState("age");
     const [membersData, setMembersData] = useState([]);
     const [loading, setLoading] = useState(false);
-    const ageData = [
-        { label: "4", value: 60 },
-        { label: "5", value: 70 },
-        { label: "6", value: 40 },
-        { label: "7", value: 80 },
-        { label: "8", value: 65 },
-        { label: "9", value: 50 },
-        { label: "10", value: 90 },
-        { label: "11", value: 55 },
-        { label: "12", value: 75 },
-    ];
-    const [mainData, setMainData] = useState([]);
 
-    const genderData = [
-        { label: "Male", value: 65 },
-        { label: "Female", value: 35 },
+    const [mainData, setMainData] = useState([]);
+    const metrics = [
+        {
+            icon: <Users className="text-teal-500" size={24} />,
+            title: "Leads generated",
+            value: 200,
+            change: "+100%",
+            prev: 1200,
+        },
+        {
+            icon: <CalendarDays className="text-purple-500" size={24} />,
+            title: "Trials Booked",
+            value: 100,
+            change: "+87%",
+            prev: 120,
+            conversion: "86%",
+        },
+        {
+            icon: <CalendarCheck className="text-sky-500" size={24} />,
+            title: "Trials Attended",
+            value: 50,
+            change: "+87%",
+            prev: 42,
+            conversion: "50%",
+        },
+        {
+            icon: <UserCheck className="text-pink-400" size={24} />,
+            title: "Memberships Sold",
+            value: 25,
+            change: "+87%",
+            prev: 42,
+            conversion: "50%",
+        },
+        {
+            icon: <BarChart3 className="text-orange-400" size={24} />,
+            title: "Conversion Rate lead to Sale",
+            value: "12,5%",
+            change: "+87%",
+            prev: 42,
+        },
     ];
 
 
@@ -61,7 +91,7 @@ const MembersDashboard = () => {
         { label: "Other", value: 10 },
     ];
     const ageOptions = [
-        { value: "all", label: "All ages" },
+        { value: "all", label: "All Classes" },
         { value: "under18", label: "Under 18" },
         { value: "18-25", label: "18–25" },
     ];
@@ -74,65 +104,42 @@ const MembersDashboard = () => {
 
     const stats = [
         {
-            icon: <Users size={18} />,
-            iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
-
-            title: "Total Members",
+            icon: "/demo/synco/reportsIcons/greenuser.png",
+            iconStyle: "text-[#3DAFDB] bg-[#F0F9F9]",
+            title: "Rate of attendance",
             value: "3,200",
             diff: "+12%",
             sub: "vs. prev period ",
             subvalue: '2,900'
         },
         {
-            icon: <PoundSterling size={18} />,
-            iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
-
-            title: "Monthly Revenue",
+            icon: "/demo/synco/reportsIcons/venue.png",
+            iconStyle: "text-[#E769BD] bg-[#F6F6FE]",
+            title: "Worst venue attendance",
             value: "£67,000",
             diff: "+8%",
             sub: "vs. prev period",
             subvalue: '£57,000'
         },
         {
-            icon: <Calendar size={18} />,
-            iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
-
-            title: "Average Monthly Fee",
+            icon: "/demo/synco/reportsIcons/Calendar.png",
+            iconStyle: "text-[#F38B4D] bg-[#F3FAFD]",
+            title: "High venue attendance",
             value: "£43.94",
             diff: "+6%",
             sub: "vs. prev period ",
             subvalue: '£57,000'
         },
         {
-            icon: <Clock size={18} />,
+            icon: "/demo/synco/reportsIcons/atgroup.png",
             iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
-
-            title: "Average Life Cycle",
+            title: "Attendance growth",
             value: "18 months",
             diff: "+6%",
             sub: "vs. prev period ",
             subvalue: '16.8 months'
         },
-        {
-            icon: <UserPlus size={18} />,
-            iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
 
-            title: "New Students",
-            value: "82",
-            diff: "+3%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
-        },
-        {
-            icon: <RotateCcw size={18} />,
-            iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
-
-            title: "Retention",
-            value: "82",
-            diff: "+3%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
-        },
     ];
 
     useEffect(() => {
@@ -168,7 +175,7 @@ const MembersDashboard = () => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/member`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/free-trail`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -259,19 +266,7 @@ const MembersDashboard = () => {
             paddingRight: "0.5rem",
         }),
     };
-    const yearlyGrouped = membersData?.yealyGrouped || {};
-    const yearKeys = Object.keys(yearlyGrouped);
 
-    const latestYear = yearKeys.length ? yearKeys.sort().pop() : null;
-    const monthlyGrouped = latestYear ? yearlyGrouped[latestYear]?.monthlyGrouped || {} : {};
-    const monthKeys = Object.keys(monthlyGrouped);
-
-    const latestMonth = monthKeys.length ? monthKeys.sort().pop() : null;
-
-    // ✅ Get duration data safely
-    const durationData =
-        (latestYear && latestMonth && yearlyGrouped[latestYear]?.monthlyGrouped?.[latestMonth]?.durationOfMembership) ||
-        {};
 
     if (loading) return (<><Loader /></>)
 
@@ -279,7 +274,7 @@ const MembersDashboard = () => {
         <div className="lg:p-6 bg-gray-50 min-h-screen">
 
             <div className="flex flex-wrap justify-between items-center mb-6">
-                <h1 className="text-3xl font-semibold text-gray-800">Members</h1>
+                <h1 className="text-3xl font-semibold text-gray-800">Attendance</h1>
                 <div className="flex flex-wrap gap-3 items-center">
                     <Select
                         options={venueOptions}
@@ -311,7 +306,7 @@ const MembersDashboard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 lg:grid-cols-4 gap-4 mb-8">
                 {stats.map((s, i) => (
 
 
@@ -321,9 +316,9 @@ const MembersDashboard = () => {
                     >
                         <div>
                             <div
-                                className={`p-2 h-[50px] w-[50px] rounded-full flex items-center justify-center ${s.iconStyle}`}
+                                className={`p-2 h-[50px] w-[50px] p-2 rounded-full flex items-center justify-center ${s.iconStyle}`}
                             >
-                                <div className={s.iconStyle}>{s.icon}</div>
+                                <div className={s.iconStyle}><img className="p-1" src={s.icon} alt="" /></div>
                             </div>
                         </div>
                         <div>
@@ -338,12 +333,12 @@ const MembersDashboard = () => {
                 ))}
             </div>
 
-            <div className="flex  gap-6">
+            <div className="md:flex  gap-6">
                 <div className="md:w-[75%]">
 
                     <div className="bg-white rounded-2xl p-4">
                         <h2 className="text-gray-800 font-semibold text-[20px] mb-4">
-                            Members vs Members in Previous Period
+                            Attendance
                         </h2>
 
                         <div className="w-full h-[320px]">
@@ -424,16 +419,81 @@ const MembersDashboard = () => {
                     </div>
 
                     <div className="grid lg:grid-cols-2 gap-5 mt-7">
+
+                        <div className="bg-white rounded-2xl p-4 mt-3">
+                            <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
+                                Top best venues attendance <EllipsisVertical />
+                            </h2>
+                            {data.map((item, i) => (
+                                <div key={i} className="mb-4">
+                                    <div className="flex gap-5 justify-between items-center">
+
+
+                                        <p className="text-xs max-w-[50px] min-w-[50px] text-[#344054] font-semibold">{item.label}</p>
+
+                                        <div className="w-full">  <div className="flex justify-between items-center mb-1">
+
+
+                                        </div >
+                                            <div className="flex items-center gap-2">
+
+                                                <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                    <div
+                                                        className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
+                                                        style={{ width: `${item.value}%` }}
+                                                    ></div>
+                                                </div>
+                                                <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
+
+                                            </div></div>
+                                    </div>
+
+                                </div>
+                            ))}
+
+                        </div>
+                        <div className="bg-white rounded-2xl p-4 mt-3">
+                            <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
+                                Worst venues attendance <EllipsisVertical />
+                            </h2>
+
+                            {data.map((item, i) => (
+                                <div key={i} className="mb-4">
+                                    <div className="flex gap-5 justify-between items-center">
+
+
+                                        <p className="text-xs max-w-[50px] min-w-[50px] text-[#344054] font-semibold">{item.label}</p>
+
+                                        <div className="w-full">  <div className="flex justify-between items-center mb-1">
+
+
+                                        </div >
+                                            <div className="flex items-center gap-2">
+
+                                                <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                    <div
+                                                        className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
+                                                        style={{ width: `${item.value}%` }}
+                                                    ></div>
+                                                </div>
+                                                <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
+
+                                            </div></div>
+                                    </div>
+
+                                </div>
+                            ))}
+                        </div>
                         <div className="bg-white rounded-2xl p-4 md:max-h-[500px] overflow-auto">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-gray-800 font-semibold text-[24px]">
-                                    Enrolled Students
+                                    Attendance rate by age
                                 </h2>
                                 <EllipsisVertical className="text-gray-500" />
                             </div>
 
                             {/* Tabs */}
-                            <div className="flex border border-[#E2E1E5] rounded-lg p-1 max-w-[300px] mb-5">
+                            <div className="flex border border-[#E2E1E5] rounded-lg p-1 w-full mb-5">
                                 <button
                                     onClick={() => setActiveTab("age")}
                                     className={`flex-1 text-sm font-medium py-2 rounded-md transition-all ${activeTab === "age"
@@ -441,7 +501,7 @@ const MembersDashboard = () => {
                                         : "text-gray-600 hover:text-gray-800"
                                         }`}
                                 >
-                                    By Age
+                                    Age
                                 </button>
                                 <button
                                     onClick={() => setActiveTab("gender")}
@@ -450,8 +510,9 @@ const MembersDashboard = () => {
                                         : "text-gray-600 hover:text-gray-800"
                                         }`}
                                 >
-                                    By Gender
+                                    Gender
                                 </button>
+
                             </div>
 
                             {/* Chart Bars */}
@@ -484,145 +545,32 @@ const MembersDashboard = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-6">
 
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-gray-800 font-semibold text-[24px]">Members</h2>
-                                <EllipsisVertical className="text-gray-500" />
-                            </div>
-
-                            <div className="flex flex-col md:flex-row justify-between md:items-center">
-
-                                <div className="md:w-4/12 w-[180px] h-[180px] mx-auto md:mx-0">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={pieData}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={2}
-                                                dataKey="value"
-                                            >
-                                                {pieData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                </div>
-
-
-                                <div className="md:w-8/12 mt-6 md:mt-0 md:ml-6 md:max-h-[100px] overflow-auto">
-                                    {pieData.map((item, i) => (
-                                        <div
-                                            key={i}
-                                            className="grid md:grid-cols-2 justify-between gap-3 lg:gap-7 items-center mb-2 text-sm text-gray-600"
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <span
-                                                    className="w-2 h-2 rounded-full"
-                                                    style={{ backgroundColor: item.color }}
-                                                ></span>
-                                                <span className="font-medium">{item.name}</span>
-                                            </div>
-                                            <div className="flex items-center gap-6 text-gray-800 font-semibold">
-                                                <span>{item.value}%</span>
-                                                <span>
-                                                    {i === 0
-                                                        ? "10,234"
-                                                        : i === 1
-                                                            ? "1,234"
-                                                            : "934"}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-
-                            <div className="mt-6 border-t border-gray-100 pt-4">
-                                <h3 className="text-sm font-semibold text-gray-800 mb-3">
-                                    Revenue Split
-                                </h3>
-
-                                <div className="grid md:grid-cols-3 md:justify-between md:max-h-[100px] overflow-auto gap-4 text-sm">
-                                    {pieData.map((item, i) => (
-                                        <div key={i} className="flex items-center gap-2">
-                                            <span
-                                                className="w-2 h-2 rounded-full"
-                                                style={{ backgroundColor: item.color }}
-                                            ></span>
-                                            <span className="font-medium text-gray-700">
-                                                {item.name}
-                                                <span className="font-semibold text-gray-900 block">£20,000</span>
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
                 <div className="md:w-[25%]">
 
-                    <div className="bg-white rounded-2xl p-4 ">
-                        <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Duration of memberships ({latestYear}-{latestMonth})
-                        </h2>
+                    <div className="bg-white rounded-2xl p-4 mt-3">
+                        <div className="flex justify-between">
 
-                        {Object.entries(durationData).map(([duration, values], i) => {
-                            const totalStudents = Object.values(durationData).reduce(
-                                (sum, d) => sum + d.students,
-                                0
-                            );
-                            const percent = ((values.students / totalStudents) * 100).toFixed(1);
 
-                            return (
-                                <div key={i} className="mb-4">
-                                    <p className="text-xs text-[#344054] font-semibold mb-1">{duration}</p>
-                                    <div className="flex gap-2 items-center">
-                                        <div className="w-full bg-gray-100 h-2 rounded-full">
-                                            <div
-                                                className="bg-[#237FEA] h-2 rounded-full"
-                                                style={{ width: `${percent}%` }}
-                                            ></div>
-                                        </div>
-                                        <span className="text-xs text-[#344054] font-semibold">{percent}%</span>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                            <h2 className="text-gray-800 font-semibold mb-3 gap-3 text-[20px] flex justify-between items-center">
+                                Attendance trends
+                            </h2>
+                            <EllipsisVertical />
+
+                        </div>
+                        <div className="flex justify-between">
+
+                            <div><h6 className="text-[16px] font-semibold">Best month attendance</h6>
+                                <p className="font-semibold text-[16px] text-[#717073]">July</p></div>
+
+                            <div className="mt-1"><h2 className="text-[28px] font-semibold">85%</h2></div>
+                        </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-4 mt-5">
-                        <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Source of memberships <EllipsisVertical />
-                        </h2>
 
-                        {data.map((item, i) => (
-                            <div key={i} className="mb-4">
-                                <div className="flex justify-between items-center mb-1">
-                                    <p className="text-xs text-[#344054] font-semibold">{item.label}</p>
-
-                                </div>
-                                <div className="flex items-center gap-2">
-
-                                    <div className="w-full bg-gray-100 h-2 rounded-full">
-                                        <div
-                                            className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                            style={{ width: `${item.value}%` }}
-                                        ></div>
-                                    </div>
-                                    <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
-
-                                </div>
-                            </div>
-                        ))}
-                    </div>
 
 
                 </div>
@@ -631,4 +579,4 @@ const MembersDashboard = () => {
     );
 };
 
-export default MembersDashboard;
+export default AttendanceDashboard;

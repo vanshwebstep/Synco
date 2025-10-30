@@ -93,8 +93,8 @@ console.log('items',items)
         const fieldName = `${tabKey}_upload`;
         const fieldVideoName = `${tabKey}_video`;
         const videoDuration = `${tabKey}_video_duration`;
-        console.log('selectedGroup', selectedGroup)
-        console.log('fieldName', fieldName)
+        // console.log('selectedGroup', selectedGroup)
+        // console.log('fieldName', fieldName)
   
         // check if that recording field exists in selectedGroup
         if (selectedGroup[fieldName]) {
@@ -206,7 +206,7 @@ console.log('items',items)
         <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
           <div className="flex w-full flex-col lg:flex-row gap-6">
-            <div className="w-full bg-white  lg:w-1/2 flex gap-4 border border-gray-300 p-2 rounded-2xl   flex-wrap me-5">
+            <div className="w-full bg-white  lg:w-1/2 flex gap-4 border border-gray-300 p-2 rounded-2xl   flex-wrap ">
               {dynamicTabs.map((tab) => (
                 <button
                   key={tab}

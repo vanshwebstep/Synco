@@ -26,7 +26,7 @@ import {
 } from "recharts";
 import Loader from "../contexts/Loader";
 
-const MembersDashboard = () => {
+const WeeklyDashboard = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [activeTab, setActiveTab] = useState("age");
     const [membersData, setMembersData] = useState([]);
@@ -631,4 +631,4 @@ const MembersDashboard = () => {
     );
 };
 
-export default MembersDashboard;
+export default WeeklyDashboard;

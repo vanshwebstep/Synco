@@ -6,11 +6,12 @@ import {
     Calendar,
     Clock,
     UserPlus,
-    RotateCcw,
+    TrendingUp, TrendingDown, MoreVertical,
     Download,
     EllipsisVertical,
 
 } from "lucide-react";
+
 import {
     LineChart,
     Line,
@@ -26,29 +27,10 @@ import {
 } from "recharts";
 import Loader from "../contexts/Loader";
 
-const MembersDashboard = () => {
+const CapacityDashboard = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const [activeTab, setActiveTab] = useState("age");
     const [membersData, setMembersData] = useState([]);
     const [loading, setLoading] = useState(false);
-    const ageData = [
-        { label: "4", value: 60 },
-        { label: "5", value: 70 },
-        { label: "6", value: 40 },
-        { label: "7", value: 80 },
-        { label: "8", value: 65 },
-        { label: "9", value: 50 },
-        { label: "10", value: 90 },
-        { label: "11", value: 55 },
-        { label: "12", value: 75 },
-    ];
-    const [mainData, setMainData] = useState([]);
-
-    const genderData = [
-        { label: "Male", value: 65 },
-        { label: "Female", value: 35 },
-    ];
-
 
     const venueOptions = [
         { value: "all", label: "All venues" },
@@ -57,7 +39,23 @@ const MembersDashboard = () => {
     ];
     const data = [
         { label: "Facebook", value: 60 },
-        { label: "Website", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
+        { label: "Acton", value: 45 },
         { label: "Other", value: 10 },
     ];
     const ageOptions = [
@@ -74,93 +72,54 @@ const MembersDashboard = () => {
 
     const stats = [
         {
-            icon: <Users size={18} />,
+            icon:"/demo/synco/reportsIcons/capacity.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
-
-            title: "Total Members",
+            title: "Total Capacity",
             value: "3,200",
             diff: "+12%",
             sub: "vs. prev period ",
             subvalue: '2,900'
         },
         {
-            icon: <PoundSterling size={18} />,
+            icon: "/demo/synco/reportsIcons/Briefcase.png",
             iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
-
-            title: "Monthly Revenue",
+            title: "Occupancy",
             value: "£67,000",
             diff: "+8%",
             sub: "vs. prev period",
             subvalue: '£57,000'
         },
         {
-            icon: <Calendar size={18} />,
-            iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
-
-            title: "Average Monthly Fee",
+            icon: "/demo/synco/reportsIcons/Chart1.png",
+            iconStyle: "text-[#F38B4D] bg-[#F0F9F9]",
+            title: "Occupancy Rate",
             value: "£43.94",
             diff: "+6%",
             sub: "vs. prev period ",
             subvalue: '£57,000'
         },
         {
-            icon: <Clock size={18} />,
-            iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
-
-            title: "Average Life Cycle",
+            icon: "/demo/synco/reportsIcons/unfilled.png",
+            iconStyle: "text-[#6F65F1] bg-[#FFF5F5]",
+            title: "Unfulfilled Spaces",
             value: "18 months",
             diff: "+6%",
             sub: "vs. prev period ",
             subvalue: '16.8 months'
         },
         {
-            icon: <UserPlus size={18} />,
-            iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
-
-            title: "New Students",
+            icon: "/demo/synco/reportsIcons/Pound-main.png",
+            iconStyle: "text-[#FF5353] bg-[#FEF6FB]",
+            title: "Untapped Revenue",
             value: "82",
             diff: "+3%",
             sub: "vs. prev period ",
             subvalue: '16.8 months'
         },
-        {
-            icon: <RotateCcw size={18} />,
-            iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
 
-            title: "Retention",
-            value: "82",
-            diff: "+3%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
-        },
     ];
 
-    useEffect(() => {
-        const enrolledData =
-            membersData?.yealyGrouped?.["2025"]?.monthlyGrouped?.["10"]
-                ?.enrolledStudents || {};
-
-        if (activeTab === "age") {
-            const byAge = enrolledData.byAge || {};
-            const total = Object.values(byAge).reduce((a, b) => a + b, 0);
-            const formatted = Object.entries(byAge).map(([age, count]) => ({
-                label: `${age} Years`,
-                value: ((count / total) * 100).toFixed(2), // percentage
-                count,
-            }));
-            setMainData(formatted);
-        } else {
-            const byGender = enrolledData.byGender || {};
-            const total = Object.values(byGender).reduce((a, b) => a + b, 0);
-            const formatted = Object.entries(byGender).map(([gender, count]) => ({
-                label: gender.charAt(0).toUpperCase() + gender.slice(1),
-                value: ((count / total) * 100).toFixed(2),
-                count,
-            }));
-            setMainData(formatted);
-        }
-    }, [activeTab, membersData]);
-
+   
 
     const fetchData = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
@@ -168,7 +127,7 @@ const MembersDashboard = () => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/member`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/sales`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -259,19 +218,7 @@ const MembersDashboard = () => {
             paddingRight: "0.5rem",
         }),
     };
-    const yearlyGrouped = membersData?.yealyGrouped || {};
-    const yearKeys = Object.keys(yearlyGrouped);
 
-    const latestYear = yearKeys.length ? yearKeys.sort().pop() : null;
-    const monthlyGrouped = latestYear ? yearlyGrouped[latestYear]?.monthlyGrouped || {} : {};
-    const monthKeys = Object.keys(monthlyGrouped);
-
-    const latestMonth = monthKeys.length ? monthKeys.sort().pop() : null;
-
-    // ✅ Get duration data safely
-    const durationData =
-        (latestYear && latestMonth && yearlyGrouped[latestYear]?.monthlyGrouped?.[latestMonth]?.durationOfMembership) ||
-        {};
 
     if (loading) return (<><Loader /></>)
 
@@ -279,7 +226,7 @@ const MembersDashboard = () => {
         <div className="lg:p-6 bg-gray-50 min-h-screen">
 
             <div className="flex flex-wrap justify-between items-center mb-6">
-                <h1 className="text-3xl font-semibold text-gray-800">Members</h1>
+                <h1 className="text-3xl font-semibold text-gray-800 lg:mb-0 mb-4">Class Capacity</h1>
                 <div className="flex flex-wrap gap-3 items-center">
                     <Select
                         options={venueOptions}
@@ -311,7 +258,7 @@ const MembersDashboard = () => {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
                 {stats.map((s, i) => (
 
 
@@ -323,7 +270,7 @@ const MembersDashboard = () => {
                             <div
                                 className={`p-2 h-[50px] w-[50px] rounded-full flex items-center justify-center ${s.iconStyle}`}
                             >
-                                <div className={s.iconStyle}>{s.icon}</div>
+                                <div className={`${s.iconStyle} `}><img src={s.icon} className="p-1" alt="" /></div>
                             </div>
                         </div>
                         <div>
@@ -338,12 +285,12 @@ const MembersDashboard = () => {
                 ))}
             </div>
 
-            <div className="flex  gap-6">
-                <div className="md:w-[75%]">
+            <div className="md:flex  gap-6">
+                <div className="lg:w-[75%] md:w-[67%]">
 
                     <div className="bg-white rounded-2xl p-4">
-                        <h2 className="text-gray-800 font-semibold text-[20px] mb-4">
-                            Members vs Members in Previous Period
+                        <h2 className="text-gray-800 font-semibold text-[24px] mb-4">
+                            Capacity
                         </h2>
 
                         <div className="w-full h-[320px]">
@@ -424,70 +371,42 @@ const MembersDashboard = () => {
                     </div>
 
                     <div className="grid lg:grid-cols-2 gap-5 mt-7">
-                        <div className="bg-white rounded-2xl p-4 md:max-h-[500px] overflow-auto">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-gray-800 font-semibold text-[24px]">
-                                    Enrolled Students
-                                </h2>
-                                <EllipsisVertical className="text-gray-500" />
-                            </div>
+                        <div className="bg-white rounded-2xl p-4 mt-3 md:max-h-[400px] overflow-auto">
+                            <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
+                                Capacity by venue <EllipsisVertical />
+                            </h2>
 
-                            {/* Tabs */}
-                            <div className="flex border border-[#E2E1E5] rounded-lg p-1 max-w-[300px] mb-5">
-                                <button
-                                    onClick={() => setActiveTab("age")}
-                                    className={`flex-1 text-sm font-medium py-2 rounded-md transition-all ${activeTab === "age"
-                                        ? "bg-[#237FEA] text-white shadow-sm"
-                                        : "text-gray-600 hover:text-gray-800"
-                                        }`}
-                                >
-                                    By Age
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab("gender")}
-                                    className={`flex-1 text-sm font-medium py-2 rounded-md transition-all ${activeTab === "gender"
-                                        ? "bg-[#237FEA] text-white shadow-sm"
-                                        : "text-gray-600 hover:text-gray-800"
-                                        }`}
-                                >
-                                    By Gender
-                                </button>
-                            </div>
+                            {data.map((item, i) => (
+                                <div key={i} className="mb-4">
+                                    <div className="flex gap-5 items-center justify-between">
 
-                            {/* Chart Bars */}
-                            <div>
-                                {mainData.map((item, i) => (
-                                    <div key={i} className="mb-4">
-                                        <div className="flex justify-between gap-3 items-center mb-1">
-                                            <p className="text-xs text-[#344054] font-semibold">
-                                                {item.label}
-                                            </p>
-                                            <div className="w-full bg-gray-100 h-2 rounded-full relative">
-                                                <div
-                                                    className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                                    style={{ width: `${item.value}%` }}
-                                                ></div>
 
-                                                {/* Example floating label (only for first item) */}
-                                                {i === 0 && (
-                                                    <div className="absolute -top-6 left-[60%] transform -translate-x-1/2 bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded-full shadow-md">
-                                                        {item.count} students
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <span className="text-xs text-gray-500 font-medium">
-                                                {item.value}%
-                                            </span>
-                                        </div>
+                                        <p className="text-xs text-[#344054] w-[50px] font-semibold">{item.label}</p>
+
+                                        <div className="w-full">
+                                            <div className="flex justify-between items-center mb-1">
+                                            </div >
+                                            <div className="flex items-center gap-2">
+
+                                                <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                    <div
+                                                        className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
+                                                        style={{ width: `${item.value}%` }}
+                                                    ></div>
+                                                </div>
+                                                <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
+
+                                            </div></div>
                                     </div>
-                                ))}
-                            </div>
+
+                                </div>
+                            ))}
                         </div>
 
                         <div className="bg-white rounded-2xl p-6">
 
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-gray-800 font-semibold text-[24px]">Members</h2>
+                                <h2 className="text-gray-800 font-semibold text-[24px]">Membership plans</h2>
                                 <EllipsisVertical className="text-gray-500" />
                             </div>
 
@@ -543,64 +462,18 @@ const MembersDashboard = () => {
                             </div>
 
 
-                            <div className="mt-6 border-t border-gray-100 pt-4">
-                                <h3 className="text-sm font-semibold text-gray-800 mb-3">
-                                    Revenue Split
-                                </h3>
 
-                                <div className="grid md:grid-cols-3 md:justify-between md:max-h-[100px] overflow-auto gap-4 text-sm">
-                                    {pieData.map((item, i) => (
-                                        <div key={i} className="flex items-center gap-2">
-                                            <span
-                                                className="w-2 h-2 rounded-full"
-                                                style={{ backgroundColor: item.color }}
-                                            ></span>
-                                            <span className="font-medium text-gray-700">
-                                                {item.name}
-                                                <span className="font-semibold text-gray-900 block">£20,000</span>
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="md:w-[25%]">
+                <div className="lg:w-[25%] md:w-[33%]">
 
-                    <div className="bg-white rounded-2xl p-4 ">
+
+
+                    <div className="bg-white rounded-2xl p-4  md:max-h-[400px] overflow-auto">
                         <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Duration of memberships ({latestYear}-{latestMonth})
-                        </h2>
-
-                        {Object.entries(durationData).map(([duration, values], i) => {
-                            const totalStudents = Object.values(durationData).reduce(
-                                (sum, d) => sum + d.students,
-                                0
-                            );
-                            const percent = ((values.students / totalStudents) * 100).toFixed(1);
-
-                            return (
-                                <div key={i} className="mb-4">
-                                    <p className="text-xs text-[#344054] font-semibold mb-1">{duration}</p>
-                                    <div className="flex gap-2 items-center">
-                                        <div className="w-full bg-gray-100 h-2 rounded-full">
-                                            <div
-                                                className="bg-[#237FEA] h-2 rounded-full"
-                                                style={{ width: `${percent}%` }}
-                                            ></div>
-                                        </div>
-                                        <span className="text-xs text-[#344054] font-semibold">{percent}%</span>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    <div className="bg-white rounded-2xl p-4 mt-5">
-                        <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Source of memberships <EllipsisVertical />
+                            High Demand Venues <EllipsisVertical />
                         </h2>
 
                         {data.map((item, i) => (
@@ -624,6 +497,45 @@ const MembersDashboard = () => {
                         ))}
                     </div>
 
+                    <div className="bg-white rounded-2xl p-5 mt-4 mx-auto">
+
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-gray-800 font-semibold text-lg">Trends</h2>
+                            <MoreVertical className="text-gray-500" size={18} />
+                        </div>
+
+                        <div className="flex items-center space-x-3 mb-4">
+                            <div className="bg-orange-50 p-2 rounded-full">
+                                <TrendingUp className="text-orange-500" size={22} />
+                            </div>
+                            <div>
+                                <p className="text-gray-600 font-medium text-sm">Higher demand</p>
+                                <p className="text-gray-900 font-semibold text-base">August</p>
+                            </div>
+                        </div>
+
+                        <hr className="border-gray-100 my-3" />
+
+                        <div className="flex items-center space-x-3 mb-4">
+                            <div className="bg-teal-50 p-2 rounded-full">
+                                <TrendingDown className="text-teal-500" size={22} />
+                            </div>
+                            <div>
+                                <p className="text-gray-600 font-medium text-sm">Lowest Demand</p>
+                                <p className="text-gray-900 font-semibold text-base">April</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p className="text-gray-800 font-semibold text-sm mb-1">Other factors</p>
+                            <p className="text-gray-500 text-sm">
+                                In holidays the waiting list increase 40%
+                            </p>
+                        </div>
+                    </div>
+
+
+
 
                 </div>
             </div>
@@ -631,4 +543,4 @@ const MembersDashboard = () => {
     );
 };
 
-export default MembersDashboard;
+export default CapacityDashboard;

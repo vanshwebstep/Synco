@@ -95,6 +95,12 @@ import Lead from './Components/Pages/AdminPages/one-to-one/leads/Lead.jsx';
 import { LeadsContextProvider } from './Components/Pages/AdminPages/contexts/LeadsContext.jsx';
 import AccountInfo from './Components/Pages/AdminPages/one-to-one/leads/leadsInfo/AccountInfo.jsx';
 import MembersDashboard from './Components/Pages/AdminPages/reports/MembersDashboard.jsx';
+import TrialsDashboard from './Components/Pages/AdminPages/reports/TrialsDashboard.jsx';
+import SaleDashboard from './Components/Pages/AdminPages/reports/SaleDashboard.jsx';
+import CapacityDashboard from './Components/Pages/AdminPages/reports/CapacityDashboard.jsx';
+import AttendanceDashboard from './Components/Pages/AdminPages/reports/AttendanceDashboard.jsx';
+import CancellationDashboard from './Components/Pages/AdminPages/reports/CancellationDashboard.jsx';
+import WeeklyDashboard from './Components/Pages/AdminPages/reports/WeeklyDashboard.jsx';
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
 // Role-based route component
@@ -462,7 +468,16 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <AccountInfo />
+              <TrialsDashboard />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/reports/sales" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SaleDashboard />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -471,7 +486,7 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <AccountInfo />
+              <CapacityDashboard />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -480,7 +495,25 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <AccountInfo />
+              <AttendanceDashboard />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/reports/cancellations" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <CancellationDashboard />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/reports/weekly-classes" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <WeeklyDashboard />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

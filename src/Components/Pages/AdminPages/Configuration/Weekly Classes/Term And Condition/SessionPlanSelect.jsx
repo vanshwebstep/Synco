@@ -95,7 +95,10 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
   return (
     <div className="relative w-full mb-5">
       {loading ? (
-        'Loading...'
+
+        <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-2xl px-4 py-3 mb-4 shadow-sm">
+        Loading...
+        </div>
       ) : (
         <Select
           options={options}

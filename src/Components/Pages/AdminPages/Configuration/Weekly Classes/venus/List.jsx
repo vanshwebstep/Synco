@@ -463,11 +463,11 @@ const List = () => {
           {
             venues.length > 0 ? (
 
-              <div className={`overflow-auto min-h-[600px] bg-white rounded-4xl w-full`}>
+              <div className={`overflow-auto min-h-[600px] bg-white border-[#E2E1E5] border rounded-4xl w-full`}>
 
                 <table className="overflow-hidden rounded-4xl border border-[#E2E1E5] bg-white w-full">
                   <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
-                    <tr className="font-semibold ">
+                    <tr className="font-semibold border-[#E2E1E5] border-b ">
                       <th className="p-4 text-[#717073]">
                         <div className="flex gap-3 items-center">
                           <button
@@ -507,7 +507,7 @@ const List = () => {
                             </div>
                           </td>
                           <td className="p-4">{user.name || "-"}</td>
-                          <td className="p-4">{user.address || "-"}</td>
+                          <td className="p-4 max-w-80">{user.address || "-"}</td>
                           <td className="p-4">{user.facility || "-"}</td>
                           <td className="p-4">
                             <div className="flex gap-2">

@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
+
 import { Eye, User, Edit2, Trash2, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../contexts/Loader";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { Loader2 } from "lucide-react";
 
 import { usePermission } from "../Common/permission";
 const SessionPlan = () => {
@@ -13,6 +15,7 @@ const SessionPlan = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
     const { checkPermission } = usePermission();
+    const [loadingPinId, setLoadingPinId] = useState(null); // Track which group is being pinned
 
     const canDelete = checkPermission({ module: 'session-plan-structure', action: 'delete' });
     const canEdit = checkPermission({ module: 'session-plan-structure', action: 'update' });
@@ -126,7 +129,7 @@ const SessionPlan = () => {
             });
         }
     };
-      const handleDeleteGroup = async (groupId, level) => {
+    const handleDeleteGroup = async (groupId, level) => {
         const myLevel = level?.toLowerCase();
         if (!groupId || !myLevel) return;
 
@@ -204,6 +207,47 @@ const SessionPlan = () => {
             });
         }
     };
+const handlePinToggle = async (groupId, pinned = false, forceRePin = false) => {
+    try {
+        setLoadingPinId(groupId);
+
+        // ✅ Logic: if already pinned, make unpin (0); if not pinned, make pin (1)
+        // If forceRePin is true (from "Re-pin All"), always set pinned = 1
+        const payload = { pinned: forceRePin ? 1 : pinned ? 0 : 1 };
+
+        const response = await fetch(
+            `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/${groupId}/repin`,
+            {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Pin/Unpin success:", data);
+
+        fetchSessionGroup();
+        setSessionGroup(prev =>
+            prev.map(g =>
+                g.id === groupId ? { ...g, pinned: payload.pinned === 1 } : g
+            )
+        );
+    } catch (error) {
+        console.error("Error pinning/unpinning:", error);
+    } finally {
+        setLoadingPinId(null);
+    }
+};
+
+
     useEffect(() => {
         fetchSessionGroup();
     }, [fetchSessionGroup]);
@@ -219,7 +263,24 @@ const SessionPlan = () => {
         <>
             <div className="flex justify-between py-5">
                 <h2 className="font-bold text-2xl">Session Plan Structure</h2>
-                <button className="bg-[#237FEA] text-white p-3 px-4 rounded-2xl">Re Pin Group</button>
+                <button
+    className="bg-[#237FEA] text-white p-3 px-4 rounded-2xl hover:bg-[#1f6fd2] transition"
+    // onClick={async () => {
+    //     setLoadingPinId("all");
+
+    //     for (const group of sessionGroup) {
+    //         if (group.pinned) { // ✅ only re-pin pinned ones
+    //             await handlePinToggle(group.id, true, true);
+    //         }
+    //     }
+
+    //     setLoadingPinId(null);
+    // }}
+    disabled={loadingPinId !== null}
+>
+    {loadingPinId ? "Re-pinning..." : "Re Pin Group"}
+</button>
+
             </div>
 
             <div className="p-6 bg-white min-h-[600px] rounded-3xl">
@@ -244,7 +305,7 @@ const SessionPlan = () => {
                                 ...levelInfo[key], // title + age
                                 data: group.levels[key], // exercises or whatever is inside levels
                             }));
-                            console.log('groupsToShow', groupsToShow)
+                            console.log('group', group)
                             return (
                                 <div key={index} className="bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl w-full  h-auto">
                                     {/* Header */}
@@ -257,13 +318,28 @@ const SessionPlan = () => {
                                             >
                                                 <Eye className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer" />
                                             </button>
-                                            <button className="p-1.5 rounded-lg hover:bg-gray-100">
-                                                <img
-                                    src="/demo/synco/icons/PinIcon.png"
-                                    alt="Edit"
-                                    className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
-                                  />
-                                            </button>
+                                           <button
+    className="p-1.5 rounded-lg hover:bg-gray-100"
+    onClick={() => handlePinToggle(group.id, group.pinned)}
+    disabled={loadingPinId === group.id}
+>
+    {loadingPinId === group.id ? (
+        <Loader2 className="w-6 h-6 opacity-70 animate-spin " />
+    ) : (
+        <img
+            src={
+                group.pinned
+                    ? "/demo/synco/icons/PinIcon.png"
+                    : "/demo/synco/icons/PinIcon.png"
+            }
+            alt="Pin"
+className={`w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100  cursor-pointer rounded-full ${
+  group.pinned ? " opacity-90 " : "opacity-20"
+}`}        />
+    )}
+</button>
+
+
                                         </div>
                                     </div>
 
@@ -289,38 +365,38 @@ const SessionPlan = () => {
                                                             />
                                                         </button>
                                                     }
-                                                 {canDelete && (
-  <button
-    onClick={() => {
-      if (groupsToShow.length === 1) {
-        // Delete the whole group
-        handleDeleteGroup(group.id, groups.title);
-      } else {
-        // Delete only this level
-        handleDelete(group.id, groups.title);
-      }
-    }}
-    className="relative group"
-    title="Delete session plan"
-  >
-    <img
-      alt="Delete"
-      src="/demo/synco/icons/deleteIcon.png"
-      className="w-6 h-6 opacity-90 transform transition-all duration-200 
+                                                    {canDelete && (
+                                                        <button
+                                                            onClick={() => {
+                                                                if (groupsToShow.length === 1) {
+                                                                    // Delete the whole group
+                                                                    handleDeleteGroup(group.id, groups.title);
+                                                                } else {
+                                                                    // Delete only this level
+                                                                    handleDelete(group.id, groups.title);
+                                                                }
+                                                            }}
+                                                            className="relative group"
+                                                            title="Delete session plan"
+                                                        >
+                                                            <img
+                                                                alt="Delete"
+                                                                src="/demo/synco/icons/deleteIcon.png"
+                                                                className="w-6 h-6 opacity-90 transform transition-all duration-200 
                  group-hover:scale-110 group-hover:opacity-100 cursor-pointer"
-    />
-    {/* Tooltip */}
-    <span
-      className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 
+                                                            />
+                                                            {/* Tooltip */}
+                                                            <span
+                                                                className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 
                  transition-all duration-200 bg-gray-800 text-white text-xs 
                  px-2 py-1 rounded-md whitespace-nowrap shadow-md"
-    >
-      {groupsToShow.length === 1
-        ? `Delete Entire Group (${groups.title})`
-        : `Delete ${groups.title} Level`}
-    </span>
-  </button>
-)}
+                                                            >
+                                                                {groupsToShow.length === 1
+                                                                    ? `Delete Entire Group (${groups.title})`
+                                                                    : `Delete ${groups.title} Level`}
+                                                            </span>
+                                                        </button>
+                                                    )}
 
 
                                                 </div>

@@ -79,14 +79,14 @@ const List = () => {
     const filteredSchedules = classSchedules.filter(
         (item) => item.venueId == venueId
     );
-const allDays = Array.from(
-  new Set(
-    (singleClassSchedules?.termGroups || [])
-      .flatMap(termGroup =>
-        (termGroup.terms || []).map(term => term.day?.toLowerCase().trim())
-      )
-  )
-);
+    const allDays = Array.from(
+        new Set(
+            (singleClassSchedules?.termGroups || [])
+                .flatMap(termGroup =>
+                    (termGroup.terms || []).map(term => term.day?.toLowerCase().trim())
+                )
+        )
+    );
 
     console.log('classSchedules', classSchedules)
     console.log('singleClassSchedules', singleClassSchedules)
@@ -136,22 +136,22 @@ const allDays = Array.from(
             return newIndex;
         });
     };
-console.log('allDays',allDays)
-const uniqueDays = [...new Set(allDays.map(item => item))];
+    console.log('allDays', allDays)
+    const uniqueDays = [...new Set(allDays.map(item => item))];
 
-const dayOrder = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+    const dayOrder = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ];
 
-const days = uniqueDays.sort(
-  (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)
-);
+    const days = uniqueDays.sort(
+        (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)
+    );
     // Reset for new form
     const handleAddNew = () => {
         setFormData({
@@ -170,7 +170,7 @@ const days = uniqueDays.sort(
     const [value, setValue] = useState('Some text');
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const { venues, isEditVenue, setIsEditVenue, fetchVenues } = useVenue()
-    console.log('filteredSchedules',filteredSchedules)
+    console.log('filteredSchedules', filteredSchedules)
     const [formData, setFormData] = useState({
         className: '',
         capacity: '',
@@ -188,10 +188,10 @@ const days = uniqueDays.sort(
                 : [...prev, userId]
         );
     };
-console.log('filteredSchedules',filteredSchedules)
+    console.log('filteredSchedules', filteredSchedules)
 
 
-const handleChange = (field, value) => {
+    const handleChange = (field, value) => {
         setFormData({ ...formData, [field]: value });
     };
     const parseTimeToMinutes = (timeStr) => {
@@ -514,119 +514,94 @@ const handleChange = (field, value) => {
                                                                             className={`transition-all duration-300 overflow-hidden ${openTerms[term.id] ? "max-h-[1000px]" : "max-h-0"
                                                                                 }`}
                                                                         >
-                                                                            {term.sessionsMap.map((session) => {
-                                                                                const sessionMaps = session.sessionPlan || [];
-                                                                                // console.log('sessionsssss', session)
-                                                                                const sessionState = sessionStates[session.sessionPlanId] || {};
-                                                                                console.log('sessionMaps', session?.sessionPlan)
-                                                                                const handleToggleDropdown = (sessionId) => {
-                                                                                    // console.log('---handleToggleDropdown called---');
-                                                                                    // console.log('Previous sessionStates:', sessionStates);
-                                                                                    // console.log('Toggling sessionId:', sessionId);
+                                                                          {(() => {
+  let sessions = [];
 
-                                                                                    setSessionStates((prev) => {
-                                                                                        const newState = {
-                                                                                            ...prev,
-                                                                                            [sessionId]: {
-                                                                                                ...prev[sessionId],
-                                                                                                selectedKey: '',
-                                                                                                selectedSessionMap: null,
-                                                                                            },
-                                                                                        };
-                                                                                        // console.log('New sessionStates:', newState);
-                                                                                        return newState;
-                                                                                    });
+  // Step 1: parse only if it's a string
+  if (typeof term.sessionsMap === "string") {
+    try {
+      sessions = JSON.parse(term.sessionsMap);
+    } catch (err) {
+      console.error("Invalid sessionsMap JSON:", err);
+      sessions = [];
+    }
+  } 
+  // Step 2: or directly use it if it's already an array
+  else if (Array.isArray(term.sessionsMap)) {
+    sessions = term.sessionsMap;
+  }
 
-                                                                                    setOpenDropdownSessionId((prevId) => {
-                                                                                        const newId = prevId === sessionId ? null : sessionId;
-                                                                                        return newId;
-                                                                                    });
-                                                                                };
-                                                                                // console.log('itemitem', item)
-                                                                                const handleSessionMapChange = (value) => {
+  // Step 3: safely render
+  return sessions.map((session) => {
+    const sessionMaps = session.sessionPlan || [];
+    const sessionState = sessionStates[session.sessionPlanId] || {};
 
-                                                                                    const [date, groupName] = value.split('|||');
+    return (
+                                                                                        <div
+                                                                                            key={session.id}
+                                                                                            className="flex justify gap-4 items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
+                                                                                        >
+                                                                                            {/* Title and Date */}
+                                                                                            <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm">
+                                                                                                <span className="text-[15px] font-semibold truncate md:min-w-[200px]">
+                                                                                                    {session?.sessionPlan?.groupName || 'N/A'}
+                                                                                                </span>
+                                                                                                <span className="text-[15px] text-gray-600 truncate md:min-w-[200px]">
+                                                                                                    {new Date(session.sessionDate).toLocaleDateString("en-US", {
+                                                                                                        weekday: "long",
+                                                                                                        day: "2-digit",
+                                                                                                        month: "2-digit",
+                                                                                                        year: "numeric",
+                                                                                                    })}
+                                                                                                </span>
+                                                                                            </div>
 
-                                                                                    const { sessionDate, sessionPlan } = sessionMaps;
+                                                                                            {/* Status */}
+                                                                                            <div className="flex items-center gap-2 text-sm">
+                                                                                                <span className="rounded-full flex items-center gap-2 font-medium capitalize text-[15px] md:min-w-[120px]">
+                                                                                                    {session?.sessionPlan?.status === "pending" && (
+                                                                                                        <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" />
+                                                                                                    )}
+                                                                                                    {session?.sessionPlan?.status === "completed" && (
+                                                                                                        <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="Complete" />
+                                                                                                    )}
+                                                                                                    {session?.sessionPlan?.status === "cancelled" && (
+                                                                                                        <img src="/demo/synco/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
+                                                                                                    )}
+                                                                                                    {session?.sessionPlan?.status || (
+                                                                                                        <>
+                                                                                                            <img src="/demo/synco/icons/pending.png" className="w-4 h-4 inline" alt="Pending" /> Pending
+                                                                                                        </>
+                                                                                                    )}
+                                                                                                </span>
+                                                                                            </div>
 
-                                                                                    if (sessionDate === date && sessionPlan.groupName === groupName) {
-                                                                                        const levels = sessionPlan.levels;
-                                                                                        // console.log(levels);
-                                                                                    }
-
-                                                                                    setSessionStates((prev) => {
-                                                                                        const newState = {
-                                                                                            ...prev,
-                                                                                            [session.id]: {
-                                                                                                ...prev[session.id],
-                                                                                                selectedKey: value,
-                                                                                                selectedSessionMap: matched,
-                                                                                            },
-                                                                                        };
-                                                                                        return newState;
-                                                                                    });
-                                                                                };
-
-
-                                                                                const handleNavigate = () => {
-
-                                                                                    const selected = sessionStates[session.id]?.selectedSessionMap;
-
-                                                                                    if (selected) {
-
-
-                                                                                    } else {
-                                                                                        // console.log('No sessionMap selected, navigation skipped');
-                                                                                    }
-                                                                                };
-                                                                                console.log('session (10)', session)
-
-                                                                                return (
-                                                                                    <div
-                                                                                        key={session.id}
-                                                                                        className="flex justify gap-4 items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
-                                                                                    >
-                                                                                        {/* Title and Date */}
-                                                                                        <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm">
-                                                                                            <span className="text-[15px] font-semibold truncate md:min-w-[200px]">
-                                                                                                {session?.sessionPlan?.groupName || 'N/A'}
-                                                                                            </span>
-                                                                                            <span className="text-[15px] text-gray-600 truncate md:min-w-[200px]">
-                                                                                                {new Date(session.sessionDate).toLocaleDateString("en-US", {
-                                                                                                    weekday: "long",
-                                                                                                    day: "2-digit",
-                                                                                                    month: "2-digit",
-                                                                                                    year: "numeric",
-                                                                                                })}
-                                                                                            </span>
-                                                                                        </div>
-
-                                                                                        {/* Status */}
-                                                                                        <div className="flex items-center gap-2 text-sm">
-                                                                                            <span className="rounded-full flex items-center gap-2 font-medium capitalize text-[15px] md:min-w-[120px]">
-                                                                                                {session?.sessionPlan?.status === "pending" && (
-                                                                                                    <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" />
+                                                                                            {/* Action Buttons */}
+                                                                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
+                                                                                                {sessionMaps && (
+                                                                                                    <button
+                                                                                                        onClick={() =>
+                                                                                                            navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/viewSessions', {
+                                                                                                                state: {
+                                                                                                                    singleClassSchedules,
+                                                                                                                    sessionMap: session.sessionPlan,
+                                                                                                                    sessionId: session.sessionPlanId,
+                                                                                                                    venueId,
+                                                                                                                    sessionDate: session.sessionDate,
+                                                                                                                    classname: item,
+                                                                                                                    statusIs: session?.sessionPlan?.status,
+                                                                                                                },
+                                                                                                            })
+                                                                                                        }
+                                                                                                        className="px-4 py-3 bg-[#237FEA] text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
+                                                                                                    >
+                                                                                                        View Session Plan
+                                                                                                    </button>
                                                                                                 )}
-                                                                                                {session?.sessionPlan?.status === "completed" && (
-                                                                                                    <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="Complete" />
-                                                                                                )}
-                                                                                                {session?.sessionPlan?.status === "cancelled" && (
-                                                                                                    <img src="/demo/synco/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
-                                                                                                )}
-                                                                                                {session?.sessionPlan?.status || (
-                                                                                                    <>
-                                                                                                        <img src="/demo/synco/icons/pending.png" className="w-4 h-4 inline" alt="Pending" /> Pending
-                                                                                                    </>
-                                                                                                )}
-                                                                                            </span>
-                                                                                        </div>
 
-                                                                                        {/* Action Buttons */}
-                                                                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full md:w-auto">
-                                                                                            {sessionMaps && (
                                                                                                 <button
                                                                                                     onClick={() =>
-                                                                                                        navigate('/configuration/weekly-classes/venues/class-schedule/Sessions/viewSessions', {
+                                                                                                        navigate(`/configuration/weekly-classes/venues/class-schedule/Sessions/completed?id=${item.id}`, {
                                                                                                             state: {
                                                                                                                 singleClassSchedules,
                                                                                                                 sessionMap: session.sessionPlan,
@@ -638,65 +613,45 @@ const handleChange = (field, value) => {
                                                                                                             },
                                                                                                         })
                                                                                                     }
-                                                                                                    className="px-4 py-3 bg-[#237FEA] text-white font-semibold rounded-xl shadow hover:shadow-lg hover:scale-[1.03] transition-all duration-300"
+                                                                                                    className="hover:bg-blue-500 font-semibold bg-white text-blue-500 border-2 hover:border-transparent border-blue-500 text-[15px] hover:text-white px-3 py-2 rounded-xl transition"
                                                                                                 >
-                                                                                                    View Session Plan
+                                                                                                    View Class Register
                                                                                                 </button>
-                                                                                            )}
 
-                                                                                            <button
-                                                                                                onClick={() =>
-                                                                                                    navigate(`/configuration/weekly-classes/venues/class-schedule/Sessions/completed?id=${item.id}`, {
-                                                                                                        state: {
-                                                                                                            singleClassSchedules,
-                                                                                                            sessionMap: session.sessionPlan,
-                                                                                                            sessionId: session.sessionPlanId,
-                                                                                                            venueId,
-                                                                                                            sessionDate: session.sessionDate,
-                                                                                                            classname: item,
-                                                                                                            statusIs: session?.sessionPlan?.status,
-                                                                                                        },
-                                                                                                    })
-                                                                                                }
-                                                                                                className="hover:bg-blue-500 font-semibold bg-white text-blue-500 border-2 hover:border-transparent border-blue-500 text-[15px] hover:text-white px-3 py-2 rounded-xl transition"
-                                                                                            >
-                                                                                                View Class Register
-                                                                                            </button>
+                                                                                                {cancelSession && (
+                                                                                                    <button
+                                                                                                        onClick={() => {
+                                                                                                            console.log("session:", session);
+                                                                                                            console.log("session.classScheduleTermMaps:", session?.classScheduleTermMaps);
 
-                                                                                            {cancelSession && (
-                                                                                                <button
-                                                                                                    onClick={() => {
-                                                                                                        console.log("session:", session);
-                                                                                                        console.log("session.classScheduleTermMaps:", session?.classScheduleTermMaps);
+                                                                                                            navigate("/configuration/weekly-classes/venues/class-schedule/Sessions/cancel", {
+                                                                                                                state: {
+                                                                                                                    statusIs: session?.sessionPlan?.status,
+                                                                                                                    classScheduleId: session?.sessionPlan?.classScheduleId,
+                                                                                                                    cancelSession: session?.sessionPlan?.cancelSession,
+                                                                                                                    sessionId: session?.sessionPlan?.mapId || session?.sessionPlanId,
+                                                                                                                    schedule: item,
+                                                                                                                    canceled: session?.sessionPlan?.status === "cancelled",
+                                                                                                                },
+                                                                                                            });
+                                                                                                        }}
 
-                                                                                                        navigate("/configuration/weekly-classes/venues/class-schedule/Sessions/cancel", {
-                                                                                                            state: {
-                                                                                                                statusIs: session?.sessionPlan?.status,
-                                                                                                                classScheduleId: session?.sessionPlan?.classScheduleId,
-                                                                                                                cancelSession: session?.sessionPlan?.cancelSession,
-                                                                                                                sessionId: session?.sessionPlan?.mapId || session?.sessionPlanId,
-                                                                                                                schedule: item,
-                                                                                                                canceled: session?.sessionPlan?.status === "cancelled",
-                                                                                                            },
-                                                                                                        });
-                                                                                                    }}
-
-                                                                                                    className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
+                                                                                                        className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
           ${session?.sessionPlan?.status === "cancelled"
-                                                                                                            ? "bg-white w-fit text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
-                                                                                                            : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
-                                                                                                        }`}
-                                                                                                >
-                                                                                                    {session?.sessionPlan?.status === "cancelled"
-                                                                                                        ? "See details"
-                                                                                                        : "Cancel Session"}
-                                                                                                </button>
-                                                                                            )}
+                                                                                                                ? "bg-white w-fit text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
+                                                                                                                : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
+                                                                                                            }`}
+                                                                                                    >
+                                                                                                        {session?.sessionPlan?.status === "cancelled"
+                                                                                                            ? "See details"
+                                                                                                            : "Cancel Session"}
+                                                                                                    </button>
+                                                                                                )}
+                                                                                            </div>
                                                                                         </div>
-                                                                                    </div>
-
-                                                                                )
-                                                                            })}
+    );
+  });
+})()}
                                                                         </div>
                                                                     </div>
                                                                 ))}
