@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import Swal from "sweetalert2";
-import Facebook from "../one-to-one/leads/Facebook";
+import Facebook from "../Weekly Classes/leads/Facebook";
 
 const LeadsContext = createContext();
 

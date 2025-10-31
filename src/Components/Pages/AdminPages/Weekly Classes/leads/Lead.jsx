@@ -45,7 +45,7 @@ const Lead = () => {
 
                     <div className="flex gap-4 items-center">
                         <button className="bg-white border border-[#E2E1E5] rounded-full flex justify-center items-center h-10 w-10"><TiUserAdd className="text-xl" /></button>
-                        <button onClick={() => navigate('/one-to-one/central-leads/create')}
+                        <button onClick={() => navigate('/weekly-classes/central-leads/create')}
                             className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-lg hover:bg-blue-700 transition">
                             <Plus size={16} />
                             Add new lead

@@ -299,7 +299,10 @@ ul.pl-10.list-disc.space-y-1 li.mb-2.text-lg a {
   .login-container {
     border-radius: 0;
   }
-
+.dayssss {
+    position: relative;
+    left: 0;
+}
   .dynamicpadding {
     padding-top: 80px;
     padding-bottom: 80px;
@@ -653,4 +656,14 @@ p {
 .fullwidth20  .p-4.bg-\[\#FAFAFA\].rounded-lg.mb-4 {
     padding: 5px;
 }
+}
+
+button.tox-tbtn.tox-tbtn--enabled,
+.tox-tbtn:active {
+  background-color: #e5e7eb !important; /* Tailwind gray-200 */
+  border-radius: 6px !important;
+}
+
+.tox-tbtn:hover {
+  background-color: #f3f4f6 !important; /* Light hover gray */
 }

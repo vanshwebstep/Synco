@@ -6,19 +6,23 @@ const formatDate = (dateString, withTime = false) => {
   if (!dateString) return "-";
   const date = new Date(dateString);
 
-  const dateOptions = { year: "numeric", month: "short", day: "2-digit" };
+  const options = { month: "short", day: "2-digit", year: "numeric" };
+
+  // Format date as "Oct 31 2025"
+  let formattedDate = date
+    .toLocaleDateString("en-US", options)
+    .replace(/,/g, ""); // remove commas
 
   if (withTime) {
-    const formattedDate = date.toLocaleDateString("en-GB", dateOptions); // "20 Sep 2025"
     const formattedTime = date.toLocaleTimeString("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false, // ✅ 24-hour format
+      hour12: false,
     });
-    return `${formattedDate}, ${formattedTime}`;
+    return `${formattedDate}, ${formattedTime}`; // "Oct 31 2025, 16:49"
   }
 
-  return date.toLocaleDateString("en-GB", dateOptions); // "20 Sep 2025"
+  return formattedDate;
 };
 
 
@@ -56,10 +60,10 @@ const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
     <div className="transition-all duration-300 flex-1 bg-white">
       <div className="rounded-4xl w-full">
         <div className="space-y-5">
-          <div className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white">
+          <div className="rounded-3xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white">
 
             {/* Header */}
-            <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
+            <div className="bg-[#2E2F3E] text-white p-4 rounded-2xl flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
                   <img src={icon || "/demo/synco/icons/crown.png"} alt="icon" />

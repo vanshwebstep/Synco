@@ -90,10 +90,10 @@ import BookingForm from './Components/Pages/AdminPages/one-to-one/BookingForm.js
 import Leads from './Components/Pages/AdminPages/one-to-one/Leads.jsx';
 import AccountMain from './Components/Pages/AdminPages/one-to-one/AccountMain.jsx';
 import SeeDetailsAccount from './Components/Pages/AdminPages/one-to-one/SeeDetailsAccount.jsx';
-import CreateLead from './Components/Pages/AdminPages/one-to-one/leads/CreateLead.jsx';
-import Lead from './Components/Pages/AdminPages/one-to-one/leads/Lead.jsx';
+import CreateLead from './Components/Pages/AdminPages/Weekly Classes/leads/CreateLead.jsx';
+import Lead from './Components/Pages/AdminPages/Weekly Classes/leads/Lead.jsx';
 import { LeadsContextProvider } from './Components/Pages/AdminPages/contexts/LeadsContext.jsx';
-import AccountInfo from './Components/Pages/AdminPages/one-to-one/leads/leadsInfo/AccountInfo.jsx';
+import AccountInfo from './Components/Pages/AdminPages/Weekly Classes/leads/leadsInfo/AccountInfo.jsx';
 import MembersDashboard from './Components/Pages/AdminPages/reports/MembersDashboard.jsx';
 import TrialsDashboard from './Components/Pages/AdminPages/reports/TrialsDashboard.jsx';
 import SaleDashboard from './Components/Pages/AdminPages/reports/SaleDashboard.jsx';
@@ -433,7 +433,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-        <Route path="/one-to-one/central-leads" element={
+        <Route path="/weekly-classes/central-leads" element={
           <LeadsContextProvider>
 
         <ProtectedRoute>
@@ -446,7 +446,7 @@ const AppRoutes = () => {
 
           </LeadsContextProvider>
       } />
-      <Route path="/one-to-one/central-leads/create" element={
+      <Route path="/weekly-classes/central-leads/create" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -464,6 +464,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
+
       <Route path="/reports/members" element={
         <ProtectedRoute>
           <AdminLayout>
@@ -514,6 +515,15 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <CancellationDashboard />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+       <Route path="/weekly-classes/central-leads/accont-info" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <AccountInfo />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

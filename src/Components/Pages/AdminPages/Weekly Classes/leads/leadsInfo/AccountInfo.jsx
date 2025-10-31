@@ -42,7 +42,7 @@ const AccountInfo = () => {
       <div className="flex w-max items-center bg-white p-3 gap-1 rounded-2xl p-1 ">
         <h2
           onClick={() => {
-            navigate('/one-to-one/central-leads');
+            navigate('/weekly-classes/central-leads');
           }}>
           <img
             src="/demo/synco/icons/arrow-left.png"

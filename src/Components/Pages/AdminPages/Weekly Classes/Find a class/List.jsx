@@ -553,7 +553,7 @@ const List = () => {
     <div className="pt-1 bg-gray-50 min-h-screen">
 
       <div className="md:flex w-full gap-4">
-        <div className={`transition-all duration-300 ${isOpen ? "w-3/12" : " overflow-hidden"}`}>
+        <div className={`transition-all duration-300 ${isOpen ? " md:w-[20.8%]" : " overflow-hidden"}`}>
           {/* Toggle Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -686,357 +686,365 @@ const List = () => {
           </AnimatePresence>
         </div>
         <div
-          className={`${isOpen ? "w-12/12" : "w-9/12"} transition-all   duration-300 flex-1 `}>
+          className={`${isOpen ? "md:w-[80.2%]" : "w-12/12"} transition-all   duration-300 flex-1 `}>
           {
             venues.length > 1 ? (
 
-              <div className={` rounded-4xl w-full`}>
+              <div className={` rounded-4xl mt-5 md:mt-0 w-full`}>
                 <div className="space-y-5">
                   {filteredClasses.length === 0 ? (
                     <div className="text-center p-4 text-gray-500">Data not found</div>
                   ) : (
                     filteredClasses.map((venue, idx) => (
-                      <div
-                        key={idx}
-                        className="w-full bg-white rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm" // ✅ min height
-                      >
-                        <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex flex-wrap justify-between md:items-center text-sm gap-4">
-                          <div className="flex items-center gap-2 min-w-[250px]">
-                            <img src="/demo/synco/icons/Location.png" alt="" />
-                            <div className="flex">
-                              <span className="font-medium text-[16px] xl:text-[15px] 2xl:text-[16px]">
-                                {venue.address}
-                                {venue.postal_code && !venue.address.includes(venue.postal_code) && (
-                                  <span> PostCode - {venue.postal_code}</span>
-                                )}
-                              </span>
+                      <>
+                        <div
+                          key={idx}
+                          className="w-full bg-white rounded-3xl relative p-2 border border-[#D9D9D9] shadow-sm" // ✅ min height
+                        >
+                          <div className="bg-[#2E2F3E] text-white p-4 rounded-2xl mb-2 flex flex-wrap justify-between md:items-center text-sm gap-4">
+                            <div className="flex items-center gap-2 min-w-[250px]">
+                              <img src="/demo/synco/icons/Location.png" alt="" />
+                              <div className="flex">
+                                <span className="font-medium text-[16px] xl:text-[15px] 2xl:text-[16px]">
+                                  {venue.address}
+                                  {venue.postal_code && !venue.address.includes(venue.postal_code) && (
+                                    <span> PostCode - {venue.postal_code}</span>
+                                  )}
+                                </span>
 
-                            </div>
-                          </div>
-                          <div ref={iconContainerRef} className=" md:mt-0 mt-5 flex relative items-center gap-4">
-                            <img
-                              src="/demo/synco/icons/fcDollar.png"
-                              onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentGroups[0]?.paymentPlans)} alt=""
-                              className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
-                            />
-
-                            <img
-                              src="/demo/synco/icons/fcCalendar.png"
-                              onClick={() => handleIconClick('team', venue.venueId, venue.terms)}
-                              alt=""
-                              className={`cursor-pointer w-6 h-6 rounded-full ${showteamModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
-                            />
-
-                            <img
-                              src="/demo/synco/icons/fcLocation.png"
-                              onClick={() => handleIconClick('location', venue.venueId)}
-                              alt=""
-                              className={`cursor-pointer w-6 h-6 rounded-full ${openMapId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
-                            />
-
-                            <img
-                              src="/demo/synco/icons/fcCicon.png"
-                              onClick={() => handleIconClick('congestion', venue?.venueId, venue?.congestionNote)}
-                              alt=""
-                              className={`cursor-pointer w-6 h-6 rounded-full ${activeCongestionVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
-                            />
-
-                            <img
-                              src="/demo/synco/icons/fcPIcon.png"
-                              onClick={() => handleIconClick('parking', venue?.venueId, venue?.parkingNote)}
-                              alt=""
-                              className={`cursor-pointer w-6 h-6 rounded-full ${activeParkingVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
-                            />
-                          </div>
-
-
-
-                        </div>
-
-                        <div className=' overflow-x-scroll'><div className="p-5 flex flex-col lg:flex-row gap-8 min-w-[900px]  bg-[#FCF9F6]  "> {/* ✅ responsive layout */}
-                          {/* Meta Info */}
-                          <div className="w-full lg:w-3/12 space-y-1 ">
-                            <div className='flex gap-5 items-center'>
-                              <div>
-                                <div className="font-semibold text-[20px] text-black max-w-30 min-w-30  truncate ">{venue.venueName}</div>
-                                <div className="whitespace-nowrap font-semibold text-[14px]">
-                                  {(venue.distanceMiles / 1609.34).toFixed(2)} miles
-                                </div>
                               </div>
+                            </div>
+                            <div ref={iconContainerRef} className=" md:mt-0 mt-5 flex relative items-center gap-4">
+                              <img
+                                src="/demo/synco/icons/fcDollar.png"
+                                onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentGroups[0]?.paymentPlans)} alt=""
+                                className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
+                              />
 
-                              <div className="">
-                                {/* <div className="text-[16px] capitalize font-semibold text-[#384455]">
+                              <img
+                                src="/demo/synco/icons/fcCalendar.png"
+                                onClick={() => handleIconClick('team', venue.venueId, venue.terms)}
+                                alt=""
+                                className={`cursor-pointer w-6 h-6 rounded-full ${showteamModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
+                              />
+
+                              <img
+                                src="/demo/synco/icons/fcLocation.png"
+                                onClick={() => handleIconClick('location', venue.venueId)}
+                                alt=""
+                                className={`cursor-pointer w-6 h-6 rounded-full ${openMapId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
+                              />
+
+                              <img
+                                src="/demo/synco/icons/fcCicon.png"
+                                onClick={() => handleIconClick('congestion', venue?.venueId, venue?.congestionNote)}
+                                alt=""
+                                className={`cursor-pointer w-6 h-6 rounded-full ${activeCongestionVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
+                              />
+
+                              <img
+                                src="/demo/synco/icons/fcPIcon.png"
+                                onClick={() => handleIconClick('parking', venue?.venueId, venue?.parkingNote)}
+                                alt=""
+                                className={`cursor-pointer w-6 h-6 rounded-full ${activeParkingVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
+                              />
+                            </div>
+
+
+
+                          </div>
+
+                          <div className=' overflow-x-auto'><div className="p-5 md:flex flex-col lg:flex-row gap-8 min-w-[900px]  bg-[#FCF9F6]  "> {/* ✅ responsive layout */}
+                            {/* Meta Info */}
+                            <div className="w-full lg:w-3/12 space-y-1 ">
+                              <div className='flex gap-5 items-center'>
+                                <div>
+                                  <div className="font-semibold text-[20px] text-black max-w-30 min-w-30  truncate ">{venue.venueName}</div>
+                                  <div className="whitespace-nowrap font-semibold text-[14px]">
+                                    {(venue.distanceMiles / 1609.34).toFixed(2)} miles
+                                  </div>
+                                </div>
+
+                                <div className="">
+                                  {/* <div className="text-[16px] capitalize font-semibold text-[#384455]">
                                   {Object.keys(venue.classes)
                                     .filter(day => venue.classes[day]?.length)
                                     .join(", ")}
                                 </div> */}
 
+                                </div>
+                              </div>
+                              <div>
+
                               </div>
                             </div>
-                            <div>
 
-                            </div>
-                          </div>
+                            <div className="w-full parent relative lg:w-9/12 pl-4 border-l border-[#ccc]  space-y-4">
+                              {venue.classes && Object.keys(venue.classes).length > 0 ? (
+                                Object.entries(venue.classes).map(([day, classList]) => (
+                                  <div key={day} className="">
+                                    <div className="w-full dayssss  text-[16px] capitalize font-semibold text-[#384455]">
+                                      {day}
+                                    </div>
+                                    <div className="whitespace-nowrap facility mt-5 font-semibold text-[14px]">{venue.facility || "N/A"}</div>
+                                    {classList.map((s, i) => (
+                                      <div
+                                        key={s.classId}
+                                        className=" w-full md:flex space-x-2 items-center mb-2 justify-between space-y-4"
+                                      >
 
-                          <div className="w-full parent relative lg:w-9/12 pl-4 border-l border-[#ccc]  space-y-4">
-                            {venue.classes && Object.keys(venue.classes).length > 0 ? (
-                              Object.entries(venue.classes).map(([day, classList]) => (
-                                <div key={day} className="">
-                                  <div className="w-full dayssss  text-[16px] capitalize font-semibold text-[#384455]">
-                                    {day}
-                                  </div>
-                                  <div className="whitespace-nowrap facility mt-5 font-semibold text-[14px]">{venue.facility || "N/A"}</div>
-                                  {classList.map((s, i) => (
-                                    <div
-                                      key={s.classId}
-                                      className=" w-full flex space-x-2 items-center justify-between space-y-4"
-                                    >
+                                        <div className='md:flex space-x-3 md:space-y-0 space-y-4 items-center justify-between'>
+                                          <div className="font-bold text-[16px] text-black whitespace-nowrap">Class {i + 1}</div>
 
-                                      <div className='flex space-x-3 items-center justify-between'>
-                                        <div className="font-bold text-[16px] text-black whitespace-nowrap">Class {i + 1}</div>
+                                          {/* Class Name */}
+                                          <div className="font-semibold text-[16px] min-w-22 max-w-22 ">{s.className}</div>
 
-                                        {/* Class Name */}
-                                        <div className="font-semibold text-[16px] min-w-22 max-w-22 ">{s.className}</div>
+                                          {/* Time */}
+                                          <div className="font-semibold text-[16px] whitespace-nowrap flex gap-2 items-center min-w-40">
+                                            <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />
+                                            {s.time}
+                                          </div>
 
-                                        {/* Time */}
-                                        <div className="font-semibold text-[16px] whitespace-nowrap flex gap-2 items-center min-w-40">
-                                          <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />
-                                          {s.time}
+                                          {/* Capacity */}
+                                          <div className="text-sm">
+                                            {s.capacity === 0 ? (
+                                              <span className="text-[#FF5C40] whitespace-nowrap bg-[#fcede9] p-2 rounded-md text-[14px] font-semibold">
+                                                Fully booked
+                                              </span>
+                                            ) : (
+                                              <span className="text-[#34AE56] whitespace-nowrap bg-[#eef3eb] p-2 rounded-md text-[14px] font-semibold">
+                                                +{s.capacity} spaces
+                                              </span>
+                                            )}
+                                          </div>
                                         </div>
-
-                                        {/* Capacity */}
-                                        <div className="text-sm">
-                                          {s.capacity === 0 ? (
-                                            <span className="text-red-500 whitespace-nowrap bg-red-50 p-2 rounded-xl text-[14px] font-semibold">
-                                              Fully booked
-                                            </span>
+                                        {/* Action Buttons */}
+                                        <div className="flex gap-2 flex-wrap  md:justify-end">
+                                          {s.capacity === 0 && canAddToWaitingList ? (
+                                            <button
+                                              onClick={() => handleAddToWaitingList(s.classId)}
+                                              className=" z-10 bg-[#237FEA] text-white border border-[#237FEA] px-3 py-2 rounded-xl text-sm font-medium"
+                                            >
+                                              Add to Waiting List
+                                            </button>
                                           ) : (
-                                            <span className="text-green-600 whitespace-nowrap bg-green-50 p-2 rounded-xl text-[14px] font-semibold">
-                                              +{s.capacity} spaces
-                                            </span>
+                                            <>
+                                              {s.allowFreeTrial && canBookFreeTrial && (
+                                                <button
+                                                  onClick={() => handleBookFreeTrial(s.classId)}
+                                                  className="z-10 font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[14px] font-medium"
+                                                >
+                                                  Book a FREE Trial
+                                                </button>
+                                              )}
+                                              {canBookMembership && (
+                                                <button
+                                                  onClick={() => handleBookMembership(s.classId)}
+                                                  className="z-10 font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[14px] font-medium"
+                                                >
+                                                  Book a Membership
+                                                </button>
+                                              )}
+                                            </>
                                           )}
                                         </div>
                                       </div>
-                                      {/* Action Buttons */}
-                                      <div className="flex gap-2 flex-wrap  md:justify-end">
-                                        {s.capacity === 0 && canAddToWaitingList ? (
-                                          <button
-                                            onClick={() => handleAddToWaitingList(s.classId)}
-                                            className=" z-10 bg-[#237FEA] text-white border border-[#237FEA] px-3 py-1 rounded-xl text-sm font-medium"
-                                          >
-                                            Add to Waiting List
-                                          </button>
-                                        ) : (
-                                          <>
-                                            {s.allowFreeTrial && canBookFreeTrial && (
-                                              <button
-                                                onClick={() => handleBookFreeTrial(s.classId)}
-                                                className="z-10 font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium"
-                                              >
-                                                Book a FREE Trial
-                                              </button>
-                                            )}
-                                            {canBookMembership && (
-                                              <button
-                                                onClick={() => handleBookMembership(s.classId)}
-                                                className="z-10 font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-1 rounded-xl text-[14px] font-medium"
-                                              >
-                                                Book a Membership
-                                              </button>
-                                            )}
-                                          </>
-                                        )}
-                                      </div>
-                                    </div>
-                                  ))}
+                                    ))}
 
 
+                                  </div>
+                                ))
+                              ) : (
+                                <div className="text-center text-gray-500 font-medium py-8">No classes available for this venue</div>
+                              )}
+                            </div>
+
+                            {activeCongestionVenueId === venue.venueId && (
+                              <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
+                                <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
+                                  <div className="flex items-start justify-between">
+                                    <h2 className="text-red-500 font-semibold text-[18px]">Congestion Information</h2>
+                                    <img src="/demo/synco/icons/infoIcon.png" alt="" />
+                                  </div>
+                                  <div className="mt-2 text-[16px] text-gray-700 leading-snug">
+
+                                    {notes ? (
+                                      <p>This venue is inside of the congestion zone.</p>
+                                    ) : (
+                                      <>
+                                        <p>There is no congestion charges at this venue.</p>
+                                      </>
+                                    )}
+                                  </div>
                                 </div>
-                              ))
-                            ) : (
-                              <div className="text-center text-gray-500 font-medium py-8">No classes available for this venue</div>
+                              </div>
                             )}
-                          </div>
 
-                          {activeCongestionVenueId === venue.venueId && (
-                            <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
-                              <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
-                                <div className="flex items-start justify-between">
-                                  <h2 className="text-red-500 font-semibold text-[18px]">Congestion Information</h2>
-                                  <img src="/demo/synco/icons/infoIcon.png" alt="" />
-                                </div>
-                                <div className="mt-2 text-[16px] text-gray-700 leading-snug">
+                            {activeParkingVenueId === venue.venueId && (
+                              <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
+                                <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
+                                  <div className="flex items-start justify-between">
+                                    <h2 className="text-red-500 font-semibold text-[18px]">Parking Information</h2>
+                                    <img src="/demo/synco/icons/infoIcon.png" alt="" />
+                                  </div>
+                                  <div className="mt-2 text-[16px] text-gray-700 leading-snug">
 
-                                  {notes ? (
-                                    <p>This venue is inside of the congestion zone.</p>
-                                  ) : (
-                                    <>
-                                      <p>There is no congestion charges at this venue.</p>
-                                    </>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {activeParkingVenueId === venue.venueId && (
-                            <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
-                              <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
-                                <div className="flex items-start justify-between">
-                                  <h2 className="text-red-500 font-semibold text-[18px]">Parking Information</h2>
-                                  <img src="/demo/synco/icons/infoIcon.png" alt="" />
-                                </div>
-                                <div className="mt-2 text-[16px] text-gray-700 leading-snug">
-
-                                  {notes ? (
-                                    notes
-                                  ) : (
-                                    <>
-                                      <p>This venue has no parking facilities available.</p>
-                                      <p>Paid road parking is available.</p>
-                                    </>
-                                  )}
+                                    {notes ? (
+                                      notes
+                                    ) : (
+                                      <>
+                                        <p>This venue has no parking facilities available.</p>
+                                        <p>Paid road parking is available.</p>
+                                      </>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          )}
-                          {showteamModal === venue.venueId && (
-                            <div
-                              ref={iconContainerRef}
-                              // ref={iconContainerRef}
-                              className="
-    absolute bg-opacity-30 top-15 flex items-center justify-center z-50
-    min-w-[200px] sm:min-w-[489px]
-    left-2 sm:left-auto right-2
-    px-2 sm:px-0
-  "
-                            >
-                              <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
-                                {/* Header */}
-                                <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
-                                  <h2 className="text-[24px]  font-semibold">Team Dates</h2>
-                                  <button onClick={() => setShowteamModal(null)}>
-                                    <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
-                                  </button>
-                                </div>
-
-                                {/* Term List */}
-                                <div className="space-y-6 max-h-80 overflow-y-scroll text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
-                                  {calendarData.map((term) => (
-                                    <div key={term.id}>
-                                      <h3 className="md:text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
-                                      <p className="md:text-[18px]">
-                                        {formatDate(term.startDate)} - {formatDate(term.endDate)}
-                                      </p>
-                                      <p className="md:text-[18px]">
-                                        Half term Exclusion:{" "}
-                                        {term.exclusionDates.map((ex, idx) => (
-                                          <span key={idx}>
-                                            {formatDate(ex)}{idx < term.exclusionDates.length - 1 ? ", " : ""}
-                                          </span>
-                                        ))}
-                                      </p>
-                                    </div>
-                                  ))}
-                                </div>
-
-                                {/* Calendar Section */}
-                                <div className="rounded p-4 mt-6 text-center md:text-sm w-full max-w-md mx-auto">
+                            )}
+                            {showteamModal === venue.venueId && (
+                              <div
+                                ref={iconContainerRef}
+                                // ref={iconContainerRef}
+                                className="
+                                      absolute bg-opacity-30 top-15 flex items-center justify-center z-50
+                                      min-w-[200px] sm:min-w-[489px]
+                                      left-2 sm:left-auto right-2
+                                      px-2 sm:px-0
+                                    "
+                              >
+                                <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
                                   {/* Header */}
-                                  <div className="flex justify-around items-center mb-3">
-                                    <button
-                                      onClick={goToPreviousMonth}
-                                      className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                                    >
-                                      <ChevronLeft className="w-5 h-5" />
-                                    </button>
-                                    <p className="font-semibold md:text-[20px]">
-                                      {currentDate.toLocaleString("default", { month: "long" })} {year}
-                                    </p>
-                                    <button
-                                      onClick={goToNextMonth}
-                                      className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                                    >
-                                      <ChevronRight className="w-5 h-5" />
+                                  <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
+                                    <h2 className="text-[24px]  font-semibold">Team Dates</h2>
+                                    <button onClick={() => setShowteamModal(null)}>
+                                      <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
                                     </button>
                                   </div>
 
-                                  {/* Day Labels */}
-                                  <div className="grid grid-cols-7 text-xs gap-1 md:text-[18px] text-gray-500 mb-1">
-                                    {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
-                                      <div key={day} className="font-medium text-center">
-                                        {day}
+                                  {/* Term List */}
+                                  <div className="space-y-6 max-h-80 overflow-y-scroll text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
+                                    {calendarData.map((term) => (
+                                      <div key={term.id}>
+                                        <h3 className="md:text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
+                                        <p className="md:text-[18px]">
+                                          {formatDate(term.startDate)} - {formatDate(term.endDate)}
+                                        </p>
+                                        <p className="md:text-[18px]">
+                                          Half term Exclusion:{" "}
+                                          {term.exclusionDates.map((ex, idx) => (
+                                            <span key={idx}>
+                                              {formatDate(ex)}{idx < term.exclusionDates.length - 1 ? ", " : ""}
+                                            </span>
+                                          ))}
+                                        </p>
                                       </div>
                                     ))}
                                   </div>
 
-                                  {/* Calendar Weeks */}
-                                  <div className="grid grid-cols-7 gap-0 text-[16px]">
-                                    {calendarDays.map((date, i) => {
-                                      const { isStartOrEnd, isInBetween, isExcluded, isSessionDate } = getDateStatus(date);
+                                  {/* Calendar Section */}
+                                  <div className="rounded p-4 mt-6 text-center md:text-sm w-full max-w-md mx-auto">
+                                    {/* Header */}
+                                    <div className="flex justify-around items-center mb-3">
+                                      <button
+                                        onClick={goToPreviousMonth}
+                                        className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                                      >
+                                        <ChevronLeft className="w-5 h-5" />
+                                      </button>
+                                      <p className="font-semibold md:text-[20px]">
+                                        {currentDate.toLocaleString("default", { month: "long" })} {year}
+                                      </p>
+                                      <button
+                                        onClick={goToNextMonth}
+                                        className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                                      >
+                                        <ChevronRight className="w-5 h-5" />
+                                      </button>
+                                    </div>
 
-                                      let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
-                                      let innerDiv = null;
+                                    {/* Day Labels */}
+                                    <div className="grid grid-cols-7 text-xs gap-1 md:text-[18px] text-gray-500 mb-1">
+                                      {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
+                                        <div key={day} className="font-medium text-center">
+                                          {day}
+                                        </div>
+                                      ))}
+                                    </div>
 
-                                      if (!date) {
-                                        className += "";
-                                      } else if (isExcluded) {
-                                        className += "bg-gray-400 text-white opacity-60 rounded-full cursor-not-allowed";
-                                      } else if (isSessionDate) {
-                                        className += "bg-blue-600 text-white font-bold rounded-full"; // DARK BLUE
-                                      } else if (isStartOrEnd) {
-                                        className += ""; // Outer background
-                                        innerDiv = (
-                                          <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
-                                            {date.getDate()}
+                                    {/* Calendar Weeks */}
+                                    <div className="grid grid-cols-7 gap-0 text-[16px]">
+                                      {calendarDays.map((date, i) => {
+                                        const { isStartOrEnd, isInBetween, isExcluded, isSessionDate } = getDateStatus(date);
+
+                                        let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
+                                        let innerDiv = null;
+
+                                        if (!date) {
+                                          className += "";
+                                        } else if (isExcluded) {
+                                          className += "bg-gray-400 text-white opacity-60 rounded-full cursor-not-allowed";
+                                        } else if (isSessionDate) {
+                                          className += "bg-blue-600 text-white font-bold rounded-full"; // DARK BLUE
+                                        } else if (isStartOrEnd) {
+                                          className += ""; // Outer background
+                                          innerDiv = (
+                                            <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
+                                              {date.getDate()}
+                                            </div>
+                                          );
+                                        } else if (isInBetween) {
+                                          className += " text-gray-800";
+                                        } else {
+                                          className += "hover:bg-gray-100 text-gray-800";
+                                        }
+
+                                        return (
+                                          <div
+                                            key={i}
+                                            onClick={() => date && !isExcluded && handleDateClick(date)}
+                                            className={className}
+                                          >
+                                            {innerDiv || (date ? date.getDate() : "")}
                                           </div>
                                         );
-                                      } else if (isInBetween) {
-                                        className += " text-gray-800";
-                                      } else {
-                                        className += "hover:bg-gray-100 text-gray-800";
-                                      }
+                                      })}
+                                    </div>
 
-                                      return (
-                                        <div
-                                          key={i}
-                                          onClick={() => date && !isExcluded && handleDateClick(date)}
-                                          className={className}
-                                        >
-                                          {innerDiv || (date ? date.getDate() : "")}
-                                        </div>
-                                      );
-                                    })}
                                   </div>
-
                                 </div>
                               </div>
-                            </div>
 
-                          )}
+                            )}
 
+                          </div>
+                            {showModal === venue.venueId && (
+                              <div className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
+                                <div ref={iconContainerRef} className="flex z-[999999999] items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
+                                  <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+                                    {/* Header */}
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
+                                      <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
+                                      <button className="text-gray-400 hover:text-black text-xl font-bold">
+                                        <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
+                                      </button>
+                                    </div>
+                                    <PlanTabs selectedPlans={selectedPlans} />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+
+
+
+                          </div>
+                          
                         </div>
-                          {showModal === venue.venueId && (
-                            <div className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
-                              <div ref={iconContainerRef} className="flex z-[999999999] items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
-                                <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
-                                  {/* Header */}
-                                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-                                    <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
-                                    <button className="text-gray-400 hover:text-black text-xl font-bold">
-                                      <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
-                                    </button>
-                                  </div>
-                                  <PlanTabs selectedPlans={selectedPlans} />
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                          {openMapId === venue.venueId && (
+<div>{openMapId === venue.venueId && (
                             <div ref={iconContainerRef}>
                               <div
                                 ref={(el) => (modalRefs.current[venue.venueId] = el)}
-                                className="mt-4 h-[450px] w-full rounded-lg overflow-hidden"
+                                className="mt-2 mb-4 h-[450px] w-full rounded-lg overflow-hidden"
                               >
                                 {venue.latitude && venue.longitude ? (
                                   <MapContainer
@@ -1067,15 +1075,11 @@ const List = () => {
                                 )}
                               </div>
                             </div>
-                          )}
-
-
-
-                        </div>
-                      </div>
-
+                          )}</div>
+                      </>
                     ))
                   )}
+
                 </div>
 
               </div>

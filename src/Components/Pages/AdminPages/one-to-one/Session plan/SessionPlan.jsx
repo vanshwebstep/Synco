@@ -262,7 +262,7 @@ const SessionPlan = () => {
     return (
         <>
             <div className="flex justify-between py-5">
-                <h2 className="font-bold text-2xl">Session Plan Structure</h2>
+                <h2 className="font-bold text-gray-800 pl-5 text-2xl">Session Plan Structure</h2>
                 <button
                     className="bg-[#237FEA] text-white p-3 px-4 rounded-2xl hover:bg-[#1f6fd2] transition"
                     // onClick={async () => {

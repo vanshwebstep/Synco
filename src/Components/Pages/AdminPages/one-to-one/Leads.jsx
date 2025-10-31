@@ -33,7 +33,7 @@ const Leads = () => {
           <button
             key={tab.name}
             onClick={()=> handleTabChange(tab.name)}
-            className={`relative flex-1 w-auto text-[15px] md:text-base font-semibold py-3 px-4 rounded-xl transition-all ${
+            className={`relative flex-1 w-auto text-[18px] md:text-base font-semibold py-3 px-4 rounded-xl transition-all ${
               activeTab === tab.name
                 ? "bg-[#237FEA] shadow text-white"
                 : "text-[#282829] bg-white border border-[#E2E1E5] hover:text-[#282829]"

@@ -31,41 +31,41 @@ const ViewSessions = () => {
   console.log('sessionId', sessionId)
   console.log("Filtered Schedules in cancessl:", cancelSession);
 
-useEffect(() => {
-  if (cancelSession && Object.keys(cancelSession).length > 0) {
-    // Prefill basic fields
-    setReasonForCancelling(cancelSession.reasonForCancelling || "");
-    setNotifyMembers(cancelSession.notifyMembers === "Yes");
-    setcreditMembers(cancelSession.creditMembers === "Yes");
-    setnotifyTrialists(cancelSession.notifyTrialists === "Yes");
-    setNotifyCoaches(cancelSession.notifyCoaches === "Yes");
+  useEffect(() => {
+    if (cancelSession && Object.keys(cancelSession).length > 0) {
+      // Prefill basic fields
+      setReasonForCancelling(cancelSession.reasonForCancelling || "");
+      setNotifyMembers(cancelSession.notifyMembers === "Yes");
+      setcreditMembers(cancelSession.creditMembers === "Yes");
+      setnotifyTrialists(cancelSession.notifyTrialists === "Yes");
+      setNotifyCoaches(cancelSession.notifyCoaches === "Yes");
 
-    // Parse notifications JSON
-    const parsedNotifications = JSON.parse(cancelSession.notifications || "[]");
+      // Parse notifications JSON
+      const parsedNotifications = JSON.parse(cancelSession.notifications || "[]");
 
-    const newRolesData = { ...rolesData };
+      const newRolesData = { ...rolesData };
 
-   const roleMap = {
-  Member: "Members",
-  Trialist: "Trials",
-  Coach: "Coaches"
-};
+      const roleMap = {
+        Member: "Members",
+        Trialist: "Trials",
+        Coach: "Coaches"
+      };
 
-parsedNotifications.forEach((n) => {
-  const key = roleMap[n.role];
-  if (key) {
-    newRolesData[key] = {
-      ...newRolesData[key],
-      subject: n.subjectLine || "",
-      emailBody: n.emailBody || "",
-      deliveryMethod: n.deliveryMethod || "Email",
-    };
-  }
-});
+      parsedNotifications.forEach((n) => {
+        const key = roleMap[n.role];
+        if (key) {
+          newRolesData[key] = {
+            ...newRolesData[key],
+            subject: n.subjectLine || "",
+            emailBody: n.emailBody || "",
+            deliveryMethod: n.deliveryMethod || "Email",
+          };
+        }
+      });
 
-    setRolesData(newRolesData);
-  }
-}, [cancelSession]);
+      setRolesData(newRolesData);
+    }
+  }, [cancelSession]);
 
 
 
@@ -206,42 +206,42 @@ parsedNotifications.forEach((n) => {
             <div className="space-y-4">
               <div>
                 <label className="block text-[18px] font-semibold mb-2">Reason for cancelling</label>
-             <select
-  value={reasonForCancelling}
-  onChange={(e) => setReasonForCancelling(e.target.value)}
-  disabled={isCancel}
-  className="w-full border border-gray-300 rounded-lg px-3 py-2"
->
-  <option>Weather</option>
-  <option>Illness</option>
-  <option>Unavailable Venue</option>
-  <option>Other</option>
-</select>
+                <select
+                  value={reasonForCancelling}
+                  onChange={(e) => setReasonForCancelling(e.target.value)}
+                  disabled={isCancel}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                >
+                  <option>Weather</option>
+                  <option>Illness</option>
+                  <option>Unavailable Venue</option>
+                  <option>Other</option>
+                </select>
               </div>
 
               <div className="space-y-2 text-sm">
                 <p className="font-semibold text-[18px]">Would you like to notify members?</p>
                 <div className="flex flex-wrap gap-4 mt-4">
-                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={notifyMembers} onChange={() => setNotifyMembers(true)} /> Yes</label>
-                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={!notifyMembers} onChange={() => setNotifyMembers(false)} /> No</label>
+                  <label className='text-[18px]'><input type="radio" disabled={isCancel} checked={notifyMembers} onChange={() => setNotifyMembers(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio" disabled={isCancel} checked={!notifyMembers} onChange={() => setNotifyMembers(false)} /> No</label>
                 </div>
 
                 <p className="mt-3 font-semibold text-[18px]">Credit members 1 session?</p>
                 <div className="flex flex-wrap gap-4 mt-4">
-                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={creditMembers} onChange={() => setcreditMembers(true)} /> Yes</label>
-                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={!creditMembers} onChange={() => setcreditMembers(false)} /> No</label>
+                  <label className='text-[18px]'><input type="radio" disabled={isCancel} checked={creditMembers} onChange={() => setcreditMembers(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio" disabled={isCancel} checked={!creditMembers} onChange={() => setcreditMembers(false)} /> No</label>
                 </div>
 
                 <p className="mt-3 font-semibold text-[18px]">Would you like to notify trialists?</p>
                 <div className="flex flex-wrap gap-4 mt-4">
-                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={notifyTrialists} onChange={() => setnotifyTrialists(true)} /> Yes</label>
-                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={!notifyTrialists} onChange={() => setnotifyTrialists(false)} /> No</label>
+                  <label className='text-[18px]'><input type="radio" disabled={isCancel} checked={notifyTrialists} onChange={() => setnotifyTrialists(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio" disabled={isCancel} checked={!notifyTrialists} onChange={() => setnotifyTrialists(false)} /> No</label>
                 </div>
 
                 <p className="mt-3 font-semibold text-[18px]">Would you like to notify coaches?</p>
                 <div className="flex flex-wrap gap-4 mt-4">
-                  <label className='text-[18px]'><input type="radio" disabled={isCancel}  checked={notifyCoaches} onChange={() => setNotifyCoaches(true)} /> Yes</label>
-                  <label className='text-[18px]'><input type="radio"  disabled={isCancel} checked={!notifyCoaches} onChange={() => setNotifyCoaches(false)} /> No</label>
+                  <label className='text-[18px]'><input type="radio" disabled={isCancel} checked={notifyCoaches} onChange={() => setNotifyCoaches(true)} /> Yes</label>
+                  <label className='text-[18px]'><input type="radio" disabled={isCancel} checked={!notifyCoaches} onChange={() => setNotifyCoaches(false)} /> No</label>
                 </div>
               </div>
             </div>
@@ -270,7 +270,7 @@ parsedNotifications.forEach((n) => {
                 <label className="block text-sm md:text-base font-semibold mt-2">Subject Line</label>
                 <input
                   className="w-full border border-gray-300 rounded-lg p-3"
-                    readOnly={isCancel}
+                  readOnly={isCancel}
                   value={rolesData[activeTab].subject}
                   onChange={(e) =>
                     setRolesData({
@@ -281,7 +281,7 @@ parsedNotifications.forEach((n) => {
                 />
                 {rolesData[activeTab].deliveryMethod === 'Text' ? 'Text' : 'Email'}
                 <textarea
-                 readOnly={isCancel}
+                  readOnly={isCancel}
                   className="w-full bg-gray-100 border border-gray-300 rounded-lg p-3 h-60"
                   value={rolesData[activeTab].emailBody}
                   onChange={(e) =>
@@ -296,7 +296,7 @@ parsedNotifications.forEach((n) => {
                   <label>
                     <input
                       type="radio"
-                       disabled={isCancel} 
+                      disabled={isCancel}
                       checked={rolesData[activeTab].deliveryMethod === "Email"}
                       onChange={() =>
                         setRolesData({

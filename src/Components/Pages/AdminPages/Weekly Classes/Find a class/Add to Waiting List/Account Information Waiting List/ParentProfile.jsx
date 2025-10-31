@@ -777,7 +777,7 @@ const ParentProfile = ({ profile }) => {
                             </div>
 
                             {/* Details */}
-                            <div className="space-y-4">
+                            <div className="space-y">
                                 <div>
                                     <div className="text-[20px] font-bold tracking-wide">Venue</div>
                                     <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">

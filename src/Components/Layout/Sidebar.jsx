@@ -118,6 +118,18 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { title: 'Waiting List', link: '/weekly-classes/find-a-class/add-to-waiting-list/list', needPermissions: [{ module: 'waiting-list', action: 'view-listing' }] },
         { title: 'Capacity', link: '/weekly-classes/capacity', needPermissions: [{ module: 'capacity', action: 'view-listing' }] },
         { title: 'Account Information', link: '/weekly-classes/members-info', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+     {
+          title: "Leads Database",
+          link: '/weekly-classes/central-leads',
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+
+        }
       ]
     },
       {
@@ -138,25 +150,24 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
           needPermissions: [
             { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
+            { module: "term-group", action: "view-listing" }
+          ],
+
+
+        },
+               {
+          title: "Session plan Structure ",
+          link: '/one-to-one/session-plan',
+
+
+          needPermissions: [
             { module: "session-plan-group", action: "view-listing" },
             { module: "payment-group", action: "view-listing" },
           ],
 
 
         },
-        {
-          title: "Leads Database",
-          link: '/one-to-one/central-leads',
-          needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-
-        }
+        
 
       ],
     }, {

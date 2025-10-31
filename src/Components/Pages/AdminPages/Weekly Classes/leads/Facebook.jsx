@@ -310,7 +310,7 @@ const Facebook = () => {
 
               return (
                 <React.Fragment key={i}>
-                  <tr onClick={() => navigate(`/one-to-one/central-leads/accont-info?id=${lead.id}`)} className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer">
+                  <tr onClick={() => navigate(`/weekly-classes/central-leads/accont-info?id=${lead.id}`)} className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer">
                     <td className="py-3 px-4 font-semibold whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <button

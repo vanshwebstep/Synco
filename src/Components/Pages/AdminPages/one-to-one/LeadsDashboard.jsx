@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Search,
   Plus,
@@ -12,23 +12,135 @@ import {
   UserRoundPlus, X
 } from "lucide-react";
 import { TiUserAdd } from "react-icons/ti";
+import Swal from "sweetalert2";
 
 import { PiUsersThreeBold } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
+import Loader from "../contexts/Loader";
 const LeadsDashboard = () => {
   const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const token = localStorage.getItem("adminToken");
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [mainLoading, setMainLoading] = useState(false);
+  const [leadsData, setLeadsData] = useState([]);
+
+  const fetchLeads = useCallback(
+    async (
+      studentName = "",
+      venueName = "",
+      status1 = false,
+      status2 = false,
+      otherDateRange = [],
+      dateoftrial = [],
+      forOtherDate = [],
+      BookedBy = []
+
+    ) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
+      // console.log('status1', status1)
+      // console.log('satus2', status2)
+      // console.log('otherDateRange', otherDateRange)
+      // console.log('dateoftrial', dateoftrial)
+      // console.log('forOtherDate', forOtherDate)
+
+      const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
+      // if (shouldShowLoader) setLoading(true);
+
+      try {
+        const queryParams = new URLSearchParams();
+
+        // Student & Venue filters
+        if (studentName) queryParams.append("studentName", studentName);
+        if (venueName) queryParams.append("venueName", venueName);
+
+        // Status filters
+        if (status1) queryParams.append("status", "attended");
+        if (status2) queryParams.append("status", "not attend");
+        if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
+          BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
+        }
+
+        if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
+          const [from, to] = dateoftrial;
+          if (from && to) {
+            queryParams.append("dateTrialFrom", formatLocalDate(from));
+            queryParams.append("dateTrialTo", formatLocalDate(to));
+          }
+        }
+
+        // 🔹 Handle general (createdAt range)
+        if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+          const [from, to] = otherDateRange;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+
+        if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
+          const [from, to] = forOtherDate;
+          if (from && to) {
+            queryParams.append("fromDate", formatLocalDate(from));
+            queryParams.append("toDate", formatLocalDate(to));
+          }
+        }
+        // Trial dates (support array or single value)
+        // const trialDates = Array.isArray(dateoftrial) ? dateoftrial : [dateoftrial];
+        // trialDates
+        //   .filter(Boolean)
+        //   .map(d => formatLocalDate(d))
+        //   .filter(Boolean)
+        //   .forEach(d => queryParams.append("trialDate", d));
+
+        const url = `${API_BASE_URL}/api/admin/one-to-one/leads/list${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const resultRaw = await response.json();
+        const result = resultRaw.data || [];
+        setLeadsData(result);
+      } catch (error) {
+        console.error("Failed to fetch bookFreeTrials:", error);
+      } finally {
+        // if (shouldShowLoader) setLoading(false); // only stop loader if it was started
+      }
+    },
+    []
+  );
+
+useEffect(() => {
+  const loadLeads = async () => {
+    try {
+      setMainLoading(true);
+      await fetchLeads();
+    } finally {
+      setMainLoading(false);
+    }
+  };
+
+  loadLeads();
+}, [fetchLeads]);
+
   const summaryCards = [
     { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: 945, change: "+28.14%" },
     { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: 245, change: "+12.47%" },
     { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: 120, change: "+9.31%" },
     { icon: PiUsersThreeBold, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: "Online" },
   ];
-  const [isOpen, setIsOpen] = useState(false);
+  
+
   const [formData, setFormData] = useState({
     parentName: "",
     childName: "",
     age: "",
-    postcode: "",
+    postCode: "",
     packageInterest: "",
     availability: "",
     source: "",
@@ -38,26 +150,106 @@ const LeadsDashboard = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    setIsOpen(false);
+    console.log('formData', formData)
+    // 🔍 Validate required fields (example)
+    if (
+      !formData.parentName ||
+      !formData.availability ||
+      !formData.age ||
+      !formData.childName ||
+      !formData.packageInterest ||
+      !formData.postCode ||
+      !formData.source
+    ) {
+      const missingFields = [];
+
+      if (!formData.parentName) missingFields.push("Parent Name");
+      if (!formData.childName) missingFields.push("Child Name");
+      if (!formData.age) missingFields.push("Age");
+      if (!formData.postCode) missingFields.push("Post Code");
+      if (!formData.packageInterest) missingFields.push("Package Interest");
+      if (!formData.availability) missingFields.push("Availability");
+      if (!formData.source) missingFields.push("Source");
+
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Fields",
+        html: `
+      <div style="text-align:left;">
+        <p>Please fill out the following required field(s):</p>
+        <ul style="margin-top:8px;">
+          ${missingFields.map(f => `<li>• ${f}</li>`).join("")}
+        </ul>
+      </div>
+    `,
+      });
+      return;
+    }
+
+
+    console.log("Submitting lead:", formData);
+
+    setLoading(true); // 🌀 optional loader state
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/leads/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData), // ✅ remove unnecessary wrapping {formData}
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // ❌ Handle API error response
+        throw new Error(result.message || "Failed to create lead.");
+      }
+
+      // ✅ Success alert
+      Swal.fire({
+        icon: "success",
+        title: "Lead Created",
+        text: "The lead has been successfully added.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      await fetchLeads(); // refresh roles or data
+      setIsOpen(false);   // close modal or form
+      setFormData({});    // reset form if needed
+
+    } catch (error) {
+      console.error("Create lead error:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Something went wrong while creating the lead.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  const leadsData = Array(10).fill({
+  const leadsDatas = Array(10).fill({
     id: 1,
     parent: "Tom Jones",
     child: "Steve Jones",
     age: 10,
-    postcode: "W14 9EB",
+    postCode: "W14 9EB",
     package: "Gold",
     availability: "Weekends",
     source: "Referral",
     status: "Pending",
   });
-
+  console.log('leadsData', leadsData)
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
       prev.includes(userId)
@@ -106,6 +298,13 @@ const LeadsDashboard = () => {
   for (let i = 0; i < firstDay; i++) daysArray.push(null);
   for (let i = 1; i <= daysInMonth; i++) daysArray.push(i);
 
+    if (mainLoading) {
+        return (
+            <>
+                <Loader />
+            </>
+        )
+    }
   return (
     <>
 
@@ -164,7 +363,7 @@ const LeadsDashboard = () => {
                     <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
                     <th className="py-3 px-4 whitespace-nowrap">Child Name</th>
                     <th className="py-3 px-4 whitespace-nowrap">Age</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Postcode</th>
+                    <th className="py-3 px-4 whitespace-nowrap">PostCode</th>
                     <th className="py-3 px-4 whitespace-nowrap">Package Interest</th>
                     <th className="py-3 px-4 whitespace-nowrap">Availability</th>
                     <th className="py-3 px-4 whitespace-nowrap">Source</th>
@@ -197,13 +396,13 @@ const LeadsDashboard = () => {
                                 />
                               )}
                             </button>
-                            {lead.parent}
+                            {lead.parentName}
                           </div>
                         </td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.child}</td>
+                        <td className="py-3 px-4 whitespace-nowrap">{lead.childName}</td>
                         <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.postcode}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.package}</td>
+                        <td className="py-3 px-4 whitespace-nowrap">{lead.postCode}</td>
+                        <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest}</td>
                         <td className="py-3 px-4 whitespace-nowrap">{lead.availability}</td>
                         <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
                         <td className="py-3 px-4 whitespace-nowrap">
@@ -376,12 +575,12 @@ const LeadsDashboard = () => {
 
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
-                  Postcode
+                  postCode
                 </label>
                 <input
                   type="text"
-                  name="postcode"
-                  value={formData.postcode}
+                  name="postCode"
+                  value={formData.postCode}
                   onChange={handleChange}
                   className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
                 />
@@ -434,11 +633,13 @@ const LeadsDashboard = () => {
               </div>
 
               <div className="flex justify-end">
-                <button
+                <button 
                   type="submit"
-                  className="w-auto px-7 bg-[#237FEA] text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition"
+                  disabled={loading}
+                  className={`w-auto px-7 py-2.5 rounded-lg font-medium transition 
+        ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-[#237FEA] hover:bg-blue-700 text-white"}`}
                 >
-                  Add Student
+                  {loading ? "Adding..." : "Add Student"}
                 </button>
               </div>
             </form>

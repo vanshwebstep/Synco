@@ -726,7 +726,7 @@ const ParentProfile = ({ ParentProfile }) => {
                             </div>
 
                             {/* Details */}
-                            <div className="space-y-4">
+                            <div className="space-y">
                                 <div>
                                     <div className="text-[20px] font-bold tracking-wide">Venue</div>
                                     <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
@@ -796,7 +796,8 @@ const ParentProfile = ({ ParentProfile }) => {
                                 </div>
 
 
-                                {status?.trim().toLowerCase() == "pending" &&
+                                {status?.trim().toLowerCase() == "pending" ||
+                                status?.trim().toLowerCase() == "not attend" &&
                                     status?.trim().toLowerCase() !== "attended" &&
                                     status?.trim().toLowerCase() !== "no_membership" &&
                                     status?.trim().toLowerCase() !== "rebooked" &&

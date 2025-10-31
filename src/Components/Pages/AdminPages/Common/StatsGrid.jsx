@@ -13,7 +13,7 @@ const StatsGrid = ({ stats, variant = "A" }) => {
       {stats.map((item, idx) => (
         <div
           key={idx}
-          className="bg-white rounded-2xl shadow-sm px-3 py-3 flex items-center gap-4 w-full max-w-full overflow-hidden"
+          className="bg-white rounded-2xl shadow-sm px-3 py-6 flex items-center gap-4 w-full max-w-full overflow-hidden"
         >
           {/* Icon Section */}
           {variant === "A" ? (

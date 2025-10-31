@@ -1431,24 +1431,25 @@ const Create = () => {
 
                                     <div className="mb-4 relative">
                                         <label className="block text-[18px] font-semibold text-gray-700 mb-2">
-                                            Description
+                                            Descriptison
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             { /* bullist numlist  code */}
-                                            <Editor
-                                                apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
-                                                value={formData.description}
-                                                onEditorChange={(content) =>
-                                                    setFormData({ ...formData, description: content })
-                                                }
-                                                init={{
-                                                    menubar: false,
-                                                    plugins: "lists advlist code",
-                                                    toolbar:
-                                                        "fontsizeselect capitalize bold italic underline alignleft aligncenter bullist numlist",
-                                                    height: 200,
-                                                    branding: false,
-                                                    content_style: `
+                                       <Editor
+  apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
+  value={formData.description}
+  onEditorChange={(content) =>
+    setFormData({ ...formData, description: content })
+  }
+  init={{
+    menubar: false,
+    plugins: "lists advlist code",
+    toolbar:
+      "fontsizeselect capitalize bold italic underline alignleft aligncenter bullist numlist",
+    height: 200,
+    branding: false,
+    skin: "oxide", // ✅ use default oxide skin (so we can override styles)
+    content_style: `
       body {
         background-color: #f3f4f6;
         font-family: inherit;
@@ -1457,39 +1458,29 @@ const Create = () => {
         color: #111827;
       }
     `,
-                                                    setup: (editor) => {
-                                                        // 🔹 Custom capitalize icon
-                                                        editor.ui.registry.addIcon(
-                                                            "capitalize-icon",
-                                                            '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
-                                                        );
+    setup: (editor) => {
+      // 🔹 Custom capitalize icon
+      editor.ui.registry.addIcon(
+        "capitalize-icon",
+        '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
+      );
 
-                                                        // 🔹 Custom capitalize button
-                                                        editor.ui.registry.addButton("capitalize", {
-                                                            icon: "capitalize-icon",
-                                                            tooltip: "Capitalize Text",
-                                                            onAction: () => {
-                                                                editor.formatter.register("capitalize", {
-                                                                    inline: "span",
-                                                                    styles: { textTransform: "capitalize" },
-                                                                });
-                                                                editor.formatter.toggle("capitalize");
-                                                            },
-                                                        });
+      // 🔹 Custom capitalize button
+      editor.ui.registry.addButton("capitalize", {
+        icon: "capitalize-icon",
+        tooltip: "Capitalize Text",
+        onAction: () => {
+          editor.formatter.register("capitalize", {
+            inline: "span",
+            styles: { textTransform: "capitalize" },
+          });
+          editor.formatter.toggle("capitalize");
+        },
+      });
+    },
+  }}
+/>
 
-                                                        // ✅ Keep default list behavior (don’t swap)
-                                                        editor.on("init", () => {
-                                                            const originalExecCommand = editor.execCommand;
-
-                                                            editor.execCommand = function (command, ui, value) {
-                                                                // Only override custom behavior if you want to modify something
-                                                                // Otherwise, just call the default command
-                                                                return originalExecCommand.call(editor, command, ui, value);
-                                                            };
-                                                        });
-                                                    },
-                                                }}
-                                            />
 
 
 

@@ -111,6 +111,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'configuration/weekly-classes/venues': { title: 'Configuration', },
     'find-a-class/book-a-free-trial/account-info': { title: 'Account Information' },
     'weekly-classes/all-members/account-info': { title: 'Account Information' },
+    'weekly-classes/central-leads/accont-info': { title: 'Account Information' },
 
     'weekly-classes/cancellation': { title: 'Cancellation' },
     'weekly-classes/capacity': { title: 'Capacity' },
@@ -121,7 +122,10 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'weekly-classes/account-information': { title: 'Account Information' },
     'weekly-classes/cancellation/account-info/': { title: 'Account Information' },
     'one-to-one': { title: 'One to One ' },
+    'one-to-one/session-plan-preview': { title: 'Configuration ' },
     'reports': { title: 'Weekly Classes Reports ' },
+    'weekly-classes/central-leads': { title: 'Weekly Classes Lead Database ' },
+    'weekly-classes/central-leads/create': { title: 'Weekly Classes ' },
 
 
 

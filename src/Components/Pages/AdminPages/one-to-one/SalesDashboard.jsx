@@ -21,13 +21,16 @@ const SalesDashboard = () => {
         { icon: PiUsersThreeBold, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: '£20.000', change: "+9.31%" },
         { icon: FiUsers, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: "Ben Marcus" },
     ];
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+        const token = localStorage.getItem("adminToken");
+
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
     const [formData, setFormData] = useState({
         parentName: "",
         childName: "",
         age: "",
-        postcode: "",
+        postCode: "",
         packageInterest: "",
         availability: "",
         source: "",
@@ -37,11 +40,91 @@ const SalesDashboard = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Form submitted:", formData);
-        setIsOpen(false);
-    };
+   const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  // 🔍 Validate required fields (example)
+if (
+  !formData.parentName ||
+  !formData.availability ||
+  !formData.age ||
+  !formData.childName ||
+  !formData.packageInterest ||
+  !formData.postCode ||
+  !formData.source
+) {
+  const missingFields = [];
+
+  if (!formData.parentName) missingFields.push("Parent Name");
+  if (!formData.childName) missingFields.push("Child Name");
+  if (!formData.age) missingFields.push("Age");
+  if (!formData.postCode) missingFields.push("Post Code");
+  if (!formData.packageInterest) missingFields.push("Package Interest");
+  if (!formData.availability) missingFields.push("Availability");
+  if (!formData.source) missingFields.push("Source");
+
+  Swal.fire({
+    icon: "warning",
+    title: "Missing Fields",
+    html: `
+      <div style="text-align:left;">
+        <p>Please fill out the following required field(s):</p>
+        <ul style="margin-top:8px;">
+          ${missingFields.map(f => `<li>• ${f}</li>`).join("")}
+        </ul>
+      </div>
+    `,
+  });
+  return;
+}
+
+
+  console.log("Submitting lead:", formData);
+
+  setLoading(true); // 🌀 optional loader state
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/leads/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(formData), // ✅ remove unnecessary wrapping {formData}
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      // ❌ Handle API error response
+      throw new Error(result.message || "Failed to create lead.");
+    }
+
+    // ✅ Success alert
+    Swal.fire({
+      icon: "success",
+      title: "Lead Created",
+      text: "The lead has been successfully added.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    // await fetchRoles(); // refresh roles or data
+    setIsOpen(false);   // close modal or form
+    setFormData({});    // reset form if needed
+
+  } catch (error) {
+    console.error("Create lead error:", error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error.message || "Something went wrong while creating the lead.",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -51,7 +134,7 @@ const SalesDashboard = () => {
         location: "Acton",
         age: 10,
         date: '10th Oct 2023',
-        postcode: "W14 9EB",
+        postCode: "W14 9EB",
         package: "Gold",
         price: "£350.00",
         source: "Referral",
@@ -373,12 +456,12 @@ const SalesDashboard = () => {
 
                             <div>
                                 <label className="block text-sm text-gray-600 mb-1">
-                                    Postcode
+                                    Post Code
                                 </label>
                                 <input
                                     type="text"
-                                    name="postcode"
-                                    value={formData.postcode}
+                                    name="postCode"
+                                    value={formData.postCode}
                                     onChange={handleChange}
                                     className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
                                 />

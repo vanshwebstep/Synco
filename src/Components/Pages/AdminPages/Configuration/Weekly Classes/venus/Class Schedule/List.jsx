@@ -543,7 +543,7 @@ const List = () => {
                                                                                         >
                                                                                             {/* Title and Date */}
                                                                                             <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm">
-                                                                                                <span className="text-[15px] font-semibold truncate md:min-w-[200px]">
+                                                                                                <span className="text-[15px] font-semibold truncate md:min-w-[250px]">
                                                                                                     {session?.sessionPlan?.groupName || 'N/A'}
                                                                                                 </span>
                                                                                                 <span className="text-[15px] text-gray-600 truncate md:min-w-[200px]">

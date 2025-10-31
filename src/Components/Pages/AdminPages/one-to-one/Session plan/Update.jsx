@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import Select from "react-select";
 import { FaEye } from "react-icons/fa";
 import { Trash2, Copy } from 'lucide-react';
@@ -10,6 +10,7 @@ import { usePermission } from "../../Common/permission";
 
 export default function OnetoOneUpdate() {
     const navigate = useNavigate();
+    const exerciseRef = useRef(null);
 
     const [sessionGroup, setSessionGroup] = useState([]);
     const [searchParams] = useSearchParams();
@@ -90,6 +91,15 @@ const tabs = [];
             setLoading(false);
         }
     }, [token, API_BASE_URL]);
+ useEffect(() => {
+            if (showExerciseModal) {
+                const isMobile = window.innerWidth <= 769; // mobile + tablet breakpoint
+                exerciseRef.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: isMobile ? '' : 'start', // scroll bottom on mobile, top on desktop
+                });
+            }
+        }, [showExerciseModal]);
 
 useEffect(() => {
   if (sessionGroup && Object.keys(sessionGroup).length > 0) {
@@ -538,7 +548,7 @@ console.log('SavedTabsData',savedTabsData)
 
     return (
         <>
-            <div className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start mb-5" onClick={() => navigate('/one-to-one')}>
+            <div ref={exerciseRef} className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start mb-5" onClick={() => navigate('/one-to-one')}>
                 <img
                     src="/demo/synco/icons/arrow-left.png"
                     alt="Back"

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback,useRef, useEffect } from "react";
 import Select from "react-select";
 import { FaEye } from "react-icons/fa";
 const tabs = ["Beginner", "Intermediate", "Advanced", "Pro"];
@@ -26,11 +26,13 @@ const [isSubmitting, setIsSubmitting] = useState(false);
         video: null,
         banner: null,
     });
+    
     const MultiValue = () => null; // Hides the default selected boxes
     const [savedTabsData, setSavedTabsData] = useState({});
     const [exercises, setExercises] = useState([]);
     const [loading, setLoading] = useState(null);
     const [isEditExcercise, setIsEditExcercise] = useState(null);
+    const exerciseRef = useRef(null);
 
     const [exercise, setExercise] = useState({
         title: "",
@@ -51,7 +53,15 @@ const [isSubmitting, setIsSubmitting] = useState(false);
         });
         setSavedTabsData(null);
     }
-
+    useEffect(() => {
+            if (showExerciseModal) {
+                const isMobile = window.innerWidth <= 769; // mobile + tablet breakpoint
+                exerciseRef.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: isMobile ? '' : 'start', // scroll bottom on mobile, top on desktop
+                });
+            }
+        }, [showExerciseModal]);
 
 
     const emptyExcerCises = () => {
@@ -556,7 +566,7 @@ const handleCreateGroupClick = async () => {
 
     return (
         <>
-            <div className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start mb-5" onClick={() => navigate('/one-to-one')}>
+            <div  ref={exerciseRef} className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start my-5" onClick={() => navigate('/one-to-one')}>
                 <img
                     src="/demo/synco/icons/arrow-left.png"
                     alt="Back"
@@ -565,7 +575,7 @@ const handleCreateGroupClick = async () => {
                 <h2 className="font-bold md:text-2xl">  Add a Session Plan Structure</h2>
             </div>
 
-            <div className="p-6 flex flex-col lg:flex-row justify-center gap-10 bg-gray-50 min-h-screen rounded-2xl items-start bg-white">
+            <div className="p-12 flex flex-col lg:flex-row justify-center gap-10 bg-gray-50 min-h-screen rounded-2xl items-start bg-white">
                 <div className="w-full md:p-6 lg:w-6/12">
 
 
@@ -843,7 +853,7 @@ const handleCreateGroupClick = async () => {
                     </div>
                 </div>
 
-                <div className="lg:w-6/12 flex flex-col gap-4">
+                <div className="lg:w-6/12 p-6 flex flex-col gap-4">
 
 
                     {showExerciseModal && (

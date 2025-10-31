@@ -178,7 +178,7 @@ const SessionPreview = ({ item, sessionData }) => {
   return (
     <div className="md:py-6 bg-gray-50 min-h-screen preview-sec">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-0 gap-3 w-full md:w-1/2">
         <h2
           onClick={() => {
             navigate('/one-to-one');
@@ -192,7 +192,7 @@ const SessionPreview = ({ item, sessionData }) => {
           <span className="truncate">     {selectedGroup?.groupName || 'View Session Plans'} Preview</span>
         </h2>
       </div>
-      <div className=" rounded-3xl  p-6 flex flex-col md:flex-row gap-6">
+      <div className=" rounded-3xl  p-6 pt-0 flex flex-col md:flex-row gap-6">
 
 
         {/* Right Content */}

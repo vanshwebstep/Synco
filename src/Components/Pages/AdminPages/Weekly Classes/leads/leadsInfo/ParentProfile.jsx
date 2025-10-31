@@ -194,7 +194,7 @@ const ParentProfile = () => {
         childAge: "",
       });
 
-      navigate('/one-to-one/central-leads/')
+      navigate('/weekly-classes/central-leads/')
     } catch (error) {
       console.error("Error creating lead:", error);
       Swal.fire({
@@ -315,7 +315,7 @@ const ParentProfile = () => {
             <div className="flex gap-3">
               <button
                 className="px-15 py-4 border border-gray-200 text-gray-500 rounded-xl  transition"
-                onClick={() => navigate('/one-to-one/central-leads')}
+                onClick={() => navigate('/weekly-classes/central-leads')}
               >
                 Cancel
               </button>

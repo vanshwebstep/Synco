@@ -422,10 +422,10 @@ console.log('capacityData',capacityData)
                                 return (
                                     <div
                                         key={venue.id}
-                                        className="rounded-2xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white"
+                                        className="rounded-3xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white"
                                     >
                                         {/* Header */}
-                                        <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex items-center justify-between text-sm">
+                                        <div className="bg-[#2E2F3E] text-white p-4 rounded-2xl flex items-center justify-between text-sm">
                                             <div className="flex items-center gap-2">
                                                 <img src="/demo/synco/icons/Location.png" alt="" />
                                                 <span className="font-medium text-[20px]">

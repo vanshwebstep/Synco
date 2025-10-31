@@ -144,7 +144,7 @@ const BookingForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Payment Data:", paymentData);
+    console.log("Payment Data:", formData);
     // Add payment processing logic here
   };
 
