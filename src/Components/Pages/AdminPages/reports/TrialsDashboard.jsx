@@ -192,7 +192,7 @@ const TrialsDashboard = () => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/free-trail`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/free-trial`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,

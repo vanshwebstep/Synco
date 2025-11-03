@@ -64,10 +64,10 @@ const StudentProfile = ({ profile }) => {
         { value: "Health issue", label: "Health issue" },
         { value: "Schedule conflict", label: "Schedule conflict" },
     ];
-        const cancelType = [
-            { value: "immediate", label: "Cancel Immediately" },
-            { value: "scheduled", label: "Request Cancel" },
-        ];
+    const cancelType = [
+        { value: "immediate", label: "Cancel Immediately" },
+        { value: "scheduled", label: "Request Cancel" },
+    ];
     const firstPayment = Array.isArray(profile?.payments)
         ? profile.payments[0]
         : profile?.payments;
@@ -265,7 +265,25 @@ const StudentProfile = ({ profile }) => {
         stateSetter((prev) => ({ ...prev, [field]: formatted }));
     };
 
-
+    const handleBookMembership = () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to book a membership?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#237FEA",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Book it!",
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Navigate to your component/route
+                navigate("/weekly-classes/find-a-class/book-a-membership", {
+                    state: { TrialData: profile, comesFrom: "waitingList" },
+                });
+            }
+        });
+    };
     // Unified handler for radio buttons
     const handleRadioChange = (value, field, stateSetter) => {
         stateSetter((prev) => ({ ...prev, [field]: value }));
@@ -813,9 +831,16 @@ const StudentProfile = ({ profile }) => {
                                         >
                                             Remove Waiting List
                                         </button>
-                                        <button className="flex-1 border bg-[#237FEA] border-[#237FEA] rounded-xl py-3 px-4 flex text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-white font-medium">
-                                            Book a Membership
-                                        </button>
+                                        {(!profile?.paymentPlans || profile.paymentPlans.length === 0) && (
+                                            <button
+                                                onClick={handleBookMembership}
+                                                className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                            >
+                                                Book a Membership
+                                            </button>
+                                        )}
+
+
 
                                     </div>
                                 )}
@@ -1181,7 +1206,7 @@ const StudentProfile = ({ profile }) => {
 
                                 {/* Buttons */}
                                 <div className="flex justify-end gap-4 pt-4">
-                                     <button
+                                    <button
                                         onClick={() => {
                                             // Validation
                                             if (!cancelData.cancellationType) {

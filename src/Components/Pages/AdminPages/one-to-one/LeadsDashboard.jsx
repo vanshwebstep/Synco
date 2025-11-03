@@ -1,4 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { FiSearch } from "react-icons/fi";
+import Select from "react-select";
+
 import {
   Search,
   Plus,
@@ -13,7 +16,8 @@ import {
 } from "lucide-react";
 import { TiUserAdd } from "react-icons/ti";
 import Swal from "sweetalert2";
-
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import { PiUsersThreeBold } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
 import Loader from "../contexts/Loader";
@@ -25,15 +29,33 @@ const LeadsDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [mainLoading, setMainLoading] = useState(false);
   const [leadsData, setLeadsData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [summary, setSummary] = useState([]);
 
+  const popupRef = useRef(null);
+  const [myVenues, setMyVenues] = useState([]);
+  const [selectedVenue, setSelectedVenue] = useState(null);
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
+  const [selectedAgents, setSelectedAgents] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [tempSelectedAgent, setTempSelectedAgent] = useState(null);
+  const [savedAgent, setSavedAgent] = useState([]);
+  function formatLocalDate(dateString) {
+    const d = new Date(dateString);
+    if (isNaN(d.getTime())) return null;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`; // returns "2025-08-24"
+  }
+  console.log('summary', summary)
   const fetchLeads = useCallback(
     async (
       studentName = "",
-      venueName = "",
       status1 = false,
       status2 = false,
-      otherDateRange = [],
-      dateoftrial = [],
+      status3 = false,
       forOtherDate = [],
       BookedBy = []
 
@@ -46,7 +68,7 @@ const LeadsDashboard = () => {
       // console.log('dateoftrial', dateoftrial)
       // console.log('forOtherDate', forOtherDate)
 
-      const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
+      const shouldShowLoader = studentName || status1 || status2 || status3 || forOtherDate;
       // if (shouldShowLoader) setLoading(true);
 
       try {
@@ -54,31 +76,12 @@ const LeadsDashboard = () => {
 
         // Student & Venue filters
         if (studentName) queryParams.append("studentName", studentName);
-        if (venueName) queryParams.append("venueName", venueName);
 
         // Status filters
-        if (status1) queryParams.append("status", "attended");
-        if (status2) queryParams.append("status", "not attend");
-        if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
-          BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
-        }
+        if (status1) queryParams.append("type", "paid");
+        if (status2) queryParams.append("type", "trial");
+        if (status3) queryParams.append("type", "canceled");
 
-        if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
-          const [from, to] = dateoftrial;
-          if (from && to) {
-            queryParams.append("dateTrialFrom", formatLocalDate(from));
-            queryParams.append("dateTrialTo", formatLocalDate(to));
-          }
-        }
-
-        // 🔹 Handle general (createdAt range)
-        if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
-          const [from, to] = otherDateRange;
-          if (from && to) {
-            queryParams.append("fromDate", formatLocalDate(from));
-            queryParams.append("toDate", formatLocalDate(to));
-          }
-        }
 
         if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
           const [from, to] = forOtherDate;
@@ -106,6 +109,7 @@ const LeadsDashboard = () => {
         const resultRaw = await response.json();
         const result = resultRaw.data || [];
         setLeadsData(result);
+        setSummary(resultRaw.summary);
       } catch (error) {
         console.error("Failed to fetch bookFreeTrials:", error);
       } finally {
@@ -115,27 +119,44 @@ const LeadsDashboard = () => {
     []
   );
 
-useEffect(() => {
-  const loadLeads = async () => {
-    try {
-      setMainLoading(true);
-      await fetchLeads();
-    } finally {
-      setMainLoading(false);
-    }
-  };
+  useEffect(() => {
+    const loadLeads = async () => {
+      try {
+        setMainLoading(true);
+        await fetchLeads();
+      } finally {
+        setMainLoading(false);
+      }
+    };
 
-  loadLeads();
-}, [fetchLeads]);
+    loadLeads();
+  }, [fetchLeads]);
 
-  const summaryCards = [
-    { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: 945, change: "+28.14%" },
-    { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: 245, change: "+12.47%" },
-    { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: 120, change: "+9.31%" },
-    { icon: PiUsersThreeBold, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: "Online" },
-  ];
-  
 
+console.log('summary',summary )
+const sources = summary?.sourceOfBookings;
+
+// Determine finalSource based on conditions
+let finalSource = "Online"; // default if not exist or invalid
+
+if (Array.isArray(sources) && sources.length > 0) {
+  // find the max count
+  const maxCount = Math.max(...sources.map((s) => s.count));
+
+  // filter all sources that share the max count
+  const topSources = sources.filter((s) => s.count === maxCount);
+
+  // if tie → pick first one, else → only one with max count
+  finalSource = topSources[0]?.source || "Online";
+}
+
+// then your summaryCards
+const summaryCards = [
+  { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary.totalLeads, change: "+28.14%" },
+  { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: "+12.47%" },
+  { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: "+9.31%" },
+  { icon: PiUsersThreeBold, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
+];
   const [formData, setFormData] = useState({
     parentName: "",
     childName: "",
@@ -235,6 +256,13 @@ useEffect(() => {
       setLoading(false);
     }
   };
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    // Fetch data with search value (debounce optional)
+    fetchLeads(value);
+  };
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -247,7 +275,7 @@ useEffect(() => {
     package: "Gold",
     availability: "Weekends",
     source: "Referral",
-    status: "Pending",
+    status: "Paid",
   });
   console.log('leadsData', leadsData)
   const toggleCheckbox = (userId) => {
@@ -273,13 +301,144 @@ useEffect(() => {
     currentDate.getMonth(),
     currentDate.getFullYear()
   );
+  const month = currentDate.getMonth();
+  const year = currentDate.getFullYear();
+  const monthName = currentDate.toLocaleString("default", { month: "long" });
 
+
+  const getDaysArray = () => {
+    const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const days = [];
+
+    const offset = startDay === 0 ? 6 : startDay - 1;
+
+    for (let i = 0; i < offset; i++) {
+      days.push(null);
+    }
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(year, month, i));
+    }
+
+    return days;
+  };
+  const exportToExcel = () => {
+    if (!leadsData || !leadsData.length) {
+      alert("No leads data available to export.");
+      return;
+    }
+
+    // Prepare data
+    const dataToExport = leadsData
+      .filter((lead) => selectedUserIds.length === 0 || selectedUserIds.includes(lead.id))
+      .map((lead) => ({
+        "Parent Name": lead.parentName || "-",
+        "Child Name": lead.childName || "-",
+        Age: lead.age || "-",
+        Postcode: lead.postCode || "-",
+        "Package Interest": lead.packageInterest || "-",
+        Availability: lead.availability || "-",
+        Source: lead.source || "-",
+        Status: lead.status || "-",
+      }));
+
+    if (!dataToExport.length) {
+      alert("No data selected to export.");
+      return;
+    }
+
+    // Convert to worksheet
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "LeadsData");
+
+    // Export to file
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "LeadsData.xlsx");
+  };
+
+  const calendarDays = getDaysArray();
+
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+    setFromDate(null);
+    setToDate(null);
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+    setFromDate(null);
+    setToDate(null);
+  };
+
+  const isInRange = (date) => {
+    if (!fromDate || !toDate || !date) return false;
+    return date >= fromDate && date <= toDate;
+  };
+
+  const isSameDate = (d1, d2) => {
+    if (!d1 || !d2) return false;
+    const date1 = d1 instanceof Date ? d1 : new Date(d1);
+    const date2 = d2 instanceof Date ? d2 : new Date(d2);
+    return (
+      date1.getDate() === date2.getDate() &&
+      date1.getMonth() === date2.getMonth() &&
+      date1.getFullYear() === date2.getFullYear()
+    );
+  };
+
+
+  const handleDateClick = (date) => {
+    if (!date) return;
+
+    if (!fromDate) {
+      setFromDate(date);
+      setToDate(null); // reset second date
+    } else if (!toDate) {
+      // Ensure order (from <= to)
+      if (date < fromDate) {
+        setToDate(fromDate);
+        setFromDate(date);
+      } else {
+        setToDate(date);
+      }
+    } else {
+      // If both already selected, reset
+      setFromDate(date);
+      setToDate(null);
+    }
+  };
+  const applyFilter = () => {
+    const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
+
+    const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+    const hasRange = isValidDate(fromDate) && isValidDate(toDate);
+    const range = hasRange ? [fromDate, toDate] : [];
+
+    // If trialDate is checked: send range as dateBookedFrom/To
+    // Else: send range as createdAtFrom/To
+    const dateRangeMembership = checkedStatuses.trialDate ? range : [];
+    const otherDateRange = checkedStatuses.trialDate ? [] : range;
+
+    fetchLeads(
+      "",                                   // venueName
+      checkedStatuses.paid,             // status1
+      checkedStatuses.trial,              // month2 -> duration 3
+      checkedStatuses.canceled,           // month3 -> duration 1 (flexi)
+      otherDateRange,                      // createdAt range [from,to] OR []
+      bookedByParams                       // bookedBy ids
+    );
+  };
   const prevMonth = () => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
       newDate.setMonth(prev.getMonth() - 1);
       return newDate;
     });
+  }; const handleCheckboxChange = (key) => {
+    setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const nextMonth = () => {
@@ -289,22 +448,30 @@ useEffect(() => {
       return newDate;
     });
   };
+  // ✅ Define all filters with dynamic API mapping
+  const filterOptions = [
+    { label: "Paid", key: "paid", apiParam: "type", apiValue: "paid" },
+    { label: "Trial", key: "trial", apiParam: "type", apiValue: "trial" },
+    { label: "Canceled", key: "canceled", apiParam: "type", apiValue: "canceled" },
+  ]
+  const [checkedStatuses, setCheckedStatuses] = useState(
+    filterOptions.reduce((acc, option) => ({ ...acc, [option.key]: false }), {})
+  );
 
-  const monthName = currentDate.toLocaleString("default", { month: "long" });
-  const year = currentDate.getFullYear();
+
 
   // Prepare calendar cells
   const daysArray = [];
   for (let i = 0; i < firstDay; i++) daysArray.push(null);
   for (let i = 1; i <= daysInMonth; i++) daysArray.push(i);
 
-    if (mainLoading) {
-        return (
-            <>
-                <Loader />
-            </>
-        )
-    }
+  if (mainLoading) {
+    return (
+      <>
+        <Loader />
+      </>
+    )
+  }
   return (
     <>
 
@@ -376,16 +543,19 @@ useEffect(() => {
                     return (
                       <tr
                         key={i}
-                        onClick={() => navigate(`/one-to-one/leads/booking-form?${lead.id}`)}
+                        onClick={() =>
+                          navigate(`/one-to-one/leads/booking-form?leadId=${lead.id}`)
+                        }
                         className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
                       >
                         <td className="py-3 px-4 whitespace-nowrap font-semibold">
                           <div className="flex items-center gap-3">
                             <button
-                              onClick={() => toggleCheckbox(lead.id)}
-                              className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked
-                                ? "border-gray-500"
-                                : "border-gray-300"
+                              onClick={(e) => {
+                                e.stopPropagation(); // ⛔ prevent row click
+                                toggleCheckbox(lead.id);
+                              }}
+                              className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? "border-gray-500" : "border-gray-300"
                                 }`}
                             >
                               {isChecked && (
@@ -406,7 +576,7 @@ useEffect(() => {
                         <td className="py-3 px-4 whitespace-nowrap">{lead.availability}</td>
                         <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
                         <td className="py-3 px-4 whitespace-nowrap">
-                          <span className="bg-[#FBEECE] text-[#EDA600] px-7 py-2 rounded-xl text-xs font-medium">
+                          <span className="bg-[#FBEECE] capitalize semibold text-[#EDA600] px-7 py-2 rounded-xl text-xs font-medium">
                             {lead.status}
                           </span>
                         </td>
@@ -415,108 +585,194 @@ useEffect(() => {
                   })}
                 </tbody>
               </table>
+
             </div>
           </div>
         </div>
 
         {/* Right Sidebar */}
-        <div className="md:w-[27%] flex-shrink-0  gap-5 md:ps-3">
-          {/* Search */}
-          <div className="mb-4 bg-white rounded-2xl p-4">
-            <h3 className="font-semibold text-black text-[17px] mb-2">Search now</h3>
-            <label htmlFor="" className="text-[14px]">Search Student</label>
-            <div className="relative mt-1">
-              <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
-              <input
-                type="text"
-                placeholder="Search by student name"
-                className="pl-9 pr-3 py-2 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-              />
+        <div className="md:w-4/12  flex-shrink-0   gap-5 md:ps-3">
+          <div className="space-y-3 bg-white p-6 mb-5  rounded-3xl shadow-sm ">
+            <h2 className="text-[24px] font-semibold">Search Now </h2>
+            <div className="">
+              <label htmlFor="" className="text-base font-semibold">Search Student</label>
+              <div className="relative mt-2 ">
+                <input
+                  type="text"
+                  placeholder="Search by student name"
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 pl-9 focus:outline-none"
+                />
+                <FiSearch className="absolute left-3 top-4 text-[20px]" />
+              </div>
             </div>
+
           </div>
 
-          {/* Filter by Date */}
-          <div className="bg-white p-4 rounded-xl ">
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold text-gray-700 text-lg">Filter by date</h3>
-              <button className="px-5 mt-4 bg-[#237FEA] hover:bg-blue-700 text-white flex gap-2 items-center text-sm py-2 rounded-lg transition">
-                <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-2 h-2 sm:w-3 sm:h-3' alt="" />
-                Apply Filter
-              </button>
-
-            </div>
-            <div className=" p-4 bg-[#FAFAFA] rounded-lg mb-4">
-              <p className="text-[17px] font-medium mb-2 text-gray-700">Choose type</p>
-              <div className="grid md:grid-cols-2 gap-1 text-[16px] mb-4">
-                {["Paid", "Trial", "Canceled"].map((label) => (
-                  <label key={label} className="flex items-center gap-2">
-                    <input type="checkbox" />
-                    {label}
-                  </label>
-                ))}
-              </div>
-            </div>
-            {/* Calendar */}
-            <div className=" rounded-lg p-3 text-sm text-gray-600 text-center">
-              <div className="flex justify-center gap-5 items-center mb-2">
-                <button
-                  onClick={prevMonth}
-                  className="p-1 rounded-full hover:bg-[#282829] border border-[#282829] rounded-full  "
-                >
-                  <ChevronLeft size={16} />
-                </button>
-                <p className="font-medium text-[17px]">{`${monthName} ${year}`}</p>
-                <button
-                  onClick={nextMonth}
-                  className="p-1 rounded-full hover:bg-[#282829] border border-[#282829] rounded-full "
-                >
-                  <ChevronRight size={16} />
+          <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
+            <div className="">
+              <div className="flex justify-between items-center mb-5 ">
+                <h2 className="text-[24px] font-semibold">Filter by Date </h2>
+                <button onClick={applyFilter} className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-2 rounded-lg text-sm text-[16px]">
+                  <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                  Apply filter
                 </button>
               </div>
+              <div className="bg-gray-50 p-4 rounded-lg w-full">
+                <div className="font-semibold mb-2 text-[18px]">Choose type</div>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2 font-semibold text-[16px]">
 
-              <div className="grid grid-cols-7 gap-1 text-[16px] mb-1">
-                {["S", "M", "T", "W", "T", "F", "S"].map((d) => (
-                  <span key={d} className="font-medium text-gray-500">
-                    {d}
-                  </span>
-                ))}
+                  {filterOptions.map(({ label, key }) => (
+                    <label key={key} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        className="peer hidden"
+                        checked={checkedStatuses[key]}
+                        onChange={() => handleCheckboxChange(key)}
+                      />
+                      <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
+                        <Check className="w-4 h-4 transition-all" strokeWidth={3} />
+                      </span>
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
-              <div className="grid grid-cols-7 gap-1 text-[16px]">
-                {daysArray.map((day, i) =>
-                  day ? (
-                    <span
-                      key={i}
-                      className="p-1 rounded-full hover:bg-blue-100 cursor-pointer"
-                    >
+
+
+              <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
+                {/* Header */}
+                <div className="flex justify-around items-center mb-3">
+                  <button
+                    onClick={goToPreviousMonth}
+                    className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+
+                  <p className="font-semibold text-[20px]">
+                    {currentDate.toLocaleString("default", { month: "long" })} {year}
+                  </p>
+                  <button
+                    onClick={goToNextMonth}
+                    className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Day Labels */}
+                <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
+                  {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
+                    <div key={day} className="font-medium text-center">
                       {day}
-                    </span>
-                  ) : (
-                    <span key={i} />
-                  )
-                )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Calendar Weeks */}
+                <div className="flex flex-col  gap-1">
+                  {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
+                    const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
+
+
+                    return (
+                      <div
+                        key={weekIndex}
+                        className="grid grid-cols-7 text-[18px] h-12 py-1  rounded"
+                      >
+                        {week.map((date, i) => {
+                          const isStart = isSameDate(date, fromDate);
+                          const isEnd = isSameDate(date, toDate);
+                          const isStartOrEnd = isStart || isEnd;
+                          const isInBetween = date && isInRange(date);
+                          const isExcluded = !date; // replace with your own excluded logic
+
+                          let className =
+                            " w-full h-12 aspect-square flex items-center justify-center transition-all duration-200 ";
+                          let innerDiv = null;
+
+                          if (!date) {
+                            className += "";
+                          } else if (isExcluded) {
+                            className +=
+                              "bg-gray-300 text-white opacity-60 cursor-not-allowed";
+                          } else if (isStartOrEnd) {
+                            // Outer pill connector background
+                            className += ` bg-sky-100 ${isStart ? "rounded-l-full" : ""} ${isEnd ? "rounded-r-full" : ""
+                              }`;
+                            // Inner circle but with left/right rounding
+                            innerDiv = (
+                              <div
+                                className={`bg-blue-700 rounded-full text-white w-12 h-12 flex items-center justify-center font-bold
+                  
+                  `}
+                              >
+                                {date.getDate()}
+                              </div>
+                            );
+                          } else if (isInBetween) {
+                            // Middle range connector
+                            className += "bg-sky-100 text-gray-800";
+                          } else {
+                            className += "hover:bg-gray-100 text-gray-800";
+                          }
+
+                          return (
+                            <div
+                              key={i}
+                              onClick={() => date && !isExcluded && handleDateClick(date)}
+                              className={className}
+                            >
+                              {innerDiv || (date ? date.getDate() : "")}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                    );
+                  })}
+                </div>
               </div>
             </div>
-
-
-
           </div>
-
-          {/* Actions */}
-          <div className="grid md:grid-cols-3 gap-3 mt-4">
-            <button className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-2 text-sm hover:bg-gray-50">
-              <Mail size={16} className="text-[#717073]" /> Send Email
+          <div className="grid grid-cols-3 gap-2 justify-between">
+            <button
+              onClick={() => {
+                if (selectedStudents && selectedStudents.length > 0) {
+                  sendBookMembershipMail(selectedStudents);
+                } else {
+                  Swal.fire({
+                    icon: "warning",
+                    title: "No Students Selected",
+                    text: "Please select at least one student before sending an email.",
+                    confirmButtonText: "OK",
+                  });
+                }
+              }}
+              className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-2 py-2 rounded-xl  text-[16px]"
+            >
+              <img
+                src="/demo/synco/icons/mail.png"
+                className="w-4 h-4 sm:w-5 sm:h-5"
+                alt=""
+              />
+              Send Email
             </button>
-            <button className="flex-1 flex items-center justify-center gap-1 border text-[#717073] border-[#717073] rounded-lg py-2 text-sm hover:bg-gray-50">
-              <MessageSquare size={16} className="text-[#717073]" /> Send Text
+            <button className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-2 py-2 rounded-xl  text-[16px]">
+              <img src='/demo/synco/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+              Send Text
             </button>
-            <button className="flex items-center justify-center gap-1 bg-[#237FEA] text-white text-sm py-2 rounded-lg hover:bg-blue-700 transition">
-              <Download size={16} /> Export Data
+            <button onClick={exportToExcel} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl  text-[16px]">
+              <img src='/demo/synco/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+              Export Data
             </button>
           </div>
-
-
         </div>
+
+
       </div>
       {isOpen && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 px-5">
@@ -633,7 +889,7 @@ useEffect(() => {
               </div>
 
               <div className="flex justify-end">
-                <button 
+                <button
                   type="submit"
                   disabled={loading}
                   className={`w-auto px-7 py-2.5 rounded-lg font-medium transition 

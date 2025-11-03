@@ -9,7 +9,7 @@ const PlanTabs = ({ selectedPlans = [] }) => {
   }, {});
 
   const studentKeys = Object.keys(groupByStudents).sort();
-
+console.log('selectedPlans',selectedPlans)
   const [activeTab, setActiveTab] = useState(null);
 
   // ✅ Update activeTab when selectedPlans changes

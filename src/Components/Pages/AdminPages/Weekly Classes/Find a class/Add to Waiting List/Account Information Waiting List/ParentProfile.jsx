@@ -425,7 +425,26 @@ const ParentProfile = ({ profile }) => {
             setEditingEmergency(index);
         }
     };
-
+    console.log('profile', profile.paymentPlans)
+    const handleBookMembership = () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to book a membership?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#237FEA",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Book it!",
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Navigate to your component/route
+                navigate("/weekly-classes/find-a-class/book-a-membership", {
+                    state: { TrialData: profile, comesFrom: "waitingList" },
+                });
+            }
+        });
+    };
     const monthOptions = [
         { value: 1, label: "1 Month" },
         { value: 2, label: "2 Months" },
@@ -906,12 +925,24 @@ const ParentProfile = ({ profile }) => {
                                     </button>
                                 )} */}
                                 {status == 'waiting list' && canCancelTrial && (
-                                    <button
-                                        onClick={() => setRemoveWaiting(true)}
-                                        className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
-                                    >
-                                        Remove Waiting List
-                                    </button>
+                                    <div className='grid grid-cols-1 items-center gap-2'>
+
+                                        <button
+                                            onClick={() => setRemoveWaiting(true)}
+                                            className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                        >
+                                            Remove Waiting List
+                                        </button>
+                                        {(!profile?.paymentPlans || profile.paymentPlans.length === 0) && (
+                                            <button
+                                                onClick={handleBookMembership}
+                                                className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                            >
+                                                Book a Membership
+                                            </button>
+                                        )}
+
+                                    </div>
                                 )}
                                 {(status == 'active' || status == 'frozen') && canCancelTrial && (
                                     <button
@@ -1275,7 +1306,7 @@ const ParentProfile = ({ profile }) => {
 
                                 {/* Buttons */}
                                 <div className="flex justify-end gap-4 pt-4">
-                                     <button
+                                    <button
                                         onClick={() => {
                                             // Validation
                                             if (!cancelData.cancellationType) {

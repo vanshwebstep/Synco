@@ -442,7 +442,7 @@ console.log('capacityData',capacityData)
                                                         <div className="font-semibold text-[16px] text-black">
                                                             {venue.name}
                                                         </div>
-                                                        <div className="whitespace-nowrap text-[#717073] font-semibold text-[14px]">
+                                                        <div className="whitespace-nowrap text-[#717073] capitalize  font-semibold text-[14px]">
                                                             {new Date(venue.createdAt).toLocaleDateString("en-GB", {
                                                                 weekday: "long",
                                                                 // year: "numeric",
