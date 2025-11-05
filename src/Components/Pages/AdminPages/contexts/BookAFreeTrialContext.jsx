@@ -1083,6 +1083,53 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
+    const createBookBirthday = async (bookFreeMembershipData) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/booking/create`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(bookFreeMembershipData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Membership has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      navigate(`/birthday-party/leads`)
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      // await fetchBookMemberships();
+      setLoading(false);
+    }
+  };
   const createBookMembershipByfreeTrial = async (bookFreeMembershipData, trialId) => {
     setLoading(true);
 
@@ -2685,7 +2732,7 @@ removeWaiting, setRemoveWaiting,
         fetchBookMembershipsLoading,
         ServiceHistoryFulltto,
         ServiceHistoryAlltto,
-        fetchMembershipSalesLoading,createBookLeads, addToWaitingList, setaddToWaitingList,showCancelTrial, setshowCancelTrial
+        fetchMembershipSalesLoading,createBookLeads,createBookBirthday, addToWaitingList, setaddToWaitingList,showCancelTrial, setshowCancelTrial
       }}>
       {children}
     </BookFreeTrialContext.Provider>

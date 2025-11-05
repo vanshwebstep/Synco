@@ -23,14 +23,51 @@ const MainTable = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const resultRaw = await response.json();
-            const result = resultRaw.data || [];
-            setMembers(result.accountInformation || []);
+            const data = resultRaw?.data?.accountInformation || {};
+
+            const merged = [
+                ...(data.membership || []),
+                ...(data.oneToOne || []),
+                ...(data.birthdayParty || []),
+            ];
+
+            // Normalize ids for select functionality
+            const formatted = merged.map(item => ({
+                ...item,
+                _uid: item.id || item.bookingId, // internal unique ID
+                profile: item.profile || item?.creator?.profile || item?.booking?.coach?.profile,
+                firstName:
+                    item?.students?.[0]?.studentFirstName ||
+                    item?.childName ||
+                    item?.booking?.students?.[0]?.studentFirstName,
+                lastName:
+                    item?.students?.[0]?.studentLastName ||
+                    item?.childName ||
+                    item?.booking?.students?.[0]?.studentLastName,
+                age: item?.students?.[0]?.age || item?.age || "",
+                venueName:
+                    item?.venue?.name ||
+                    item?.classSchedule?.venue?.name ||
+                    item?.booking?.address ||
+                    "",
+                bookedByName:
+                    `${item?.bookedByAdmin?.firstName || ""} ${item?.bookedByAdmin?.lastName || ""}`.trim()
+                    || `${item?.creator?.firstName || ""} ${item?.creator?.lastName || ""}`.trim()
+                    || `${item?.booking?.coach?.firstName || ""} ${item?.booking?.coach?.lastName || ""}`.trim(),
+                bookingDate: item.createdAt || item.partyDate || item?.booking?.date,
+                planTitle: item?.paymentPlan?.title || item?.booking?.paymentPlan?.title || "",
+                planDuration: item?.paymentPlan?.interval || item?.booking?.paymentPlan?.interval || "",
+                status: item?.status || item?.booking?.payment?.paymentStatus || "",
+            }));
+
+            setMembers(formatted);
         } catch (error) {
             console.error("Failed to fetch members:", error);
         } finally {
             setLoading(false);
         }
     }, [API_BASE_URL]);
+
 
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const toggleCheckbox = (userId) => {
@@ -47,13 +84,13 @@ const MainTable = () => {
         else setSelectedUserIds(members.map((user) => user.id));
     };
 
-     const statusColors = {
-    active: "bg-green-500 text-white",
-    cancelled: "bg-red-500 text-white",
-    request_to_cancel : "bg-red-500 text-white",
-    pending: "bg-yellow-500 text-white",
-    frozen: "bg-blue-500 text-white",
-  };
+    const statusColors = {
+        active: "bg-green-500 text-white",
+        cancelled: "bg-red-500 text-white",
+        request_to_cancel: "bg-red-500 text-white",
+        pending: "bg-yellow-500 text-white",
+        frozen: "bg-blue-500 text-white",
+    };
 
     useEffect(() => {
         fetchMembers();

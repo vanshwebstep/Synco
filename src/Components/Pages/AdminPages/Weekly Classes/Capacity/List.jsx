@@ -476,7 +476,7 @@ console.log('capacityData',capacityData)
                                                                             key={cls.id}
                                                                             className="block text-center pr-10 border-r border-[#ccc]"
                                                                         >
-                                                                            <div className="whitespace-nowrap font-semibold text-[14px]">
+                                                                            <div className="whitespace-nowrap capitalize font-semibold text-[14px]">
                                                                                 {`Class  ${index + 1} : ${cls.day}, ${cls.startTime} - ${cls.endTime}`}
                                                                             </div>
                                                                             <div className="text-[16px] py-4 font-semibold text-[#384455]">

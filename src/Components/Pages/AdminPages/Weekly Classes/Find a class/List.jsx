@@ -797,11 +797,11 @@ const List = () => {
                                           <div className="font-bold text-[16px] text-black whitespace-nowrap">Class {i + 1}</div>
 
                                           {/* Class Name */}
-                                          <div className="font-semibold text-[16px] min-w-22 max-w-22 ">{s.className}</div>
+                                          <div className="font-semibold text-[16px] min-w-25 max-w-25 ">{s.className}</div>
 
                                           {/* Time */}
-                                          <div className="font-semibold text-[16px] whitespace-nowrap flex gap-2 items-center min-w-40">
-                                            <img src="/demo/synco/icons/fcTImeIcon.png" alt="" />
+                                          <div className="font-semibold text-[16px] whitespace-nowrap flex  gap-2 items-center min-w-50">
+                                            <img src="/demo/synco/icons/fcTImeIcon.png" className='min-w-5 min-h-5 max-w-5 max-h-5' alt="" />
                                             {s.time}
                                           </div>
 

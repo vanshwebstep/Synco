@@ -22,17 +22,17 @@ import { useLocation } from 'react-router-dom';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
-import PlanTabs from '../Weekly Classes/Find a class/PlanTabs';
-import { useTermContext } from '../contexts/termDatesSessionContext';
-import { useBookFreeTrial } from '../contexts/BookAFreeTrialContext';
-import Loader from '../contexts/Loader';
-import { useClassSchedule } from '../contexts/ClassScheduleContent';
-import { useMembers } from '../contexts/MemberContext';
-import { useNotification } from '../contexts/NotificationContext';
-import { usePayments } from '../contexts/PaymentPlanContext';
-import { useVenue } from '../contexts/VenueContext';
+import PlanTabs from '../../../Weekly Classes/Find a class/PlanTabs';
+import { useTermContext } from '../../../contexts/termDatesSessionContext';
+import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
+import Loader from '../../../contexts/Loader';
+import { useClassSchedule } from '../../../contexts/ClassScheduleContent';
+import { useMembers } from '../../../contexts/MemberContext';
+import { useNotification } from '../../../contexts/NotificationContext';
+import { usePayments } from '../../../contexts/PaymentPlanContext';
+import { useVenue } from '../../../contexts/VenueContext';
 
-const List = () => {
+const BirthdayBookingForm = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,7 +40,7 @@ const List = () => {
 
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { createBookMembership,createBookLeads, createBookMembershipByfreeTrial } = useBookFreeTrial()
+  const { createBookMembership,createBookBirthday, createBookMembershipByfreeTrial } = useBookFreeTrial()
   const [expression, setExpression] = useState('');
   const [generalInfo, setGeneralInfo] = useState([]);
   const leadId = queryParams.get("leadId");
@@ -52,6 +52,8 @@ const List = () => {
   const [areasToWorkOn, setAreasToWorkOn] = useState("");
 
   const [numberOfStudents, setNumberOfStudents] = useState('1');
+  const [numberOfCapacity, setNumberOfCapacity] = useState('');
+
   const { keyInfoData, fetchKeyInfo } = useMembers();
   const token = localStorage.getItem("adminToken");
   const { adminInfo, setAdminInfo } = useNotification();
@@ -102,7 +104,7 @@ const List = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/getAllData`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin//birthday-party/getAllData`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
@@ -685,6 +687,7 @@ console.log("Payment data:", payment);
       coachId: selectedCoach,
       location: locationValue,
       address: address,
+      capacity:numberOfCapacity,
       date: selectedDate,
       time: time,
       totalStudents: students.length,
@@ -698,7 +701,7 @@ console.log("Payment data:", payment);
       ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
     };
     try {
-        await createBookLeads(payload);
+        await createBookBirthday(payload);
 
       // console.log("Final Payload:", JSON.stringify(payload, null, 2));
       // Optionally show success alert or reset form
@@ -1026,9 +1029,9 @@ console.log('selectedPackage',selectedPackage)
 
         <h2 onClick={() => {
           if (comesFrom && comesFrom.toLowerCase() === "trials") {
-            navigate("/one-to-one");
+            navigate("/birthday-party/leads");
           } else {
-            navigate("/one-to-one");
+            navigate("/birthday-party/leads");
           }
         }}
           className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
@@ -1039,7 +1042,7 @@ console.log('selectedPackage',selectedPackage)
             className="w-5 h-5 md:w-6 md:h-6"
           />
           <span className="truncate">
-            Book a Membership
+            Go Back
           </span>
         </h2>
         <div className="flex gap-3 relative items-center">
@@ -1163,41 +1166,7 @@ console.log('selectedPackage',selectedPackage)
             <h2 className="text-[24px] font-semibold">General Information</h2>
             <div className="space-y-6">
               {/* 🔸 Location Input */}
-              <div className="">
-                <label className="text-base font-semibold">Location</label>
-                <div className="relative mt-2">
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    value={locationValue}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setLocationValue(val);
-                      fetchSuggestions(val, setLocationSuggestions);
-                    }}
-                    className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 pl-9 focus:outline-none"
-                  />
-                  <FiSearch className="absolute left-3 top-4 text-[20px]" />
-
-                  {/* 🔹 Dropdown suggestions */}
-                  {locationSuggestions.length > 0 && (
-                    <ul className="absolute z-10 bg-white border border-gray-200 rounded-xl mt-1 max-h-56 overflow-y-auto w-full shadow-md">
-                      {locationSuggestions.map((s, i) => (
-                        <li
-                          key={i}
-                          onClick={() => {
-                            setLocationValue(s.display_name);
-                            setLocationSuggestions([]);
-                          }}
-                          className="px-3 py-2 cursor-pointer hover:bg-gray-100 text-sm"
-                        >
-                          {s.display_name}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
+      
 
               {/* 🔸 Address Input */}
               <div className="">
@@ -1267,7 +1236,7 @@ console.log('selectedPackage',selectedPackage)
 
               </div>
             </div>
-            <div className="mb-5">
+            {/* <div className="mb-5">
               <label htmlFor="" className="text-base font-semibold">Students</label>
               <div className="relative mt-2 ">
 
@@ -1280,6 +1249,23 @@ console.log('selectedPackage',selectedPackage)
                       setNumberOfStudents(e.target.value);
                     }
                     // Do nothing if invalid
+                  }}
+                  placeholder="Choose number of students"
+                  className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 focus:outline-none"
+                />
+
+              </div>
+            </div> */}
+             <div className="mb-5">
+              <label htmlFor="" className="text-base font-semibold">Capacity</label>
+              <div className="relative mt-2 ">
+
+                <input
+                  type="number"
+                  value={numberOfCapacity}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                      setNumberOfCapacity(e.target.value);
                   }}
                   placeholder="Choose number of students"
                   className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 focus:outline-none"
@@ -1349,7 +1335,7 @@ console.log('selectedPackage',selectedPackage)
                 : "bg-gray-400 border-gray-400 cursor-not-allowed"
                 }`}
             >
-              Membership Plan Breakdown
+              Price Breakdown
 
               <img
                 src={isOpenMembership ? "/demo/synco/members/dash.png" : "/demo/synco/members/add.png"}
@@ -2160,4 +2146,4 @@ console.log('selectedPackage',selectedPackage)
   );
 };
 
-export default List;
+export default BirthdayBookingForm;

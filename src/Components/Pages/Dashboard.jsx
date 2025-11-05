@@ -18,7 +18,7 @@ const Dashboard = () => {
   const [hasChanges, setHasChanges] = useState(false);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("adminToken");
-;
+  ;
 
   const [adminInfo, setAdminInfo] = useState({ firstName: "", lastName: "", role: "", profile: "" });
 
@@ -39,7 +39,7 @@ const Dashboard = () => {
   }, [fetchDashboard]);
   const [reorderMode, setReorderMode] = useState(false);
 
-   // console.log('dashboardData', dashboardData)
+  // console.log('dashboardData', dashboardData)
   const [originalData, setOriginalData] = useState([]);
 
   useEffect(() => {
@@ -71,25 +71,25 @@ const Dashboard = () => {
   const [checkedStatuses, setCheckedStatuses] = useState(
     filterOptions.reduce((acc, option) => ({ ...acc, [option.key]: false }), {})
   );
-     const handleCheckboxChange = (key) => {
-        setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
-    };
-useEffect(() => {
-  if (dashboardData) {
-     // console.log("dashboardData", dashboardData);
+  const handleCheckboxChange = (key) => {
+    setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+  useEffect(() => {
+    if (dashboardData) {
+      // console.log("dashboardData", dashboardData);
 
-    const updatedMetrics = Object.keys(dashboardData).map((key) => {
-      const metricDef = metricDefinitions.find((m) => m.key === key);
-      return {
-        ...metricDef,
-        value: dashboardData[key]?.count ?? 0,
-      };
-    });
+      const updatedMetrics = Object.keys(dashboardData).map((key) => {
+        const metricDef = metricDefinitions.find((m) => m.key === key);
+        return {
+          ...metricDef,
+          value: dashboardData[key]?.count ?? 0,
+        };
+      });
 
-     // console.log("updatedMetrics", updatedMetrics);
-    setMetricsList(updatedMetrics);
-  }
-}, [dashboardData]);
+      // console.log("updatedMetrics", updatedMetrics);
+      setMetricsList(updatedMetrics);
+    }
+  }, [dashboardData]);
 
 
   const handleDragEnd = (result) => {
@@ -108,7 +108,7 @@ useEffect(() => {
     value: dashboardData[metric.key]?.count ?? 0, // fallback to 0 if missing
   }));
 
-   // console.log("Dynamic Metrics:", metrics);
+  // console.log("Dynamic Metrics:", metrics);
 
   const MyRole = localStorage.getItem("role");
 
@@ -131,7 +131,7 @@ useEffect(() => {
         },
         body: JSON.stringify(payload),
       });
-       // console.log("Reordered:", payload);
+      // console.log("Reordered:", payload);
       setOriginalData(dashboardData); // update original order
 
       setReorderMode(false); // exit reorder mode after saving
@@ -144,7 +144,7 @@ useEffect(() => {
 
 
   const today = new Date();
-    const formattedDate = today.toLocaleDateString("en-GB", {
+  const formattedDate = today.toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -213,34 +213,37 @@ useEffect(() => {
   };
 
 
-  
-const applyFilter = () => {
-   // console.log("▶️ applyFilter called");
 
-  // validate custom date range
-  const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
-  const hasRange = isValidDate(fromDate) && isValidDate(toDate);
-  const range = hasRange ? [fromDate, toDate] : [];
+  const applyFilter = () => {
+    const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
 
-   // console.log("📅 final range:", range);
+    const validFrom = isValidDate(fromDate) ? fromDate : null;
+    const validTo = isValidDate(toDate) ? toDate : null;
 
-  // collect selected filters (can be multiple)
-  const selectedFilters = Object.keys(checkedStatuses).filter(
-    (key) => checkedStatuses[key]
-  );
-   // console.log("🔎 selectedFilters:", selectedFilters);
+    // Helper to format date safely without timezone shift
+    const formatLocalDate = (date) => {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    };
 
-  // call fetchDashboard with params
-  fetchDashboard({
-    studentName: "",
-    venueName: "",
-    filterTypes: selectedFilters,  // array
-    fromDate: hasRange ? fromDate.toISOString().split("T")[0] : null,
-    toDate: hasRange ? toDate.toISOString().split("T")[0] : null,
-  });
-};
+    const selectedFilters = Object.keys(checkedStatuses).filter(
+      (key) => checkedStatuses[key]
+    );
 
- // console.log('metricsList',metricsList)
+    fetchDashboard({
+      studentName: "",
+      venueName: "",
+      filterTypes: selectedFilters,
+      fromDate: validFrom ? formatLocalDate(validFrom) : null,
+      toDate: validTo ? formatLocalDate(validTo) : null,
+    });
+  };
+
+
+
+  // console.log('metricsList',metricsList)
 
   if (loading) {
     return (
@@ -249,12 +252,19 @@ const applyFilter = () => {
       </>
     )
   }
+
+ 
+
   return (
     <>
       {(MyRole === 'Super Admin' || MyRole === 'Franchise' || MyRole === 'Admin') ? (
         <div className="bg-gray-100 min-h-screen p-4 sm:p-6 font-sans">
           <div className="flex flex-col lg:flex-row mt-6 gap-6">
             {/* Main Content */}
+
+
+
+
             <div className="w-full lg:w-8/12">
               {/* Welcome Banner */}
               <div
@@ -264,7 +274,7 @@ const applyFilter = () => {
               >
                 <div className="text-center sm:text-end w-full">
                   <h2 className="text-[18px] sm:text-[24px] font-semibold text-black z-10">        {formattedDate}
-</h2>
+                  </h2>
                   <h5 className="text-[22px] sm:text-[28px] font-bold text-black z-10">Welcome to your dashboard, {adminInfo.firstName}</h5>
                 </div>
                 <div className="absolute inset-0 opacity-80 rounded-xl" />
@@ -469,7 +479,7 @@ const applyFilter = () => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter by date</h3>
                   <button onClick={applyFilter} className="flex gap-2 items-center bg-blue-500 text-white px-3 py-2 rounded-lg text-sm text-[16px]">
-                    <img  src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                     Apply fiter
                   </button>
                 </div>
@@ -477,7 +487,7 @@ const applyFilter = () => {
                 <div className="gap-2 text-sm bg-gray-100 p-4 my-6 rounded-xl">
                   <label className="font-semibold text-[16px] sm:text-[18px] block mb-3">Choose type</label>
                   <div className="flex flex-wrap gap-3">
-                   
+
                     {filterOptions.map(({ label, key }) => (
                       <label key={key} className="flex items-center w-full sm:w-[45%] text-[16px] font-semibold gap-3 cursor-pointer">
                         <input
@@ -519,7 +529,7 @@ const applyFilter = () => {
 
                   {/* Day Labels */}
                   <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
-                    {["M", "T", "W", "T", "F", "S", "S"].map((day ,indx) => (
+                    {["M", "T", "W", "T", "F", "S", "S"].map((day, indx) => (
                       <div key={indx} className="font-medium text-center">
                         {day}
                       </div>

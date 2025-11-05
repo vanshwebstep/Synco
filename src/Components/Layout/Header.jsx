@@ -123,9 +123,15 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'weekly-classes/cancellation/account-info/': { title: 'Account Information' },
     'one-to-one': { title: 'One to One ' },
     'one-to-one/session-plan-preview': { title: 'Configuration ' },
+    'one-to-one/session-plan': { title: 'Configuration ' },
+    'birthday-party/session-plan': { title: 'Configuration ' },
+
     'reports': { title: 'Weekly Classes Reports ' },
+    'one-to-one/reports': {  title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+
     'weekly-classes/central-leads': { title: 'Weekly Classes Lead Database ' },
     'weekly-classes/central-leads/create': { title: 'Weekly Classes ' },
+    'birthday-party/leads': { title: 'Birthday party  ' },
 
 
 

@@ -84,11 +84,11 @@ import Create from './Components/Pages/AdminPages/one-to-one/Session plan/Create
 import OnetoOneUpdate from './Components/Pages/AdminPages/one-to-one/Session plan/Update.jsx';
 
 import SessionPreview from './Components/Pages/AdminPages/one-to-one/Session plan/SessionPreview.jsx';
-import LeadsDashboard from './Components/Pages/AdminPages/one-to-one/LeadsDashboard.jsx';
-import SalesDashboard from './Components/Pages/AdminPages/one-to-one/SalesDashboard.jsx';
-import BookingForm from './Components/Pages/AdminPages/one-to-one/BookingForm.jsx';
-import Leads from './Components/Pages/AdminPages/one-to-one/Leads.jsx';
-import AccountMain from './Components/Pages/AdminPages/one-to-one/AccountMain.jsx';
+// import LeadsDashboard from './Components/Pages/AdminPages/one-to-one/LeadsDashboard.jsx';
+// import SalesDashboard from './Components/Pages/AdminPages/one-to-one/SalesDashboard.jsx';
+import BookingForm from './Components/Pages/AdminPages/one-to-one/Sales/Booking/BookingForm.jsx';
+import Leads from './Components/Pages/AdminPages/one-to-one/Sales/Front Pages/Leads.jsx';
+import AccountMain from './Components/Pages/AdminPages/one-to-one/Sales/Info/AccountMain.jsx';
 import SeeDetailsAccount from './Components/Pages/AdminPages/one-to-one/SeeDetailsAccount.jsx';
 import CreateLead from './Components/Pages/AdminPages/Weekly Classes/leads/CreateLead.jsx';
 import Lead from './Components/Pages/AdminPages/Weekly Classes/leads/Lead.jsx';
@@ -101,6 +101,15 @@ import CapacityDashboard from './Components/Pages/AdminPages/reports/CapacityDas
 import AttendanceDashboard from './Components/Pages/AdminPages/reports/AttendanceDashboard.jsx';
 import CancellationDashboard from './Components/Pages/AdminPages/reports/CancellationDashboard.jsx';
 import WeeklyDashboard from './Components/Pages/AdminPages/reports/WeeklyDashboard.jsx';
+import Reports from './Components/Pages/AdminPages/one-to-one/Reports.jsx';
+import BirthdaySessionPlan from './Components/Pages/AdminPages/Birthday Parties/Session plan/SessionPlan.jsx';
+import BirthdaySessionPreview from './Components/Pages/AdminPages/Birthday Parties/Session plan/SessionPreview.jsx';
+import BirthdayCreate from './Components/Pages/AdminPages/Birthday Parties/Session plan/Create.jsx';
+import BirthdayLeads from './Components/Pages/AdminPages/Birthday Parties/Sales/Front Pages/Leads.jsx';
+import BirthdayBookingForm from './Components/Pages/AdminPages/Birthday Parties/Sales/Booking/BookingForm.jsx';
+import BirthdayUpdate from './Components/Pages/AdminPages/Birthday Parties/Session plan/Update.jsx';
+import BirthdayReports from './Components/Pages/AdminPages/Birthday Parties/Reports.jsx';
+
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
 // Role-based route component
@@ -360,6 +369,15 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
+      <Route path="/one-to-one/reports" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <Reports />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
       <Route path="/one-to-one" element={
         <ProtectedRoute>
           <AdminLayout>
@@ -369,7 +387,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-            <Route path="/one-to-one/session-plan" element={
+      <Route path="/one-to-one/session-plan" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -387,7 +405,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-        <Route path="/one-to-one/session-plan-update" element={
+      <Route path="/one-to-one/session-plan-update" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -400,17 +418,17 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <SessionPreview/>
+              <SessionPreview />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
       } />
-   
+
       <Route path="/one-to-one/leads/booking-form" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <BookingForm/>
+              <BookingForm />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -419,7 +437,7 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <AccountMain/>
+              <AccountMain />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -428,23 +446,23 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <SeeDetailsAccount/>
+              <SeeDetailsAccount />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
       } />
-        <Route path="/weekly-classes/central-leads" element={
-          <LeadsContextProvider>
+      <Route path="/weekly-classes/central-leads" element={
+        <LeadsContextProvider>
 
-        <ProtectedRoute>
-          <AdminLayout>
-            <RoleBasedRoute>
-              <Lead />
-            </RoleBasedRoute>
-          </AdminLayout>
-        </ProtectedRoute>
+          <ProtectedRoute>
+            <AdminLayout>
+              <RoleBasedRoute>
+                <Lead />
+              </RoleBasedRoute>
+            </AdminLayout>
+          </ProtectedRoute>
 
-          </LeadsContextProvider>
+        </LeadsContextProvider>
       } />
       <Route path="/weekly-classes/central-leads/create" element={
         <ProtectedRoute>
@@ -519,7 +537,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-       <Route path="/weekly-classes/central-leads/accont-info" element={
+      <Route path="/weekly-classes/central-leads/accont-info" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -533,6 +551,72 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <WeeklyDashboard />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+
+
+      {/* birthday  */}
+      <Route path="/birthday-party/session-plan" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <BirthdaySessionPlan />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/birthday-party/session-plan-preview" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <BirthdaySessionPreview />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/birthday-party/session-plan-create" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <BirthdayCreate />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+         <Route path="/birthday-party/session-plan-update" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <BirthdayUpdate />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/birthday-party/leads" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <BirthdayLeads />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/birthday-party/leads/booking-form" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <BirthdayBookingForm />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+         <Route path="/birthday-party/reports" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <BirthdayReports />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -554,29 +638,29 @@ function App() {
           <LeadsContextProvider>
 
 
-          <VenueProvider>
-            <MemberProvider>
-              <PaymentPlanContextProvider>
-                <DiscountContextProvider>
-                  <SessionPlanContextProvider>
-                    <TermDatesSessionProvider>
-                      <ClassScheduleProvider>
-                        <FindClassProvider>
-                          <BookFreeTrialProvider>
-                            <BookFreeTrialLoaderProvider>
-                              <PermissionProvider>
-                                <AppRoutes />
-                              </PermissionProvider>
-                            </BookFreeTrialLoaderProvider>
-                          </BookFreeTrialProvider>
-                        </FindClassProvider>
-                      </ClassScheduleProvider>
-                    </TermDatesSessionProvider>
-                  </SessionPlanContextProvider>
-                </DiscountContextProvider>
-              </PaymentPlanContextProvider>
-            </MemberProvider>
-          </VenueProvider>
+            <VenueProvider>
+              <MemberProvider>
+                <PaymentPlanContextProvider>
+                  <DiscountContextProvider>
+                    <SessionPlanContextProvider>
+                      <TermDatesSessionProvider>
+                        <ClassScheduleProvider>
+                          <FindClassProvider>
+                            <BookFreeTrialProvider>
+                              <BookFreeTrialLoaderProvider>
+                                <PermissionProvider>
+                                  <AppRoutes />
+                                </PermissionProvider>
+                              </BookFreeTrialLoaderProvider>
+                            </BookFreeTrialProvider>
+                          </FindClassProvider>
+                        </ClassScheduleProvider>
+                      </TermDatesSessionProvider>
+                    </SessionPlanContextProvider>
+                  </DiscountContextProvider>
+                </PaymentPlanContextProvider>
+              </MemberProvider>
+            </VenueProvider>
           </LeadsContextProvider>
         </AccountsInfoProvider>
       </NotificationProvider>

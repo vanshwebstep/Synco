@@ -43,7 +43,7 @@ export const LeadsContextProvider = ({ children }) => {
     // ✅ Simplified mapping for active tab endpoint
     const tabEndpoints = {
       Facebook: "facebook",
-      Referral: "referall",
+      Referral: "referral",
       "All other leads": "allOthers",
       All: "all",
     };
@@ -108,7 +108,7 @@ export const LeadsContextProvider = ({ children }) => {
     // ✅ Simplified mapping for active tab endpoint
     const tabEndpoints = {
       Facebook: "facebook",
-      Referral: "referall",
+      Referral: "referral",
       "All other leads": "allOthers",
       All: "all",
     };

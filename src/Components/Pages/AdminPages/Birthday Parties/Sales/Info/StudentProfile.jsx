@@ -5,7 +5,7 @@ import Select from "react-select";
 import { FaPlus } from "react-icons/fa";
 import "react-datepicker/dist/react-datepicker.css";
 import { RxCross2 } from "react-icons/rx";
-import { useAccountsInfo } from "../contexts/AccountsInfoContext";
+import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 import { FaSave, FaEdit } from "react-icons/fa";
 
 const StudentProfile = () => {
@@ -28,7 +28,7 @@ const StudentProfile = () => {
     dateOfBirth: null,
     age: "",
     gender: "",
-    medicalInformation: "",
+    medicalInfo: "",
   });
 
   // --- Input handlers ---
@@ -60,31 +60,31 @@ const StudentProfile = () => {
   };
 
   // --- Add Student ---
-const handleAddStudent = () => {
-  if (!newStudent.studentFirstName && !newStudent.studentLastName) {
-    return alert("Please enter at least first or last name.");
-  }
+  const handleAddStudent = () => {
+    if (!newStudent.studentFirstName && !newStudent.studentLastName) {
+      return alert("Please enter at least first or last name.");
+    }
 
-  // Create the updated students array
-  const updatedStudents = [...students, { ...newStudent }];
+    // Create the updated students array
+    const updatedStudents = [...students, { ...newStudent }];
 
-  // Update local state
-  setStudents(updatedStudents);
+    // Update local state
+    setStudents(updatedStudents);
 
-  // Call API update
-  handleUpdate(mainId, 'students', updatedStudents);
+    // Call API update
+    handleUpdate(mainId, 'students', updatedStudents);
 
-  // Reset modal
-  setShowModal(false);
-  setNewStudent({
-    studentFirstName: "",
-    studentLastName: "",
-    dateOfBirth: null,
-    age: "",
-    gender: "",
-    medicalInformation: "",
-  });
-};
+    // Reset modal
+    setShowModal(false);
+    setNewStudent({
+      studentFirstName: "",
+      studentLastName: "",
+      dateOfBirth: null,
+      age: "",
+      gender: "",
+      medicalInfo: "",
+    });
+  };
 
 
   const handleInputChange = (index, field, value) => {
@@ -94,7 +94,7 @@ const handleAddStudent = () => {
   };
 
   const handleEditStudents = () => {
-    handleUpdate(mainId, 'students', students)
+    handleUpdate('students', students)
   }
 
   return (
@@ -126,17 +126,48 @@ const handleAddStudent = () => {
           className="bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6"
         >
           <h2
+            className="text-xl font-bold text-[#282829] flex items-center gap-3 cursor-pointer"
             onClick={() =>
-              setEditStudent((prev) => ({ ...prev, [index]: !prev[index] }))
+              setEditStudent((prev) => ({
+                ...prev,
+                [index]: !prev[index],
+              }))
             }
-            className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
           >
-            {editStudent?.[index] ? "Editing Student" : `Student ${index + 1} Information`}
-
             {editStudent?.[index]
-              ? <FaSave onClick={handleEditStudents} />
-              : <FaEdit />}
+              ? `Editing Student ${index + 1}`
+              : `Student ${index + 1} Information`}
 
+            {editStudent?.[index] ? (
+              <div
+                className="relative group"
+                onClick={(e) => {
+                  e.stopPropagation(); // prevent triggering h2 click
+                  handleEditStudents(index);
+                }}
+              >
+                <FaSave className=" hover:text-green-700 cursor-pointer transition" />
+                <span className="absolute whitespace-nowrap bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition">
+                  Click to save
+                </span>
+              </div>
+            ) : (
+              <div
+                className="relative group"
+                onClick={(e) => {
+                  e.stopPropagation(); // prevent triggering h2 click
+                  setEditStudent((prev) => ({
+                    ...prev,
+                    [index]: true,
+                  }));
+                }}
+              >
+                <FaEdit className="hover:text-blue-700 cursor-pointer transition" />
+                <span className="absolute whitespace-nowrap bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition">
+                  Click to edit
+                </span>
+              </div>
+            )}
           </h2>
 
 
@@ -223,9 +254,9 @@ const handleAddStudent = () => {
               <input
                 type="text"
                 placeholder="Enter medical info"
-                value={student.medicalInformation || ""}
+                value={student.medicalInfo || ""}
                 onChange={(e) =>
-                  handleInputChange(index, "medicalInformation", e.target.value)
+                  handleInputChange(index, "medicalInfo", e.target.value)
                 }
                 readOnly={!editStudent?.[index]}
                 className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-xl text-base"
@@ -319,8 +350,8 @@ const handleAddStudent = () => {
                 <input
                   type="text"
                   className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
-                  value={newStudent.medicalInformation}
-                  onChange={(e) => handleModalChange("medicalInformation", e.target.value)}
+                  value={newStudent.medicalInfo}
+                  onChange={(e) => handleModalChange("medicalInfo", e.target.value)}
                 />
               </div>
             </div>

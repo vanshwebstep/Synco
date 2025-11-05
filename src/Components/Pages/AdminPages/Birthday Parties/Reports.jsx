@@ -28,7 +28,7 @@ import {
   Plus,
 } from "lucide-react";
 
-export default function Reports() {
+export default function BirthdayReports() {
   const [data, setData] = useState([]);
   const [summary, setSummary] = useState({});
   const [charts, setCharts] = useState({});
@@ -36,61 +36,60 @@ export default function Reports() {
 
   const token = localStorage.getItem("adminToken");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const [selectedFilter, setSelectedFilter] = useState(null);
 
-  const [selectedFilter, setSelectedFilter] = useState(null);
-
-  const filterOptions = [
-    { value: "lastMonth", label: "Last Month" },
-    { value: "last3Months", label: "Last 3 Months" },
-    { value: "last6Months", label: "Last 6 Months" },
-  ];
+ const filterOptions = [
+  { value: "lastMonth", label: "Last Month" },
+  { value: "last3Months", label: "Last 3 Months" },
+  { value: "last6Months", label: "Last 6 Months" }
+];
 
   /** =====================
    * ✅ Fetch Reports
    * ===================== */
  const fetchReports = useCallback(async () => {
-   if (!token) return;
-   setLoading(true);
- 
-   try {
-     // add ?filterType=selectedFilter?.value
-     const url = `${API_BASE_URL}/api/admin/one-to-one/analytics${
-       selectedFilter?.value ? `?filterType=${selectedFilter.value}` : ""
-     }`;
- 
-     const response = await fetch(url, {
-       headers: { Authorization: `Bearer ${token}` },
-     });
- 
-     if (!response.ok) {
-       const text = await response.text();
-       throw new Error(`HTTP ${response.status}: ${text}`);
-     }
- 
-     const result = await response.json();
-     if (!result.status) {
-       Swal.fire({
-         icon: "error",
-         title: "Fetch Failed",
-         text: result.message || "Something went wrong while fetching analytics data.",
-       });
-       return;
-     }
- 
-     setData(result);
-     setSummary(result.summary || {});
-     setCharts(result.charts || {});
-   } catch (error) {
-     console.error("Failed to fetch reports:", error);
-     Swal.fire({
-       icon: "error",
-       title: "Fetch Failed",
-       text: error.message,
-     });
-   } finally {
-     setLoading(false);
-   }
- }, [API_BASE_URL, token, selectedFilter]);
+  if (!token) return;
+  setLoading(true);
+
+  try {
+    // add ?filterType=selectedFilter?.value
+    const url = `${API_BASE_URL}/api/admin/birthday-party/analytics${
+      selectedFilter?.value ? `?filterType=${selectedFilter.value}` : ""
+    }`;
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`HTTP ${response.status}: ${text}`);
+    }
+
+    const result = await response.json();
+    if (!result.status) {
+      Swal.fire({
+        icon: "error",
+        title: "Fetch Failed",
+        text: result.message || "Something went wrong while fetching analytics data.",
+      });
+      return;
+    }
+
+    setData(result);
+    setSummary(result.summary || {});
+    setCharts(result.charts || {});
+  } catch (error) {
+    console.error("Failed to fetch reports:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Fetch Failed",
+      text: error.message,
+    });
+  } finally {
+    setLoading(false);
+  }
+}, [API_BASE_URL, token, selectedFilter]);
 
   useEffect(() => {
     fetchReports();
@@ -99,6 +98,7 @@ export default function Reports() {
   /** =====================
    * ✅ Stat Cards
    * ===================== */
+
 
   /** =====================
    * ✅ Chart Data
@@ -166,6 +166,53 @@ export default function Reports() {
   /** =====================
    * ✅ Data Export
    * ===================== */
+  const goldData = revenueByPackage.find(pkg => pkg.name === "Gold");
+const silverData = revenueByPackage.find(pkg => pkg.name === "Silver");
+
+const statCards = [
+  {
+    icon: PiUsersThreeBold,
+    iconStyle: "text-[#3DAFDB]",
+    title: "Total Leads",
+    value: summary?.totalLeads?.thisMonth ?? 0,
+    sub: `Last month: ${summary?.totalLeads?.previousMonth ?? 0}`,
+  },
+  {
+    icon: Database,
+    iconStyle: "text-[#6F65F1]",
+    title: "Number of Sales",
+    value: summary?.numberOfSales?.thisMonth ?? 0,
+    sub: `Last month: ${summary?.numberOfSales?.previousMonth ?? 0}`,
+  },
+  {
+    icon: CirclePercent,
+    iconStyle: "text-[#34AE56]",
+    title: "Conversion Rate",
+    value: summary?.conversionRate?.thisMonth ?? "0%",
+    sub: `Last month: ${summary?.conversionRate?.previousMonth ?? "0%"}`,
+  },
+  {
+    icon: CirclePoundSterling,
+    iconStyle: "text-[#E769BD]",
+    title: "Revenue Generated",
+    value: summary?.revenueGenerated?.thisMonth ?? "£0",
+    sub: `Last month: ${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
+  },
+  {
+    icon: PackageOpen,
+    iconStyle: "text-[#099699]",
+    title: "Revenue Gold Package",
+    value: `£${goldData?.currentRevenue?.toLocaleString() ?? 0}`,
+    sub: `vs. previous £${goldData?.lastRevenue?.toLocaleString() ?? 0}`,
+  },
+  {
+    icon: Box,
+    iconStyle: "text-[#F38B4D]",
+    title: "Revenue Silver Package",
+    value: `£${silverData?.currentRevenue?.toLocaleString() ?? 0}`,
+    sub: `vs. previous £${silverData?.lastRevenue?.toLocaleString() ?? 0}`,
+  },
+];
   const handleExportData = (type = "excel") => {
     try {
       const exportRows = [
@@ -217,53 +264,6 @@ export default function Reports() {
       });
     }
   };
-  const goldData = revenueByPackage.find(pkg => pkg.name === "Gold");
-  const silverData = revenueByPackage.find(pkg => pkg.name === "Silver");
-
-  const statCards = [
-    {
-      icon: PiUsersThreeBold,
-      iconStyle: "text-[#3DAFDB]",
-      title: "Total Leads",
-      value: summary?.totalLeads?.thisMonth ?? 0,
-      sub: `Last month: ${summary?.totalLeads?.previousMonth ?? 0}`,
-    },
-    {
-      icon: Database,
-      iconStyle: "text-[#6F65F1]",
-      title: "Number of Sales",
-      value: summary?.numberOfSales?.thisMonth ?? 0,
-      sub: `Last month: ${summary?.numberOfSales?.previousMonth ?? 0}`,
-    },
-    {
-      icon: CirclePercent,
-      iconStyle: "text-[#34AE56]",
-      title: "Conversion Rate",
-      value: summary?.conversionRate?.thisMonth ?? "0%",
-      sub: `Last month: ${summary?.conversionRate?.previousMonth ?? "0%"}`,
-    },
-    {
-      icon: CirclePoundSterling,
-      iconStyle: "text-[#E769BD]",
-      title: "Revenue Generated",
-      value: summary?.revenueGenerated?.thisMonth ?? "£0",
-      sub: `Last month: ${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
-    },
-    {
-      icon: PackageOpen,
-      iconStyle: "text-[#099699]",
-      title: "Revenue Gold Package",
-      value: `£${goldData?.currentRevenue?.toLocaleString() ?? 0}`,
-      sub: `vs. previous £${goldData?.lastRevenue?.toLocaleString() ?? 0}`,
-    },
-    {
-      icon: Box,
-      iconStyle: "text-[#F38B4D]",
-      title: "Revenue Silver Package",
-      value: `£${silverData?.currentRevenue?.toLocaleString() ?? 0}`,
-      sub: `vs. previous £${silverData?.lastRevenue?.toLocaleString() ?? 0}`,
-    },
-  ];
 
   /** =====================
    * ✅ UI Layout
@@ -273,21 +273,21 @@ export default function Reports() {
       <div className="mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">One to One</h1>
+          <h1 className="text-2xl font-semibold">Birthday Party</h1>
           <div className="flex items-center space-x-3">
-            <Select
-              value={selectedFilter}
-              onChange={(value) => {
-                setSelectedFilter(value);
-                fetchReports(); // call API immediately when changed (optional)
-              }}
-              options={filterOptions}
-              styles={customStyles}
-              classNamePrefix="react-select"
-              isSearchable={false}
-              isClearable={true} // ✅ enables remove/clear
-              placeholder="Select duration"
-            />
+        <Select
+  value={selectedFilter}
+  onChange={(value) => {
+    setSelectedFilter(value);
+    fetchReports(); // call API immediately when changed (optional)
+  }}
+  options={filterOptions}
+  styles={customStyles}
+  classNamePrefix="react-select"
+  isSearchable={false}
+  isClearable={true} // ✅ enables remove/clear
+  placeholder="Select duration"
+/>
             <button
               onClick={() => handleExportData("excel")}
               className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 rounded-lg shadow"

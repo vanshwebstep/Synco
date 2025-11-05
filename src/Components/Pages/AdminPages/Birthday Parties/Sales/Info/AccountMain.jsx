@@ -3,11 +3,11 @@ import ParentProfile from "./ParentProfile";
 import StudentProfile from "./StudentProfile";
 import ServiceHistory from "./ServiceHistory";
 import Feedback from "./Feedback";
-import Rewards from "./Rewards";
+import Rewards from "../../Rewards";
 import Events from "./Events";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAccountsInfo } from "../contexts/AccountsInfoContext";
-import Loader from "../contexts/Loader";
+import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
+import Loader from "../../../contexts/Loader";
 
 const tabs = [
   { name: "Parent Profile", component: <ParentProfile /> },
@@ -21,13 +21,13 @@ const tabs = [
 const AccountMain = () => {
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   const navigate = useNavigate();
-  const { loading, setMainId ,fetchMembers } = useAccountsInfo();
+  const { loading, setMainId ,fetchOneToOneMembers } = useAccountsInfo();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("id"); // <-- this will be "9"  console.log('id',id)
 
   useEffect(() => {
-    fetchMembers(id);
+    fetchOneToOneMembers(id);
     if (id) {
       setMainId(id);
     }

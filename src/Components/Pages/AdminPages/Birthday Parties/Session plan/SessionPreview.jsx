@@ -11,7 +11,7 @@ const levelKeyToLabel = {
   pro: "Pro",
 };
 
-const SessionPreview = ({ item, sessionData }) => {
+const BirthdaySessionPreview = ({ item, sessionData }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [recording, setRecording] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
@@ -34,7 +34,7 @@ const SessionPreview = ({ item, sessionData }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/listing/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/session-plan-birthdayParty/listing/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -181,7 +181,7 @@ const SessionPreview = ({ item, sessionData }) => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-0 gap-3 w-full md:w-1/2">
         <h2
           onClick={() => {
-            navigate('/one-to-one/session-plan');
+            navigate('/birthday-party/session-plan');
           }}
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
@@ -452,4 +452,4 @@ const SessionPreview = ({ item, sessionData }) => {
   );
 };
 
-export default SessionPreview;
+export default BirthdaySessionPreview;

@@ -23,7 +23,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { PiUsersThreeBold } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
-import Loader from "../contexts/Loader";
+import Loader from "../../../contexts/Loader";
+import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 const SalesDashboard = () => {
     const navigate = useNavigate();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -32,6 +33,7 @@ const SalesDashboard = () => {
     const [loading, setLoading] = useState(false);
     const [mainLoading, setMainLoading] = useState(false);
     const [leadsData, setLeadsData] = useState([]);
+    const { sendOnetoOneMail } = useAccountsInfo();
     const [searchTerm, setSearchTerm] = useState("");
     const [summary, setSummary] = useState([]);
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
@@ -39,12 +41,19 @@ const SalesDashboard = () => {
     const [savedCoach, setSavedCoach] = useState([]);
     const [tempSelectedCoaches, setTempSelectedCoaches] = useState([]);
     const popupRef = useRef(null);
+    const [agentList, setAgentList] = useState([]);
+    const [coachList, setCoachList] = useState([]);
+    const [locationList, setLocationList] = useState([]);
     const [myVenues, setMyVenues] = useState([]);
     const [selectedVenue, setSelectedVenue] = useState(null);
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
     const [selectedAgents, setSelectedAgents] = useState([]);
     const [showPopup, setShowPopup] = useState(false);
+    const [activeFilterKey, setActiveFilterKey] = useState(null);
+    const [selectedPackages, setSelectedPackages] = useState([]);
+    const [selectedSources, setSelectedSources] = useState([]);
+    const [selectedLocation, setSelectedLocation] = useState("");
     const [tempSelectedAgent, setTempSelectedAgent] = useState(null);
     const [savedAgent, setSavedAgent] = useState([]);
     function formatLocalDate(dateString) {
@@ -55,16 +64,18 @@ const SalesDashboard = () => {
         const dd = String(d.getDate()).padStart(2, "0");
         return `${yyyy}-${mm}-${dd}`; // returns "2025-08-24"
     }
-    console.log('summary', summary)
     const fetchLeads = useCallback(
         async (
             studentName = "",
-            status1 = false,
-            status2 = false,
-            status3 = false,
+            status1 = false, // package
+            status2 = false, // dateOfParty
+            status3 = false, // source
             forOtherDate = [],
-            BookedBy = [], // agents
-            CoachBy = []   // coaches
+            BookedBy = [],
+            CoachBy = [],
+            packageIntrest = "",
+            source = "",
+            location = ""
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
@@ -72,13 +83,24 @@ const SalesDashboard = () => {
             try {
                 const queryParams = new URLSearchParams();
 
-                // ✅ Student filter
-                if (studentName) queryParams.append("studentName", studentName);
+                // ✅ Add only if non-empty and string
+                if (typeof studentName === "string" && studentName.trim())
+                    queryParams.append("studentName", studentName.trim());
 
-                // ✅ Filter types
-                if (status1) queryParams.append("type", "package");
-                if (status2) queryParams.append("type", "dateOfParty");
-                if (status3) queryParams.append("type", "source");
+                if (typeof packageIntrest === "string" && packageIntrest.trim())
+                    queryParams.append("packageInterest", packageIntrest.trim());
+                else if (Array.isArray(packageIntrest) && packageIntrest.length > 0)
+                    queryParams.append("packageInterest", packageIntrest.join(","));
+
+                if (typeof source === "string" && source.trim())
+                    queryParams.append("source", source.trim());
+                else if (Array.isArray(source) && source.length > 0)
+                    queryParams.append("source", source.join(","));
+
+                if (typeof location === "string" && location.trim())
+                    queryParams.append("location", location.trim());
+                else if (Array.isArray(location) && location.length > 0)
+                    queryParams.append("location", location.join(","));
 
                 // ✅ Date range
                 if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
@@ -89,27 +111,27 @@ const SalesDashboard = () => {
                     }
                 }
 
-                // ✅ AGENT FILTER (BookedBy)
-                console.log('BookedBy',BookedBy)
+                // ✅ Agents
                 if (Array.isArray(BookedBy) && BookedBy.length > 0) {
                     BookedBy.forEach((agent) => {
-                        if (agent.id) queryParams.append("agent", agent.id);
+                        const agentId = typeof agent === "object" ? agent.id : agent;
+                        if (agentId) queryParams.append("agent", agentId);
                     });
                 }
 
-                // ✅ COACH FILTER
+                // ✅ Coaches
                 if (Array.isArray(CoachBy) && CoachBy.length > 0) {
                     CoachBy.forEach((coach) => {
-                        if (coach.id) queryParams.append("coach", coach.id);
+                        const coachId = typeof coach === "object" ? coach.id : coach;
+                        if (coachId) queryParams.append("coach", coachId);
                     });
                 }
 
-                // ✅ Build final URL
+                // 🚫 Removed all “type” parameters
                 const queryString = queryParams.toString();
-                const url = `${API_BASE_URL}/api/admin/one-to-one/sales/list${queryString ? `?${queryString}` : ""
-                    }`;
+                const url = `${API_BASE_URL}/api/admin/one-to-one/sales/list${queryString ? `?${queryString}` : ""}`;
 
-                console.log("🔍 Final Fetch URL:", url); // ✅ debug line
+                console.log("✅ Clean Fetch URL:", url);
 
                 const response = await fetch(url, {
                     method: "GET",
@@ -117,8 +139,10 @@ const SalesDashboard = () => {
                 });
 
                 const resultRaw = await response.json();
-                const result = resultRaw.data || [];
-                setLeadsData(result);
+                setMyVenues(resultRaw.locations)
+                if (resultRaw.agentList) setAgentList(resultRaw.agentList);
+                if (resultRaw.coachList) setCoachList(resultRaw.coachList);
+                setLeadsData(resultRaw.data || []);
                 setSummary(resultRaw.summary);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
@@ -126,6 +150,7 @@ const SalesDashboard = () => {
         },
         []
     );
+
 
 
 
@@ -162,10 +187,10 @@ const SalesDashboard = () => {
 
     // then your summaryCards
     const summaryCards = [
-        { icon: CircleDollarSign, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: "£30.300", change: "+28.14%" },
+        { icon: CircleDollarSign, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: "+28.14%" },
         { icon: CirclePoundSterling, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: '£20.000', change: "+12.47%" },
         { icon: PiUsersThreeBold, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: '£20.000', change: "+9.31%" },
-        { icon: FiUsers, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: "Ben Marcus" },
+        { icon: FiUsers, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
     ]
     const [formData, setFormData] = useState({
         parentName: "",
@@ -453,34 +478,73 @@ const SalesDashboard = () => {
     const applyFilter = () => {
         const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
         const coachByParams = Array.isArray(savedCoach) ? savedCoach : [];
-console.log('bookedByParams',bookedByParams)
-console.log('coachByParams',coachByParams)
-        const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
-        const hasRange = isValidDate(fromDate) && isValidDate(toDate);
-        const range = hasRange ? [fromDate, toDate] : [];
-
-        const dateRangeMembership = checkedStatuses.trialDate ? range : [];
-        const otherDateRange = checkedStatuses.trialDate ? [] : range;
 
         fetchLeads(
             "",
             checkedStatuses.package,
             checkedStatuses.dateOfParty,
             checkedStatuses.source,
-            otherDateRange,
-            bookedByParams, // ✅ Agent
-            coachByParams    // ✅ Coach
+            [],
+            bookedByParams,
+            coachByParams,
+            selectedPackages,
+            selectedSources,
+            selectedVenue,
+
         );
     };
+
+
     const prevMonth = () => {
         setCurrentDate((prev) => {
             const newDate = new Date(prev);
             newDate.setMonth(prev.getMonth() - 1);
             return newDate;
         });
-    }; const handleCheckboxChange = (key) => {
-        setCheckedStatuses((prev) => ({ ...prev, [key]: !prev[key] }));
     };
+
+    const clearFilterData = (key) => {
+        switch (key) {
+            case "package":
+                setSelectedPackages("");
+                break;
+            case "source":
+                setSelectedSources("");
+                break;
+            case "agent":
+                setSavedAgent([]);
+                break;
+            case "coach":
+                setSavedCoach([]);
+                break;
+            case "location":
+                setSelectedLocation("");
+                break;
+            default:
+                break;
+        }
+    };
+    const handleCheckboxChange = (key) => {
+        setCheckedStatuses((prev) => {
+            const isCurrentlyChecked = prev[key];
+
+            // If it's already checked → uncheck + clear data
+            if (isCurrentlyChecked) {
+                clearFilterData(key);
+                return { ...prev, [key]: false };
+            }
+
+            // Otherwise → check + open popup (except dateOfParty)
+            if (key !== "dateOfParty") {
+                setActiveFilterKey(key);
+                setShowPopup(true);
+            }
+
+            return { ...prev, [key]: true };
+        });
+    };
+
+
 
     const nextMonth = () => {
         setCurrentDate((prev) => {
@@ -492,9 +556,11 @@ console.log('coachByParams',coachByParams)
     // ✅ Define all filters with dynamic API mapping
     const filterOptions = [
         { label: "Package", key: "package", apiParam: "type", apiValue: "package" },
-        { label: "Date Of Party ", key: "dateOfParty", apiParam: "type", apiValue: "dateOfParty" },
+        { label: "Date Of Party", key: "dateOfParty", apiParam: "type", apiValue: "dateOfParty" },
         { label: "Source", key: "source", apiParam: "type", apiValue: "source" },
-    ]
+        { label: "Agent", key: "agent" },
+        { label: "Coach", key: "coach" },
+    ];
     const [checkedStatuses, setCheckedStatuses] = useState(
         filterOptions.reduce((acc, option) => ({ ...acc, [option.key]: false }), {})
     );
@@ -504,7 +570,29 @@ console.log('coachByParams',coachByParams)
     const daysArray = [];
     for (let i = 0; i < firstDay; i++) daysArray.push(null);
     for (let i = 1; i <= daysInMonth; i++) daysArray.push(i);
+    useEffect(() => {
+        const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
+        const coachByParams = Array.isArray(savedCoach) ? savedCoach : [];
 
+        const selectedVenueParam = Array.isArray(selectedVenue)
+            ? selectedVenue.map((v) => v.value)
+            : selectedVenue?.value
+                ? selectedVenue.value
+                : "";
+
+        fetchLeads(
+            "",
+            checkedStatuses.package,
+            checkedStatuses.dateOfParty,
+            checkedStatuses.source,
+            [],
+            bookedByParams,
+            coachByParams,
+            selectedPackages,
+            selectedSources,
+            selectedVenueParam
+        );
+    }, [selectedVenue]);
     if (mainLoading) {
         return (
             <>
@@ -517,7 +605,7 @@ console.log('coachByParams',coachByParams)
 
             <div className="min-h-screen overflow-hidden bg-gray-50 py-6 flex flex-col lg:flex-row ">
                 {/* Left Section */}
-                <div className="md:w-[73%] gap-6 md:pe-3 mb-4 md:mb-0">
+                <div className="md:w-8/12 gap-6 md:pe-3 mb-4 md:mb-0">
                     {/* Summary Cards */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {summaryCards.map((card, i) => {
@@ -574,7 +662,7 @@ console.log('coachByParams',coachByParams)
                                         return (
                                             <tr
                                                 key={i}
-                                              onClick={() => navigate("/one-to-one/sales/account-information")}
+                                                onClick={() => navigate(`/one-to-one/sales/account-information?id=${lead.id}`)}
                                                 className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
                                             >
                                                 <td className="py-3 px-4 whitespace-nowrap font-semibold">
@@ -604,8 +692,11 @@ console.log('coachByParams',coachByParams)
                                                 <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
                                                 <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.paymentPlan?.price || "N/A"}</td>
                                                 <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.coachId || "N/A"}</td>
                                                 <td className="py-3 px-4 whitespace-nowrap">
+                                                    {lead.booking?.coach
+                                                        ? `${lead.booking.coach.firstName} ${lead.booking.coach.lastName}`
+                                                        : "N/A"}
+                                                </td>                                                <td className="py-3 px-4 whitespace-nowrap">
                                                     <span className="bg-green-50 text-green-400 semibold capitalize px-7 py-2 rounded-xl text-xs font-medium">
                                                         {lead.status}
                                                     </span>
@@ -642,8 +733,8 @@ console.log('coachByParams',coachByParams)
                             <div className="relative mt-2 ">
                                 <Select
                                     options={myVenues.map((venue) => ({
-                                        label: venue?.name, // or `${venue.name} (${venue.area})`
-                                        value: venue?.id,
+                                        label: venue, // or `${venue.name} (${venue.area})`
+                                        value: venue,
                                     }))}
                                     value={selectedVenue}
                                     onChange={(venue) => setSelectedVenue(venue)}
@@ -699,47 +790,7 @@ console.log('coachByParams',coachByParams)
                                             <span>{label}</span>
                                         </label>
                                     ))}
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={savedAgent?.length > 0} // checked if some agents are saved
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    fetchLeads();
-                                                    setShowPopup(true); // open popup
-                                                } else {
-                                                    // Clear everything if unchecked
-                                                    setSavedAgent([]);
-                                                    setTempSelectedAgents([]);
-                                                }
-                                            }}
-                                            className="peer hidden"
-                                        />
-                                        <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
-                                            <Check className="w-4 h-4 transition-all" strokeWidth={3} />
-                                        </span>
-                                        <span>Agent</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={savedCoach?.length > 0}
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    fetchLeads();
-                                                    setShowCoachPopup(true);
-                                                } else {
-                                                    setSavedCoach([]);
-                                                    setTempSelectedCoaches([]);
-                                                }
-                                            }}
-                                            className="peer hidden"
-                                        />
-                                        <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
-                                            <Check className="w-4 h-4 transition-all" strokeWidth={3} />
-                                        </span>
-                                        <span>Coach</span>
-                                    </label>
+
 
                                 </div>
                             </div>
@@ -747,154 +798,97 @@ console.log('coachByParams',coachByParams)
                             {showPopup && (
                                 <div
                                     className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-                                    onClick={() => {
-                                        // click outside → reset everything
-                                        setShowPopup(false);
-                                        setSavedAgent([]);
-                                        setTempSelectedAgents([]);
-                                    }}
+                                    onClick={() => setShowPopup(false)}
                                 >
                                     <div
-                                        ref={popupRef}
-                                        className="bg-white rounded-2xl p-6 w-[300px] space-y-4 shadow-lg"
-                                        onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
-                                    >
-                                        <h2 className="text-lg font-semibold">Select agent(s)</h2>
-                                        <div className="space-y-3 max-h-72 overflow-y-auto">
-                                            {bookedByAdmin.map((admin, index) => {
-                                                const isSelected = tempSelectedAgents.some(
-                                                    (a) => a.id === admin.id
-                                                );
-
-                                                return (
-                                                    <label key={index} className="flex items-center gap-3 cursor-pointer">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isSelected}
-                                                            onChange={() => {
-                                                                if (isSelected) {
-                                                                    setTempSelectedAgents((prev) =>
-                                                                        prev.filter((a) => a.id !== admin.id)
-                                                                    );
-                                                                } else {
-                                                                    setTempSelectedAgents((prev) => [
-                                                                        ...prev,
-                                                                        { id: admin.id, firstName: admin.firstName, lastName: admin.lastName },
-                                                                    ]);
-                                                                }
-                                                            }}
-                                                            className="hidden peer"
-                                                        />
-                                                        <span className="w-4 h-4 border rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center">
-                                                            {isSelected && (
-                                                                <svg
-                                                                    className="w-3 h-3 text-white"
-                                                                    fill="none"
-                                                                    stroke="currentColor"
-                                                                    strokeWidth={2}
-                                                                    viewBox="0 0 24 24"
-                                                                >
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                                </svg>
-                                                            )}
-                                                        </span>
-                                                        <img
-                                                            src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/demo/synco/members/dummyuser.png"}
-                                                            alt={
-                                                                admin?.firstName || admin?.lastName
-                                                                    ? `${admin?.firstName ?? ""} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()
-                                                                    : "Unknown Admin"
-                                                            }
-
-                                                            className="w-8 h-8 rounded-full"
-                                                        />
-                                                        <span>
-                                                            {admin?.firstName || admin?.lastName
-                                                                ? `${admin?.firstName ?? ""} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()
-                                                                : "N/A"}
-                                                        </span>
-
-                                                    </label>
-                                                );
-                                            })}
-                                        </div>
-
-                                        <button
-                                            className="w-full bg-blue-600 text-white rounded-md py-2 font-medium"
-                                        
-                                               onClick={() => {
-                                                setSavedAgent(tempSelectedAgents);
-                                                setShowPopup(false);
-                                            }}
-                                            disabled={tempSelectedAgents.length === 0}
-                                        >
-                                            Next
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                            {showCoachPopup && (
-                                <div
-                                    className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-                                    onClick={() => {
-                                        setShowCoachPopup(false);
-                                        setSavedCoach([]);
-                                        setTempSelectedCoaches([]);
-                                    }}
-                                >
-                                    <div
-                                        ref={popupRef}
-                                        className="bg-white rounded-2xl p-6 w-[300px] space-y-4 shadow-lg"
                                         onClick={(e) => e.stopPropagation()}
+                                        className="bg-white rounded-2xl p-6 w-[300px] space-y-4 shadow-lg"
                                     >
-                                        <h2 className="text-lg font-semibold">Select coach(es)</h2>
-                                        <div className="space-y-3 max-h-72 overflow-y-auto">
-                                            {bookedByCoach.map((coach, index) => {
-                                                const isSelected = tempSelectedCoaches.some((c) => c.id === coach.id);
-                                                return (
-                                                    <label key={index} className="flex items-center gap-3 cursor-pointer">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={isSelected}
-                                                            onChange={() => {
-                                                                if (isSelected) {
-                                                                    setTempSelectedCoaches((prev) => prev.filter((c) => c.id !== coach.id));
-                                                                } else {
-                                                                    setTempSelectedCoaches((prev) => [
-                                                                        ...prev,
-                                                                        { id: coach.id, firstName: coach.firstName, lastName: coach.lastName },
-                                                                    ]);
-                                                                }
-                                                            }}
-                                                            className="hidden peer"
-                                                        />
-                                                        <span className="w-4 h-4 border rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center">
-                                                            {isSelected && (
-                                                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                                                </svg>
-                                                            )}
-                                                        </span>
-                                                        <img
-                                                            src={coach.profile ? `${API_BASE_URL}${coach.profile}` : "/demo/synco/members/dummyuser.png"}
-                                                            alt={`${coach.firstName ?? ""} ${coach.lastName ?? ""}`.trim() || "Unknown Coach"}
-                                                            className="w-8 h-8 rounded-full"
-                                                        />
-                                                        <span>{`${coach.firstName ?? ""} ${coach.lastName ?? ""}`.trim() || "N/A"}</span>
-                                                    </label>
-                                                );
-                                            })}
-                                        </div>
+                                        <h2 className="text-lg font-semibold capitalize">
+                                            Select {activeFilterKey}
+                                        </h2>
+
+                                        {/* 🧠 Dynamic Content */}
+                                        {activeFilterKey === "package" && (
+                                            <select
+                                                className="w-full border rounded-lg p-2"
+                                                onChange={(e) => setSelectedPackages(e.target.value)}
+                                                value={selectedPackages}
+                                            >
+                                                <option value="">Select Package</option>
+                                                <option value="Gold">Gold</option>
+                                                <option value="Silver">Silver</option>
+                                                <option value="Platinum">Platinum</option>
+                                            </select>
+                                        )}
+
+                                        {activeFilterKey === "source" && (
+                                            <select
+                                                className="w-full border rounded-lg p-2"
+                                                onChange={(e) => setSelectedSources(e.target.value)}
+                                                value={selectedSources}
+                                            >
+                                                <option value="">Select Source</option>
+                                                <option value="Referral">Referral</option>
+                                                <option value="Online">Online</option>
+                                                <option value="Flyer">Flyer</option>
+                                            </select>
+                                        )}
+
+
+                                        {activeFilterKey === "agent" && (
+                                            <div className="space-y-2 max-h-64 overflow-y-auto">
+                                                {agentList.map((agent) => {
+                                                    const isSelected = savedAgent.some((a) => a.id === agent.id);
+                                                    return (
+                                                        <label key={agent.id} className="flex items-center gap-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isSelected}
+                                                                onChange={() => {
+                                                                    setSavedAgent((prev) =>
+                                                                        isSelected
+                                                                            ? prev.filter((a) => a.id !== agent.id)
+                                                                            : [...prev, agent]
+                                                                    );
+                                                                }}
+                                                            />
+                                                            <span>{agent.name}</span>
+                                                        </label>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+
+                                        {activeFilterKey === "coach" && (
+                                            <div className="space-y-2 max-h-64 overflow-y-auto">
+                                                {coachList.map((coach) => {
+                                                    const isSelected = savedCoach.some((c) => c.id === coach.id);
+                                                    return (
+                                                        <label key={coach.id} className="flex items-center gap-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={isSelected}
+                                                                onChange={() => {
+                                                                    setSavedCoach((prev) =>
+                                                                        isSelected
+                                                                            ? prev.filter((c) => c.id !== coach.id)
+                                                                            : [...prev, coach]
+                                                                    );
+                                                                }}
+                                                            />
+                                                            <span>{coach.name}</span>
+                                                        </label>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
 
                                         <button
                                             className="w-full bg-blue-600 text-white rounded-md py-2 font-medium"
-                                            onClick={() => {
-                                                setSavedCoach(tempSelectedCoaches);
-                                                setShowCoachPopup(false);
-                                            }}
-                                            disabled={tempSelectedCoaches.length === 0}
+                                            onClick={() => setShowPopup(false)}
                                         >
-                                            Next
+                                            Done
                                         </button>
                                     </div>
                                 </div>
@@ -995,11 +989,11 @@ console.log('coachByParams',coachByParams)
                             </div>
                         </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 justify-between">
+                    <div className="grid grid-cols-3 gap-2 mt-5 justify-between">
                         <button
                             onClick={() => {
-                                if (selectedStudents && selectedStudents.length > 0) {
-                                    sendBookMembershipMail(selectedStudents);
+                                if (selectedUserIds && selectedUserIds.length > 0) {
+                                    sendOnetoOneMail(selectedUserIds);
                                 } else {
                                     Swal.fire({
                                         icon: "warning",

@@ -2,9 +2,9 @@ import React, { useEffect, useState, useCallback } from "react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import Select from "react-select";
-import { useNotification } from "../contexts/NotificationContext";
+import { useNotification } from "../../../contexts/NotificationContext";
 import Swal from "sweetalert2";
-import { useAccountsInfo } from "../contexts/AccountsInfoContext";
+import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 import { FaSave, FaEdit } from "react-icons/fa";
 const ParentProfile = () => {
   const [editParent, setEditParent] = useState(false);
@@ -45,9 +45,9 @@ const ParentProfile = () => {
     parentFirstName: "",
     parentLastName: "",
     parentEmail: "",
-    parentPhoneNumber: "",
-    relationToChild: "",
-    howDidYouHear: "",
+    phoneNumber: "",
+    relationChild: "",
+    howDidHear: "",
   });
 
   const [dialCodes, setDialCodes] = useState(["+1", "+1"]);
@@ -89,7 +89,7 @@ const ParentProfile = () => {
     const value = e.target.value;
     setFormData((prev) =>
       prev.map((parent, i) =>
-        i === index ? { ...parent, parentPhoneNumber: value } : parent
+        i === index ? { ...parent, phoneNumber: value } : parent
       )
     );
   };
@@ -222,9 +222,9 @@ const ParentProfile = () => {
       parentFirstName: "",
       parentLastName: "",
       parentEmail: "",
-      parentPhoneNumber: "",
-      relationToChild: "",
-      howDidYouHear: "",
+      phoneNumber: "",
+      relationChild: "",
+      howDidHear: "",
     });
     setDialCode("+1");
     setCountry("us");
@@ -261,15 +261,21 @@ const ParentProfile = () => {
         ...prev,
         emergencyFirstName: firstParent.parentFirstName || "",
         emergencyLastName: firstParent.parentLastName || "",
-        emergencyPhoneNumber: firstParent.parentPhoneNumber || "",
-        emergencyRelation: firstParent.relationToChild || "", // or whatever default you want
+        emergencyPhoneNumber: firstParent.phoneNumber || "",
+        emergencyRelation: firstParent.relationChild || "", // or whatever default you want
       }));
     }
   }, [emergency.sameAsAbove, formData]);
 
   const handleUpdateParent = () => {
-    console.log('clicked')
+    console.log('clicked', formData)
     handleUpdate("parents", formData)
+  }
+
+  const handleSaveEmergency = () => {
+    console.log('clicked', emergency)
+
+    handleUpdate("emergency", emergency)
   }
 
   useEffect(() => {
@@ -296,25 +302,49 @@ const ParentProfile = () => {
         {formData.map((parent, index) => (
           <div key={index} className="bg-white p-6  rounded-2xl shadow-sm rounded-2xl mb-6">
             {/* Header with Edit Toggle */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <h2
+                onClick={() =>
+                  setEditParent((prev) => ({
+                    ...prev,
+                    [index]: !prev[index],
+                  }))
+                }
+                className="text-xl font-bold text-[#282829] flex items-center gap-2 cursor-pointer"
+              >
+                {editParent?.[index]
+                  ? `Editing Parent ${index + 1}`
+                  : `Parent Information ${index + 1}`}
+              </h2>
 
-            <h2
-              onClick={() =>
-                setEditParent((prev) => ({
-                  ...prev,
-                  [index]: !prev[index],
-                }))
-              }
-            className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
-            >
-              {editParent?.[index] ? "Editing Parent" : `Parent Information ${index + 1}`}
-
-              
-            </h2>
-            {editParent?.[index]
-                ? <FaSave onClick={handleUpdateParent} />
-                : <FaEdit />}
+              {editParent?.[index] ? (
+                <div className="relative group">
+                  <FaSave
+                    className=" hover:text-green-700 cursor-pointer transition"
+                    onClick={() => handleUpdateParent(index)}
+                  />
+                  <span className="absolute whitespace-nowrap bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition">
+                    Click to save
+                  </span>
+                </div>
+              ) : (
+                <div className="relative group">
+                  <FaEdit
+                    className="hover:text-blue-700 cursor-pointer transition"
+                    onClick={() =>
+                      setEditParent((prev) => ({
+                        ...prev,
+                        [index]: true,
+                      }))
+                    }
+                  />
+                  <span className="absolute bottom-6 left-1/2 whitespace-nowrap -translate-x-1/2 bg-black text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition">
+                    Click to edit
+                  </span>
+                </div>
+              )}
             </div>
+
 
             {/* Name Fields */}
             <div className="md:flex gap-6 mb-4 mt-3">
@@ -379,8 +409,8 @@ const ParentProfile = () => {
                   />
                   <input
                     type="tel"
-                    name="parentPhoneNumber"
-                    value={parent.parentPhoneNumber || ""}
+                    name="phoneNumber"
+                    value={parent.phoneNumber || ""}
                     onChange={(e) => handlePhoneChange(index, e)}
                     readOnly={!editParent?.[index]}
                     placeholder="Enter phone number"
@@ -400,15 +430,15 @@ const ParentProfile = () => {
                   options={relationOptions}
                   placeholder="Select Relation"
                   className="mt-2"
-                  name="relationToChild"
+                  name="relationChild"
                   classNamePrefix="react-select"
                   value={relationOptions.find(
-                    (o) => o.value === parent.relationToChild
+                    (o) => o.value === parent.relationChild
                   )}
                   onChange={(selected, actionMeta) =>
                     handleSelectChange(index, selected, actionMeta)
                   }
-                  isDisabled={!editParent?.[index]}
+
                 />
               </div>
 
@@ -420,15 +450,14 @@ const ParentProfile = () => {
                   options={hearOptions}
                   placeholder="Select from drop down"
                   className="mt-2"
-                  name="howDidYouHear"
+                  name="howDidHear"
                   classNamePrefix="react-select"
                   value={hearOptions.find(
-                    (o) => o.value === parent.howDidYouHear
+                    (o) => o.value === parent.howDidHear
                   )}
                   onChange={(selected, actionMeta) =>
                     handleSelectChange(index, selected, actionMeta)
                   }
-                  isDisabled={!editParent?.[index]}
                 />
               </div>
             </div>
@@ -500,8 +529,8 @@ const ParentProfile = () => {
                     <span className="text-gray-600 mr-2">{dialCode}</span>
                     <input
                       type="tel"
-                      name="parentPhoneNumber"
-                      value={newParent.parentPhoneNumber}
+                      name="phoneNumber"
+                      value={newParent.phoneNumber}
                       onChange={handlePhoneChange}
                       placeholder="Enter number"
                       className="border-none focus:outline-none flex-1"
@@ -518,12 +547,12 @@ const ParentProfile = () => {
                   </label>
                   <Select
                     options={relationOptions}
-                    name="relationToChild"
+                    name="relationChild"
                     className="mt-1"
                     classNamePrefix="react-select"
                     placeholder="Select"
                     value={relationOptions.find(
-                      (o) => o.value === newParent.relationToChild
+                      (o) => o.value === newParent.relationChild
                     )}
                     onChange={handleSelectChange}
                   />
@@ -534,12 +563,12 @@ const ParentProfile = () => {
                   </label>
                   <Select
                     options={hearOptions}
-                    name="howDidYouHear"
+                    name="howDidHear"
                     className="mt-1"
                     classNamePrefix="react-select"
                     placeholder="Select"
                     value={hearOptions.find(
-                      (o) => o.value === newParent.howDidYouHear
+                      (o) => o.value === newParent.howDidHear
                     )}
                     onChange={handleSelectChange}
                   />
@@ -568,13 +597,41 @@ const ParentProfile = () => {
       <div className="bg-white p-6 rounded-3xl mt-5 shadow-sm space-y-6">
         <h2
           onClick={() => setEditEmergency((prev) => !prev)}
-          className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
+          className="text-xl font-bold text-[#282829] flex items-center gap-3 cursor-pointer"
         >
-          {editEmergency ? "Editing Emergency Contact Details" : "Emergency Contact Details"}
           {editEmergency
-            ? <FaSave />
-            : <FaEdit />}
+            ? "Editing Emergency Contact Details"
+            : "Emergency Contact Details"}
+
+          {editEmergency ? (
+            <div
+              className="relative group"
+              onClick={(e) => {
+                e.stopPropagation(); // prevent h2 click
+                handleSaveEmergency(); // your save handler
+              }}
+            >
+              <FaSave className="hover:text-green-700 cursor-pointer transition" />
+              <span className="absolute whitespace-nowrap  bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition">
+                Click to save
+              </span>
+            </div>
+          ) : (
+            <div
+              className="relative group"
+              onClick={(e) => {
+                e.stopPropagation(); // prevent h2 click
+                setEditEmergency(true);
+              }}
+            >
+              <FaEdit className=" hover:text-blue-700 cursor-pointer transition" />
+              <span className="absolute whitespace-nowrap bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition">
+                Click to edit
+              </span>
+            </div>
+          )}
         </h2>
+
 
         <div className="flex items-center gap-2">
           <input

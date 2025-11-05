@@ -742,7 +742,8 @@ const StudentProfile = ({ StudentProfile }) => {
 
 
                                  {status?.trim().toLowerCase() == "pending" ||
-                                status?.trim().toLowerCase() == "not attend" &&
+                                status?.trim().toLowerCase() == "not attend"||
+                                status?.trim().toLowerCase() == "not attended" &&
                                     status?.trim().toLowerCase() !== "attended" &&
                                     status?.trim().toLowerCase() !== "no_membership" &&
                                     status?.trim().toLowerCase() !== "rebooked" &&

@@ -55,9 +55,13 @@ const routeTitleMap = {
   '/reports/cancellations': { title: 'Cancellations', icon: '/demo/synco/reportsIcons/report.png' },
   '/reports/weekly-classes': { title: 'Parent Feedback', icon: '/demo/synco/reportsIcons/report.png' },
   '/one-to-one/session-plan-preview': { title: 'One to One Session Plans  ', icon: '/demo/synco/members/Document.png' },
+  '/one-to-one/session-plan': { title: 'One to One Session Plans  ', icon: '/demo/synco/members/Document.png' },
   '/weekly-classes/central-leads': { title: 'Lead Database', icon: '/demo/synco/members/leadsicon.png' },
   '/weekly-classes/central-leads/create': { title: 'Add a New Lead', icon: '/demo/synco/members/leadsicon.png' },
   '/weekly-classes/central-leads/accont-info': { title: 'Account information', icon: '/demo/synco/members/Profile.png' },
+  '/birthday-party/session-plan': { title: 'Birthday Party Session Plans  ', icon: '/demo/synco/members/Document.png' },
+  '/birthday-party/leads': { title: 'Birthday Party ', icon: '/demo/synco/members/BirthdayIcon.png' },
+  '/birthday-party/reports': { title: 'Birthday Party Reports ', icon: '/demo/synco/members/BirthdayIcon.png' },
 
 
 

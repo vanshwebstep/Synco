@@ -6,20 +6,34 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { Search } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNotification } from "../contexts/NotificationContext";
-import { useMembers } from "../contexts/MemberContext";
+import { useNotification } from "../../../contexts/NotificationContext";
+import { useMembers } from "../../../contexts/MemberContext";
 import { Mail, MessageSquare, AlertTriangle } from "lucide-react";
+import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 
 const General = () => {
-
+    const { data } = useAccountsInfo();
+    console.log('data', data)
     const [formData, setFormData] = useState({
-        student: {},
-        parent: [
-            { firstName: "", lastName: "", email: "", phone: "", relation: "Mother" },
-        ],
-        emergency: {},
-        general: {},
+        student: {
+            firstName: data?.booking?.students?.[0]?.studentFirstName || "",
+            lastName: data?.booking?.students?.[0]?.studentLastName || "",
+            dob: data?.booking?.students?.[0]?.dateOfBirth
+                ? new Date(data.booking.students[0].dateOfBirth)
+                : null,
+            age: data?.booking?.students?.[0]?.age || "",
+            medical: data?.booking?.students?.[0]?.medicalInfo || "",
+            ability: data?.booking?.students?.[0]?.ability || "",
+        },
+        parent: data?.booking?.parents?.map((p) => ({
+            firstName: p?.parentFirstName || "",
+            lastName: p?.parentLastName || "",
+            email: p?.parentEmail || "",
+            phone: p?.phoneNumber || "",
+            referral: p?.howDidHear || "",
+        })) || [{}],
     });
+
     const [selectedKeyInfo, setSelectedKeyInfo] = useState(null);
 
     const [isOpen, setIsOpen] = useState(false);
@@ -109,24 +123,19 @@ const General = () => {
         setCurrentPage(page);
     };
 
-    const handleChange = (section, field, value, index = null) => {
-        setFormData((prev) => {
-            if (section === "parent") {
-                const updatedParents = [...prev.parent];
-                updatedParents[index][field] = value;
-                return { ...prev, parent: updatedParents };
-            }
-
-            const updatedSection = { ...prev[section], [field]: value };
-
-            // If student dob changed, calculate age
-            if (section === "student" && field === "dob") {
-                updatedSection.age = calculateAge(value);
-            }
-
-            return { ...prev, [section]: updatedSection };
-        });
+const handleChange = (section, name, value, index = null) => {
+  setFormData((prev) => {
+    if (section === "parent" && index !== null) {
+      const updatedParents = [...prev.parent];
+      updatedParents[index] = { ...updatedParents[index], [name]: value };
+      return { ...prev, parent: updatedParents };
+    }
+    return {
+      ...prev,
+      [section]: { ...prev[section], [name]: value },
     };
+  });
+};
 
     const [paymentData, setPaymentData] = useState({
         firstName: "",
@@ -530,51 +539,98 @@ const General = () => {
 
 
                         {/* Details Section */}
-                        <div className="bg-[#363E49] text-white rounded-4xl p-6 space-y-3">
+                  <div className="bg-[#363E49] text-white rounded-4xl p-6 space-y-3">
 
-                            <div className="text-white rounded-2xl p-4 relative overflow-hidden" style={{ backgroundImage: "url('/demo/synco/frames/Active.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                              
-                                <p className="text-[20px] text-black font-bold relative z-10">Status</p>
-                                <p className="text-sm text-black relative z-10">Active</p>
-                            </div>
-                            <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
-                                <div><img src="/demo/synco/members/user2.png" alt="" /></div>
-                                <div>  <h3 className="text-lg font-semibold">Coach</h3>
-                                    <p className="text-gray-300 text-sm">Ethan Bond-Vaughan</p></div>
-                            </div>
+  {/* Status */}
+  <div
+    className="text-white rounded-2xl p-4 relative overflow-hidden"
+    style={{
+      backgroundImage: "url('/demo/synco/frames/Active.png')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    }}
+  >
+    <p className="text-[20px] text-black font-bold relative z-10">Status</p>
+    <p className="text-sm text-black relative z-10 capitalize">
+      {data?.status || data?.booking?.payment?.paymentStatus || "N/A"}
+    </p>
+  </div>
 
-                            <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Venue</p>
-                                <span className="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded-md mt-1">
-                                    Aston
-                                </span>
-                            </div>
+  {/* Coach */}
+  <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
+    <div>
+      <img src="/demo/synco/members/user2.png" alt="Coach" className="w-10 h-10 rounded-full object-cover" />
+    </div>
+    <div>
+      <h3 className="text-lg font-semibold">Coach</h3>
+      <p className="text-gray-300 text-sm">
+        {data?.booking?.coach
+          ? `${data.booking.coach.firstName} ${data.booking.coach.lastName}`
+          : "N/A"}
+      </p>
+    </div>
+  </div>
 
-                            <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Parent Name</p>
-                                <p className="text-[16px] mt-1 text-[#BDC0C3]">Tom Jones</p>
-                            </div>
+  {/* Venue */}
+  <div className="border-b border-[#495362] pb-3">
+    <p className="text-white text-[18px] font-semibold">Venue</p>
+    <span className="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded-md mt-1">
+      {data?.booking?.location || "N/A"}
+    </span>
+  </div>
 
-                            <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Date of class</p>
-                                <p className="text-[16px] mt-1 text-[#BDC0C3]">10th–Oct 2023</p>
-                            </div>
+  {/* Parent */}
+  <div className="border-b border-[#495362] pb-3">
+    <p className="text-white text-[18px] font-semibold">Parent Name</p>
+    <p className="text-[16px] mt-1 text-[#BDC0C3]">
+      {data?.booking?.parents?.[0]
+        ? `${data.booking.parents[0].parentFirstName} ${data.booking.parents[0].parentLastName}`
+        : data?.parentName || "N/A"}
+    </p>
+  </div>
 
-                            <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Package</p>
-                                <p className="text-[16px] mt-1 text-[#BDC0C3]">Gold</p>
-                            </div>
+  {/* Date of Class */}
+  <div className="border-b border-[#495362] pb-3">
+    <p className="text-white text-[18px] font-semibold">Date of Class</p>
+    <p className="text-[16px] mt-1 text-[#BDC0C3]">
+      {data?.booking?.date
+        ? new Date(data.booking.date).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "N/A"}
+    </p>
+  </div>
 
-                            <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Source</p>
-                                <p className="text-[16px] mt-1 text-[#BDC0C3]">Referral</p>
-                            </div>
+  {/* Package */}
+  <div className="border-b border-[#495362] pb-3">
+    <p className="text-white text-[18px] font-semibold">Package</p>
+    <p className="text-[16px] mt-1 text-[#BDC0C3]">
+      {data?.booking?.paymentPlan?.title || data?.packageInterest || "N/A"}
+    </p>
+  </div>
 
-                            <div>
-                                <p className="text-white text-[18px] font-semibold">Price</p>
-                                <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">£350.00</p>
-                            </div>
-                        </div>
+  {/* Source */}
+  <div className="border-b border-[#495362] pb-3">
+    <p className="text-white text-[18px] font-semibold">Source</p>
+    <p className="text-[16px] mt-1 text-[#BDC0C3]">
+      {data?.source || data?.booking?.parents?.[0]?.howDidHear || "N/A"}
+    </p>
+  </div>
+
+  {/* Price */}
+  <div>
+    <p className="text-white text-[18px] font-semibold">Price</p>
+    <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">
+      £
+      {data?.booking?.payment?.amount
+        ? parseFloat(data.booking.payment.amount).toFixed(2)
+        : "0.00"}
+    </p>
+  </div>
+</div>
+
 
                         {/* Action Buttons */}
                         <div className="p-6 flex flex-col bg-white rounded-3xl mt-5 items-center space-y-3">

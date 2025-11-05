@@ -9,6 +9,7 @@ export const AccountsInfoProvider = ({ children }) => {
   const [formData, setFormData] = useState([]);
   const [emergency, setEmergency] = useState([]);
   const [loading, setLoading] = useState(null);
+  const [mailLoading, setMailLoading] = useState(null);
 
   const [mainId, setMainId] = useState('');
   const token = localStorage.getItem("adminToken");
@@ -17,27 +18,27 @@ export const AccountsInfoProvider = ({ children }) => {
   const handleUpdate = async (title, mainData) => {
 
     if (!token) return Swal.fire("Error", "Token not found. Please login again.", "error");
-
+    console.log('mainData', mainData)
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append("Authorization", `Bearer ${token}`);
     let raw;
     if (title == "students") {
       raw = JSON.stringify({
-        'students': mainData,
+        'student': mainData,
       });
 
     }
     if (title == "parents") {
       raw = JSON.stringify({
 
-        'parents': mainData,
+        'parentDetails': mainData,
       });
 
     }
     if (title == "emergency") {
       raw = JSON.stringify({
-        'emergency': mainData,
+        'emergencyDetails': mainData,
       });
 
     }
@@ -61,7 +62,7 @@ export const AccountsInfoProvider = ({ children }) => {
         },
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/account-information/${data.id}`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/booking/update/${data.id}`, requestOptions);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -81,7 +82,7 @@ export const AccountsInfoProvider = ({ children }) => {
         timer: 2000,
         showConfirmButton: false,
       });
-      fetchMembers(mainId);
+      fetchOneToOneMembers(data.id);
       console.log("Update Result:", result);
       return result;
     } catch (error) {
@@ -139,8 +140,148 @@ export const AccountsInfoProvider = ({ children }) => {
     }
   }, [API_BASE_URL]);
 
+  const fetchOneToOneMembers = useCallback(async (id) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/leads/list/${id}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const resultRaw = await response.json();
+
+      // Check API response status
+      if (!resultRaw.status) {
+        Swal.fire({
+          icon: "error",
+          title: "Fetch Failed",
+          text: resultRaw.message || "Something went wrong while fetching account information.",
+          confirmButtonText: "Ok",
+        });
+        return; // Stop further execution
+      }
+
+      const result = resultRaw.data || [];
+
+      setData(result || []);
+      setStudents(result.booking.students || []);
+      setFormData(result.booking.parents || []);
+      setEmergency(result.booking.emergency || []);
+    } catch (error) {
+      console.error("Failed to fetch members:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Fetch Failed",
+        text: error.message || "Something went wrong while fetching account information.",
+        confirmButtonText: "Ok",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [API_BASE_URL]);
+
+  const sendOnetoOneMail = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    // console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/leads/send-email`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          leadIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      // await fetchOneToOneMembers(data.id);
+      setLoading(false);
+    }
+  };
+    const sendBirthdayMail = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    // console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/leads/send-email`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          leadIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      // await fetchOneToOneMembers(data.id);
+      setLoading(false);
+    }
+  };
   return (
-    <AccountsInfoContext.Provider value={{ data, fetchMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
+    <AccountsInfoContext.Provider value={{ data, sendOnetoOneMail,sendBirthdayMail, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
       {children}
     </AccountsInfoContext.Provider>
   );

@@ -79,7 +79,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     setActiveTab(location.pathname);
   }, [location.pathname]);
   const isItemActive = (item) => {
-    console.log('item11', item)
+
     if (item.link && activeTab === item.link) return true; // submenu or direct link
     if (item.subItems) {
       return item.subItems.some(sub => sub.link === activeTab);
@@ -118,7 +118,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { title: 'Waiting List', link: '/weekly-classes/find-a-class/add-to-waiting-list/list', needPermissions: [{ module: 'waiting-list', action: 'view-listing' }] },
         { title: 'Capacity', link: '/weekly-classes/capacity', needPermissions: [{ module: 'capacity', action: 'view-listing' }] },
         { title: 'Account Information', link: '/weekly-classes/members-info', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
-     {
+        {
           title: "Leads Database",
           link: '/weekly-classes/central-leads',
           needPermissions: [
@@ -132,11 +132,11 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         }
       ]
     },
-      {
+    {
       title: "One To One",
       icon: "/demo/synco/reportsIcons/user.png",
       path: '/one-to-one',
-      
+
       iconHover: "/demo/synco/reportsIcons/userH.png",
       needPermissions: [
         { module: 'session-exercise-one-to-one', action: 'view-listing' },
@@ -155,7 +155,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
 
         },
-               {
+        {
           title: "Session plan Structure ",
           link: '/one-to-one/session-plan',
 
@@ -167,10 +167,74 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
 
         },
-        
+        {
+          title: "Reports",
+          link: '/one-to-one/reports',
+
+
+          needPermissions: [
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+
+        },
+
 
       ],
-    }, {
+    },
+    {
+      title: "Birthday parties",
+      icon: "/demo/synco/SidebarLogos/Birthday.png",
+      path: '/birthday-party',
+
+      iconHover: "/demo/synco/SidebarLogos/BirthdayH.png",
+      needPermissions: [
+        { module: 'session-exercise-one-to-one', action: 'view-listing' },
+
+      ],
+      subItems: [
+        {
+          title: "Sales",
+          link: '/birthday-party/leads',
+
+
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" }
+          ],
+
+
+        },
+        {
+          title: "Session plan Structure ",
+          link: '/birthday-party/session-plan',
+
+
+          needPermissions: [
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+
+        },
+        {
+          title: "Reports",
+          link: '/birthday-party/reports',
+
+
+          needPermissions: [
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+
+        },
+
+
+      ],
+    },
+    {
       title: "Reports",
       icon: "/demo/synco/reportsIcons/reports.png",
       path: '/reports',
@@ -259,7 +323,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         },
       ],
     },
-  {
+    {
       title: 'Key Information',
       icon: '/demo/synco/SidebarLogos/Management.png',
       iconHover: '/demo/synco/SidebarLogos/ManagementH.png',
@@ -284,7 +348,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           ]
         }
       ] : []),
-  
+
     {
       title: 'Administration',
       path: '/members',
@@ -356,8 +420,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         },
       ],
     },
-   
- 
+
+
   ];
 
   let menuItems = [];
@@ -511,21 +575,19 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
           // Usage for top-level item
           const noPaddingx = hasNoPadding(item.subItems);
-          console.log(noPaddingx); // true if any inner subItem has noPaddingx
+           // true if any inner subItem has noPaddingx
 
           // const noPaddingx =item.subItems.noPaddingx;
           const itemTitle = typeof item === 'string' ? item : item.title;
 
           const isActiveTitle = true;
-          console.log('itemTitle', itemTitle)
-          console.log('activeItem', activeItem)
+
 
           const isActive = item.path
             ? item.path === '/'
               ? location.pathname === '/' // exact match for dashboard
               : location.pathname.startsWith(item.path) // include match for other routes
             : false;
-          console.log('isActive', isActive)
           const content = (
             <motion.div
               initial={false}

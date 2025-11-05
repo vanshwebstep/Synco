@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import { Editor } from '@tinymce/tinymce-react';
 import Loader from "../../contexts/Loader";
 
-export default function Create() {
+export default function BirthdayCreate() {
     const navigate = useNavigate();
 const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -83,7 +83,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
         if (!token) return;
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/session-exercise-struture/listing`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/session-exercise/listing`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const result = await response.json();
@@ -98,7 +98,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
         if (!token) return;
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/session-exercise-struture/listing/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/session-exercise/listing/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const result = await response.json();
@@ -138,8 +138,8 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                 }
 
                 const url = !isEditExcercise
-                    ? `${API_BASE_URL}/api/admin/one-to-one/session-exercise-struture/create`
-                    : `${API_BASE_URL}/api/admin/one-to-one/session-exercise-struture/update/${id}`;
+                    ? `${API_BASE_URL}/api/admin/birthday-party/session-exercise/create`
+                    : `${API_BASE_URL}/api/admin/birthday-party/session-exercise/update/${id}`;
 
                 const response = await fetch(url, {
                     method: isEditExcercise ? 'PUT' : "POST",
@@ -198,7 +198,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                 });
 
                 const response = await fetch(
-                    `${API_BASE_URL}/api/admin/one-to-one/session-exercise-struture/${id}/duplicate`,
+                    `${API_BASE_URL}/api/admin/birthday-party/session-exercise/${id}/duplicate`,
                     {
                         method: "POST",
                         headers: { Authorization: `Bearer ${token}` },
@@ -253,7 +253,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                     });
 
                     const response = await fetch(
-                        `${API_BASE_URL}/api/admin/one-to-one/session-exercise-struture/delete/${id}`,
+                        `${API_BASE_URL}/api/admin/birthday-party/session-exercise/delete/${id}`,
                         {
                             method: "DELETE",
                             headers: { Authorization: `Bearer ${token}` },
@@ -328,7 +328,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
             formData.append("video", groupData.video.file, groupData.video.file.name);
         }
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/create`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/session-plan-birthdayParty/create`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -346,7 +346,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                 confirmButtonColor: "#237FEA",
             });
             emptySession();
-            navigate(`/one-to-one`);
+            navigate(`/birthday-party/session-plan`);
         } else {
             await Swal.fire({
                 icon: "error",
@@ -579,7 +579,7 @@ useEffect(() => {
 
     return (
         <>
-            <div  ref={exerciseRef} className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start my-5" onClick={() => navigate('/one-to-one')}>
+            <div  ref={exerciseRef} className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start my-5" onClick={() => navigate('/birthday-party/session-plan')}>
                 <img
                     src="/demo/synco/icons/arrow-left.png"
                     alt="Back"
@@ -981,12 +981,20 @@ useEffect(() => {
                                         {exercise.imageUrl && JSON.parse(exercise.imageUrl).length > 0 && (
                                             <div className="mt-3 flex flex-wrap gap-3">
                                                 {JSON.parse(exercise.imageUrl).map((img, index) => (
+                                                     <div key={index} className="relative" >
                                                     <img
-                                                        key={index}
                                                         src={img}
                                                         alt={`Preview ${index + 1}`}
                                                         className="rounded-xl w-40 h-28 object-cover"
                                                     />
+                                                      <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveImage(index)}
+                                                            className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1.5"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                        </div>
                                                 ))}
                                             </div>
                                         )}

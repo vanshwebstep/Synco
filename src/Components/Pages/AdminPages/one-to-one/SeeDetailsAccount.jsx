@@ -2,9 +2,9 @@ import  { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAccountsInfo } from "../contexts/AccountsInfoContext";
 import Loader from "../contexts/Loader";
-import General from "./General";
-import PaymentHistory from "./PaymentHistory";
-import Attendance from "./Attendance";
+import General from "./Sales/Info/General";
+import Attendance from "./Sales/Info/Attendance";
+import PaymentHistory from "./Sales/Info/PaymentHistory";
 
 const tabs = [
 
@@ -16,7 +16,7 @@ const tabs = [
 const SeeDetailsAccount = () => {
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   const navigate = useNavigate();
-  const { loading, setMainId ,fetchMembers } = useAccountsInfo();
+  const { loading,data, setMainId ,fetchMembers } = useAccountsInfo();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("id"); // <-- this will be "9"  console.log('id',id)
@@ -36,7 +36,7 @@ const SeeDetailsAccount = () => {
       <div className="flex  items-center w-[max-content] bg-white p-3 gap-1 rounded-2xl p-1 space-x-2">
        <h2
           onClick={() => {
-            navigate('/one-to-one/sales/account-information');
+            navigate(`/one-to-one/sales/account-information?id=${data.booking.leadId}`)
           }}>
           <img
             src="/demo/synco/icons/arrow-left.png"

@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import LeadsDashboard from "./LeadsDashboard";
 import SalesDashboard from "./SalesDashboard";
 import { Handler } from "leaflet";
-import SessionPlan from "./Session plan/SessionPlan";
+import SessionPlan from "../../Session plan/SessionPlan";
+import AllDashboard from "./AllDashboard";
 
 const tabs = [
   { name: "Leads", component: <LeadsDashboard /> },
   { name: "Sales", component: <SalesDashboard /> },
-  { name: "All", component: <SessionPlan /> },
+  { name: "All", component: <AllDashboard /> },
 ];
 
 const Leads = () => {

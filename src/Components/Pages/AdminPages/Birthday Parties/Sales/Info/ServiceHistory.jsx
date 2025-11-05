@@ -1,38 +1,39 @@
-import React, { useState ,useRef,useEffect} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FaEllipsisV } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
 import Select from "react-select";
 import { Check, Plus } from "lucide-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 
 // Sample data
 const bookings = [
-  {
-    type: "Weekly Classes Membership",
-    plan: "12 month plan",
-    students: 2,
-    venue: "Acton",
-    id: "XHDJDHLS314",
-    price: "£3999",
-    bookingDate: "Nov 18 2021, 17:00",
-    progress: "6/12 months",
-    source: "Ben Marcus",
-    status: "Active",
-    statusColor: "green",
-  },
-  {
-    type: "Birthday Party Booking",
-    package: "Gold",
-    pricePaid: "£315.00",
-    stripeID: "XHDJDHLS314",
-    bookingDate: "Nov 18 2021, 17:00",
-    partyDate: "Nov 18 2021, 17:00",
-    coach: "Ethan Bond-Vaughan",
-    source: "Abdul Ali",
-    status: "Completed",
-    statusColor: "red",
-  },
+  // {
+  //   type: "Weekly Classes Membership",
+  //   plan: "12 month plan",
+  //   students: 2,
+  //   venue: "Acton",
+  //   id: "XHDJDHLS314",
+  //   price: "£3999",
+  //   bookingDate: "Nov 18 2021, 17:00",
+  //   progress: "6/12 months",
+  //   source: "Ben Marcus",
+  //   status: "Active",
+  //   statusColor: "green",
+  // },
+  // {
+  //   type: "Birthday Party Booking",
+  //   package: "Gold",
+  //   pricePaid: "£315.00",
+  //   stripeID: "XHDJDHLS314",
+  //   bookingDate: "Nov 18 2021, 17:00",
+  //   partyDate: "Nov 18 2021, 17:00",
+  //   coach: "Ethan Bond-Vaughan",
+  //   source: "Abdul Ali",
+  //   status: "Completed",
+  //   statusColor: "red",
+  // },
   {
     type: "One to One Booking",
     package: "Gold",
@@ -46,32 +47,32 @@ const bookings = [
     status: "Expired",
     statusColor: "red",
   },
-  {
-    type: "Holiday Camp",
-    camp: "Easter",
-    students: 2,
-    pricePaid: "£3999",
-    stripeID: "XHDJDHLS314",
-    bookingDate: "Nov 18 2021, 17:00",
-    venue: "Chelsea Park",
-    discount: "15% Early Bird Discount",
-    source: "Abdul Ali",
-    status: "Expired",
-    statusColor: "red",
-  },
-  {
-    type: "Merchandise",
-    item: "Full Set",
-    quantity: 2,
-    pricePaid: "£3999",
-    transactionID: "XHDJDHLS314",
-    bookingDate: "Nov 18 2021, 17:00",
-    discount: 0,
-    fulfillment: "Fulfilled",
-    source: "Online Store",
-    status: "Paid",
-    statusColor: "green",
-  },
+  // {
+  //   type: "Holiday Camp",
+  //   camp: "Easter",
+  //   students: 2,
+  //   pricePaid: "£3999",
+  //   stripeID: "XHDJDHLS314",
+  //   bookingDate: "Nov 18 2021, 17:00",
+  //   venue: "Chelsea Park",
+  //   discount: "15% Early Bird Discount",
+  //   source: "Abdul Ali",
+  //   status: "Expired",
+  //   statusColor: "red",
+  // },
+  // {
+  //   type: "Merchandise",
+  //   item: "Full Set",
+  //   quantity: 2,
+  //   pricePaid: "£3999",
+  //   transactionID: "XHDJDHLS314",
+  //   bookingDate: "Nov 18 2021, 17:00",
+  //   discount: 0,
+  //   fulfillment: "Fulfilled",
+  //   source: "Online Store",
+  //   status: "Paid",
+  //   statusColor: "green",
+  // },
 ];
 
 // Helper function for images
@@ -83,7 +84,7 @@ const renderImage = (type) => {
     "Holiday Camp": "/demo/synco/icons/crown.png",
     "Merchandise": "/demo/synco/icons/crown.png",
   };
-  return images[type] || "/demo/synco/icons/default.png";
+  return images[type] || "/demo/synco/icons/crown.png";
 };
 
 // Render field helper
@@ -91,17 +92,31 @@ const renderField = (label, value) => {
   return (
     <div>
       <p className="text-gray-500 text-sm">{label}</p>
-      <p className="mt-1 font-semibold">{value}</p>
+      <p className="mt-1 font-semibold truncate ">{value}</p>
     </div>
   );
 };
 
 const BookingCard = ({ booking }) => {
-   const navigate = useNavigate();
+  const { students, setStudents, handleUpdate, mainId, data } = useAccountsInfo();
+
+  // console.log('booking', booking) 
+  // const booking = data.booking
+  //  console.log('data', data.booking)
+  // data.packageInterest
+  // data.booking.students.length
+  // data.booking.paymentPlan.price
+  // data.booking.payment.stripePaymentIntentId
+  // data.booking.location
+  // data.booking.coach.firstName ,data.booking.coach.lastName 
+  // data.booking.Flyer 
+
+  const navigate = useNavigate();
   const statusColors = {
-    green: "bg-green-500 text-white",
-    red: "bg-red-500 text-white",
-    orange: "bg-orange-500 text-white",
+    active: "bg-green-500 text-white",
+    expired: "bg-red-500 text-white",
+    canceled: "bg-red-500 text-white",
+    pending: "bg-orange-500 text-white",
   };
 
   return (
@@ -114,7 +129,7 @@ const BookingCard = ({ booking }) => {
             alt={booking.type}
             className="w-8 h-8 rounded-full"
           />
-          <h3 className="text-white font-semibold">{booking.type}</h3>
+          <h3 className="text-white font-semibold">One to One Booking</h3>
         </div>
         <div className="flex items-center gap-2">
           <button className="px-3 py-2 flex items-center gap-2 rounded-lg text-sm bg-white">
@@ -126,9 +141,9 @@ const BookingCard = ({ booking }) => {
             396
           </button>
           <span
-            className={`px-3 py-2 rounded-lg text-sm ${statusColors[booking.statusColor]}`}
+            className={`px-3 py-2 rounded-lg capitalize text-sm ${statusColors[data.status]}`}
           >
-            {booking.status}
+            {data.status}
           </span>
         </div>
       </div>
@@ -163,14 +178,14 @@ const BookingCard = ({ booking }) => {
 
           {booking.type === "One to One Booking" && (
             <>
-              {renderField("Package", booking.package)}
-              {renderField("Students", booking.students)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Stripe Transaction ID", booking.stripeID)}
-              {renderField("Date of Booking", booking.bookingDate)}
-              {renderField("Venue", booking.venue)}
-              {renderField("Coach", booking.coach)}
-              {renderField("Booking Source", booking.source)}
+              {renderField("Package", data.packageInterest)}
+              {renderField("Students", data.booking.students.length)}
+              {renderField("Price Paid", data.booking.paymentPlan.price)}
+              {renderField("Stripe Transaction ID", data.booking.payment.stripePaymentIntentId)}
+              {renderField("Date of Booking", data.booking.date)}
+              {renderField("Venue", data.booking.location)}
+              {renderField("Coach", `${data.booking.coach.firstName} ${data.booking.coach.lastName}`)}
+              {renderField("Booking Source", data.source)}
             </>
           )}
 
@@ -204,7 +219,7 @@ const BookingCard = ({ booking }) => {
 
         {/* Buttons */}
         <div className="flex gap-3">
-          <button onClick={()=> navigate(`/one-to-one/sales/account-information/see-details?id=${'1'}`)} className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
+          <button onClick={() => navigate(`/one-to-one/sales/account-information/see-details?id=${'1'}`)} className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
             See details
           </button>
           {booking.type !== "Merchandise" && (
@@ -229,7 +244,7 @@ const BookingCard = ({ booking }) => {
 };
 
 const ServiceHistory = () => {
- 
+
   const [showModal, setShowModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const filterModalRef = useRef(null);
@@ -254,12 +269,12 @@ const ServiceHistory = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showFilterModal]);  const servicesTypes = [
-    { value: "Weekly Classes Membership", label: "Weekly Classes Membership" },
-    { value: "Birthday Party Booking", label: "Birthday Party Booking" },
+  }, [showFilterModal]); const servicesTypes = [
+    // { value: "Weekly Classes Membership", label: "Weekly Classes Membership" },
+    // { value: "Birthday Party Booking", label: "Birthday Party Booking" },
     { value: "One to One Booking", label: "One to One Booking" },
-    { value: "Holiday Camp", label: "Holiday Camp" },
-    { value: "Merchandise", label: "Merchandise" },
+    // { value: "Holiday Camp", label: "Holiday Camp" },
+    // { value: "Merchandise", label: "Merchandise" },
   ];
   const filterOptions = [
     { label: "All Time", key: "thisyear", apiParam: "period", apiValue: "thisyear" },
@@ -474,7 +489,7 @@ const ServiceHistory = () => {
         {showFilterModal && (
           <div className="fixed inset-0  bg-[#10101094] bg-opacity-40 flex items-center justify-end z-50">
 
-            <div     ref={filterModalRef} className="bg-white rounded-xl p-4 mt-15 mr-5 md:max-w-[508px]">
+            <div ref={filterModalRef} className="bg-white rounded-xl p-4 mt-15 mr-5 md:max-w-[508px]">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter</h3>
                 <button onClick={applyFilter} className="flex gap-2 items-center bg-blue-500 text-white px-3 py-2 rounded-lg text-sm text-[16px]">

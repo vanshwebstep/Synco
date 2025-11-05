@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
-import { useMembers } from '../contexts/MemberContext';
-import Loader from '../contexts/Loader';
-import { usePermission } from '../Common/permission';
+import { useMembers } from '../../../contexts/MemberContext';
+import Loader from '../../../contexts/Loader';
+import { usePermission } from '../../../Common/permission';
 
 const Feedback = () => {
   const { checkPermission } = usePermission();

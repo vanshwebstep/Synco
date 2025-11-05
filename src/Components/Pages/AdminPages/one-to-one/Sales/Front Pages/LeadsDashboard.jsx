@@ -20,12 +20,14 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { PiUsersThreeBold } from "react-icons/pi";
 import { useNavigate } from "react-router-dom";
-import Loader from "../contexts/Loader";
+import Loader from "../../../contexts/Loader";
+import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 const LeadsDashboard = () => {
   const navigate = useNavigate();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("adminToken");
   const [isOpen, setIsOpen] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [mainLoading, setMainLoading] = useState(false);
   const [leadsData, setLeadsData] = useState([]);
@@ -49,7 +51,7 @@ const LeadsDashboard = () => {
     const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`; // returns "2025-08-24"
   }
-  console.log('summary', summary)
+
   const fetchLeads = useCallback(
     async (
       studentName = "",
@@ -118,6 +120,7 @@ const LeadsDashboard = () => {
     },
     []
   );
+  const { sendOnetoOneMail } = useAccountsInfo();
 
   useEffect(() => {
     const loadLeads = async () => {
@@ -132,31 +135,29 @@ const LeadsDashboard = () => {
     loadLeads();
   }, [fetchLeads]);
 
+  const sources = summary?.sourceOfBookings;
 
-console.log('summary',summary )
-const sources = summary?.sourceOfBookings;
+  // Determine finalSource based on conditions
+  let finalSource = "Online"; // default if not exist or invalid
 
-// Determine finalSource based on conditions
-let finalSource = "Online"; // default if not exist or invalid
+  if (Array.isArray(sources) && sources.length > 0) {
+    // find the max count
+    const maxCount = Math.max(...sources.map((s) => s.count));
 
-if (Array.isArray(sources) && sources.length > 0) {
-  // find the max count
-  const maxCount = Math.max(...sources.map((s) => s.count));
+    // filter all sources that share the max count
+    const topSources = sources.filter((s) => s.count === maxCount);
 
-  // filter all sources that share the max count
-  const topSources = sources.filter((s) => s.count === maxCount);
+    // if tie → pick first one, else → only one with max count
+    finalSource = topSources[0]?.source || "Online";
+  }
 
-  // if tie → pick first one, else → only one with max count
-  finalSource = topSources[0]?.source || "Online";
-}
-
-// then your summaryCards
-const summaryCards = [
-  { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary.totalLeads, change: "+28.14%" },
-  { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: "+12.47%" },
-  { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: "+9.31%" },
-  { icon: PiUsersThreeBold, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
-];
+  // then your summaryCards
+  const summaryCards = [
+    { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: "+28.14%" },
+    { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: "+12.47%" },
+    { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: "+9.31%" },
+    { icon: PiUsersThreeBold, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
+  ];
   const [formData, setFormData] = useState({
     parentName: "",
     childName: "",
@@ -277,7 +278,7 @@ const summaryCards = [
     source: "Referral",
     status: "Paid",
   });
-  console.log('leadsData', leadsData)
+  console.log('selectedUserIds', selectedUserIds)
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
       prev.includes(userId)
@@ -741,13 +742,13 @@ const summaryCards = [
           <div className="grid grid-cols-3 gap-2 justify-between">
             <button
               onClick={() => {
-                if (selectedStudents && selectedStudents.length > 0) {
-                  sendBookMembershipMail(selectedStudents);
+                if (selectedUserIds && selectedUserIds.length > 0) {
+                  sendOnetoOneMail(selectedUserIds);
                 } else {
                   Swal.fire({
                     icon: "warning",
                     title: "No Students Selected",
-                    text: "Please select at least one student before sending an email.",
+                    text: "Please select at least one Lead before sending an email.",
                     confirmButtonText: "OK",
                   });
                 }

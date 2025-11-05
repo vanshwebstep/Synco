@@ -751,7 +751,7 @@ const WaitingList = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 justify-between">
+                    <div className="grid grid-cols-3 gap-2 mt-5  justify-between">
                         <button
                             onClick={() => {
                                 if (!selectedStudents || selectedStudents.length === 0) {

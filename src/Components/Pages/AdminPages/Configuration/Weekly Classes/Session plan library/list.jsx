@@ -1,5 +1,5 @@
-import React, { useState, useEffect,useCallback } from 'react';
-import { Pencil, Trash2, Eye, Copy,} from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Pencil, Trash2, Eye, Copy, } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 import Swal from "sweetalert2";
@@ -12,7 +12,7 @@ const List = () => {
   const token = localStorage.getItem("adminToken");
 
   const navigate = useNavigate();
-  const { fetchSessionGroup, sessionGroup, deleteSessionGroup, deleteSessionlevel,duplicateSession, updateDiscount, loading, setLoading} = useSessionPlan();
+  const { fetchSessionGroup, sessionGroup, deleteSessionGroup, deleteSessionlevel, duplicateSession, updateDiscount, loading, setLoading } = useSessionPlan();
   const [weeks, setWeeks] = useState([]);
   const ageMapping = {
     Beginner: "4-6 Years",
@@ -171,31 +171,31 @@ const List = () => {
     });
   };
 
-const handleDuplicateGroup = (weekId) => {
-  Swal.fire({
-    title: 'Duplicate Group?',
-    text: "This group will be duplicated.",
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, duplicate it!',
-    reverseButtons: true,
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      try {
-        setLoading(true); // Optional, show loading
-        await duplicateSession(weekId); // Call your duplication function
-        Swal.fire('Duplicated!', 'The group has been duplicated.', 'success');
-      } catch (err) {
-        console.error(err);
-        Swal.fire('Error!', 'Failed to duplicate the group.', 'error');
-      } finally {
-        setLoading(false);
+  const handleDuplicateGroup = (weekId) => {
+    Swal.fire({
+      title: 'Duplicate Group?',
+      text: "This group will be duplicated.",
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, duplicate it!',
+      reverseButtons: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setLoading(true); // Optional, show loading
+          await duplicateSession(weekId); // Call your duplication function
+          Swal.fire('Duplicated!', 'The group has been duplicated.', 'success');
+        } catch (err) {
+          console.error(err);
+          Swal.fire('Error!', 'Failed to duplicate the group.', 'error');
+        } finally {
+          setLoading(false);
+        }
       }
-    }
-  });
-};
+    });
+  };
 
 
   const handleDeleteLevel = (id, level) => {
@@ -219,61 +219,61 @@ const handleDuplicateGroup = (weekId) => {
     setEditingWeek(weekId);
     setEditedWeekTitle(currentTitle); // prefill existing title
   };
-const handleSaveWeekTitle = useCallback(
-  async (weekId) => {
-    // ✅ Update only the title in local state
-    setTempList((prev) =>
-      prev.map((week) =>
-        week.id === weekId ? { ...week, title: editedWeekTitle } : week
-      )
-    );
-
-    if (!token) return;
-
-    setLoading(true);
-
-    try {
-      const formData = new FormData();
-      if (editedWeekTitle) {
-        formData.append("groupName", editedWeekTitle); // 👈 use "title", not "groupName"
-      }
-
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/session-plan-group/${weekId}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        }
+  const handleSaveWeekTitle = useCallback(
+    async (weekId) => {
+      // ✅ Update only the title in local state
+      setTempList((prev) =>
+        prev.map((week) =>
+          week.id === weekId ? { ...week, title: editedWeekTitle } : week
+        )
       );
 
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.message || "Failed to update");
+      if (!token) return;
 
-      await Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: result.message || "Week title updated successfully.",
-        confirmButtonColor: "#237FEA",
-      });
+      setLoading(true);
 
-      await fetchSessionGroup(); // ✅ refresh list after update
-    } catch (err) {
-      console.error("Failed to update week title:", err);
-      await Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: err.message || "Something went wrong.",
-      });
-    } finally {
-      setLoading(false);
-      setEditingWeek(null);
-    }
-  },
-  [editedWeekTitle, token, navigate, fetchSessionGroup]
-);
+      try {
+        const formData = new FormData();
+        if (editedWeekTitle) {
+          formData.append("groupName", editedWeekTitle); // 👈 use "title", not "groupName"
+        }
+
+        const response = await fetch(
+          `${API_BASE_URL}/api/admin/session-plan-group/${weekId}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
+          }
+        );
+
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || "Failed to update");
+
+        await Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: result.message || "Week title updated successfully.",
+          confirmButtonColor: "#237FEA",
+        });
+
+        await fetchSessionGroup(); // ✅ refresh list after update
+      } catch (err) {
+        console.error("Failed to update week title:", err);
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: err.message || "Something went wrong.",
+        });
+      } finally {
+        setLoading(false);
+        setEditingWeek(null);
+      }
+    },
+    [editedWeekTitle, token, navigate, fetchSessionGroup]
+  );
 
 
 
@@ -332,7 +332,7 @@ const handleSaveWeekTitle = useCallback(
   console.log(weekList)
   return (
     <div className="pt-1 bg-gray-50 min-h-screen">
-    
+
       <div className="md:flex pe-4 justify-between items-center mb-4 w-full">
         <h2 className="text-[28px] font-semibold">Session Plan Library</h2>
 
@@ -406,7 +406,7 @@ const handleSaveWeekTitle = useCallback(
                               type="text"
                               value={editedWeekTitle}
                               onChange={(e) => setEditedWeekTitle(e.target.value)}
-                              className="border border-gray-300 w-inherit rounded px-2 py-1 text-lg font-semibold"style={{ width: "inherit" }}
+                              className="border border-gray-300 w-inherit rounded px-2 py-1 text-lg font-semibold" style={{ width: "inherit" }}
                             />
 
                             <div className="flex gap-2 items-center">
@@ -447,13 +447,13 @@ const handleSaveWeekTitle = useCallback(
                                 >
                                   <Eye size={24} />
                                 </button>
-                                 <button
+                                <button
                                   onClick={() =>
                                     handleDuplicateGroup(week.id)
                                   }
                                   className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                 >
-                                  <Copy  size={24} />
+                                  <Copy size={24} />
                                 </button>
                               </div>
                             )}
