@@ -335,7 +335,7 @@ const ParentProfile = ({ ParentProfile }) => {
     return (
         <>
             <div className="md:flex w-full gap-4">
-                <div className="transition-all duration-300 flex-1 ">
+                <div className="transition-all duration-300 flex-1 md:w-8/12 ">
 
                     <div className="space-y-6">
                         {parents.map((parent, index) => (
@@ -550,7 +550,7 @@ const ParentProfile = ({ ParentProfile }) => {
                         )}
                     </div>
                 </div>
-                <div className="md:min-w-[508px] max-h-fit rounded-full md:max-w-[508px] text-base space-y-5">
+                <div className="max-h-fit rounded-full md:w-4/12 text-base space-y-5">
                     {/* Card Wrapper */}
                     <div className="rounded-3xl bg-[#2E2F3E] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
@@ -615,7 +615,7 @@ const ParentProfile = ({ ParentProfile }) => {
                             <div className="space-y">
                                 <div>
                                     <div className="text-[20px] font-bold tracking-wide">Venue</div>
-                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
+                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md my-2">
                                         {classSchedule?.venue?.name || "-"}
                                     </div>
                                 </div>
@@ -699,7 +699,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 {ParentProfile?.cancelData?.cancelReason && (
                                     <div className="border-t border-[#495362] py-5">
                                         <div className="text-[20px] text-white">
-                                            Request Cancellation Reason
+                                            Cancellation Reason
                                         </div>
                                         <div className="text-[16px] mt-1 text-gray-400">
                                             {ParentProfile?.cancelData?.cancelReason}
@@ -942,32 +942,32 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </button>
 
                                     <button
-  className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
-  onClick={() => {
-    if (!selectedDate) {
-      Swal.fire({
-        icon: "warning",
-        title: "Please select a date first!",
-        confirmButtonColor: "#237FEA",
-      });
-      return;
-    }
+                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                        onClick={() => {
+                                            if (!selectedDate) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Please select a date first!",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
 
-    if (!reason) {
-      Swal.fire({
-        icon: "warning",
-        title: "Please select a reason for non-attendance!",
-        confirmButtonColor: "#237FEA",
-      });
-      return;
-    }
+                                            if (!reason) {
+                                                Swal.fire({
+                                                    icon: "warning",
+                                                    title: "Please select a reason for non-attendance!",
+                                                    confirmButtonColor: "#237FEA",
+                                                });
+                                                return;
+                                            }
 
-    // ✅ Proceed only if both selectedDate and reason exist
-    rebookFreeTrialsubmit(rebookFreeTrial);
-  }}
->
-  Rebook Trial
-</button>
+                                            // ✅ Proceed only if both selectedDate and reason exist
+                                            rebookFreeTrialsubmit(rebookFreeTrial);
+                                        }}
+                                    >
+                                        Rebook Trial
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1083,7 +1083,7 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                 {/* Buttons */}
                                 <div className="flex justify-end gap-4 pt-4">
-                                     <button
+                                    <button
                                         onClick={() => {
                                             // Validation
                                             if (!cancelData.cancellationType) {

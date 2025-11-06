@@ -29,25 +29,10 @@ import Loader from "../contexts/Loader";
 const MembersDashboard = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [activeTab, setActiveTab] = useState("age");
+    const [mainData, setMainData] = useState([]);
     const [membersData, setMembersData] = useState([]);
     const [loading, setLoading] = useState(false);
-    const ageData = [
-        { label: "4", value: 60 },
-        { label: "5", value: 70 },
-        { label: "6", value: 40 },
-        { label: "7", value: 80 },
-        { label: "8", value: 65 },
-        { label: "9", value: 50 },
-        { label: "10", value: 90 },
-        { label: "11", value: 55 },
-        { label: "12", value: 75 },
-    ];
-    const [mainData, setMainData] = useState([]);
-
-    const genderData = [
-        { label: "Male", value: 65 },
-        { label: "Female", value: 35 },
-    ];
+    
 
 
     const venueOptions = [

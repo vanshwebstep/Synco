@@ -107,7 +107,7 @@ const TrialsDashboard = () => {
             icon: "/demo/synco/reportsIcons/user-group.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Free Trials Booked",
-            value: "3,200",
+            value: ` ${membersData?.overallTrends?.freeTrialsCount}`,
             diff: "+12%",
             sub: "vs. prev period ",
             subvalue: '2,900'
@@ -116,7 +116,7 @@ const TrialsDashboard = () => {
             icon: "/demo/synco/reportsIcons/attendent.png",
             iconStyle: "text-[#E769BD] bg-[#F3FAFD]",
             title: "How many attended",
-            value: "£67,000",
+            value: ` ${membersData?.overallTrends?.attendedCount}`,
             diff: "+8%",
             sub: "vs. prev period",
             subvalue: '£57,000'
@@ -125,7 +125,7 @@ const TrialsDashboard = () => {
             icon: "/demo/synco/reportsIcons/Percent.png",
             iconStyle: "text-[#F38B4D] bg-[#F3FAFD]",
             title: "Attendance Rate",
-            value: "£43.94",
+            value: ` ${membersData?.overallTrends?.attendanceRate}`,
             diff: "+6%",
             sub: "vs. prev period ",
             subvalue: '£57,000'
@@ -134,7 +134,7 @@ const TrialsDashboard = () => {
             icon: "/demo/synco/reportsIcons/user-group2.png",
             iconStyle: "text-[#6F65F1] bg-[#F3FAFD]",
             title: "Trials to Members",
-            value: "18 months",
+            value: ` ${membersData?.overallTrends?.trialToMemberCount}`,
             diff: "+6%",
             sub: "vs. prev period ",
             subvalue: '16.8 months'
@@ -143,7 +143,7 @@ const TrialsDashboard = () => {
             icon: "/demo/synco/reportsIcons/Chart.png",
             iconStyle: "text-[#FF5353] bg-[#FEF8F4]",
             title: "Conversion Rate",
-            value: "82",
+            value: ` ${membersData?.overallTrends?.conversionRate}`,
             diff: "+3%",
             sub: "vs. prev period ",
             subvalue: '16.8 months'
@@ -152,7 +152,7 @@ const TrialsDashboard = () => {
             icon: "/demo/synco/reportsIcons/calender.png",
             iconStyle: "text-[#FF5353] bg-[#FEF8F4]",
             title: "No. of Rebooks",
-            value: "82",
+            value: ` ${membersData?.overallTrends?.rebookCount}`,
             diff: "+3%",
             sub: "vs. prev period ",
             subvalue: '16.8 months'
@@ -168,12 +168,25 @@ const TrialsDashboard = () => {
             const byAge = enrolledData.byAge || {};
             const total = Object.values(byAge).reduce((a, b) => a + b, 0);
             const formatted = Object.entries(byAge).map(([age, count]) => ({
-                label: `${age} Years`,
+                label: `${age} `,
                 value: ((count / total) * 100).toFixed(2), // percentage
                 count,
             }));
             setMainData(formatted);
-        } else {
+        }
+        else if (activeTab === "venue") {
+            const venues = enrolledData.byVenue || {};
+            const totalStudents = venues.reduce((sum, v) => sum + v.studentsCount, 0);
+
+            const formatted = venues.map(v => ({
+                label: v.name,
+                value: ((v.studentsCount / totalStudents) * 100).toFixed(2), // percentage
+                count: v.studentsCount
+            }));
+
+            setMainData(formatted);
+        }
+        else {
             const byGender = enrolledData.byGender || {};
             const total = Object.values(byGender).reduce((a, b) => a + b, 0);
             const formatted = Object.entries(byGender).map(([gender, count]) => ({

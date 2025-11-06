@@ -35,7 +35,7 @@ const ServiceHistory = ({ serviceHistory }) => {
   } = serviceHistory;
    
   return (
-    <div className="transition-all duration-300 flex-1 bg-white">
+    <div className="transition-all duration-300 flex-1  bg-white">
       <div className="rounded-4xl w-full">
         <div className="space-y-5">
           <div className="rounded-3xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white">

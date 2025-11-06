@@ -40,12 +40,12 @@ const List = () => {
 
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { createBookMembership,createBookLeads, createBookMembershipByfreeTrial } = useBookFreeTrial()
+  const { createBookMembership, createBookLeads, createBookMembershipByfreeTrial } = useBookFreeTrial()
   const [expression, setExpression] = useState('');
   const [generalInfo, setGeneralInfo] = useState([]);
   const leadId = queryParams.get("leadId");
   const [selectedCoach, setSelectedCoach] = useState(null);
-  console.log("Lead ID:", selectedCoach);
+  // console.log("Lead ID:", selectedCoach);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [selectedDiscount, setSelectedDiscount] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -113,7 +113,7 @@ const List = () => {
       setLoading(false);
     }
   }, [token]);
-  console.log('genralinfo', generalInfo)
+  // console.log('genralinfo', generalInfo)
 
   const [isOpenMembership, setIsOpenMembership] = useState(false);
   const [commentsList, setCommentsList] = useState([]);
@@ -141,7 +141,7 @@ const List = () => {
   const img3Ref = useRef(null); // add a ref for the image
   const img1Ref = useRef(null); // add a ref for the image
   const img2Ref = useRef(null); // add a ref for the image
-  console.log('comesFrom', comesFrom)
+  // console.log('comesFrom', comesFrom)
   const [showPopup, setShowPopup] = useState(false);
   const [directDebitData, setDirectDebitData] = useState([]);
   const [payment, setPayment] = useState({
@@ -156,7 +156,7 @@ const List = () => {
     authorise: false,
   });
 
-console.log("Payment data:", payment);
+  console.log("Payment data:", payment);
 
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
@@ -175,8 +175,8 @@ console.log("Payment data:", payment);
       year: "numeric",
     });
   };
-  // console.log('TrialData', TrialData)
-  // console.log('classId', classId)
+  //// console.log('TrialData', TrialData)
+  //// console.log('classId', classId)
   const { fetchFindClassID, singleClassSchedulesOnly } = useClassSchedule() || {};
   const [students, setStudents] = useState([
     {
@@ -189,7 +189,7 @@ console.log("Payment data:", payment);
       // Add other fields if needed
     },
   ]);
-  // console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
+  //// console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
   const [emergency, setEmergency] = useState({
     sameAsAbove: false,
     emergencyFirstName: "",
@@ -221,7 +221,7 @@ console.log("Payment data:", payment);
   const paymentPlanOptions = numberOfStudents
     ? allPaymentPlans.filter((plan) => plan.all.students === Number(numberOfStudents))
     : allPaymentPlans;
-  // console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
+  //// console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
 
 
   const handleNumberChange = (e) => {
@@ -236,7 +236,7 @@ console.log("Payment data:", payment);
     }
   };
 
-  console.log('payment', payment)
+  // console.log('payment', payment)
   const handlePlanChange = (plan) => {
     setMembershipPlan(plan);
     if (plan) {
@@ -275,12 +275,12 @@ console.log("Payment data:", payment);
 
   useEffect(() => {
     if (TrialData) {
-      // console.log('stp1')
+      //// console.log('stp1')
       if (Array.isArray(TrialData.students) && TrialData.students.length > 0) {
-        // console.log('stp2')
+        //// console.log('stp2')
         setStudents(TrialData.students);
       }
-      // console.log('stp3')
+      //// console.log('stp3')
       if (Array.isArray(TrialData.parents) && TrialData.parents.length > 0) {
         setParents(
           TrialData.parents.map((p, idx) => ({
@@ -297,7 +297,7 @@ console.log("Payment data:", payment);
       }
     }
   }, [TrialData]);
-  // console.log('TrialData', students)
+  //// console.log('TrialData', students)
 
   // useEffect(() => {
   //     if (!finalClassId) {
@@ -393,7 +393,7 @@ console.log("Payment data:", payment);
       cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
-        // console.log('DeleteId:', id);
+        //// console.log('DeleteId:', id);
 
         deleteVenue(id); // Call your delete function here
 
@@ -645,7 +645,7 @@ console.log("Payment data:", payment);
       }));
     }
   }, [emergency.sameAsAbove, parents]);
-  console.log('selectedDiscount', selectedDiscount)
+  // console.log('selectedDiscount', selectedDiscount)
   const handleSubmit = async () => {
     if (!selectedDate) {
       Swal.fire({
@@ -698,9 +698,9 @@ console.log("Payment data:", payment);
       ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
     };
     try {
-        await createBookLeads(payload);
+      await createBookLeads(payload);
 
-      // console.log("Final Payload:", JSON.stringify(payload, null, 2));
+      //// console.log("Final Payload:", JSON.stringify(payload, null, 2));
       // Optionally show success alert or reset form
     } catch (error) {
       console.error("Error while submitting:", error);
@@ -708,10 +708,10 @@ console.log("Payment data:", payment);
     } finally {
       setIsSubmitting(false); // Stop loading
     }
-    // console.log("Final Payload:", JSON.stringify(payload, null, 2));
+    //// console.log("Final Payload:", JSON.stringify(payload, null, 2));
     // send to API with fetch/axios
   };
-console.log('selectedPackage',selectedPackage)
+  console.log('selectedPackage', selectedPackage)
   const handleClick = (val) => {
     if (val === 'AC') {
       setExpression('');
@@ -790,10 +790,10 @@ console.log('selectedPackage',selectedPackage)
         holidayCampPackage: plan.HolidayCampPackage,
         termsAndCondition: plan.termsAndCondition,
       }));
-      // console.log('cleanedPlans', cleanedPlans);
+      //// console.log('cleanedPlans', cleanedPlans);
       setSelectedPlans(cleanedPlans);
     } else {
-      // console.log('cleanedPlans not found');
+      //// console.log('cleanedPlans not found');
     }
   }, [singleClassSchedulesOnly]);
 
@@ -935,16 +935,16 @@ console.log('selectedPackage',selectedPackage)
       term.sessionsMap.map(s => s.sessionDate)
     )
   ) || [];
-  console.log('genralinfo', generalInfo)
+  // console.log('genralinfo', generalInfo)
 
-  // console.log('keyInfoData', keyInfoData)
+  //// console.log('keyInfoData', keyInfoData)
   const selectedLabel =
     keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
     "Key Information";
 
 
   const sessionDatesSet = new Set(sessionDates);
-  console.log('generalInfo', generalInfo)
+  // console.log('generalInfo', generalInfo)
 
 
   useEffect(() => {
@@ -962,7 +962,7 @@ console.log('selectedPackage',selectedPackage)
 
     hasInitialized.current = true; // ✅ mark as done
   }, [sessionDatesSet]);
-  console.log('admins', admins)
+  // console.log('admins', admins)
   const coachOptions = useMemo(
     () =>
       generalInfo.admins?.map((admin) => ({
@@ -974,36 +974,74 @@ console.log('selectedPackage',selectedPackage)
 
   // 2️⃣ Package options (filtered by selected coach)
   const packageOptions = useMemo(() => {
-    if (!selectedCoach) return [];
+    console.group("[useMemo] packageOptions");
+    console.log("dependencies:", { selectedCoach, numberOfStudents, paymentGroupsLength: paymentGroups?.length ?? 0 });
+
+    if (!selectedCoach) {
+      console.log("→ No selectedCoach, returning []");
+      console.groupEnd();
+      return [];
+    }
+
+    console.log("selectedCoach:", selectedCoach);
 
     const group = paymentGroups.find((g) => g.adminId === selectedCoach);
-    if (!group || !group.paymentPlans) return [];
+    if (!group) {
+      console.log("→ No group found for selectedCoach, returning []");
+      console.groupEnd();
+      return [];
+    }
+
+    console.log("Found group:", group);
+
+    if (!Array.isArray(group.paymentPlans) || group.paymentPlans.length === 0) {
+      console.log("→ group.paymentPlans empty or not an array, returning []");
+      console.groupEnd();
+      return [];
+    }
 
     // Filter by numberOfStudents if it's set
-    const filteredPlans = numberOfStudents
-      ? group.paymentPlans.filter((plan) => plan.students === Number(numberOfStudents))
-      : group.paymentPlans;
+    const studentsNum = numberOfStudents ? Number(numberOfStudents) : null;
+    console.log("numberOfStudents (raw):", numberOfStudents, "parsed:", studentsNum);
 
+     const filteredPlans = group.paymentPlans
+
+    // const filteredPlans = studentsNum
+    //   ? group.paymentPlans.filter((plan) => {
+    //     const match = plan.students === studentsNum;
+    //     console.log(`filter plan ${plan.id} (students=${plan.students}) => ${match}`);
+    //     return match;
+    //   })
+    //   : group.paymentPlans.slice();
+ 
     console.log("Filtered Payment Plans:", filteredPlans);
 
-    return filteredPlans.map((plan) => ({
-      value: plan.id,
-      label: plan.title,
-      id: plan.id,
-      title: plan.title,
-      price: plan.price,
-      interval: plan.interval,
-      students: plan.students,
-      duration: plan.duration,
-      priceLesson: plan.priceLesson,
-      joiningFee: plan.joiningFee,
-      holidayCampPackage: plan.HolidayCampPackage,
-      termsAndCondition: plan.termsAndCondition,
+    const mapped = filteredPlans.map((plan) => {
+      const result = {
+        value: plan.id,
+        label: plan.title,
+        id: plan.id,
+        title: plan.title,
+        price: plan.price,
+        interval: plan.interval,
+        students: plan.students,
+        duration: plan.duration,
+        priceLesson: plan.priceLesson,
+        joiningFee: plan.joiningFee,
+        holidayCampPackage: plan.HolidayCampPackage,
+        termsAndCondition: plan.termsAndCondition,
+      };
+      console.log("mapped plan:", plan.id, result);
+      return result;
+    });
 
-    }));
+    console.log("Final packageOptions:", mapped);
+    console.groupEnd();
+    return mapped;
   }, [selectedCoach, paymentGroups, numberOfStudents]);
 
-  console.log('packageOptions', packageOptions)
+
+  // console.log('packageOptions', packageOptions)
   // 3️⃣ Discount options
   const discountOptions = useMemo(
     () =>
@@ -1016,7 +1054,7 @@ console.log('selectedPackage',selectedPackage)
   );
   const selectedPackages = packageOptions.find(pkg => pkg.id === selectedPackage);
 
-  console.log('selectedPackages', selectedPackages)
+  // console.log('selectedPackages', selectedPackages)
 
   if (loading) return <Loader />;
 
@@ -1931,35 +1969,34 @@ console.log('selectedPackage',selectedPackage)
                 Cancel
               </button>
 
-<button
-  type="button"
-  onClick={() => {
-    if (!selectedPackage || !selectedDate) {
-      let msg = "";
-      if (!selectedPackage && !selectedDate) msg = "Please select Package and Date";
-      else if (!selectedPackage) msg = "Please select package";
-      else if (!selectedDate) msg = "Please select Date";
+              <button
+                type="button"
+                onClick={() => {
+                  if (!selectedPackage || !selectedDate) {
+                    let msg = "";
+                    if (!selectedPackage && !selectedDate) msg = "Please select Package and Date";
+                    else if (!selectedPackage) msg = "Please select package";
+                    else if (!selectedDate) msg = "Please select Date";
 
-      Swal.fire({
-        icon: "warning",
-        title: "Required Fields",
-        text: msg,
-      });
-      return;
-    }
+                    Swal.fire({
+                      icon: "warning",
+                      title: "Required Fields",
+                      text: msg,
+                    });
+                    return;
+                  }
 
-    // If both are selected, proceed
-    setShowPopup(true);
-  }}
-  disabled={isSubmitting || !selectedPackage || !selectedDate}
-  className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${
-    !isSubmitting && selectedPackage && selectedDate
-      ? "bg-[#237FEA] border border-[#237FEA]"
-      : "bg-gray-400 border-gray-400 cursor-not-allowed"
-  }`}
->
-  {isSubmitting ? "Submitting..." : "Make Payment"}
-</button>
+                  // If both are selected, proceed
+                  setShowPopup(true);
+                }}
+                disabled={isSubmitting || !selectedPackage || !selectedDate}
+                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${!isSubmitting && selectedPackage && selectedDate
+                    ? "bg-[#237FEA] border border-[#237FEA]"
+                    : "bg-gray-400 border-gray-400 cursor-not-allowed"
+                  }`}
+              >
+                {isSubmitting ? "Submitting..." : "Make Payment"}
+              </button>
 
 
             </div>
@@ -2101,50 +2138,49 @@ console.log('selectedPackage',selectedPackage)
                     </div>
 
 
-           
+
                   </div>
                   <div className="w-full mx-auto flex justify-center" >
-               <button
-  type="button"
-  disabled={
-    isSubmitting ||
-    !payment.expiryDate ||
-    !payment.securityCode ||
-    !payment.cardNumber ||
-    !payment.billingAddress
-  }
-  onClick={async () => {
-    if (
-      !payment.expiryDate ||
-      !payment.securityCode ||
-      !payment.cardNumber ||
-      !payment.billingAddress
-    ) {
-      return;
-    }
+                    <button
+                      type="button"
+                      disabled={
+                        isSubmitting ||
+                        !payment.expiryDate ||
+                        !payment.securityCode ||
+                        !payment.cardNumber ||
+                        !payment.billingAddress
+                      }
+                      onClick={async () => {
+                        if (
+                          !payment.expiryDate ||
+                          !payment.securityCode ||
+                          !payment.cardNumber ||
+                          !payment.billingAddress
+                        ) {
+                          return;
+                        }
 
-    setIsSubmitting(true);
-    try {
-      setDirectDebitData((prev) => [...prev, payment]);
-      setShowPopup(false);
-      await handleSubmit(payment);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }}
-  className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold transition-colors duration-200
-    ${
-      isSubmitting ||
-      !payment.expiryDate ||
-      !payment.securityCode ||
-      !payment.cardNumber ||
-      !payment.billingAddress
-        ? "bg-gray-400 cursor-not-allowed"
-        : "bg-[#237FEA] hover:bg-[#1a6edc] cursor-pointer"
-    }`}
->
-  {isSubmitting ? "Submitting..." : "Make Payment"}
-</button>
+                        setIsSubmitting(true);
+                        try {
+                          setDirectDebitData((prev) => [...prev, payment]);
+                          setShowPopup(false);
+                          await handleSubmit(payment);
+                        } finally {
+                          setIsSubmitting(false);
+                        }
+                      }}
+                      className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold transition-colors duration-200
+    ${isSubmitting ||
+                          !payment.expiryDate ||
+                          !payment.securityCode ||
+                          !payment.cardNumber ||
+                          !payment.billingAddress
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-[#237FEA] hover:bg-[#1a6edc] cursor-pointer"
+                        }`}
+                    >
+                      {isSubmitting ? "Submitting..." : "Make Payment"}
+                    </button>
 
 
                   </div>

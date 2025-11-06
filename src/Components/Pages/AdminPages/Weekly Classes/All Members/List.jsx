@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState ,useCallback} from 'react';
 import { FiSearch } from "react-icons/fi";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Select from "react-select";
@@ -12,6 +12,8 @@ import { saveAs } from 'file-saver';
 import StatsGrid from '../../Common/StatsGrid';
 import DynamicTable from '../../Common/DynamicTable';
 import { useBookFreeTrial } from '../../contexts/BookAFreeTrialContext';
+  import debounce from "lodash.debounce";
+
 const trialLists = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [fromDate, setFromDate] = useState(null);
@@ -307,13 +309,19 @@ const trialLists = () => {
 
 
 
-    const handleSearch = (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
 
-        // Fetch data with search value (debounce optional)
-        fetchBookMemberships(value);
-    };
+const handleSearch = useCallback(
+  debounce((value) => {
+    fetchBookMemberships(value);
+  }, 300), // waits 300ms after last keystroke
+  []
+);
+
+const onSearchChange = (e) => {
+  const value = e.target.value;
+  setSearchTerm(value);
+  handleSearch(value);
+};
 
     if (loading) return <Loader />;
     console.log('bookMembership', bookMembership)
@@ -354,16 +362,16 @@ const trialLists = () => {
         { header: "Membership Plan", render: (item) => item?.paymentPlan?.title },
         {
             header: "Life Cycle of membership",
-        render: (item) => {
-  const duration = item?.paymentPlan?.duration;
-  const interval = item?.paymentPlan?.interval;
+            render: (item) => {
+                const duration = item?.paymentPlan?.duration;
+                const interval = item?.paymentPlan?.interval;
 
-  // Check for null, undefined, empty, or invalid
-  if (!duration || !interval) return "N/A";
+                // Check for null, undefined, empty, or invalid
+                if (!duration || !interval) return "N/A";
 
-  // Otherwise return formatted text
-  return `${duration} ${interval}${duration > 1 ? "s" : ""}`;
-},
+                // Otherwise return formatted text
+                return `${duration} ${interval}${duration > 1 ? "s" : ""}`;
+            },
 
         },
         { header: "Status", render: (item) => getStatusBadge(item.status) },
@@ -412,7 +420,7 @@ const trialLists = () => {
                                     type="text"
                                     placeholder="Search by student name"
                                     value={searchTerm}
-                                    onChange={handleSearch}
+                                    onChange={onSearchChange}
                                     className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 pl-9 focus:outline-none"
                                 />
                                 <FiSearch className="absolute left-3 top-4 text-[20px]" />
@@ -561,16 +569,33 @@ const trialLists = () => {
                                                                 </svg>
                                                             )}
                                                         </span>
-                                                        <img
-                                                            src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/demo/synco/members/dummyuser.png"}
-                                                            alt={
-                                                                admin?.firstName || admin?.lastName
-                                                                    ? `${admin?.firstName ?? ""} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()
-                                                                    : "Unknown Admin"
-                                                            }
+                                                        {admin?.profile ? (
+                                                            <img
+                                                                src={`${API_BASE_URL}${admin.profile}`}
+                                                                alt={
+                                                                    admin?.firstName || admin?.lastName
+                                                                        ? `${admin?.firstName ?? ""} ${admin?.lastName && admin.lastName !== "null" ? admin.lastName : ""}`.trim()
+                                                                        : "Unknown Admin"
+                                                                }
+                                                                className="w-8 h-8 rounded-full object-cover"
+                                                                onError={(e) => {
+                                                                    e.target.onerror = null;
+                                                                    e.target.src = "/demo/synco/members/dummyuser.png";
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            // <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold">
+                                                            //     {(admin?.firstName?.[0] || admin?.lastName?.[0] || "U").toUpperCase()}
+                                                            // </div>
 
-                                                            className="w-8 h-8 rounded-full"
-                                                        />
+                                                            <img
+                                                                src="/demo/synco/members/dummyuser.png"
+                                                                alt="name"
+                                                                className="w-8 h-8 rounded-full object-cover"
+                                                                
+                                                            />
+                                                        )}
+
                                                         <span>
                                                             {admin?.firstName || admin?.lastName
                                                                 ? `${admin?.firstName ?? ""} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()

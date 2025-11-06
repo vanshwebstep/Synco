@@ -47,7 +47,7 @@ const ServiceHistory = ({ serviceHistory }) => {
     transactionId = payment?.gatewayResponse?.billing_requests?.id || "-";
   }
   return (
-    <div className="transition-all duration-300 flex-1 bg-white space-y-6">
+    <div className="transition-all duration-300 flex-1  bg-white space-y-6">
       <div className="rounded-3xl relative p-2 border border-[#D9D9D9] shadow-sm bg-white">
         {/* Header */}
         <div className="bg-[#2E2F3E] text-white p-4 rounded-2xl flex items-center justify-between text-sm">

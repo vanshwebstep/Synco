@@ -279,7 +279,7 @@ const ParentProfile = ({ profile }) => {
 
 
 
-    const paymentPlan = profile?.paymentPlan;
+    const paymentPlan = profile?.paymentPlans[0];
     // Access the first booking's venue name
     const venueName = profile?.venue?.name;
     const MembershipPlan = paymentPlan?.title;
@@ -475,7 +475,7 @@ const ParentProfile = ({ profile }) => {
     return (
         <>
             <div className="md:flex w-full gap-4">
-                <div className="transition-all duration-300 flex-1 ">
+                <div className="transition-all duration-300 flex-1 md:w-8/12 ">
                     <div className="space-y-6">
                         {parents.map((parent, index) => (
                             <div
@@ -740,7 +740,7 @@ const ParentProfile = ({ profile }) => {
                         )}
                     </div>
                 </div>
-                <div className="md:min-w-[508px] max-h-fit rounded-full md:max-w-[508px] text-base space-y-5">
+                <div className="max-h-fit rounded-full md:w-4/12 text-base space-y-5">
                     {/* Card Wrapper */}
                     <div className="rounded-3xl bg-[#363E49] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
@@ -799,7 +799,7 @@ const ParentProfile = ({ profile }) => {
                             <div className="space-y">
                                 <div>
                                     <div className="text-[20px] font-bold tracking-wide">Venue</div>
-                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
+                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md my-2">
                                         {venueName || "-"}
                                     </div>
                                 </div>

@@ -45,7 +45,7 @@ const Capacity = () => {
     const overview = capacityData?.overview || {};
     const { totalCapacity, totalBooked, occupancyRate } = overview;
 
-     console.log('capacityData', capacityData)
+    console.log('capacityData', capacityData)
 
 
 
@@ -65,7 +65,7 @@ const Capacity = () => {
         { label: "No Spaces", color: "#FE7058", borderColor: "#FE7058" },
     ];
     const handleVenueChange = (venues) => {
-         console.log("Selected venues:", venues);
+        console.log("Selected venues:", venues);
         setSelectedVenue(venues);
 
         // pass all selected venue names as array
@@ -75,16 +75,24 @@ const Capacity = () => {
     const applyFilter = () => {
         let forOtherDate = "";
 
+        // ✅ Check for partial date input
+        if ((fromDate && !toDate) || (!fromDate && toDate)) {
+            Swal.fire({
+                icon: "error",
+                title: "Missing Date",
+                text: "Please select both Start Date and End Date.",
+                confirmButtonColor: "#3085d6",
+            });
+            return; // Stop further execution
+        }
+
+        // ✅ Proceed if both dates are selected
         if (fromDate && toDate) {
             forOtherDate = [fromDate, toDate];
         }
 
-        fetchCapacitySearch(
-            "",
-            forOtherDate,
-        );
+        fetchCapacitySearch("", forOtherDate);
         setPopupOpen(false); // Close popup
-
     };
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
@@ -180,7 +188,7 @@ const Capacity = () => {
         setFromDate(null);// toggles between true and false
     };
     if (loading) return <Loader />;
-console.log('capacityData',capacityData)
+    console.log('capacityData', capacityData)
     return (
         <div>
 
@@ -309,7 +317,7 @@ console.log('capacityData',capacityData)
                                                     const isStartOrEnd = isStart || isEnd;
                                                     const isInBetween = date && isInRange(date);
                                                     const isExcluded = !date;
-                                                     console.log('isInBetween', isInBetween)
+                                                    console.log('isInBetween', isInBetween)
                                                     let className =
                                                         "w-full h-12 aspect-square flex items-center justify-center transition-all duration-200";
 
@@ -406,13 +414,13 @@ console.log('capacityData',capacityData)
                     </div>
                 </div>
             </div>
-            <div className="transition-all duration-300 flex-1  space-y-6">
+            <div className="transition-all duration-300 flex-1 md:w-8/12  space-y-6">
                 {searchLoading ? (
                     <div className="text-center py-6 text-gray-500">Loading venues...</div>
                 ) :
                     capacityData && capacityData.venues ? (
                         capacityData.venues.length > 0 ? (
-                            capacityData.venues.map((venue ) => {
+                            capacityData.venues.map((venue) => {
                                 const totalCapacity = venue.classes.reduce((sum, cls) => sum + cls.stats.totalCapacity, 0);
                                 const totalBooked = venue.classes.reduce((sum, cls) => sum + cls.stats.totalBooked, 0);
                                 const freeTrials = venue.classes.reduce((sum, cls) => sum + cls.stats.freeTrials, 0);
@@ -454,7 +462,7 @@ console.log('capacityData',capacityData)
                                                     <div className='overflow-x-auto custom-scrollbar'>
                                                         <div className='flex row gap-4 justify-start items-center'>
                                                             {venue.classes && venue.classes.length > 0 ? (
-                                                                venue.classes.map((cls , index) => {
+                                                                venue.classes.map((cls, index) => {
 
                                                                     const statsItems = [
                                                                         { label: "Total Students", color: "#F9FAFB", borderColor: "#ccc", value: cls.stats.totalBooked, textColor: "#414141" },
@@ -470,7 +478,7 @@ console.log('capacityData',capacityData)
                                                                         },
                                                                         { label: "No Spaces", color: "#FE7058", borderColor: "#FE7058", value: cls.stats.totalCapacity - cls.stats.totalBooked - cls.stats.availableSpaces, textColor: "#fff" },
                                                                     ];
-                                                                     console.log('statsItems', statsItems)
+                                                                    console.log('statsItems', statsItems)
                                                                     return (
                                                                         <div
                                                                             key={cls.id}
@@ -500,23 +508,23 @@ console.log('capacityData',capacityData)
 
                                                                                         return (
                                                                                             <div
-  key={idx}
-  className="w-10 h-10 rounded-md border flex items-center justify-center"
-  style={{
-    backgroundColor: item.color,
-    borderColor: item.borderColor,
-    color: item.textColor,
-    whiteSpace: "nowrap", // 🔹 Prevents wrapping
-    overflow: "hidden", // Optional: hides overflow if too long
-    textOverflow: "ellipsis", // Optional: adds "..." for long text
-  }}
-  title={`${item.label}: ${item.value}`}
->
-  <span className="text-[18px] font-semibold flex items-center justify-center gap-1">
-    {item.icon}
-    {displayValue}
-  </span>
-</div>
+                                                                                                key={idx}
+                                                                                                className="w-10 h-10 rounded-md border flex items-center justify-center"
+                                                                                                style={{
+                                                                                                    backgroundColor: item.color,
+                                                                                                    borderColor: item.borderColor,
+                                                                                                    color: item.textColor,
+                                                                                                    whiteSpace: "nowrap", // 🔹 Prevents wrapping
+                                                                                                    overflow: "hidden", // Optional: hides overflow if too long
+                                                                                                    textOverflow: "ellipsis", // Optional: adds "..." for long text
+                                                                                                }}
+                                                                                                title={`${item.label}: ${item.value}`}
+                                                                                            >
+                                                                                                <span className="text-[18px] font-semibold flex items-center justify-center gap-1">
+                                                                                                    {item.icon}
+                                                                                                    {displayValue}
+                                                                                                </span>
+                                                                                            </div>
 
                                                                                         );
                                                                                     })}
@@ -536,46 +544,46 @@ console.log('capacityData',capacityData)
 
                                                     </div>
                                                     <div className=' flex justify-end  '>
-                                                    <div className=" bg-[#F2ECE6] max-w-[255px]  border border-[#ccc] text-black rounded-3xl shadow-md px-6 py-4 flex items-center">
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[16px] font-semibold">Total</span>
-                                                            <span className="text-[14px] text-[#717073]">
-                                                                <span>{totalBooked} Booked </span>
-                                                                <br></br>
-                                                                <span>of {totalCapacity}  Spaces</span>
-                                                            </span>
-                                                        </div>
+                                                        <div className=" bg-[#F2ECE6] max-w-[255px]  border border-[#ccc] text-black rounded-3xl shadow-md px-6 py-4 flex items-center">
+                                                            <div className="flex flex-col">
+                                                                <span className="text-[16px] font-semibold">Total</span>
+                                                                <span className="text-[14px] text-[#717073]">
+                                                                    <span>{totalBooked} Booked </span>
+                                                                    <br></br>
+                                                                    <span>of {totalCapacity}  Spaces</span>
+                                                                </span>
+                                                            </div>
 
-                                                        <div className="ml-6 relative">
-                                                            <PieChart width={80} height={80}>
-                                                                <Pie
-                                                                    data={[
-                                                                        { value: totalBooked },
-                                                                        {
-                                                                            value:
-                                                                                totalCapacity -
-                                                                                totalBooked,
-                                                                        },
-                                                                    ]}
-                                                                    cx="50%"
-                                                                    cy="50%"
-                                                                    startAngle={90}
-                                                                    endAngle={-270}
-                                                                    innerRadius={32}
-                                                                    outerRadius={38}
-                                                                    dataKey="value"
-                                                                    stroke="none"
-                                                                >
-                                                                    {[0, 1].map((i) => (
-                                                                        <Cell key={i} fill={COLORS[i]} />
-                                                                    ))}
-                                                                </Pie>
-                                                            </PieChart>
-                                                            <span className="absolute inset-0 flex items-center justify-center text-[18px] font-semibold">
-                                                                {occupancyRate}%
-                                                            </span>
+                                                            <div className="ml-6 relative">
+                                                                <PieChart width={80} height={80}>
+                                                                    <Pie
+                                                                        data={[
+                                                                            { value: totalBooked },
+                                                                            {
+                                                                                value:
+                                                                                    totalCapacity -
+                                                                                    totalBooked,
+                                                                            },
+                                                                        ]}
+                                                                        cx="50%"
+                                                                        cy="50%"
+                                                                        startAngle={90}
+                                                                        endAngle={-270}
+                                                                        innerRadius={32}
+                                                                        outerRadius={38}
+                                                                        dataKey="value"
+                                                                        stroke="none"
+                                                                    >
+                                                                        {[0, 1].map((i) => (
+                                                                            <Cell key={i} fill={COLORS[i]} />
+                                                                        ))}
+                                                                    </Pie>
+                                                                </PieChart>
+                                                                <span className="absolute inset-0 flex items-center justify-center text-[18px] font-semibold">
+                                                                    {occupancyRate}%
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                    </div>
                                                     </div>
                                                 </div>
                                             </div>

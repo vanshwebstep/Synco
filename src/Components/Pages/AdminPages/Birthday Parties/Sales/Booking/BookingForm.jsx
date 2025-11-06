@@ -40,7 +40,7 @@ const BirthdayBookingForm = () => {
 
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { createBookMembership,createBookBirthday, createBookMembershipByfreeTrial } = useBookFreeTrial()
+  const { createBookMembership, createBookBirthday, createBookMembershipByfreeTrial } = useBookFreeTrial()
   const [expression, setExpression] = useState('');
   const [generalInfo, setGeneralInfo] = useState([]);
   const leadId = queryParams.get("leadId");
@@ -158,7 +158,7 @@ const BirthdayBookingForm = () => {
     authorise: false,
   });
 
-console.log("Payment data:", payment);
+  console.log("Payment data:", payment);
 
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
@@ -687,7 +687,7 @@ console.log("Payment data:", payment);
       coachId: selectedCoach,
       location: locationValue,
       address: address,
-      capacity:numberOfCapacity,
+      capacity: numberOfCapacity,
       date: selectedDate,
       time: time,
       totalStudents: students.length,
@@ -701,7 +701,7 @@ console.log("Payment data:", payment);
       ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
     };
     try {
-        await createBookBirthday(payload);
+      await createBookBirthday(payload);
 
       // console.log("Final Payload:", JSON.stringify(payload, null, 2));
       // Optionally show success alert or reset form
@@ -714,7 +714,7 @@ console.log("Payment data:", payment);
     // console.log("Final Payload:", JSON.stringify(payload, null, 2));
     // send to API with fetch/axios
   };
-console.log('selectedPackage',selectedPackage)
+  console.log('selectedPackage', selectedPackage)
   const handleClick = (val) => {
     if (val === 'AC') {
       setExpression('');
@@ -983,9 +983,11 @@ console.log('selectedPackage',selectedPackage)
     if (!group || !group.paymentPlans) return [];
 
     // Filter by numberOfStudents if it's set
-    const filteredPlans = numberOfStudents
-      ? group.paymentPlans.filter((plan) => plan.students === Number(numberOfStudents))
-      : group.paymentPlans;
+    // const filteredPlans = numberOfStudents
+    //   ? group.paymentPlans.filter((plan) => plan.students === Number(numberOfStudents))
+    //   : group.paymentPlans;
+
+    const filteredPlans = group.paymentPlans;
 
     console.log("Filtered Payment Plans:", filteredPlans);
 
@@ -1166,7 +1168,7 @@ console.log('selectedPackage',selectedPackage)
             <h2 className="text-[24px] font-semibold">General Information</h2>
             <div className="space-y-6">
               {/* 🔸 Location Input */}
-      
+
 
               {/* 🔸 Address Input */}
               <div className="">
@@ -1256,7 +1258,7 @@ console.log('selectedPackage',selectedPackage)
 
               </div>
             </div> */}
-             <div className="mb-5">
+            <div className="mb-5">
               <label htmlFor="" className="text-base font-semibold">Capacity</label>
               <div className="relative mt-2 ">
 
@@ -1265,7 +1267,7 @@ console.log('selectedPackage',selectedPackage)
                   value={numberOfCapacity}
                   onChange={(e) => {
                     const val = Number(e.target.value);
-                      setNumberOfCapacity(e.target.value);
+                    setNumberOfCapacity(e.target.value);
                   }}
                   placeholder="Choose number of students"
                   className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 focus:outline-none"
@@ -1917,35 +1919,34 @@ console.log('selectedPackage',selectedPackage)
                 Cancel
               </button>
 
-<button
-  type="button"
-  onClick={() => {
-    if (!selectedPackage || !selectedDate) {
-      let msg = "";
-      if (!selectedPackage && !selectedDate) msg = "Please select Package and Date";
-      else if (!selectedPackage) msg = "Please select package";
-      else if (!selectedDate) msg = "Please select Date";
+              <button
+                type="button"
+                onClick={() => {
+                  if (!selectedPackage || !selectedDate) {
+                    let msg = "";
+                    if (!selectedPackage && !selectedDate) msg = "Please select Package and Date";
+                    else if (!selectedPackage) msg = "Please select package";
+                    else if (!selectedDate) msg = "Please select Date";
 
-      Swal.fire({
-        icon: "warning",
-        title: "Required Fields",
-        text: msg,
-      });
-      return;
-    }
+                    Swal.fire({
+                      icon: "warning",
+                      title: "Required Fields",
+                      text: msg,
+                    });
+                    return;
+                  }
 
-    // If both are selected, proceed
-    setShowPopup(true);
-  }}
-  disabled={isSubmitting || !selectedPackage || !selectedDate}
-  className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${
-    !isSubmitting && selectedPackage && selectedDate
-      ? "bg-[#237FEA] border border-[#237FEA]"
-      : "bg-gray-400 border-gray-400 cursor-not-allowed"
-  }`}
->
-  {isSubmitting ? "Submitting..." : "Make Payment"}
-</button>
+                  // If both are selected, proceed
+                  setShowPopup(true);
+                }}
+                disabled={isSubmitting || !selectedPackage || !selectedDate}
+                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${!isSubmitting && selectedPackage && selectedDate
+                    ? "bg-[#237FEA] border border-[#237FEA]"
+                    : "bg-gray-400 border-gray-400 cursor-not-allowed"
+                  }`}
+              >
+                {isSubmitting ? "Submitting..." : "Make Payment"}
+              </button>
 
 
             </div>
@@ -2087,50 +2088,49 @@ console.log('selectedPackage',selectedPackage)
                     </div>
 
 
-           
+
                   </div>
                   <div className="w-full mx-auto flex justify-center" >
-               <button
-  type="button"
-  disabled={
-    isSubmitting ||
-    !payment.expiryDate ||
-    !payment.securityCode ||
-    !payment.cardNumber ||
-    !payment.billingAddress
-  }
-  onClick={async () => {
-    if (
-      !payment.expiryDate ||
-      !payment.securityCode ||
-      !payment.cardNumber ||
-      !payment.billingAddress
-    ) {
-      return;
-    }
+                    <button
+                      type="button"
+                      disabled={
+                        isSubmitting ||
+                        !payment.expiryDate ||
+                        !payment.securityCode ||
+                        !payment.cardNumber ||
+                        !payment.billingAddress
+                      }
+                      onClick={async () => {
+                        if (
+                          !payment.expiryDate ||
+                          !payment.securityCode ||
+                          !payment.cardNumber ||
+                          !payment.billingAddress
+                        ) {
+                          return;
+                        }
 
-    setIsSubmitting(true);
-    try {
-      setDirectDebitData((prev) => [...prev, payment]);
-      setShowPopup(false);
-      await handleSubmit(payment);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }}
-  className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold transition-colors duration-200
-    ${
-      isSubmitting ||
-      !payment.expiryDate ||
-      !payment.securityCode ||
-      !payment.cardNumber ||
-      !payment.billingAddress
-        ? "bg-gray-400 cursor-not-allowed"
-        : "bg-[#237FEA] hover:bg-[#1a6edc] cursor-pointer"
-    }`}
->
-  {isSubmitting ? "Submitting..." : "Make Payment"}
-</button>
+                        setIsSubmitting(true);
+                        try {
+                          setDirectDebitData((prev) => [...prev, payment]);
+                          setShowPopup(false);
+                          await handleSubmit(payment);
+                        } finally {
+                          setIsSubmitting(false);
+                        }
+                      }}
+                      className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold transition-colors duration-200
+    ${isSubmitting ||
+                          !payment.expiryDate ||
+                          !payment.securityCode ||
+                          !payment.cardNumber ||
+                          !payment.billingAddress
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-[#237FEA] hover:bg-[#1a6edc] cursor-pointer"
+                        }`}
+                    >
+                      {isSubmitting ? "Submitting..." : "Make Payment"}
+                    </button>
 
 
                   </div>

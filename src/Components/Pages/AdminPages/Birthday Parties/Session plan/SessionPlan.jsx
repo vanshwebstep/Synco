@@ -355,7 +355,7 @@ const handleDeleteGroup = async (groupId) => {
                                                         }`}
                                                 >
                                                     {/* Header */}
-                                                    <div className="flex items-center justify-between p-5">
+                                                    <div className="flex items-center justify-between p-3">
                                                         <h2 className="text-[20px] font-semibold text-[#282829]">
                                                             {group.groupName}
                                                         </h2>
@@ -389,7 +389,7 @@ const handleDeleteGroup = async (groupId) => {
                                                             Object.keys(group.levels).map((levelKey, i) => (
                                                                 <div
                                                                     key={i}
-                                                                    className="flex justify-between items-center bg-white border border-[#E2E1E5] rounded-2xl p-4 hover:shadow-sm transition"
+                                                                    className="flex justify-between items-center bg-white border border-[#E2E1E5] rounded-2xl p-2 hover:shadow-sm transition"
                                                                 >
                                                                     <div>
                                                                         <p className="font-semibold text-[#282829] capitalize">

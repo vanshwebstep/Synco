@@ -209,7 +209,7 @@ const ViewSessions = ({ item, sessionData }) => {
                 !data ? (
                     <div className="p-10 text-center text-gray-400">No data available.</div>
                 ) : (
-                    <div className="bg-white rounded-3xl shadow p-6 flex flex-col md:flex-row gap-6">
+                    <div className="bg-white rounded-3xl h-[95vh] shadow p-6 flex flex-col md:flex-row gap-6">
                         {/* Left Sidebar */}
                         <div
                             className={`

@@ -241,7 +241,7 @@ const ParentProfile = ({ ParentProfile }) => {
     return (
         <>
             <div className="md:flex w-full gap-4">
-                <div className="transition-all duration-300 flex-1 ">
+                <div className="transition-all duration-300 flex-1 md:w-8/12 ">
                     <div className="space-y-6">
                         {studentsList?.map((student, index) => (
                             <div
@@ -548,7 +548,7 @@ const ParentProfile = ({ ParentProfile }) => {
                         )}
                     </div>
                 </div>
-                <div className="md:min-w-[508px] max-h-fit rounded-full md:max-w-[508px] text-base space-y-5">
+                <div className="max-h-fit rounded-full md:w-4/12 text-base space-y-5">
                     {/* Card Wrapper */}
                     <div className="rounded-3xl bg-[#2E2F3E] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
@@ -611,7 +611,7 @@ const ParentProfile = ({ ParentProfile }) => {
                             <div className="space-y">
                                 <div>
                                     <div className="text-[20px] font-bold tracking-wide">Venue</div>
-                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
+                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md my-2">
                                         {classSchedule?.venue?.name || "-"}
                                     </div>
                                 </div>

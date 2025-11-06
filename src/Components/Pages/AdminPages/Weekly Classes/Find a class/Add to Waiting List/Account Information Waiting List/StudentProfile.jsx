@@ -36,7 +36,7 @@ const StudentProfile = ({ profile }) => {
     const [comment, setComment] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const commentsPerPage = 5; // Number of comments per page
-
+console.log('profile',profile)
     // Pagination calculations
     const indexOfLastComment = currentPage * commentsPerPage;
     const indexOfFirstComment = indexOfLastComment - commentsPerPage;
@@ -292,21 +292,19 @@ const StudentProfile = ({ profile }) => {
     const parents = profile.parents;
     const emergency = profile.emergency;
 
-    const paymentPlan = profile?.paymentPlan;
+    const paymentPlan = profile?.paymentPlans[0];
     // Access the first booking's venue name
     const venueName = profile?.venue?.name;
     const MembershipPlan = paymentPlan?.title;
     const MembershipPrice = paymentPlan?.price;
-    const duration = paymentPlan?.duration ?? 0;
-    let interval = paymentPlan?.interval ?? "";
-    if (duration > 1 && interval) {
-        interval += "s";
-    }
+    const duration = paymentPlan.duration ?? 0;
+    const interval = paymentPlan.interval ?? "";
+  console.log('duration',duration,interval)
     const MembershipTenure = duration && interval
         ? `${duration} ${interval}`
         : "";
 
-    const dateBooked = profile?.dateBooked;
+    const dateBooked = profile?.startDate;
     const status = profile?.status;
 
     // console.log('Venue Name:', profile.dateBooked);
@@ -435,7 +433,7 @@ const StudentProfile = ({ profile }) => {
     return (
         <>
             <div className="md:flex w-full gap-8">
-                <div className="transition-all duration-300 flex-1 ">
+                <div className="transition-all duration-300 flex-1 md:w-8/12 ">
                     <div className="space-y-6">
                         {students?.map((student, index) => (
                             <div
@@ -640,7 +638,7 @@ const StudentProfile = ({ profile }) => {
                         </div>
                     </div>
                 </div>
-                <div className="md:min-w-[508px] max-h-fit rounded-full md:max-w-[508px] text-base space-y-5">
+                <div className="max-h-fit rounded-full md:w-4/12 text-base space-y-5">
                     {/* Card Wrapper */}
                     <div className="rounded-3xl bg-[#363E49] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
@@ -699,7 +697,7 @@ const StudentProfile = ({ profile }) => {
                             <div className="space-y">
                                 <div>
                                     <div className="text-[20px] font-bold tracking-wide">Venue</div>
-                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md mt-1">
+                                    <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md my-2">
                                         {venueName || "-"}
                                     </div>
                                 </div>

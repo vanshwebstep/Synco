@@ -72,54 +72,52 @@ const CapacityDashboard = () => {
 
     const stats = [
         {
-            icon:"/demo/synco/reportsIcons/capacity.png",
+            icon: "/demo/synco/reportsIcons/capacity.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Total Capacity",
-            value: "3,200",
-            diff: "+12%",
-            sub: "vs. prev period ",
-            subvalue: '2,900'
+            value: membersData?.summary?.totalCapacity?.count ?? "—",
+            diff: membersData?.summary?.totalCapacity?.change ?? "—",
+            sub: "vs. prev period",
+            subvalue: membersData?.summary?.totalCapacity?.vsPrev ?? "—",
         },
         {
             icon: "/demo/synco/reportsIcons/Briefcase.png",
             iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
             title: "Occupancy",
-            value: "£67,000",
-            diff: "+8%",
+            value: membersData?.summary?.occupancy?.count ?? "—",
+            diff: membersData?.summary?.occupancy?.change ?? "—",
             sub: "vs. prev period",
-            subvalue: '£57,000'
+            subvalue: membersData?.summary?.occupancy?.vsPrev ?? "—",
         },
         {
             icon: "/demo/synco/reportsIcons/Chart1.png",
             iconStyle: "text-[#F38B4D] bg-[#F0F9F9]",
             title: "Occupancy Rate",
-            value: "£43.94",
-            diff: "+6%",
-            sub: "vs. prev period ",
-            subvalue: '£57,000'
+            value: membersData?.summary?.occupancyRate?.count ?? "—",
+            diff: membersData?.summary?.occupancyRate?.change ?? "—",
+            sub: "vs. prev period",
+            subvalue: membersData?.summary?.occupancyRate?.vsPrev ?? "—",
         },
         {
             icon: "/demo/synco/reportsIcons/unfilled.png",
             iconStyle: "text-[#6F65F1] bg-[#FFF5F5]",
             title: "Unfulfilled Spaces",
-            value: "18 months",
-            diff: "+6%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
+            value: membersData?.summary?.unfulfilledSpaces?.count ?? "—",
+            diff: membersData?.summary?.unfulfilledSpaces?.change ?? "—",
+            sub: "vs. prev period",
+            subvalue: membersData?.summary?.unfulfilledSpaces?.vsPrev ?? "—",
         },
         {
             icon: "/demo/synco/reportsIcons/Pound-main.png",
             iconStyle: "text-[#FF5353] bg-[#FEF6FB]",
             title: "Untapped Revenue",
-            value: "82",
-            diff: "+3%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
+            value: membersData?.summary?.untappedRevenue?.count ?? "—",
+            diff: membersData?.summary?.untappedRevenue?.change ?? "—",
+            sub: "vs. prev period",
+            subvalue: membersData?.summary?.untappedRevenue?.vsPrev ?? "—",
         },
-
     ];
 
-   
 
     const fetchData = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
@@ -127,7 +125,7 @@ const CapacityDashboard = () => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/sales`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/capacity`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -148,20 +146,6 @@ const CapacityDashboard = () => {
         fetchData();
     }, []);
 
-    const lineData = [
-        { month: "Jan", current: 380, previous: 300 },
-        { month: "Feb", current: 400, previous: 310 },
-        { month: "Mar", current: 450, previous: 320 },
-        { month: "Apr", current: 500, previous: 100 },
-        { month: "May", current: 600, previous: 140 },
-        { month: "Jun", current: 580, previous: 360 },
-        { month: "Jul", current: 620, previous: 370 },
-        { month: "Aug", current: 610, previous: 580 },
-        { month: "Sep", current: 630, previous: 390 },
-        { month: "Oct", current: 670, previous: 440 },
-        { month: "Nov", current: 690, previous: 410 },
-        { month: "Dec", current: 1120, previous: 420 },
-    ];
 
     const bookings =
         membersData?.yealyGrouped?.[2025]?.monthlyGrouped?.[10]?.bookings || [];
@@ -218,7 +202,38 @@ const CapacityDashboard = () => {
             paddingRight: "0.5rem",
         }),
     };
+    const mainData = membersData?.charts?.monthWise || [];
 
+    let highest = null;
+    let lowest = null;
+
+    if (Array.isArray(mainData) && mainData.length > 0) {
+        // Filter only items that have numeric counts (avoid null/undefined)
+        const validData = mainData.filter(
+            item => typeof item.currentYearCount === "number"
+        );
+
+        if (validData.length > 0) {
+            highest = validData.reduce((max, item) =>
+                item.currentYearCount > max.currentYearCount ? item : max
+            );
+
+            lowest = validData.reduce((min, item) =>
+                item.currentYearCount < min.currentYearCount ? item : min
+            );
+        }
+    }
+
+
+    const COLORS = ["#1D4ED8", "#93C5FD", "#60A5FA", "#2563EB", "#3B82F6"];
+
+    // Ensure we always have an array
+    const capacityData = Array.isArray(membersData?.capacityByClass)
+        ? membersData.capacityByClass
+        : [];
+
+    // Handle empty state
+    const isEmpty = capacityData.length === 0;
 
     if (loading) return (<><Loader /></>)
 
@@ -296,7 +311,7 @@ const CapacityDashboard = () => {
                         <div className="w-full h-[320px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart
-                                    data={lineData}
+                                    data={membersData?.charts?.monthWise}
                                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                                 >
 
@@ -336,31 +351,16 @@ const CapacityDashboard = () => {
                                         </linearGradient>
                                     </defs>
 
-
-                                    <Area
-                                        type="monotone"
-                                        dataKey="current"
-                                        stroke="none"
-                                        fill="url(#colorCurrent)"
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="previous"
-                                        stroke="none"
-                                        fill="url(#colorPrevious)"
-                                    />
-
-
                                     <Line
                                         type="monotone"
-                                        dataKey="current"
+                                        dataKey="currentYearCount"
                                         stroke="#3B82F6"
                                         strokeWidth={2.5}
                                         dot={false}
                                     />
                                     <Line
                                         type="monotone"
-                                        dataKey="previous"
+                                        dataKey="prevYearCount"
                                         stroke="#EC4899"
                                         strokeWidth={2.5}
                                         dot={false}
@@ -376,12 +376,12 @@ const CapacityDashboard = () => {
                                 Capacity by venue <EllipsisVertical />
                             </h2>
 
-                            {data.map((item, i) => (
+                            {membersData?.getCapacityByVenue?.map((item, i) => (
                                 <div key={i} className="mb-4">
                                     <div className="flex gap-5 items-center justify-between">
 
 
-                                        <p className="text-xs text-[#344054] w-[50px] font-semibold">{item.label}</p>
+                                        <p className="text-xs text-[#344054] w-[50px] font-semibold">{item.name}</p>
 
                                         <div className="w-full">
                                             <div className="flex justify-between items-center mb-1">
@@ -394,7 +394,7 @@ const CapacityDashboard = () => {
                                                         style={{ width: `${item.value}%` }}
                                                     ></div>
                                                 </div>
-                                                <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
+                                                <span className="text-xs text-[#344054] font-semibold">{item.percentage}%</span>
 
                                             </div></div>
                                     </div>
@@ -403,66 +403,72 @@ const CapacityDashboard = () => {
                             ))}
                         </div>
 
-                        <div className="bg-white rounded-2xl p-6">
 
+                        <div className="bg-white rounded-2xl p-6 shadow-sm">
+                            {/* Header */}
                             <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-gray-800 font-semibold text-[24px]">Membership plans</h2>
+                                <h2 className="text-gray-800 font-semibold text-[20px] md:text-[24px]">
+                                    Capacity By Class
+                                </h2>
                                 <EllipsisVertical className="text-gray-500" />
                             </div>
 
-                            <div className="flex flex-col md:flex-row justify-between md:items-center">
+                            {isEmpty ? (
+                                <div className="flex flex-col items-center justify-center py-10 text-gray-400 text-sm">
+                                    <span>No capacity data available</span>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col md:flex-row items-center justify-center">
+                                    {/* Donut Chart */}
+                                    <div className="w-[350px] h-[150px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie
+                                                    data={capacityData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={50}
+                                                    outerRadius={70}
+                                                    dataKey="usedCount"
+                                                    stroke="none"
+                                                    paddingAngle={2}
+                                                >
+                                                    {capacityData.map((entry, index) => (
+                                                        <Cell
+                                                            key={`cell-${index}`}
+                                                            fill={COLORS[index % COLORS.length]}
+                                                        />
+                                                    ))}
+                                                </Pie>
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </div>
 
-                                <div className="md:w-4/12 w-[180px] h-[180px] mx-auto md:mx-0">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={pieData}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={2}
-                                                dataKey="value"
+                                    {/* Legend */}
+                                    <div className="mt-4 md:mt-0 md:ml-6 space-y-2 w-full">
+                                        {capacityData.map((item, i) => (
+                                            <div
+                                                key={i}
+                                                className="flex justify-between items-center text-gray-700 text-sm"
                                             >
-                                                {pieData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                </div>
-
-
-                                <div className="md:w-8/12 mt-6 md:mt-0 md:ml-6 md:max-h-[100px] overflow-auto">
-                                    {pieData.map((item, i) => (
-                                        <div
-                                            key={i}
-                                            className="grid md:grid-cols-2 justify-between gap-3 lg:gap-7 items-center mb-2 text-sm text-gray-600"
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <span
-                                                    className="w-2 h-2 rounded-full"
-                                                    style={{ backgroundColor: item.color }}
-                                                ></span>
-                                                <span className="font-medium">{item.name}</span>
+                                                <div className="flex items-center space-x-2">
+                                                    <span
+                                                        className="w-2.5 h-2.5 rounded-full"
+                                                        style={{
+                                                            backgroundColor: COLORS[i % COLORS.length],
+                                                        }}
+                                                    ></span>
+                                                    <span>{item?.className || "Unknown"}</span>
+                                                </div>
+                                                <div className="flex items-center space-x-4 font-semibold text-gray-900">
+                                                    <span>{item?.percentageUsed ?? 0}</span>
+                                                    <span>{item?.usedCount ?? 0}</span>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-6 text-gray-800 font-semibold">
-                                                <span>{item.value}%</span>
-                                                <span>
-                                                    {i === 0
-                                                        ? "10,234"
-                                                        : i === 1
-                                                            ? "1,234"
-                                                            : "934"}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-
-
-
+                            )}
                         </div>
                     </div>
                 </div>
@@ -476,10 +482,10 @@ const CapacityDashboard = () => {
                             High Demand Venues <EllipsisVertical />
                         </h2>
 
-                        {data.map((item, i) => (
+                        {membersData?.highDemandVenue?.map((item, i) => (
                             <div key={i} className="mb-4">
                                 <div className="flex justify-between items-center mb-1">
-                                    <p className="text-xs text-[#344054] font-semibold">{item.label}</p>
+                                    <p className="text-xs text-[#344054] font-semibold">{item.name}</p>
 
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -487,10 +493,10 @@ const CapacityDashboard = () => {
                                     <div className="w-full bg-gray-100 h-2 rounded-full">
                                         <div
                                             className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                            style={{ width: `${item.value}%` }}
+                                            style={{ width: `${item?.count}%` }}
                                         ></div>
                                     </div>
-                                    <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
+                                    <span className="text-xs text-[#344054] font-semibold">{item?.percentage}%</span>
 
                                 </div>
                             </div>
@@ -510,7 +516,7 @@ const CapacityDashboard = () => {
                             </div>
                             <div>
                                 <p className="text-gray-600 font-medium text-sm">Higher demand</p>
-                                <p className="text-gray-900 font-semibold text-base">August</p>
+                                <p className="text-gray-900 font-semibold text-base">{highest?.month}</p>
                             </div>
                         </div>
 
@@ -522,7 +528,7 @@ const CapacityDashboard = () => {
                             </div>
                             <div>
                                 <p className="text-gray-600 font-medium text-sm">Lowest Demand</p>
-                                <p className="text-gray-900 font-semibold text-base">April</p>
+                                <p className="text-gray-900 font-semibold text-base">{lowest?.month}</p>
                             </div>
                         </div>
 

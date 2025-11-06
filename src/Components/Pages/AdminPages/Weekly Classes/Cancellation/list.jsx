@@ -20,7 +20,7 @@ const CancellationList = () => {
     const [toDate, setToDate] = useState(null);
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
     const [selectedStudents, setSelectedStudents] = useState([]);
-      const location = useLocation();
+    const location = useLocation();
 
     const [active, setActive] = useState("request"); // default selected
 
@@ -29,13 +29,13 @@ const CancellationList = () => {
         { key: "full", label: "Full Cancellation" },
         { key: "all", label: "All" },
     ];
-      useEffect(() => {
-    if (location.state === "fullCancellation") {
-      setActive("full");
-    } else if (location.state === "allCancellation") {
-      setActive("all");
-    }
-  }, [location.state]);
+    useEffect(() => {
+        if (location.state === "fullCancellation") {
+            setActive("full");
+        } else if (location.state === "allCancellation") {
+            setActive("all");
+        }
+    }, [location.state]);
 
     const { fetchFullCancellations, fetchRequestToCancellations, fetchAllCancellations, statsFreeTrial, bookFreeTrials, setSearchTerm, bookedByAdmin, searchTerm, loading, selectedVenue, setSelectedVenue, myVenues, sendRequestTomail, sendAllmail, sendFullTomail } = useBookFreeTrial() || {};
 
@@ -270,7 +270,15 @@ const CancellationList = () => {
 
         const bookedDatesChecked = checkedStatuses.dateBooked;
         const trialDatesChecked = checkedStatuses.dateOfTrial;
-
+        if ((fromDate && !toDate) || (!fromDate && toDate)) {
+            Swal.fire({
+                icon: "error",
+                title: "Missing Date",
+                text: "Please select both Start Date and End Date.",
+                confirmButtonColor: "#3085d6",
+            });
+            return; // Stop further execution
+        }
         if (fromDate && toDate) {
             if (bookedDatesChecked) {
                 forDateOkBookingTrial = [fromDate, toDate];
@@ -628,7 +636,7 @@ const CancellationList = () => {
                                             navigate("/weekly-classes/cancellation/account-info/list", {
                                                 state: {
                                                     itemId: item.id || item.bookingId,
-                                                    cancelType:active,
+                                                    cancelType: active,
                                                 },
                                             })
                                         : undefined

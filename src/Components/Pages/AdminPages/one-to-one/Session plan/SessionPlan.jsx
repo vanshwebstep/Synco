@@ -309,7 +309,7 @@ const SessionPlan = () => {
                             return (
                                 <div key={index} className="bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl w-full  h-auto">
                                     {/* Header */}
-                                    <div className="flex items-center justify-between p-5">
+                                    <div className="flex items-center justify-between p-3">
                                         <h2 className="text-[24px] font-semibold text-[#282829]">{group.groupName}</h2>
                                         <div className="flex items-center gap-2">
                                             <button
@@ -347,7 +347,7 @@ const SessionPlan = () => {
                                         {groupsToShow.map((groups, index) => (
                                             <div
                                                 key={index}
-                                                className="flex justify-between items-center bg-white border border-[#E2E1E5] rounded-2xl p-4 hover:shadow-md transition-all"
+                                                className="flex justify-between items-center bg-white border border-[#E2E1E5] rounded-2xl p-4 py-3 hover:shadow-md transition-all"
                                             >
                                                 <div>
                                                     <p className="font-semibold text-[#282829]">{groups.title}</p>

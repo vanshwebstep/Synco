@@ -446,7 +446,7 @@ const ParentProfile = ({ profile }) => {
     return (
         <>
             <div className="md:flex w-full gap-4">
-                <div className="transition-all duration-300 flex-1 ">
+                <div className="transition-all md:w-8/12 duration-300 flex-1 ">
 
                     <div className="space-y-6">
 
@@ -645,7 +645,7 @@ const ParentProfile = ({ profile }) => {
                         )}
                     </div>
                 </div>
-                <div className="md:min-w-[508px] max-h-fit rounded-full md:max-w-[508px] text-base space-y-5">
+                <div className="md:w-4/12 max-h-fit rounded-full  text-base space-y-5">
                     {/* Card Wrapper */}
                     <div className="rounded-3xl bg-[#363E49] overflow-hidden shadow-md border border-gray-200">
                         {/* Header */}
@@ -895,14 +895,7 @@ const ParentProfile = ({ profile }) => {
                                         <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
                                     </button>
                                 </div>
-                                {(status === "frozen" || status === "cancelled") && canRebooking && (
-                                    <button
-                                        onClick={() => setReactivateMembership(true)}
-                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
-                                    >
-                                        Reactivate Membership
-                                    </button>
-                                )}
+                             
 
                                 {(status === "active" || status === "frozen" || status === "cancelled") && (
                                     <button
