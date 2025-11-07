@@ -77,45 +77,64 @@ const SalesDashboard = () => {
             source = "",
             location = "",
             statusFilters = {},
-            dateRange
-
+            dateRange,
+            fromDateToSend,
+            toDateToSend,statusData
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
 
+         
+
             try {
                 const queryParams = new URLSearchParams();
+
+                // 🧩 Status filters
                 Object.entries(statusFilters).forEach(([key, value]) => {
-                    if (value) queryParams.append("type", key);
-                });
-                if (Array.isArray(dateRange) && dateRange.length === 2) {
-                    const [from, to] = dateRange;
-                    if (from && to) {
-                        queryParams.append("fromDate", formatLocalDate(from));
-                        queryParams.append("toDate", formatLocalDate(to));
+                    if (value) {
+                        if (key === "gold" || key === "silver") {
+                            queryParams.append("packageInterest", key);
+                        } else {
+                            queryParams.append("type", key);
+                        }
                     }
+                });
+                // 📅 Date filters
+                if (fromDateToSend && toDateToSend) {
+                    queryParams.append("fromDate", fromDateToSend);
+                    queryParams.append("toDate", toDateToSend);
                 }
 
-                // ✅ Add only if non-empty and string
-                if (typeof studentName === "string" && studentName.trim())
+                if (statusData?.partyDate) {
+                    queryParams.append("partyData", 'partyDate');
+                }
+                // 👩‍🎓 Student name
+                if (typeof studentName === "string" && studentName.trim()) {
                     queryParams.append("studentName", studentName.trim());
+                }
 
-                if (typeof packageIntrest === "string" && packageIntrest.trim())
+                // 🎁 Package Interest
+                if (typeof packageIntrest === "string" && packageIntrest.trim()) {
                     queryParams.append("packageInterest", packageIntrest.trim());
-                else if (Array.isArray(packageIntrest) && packageIntrest.length > 0)
+                } else if (Array.isArray(packageIntrest) && packageIntrest.length > 0) {
                     queryParams.append("packageInterest", packageIntrest.join(","));
+                }
 
-                if (typeof source === "string" && source.trim())
+                // 🌐 Source
+                if (typeof source === "string" && source.trim()) {
                     queryParams.append("source", source.trim());
-                else if (Array.isArray(source) && source.length > 0)
+                } else if (Array.isArray(source) && source.length > 0) {
                     queryParams.append("source", source.join(","));
+                }
 
-                if (typeof location === "string" && location.trim())
+                // 📍 Location
+                if (typeof location === "string" && location.trim()) {
                     queryParams.append("location", location.trim());
-                else if (Array.isArray(location) && location.length > 0)
+                } else if (Array.isArray(location) && location.length > 0) {
                     queryParams.append("location", location.join(","));
+                }
 
-                // ✅ Date range
+                // 🗓 forOtherDate range
                 if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
                     const [from, to] = forOtherDate;
                     if (from && to) {
@@ -124,7 +143,7 @@ const SalesDashboard = () => {
                     }
                 }
 
-                // ✅ Agents
+                // 🧑‍💼 Booked By (agents)
                 if (Array.isArray(BookedBy) && BookedBy.length > 0) {
                     BookedBy.forEach((agent) => {
                         const agentId = typeof agent === "object" ? agent.id : agent;
@@ -132,7 +151,7 @@ const SalesDashboard = () => {
                     });
                 }
 
-                // ✅ Coaches
+                // 🧑‍🏫 Coach By (coaches)
                 if (Array.isArray(CoachBy) && CoachBy.length > 0) {
                     CoachBy.forEach((coach) => {
                         const coachId = typeof coach === "object" ? coach.id : coach;
@@ -140,29 +159,43 @@ const SalesDashboard = () => {
                     });
                 }
 
-                // 🚫 Removed all “type” parameters
+                // 🔗 Build final URL
                 const queryString = queryParams.toString();
-                const url = `${API_BASE_URL}/api/admin/birthday-party/sales/list${queryString ? `?${queryString}` : ""}`;
+                const url = `${API_BASE_URL}/api/admin/birthday-party/sales/list${queryString ? `?${queryString}` : ""
+                    }`;
 
-                console.log("✅ Clean Fetch URL:", url);
-
+                // 🌍 Fetch call
                 const response = await fetch(url, {
                     method: "GET",
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
+
                 const resultRaw = await response.json();
-                setMyVenues(resultRaw.locations)
-                if (resultRaw.agentList) setAgentList(resultRaw.agentList);
-                if (resultRaw.coachList) setCoachList(resultRaw.coachList);
+
+                // 🧭 State updates
+                if (resultRaw.locations) {
+                    setMyVenues(resultRaw.locations);
+                }
+
+                if (resultRaw.agentList) {
+                    setAgentList(resultRaw.agentList);
+                }
+
+                if (resultRaw.coachList) {
+                    setCoachList(resultRaw.coachList);
+                }
+
                 setLeadsData(resultRaw.data || []);
+
                 setSummary(resultRaw.summary);
             } catch (error) {
-                console.error("Failed to fetch bookFreeTrials:", error);
+              
             }
         },
         []
     );
+
 
 
 
@@ -181,7 +214,6 @@ const SalesDashboard = () => {
     }, [fetchLeads]);
 
 
-    console.log('summary', summary)
     const sources = summary?.sourceOfBookings;
 
     // Determine finalSource based on conditions
@@ -224,7 +256,6 @@ const SalesDashboard = () => {
                 (agent) => `${agent.id}`
             );
             setSavedAgent(selectedNames); // ✅ saves full names as strings
-            console.log("selectedNames", tempSelectedAgents);
         } else {
             setSavedAgent([]); // nothing selected → clear
         }
@@ -232,7 +263,6 @@ const SalesDashboard = () => {
     };
     const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('formData', formData)
         // 🔍 Validate required fields (example)
         if (
             !formData.parentName ||
@@ -269,12 +299,11 @@ const SalesDashboard = () => {
         }
 
 
-        console.log("Submitting lead:", formData);
 
         setLoading(true); // 🌀 optional loader state
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/leads/create`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/leads/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -325,18 +354,7 @@ const SalesDashboard = () => {
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [currentDate, setCurrentDate] = useState(new Date());
 
-    const leadsDatas = Array(10).fill({
-        id: 1,
-        parent: "Tom Jones",
-        child: "Steve Jones",
-        age: 10,
-        postCode: "W14 9EB",
-        package: "Gold",
-        availability: "Weekends",
-        source: "Referral",
-        status: "Package",
-    });
-    console.log('leadsData', leadsData)
+  
     const toggleCheckbox = (userId) => {
         setSelectedUserIds((prev) =>
             prev.includes(userId)
@@ -420,7 +438,6 @@ const SalesDashboard = () => {
     // Normalize to array
     const leadsArray = Array.isArray(leadsData) ? leadsData : [];
     // Extract unique creators
-    console.log('leadsArray', leadsData)
     // Extract unique creators (booked by admins)
     const bookedByAdmin = Array.from(
         new Map(
@@ -506,13 +523,15 @@ const SalesDashboard = () => {
 
         const usePartyDate = checkedStatuses.partyDate;
 
+        const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
+        const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
         const dateRange = usePartyDate ? range : [];
 
         fetchLeads(
             "",
             checkedStatuses.package,
-            checkedStatuses.dateOfParty,
             checkedStatuses.source,
+            checkedStatuses.dateOfParty,
             [],
             bookedByParams,
             coachByParams,
@@ -521,8 +540,14 @@ const SalesDashboard = () => {
             selectedVenue,
             statusFilters,
             dateRange,
+            fromDateToSend,
+            toDateToSend,
+            checkedStatuses
 
         );
+
+        setFromDate('');
+        setToDate('');
     };
 
 
@@ -613,7 +638,6 @@ const SalesDashboard = () => {
     );
 
 
-    console.log('bookedByAdmin', bookedByAdmin)
     // Prepare calendar cells
     const daysArray = [];
     for (let i = 0; i < firstDay; i++) daysArray.push(null);
@@ -641,11 +665,33 @@ const SalesDashboard = () => {
             selectedVenueParam
         );
     }, [selectedVenue]);
+
+    const handleClearFilters = () => {
+        fetchLeads();
+    }
     if (mainLoading) {
         return (
             <>
                 <Loader />
             </>
+        )
+    }
+
+    if (leadsData.length == 0) {
+        return (
+            <div className="flex flex-col items-center justify-center py-10 text-gray-600">
+                <p className="text-lg font-medium mb-3">😕 No Data Found</p>
+                <p className="text-sm text-gray-400 mb-5">
+                    Try adjusting your filters or search criteria.
+                </p>
+                <button
+                    onClick={handleClearFilters} // ✅ your reset logic
+                    className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-md transition-all duration-200"
+                >
+                    Clear Filters
+                </button>
+            </div>
+
         )
     }
     return (
@@ -714,7 +760,7 @@ const SalesDashboard = () => {
                                         return (
                                             <tr
                                                 key={i}
-                                                onClick={() => navigate(`/one-to-one/sales/account-information?id=${lead.id}`)}
+                                                onClick={() => navigate(`/birthday-party/sales/account-information?id=${lead.id}`)}
                                                 className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
                                             >
                                                 <td className="py-3 px-4 whitespace-nowrap font-semibold">

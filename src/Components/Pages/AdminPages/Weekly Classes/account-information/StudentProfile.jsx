@@ -11,7 +11,7 @@ import { FaSave, FaEdit } from "react-icons/fa";
 const StudentProfile = () => {
   const [editStudent, setEditStudent] = useState({});
 
-  const { students, setStudents, handleUpdate, mainId } = useAccountsInfo();
+  const { students, setStudents, handleUpdateAcountInfo, mainId } = useAccountsInfo();
   console.log('students', students)
 
   const [showModal, setShowModal] = useState(false);
@@ -72,7 +72,7 @@ const handleAddStudent = () => {
   setStudents(updatedStudents);
 
   // Call API update
-  handleUpdate('students', updatedStudents);
+  handleUpdateAcountInfo('students', updatedStudents);
 
   // Reset modal
   setShowModal(false);
@@ -94,7 +94,7 @@ const handleAddStudent = () => {
   };
 
   const handleEditStudents = () => {
-    handleUpdate('students', students)
+    handleUpdateAcountInfo('students', students)
   }
 
   return (

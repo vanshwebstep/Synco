@@ -41,34 +41,35 @@ const Cards = () => {
         },
     ];
 
+
     const summaryCards2 = [
         {
             icon: PiUsersThreeBold,
             iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]",
             title: "Total Referrals",
-            value: 945 ?? "_",
-            change: "+28.14%" ?? "_",
+            value: analytics?.totalLeads?.count ?? "_",
+            change: analytics?.totalLeads?.conversion ?? "_",
         },
         {
             icon: UserRoundPlus,
             iconStyle: "text-[#099699] bg-[#E0F7F7]",
             title: "New Referrals",
-            value: 245 ?? "_",
-            change: "+12.47%" ?? "_",
+            value: analytics?.newLeads?.count ?? "_",
+            change: analytics?.newLeads?.conversion ?? "_",
         },
         {
             icon: LogIn,
             iconStyle: "text-[#F38B4D] bg-[#FFF2E8]",
             title: "Referrals to Trials",
-            value: 120 ?? "_",
-            change: "+9.31%" ?? "_",
+            value: analytics?.leadsToTrials?.count ?? "_",
+            change: analytics?.leadsToTrials?.conversion ?? "_",
         },
         {
             icon: CirclePoundSterling,
             iconStyle: "text-[#6F65F1] bg-[#E9E8FF]",
             title: "Referrals to Sales",
-            value: 120 ?? "_",
-            change: "+9.31%" ?? "_",
+            value: analytics?.leadsToSales?.count ?? "_",
+            change: analytics?.leadsToSales?.conversion ?? "_",
         },
     ];
 

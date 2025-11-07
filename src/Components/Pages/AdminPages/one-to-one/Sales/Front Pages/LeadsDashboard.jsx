@@ -544,10 +544,24 @@ const LeadsDashboard = () => {
                     return (
                       <tr
                         key={i}
-                        onClick={() =>
+
+                        onClick={() => {
+                          if (lead?.booking) {
+                            Swal.fire({
+                              title: "Already Booked",
+                              text: "This lead has already been booked.",
+                              icon: "info",
+                              confirmButtonText: "OK",
+                              confirmButtonColor: "#3085d6",
+                            });
+                            return;
+                          }
+
                           navigate(`/one-to-one/leads/booking-form?leadId=${lead.id}`)
-                        }
-                        className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
+                        }}
+
+                        className={` border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer ${lead?.booking ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+                          }`}
                       >
                         <td className="py-3 px-4 whitespace-nowrap font-semibold">
                           <div className="flex items-center gap-3">

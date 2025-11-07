@@ -16,6 +16,164 @@ export const AccountsInfoProvider = ({ children }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const handleUpdate = async (title, mainData) => {
+    if (!token) return Swal.fire("Error", "Token not found. Please login again.", "error");
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", `Bearer ${token}`);
+    let raw;
+    if (title == "students") {
+      raw = JSON.stringify({
+        'student': mainData,
+      });
+
+    }
+    if (title == "parents") {
+      raw = JSON.stringify({
+        'parentDetails': mainData,
+      });
+
+    }
+    if (title == "emergency") {
+      raw = JSON.stringify({
+        'emergencyDetails': mainData,
+      });
+
+    }
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    try {
+      // Show loading
+      Swal.fire({
+        title: "Updating...",
+        text: "Please wait while we save changes.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/booking/update/${data.id}`, requestOptions);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Something went wrong");
+      }
+
+      const result = await response.json();
+
+      // Close loading
+      Swal.close();
+
+      // Show success
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Student information has been successfully updated.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      fetchOneToOneMembers(data.id);
+
+      console.log("Update Result:", result);
+      return result;
+    } catch (error) {
+      Swal.close();
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed!",
+        text: error.message || "Something went wrong while updating.",
+      });
+    }
+  };
+  const handleUpdateAcountInfo = async (title, mainData) => {
+    if (!token) return Swal.fire("Error", "Token not found. Please login again.", "error");
+
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", `Bearer ${token}`);
+    let raw;
+    if (title == "students") {
+      raw = JSON.stringify({
+        bookingTrialId: data.id,
+        'students': mainData,
+      });
+
+    }
+    if (title == "parents") {
+      raw = JSON.stringify({
+        bookingTrialId: data.id,
+
+        'parents': mainData,
+      });
+
+    }
+    if (title == "emergency") {
+      raw = JSON.stringify({
+        bookingTrialId: data.id,
+        'emergency': mainData,
+      });
+
+    }
+
+
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    try {
+      // Show loading
+      Swal.fire({
+        title: "Updating...",
+        text: "Please wait while we save changes.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/account-information/${mainId}`, requestOptions);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Something went wrong");
+      }
+
+      const result = await response.json();
+
+      // Close loading
+      Swal.close();
+
+      // Show success
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Student information has been successfully updated.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      fetchMembers(mainId);
+      console.log("Update Result:", result);
+      return result;
+    } catch (error) {
+      Swal.close();
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed!",
+        text: error.message || "Something went wrong while updating.",
+      });
+    }
+  };
+  const handleUpdateBirthday = async (title, mainData) => {
 
     if (!token) return Swal.fire("Error", "Token not found. Please login again.", "error");
     console.log('mainData', mainData)
@@ -62,7 +220,7 @@ export const AccountsInfoProvider = ({ children }) => {
         },
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/booking/update/${data.id}`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/booking/update/${data.id}`, requestOptions);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -82,8 +240,7 @@ export const AccountsInfoProvider = ({ children }) => {
         timer: 2000,
         showConfirmButton: false,
       });
-      fetchOneToOneMembers(data.id);
-      console.log("Update Result:", result);
+      fetchBirthdyPartiesMembers(data.id);
       return result;
     } catch (error) {
       Swal.close();
@@ -167,9 +324,56 @@ export const AccountsInfoProvider = ({ children }) => {
       const result = resultRaw.data || [];
 
       setData(result || []);
-      setStudents(result.booking.students || []);
-      setFormData(result.booking.parents || []);
-      setEmergency(result.booking.emergency || []);
+
+      setStudents(result?.booking?.students || []);
+      setFormData(result?.booking?.parents || []);
+      setEmergency(result?.booking?.emergency || []);
+
+    } catch (error) {
+      console.error("Failed to fetch members:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Fetch Failed",
+        text: error.message || "Something went wrong while fetching account information.",
+        confirmButtonText: "Ok",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [API_BASE_URL]);
+  const fetchBirthdyPartiesMembers = useCallback(async (id) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/leads/list/${id}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const resultRaw = await response.json();
+
+      // Check API response status
+      if (!resultRaw.status) {
+        Swal.fire({
+          icon: "error",
+          title: "Fetch Failed",
+          text: resultRaw.message || "Something went wrong while fetching account information.",
+          confirmButtonText: "Ok",
+        });
+        return; // Stop further execution
+      }
+
+      const result = resultRaw.data || [];
+
+      setData(result || []);
+
+      setStudents(result?.booking?.students || []);
+      setFormData(result?.booking?.parents || []);
+      setEmergency(result?.booking?.emergency || []);
+
     } catch (error) {
       console.error("Failed to fetch members:", error);
 
@@ -232,7 +436,7 @@ export const AccountsInfoProvider = ({ children }) => {
       setLoading(false);
     }
   };
-    const sendBirthdayMail = async (bookingIds) => {
+  const sendBirthdayMail = async (bookingIds) => {
     setLoading(true);
 
     const headers = {
@@ -281,7 +485,7 @@ export const AccountsInfoProvider = ({ children }) => {
     }
   };
   return (
-    <AccountsInfoContext.Provider value={{ data, sendOnetoOneMail,sendBirthdayMail, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
+    <AccountsInfoContext.Provider value={{ data, handleUpdateAcountInfo, sendOnetoOneMail, sendBirthdayMail, handleUpdateBirthday, fetchBirthdyPartiesMembers, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
       {children}
     </AccountsInfoContext.Provider>
   );

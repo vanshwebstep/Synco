@@ -30,7 +30,7 @@ const AllDashboard = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
     const [isOpen, setIsOpen] = useState(false);
-          const { sendOnetoOneMail } = useAccountsInfo();
+    const { sendOnetoOneMail } = useAccountsInfo();
     const [loading, setLoading] = useState(false);
     const [mainLoading, setMainLoading] = useState(false);
     const [leadsData, setLeadsData] = useState([]);
@@ -75,7 +75,9 @@ const AllDashboard = () => {
             CoachBy = [],
             packageIntrest = "",
             source = "",
-            location = ""
+            location = "",
+            toDateToSend,
+            fromDateToSend,
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
@@ -86,6 +88,8 @@ const AllDashboard = () => {
                 // ✅ Add only if non-empty and string
                 if (typeof studentName === "string" && studentName.trim())
                     queryParams.append("studentName", studentName.trim());
+
+
 
                 if (typeof packageIntrest === "string" && packageIntrest.trim())
                     queryParams.append("packageInterest", packageIntrest.trim());
@@ -111,6 +115,11 @@ const AllDashboard = () => {
                     }
                 }
 
+                if (fromDateToSend && toDateToSend) {
+                    queryParams.append("fromDate", fromDateToSend);
+                    queryParams.append("toDate", toDateToSend);
+                }
+
                 // ✅ Agents
                 if (Array.isArray(BookedBy) && BookedBy.length > 0) {
                     BookedBy.forEach((agent) => {
@@ -129,7 +138,7 @@ const AllDashboard = () => {
 
                 // 🚫 Removed all “type” parameters
                 const queryString = queryParams.toString();
-                const url = `${API_BASE_URL}/api/admin/one-to-one/all/list${queryString ? `?${queryString}` : ""}`;
+                const url = `${API_BASE_URL}/api/admin/birthday-party/all/list${queryString ? `?${queryString}` : ""}`;
 
                 console.log("✅ Clean Fetch URL:", url);
 
@@ -139,7 +148,7 @@ const AllDashboard = () => {
                 });
 
                 const resultRaw = await response.json();
-                setMyVenues(resultRaw.locations)
+                setMyVenues(resultRaw?.locations)
                 if (resultRaw.agentList) setAgentList(resultRaw.agentList);
                 if (resultRaw.coachList) setCoachList(resultRaw.coachList);
                 setLeadsData(resultRaw.data || []);
@@ -190,7 +199,7 @@ const AllDashboard = () => {
         { icon: CircleDollarSign, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: "+28.14%" },
         { icon: CirclePoundSterling, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: '£20.000', change: "+12.47%" },
         { icon: PiUsersThreeBold, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: '£20.000', change: "+9.31%" },
-        { icon: FiUsers, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent",  value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
+        { icon: FiUsers, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
     ]
     const [formData, setFormData] = useState({
         parentName: "",
@@ -261,7 +270,7 @@ const AllDashboard = () => {
         setLoading(true); // 🌀 optional loader state
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/leads/create`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/leads/create`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -476,9 +485,13 @@ const AllDashboard = () => {
         }
     };
     const applyFilter = () => {
+
+        const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+        const hasRange = isValidDate(fromDate) && isValidDate(toDate);
         const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
         const coachByParams = Array.isArray(savedCoach) ? savedCoach : [];
-
+        const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
+        const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
         fetchLeads(
             "",
             checkedStatuses.package,
@@ -489,7 +502,9 @@ const AllDashboard = () => {
             coachByParams,
             selectedPackages,
             selectedSources,
-            selectedLocation
+            selectedLocation,
+            fromDateToSend,
+            toDateToSend
         );
     };
 
@@ -665,7 +680,7 @@ const AllDashboard = () => {
                                             <tr
                                                 key={i}
                                                 onClick={() => {
-                                                    if (hasId) navigate(`/one-to-one/sales/account-information?id=${lead.id}`);
+                                                    if (hasId) navigate(`/birthday-party/sales/account-information?id=${lead.id}`);
                                                 }}
                                                 className={`border-b border-[#EFEEF2] hover:bg-gray-50 transition ${hasId ? "cursor-pointer" : ""
                                                     }`}
@@ -695,7 +710,16 @@ const AllDashboard = () => {
                                                 <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
                                                 <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.paymentPlan?.price || "N/A"}</td>
                                                 <td className="py-3 px-4 whitespace-nowrap">{lead.source || "N/A"}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.coachId || "N/A"}</td>
+                                                <td className="py-3 px-4 whitespace-nowrap">
+
+
+
+                                                    {lead?.booking?.coach?.firstName ? (
+                                                        lead?.booking?.coach?.firstName + " " + lead?.booking?.coach?.lastName 
+                                                    ):(
+                                                       <td>N/A</td>
+
+                                                    )}</td>
                                                 <td className="py-3 px-4 whitespace-nowrap">
                                                     <span className="bg-green-50 text-green-400 semibold capitalize px-7 py-2 rounded-xl text-xs font-medium">
                                                         {lead.status || "N/A"}
@@ -733,7 +757,7 @@ const AllDashboard = () => {
                             <label htmlFor="" className="text-base font-semibold">Venue</label>
                             <div className="relative mt-2 ">
                                 <Select
-                                    options={myVenues.map((venue) => ({
+                                    options={myVenues?.map((venue) => ({
                                         label: venue, // or `${venue.name} (${venue.area})`
                                         value: venue,
                                     }))}
@@ -866,7 +890,7 @@ const AllDashboard = () => {
                                                 {coachList.map((coach) => {
                                                     const isSelected = savedCoach.some((c) => c.id === coach.id);
                                                     return (
-                                                        <label key={coach.id} className="flex items-center gap-2">
+                                                        <label key={coach.name} className="flex items-center gap-2">
                                                             <input
                                                                 type="checkbox"
                                                                 checked={isSelected}

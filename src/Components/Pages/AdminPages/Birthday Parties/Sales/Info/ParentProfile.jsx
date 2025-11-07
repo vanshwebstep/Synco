@@ -12,7 +12,7 @@ const ParentProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const { adminInfo, setAdminInfo } = useNotification();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { formData, setFormData, emergency, setEmergency, handleUpdate } = useAccountsInfo();
+  const { formData, setFormData, emergency, setEmergency, handleUpdateBirthday } = useAccountsInfo();
 
   const [commentsList, setCommentsList] = useState([]);
   const [comment, setComment] = useState('');
@@ -269,13 +269,13 @@ const ParentProfile = () => {
 
   const handleUpdateParent = () => {
     console.log('clicked', formData)
-    handleUpdate("parents", formData)
+    handleUpdateBirthday("parents", formData)
   }
 
   const handleSaveEmergency = () => {
     console.log('clicked', emergency)
 
-    handleUpdate("emergency", emergency)
+    handleUpdateBirthday("emergency", emergency)
   }
 
   useEffect(() => {

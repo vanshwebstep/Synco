@@ -54,50 +54,109 @@ const BirthdayLeadsDashboard = () => {
   }
 
   const fetchLeads = useCallback(
-    async (studentName = "", statusFilters = {}, dateRange = [], BookedBy = []) => {
+    async (studentName = "", statusFilters = {}, dateRange = [], BookedBy = [], fromDateToSend,
+      toDateToSend) => {
+      console.log("🔹 fetchLeads called with:", {
+        studentName,
+        statusFilters,
+        dateRange,
+        BookedBy,
+        fromDateToSend,
+        toDateToSend
+      });
+
       const token = localStorage.getItem("adminToken");
-      if (!token) return;
+      if (!token) {
+        console.warn("⚠️ No admin token found — aborting fetch.");
+        return;
+      }
 
       try {
         const queryParams = new URLSearchParams();
 
-        // 🔹 Basic filters
-        if (studentName) queryParams.append("studentName", studentName);
+        // 🔹 Step 1: Add student name
+        if (studentName) {
+          queryParams.append("studentName", studentName);
+        }
 
-        // 🔹 Status filters (append multiple types)
+        // 🔹 Step 2: Handle status filters
         Object.entries(statusFilters).forEach(([key, value]) => {
-          if (value) queryParams.append("type", key);
+          if (value) {
+            queryParams.append("type", key);
+            console.log("✅ Added status filter:", key);
+          }
         });
 
-        // 🔹 Date filters
+        if (fromDateToSend && toDateToSend) {
+          queryParams.append("fromDate", fromDateToSend);
+          queryParams.append("toDate", toDateToSend);
+        }
+
+        // 🔹 Step 3: Special logic — if gold or silver → packageInterest
+        const hasGold = statusFilters.gold === true;
+        const hasSilver = statusFilters.silver === true;
+        if (hasGold || hasSilver) {
+          queryParams.delete("type"); // Remove type if already added
+          const interests = [];
+          if (hasGold) interests.push("gold");
+          if (hasSilver) interests.push("silver");
+          queryParams.append("packageInterest", interests.join(","));
+          console.log("✨ Used packageInterest instead of type:", interests.join(","));
+        }
+
+        // 🔹 Step 4: Date range filter
         if (Array.isArray(dateRange) && dateRange.length === 2) {
           const [from, to] = dateRange;
           if (from && to) {
             queryParams.append("fromDate", formatLocalDate(from));
             queryParams.append("toDate", formatLocalDate(to));
+            console.log("📅 Added date range:", {
+              from: formatLocalDate(from),
+              to: formatLocalDate(to),
+            });
           }
         }
 
-        const url = `${API_BASE_URL}/api/admin/birthday-party/leads/list${queryParams.toString() ? `?${queryParams.toString()}` : ""
-          }`;
+        // 🔹 Step 5: Booked By filter
+        if (Array.isArray(BookedBy) && BookedBy.length > 0) {
+          BookedBy.forEach((agent) => {
+            const id = typeof agent === "object" ? agent.id : agent;
+            if (id) {
+              queryParams.append("agent", id);
+              console.log("👤 Added BookedBy agent ID:", id);
+            }
+          });
+        }
 
+        // 🔹 Step 6: Final URL
+        const queryString = queryParams.toString();
+        const url = `${API_BASE_URL}/api/admin/birthday-party/leads/list${queryString ? `?${queryString}` : ""}`;
+        console.log("🌐 Final API URL:", url);
+
+        // 🔹 Step 7: Fetch data
         const response = await fetch(url, {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
+        console.log("📡 API Response status:", response.status);
 
+        // 🔹 Step 8: Parse and set data
         const resultRaw = await response.json();
+        console.log("📦 Raw API response:", resultRaw);
+
         const result = resultRaw.data || [];
+        console.log("✅ Processed leads data:", result);
+
         setLeadsData(result);
         setSummary(resultRaw.summary);
+        console.log("🎯 Leads and summary updated successfully.");
       } catch (error) {
-        console.error("Failed to fetch leads:", error);
+        console.error("❌ Failed to fetch leads:", error);
       }
     },
     []
   );
+
   const { sendBirthdayMail } = useAccountsInfo();
 
   useEffect(() => {
@@ -148,8 +207,11 @@ const BirthdayLeadsDashboard = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+
   const handleDateChange = (date) => {
-    setFormData({ ...formData, partyDate: date });
+    setFormData((prev) => ({ ...prev, partyDate: date }));
+    setIsPickerOpen(false);
   };
 
   const handleSubmit = async (e) => {
@@ -396,7 +458,8 @@ const BirthdayLeadsDashboard = () => {
 
     const usePartyDate = checkedStatuses.partyDate;
     const dateRange = usePartyDate ? range : [];
-
+    const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
+    const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
     // 🔹 Collect status flags
     const statusFilters = {
       paid: checkedStatuses.paid,
@@ -404,13 +467,18 @@ const BirthdayLeadsDashboard = () => {
       cancelled: checkedStatuses.cancelled,
       silver: checkedStatuses.silver,
       pending: checkedStatuses.pending,
+
     };
+
+
 
     fetchLeads(
       "",                // studentName
       statusFilters,     // all statuses object
       dateRange,         // date filter (if Date of Party checked)
-      bookedByParams     // booked by IDs
+      bookedByParams,   // booked by IDs
+      fromDateToSend,
+      toDateToSend,
     );
   };
 
@@ -516,7 +584,6 @@ const BirthdayLeadsDashboard = () => {
                     <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
                     <th className="py-3 px-4 whitespace-nowrap">Child Name</th>
                     <th className="py-3 px-4 whitespace-nowrap">Age</th>
-                    <th className="py-3 px-4 whitespace-nowrap">PostCode</th>
                     <th className="py-3 px-4 whitespace-nowrap">Package Interest</th>
                     <th className="py-3 px-4 whitespace-nowrap">Source</th>
                     <th className="py-3 px-4 whitespace-nowrap">Date of Party</th>
@@ -526,13 +593,27 @@ const BirthdayLeadsDashboard = () => {
                 <tbody>
                   {leadsData.map((lead, i) => {
                     const isChecked = selectedUserIds.includes(lead.id);
+
+
                     return (
                       <tr
                         key={i}
-                        onClick={() =>
-                          navigate(`/birthday-party/leads/booking-form?leadId=${lead.id}`)
-                        }
-                        className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
+                        onClick={() => {
+                          if (lead?.booking) {
+                            Swal.fire({
+                              title: "Already Booked",
+                              text: "This lead has already been booked.",
+                              icon: "info",
+                              confirmButtonText: "OK",
+                              confirmButtonColor: "#3085d6",
+                            });
+                            return;
+                          }
+
+                          navigate(`/birthday-party/leads/booking-form?leadId=${lead.id}`);
+                        }}
+                        className={`border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer ${lead?.booking ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+                          }`}
                       >
                         <td className="py-3 px-4 whitespace-nowrap font-semibold">
                           <div className="flex items-center gap-3">
@@ -557,7 +638,6 @@ const BirthdayLeadsDashboard = () => {
                         </td>
                         <td className="py-3 px-4 whitespace-nowrap">{lead.childName}</td>
                         <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead?.postCode || 'N/A'}</td>
                         <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest}</td>
                         <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
                         <td className="py-3 px-4 whitespace-nowrap"> {lead.partyDate
@@ -822,16 +902,36 @@ const BirthdayLeadsDashboard = () => {
               </div>
 
               <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Date of Party
-                </label>
-                <DatePicker
-                  selected={formData.partyDate}
-                  onChange={handleDateChange}
-                  dateFormat="dd-MMM-yyyy" // e.g., 10-Oct-2025
-                  className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
-                  placeholderText="Select date"
-                />
+                <label className="block text-sm text-gray-600 mb-1">Date of Party</label>
+
+                {/* Input Field */}
+                <div
+                  onClick={() => setIsPickerOpen(true)}
+                  className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none cursor-pointer bg-white"
+                >
+                  {formData.partyDate
+                    ? new Date(formData.partyDate).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
+                    : "Select date"}
+                </div>
+
+                {/* Popup Modal */}
+                {isPickerOpen && (
+                  <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+                    <div className="bg-white p-4 rounded-xl shadow-lg flex justify-center">
+                      <DatePicker
+                        selected={formData.partyDate}
+                        onChange={handleDateChange}
+                        inline
+                        dateFormat="dd-MMM-yyyy"
+                      />
+
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>

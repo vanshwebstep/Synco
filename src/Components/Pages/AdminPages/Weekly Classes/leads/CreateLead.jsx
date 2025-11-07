@@ -13,8 +13,8 @@ const CreateLead = () => {
         firstName: "",
         lastName: "",
         email: "",
-        mobile: "",
-        postalCode: "",
+        phone: "",
+        postCode: "",
         childAge: "",
     });
     const navigate = useNavigate();
@@ -46,7 +46,7 @@ const CreateLead = () => {
     const handlePhoneChange = (value, data) => {
         setDialCode("+" + data.dialCode);
         setCountry(data.countryCode);
-        setFormData((prev) => ({ ...prev, mobile: value.replace(data.dialCode, "").trim() }));
+        setFormData((prev) => ({ ...prev, phone: value.replace(data.dialCode, "").trim() }));
     };
 
     const formatTimeAgo = (timestamp) => {
@@ -188,8 +188,8 @@ const CreateLead = () => {
                 firstName: "",
                 lastName: "",
                 email: "",
-                mobile: "",
-                postalCode: "",
+                phone: "",
+                postCode: "",
                 childAge: "",
             });
 
@@ -279,8 +279,8 @@ const CreateLead = () => {
                             />
                             <input
                                 type="tel"
-                                name="mobile"
-                                value={formData.mobile}
+                                name="phone"
+                                value={formData.phone}
                                 onChange={handleInputChange}
                                 placeholder="Enter number"
                                 className="border-none focus:outline-none flex-1"
@@ -295,8 +295,8 @@ const CreateLead = () => {
                         <label className="block text-[16px] font-semibold">Postal Code</label>
                         <input
                             type="text"
-                            name="postalCode"
-                            value={formData.postalCode}
+                            name="postCode"
+                            value={formData.postCode}
                             onChange={handleInputChange}
                             placeholder="Enter postal code"
                             className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3"

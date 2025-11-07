@@ -23,8 +23,8 @@ const Filters = () => {
     const [studentName, setStudentName] = useState("");
     const [venueName, setVenueName] = useState("");
     const [checkedStatuses, setCheckedStatuses] = useState({
-        Facebooked: false,
-        "Referral Leads": false,
+        facebook: false,
+        "referall": false,
     });
 
     // 🔹 Handle input changes
@@ -199,7 +199,7 @@ const Filters = () => {
                                     <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
                                         <Check className="w-4 h-4 transition-all" strokeWidth={3} />
                                     </span>
-                                    <span>{label}</span>
+                                    <span>{label=="facebook" ? 'FaceBooked':"Referral Leads"}</span>
                                 </label>
                             );
                         })}

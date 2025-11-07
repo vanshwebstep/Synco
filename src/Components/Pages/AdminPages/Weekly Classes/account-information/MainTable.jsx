@@ -49,7 +49,7 @@ const MainTable = () => {
                     item?.venue?.name ||
                     item?.classSchedule?.venue?.name ||
                     item?.booking?.address ||
-                    "",
+                    "N/A",
                 bookedByName:
                     `${item?.bookedByAdmin?.firstName || ""} ${item?.bookedByAdmin?.lastName || ""}`.trim()
                     || `${item?.creator?.firstName || ""} ${item?.creator?.lastName || ""}`.trim()
@@ -104,7 +104,7 @@ const MainTable = () => {
             val === 'null' ||
             val === 'undefined'
         ) {
-            return '';
+            return 'N/A';
         }
         // Convert to string, replace underscores with spaces, and trim
         const formatted = String(val).replace(/_/g, ' ').trim();
@@ -169,15 +169,22 @@ const MainTable = () => {
                                                         </button>
 
                                                         <img
-                                                            src={safe(user.profile) !== '' ? user.profile : '/demo/synco/members/dummyuser.png'}
-                                                            alt={safe(user.firstName)}
-                                                            onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}
+                                                            src={
+                                                                user?.profile && user.profile.trim() !== ""
+                                                                    ? user.profile
+                                                                    : "/demo/synco/members/dummyuser.png"
+                                                            }
+                                                            alt={user?.firstName || "User"}
+                                                            onClick={() =>
+                                                                navigate(`/weekly-classes/account-information?id=${user?.id}`)
+                                                            }
                                                             className="w-10 h-10 rounded-full object-contain"
                                                             onError={(e) => {
                                                                 e.currentTarget.onerror = null;
-                                                                e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                                e.currentTarget.src = "/demo/synco/members/dummyuser.png";
                                                             }}
                                                         />
+
 
                                                         <span onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}>
                                                             {`${safe(user?.students?.[0]?.studentFirstName)} ${safe(user?.students?.[0]?.studentLastName)}`}

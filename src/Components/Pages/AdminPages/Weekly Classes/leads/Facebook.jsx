@@ -330,8 +330,8 @@ const Facebook = () => {
 
                       </div>
                     </td>
-                    <td className="py-3 px-4">{lead.parent || '-'}</td>
-                    <td className="py-3 px-4">{lead.phone || '-'}</td>
+                    <td className="py-3 px-4">{lead?.firstName + ' ' + lead?.lastName || '-'}</td>
+                    <td className="py-3 px-4">{lead.email || '-'}</td>
                     <td className="py-3 px-4">{lead.phone || '-'}</td>
                     <td className="py-3 px-4">{lead.postcode || '-'}</td>
                     <td className="py-3 px-4 whitespace-nowrap">{lead.childAge || '-'}</td>
@@ -461,7 +461,7 @@ const Facebook = () => {
                                           <div key={idx} className="flex  md:w-[25%]  flex-wrap justify-end gap-3 ">
                                             {
                                               cls.capacity == 0 && (
-                                                <button onClick={() => handleAddToWaitingList(lead.id)} className="bg-[#237FEA]  text-white px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-[#006AE6] transition">
+                                                <button onClick={() => handleAddToWaitingList(cls.id)} className="bg-[#237FEA]  text-white px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-[#006AE6] transition">
                                                   Add to Waiting List
                                                 </button>
 
@@ -469,11 +469,11 @@ const Facebook = () => {
                                             }
                                             {cls.allowFreeTrial ? (
 
-                                              <button onClick={() => handleBookFreeTrial(lead.id)} className="border px-4 py-2  rounded-lg text-[14px] hover:bg-gray-50 transition">
+                                              <button onClick={() => handleBookFreeTrial(cls.id)} className="border px-4 py-2  rounded-lg text-[14px] hover:bg-gray-50 transition">
                                                 Book a Free Trial
                                               </button>
                                             ) : (
-                                              <button onClick={() => handleBookMembership(lead.id)} className="border px-4 py-2  rounded-lg text-[14px] hover:bg-gray-50 transition">
+                                              <button onClick={() => handleBookMembership(cls.id)} className="border px-4 py-2  rounded-lg text-[14px] hover:bg-gray-50 transition">
                                                 Book a Membership
                                               </button>
                                             )}

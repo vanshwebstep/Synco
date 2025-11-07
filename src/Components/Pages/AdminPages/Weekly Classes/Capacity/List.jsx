@@ -414,7 +414,7 @@ const Capacity = () => {
                     </div>
                 </div>
             </div>
-            <div className="transition-all duration-300 flex-1 md:w-8/12  space-y-6">
+            <div className="transition-all duration-300 flex-1  space-y-6">
                 {searchLoading ? (
                     <div className="text-center py-6 text-gray-500">Loading venues...</div>
                 ) :

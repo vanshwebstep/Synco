@@ -12,7 +12,7 @@ const ParentProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const { adminInfo, setAdminInfo } = useNotification();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { formData, setFormData, emergency, setEmergency, handleUpdate } = useAccountsInfo();
+  const { formData, setFormData, emergency, setEmergency, handleUpdateAcountInfo } = useAccountsInfo();
 
   const [commentsList, setCommentsList] = useState([]);
   const [comment, setComment] = useState('');
@@ -230,7 +230,7 @@ const ParentProfile = () => {
     const updatedParents = [...formData, newParent];
     setFormData(updatedParents);
 
-    handleUpdate("parents", updatedParents); // ✅ pass full array, not spread
+    handleUpdateAcountInfo("parents", updatedParents); // ✅ pass full array, not spread
     setShowModal(false);
 
     setNewParent({
@@ -284,10 +284,10 @@ const ParentProfile = () => {
   }, [emergency.sameAsAbove, formData]);
 
   const handleUpdateParent = () => {
-    handleUpdate("parents", formData)
+    handleUpdateAcountInfo("parents", formData)
   }
   const handleUpdateEmergency = () => {
-    handleUpdate("emergency", emergency)
+    handleUpdateAcountInfo("emergency", emergency)
   }
 
   useEffect(() => {

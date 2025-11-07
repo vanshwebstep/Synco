@@ -618,7 +618,7 @@ const AddtoWaitingList = () => {
     setIsSubmitting(true); // Start loading
 
     const payload = {
-      levelOfInterest: selectedLevelOfInterest,
+      interest: selectedLevelOfInterest,
       keyInformation: selectedKeyInfo,
       venueId: singleClassSchedulesOnly?.venue?.id,
       classScheduleId: singleClassSchedulesOnly?.id,

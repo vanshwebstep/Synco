@@ -109,6 +109,8 @@ import BirthdayLeads from './Components/Pages/AdminPages/Birthday Parties/Sales/
 import BirthdayBookingForm from './Components/Pages/AdminPages/Birthday Parties/Sales/Booking/BookingForm.jsx';
 import BirthdayUpdate from './Components/Pages/AdminPages/Birthday Parties/Session plan/Update.jsx';
 import BirthdayReports from './Components/Pages/AdminPages/Birthday Parties/Reports.jsx';
+import AccountMainBirthDay from './Components/Pages/AdminPages/Birthday Parties/Sales/Info/AccountMainBirthday.jsx';
+import SeeDetailsAccountBirthday from './Components/Pages/AdminPages/Birthday Parties/Sales/Info/SeeDetailsAccountBirthday.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -617,6 +619,24 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <BirthdayReports />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+         <Route path="/birthday-party/sales/account-information" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <AccountMainBirthDay />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+         <Route path="/birthday-party/sales/account-information/see-details" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SeeDetailsAccountBirthday />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

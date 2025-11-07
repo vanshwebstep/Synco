@@ -187,7 +187,7 @@ const BirthdayBookingForm = () => {
       dateOfBirth: null,
       age: '',
       gender: '',
-      medicalInformation: '',
+      medicalInfo: '',
       // Add other fields if needed
     },
   ]);
@@ -207,7 +207,7 @@ const BirthdayBookingForm = () => {
       parentEmail: '',
       phoneNumber: '',
       relationChild: '',
-      howDidYouHear: ''
+      howDidHear: ''
 
     }
   ]);
@@ -257,7 +257,7 @@ const BirthdayBookingForm = () => {
           dateOfBirth: null,
           age: '',
           gender: '',
-          medicalInformation: '',
+          medicalInfo: '',
           class: singleClassSchedulesOnly?.className || '',
           time: singleClassSchedulesOnly?.startTime || '',
         }));
@@ -580,7 +580,7 @@ const BirthdayBookingForm = () => {
         parentEmail: '',
         phoneNumber: '',
         relationChild: '',
-        howDidYouHear: ''
+        howDidHear: ''
       },
     ]);
   };
@@ -1275,18 +1275,7 @@ const BirthdayBookingForm = () => {
 
               </div>
             </div>
-            <div className="">
-              <label htmlFor="" className="text-base font-semibold">Areas To Work On </label>
-              <div className="relative mt-2">
-                <textarea
-                  placeholder=""
-                  value={areasToWorkOn}
-                  onChange={(e) => setAreasToWorkOn(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 focus:outline-none resize-none"
-                  rows={4}
-                />
-              </div>
-            </div>
+          
 
             <div className="w-full">
               <label className="block text-[16px] font-semibold">Select a Coach </label>
@@ -1489,8 +1478,8 @@ const BirthdayBookingForm = () => {
                       <input
                         type="text"
                         placeholder="Enter medical info"
-                        value={student.medicalInformation || ""}
-                        onChange={(e) => handleInputChange(index, "medicalInformation", e.target.value)}
+                        value={student.medicalInfo || ""}
+                        onChange={(e) => handleInputChange(index, "medicalInfo", e.target.value)}
                         className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
 
@@ -1643,9 +1632,9 @@ const BirthdayBookingForm = () => {
                         placeholder="Select from drop down"
                         className="mt-2"
                         classNamePrefix="react-select"
-                        value={hearOptions.find((o) => o.value === parent.howDidYouHear)}
+                        value={hearOptions.find((o) => o.value === parent.howDidHear)}
                         onChange={(selected) =>
-                          handleParentChange(index, "howDidYouHear", selected.value)
+                          handleParentChange(index, "howDidHear", selected.value)
                         }
                       />
                     </div>
