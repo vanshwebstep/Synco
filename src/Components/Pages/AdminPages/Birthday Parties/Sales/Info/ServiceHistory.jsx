@@ -219,7 +219,7 @@ const BookingCard = ({ booking }) => {
 
         {/* Buttons */}
         <div className="flex gap-3">
-          <button onClick={() => navigate(`/birthday-party/sales/account-information/see-details?id=${'1'}`)} className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
+          <button onClick={() => navigate(`/birthday-party/sales/account-information/see-details?id=${data?.id}`)} className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
             See details
           </button>
           {booking.type !== "Merchandise" && (

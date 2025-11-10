@@ -27,6 +27,8 @@ import Loader from "../../../contexts/Loader";
 import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 const AllDashboard = () => {
     const navigate = useNavigate();
+    const [noLoaderShow, setNoLoaderShow] = useState(false);
+
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
     const [isOpen, setIsOpen] = useState(false);
@@ -81,7 +83,7 @@ const AllDashboard = () => {
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
-            setLoading(true);
+           if (noLoaderShow ===false) setLoading(true);
 
             try {
                 const queryParams = new URLSearchParams();
@@ -151,7 +153,9 @@ const AllDashboard = () => {
                 if (resultRaw.coachList) setCoachList(resultRaw.coachList);
                 setLeadsData(resultRaw.data || []);
                 setSummary(resultRaw.summary);
-                setLoading(false);
+               if (noLoaderShow ===false) setLoading(false);
+                setFromDate('');
+                setToDate('');
 
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
@@ -311,13 +315,27 @@ const AllDashboard = () => {
             setLoading(false);
         }
     };
-    const handleSearch = (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
+   const handleSearch = (e) => {
+  const value = e.target.value.trim();
+  setSearchTerm(value);
 
-        // Fetch data with search value (debounce optional)
-        fetchLeads(value);
-    };
+  // If search is cleared, hide loader and optionally reset data
+  if (value.length === 0) {
+    setNoLoaderShow(false);
+    fetchLeads(""); // optional: reload default list
+    return;
+  }
+
+  // Show loader while searching
+  setNoLoaderShow(true);
+
+  // Debounce to prevent too many API calls while typing
+  clearTimeout(window.searchTimeout);
+  window.searchTimeout = setTimeout(() => {
+    fetchLeads(value);
+  }, 400);
+};
+
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -484,46 +502,46 @@ const AllDashboard = () => {
             setToDate(null);
         }
     };
-const applyFilter = () => {
-    const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
-    const coachByParams = Array.isArray(savedCoach) ? savedCoach : [];
+    const applyFilter = () => {
+        const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
+        const coachByParams = Array.isArray(savedCoach) ? savedCoach : [];
 
-    const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
-    const hasFrom = isValidDate(fromDate);
-    const hasTo = isValidDate(toDate);
-    const hasRange = hasFrom && hasTo;
+        const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+        const hasFrom = isValidDate(fromDate);
+        const hasTo = isValidDate(toDate);
+        const hasRange = hasFrom && hasTo;
 
-    // ✅ SweetAlert if only one date is selected
-    if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
-        Swal.fire({
-            icon: "warning",
-            title: "Incomplete Date Range",
-            text: hasFrom
-                ? "Please select a To Date to complete the range."
-                : "Please select a From Date to complete the range.",
-            confirmButtonColor: "#3085d6",
-        });
-        return; // stop execution
-    }
+        // ✅ SweetAlert if only one date is selected
+        if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
+            Swal.fire({
+                icon: "warning",
+                title: "Incomplete Date Range",
+                text: hasFrom
+                    ? "Please select a To Date to complete the range."
+                    : "Please select a From Date to complete the range.",
+                confirmButtonColor: "#3085d6",
+            });
+            return; // stop execution
+        }
 
-    const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
-    const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
+        const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
+        const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
 
-    fetchLeads(
-        "",
-        checkedStatuses.package,
-        checkedStatuses.dateOfParty,
-        checkedStatuses.source,
-        [],
-        bookedByParams,
-        coachByParams,
-        selectedPackages,
-        selectedSources,
-        selectedLocation,
-        fromDateToSend,
-        toDateToSend
-    );
-};
+        fetchLeads(
+            "",
+            checkedStatuses.package,
+            checkedStatuses.dateOfParty,
+            checkedStatuses.source,
+            [],
+            bookedByParams,
+            coachByParams,
+            selectedPackages,
+            selectedSources,
+            selectedLocation,
+            fromDateToSend,
+            toDateToSend
+        );
+    };
 
 
 

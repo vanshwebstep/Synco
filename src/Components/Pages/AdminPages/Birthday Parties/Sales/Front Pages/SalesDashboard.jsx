@@ -27,6 +27,8 @@ import Loader from "../../../contexts/Loader";
 import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 const SalesDashboard = () => {
     const navigate = useNavigate();
+    const [noLoaderShow, setNoLoaderShow] = useState(false);
+
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
     const [isOpen, setIsOpen] = useState(false);
@@ -85,7 +87,8 @@ const SalesDashboard = () => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
 
-            setLoading(true);
+            // ✅ Always show loader unless noLoaderShow is true
+            if (noLoaderShow === false) { setLoading(true); }
 
             try {
                 const queryParams = new URLSearchParams();
@@ -96,10 +99,11 @@ const SalesDashboard = () => {
                         if (key === "gold" || key === "silver") {
                             queryParams.append("packageInterest", key);
                         } else {
-                            queryParams.append("type", key);
+                            queryParams.append("status", key);
                         }
                     }
                 });
+
                 // 📅 Date filters
                 if (fromDateToSend && toDateToSend) {
                     queryParams.append("fromDate", fromDateToSend);
@@ -107,8 +111,9 @@ const SalesDashboard = () => {
                 }
 
                 if (statusData?.partyDate) {
-                    queryParams.append("partyData", 'partyDate');
+                    queryParams.append("partyData", "partyDate");
                 }
+
                 // 👩‍🎓 Student name
                 if (typeof studentName === "string" && studentName.trim()) {
                     queryParams.append("studentName", studentName.trim());
@@ -171,32 +176,30 @@ const SalesDashboard = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
-
                 const resultRaw = await response.json();
 
                 // 🧭 State updates
-                if (resultRaw.locations) {
-                    setMyVenues(resultRaw.locations);
-                }
-
-                if (resultRaw.agentList) {
-                    setAgentList(resultRaw.agentList);
-                }
-
-                if (resultRaw.coachList) {
-                    setCoachList(resultRaw.coachList);
-                }
+                if (resultRaw.locations) setMyVenues(resultRaw.locations);
+                if (resultRaw.agentList) setAgentList(resultRaw.agentList);
+                if (resultRaw.coachList) setCoachList(resultRaw.coachList);
 
                 setLeadsData(resultRaw.data || []);
-
                 setSummary(resultRaw.summary);
-                setLoading(false);
             } catch (error) {
-
+                console.error("❌ Error fetching leads:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed to Load Leads",
+                    text: "Something went wrong while fetching leads. Please try again.",
+                });
+            } finally {
+                // ✅ Always stop loader — success or error
+                if (noLoaderShow === false) { setLoading(false); }
             }
         },
         []
     );
+
 
 
 
@@ -347,12 +350,26 @@ const SalesDashboard = () => {
         }
     };
     const handleSearch = (e) => {
-        const value = e.target.value;
+        const value = e.target.value.trim();
         setSearchTerm(value);
 
-        // Fetch data with search value (debounce optional)
-        fetchLeads(value);
+        // If search is cleared, hide loader and optionally reset data
+        if (value.length === 0) {
+            setNoLoaderShow(false);
+            fetchLeads(""); // optional: reload default list
+            return;
+        }
+
+        // Show loader while searching
+        setNoLoaderShow(true);
+
+        // Debounce to prevent too many API calls while typing
+        clearTimeout(window.searchTimeout);
+        window.searchTimeout = setTimeout(() => {
+            fetchLeads(value);
+        }, 400);
     };
+
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -696,30 +713,7 @@ const SalesDashboard = () => {
         )
     }
 
-    if (leadsData.length == 0) {
-        return (
-            <>
-                <div className="flex justify-end"> {leadsData.length == 0 && (
-                    <button onClick={() => {
-                        fetchLeads();
-                        setFromDate('');
-                        setToDate('');
-                    }}
-                        className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
 
-                        Reset Filters
-                    </button>
-
-                )}</div>
-
-                <div className="flex flex-col items-center justify-center py-10 text-gray-600">
-                    <p className="text-lg font-medium mb-3"> No Data Found</p>
-                </div>
-
-            </>
-
-        )
-    }
     return (
         <>
 
@@ -764,80 +758,102 @@ const SalesDashboard = () => {
                             <h2 className="font-semibold text-lg">Birthday Party Sales</h2>
 
                         </div>
-                        {/* Table */}
-                        <div className="overflow-auto rounded-2xl bg-white shadow-sm">
-                            <table className="min-w-full text-sm">
-                                <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
-                                    <tr className="font-semibold text-[#717073]">
-                                        <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Child Age</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Venue</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Date Of Party</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Package</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Source</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Coach</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {leadsData.map((lead, i) => {
-                                        const isChecked = selectedUserIds.includes(lead.id);
-                                        return (
-                                            <tr
-                                                key={i}
-                                                onClick={() => navigate(`/birthday-party/sales/account-information?id=${lead.id}`)}
-                                                className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
-                                            >
-                                                <td className="py-3 px-4 whitespace-nowrap font-semibold">
-                                                    <div className="flex items-center gap-3">
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation(); // ⛔ prevent row click
-                                                                toggleCheckbox(lead.id);
-                                                            }}
-                                                            className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? "border-gray-500" : "border-gray-300"
-                                                                }`}
-                                                        >
-                                                            {isChecked && (
-                                                                <Check
-                                                                    size={16}
-                                                                    strokeWidth={3}
-                                                                    className="text-gray-500"
-                                                                />
-                                                            )}
-                                                        </button>
-                                                        {lead.parentName}
-                                                    </div>
-                                                </td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.location || "N/A"}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap"> {lead.partyDate
-                                                    ? new Date(lead.partyDate).toLocaleDateString("en-GB", {
-                                                        day: "numeric",
-                                                        month: "short",
-                                                        year: "numeric",
-                                                    }).replace(/ /g, "-") // to get "10-Oct-2025"
-                                                    : "-"}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.paymentPlan?.price || "N/A"}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">
-                                                    {lead.booking?.coach
-                                                        ? `${lead.booking.coach.firstName} ${lead.booking.coach.lastName}`
-                                                        : "N/A"}
-                                                </td>                                                <td className="py-3 px-4 whitespace-nowrap">
-                                                    <span className="bg-green-50 text-green-400 semibold capitalize px-7 py-2 rounded-xl text-xs font-medium">
-                                                        {lead.status}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
 
-                        </div>
+                        <div className="flex justify-end"> {leadsData.length == 0 && (
+                            <button onClick={() => {
+                                fetchLeads();
+                                setFromDate('');
+                                setToDate('');
+                            }}
+                                className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
+
+                                Reset Filters
+                            </button>
+
+                        )}</div>
+
+
+                        {leadsData.length > 0 ? (
+                            <div className="overflow-auto rounded-2xl bg-white shadow-sm">
+                                <table className="min-w-full text-sm">
+                                    <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
+                                        <tr className="font-semibold text-[#717073]">
+                                            <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Child Age</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Venue</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Date Of Party</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Package</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Source</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Coach</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {leadsData.map((lead, i) => {
+                                            const isChecked = selectedUserIds.includes(lead.id);
+                                            return (
+                                                <tr
+                                                    key={i}
+                                                    onClick={() => navigate(`/birthday-party/sales/account-information?id=${lead.id}`)}
+                                                    className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
+                                                >
+                                                    <td className="py-3 px-4 whitespace-nowrap font-semibold">
+                                                        <div className="flex items-center gap-3">
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation(); // ⛔ prevent row click
+                                                                    toggleCheckbox(lead.id);
+                                                                }}
+                                                                className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? "border-gray-500" : "border-gray-300"
+                                                                    }`}
+                                                            >
+                                                                {isChecked && (
+                                                                    <Check
+                                                                        size={16}
+                                                                        strokeWidth={3}
+                                                                        className="text-gray-500"
+                                                                    />
+                                                                )}
+                                                            </button>
+                                                            {lead.parentName}
+                                                        </div>
+                                                    </td>
+                                                    <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
+                                                    <td className="py-3 px-4 whitespace-nowrap">{lead?.booking?.location  || lead?.booking?.address || "N/A"}</td>
+                                                    <td className="py-3 px-4 whitespace-nowrap"> {lead.partyDate
+                                                        ? new Date(lead.partyDate).toLocaleDateString("en-GB", {
+                                                            day: "numeric",
+                                                            month: "short",
+                                                            year: "numeric",
+                                                        }).replace(/ /g, "-") // to get "10-Oct-2025"
+                                                        : "-"}</td>
+                                                    <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
+                                                    <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.paymentPlan?.price || "N/A"}</td>
+                                                    <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
+                                                    <td className="py-3 px-4 whitespace-nowrap">
+                                                        {lead.booking?.coach
+                                                            ? `${lead.booking.coach.firstName} ${lead.booking.coach.lastName}`
+                                                            : "N/A"}
+                                                    </td>                                                <td className="py-3 px-4 whitespace-nowrap">
+                                                        <span className="bg-green-50 text-green-400 semibold capitalize px-7 py-2 rounded-xl text-xs font-medium">
+                                                            {lead.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+
+                            </div>
+
+
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-10 text-gray-600">
+                                <p className="text-lg font-medium mb-3"> No Data Found</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 

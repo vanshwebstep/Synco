@@ -469,15 +469,7 @@ const List = () => {
     });
   };
 
-  const handleDateClick = (date) => {
-    const formattedDate = formatLocalDate(date); // safe from timezone issues
-
-    if (selectedDate === formattedDate) {
-      setSelectedDate(null);
-    } else {
-      setSelectedDate(formattedDate);
-    }
-  };
+ 
   const modalRef = useRef(null);
   const PRef = useRef(null);
 
@@ -685,7 +677,7 @@ const List = () => {
       coachId: selectedCoach,
       location: locationValue,
       address: address,
-      date: selectedDate,
+      date: formatLocalDate(selectedDate),
       time: time,
       totalStudents: students.length,
       areaWorkOn: areasToWorkOn,

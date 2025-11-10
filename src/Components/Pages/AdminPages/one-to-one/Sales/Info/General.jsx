@@ -34,15 +34,15 @@ const General = () => {
             referral: p?.howDidHear || "",
         })) || [{}],
     });
-const [bookingId, setBookingId] = useState([]);
+    const [bookingId, setBookingId] = useState([]);
 
-useEffect(() => {
-  if (oneToOneData?.booking?.leadId) {
-    setBookingId(prev => [...prev, oneToOneData.booking.leadId]);
-  }
-}, [oneToOneData]);
+    useEffect(() => {
+        if (oneToOneData?.booking?.leadId) {
+            setBookingId(prev => [...prev, oneToOneData.booking.leadId]);
+        }
+    }, [oneToOneData]);
 
-console.log('bookingId', bookingId);
+    console.log('bookingId', bookingId);
 
 
     const [selectedKeyInfo, setSelectedKeyInfo] = useState(null);

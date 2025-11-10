@@ -28,6 +28,8 @@ const BirthdayLeadsDashboard = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("adminToken");
   const [isOpen, setIsOpen] = useState(false);
+  const [noLoaderShow, setNoLoaderShow] = useState(null);
+  console.log('noLoaderShow', noLoaderShow)
 
   const [loading, setLoading] = useState(false);
   const [mainLoading, setMainLoading] = useState(false);
@@ -52,17 +54,22 @@ const BirthdayLeadsDashboard = () => {
     const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`; // returns "2025-08-24"
   }
-
   const fetchLeads = useCallback(
-    async (studentName = "", statusFilters = {}, dateRange = [], BookedBy = [], fromDateToSend,
-      toDateToSend) => {
+    async (
+      studentName = "",
+      statusFilters = {},
+      dateRange = [],
+      BookedBy = [],
+      fromDateToSend,
+      toDateToSend
+    ) => {
       console.log("🔹 fetchLeads called with:", {
         studentName,
         statusFilters,
         dateRange,
         BookedBy,
         fromDateToSend,
-        toDateToSend
+        toDateToSend,
       });
 
       const token = localStorage.getItem("adminToken");
@@ -70,88 +77,89 @@ const BirthdayLeadsDashboard = () => {
         console.warn("⚠️ No admin token found — aborting fetch.");
         return;
       }
-      setLoading(true);
+
+      if (!noLoaderShow) setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
 
-        // 🔹 Step 1: Add student name
-        if (studentName) {
-          queryParams.append("studentName", studentName);
+        // 🧩 Student name
+        if (studentName.trim()) {
+          queryParams.append("studentName", studentName.trim());
         }
 
-        // 🔹 Step 2: Handle status filters
-        Object.entries(statusFilters).forEach(([key, value]) => {
-          if (value) {
-            queryParams.append("type", key);
-            console.log("✅ Added status filter:", key);
-          }
-        });
+        // 🧩 Status filters
+        const activeStatuses = Object.entries(statusFilters)
+          .filter(([_, value]) => value === true)
+          .map(([key]) => key);
 
+        if (activeStatuses.length > 0) {
+          const hasGold = activeStatuses.includes("gold");
+          const hasSilver = activeStatuses.includes("silver");
+
+          if (hasGold || hasSilver) {
+            const packageInterestValues = [];
+            if (hasGold) packageInterestValues.push("gold");
+            if (hasSilver) packageInterestValues.push("silver");
+            queryParams.append("packageInterest", packageInterestValues.join(","));
+          }
+
+          // Add other statuses (excluding gold/silver)
+          activeStatuses
+            .filter((s) => s !== "gold" && s !== "silver")
+            .forEach((statusKey) => {
+              queryParams.append("status", statusKey);
+            });
+        }
+
+        // 🧩 Date filters
         if (fromDateToSend && toDateToSend) {
           queryParams.append("fromDate", fromDateToSend);
           queryParams.append("toDate", toDateToSend);
-        }
-
-        // 🔹 Step 3: Special logic — if gold or silver → packageInterest
-        const hasGold = statusFilters.gold === true;
-        const hasSilver = statusFilters.silver === true;
-        if (hasGold || hasSilver) {
-          queryParams.delete("type"); // Remove type if already added
-          const interests = [];
-          if (hasGold) interests.push("gold");
-          if (hasSilver) interests.push("silver");
-          queryParams.append("packageInterest", interests.join(","));
-          console.log("✨ Used packageInterest instead of type:", interests.join(","));
-        }
-
-        // 🔹 Step 4: Date range filter
-        if (Array.isArray(dateRange) && dateRange.length === 2) {
+        } else if (Array.isArray(dateRange) && dateRange.length === 2) {
           const [from, to] = dateRange;
           if (from && to) {
             queryParams.append("fromDate", formatLocalDate(from));
             queryParams.append("toDate", formatLocalDate(to));
-            console.log("📅 Added date range:", {
-              from: formatLocalDate(from),
-              to: formatLocalDate(to),
-            });
           }
         }
 
-        // 🔹 Step 5: Booked By filter
+        // 🧩 BookedBy (agent filter)
         if (Array.isArray(BookedBy) && BookedBy.length > 0) {
           BookedBy.forEach((agent) => {
             const id = typeof agent === "object" ? agent.id : agent;
-            if (id) {
-              queryParams.append("agent", id);
-            }
+            if (id) queryParams.append("agent", id);
           });
         }
 
-        // 🔹 Step 6: Final URL
+        // 🔗 Build final URL
         const queryString = queryParams.toString();
-        const url = `${API_BASE_URL}/api/admin/birthday-party/leads/list${queryString ? `?${queryString}` : ""}`;
+        const url = `${API_BASE_URL}/api/admin/birthday-party/leads/list${queryString ? `?${queryString}` : ""
+          }`;
 
-        // 🔹 Step 7: Fetch data
+        console.log("🌐 Final API URL:", url);
+
+        // 🌍 Fetch data
         const response = await fetch(url, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        // 🔹 Step 8: Parse and set data
         const resultRaw = await response.json();
-
         const result = resultRaw.data || [];
 
+        // 🧭 Update states
         setLeadsData(result);
         setSummary(resultRaw.summary);
-        setLoading(false);
       } catch (error) {
         console.error("❌ Failed to fetch leads:", error);
+      } finally {
+        if (!noLoaderShow) setLoading(false);
       }
     },
     []
   );
+  ;
 
   const { sendBirthdayMail } = useAccountsInfo();
 
@@ -294,12 +302,25 @@ const BirthdayLeadsDashboard = () => {
     }
   };
   const handleSearch = (e) => {
-    const value = e.target.value;
+    const value = e.target.value.trim();
     setSearchTerm(value);
 
-    // Fetch data with search value (debounce optional)
-    fetchLeads(value);
+    if (value.length === 0) {
+      setNoLoaderShow(false);
+      // Optionally re-fetch default data when cleared
+      fetchLeads("");
+      return;
+    }
+
+    setNoLoaderShow(true);
+
+    // ✅ Optional debounce for better performance
+    clearTimeout(window.searchTimeout);
+    window.searchTimeout = setTimeout(() => {
+      fetchLeads(value);
+    }, 400);
   };
+
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -445,53 +466,53 @@ const BirthdayLeadsDashboard = () => {
       setToDate(null);
     }
   };
-const applyFilter = () => {
-  const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
+  const applyFilter = () => {
+    const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
 
-  const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
-  const hasFrom = isValidDate(fromDate);
-  const hasTo = isValidDate(toDate);
-  const hasRange = hasFrom && hasTo;
+    const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+    const hasFrom = isValidDate(fromDate);
+    const hasTo = isValidDate(toDate);
+    const hasRange = hasFrom && hasTo;
 
-  // ✅ SweetAlert if only one date selected
-  if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
-    Swal.fire({
-      icon: "warning",
-      title: "Incomplete Date Range",
-      text: hasFrom
-        ? "Please select a To Date to complete the date range."
-        : "Please select a From Date to complete the date range.",
-      confirmButtonColor: "#3085d6",
-    });
-    return; // stop further execution
-  }
+    // ✅ SweetAlert if only one date selected
+    if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Incomplete Date Range",
+        text: hasFrom
+          ? "Please select a To Date to complete the date range."
+          : "Please select a From Date to complete the date range.",
+        confirmButtonColor: "#3085d6",
+      });
+      return; // stop further execution
+    }
 
-  const range = hasRange ? [fromDate, toDate] : [];
+    const range = hasRange ? [fromDate, toDate] : [];
 
-  const usePartyDate = checkedStatuses.partyDate;
-  const dateRange = usePartyDate ? range : [];
+    const usePartyDate = checkedStatuses.partyDate;
+    const dateRange = usePartyDate ? range : [];
 
-  const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
-  const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
+    const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
+    const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
 
-  // 🔹 Collect status flags
-  const statusFilters = {
-    paid: checkedStatuses.paid,
-    gold: checkedStatuses.gold,
-    cancelled: checkedStatuses.cancelled,
-    silver: checkedStatuses.silver,
-    pending: checkedStatuses.pending,
+    // 🔹 Collect status flags
+    const statusFilters = {
+      paid: checkedStatuses.paid,
+      gold: checkedStatuses.gold,
+      cancelled: checkedStatuses.cancelled,
+      silver: checkedStatuses.silver,
+      pending: checkedStatuses.pending,
+    };
+
+    fetchLeads(
+      "", // studentName
+      statusFilters, // all statuses object
+      dateRange, // date filter (if Date of Party checked)
+      bookedByParams, // booked by IDs
+      fromDateToSend,
+      toDateToSend
+    );
   };
-
-  fetchLeads(
-    "", // studentName
-    statusFilters, // all statuses object
-    dateRange, // date filter (if Date of Party checked)
-    bookedByParams, // booked by IDs
-    fromDateToSend,
-    toDateToSend
-  );
-};
 
   const prevMonth = () => {
     setCurrentDate((prev) => {
@@ -538,30 +559,7 @@ const applyFilter = () => {
     )
   }
 
-  if (leadsData.length == 0) {
-    return (
-      <>
-        <div className="flex justify-end"> {leadsData.length == 0 && (
-          <button onClick={() => {
-            fetchLeads();
-            setFromDate('');
-            setToDate('');
-          }}
-            className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
 
-            Reset Filters
-          </button>
-
-        )}</div>
-
-        <div className="flex flex-col items-center justify-center py-10 text-gray-600">
-          <p className="text-lg font-medium mb-3"> No Data Found</p>
-        </div>
-
-      </>
-
-    )
-  }
   return (
     <>
 
@@ -612,89 +610,112 @@ const applyFilter = () => {
               </div>
             </div>
 
-            {/* Table */}
-            <div className="overflow-auto rounded-2xl bg-white shadow-sm">
-              <table className="min-w-full text-sm">
-                <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
-                  <tr className="font-semibold text-[#717073]">
-                    <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Child Name</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Age</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Package Interest</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Source</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Date of Party</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leadsData.map((lead, i) => {
-                    const isChecked = selectedUserIds.includes(lead.id);
+            <div className="flex justify-end"> {leadsData.length == 0 && (
+              <button onClick={() => {
+                fetchLeads();
+                setFromDate('');
+                setToDate('');
+              }}
+                className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
+
+                Reset Filters
+              </button>
+
+            )}</div>
 
 
-                    return (
-                      <tr
-                        key={i}
-                        onClick={() => {
-                          if (lead?.booking) {
-                            Swal.fire({
-                              title: "Already Booked",
-                              text: "This lead has already been booked.",
-                              icon: "info",
-                              confirmButtonText: "OK",
-                              confirmButtonColor: "#3085d6",
-                            });
-                            return;
-                          }
+            {
+              leadsData.length > 0 ? (
 
-                          navigate(`/birthday-party/leads/booking-form?leadId=${lead.id}`);
-                        }}
-                        className={`border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer ${lead?.booking ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
-                          }`}
-                      >
-                        <td className="py-3 px-4 whitespace-nowrap font-semibold">
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation(); // ⛔ prevent row click
-                                toggleCheckbox(lead.id);
-                              }}
-                              className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? "border-gray-500" : "border-gray-300"
-                                }`}
-                            >
-                              {isChecked && (
-                                <Check
-                                  size={16}
-                                  strokeWidth={3}
-                                  className="text-gray-500"
-                                />
-                              )}
-                            </button>
-                            {lead.parentName}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.childName}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
-                        <td className="py-3 px-4 whitespace-nowrap"> {lead.partyDate
-                          ? new Date(lead.partyDate).toLocaleDateString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          }).replace(/ /g, "-") // to get "10-Oct-2025"
-                          : "-"}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">
-                          <span className="bg-[#FBEECE] capitalize semibold text-[#EDA600] px-7 py-2 rounded-xl text-xs font-medium">
-                            {lead.status}
-                          </span>
-                        </td>
+                <div className="overflow-auto rounded-2xl bg-white shadow-sm">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
+                      <tr className="font-semibold text-[#717073]">
+                        <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Child Name</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Age</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Package Interest</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Source</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Date of Party</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Status</th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      {leadsData.map((lead, i) => {
+                        const isChecked = selectedUserIds.includes(lead.id);
 
-            </div>
+
+                        return (
+                          <tr
+                            key={i}
+                            onClick={() => {
+                              if (lead?.booking) {
+                                Swal.fire({
+                                  title: "Already Booked",
+                                  text: "This lead has already been booked.",
+                                  icon: "info",
+                                  confirmButtonText: "OK",
+                                  confirmButtonColor: "#3085d6",
+                                });
+                                return;
+                              }
+
+                              navigate(`/birthday-party/leads/booking-form?leadId=${lead.id}`);
+                            }}
+                            className={`border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer ${lead?.booking ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+                              }`}
+                          >
+                            <td className="py-3 px-4 whitespace-nowrap font-semibold">
+                              <div className="flex items-center gap-3">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // ⛔ prevent row click
+                                    toggleCheckbox(lead.id);
+                                  }}
+                                  className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? "border-gray-500" : "border-gray-300"
+                                    }`}
+                                >
+                                  {isChecked && (
+                                    <Check
+                                      size={16}
+                                      strokeWidth={3}
+                                      className="text-gray-500"
+                                    />
+                                  )}
+                                </button>
+                                {lead.parentName}
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.childName}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
+                            <td className="py-3 px-4 whitespace-nowrap"> {lead.partyDate
+                              ? new Date(lead.partyDate).toLocaleDateString("en-GB", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              }).replace(/ /g, "-") // to get "10-Oct-2025"
+                              : "-"}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <span className="bg-[#FBEECE] capitalize semibold text-[#EDA600] px-7 py-2 rounded-xl text-xs font-medium">
+                                {lead.status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+
+                </div>
+              ) : (
+
+                <div className="flex flex-col items-center justify-center py-10 text-gray-600">
+                  <p className="text-lg font-medium mb-3"> No Data Found</p>
+                </div>
+              )
+            }
           </div>
         </div>
 

@@ -30,6 +30,7 @@ const LeadsDashboard = () => {
 
   const [loading, setLoading] = useState(false);
   const [mainLoading, setMainLoading] = useState(false);
+  const [noLoaderShow, setNoLoaderShow] = useState(false);
   const [leadsData, setLeadsData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [summary, setSummary] = useState([]);
@@ -52,6 +53,8 @@ const LeadsDashboard = () => {
     return `${yyyy}-${mm}-${dd}`; // returns "2025-08-24"
   }
 
+  console.log('fromDate,toDate', fromDate, toDate)
+
   const fetchLeads = useCallback(
     async (
       studentName = "",
@@ -70,8 +73,7 @@ const LeadsDashboard = () => {
       // console.log('dateoftrial', dateoftrial)
       // console.log('forOtherDate', forOtherDate)
 
-      const shouldShowLoader = studentName || status1 || status2 || status3 || forOtherDate;
-      // if (shouldShowLoader) setLoading(true);
+     if (noLoaderShow ===false) setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
@@ -112,10 +114,12 @@ const LeadsDashboard = () => {
         const result = resultRaw.data || [];
         setLeadsData(result);
         setSummary(resultRaw.summary);
+        setFromDate('');
+        setToDate('');
       } catch (error) {
         console.error("Failed to fetch bookFreeTrials:", error);
       } finally {
-        // if (shouldShowLoader) setLoading(false); // only stop loader if it was started
+       if (noLoaderShow ===false) setLoading(false); // only stop loader if it was started
       }
     },
     []
@@ -257,13 +261,27 @@ const LeadsDashboard = () => {
       setLoading(false);
     }
   };
-  const handleSearch = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
+const handleSearch = (e) => {
+  const value = e.target.value.trim();
+  setSearchTerm(value);
 
-    // Fetch data with search value (debounce optional)
+  // If search is cleared, hide loader and optionally reset data
+  if (value.length === 0) {
+    setNoLoaderShow(false);
+    fetchLeads(""); // optional: reload default list
+    return;
+  }
+
+  // Show loader while searching
+  setNoLoaderShow(true);
+
+  // Debounce to prevent too many API calls while typing
+  clearTimeout(window.searchTimeout);
+  window.searchTimeout = setTimeout(() => {
     fetchLeads(value);
-  };
+  }, 400);
+};
+
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -411,43 +429,43 @@ const LeadsDashboard = () => {
       setToDate(null);
     }
   };
-const applyFilter = () => {
-  const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
+  const applyFilter = () => {
+    const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
 
-  const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
-  const hasFrom = isValidDate(fromDate);
-  const hasTo = isValidDate(toDate);
-  const hasRange = hasFrom && hasTo;
+    const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+    const hasFrom = isValidDate(fromDate);
+    const hasTo = isValidDate(toDate);
+    const hasRange = hasFrom && hasTo;
 
-  // ✅ SweetAlert if only one date is selected
-  if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
-    Swal.fire({
-      icon: "warning",
-      title: "Incomplete Date Range",
-      text: hasFrom
-        ? "Please select a To Date to complete the date range."
-        : "Please select a From Date to complete the date range.",
-      confirmButtonColor: "#3085d6",
-    });
-    return; // stop further execution
-  }
+    // ✅ SweetAlert if only one date is selected
+    if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Incomplete Date Range",
+        text: hasFrom
+          ? "Please select a To Date to complete the date range."
+          : "Please select a From Date to complete the date range.",
+        confirmButtonColor: "#3085d6",
+      });
+      return; // stop further execution
+    }
 
-  const range = hasRange ? [fromDate, toDate] : [];
+    const range = hasRange ? [fromDate, toDate] : [];
 
-  // If trialDate is checked: send range as dateBookedFrom/To
-  // Else: send range as createdAtFrom/To
-  const dateRangeMembership = checkedStatuses.trialDate ? range : [];
-  const otherDateRange = checkedStatuses.trialDate ? [] : range;
+    // If trialDate is checked: send range as dateBookedFrom/To
+    // Else: send range as createdAtFrom/To
+    const dateRangeMembership = checkedStatuses.trialDate ? range : [];
+    const otherDateRange = checkedStatuses.trialDate ? [] : range;
 
-  fetchLeads(
-    "",                  // venueName
-    checkedStatuses.paid,   // status1
-    checkedStatuses.trial,  // month2 -> duration 3
-    checkedStatuses.canceled, // month3 -> duration 1 (flexi)
-    otherDateRange,         // createdAt range [from,to] OR []
-    bookedByParams          // bookedBy ids
-  );
-};
+    fetchLeads(
+      "",                  // venueName
+      checkedStatuses.paid,   // status1
+      checkedStatuses.trial,  // month2 -> duration 3
+      checkedStatuses.canceled, // month3 -> duration 1 (flexi)
+      otherDateRange,         // createdAt range [from,to] OR []
+      bookedByParams          // bookedBy ids
+    );
+  };
 
   const prevMonth = () => {
     setCurrentDate((prev) => {
@@ -883,7 +901,7 @@ const applyFilter = () => {
 
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
-                  postCode
+                  Post Code
                 </label>
                 <input
                   type="text"

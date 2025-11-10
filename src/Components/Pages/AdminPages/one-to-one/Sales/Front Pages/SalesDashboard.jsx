@@ -27,6 +27,8 @@ import Loader from "../../../contexts/Loader";
 import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 const SalesDashboard = () => {
     const navigate = useNavigate();
+    const [noLoaderShow, setNoLoaderShow] = useState(false);
+
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
     const [isOpen, setIsOpen] = useState(false);
@@ -81,7 +83,7 @@ const SalesDashboard = () => {
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
-            setLoading(true);
+            if (!noLoaderShow) setLoading(true);
 
             try {
                 const queryParams = new URLSearchParams();
@@ -153,7 +155,9 @@ const SalesDashboard = () => {
                 if (resultRaw.coachList) setCoachList(resultRaw.coachList);
                 setLeadsData(resultRaw.data || []);
                 setSummary(resultRaw.summary);
-                setLoading(false);
+                setFromDate('');
+                setToDate('');
+                if (!noLoaderShow) setLoading(false);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
             }
@@ -312,13 +316,29 @@ const SalesDashboard = () => {
             setLoading(false);
         }
     };
+
+
     const handleSearch = (e) => {
-        const value = e.target.value;
+        const value = e.target.value.trim();
         setSearchTerm(value);
 
-        // Fetch data with search value (debounce optional)
-        fetchLeads(value);
+        // If search is cleared, hide loader and optionally reset data
+        if (value.length === 0) {
+            setNoLoaderShow(false);
+            fetchLeads(""); // optional: reload default list
+            return;
+        }
+
+        // Show loader while searching
+        setNoLoaderShow(true);
+
+        // Debounce to prevent too many API calls while typing
+        clearTimeout(window.searchTimeout);
+        window.searchTimeout = setTimeout(() => {
+            fetchLeads(value);
+        }, 400);
     };
+
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [currentDate, setCurrentDate] = useState(new Date());
 

@@ -16,17 +16,17 @@ const tabs = [
 const SeeDetailsAccountBirthday = () => {
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   const navigate = useNavigate();
-  const { loading,data, setMainId ,fetchMembers } = useAccountsInfo();
+  const { loading,data, setMainId ,fetchBirthdyPartiesMembers } = useAccountsInfo();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("id"); // <-- this will be "9"  console.log('id',id)
 
-  // useEffect(() => {
-  //   fetchMembers(id);
-  //   if (id) {
-  //     setMainId(id);
-  //   }
-  // }, [])
+  useEffect(() => {
+    fetchBirthdyPartiesMembers(id);
+    if (id) {
+      setMainId(id);
+    }
+  }, [])
 
   if (loading) return <Loader />;
 
