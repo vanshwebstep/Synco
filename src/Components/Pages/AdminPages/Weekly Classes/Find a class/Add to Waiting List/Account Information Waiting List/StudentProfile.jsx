@@ -297,8 +297,8 @@ console.log('profile',profile)
     const venueName = profile?.venue?.name;
     const MembershipPlan = paymentPlan?.title;
     const MembershipPrice = paymentPlan?.price;
-    const duration = paymentPlan.duration ?? 0;
-    const interval = paymentPlan.interval ?? "";
+    const duration = paymentPlan?.duration ?? 0;
+    const interval = paymentPlan?.interval ?? "";
   console.log('duration',duration,interval)
     const MembershipTenure = duration && interval
         ? `${duration} ${interval}`
@@ -567,75 +567,96 @@ console.log('profile',profile)
 
                     </div>
 
-                    <div className="bg-white rounded-3xl p-6 mt-10 space-y-4">
+                     <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
 
                         {/* Input section */}
                         <div className="flex items-center gap-2">
                             <img
-                                src="https://i.pravatar.cc/40?img=3" // Replace with actual user image
+                                src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'}
                                 alt="User"
                                 className="w-14 h-14 rounded-full object-cover"
                             />
                             <input
                                 type="text"
+                                name='comment'
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
                                 placeholder="Add a comment"
                                 className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none md:w-full w-5/12"
                             />
-                            <button className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-[#237FEA]">
+                            <button
+                                className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
+                                onClick={handleSubmitComment}
+                            >
                                 <img src="/demo/synco/icons/sent.png" alt="" />
                             </button>
                         </div>
 
                         {/* Comment list */}
-                        <div className="space-y-4">
-                            {[
-                                {
-                                    name: "Ethan",
-                                    time: "8 min ago",
-                                    comment: "Not 100% sure she can attend but if she cant she will email us.",
-                                    avatar: "https://i.pravatar.cc/40?img=3",
-                                },
-                                {
-                                    name: "Nilio Bagga",
-                                    time: "8 min ago",
-                                    comment:
-                                        "Not 100% sure she can attend but if she cant she will email us. Not 100% sure she can attend but if she cant she will email us.",
-                                    avatar: "https://i.pravatar.cc/40?img=12",
-                                },
-                            ].map((c, i) => (
-                                <div
-                                    key={i}
-                                    className="bg-gray-50 rounded-xl p-4   text-sm"
-                                >
-                                    <p className="text-gray-700 text-[16px] font-semibold mb-1">{c.comment}</p>
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-3">
-                                            <img
-                                                src={
-                                                    c?.avatar
-                                                        ? `${c.avatar}`
-                                                        : '/demo/synco/members/dummyuser.png'
-                                                }
-                                                onError={(e) => {
-                                                    e.currentTarget.onerror = null; // prevent infinite loop
-                                                    e.currentTarget.src = '/demo/synco/members/dummyuser.png';
-                                                }}
-                                                alt={c.name}
-                                                className="w-10 h-10 rounded-full object-cover mt-1"
-                                            />
-                                            <div>
-
-                                                <p className="font-semibold text-[#237FEA] text-[16px]">{c.name}</p>
+                        {commentsList && commentsList.length > 0 ? (
+                            <div className="space-y-4">
+                                {currentComments.map((c, i) => (
+                                    <div key={i} className="bg-gray-50 rounded-xl p-4 text-sm">
+                                        <p className="text-gray-700 text-[16px] font-semibold mb-1">{c.comment}</p>
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    src={
+                                                        c?.bookedByAdmin?.profile
+                                                            ? `${c?.bookedByAdmin?.profile}`
+                                                            : '/demo/synco/members/dummyuser.png'
+                                                    }
+                                                    onError={(e) => {
+                                                        e.currentTarget.onerror = null; // prevent infinite loop
+                                                        e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                    }}
+                                                    alt={c?.bookedByAdmin?.firstName}
+                                                    className="w-10 h-10 rounded-full object-cover mt-1"
+                                                />
+                                                <div>
+                                                    <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName}</p>
+                                                </div>
                                             </div>
+                                            <span className="text-gray-400 text-[16px] whitespace-nowrap mt-1">
+                                                {formatTimeAgo(c.createdAt)}
+                                            </span>
                                         </div>
-                                        <span className=" text-gray-400 text-[16px] whitespace-nowrap mt-1">
-                                            {c.time}
-                                        </span>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+
+                                {/* Pagination controls */}
+                                {totalPages > 1 && (
+                                    <div className="flex justify-center items-center gap-2 mt-4">
+                                        <button
+                                            className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-100"
+                                            onClick={() => goToPage(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                        >
+                                            Prev
+                                        </button>
+                                        {Array.from({ length: totalPages }, (_, i) => (
+                                            <button
+                                                key={i}
+                                                className={`px-3 py-1 rounded-lg border ${currentPage === i + 1 ? 'bg-blue-500 text-white border-blue-500' : 'border-gray-300 hover:bg-gray-100'}`}
+                                                onClick={() => goToPage(i + 1)}
+                                            >
+                                                {i + 1}
+                                            </button>
+                                        ))}
+                                        <button
+                                            className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-100"
+                                            onClick={() => goToPage(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <p className="text-center">No Comments yet.</p>
+                        )}
                     </div>
                 </div>
                 <div className="max-h-fit rounded-full md:w-4/12 text-base space-y-5">
@@ -1059,17 +1080,17 @@ console.log('profile',profile)
                                             <div className="flex justify-between text-[#333]">
                                                 <span>Membership Plan</span>
                                                 <span>
-                                                    {paymentPlan.duration} {paymentPlan.interval}
-                                                    {paymentPlan.duration > 1 ? 's' : ''}
+                                                    {paymentPlan?.duration} {paymentPlan?.interval}
+                                                    {paymentPlan?.duration > 1 ? 's' : ''}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between text-[#333]">
                                                 <span>Monthly Subscription Fee</span>
-                                                <span>£{paymentPlan.price} p/m</span>
+                                                <span>£{paymentPlan?.price} p/m</span>
                                             </div>
                                             <div className="flex justify-between text-[#333]">
                                                 <span>Price per class per child</span>
-                                                <span>£{paymentPlan.price}</span>
+                                                <span>£{paymentPlan?.price}</span>
                                             </div>
 
                                         </motion.div>

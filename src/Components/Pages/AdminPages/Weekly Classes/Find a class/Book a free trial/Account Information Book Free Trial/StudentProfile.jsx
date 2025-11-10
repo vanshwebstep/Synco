@@ -123,7 +123,7 @@ const StudentProfile = ({ StudentProfile }) => {
     });
 
     console.log('parents', StudentProfile)
-    const parents = StudentProfile.parents;
+    const parents = StudentProfile?.parents;
     const [formData, setFormData] = useState({
         bookingId: id,
         cancelReason: "",
@@ -131,7 +131,7 @@ const StudentProfile = ({ StudentProfile }) => {
     });
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
-    const emergency = StudentProfile.emergency;
+    const emergency = StudentProfile?.emergency;
 
 
     const { checkPermission } = usePermission();

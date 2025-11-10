@@ -188,13 +188,7 @@ const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
                         {paymentPlan?.price ? (
                           <>
                             £
-                            {paymentPlan?.interval === "Month"
-                              ? paymentPlan?.price / paymentPlan?.duration
-                              : paymentPlan?.interval === "Year"
-                                ? paymentPlan?.price / (paymentPlan?.duration / 12)
-                                : paymentPlan?.interval === "Annual"
-                                  ? paymentPlan?.price
-                                  : paymentPlan?.price}
+                            {paymentPlan?.price}
                           </>
                         ) : (
                           "-"

@@ -161,7 +161,7 @@ const StudentProfile = ({ StudentProfile }) => {
     });
     console.log('parents', StudentProfile)
     const studentsList = StudentProfile?.students || [];
-    const parents = StudentProfile.parents || [];
+    const parents = StudentProfile?.parents || [];
     const [formData, setFormData] = useState({
         bookingId: id,
         cancelReason: "",
@@ -169,7 +169,7 @@ const StudentProfile = ({ StudentProfile }) => {
     });
     const studentCount = students?.length || 0;
     const matchedPlan = paymentPlans?.find(plan => plan.students === studentCount);
-    const emergency = StudentProfile.emergency || [];
+    const emergency = StudentProfile?.emergency || [];
     console.log('matchedPlan', matchedPlan)
 
     const { checkPermission } = usePermission();
@@ -655,7 +655,7 @@ const StudentProfile = ({ StudentProfile }) => {
 
                                             {paymentPlan && (
                                                 <div className="text-[16px] mt-1 text-gray-400">
-                                                    {paymentPlan.title}
+                                                    {paymentPlan?.title}
                                                 </div>
                                             )}
                                         </>
@@ -1463,17 +1463,17 @@ const StudentProfile = ({ StudentProfile }) => {
                                             <div className="flex justify-between text-[#333]">
                                                 <span>Membership Plan</span>
                                                 <span>
-                                                    {paymentPlan.duration} {paymentPlan.interval}
-                                                    {paymentPlan.duration > 1 ? 's' : ''}
+                                                    {paymentPlan?.duration} {paymentPlan?.interval}
+                                                    {paymentPlan?.duration > 1 ? 's' : ''}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between text-[#333]">
                                                 <span>Monthly Subscription Fee</span>
-                                                <span>£{paymentPlan.price} p/m</span>
+                                                <span>£{paymentPlan?.price} p/m</span>
                                             </div>
                                             <div className="flex justify-between text-[#333]">
                                                 <span>Price per class per child</span>
-                                                <span>£{paymentPlan.price}</span>
+                                                <span>£{paymentPlan?.price}</span>
                                             </div>
 
                                         </motion.div>

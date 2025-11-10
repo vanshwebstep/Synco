@@ -105,7 +105,7 @@ const BookingCard = ({ booking }) => {
   //  console.log('data', data.booking)
   // data.packageInterest
   // data.booking.students.length
-  // data.booking.paymentPlan.price
+  // data.booking.paymentPlan?.price
   // data.booking.payment.stripePaymentIntentId
   // data.booking.location
   // data.booking.coach.firstName ,data.booking.coach.lastName 
@@ -180,7 +180,7 @@ const BookingCard = ({ booking }) => {
             <>
               {renderField("Package", data.packageInterest)}
               {renderField("Students", data.booking.students.length)}
-              {renderField("Price Paid", data.booking.paymentPlan.price)}
+              {renderField("Price Paid", data.booking.paymentPlan?.price)}
               {renderField("Stripe Transaction ID", data.booking.payment.stripePaymentIntentId)}
               {renderField("Date of Booking", data.booking.date)}
               {renderField("Venue", data.booking.location)}

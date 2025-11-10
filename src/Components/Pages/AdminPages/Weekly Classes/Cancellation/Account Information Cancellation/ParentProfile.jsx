@@ -627,7 +627,7 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                             {paymentPlan && (
                                                 <div className="text-[16px] mt-1 text-gray-400">
-                                                    {paymentPlan.title}
+                                                    {paymentPlan?.title}
                                                 </div>
                                             )}
                                         </>
@@ -1425,17 +1425,17 @@ const ParentProfile = ({ ParentProfile }) => {
                                             <div className="flex justify-between text-[#333]">
                                                 <span>Membership Plan</span>
                                                 <span>
-                                                    {paymentPlan.duration} {paymentPlan.interval}
-                                                    {paymentPlan.duration > 1 ? 's' : ''}
+                                                    {paymentPlan?.duration} {paymentPlan?.interval}
+                                                    {paymentPlan?.duration > 1 ? 's' : ''}
                                                 </span>
                                             </div>
                                             <div className="flex justify-between text-[#333]">
                                                 <span>Monthly Subscription Fee</span>
-                                                <span>£{paymentPlan.price} p/m</span>
+                                                <span>£{paymentPlan?.price} p/m</span>
                                             </div>
                                             <div className="flex justify-between text-[#333]">
                                                 <span>Price per class per child</span>
-                                                <span>£{paymentPlan.price}</span>
+                                                <span>£{paymentPlan?.price}</span>
                                             </div>
 
                                         </motion.div>

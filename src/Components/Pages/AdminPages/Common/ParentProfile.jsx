@@ -623,7 +623,7 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                             {paymentPlan && (
                                                 <div className="text-[16px] mt-1 text-gray-400">
-                                                    {paymentPlan.title}
+                                                    {paymentPlan?.title}
                                                 </div>
                                             )}
                                         </>

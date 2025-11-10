@@ -165,7 +165,7 @@ const MainTable = () => {
                                                 <td className="p-4 whitespace-nowrap">{safe(user?.paymentPlan?.title)}</td>
                                                 <td className="p-4 whitespace-nowrap">
                                                     {user?.paymentPlan?.duration && user?.paymentPlan?.interval
-                                                        ? `${user.paymentPlan.duration} ${user.paymentPlan.interval}${user.paymentPlan.duration > 1 ? 's' : ''}`
+                                                        ? `${user.paymentPlan?.duration} ${user.paymentPlan?.interval}${user.paymentPlan?.duration > 1 ? 's' : ''}`
                                                         : 'N/A'}
                                                 </td>
                                                 <td className="p-4 whitespace-nowrap">

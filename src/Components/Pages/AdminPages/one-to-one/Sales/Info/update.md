@@ -1,5 +1,7 @@
+  (Work Done Synco)
 
   1. One to One & Birthday Party Booking
+      ______________________________________
 
      . Postal Code Field Update
      . Medical Information and How did you hear about us is visible after the booking
@@ -17,7 +19,29 @@
      . date of Booking is wrong in Service History in One to One
      . Change Package Interest Field Into Select options
      . Venue is not visible outside of the profile in sales tab
-     
+     . Added Swal Messages for date filter
+
+   2. Waiting List
+      ____________
+
+     . Comments are static in parent profile
+     . Fix Student Profile Issue
+
+
+
+
+
+
+(Work Done Goldquest )
+
+ 1. (Admin & Customer Login)
+
+ . Add Password Filled Acc to Additonal Required
+ . Prefill Password in Edit Form
+ . Apply Login Submision acc to Additional Login  (Add Selec Dropdown) 
+ . Send Additional user Id Acc to Type Addition in all API CALL in Customer Login
+
+
 
 
 
