@@ -10,22 +10,23 @@ import { useNotification } from "../../../contexts/NotificationContext";
 import { useMembers } from "../../../contexts/MemberContext";
 import { Mail, MessageSquare, AlertTriangle } from "lucide-react";
 import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
-
+import Swal from "sweetalert2";
 const General = () => {
-    const { data } = useAccountsInfo();
-    console.log('data', data)
+    const { oneToOneData } = useAccountsInfo();
+
+    console.log('oneToOneData', oneToOneData)
     const [formData, setFormData] = useState({
         student: {
-            firstName: data?.booking?.students?.[0]?.studentFirstName || "",
-            lastName: data?.booking?.students?.[0]?.studentLastName || "",
-            dob: data?.booking?.students?.[0]?.dateOfBirth
-                ? new Date(data.booking.students[0].dateOfBirth)
+            firstName: oneToOneData?.booking?.students?.[0]?.studentFirstName || "",
+            lastName: oneToOneData?.booking?.students?.[0]?.studentLastName || "",
+            dob: oneToOneData?.booking?.students?.[0]?.dateOfBirth
+                ? new Date(oneToOneData.booking.students[0].dateOfBirth)
                 : null,
-            age: data?.booking?.students?.[0]?.age || "",
-            medical: data?.booking?.students?.[0]?.medicalInfo || "",
-            ability: data?.booking?.students?.[0]?.ability || "",
+            age: oneToOneData?.booking?.students?.[0]?.age || "",
+            medical: oneToOneData?.booking?.students?.[0]?.medicalInfo || "",
+            ability: oneToOneData?.booking?.students?.[0]?.ability || "",
         },
-        parent: data?.booking?.parents?.map((p) => ({
+        parent: oneToOneData?.booking?.parents?.map((p) => ({
             firstName: p?.parentFirstName || "",
             lastName: p?.parentLastName || "",
             email: p?.parentEmail || "",
@@ -33,9 +34,19 @@ const General = () => {
             referral: p?.howDidHear || "",
         })) || [{}],
     });
+const [bookingId, setBookingId] = useState([]);
+
+useEffect(() => {
+  if (oneToOneData?.booking?.leadId) {
+    setBookingId(prev => [...prev, oneToOneData.booking.leadId]);
+  }
+}, [oneToOneData]);
+
+console.log('bookingId', bookingId);
+
 
     const [selectedKeyInfo, setSelectedKeyInfo] = useState(null);
-
+    const { sendOnetoOneMail } = useAccountsInfo();
     const [isOpen, setIsOpen] = useState(false);
 
     const { keyInfoData, fetchKeyInfo } = useMembers();
@@ -123,19 +134,19 @@ const General = () => {
         setCurrentPage(page);
     };
 
-const handleChange = (section, name, value, index = null) => {
-  setFormData((prev) => {
-    if (section === "parent" && index !== null) {
-      const updatedParents = [...prev.parent];
-      updatedParents[index] = { ...updatedParents[index], [name]: value };
-      return { ...prev, parent: updatedParents };
-    }
-    return {
-      ...prev,
-      [section]: { ...prev[section], [name]: value },
+    const handleChange = (section, name, value, index = null) => {
+        setFormData((prev) => {
+            if (section === "parent" && index !== null) {
+                const updatedParents = [...prev.parent];
+                updatedParents[index] = { ...updatedParents[index], [name]: value };
+                return { ...prev, parent: updatedParents };
+            }
+            return {
+                ...prev,
+                [section]: { ...prev[section], [name]: value },
+            };
+        });
     };
-  });
-};
 
     const [paymentData, setPaymentData] = useState({
         firstName: "",
@@ -539,103 +550,114 @@ const handleChange = (section, name, value, index = null) => {
 
 
                         {/* Details Section */}
-                  <div className="bg-[#363E49] text-white rounded-4xl p-6 space-y-3">
+                        <div className="bg-[#363E49] text-white rounded-4xl p-6 space-y-3">
 
-  {/* Status */}
-  <div
-    className="text-white rounded-2xl p-4 relative overflow-hidden"
-    style={{
-      backgroundImage: "url('/demo/synco/frames/Active.png')",
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-    }}
-  >
-    <p className="text-[20px] text-black font-bold relative z-10">Status</p>
-    <p className="text-sm text-black relative z-10 capitalize">
-      {data?.status || data?.booking?.payment?.paymentStatus || "N/A"}
-    </p>
-  </div>
+                            {/* Status */}
+                            <div
+                                className="text-white rounded-2xl p-4 relative overflow-hidden"
+                                style={{
+                                    backgroundImage: "url('/demo/synco/frames/Active.png')",
+                                    backgroundSize: "cover",
+                                    backgroundPosition: "center",
+                                }}
+                            >
+                                <p className="text-[20px] text-black font-bold relative z-10">Status</p>
+                                <p className="text-sm text-black relative z-10 capitalize">
+                                    {oneToOneData?.status || oneToOneData?.booking?.payment?.paymentStatus || "N/A"}
+                                </p>
+                            </div>
 
-  {/* Coach */}
-  <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
-    <div>
-      <img src="/demo/synco/members/user2.png" alt="Coach" className="w-10 h-10 rounded-full object-cover" />
-    </div>
-    <div>
-      <h3 className="text-lg font-semibold">Coach</h3>
-      <p className="text-gray-300 text-sm">
-        {data?.booking?.coach
-          ? `${data.booking.coach.firstName} ${data.booking.coach.lastName}`
-          : "N/A"}
-      </p>
-    </div>
-  </div>
+                            {/* Coach */}
+                            <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
+                                <div>
+                                    <img src="/demo/synco/members/user2.png" alt="Coach" className="w-10 h-10 rounded-full object-cover" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold">Coach</h3>
+                                    <p className="text-gray-300 text-sm">
+                                        {oneToOneData?.booking?.coach
+                                            ? `${oneToOneData.booking.coach.firstName} ${oneToOneData.booking.coach.lastName}`
+                                            : "N/A"}
+                                    </p>
+                                </div>
+                            </div>
 
-  {/* Venue */}
-  <div className="border-b border-[#495362] pb-3">
-    <p className="text-white text-[18px] font-semibold">Venue</p>
-    <span className="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded-md mt-1">
-      {data?.booking?.location || "N/A"}
-    </span>
-  </div>
+                            {/* Venue */}
+                            <div className="border-b border-[#495362] pb-3">
+                                <p className="text-white text-[18px] font-semibold">Venue</p>
+                                <span className="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded-md mt-1">
+                                    {oneToOneData?.booking?.location || "N/A"}
+                                </span>
+                            </div>
 
-  {/* Parent */}
-  <div className="border-b border-[#495362] pb-3">
-    <p className="text-white text-[18px] font-semibold">Parent Name</p>
-    <p className="text-[16px] mt-1 text-[#BDC0C3]">
-      {data?.booking?.parents?.[0]
-        ? `${data.booking.parents[0].parentFirstName} ${data.booking.parents[0].parentLastName}`
-        : data?.parentName || "N/A"}
-    </p>
-  </div>
+                            {/* Parent */}
+                            <div className="border-b border-[#495362] pb-3">
+                                <p className="text-white text-[18px] font-semibold">Parent Name</p>
+                                <p className="text-[16px] mt-1 text-[#BDC0C3]">
+                                    {oneToOneData?.booking?.parents?.[0]
+                                        ? `${oneToOneData.booking.parents[0].parentFirstName} ${oneToOneData.booking.parents[0].parentLastName}`
+                                        : oneToOneData?.parentName || "N/A"}
+                                </p>
+                            </div>
 
-  {/* Date of Class */}
-  <div className="border-b border-[#495362] pb-3">
-    <p className="text-white text-[18px] font-semibold">Date of Class</p>
-    <p className="text-[16px] mt-1 text-[#BDC0C3]">
-      {data?.booking?.date
-        ? new Date(data.booking.date).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          })
-        : "N/A"}
-    </p>
-  </div>
+                            {/* Date of Class */}
+                            <div className="border-b border-[#495362] pb-3">
+                                <p className="text-white text-[18px] font-semibold">Date of Class</p>
+                                <p className="text-[16px] mt-1 text-[#BDC0C3]">
+                                    {oneToOneData?.booking?.date
+                                        ? new Date(oneToOneData.booking.date).toLocaleDateString("en-GB", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric",
+                                        })
+                                        : "N/A"}
+                                </p>
+                            </div>
 
-  {/* Package */}
-  <div className="border-b border-[#495362] pb-3">
-    <p className="text-white text-[18px] font-semibold">Package</p>
-    <p className="text-[16px] mt-1 text-[#BDC0C3]">
-      {data?.booking?.paymentPlan?.title || data?.packageInterest || "N/A"}
-    </p>
-  </div>
+                            {/* Package */}
+                            <div className="border-b border-[#495362] pb-3">
+                                <p className="text-white text-[18px] font-semibold">Package</p>
+                                <p className="text-[16px] mt-1 text-[#BDC0C3]">
+                                    {oneToOneData?.booking?.paymentPlan?.title || oneToOneData?.packageInterest || "N/A"}
+                                </p>
+                            </div>
 
-  {/* Source */}
-  <div className="border-b border-[#495362] pb-3">
-    <p className="text-white text-[18px] font-semibold">Source</p>
-    <p className="text-[16px] mt-1 text-[#BDC0C3]">
-      {data?.source || data?.booking?.parents?.[0]?.howDidHear || "N/A"}
-    </p>
-  </div>
+                            {/* Source */}
+                            <div className="border-b border-[#495362] pb-3">
+                                <p className="text-white text-[18px] font-semibold">Source</p>
+                                <p className="text-[16px] mt-1 text-[#BDC0C3]">
+                                    {oneToOneData?.source || oneToOneData?.booking?.parents?.[0]?.howDidHear || "N/A"}
+                                </p>
+                            </div>
 
-  {/* Price */}
-  <div>
-    <p className="text-white text-[18px] font-semibold">Price</p>
-    <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">
-      £
-      {data?.booking?.payment?.amount
-        ? parseFloat(data.booking.payment.amount).toFixed(2)
-        : "0.00"}
-    </p>
-  </div>
-</div>
+                            {/* Price */}
+                            <div>
+                                <p className="text-white text-[18px] font-semibold">Price</p>
+                                <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">
+                                    £
+                                    {oneToOneData?.booking?.payment?.amount
+                                        ? parseFloat(oneToOneData.booking.payment.amount).toFixed(2)
+                                        : "0.00"}
+                                </p>
+                            </div>
+                        </div>
 
 
                         {/* Action Buttons */}
                         <div className="p-6 flex flex-col bg-white rounded-3xl mt-5 items-center space-y-3">
                             <div className="flex w-full justify-between gap-2">
-                                <button className="flex-1 flex items-center gap-2 justify-center border border-[#717073] text-[#717073] rounded-xl font-semibold py-3 text-[18px] text-[18px]  hover:bg-gray-50 transition">
+                                <button onClick={() => {
+                                    if (bookingId) {
+                                        sendOnetoOneMail(bookingId);
+                                    } else {
+                                        Swal.fire({
+                                            icon: "warning",
+                                            title: "No Students Selected",
+                                            text: "Please select at least one Lead before sending an email.",
+                                            confirmButtonText: "OK",
+                                        });
+                                    }
+                                }} className="flex-1 flex items-center gap-2 justify-center border border-[#717073] text-[#717073] rounded-xl font-semibold py-3 text-[18px] text-[18px]  hover:bg-gray-50 transition">
                                     <Mail className="w-4 h-4 mr-1" /> Send Email
                                 </button>
                                 <button className="flex-1 flex items-center gap-2 justify-center border border-[#717073] rounded-xl font-semibold py-3 text-[18px] text-[#717073]  hover:bg-gray-50 transition">

@@ -185,7 +185,7 @@ const List = () => {
       dateOfBirth: null,
       age: '',
       gender: '',
-      medicalInformation: '',
+      medicalInfo: '',
       // Add other fields if needed
     },
   ]);
@@ -205,7 +205,7 @@ const List = () => {
       parentEmail: '',
       phoneNumber: '',
       relationChild: '',
-      howDidYouHear: ''
+      howDidHear: ''
 
     }
   ]);
@@ -255,7 +255,7 @@ const List = () => {
           dateOfBirth: null,
           age: '',
           gender: '',
-          medicalInformation: '',
+          medicalInfo: '',
           class: singleClassSchedulesOnly?.className || '',
           time: singleClassSchedulesOnly?.startTime || '',
         }));
@@ -464,7 +464,7 @@ const List = () => {
       cancelButtonText: "Stay here",
     }).then((result) => {
       if (result.isConfirmed) {
-        navigate("/weekly-classes/find-a-class");
+        navigate("/one-to-one");
       }
     });
   };
@@ -578,7 +578,7 @@ const List = () => {
         parentEmail: '',
         phoneNumber: '',
         relationChild: '',
-        howDidYouHear: ''
+        howDidHear: ''
       },
     ]);
   };
@@ -1539,8 +1539,8 @@ const List = () => {
                       <input
                         type="text"
                         placeholder="Enter medical info"
-                        value={student.medicalInformation || ""}
-                        onChange={(e) => handleInputChange(index, "medicalInformation", e.target.value)}
+                        value={student.medicalInfo || ""}
+                        onChange={(e) => handleInputChange(index, "medicalInfo", e.target.value)}
                         className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
 
@@ -1693,9 +1693,9 @@ const List = () => {
                         placeholder="Select from drop down"
                         className="mt-2"
                         classNamePrefix="react-select"
-                        value={hearOptions.find((o) => o.value === parent.howDidYouHear)}
+                        value={hearOptions.find((o) => o.value === parent.howDidHear)}
                         onChange={(selected) =>
-                          handleParentChange(index, "howDidYouHear", selected.value)
+                          handleParentChange(index, "howDidHear", selected.value)
                         }
                       />
                     </div>

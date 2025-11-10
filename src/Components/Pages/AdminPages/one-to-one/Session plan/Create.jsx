@@ -346,7 +346,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                 confirmButtonColor: "#237FEA",
             });
             emptySession();
-            navigate(`/one-to-one`);
+            navigate(`/one-to-one/session-plan`);
         } else {
             await Swal.fire({
                 icon: "error",
@@ -579,7 +579,7 @@ useEffect(() => {
 
     return (
         <>
-            <div  ref={exerciseRef} className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start my-5" onClick={() => navigate('/one-to-one')}>
+            <div  ref={exerciseRef} className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start my-5" onClick={() => navigate('/one-to-one/session-plan')}>
                 <img
                     src="/demo/synco/icons/arrow-left.png"
                     alt="Back"

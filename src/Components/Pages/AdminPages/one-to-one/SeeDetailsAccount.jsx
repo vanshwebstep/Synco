@@ -16,17 +16,17 @@ const tabs = [
 const SeeDetailsAccount = () => {
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   const navigate = useNavigate();
-  const { loading,data, setMainId ,fetchMembers } = useAccountsInfo();
+  const { loading,oneToOneData, setMainId ,fetchOneToOneMembers } = useAccountsInfo();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("id"); // <-- this will be "9"  console.log('id',id)
 
-  // useEffect(() => {
-  //   fetchMembers(id);
-  //   if (id) {
-  //     setMainId(id);
-  //   }
-  // }, [])
+  useEffect(() => {
+    fetchOneToOneMembers(id);
+    if (id) {
+      setMainId(id);
+    }
+  }, [])
 
   if (loading) return <Loader />;
 
@@ -36,7 +36,7 @@ const SeeDetailsAccount = () => {
       <div className="flex  items-center w-[max-content] bg-white p-3 gap-1 rounded-2xl p-1 space-x-2">
        <h2
           onClick={() => {
-            navigate(`/one-to-one/sales/account-information?id=${data.booking.leadId}`)
+            navigate(`/one-to-one/sales/account-information?id=${oneToOneData.booking.leadId}`)
           }}>
           <img
             src="/demo/synco/icons/arrow-left.png"

@@ -81,6 +81,7 @@ const AllDashboard = () => {
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
+            setLoading(true);
 
             try {
                 const queryParams = new URLSearchParams();
@@ -153,6 +154,7 @@ const AllDashboard = () => {
                 if (resultRaw.coachList) setCoachList(resultRaw.coachList);
                 setLeadsData(resultRaw.data || []);
                 setSummary(resultRaw.summary);
+                setLoading(false);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
             }
@@ -485,13 +487,27 @@ const AllDashboard = () => {
         }
     };
     const applyFilter = () => {
-
         const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
-        const hasRange = isValidDate(fromDate) && isValidDate(toDate);
+        const hasFrom = isValidDate(fromDate);
+        const hasTo = isValidDate(toDate);
+        const hasRange = hasFrom && hasTo;
+
+        // ✅ Show SweetAlert if only one date is selected
+        if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
+            Swal.fire({
+                icon: "warning",
+                title: "Incomplete Date Range",
+                text: "Please select both From Date and To Date to apply the filter.",
+                confirmButtonColor: "#3085d6",
+            });
+            return; // stop further execution
+        }
+
         const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
         const coachByParams = Array.isArray(savedCoach) ? savedCoach : [];
         const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
         const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
+
         fetchLeads(
             "",
             checkedStatuses.package,
@@ -507,6 +523,7 @@ const AllDashboard = () => {
             toDateToSend
         );
     };
+
 
 
     const prevMonth = () => {
@@ -607,15 +624,37 @@ const AllDashboard = () => {
             selectedVenueParam
         );
     }, [selectedVenue]);
-    if (mainLoading) {
+    if (mainLoading || loading) {
         return (
             <>
                 <Loader />
             </>
         )
     }
-    console.log('myVenues', myVenues)
-    return (
+    if (leadsData.length == 0) {
+        return (
+            <>
+                <div className="flex justify-end"> {leadsData.length == 0 && (
+                    <button onClick={() => {
+                        fetchLeads();
+                        setFromDate('');
+                        setToDate('');
+                    }}
+                        className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
+
+                        Reset Filters
+                    </button>
+
+                )}</div>
+
+                <div className="flex flex-col items-center justify-center py-10 text-gray-600">
+                    <p className="text-lg font-medium mb-3"> No Data Found</p>
+                </div>
+
+            </>
+
+        )
+    } return (
         <>
 
             <div className="min-h-screen overflow-hidden bg-gray-50 py-6 flex flex-col lg:flex-row ">
@@ -715,15 +754,28 @@ const AllDashboard = () => {
 
 
                                                     {lead?.booking?.coach?.firstName ? (
-                                                        lead?.booking?.coach?.firstName + " " + lead?.booking?.coach?.lastName 
-                                                    ):(
-                                                       <td>N/A</td>
+                                                        lead?.booking?.coach?.firstName + " " + lead?.booking?.coach?.lastName
+                                                    ) : (
+                                                        <td>N/A</td>
 
                                                     )}</td>
                                                 <td className="py-3 px-4 whitespace-nowrap">
-                                                    <span className="bg-green-50 text-green-400 semibold capitalize px-7 py-2 rounded-xl text-xs font-medium">
+                                                    <span
+                                                        className={`capitalize px-7 py-2 rounded-xl text-xs font-medium
+    ${lead.status === "active"
+                                                                ? "bg-green-50 text-green-500"
+                                                                : lead.status === "pending"
+                                                                    ? "bg-yellow-50 text-yellow-600"
+                                                                    : lead.status === "cancelled"
+                                                                        ? "bg-red-50 text-red-500"
+                                                                        : lead.status === "completed"
+                                                                            ? "bg-blue-50 text-blue-500"
+                                                                            : "bg-gray-100 text-gray-500"
+                                                            }`}
+                                                    >
                                                         {lead.status || "N/A"}
                                                     </span>
+
                                                 </td>
                                             </tr>
                                         );
@@ -1107,7 +1159,7 @@ const AllDashboard = () => {
 
                             <div>
                                 <label className="block text-sm text-gray-600 mb-1">
-                                    postCode
+                                    Postal Code
                                 </label>
                                 <input
                                     type="text"

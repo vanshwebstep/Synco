@@ -70,6 +70,7 @@ const BirthdayLeadsDashboard = () => {
         console.warn("⚠️ No admin token found — aborting fetch.");
         return;
       }
+      setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
@@ -123,7 +124,6 @@ const BirthdayLeadsDashboard = () => {
             const id = typeof agent === "object" ? agent.id : agent;
             if (id) {
               queryParams.append("agent", id);
-              console.log("👤 Added BookedBy agent ID:", id);
             }
           });
         }
@@ -131,25 +131,21 @@ const BirthdayLeadsDashboard = () => {
         // 🔹 Step 6: Final URL
         const queryString = queryParams.toString();
         const url = `${API_BASE_URL}/api/admin/birthday-party/leads/list${queryString ? `?${queryString}` : ""}`;
-        console.log("🌐 Final API URL:", url);
 
         // 🔹 Step 7: Fetch data
         const response = await fetch(url, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("📡 API Response status:", response.status);
 
         // 🔹 Step 8: Parse and set data
         const resultRaw = await response.json();
-        console.log("📦 Raw API response:", resultRaw);
 
         const result = resultRaw.data || [];
-        console.log("✅ Processed leads data:", result);
 
         setLeadsData(result);
         setSummary(resultRaw.summary);
-        console.log("🎯 Leads and summary updated successfully.");
+        setLoading(false);
       } catch (error) {
         console.error("❌ Failed to fetch leads:", error);
       }
@@ -449,38 +445,53 @@ const BirthdayLeadsDashboard = () => {
       setToDate(null);
     }
   };
-  const applyFilter = () => {
-    const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
+const applyFilter = () => {
+  const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
 
-    const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
-    const hasRange = isValidDate(fromDate) && isValidDate(toDate);
-    const range = hasRange ? [fromDate, toDate] : [];
+  const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+  const hasFrom = isValidDate(fromDate);
+  const hasTo = isValidDate(toDate);
+  const hasRange = hasFrom && hasTo;
 
-    const usePartyDate = checkedStatuses.partyDate;
-    const dateRange = usePartyDate ? range : [];
-    const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
-    const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
-    // 🔹 Collect status flags
-    const statusFilters = {
-      paid: checkedStatuses.paid,
-      gold: checkedStatuses.gold,
-      cancelled: checkedStatuses.cancelled,
-      silver: checkedStatuses.silver,
-      pending: checkedStatuses.pending,
+  // ✅ SweetAlert if only one date selected
+  if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
+    Swal.fire({
+      icon: "warning",
+      title: "Incomplete Date Range",
+      text: hasFrom
+        ? "Please select a To Date to complete the date range."
+        : "Please select a From Date to complete the date range.",
+      confirmButtonColor: "#3085d6",
+    });
+    return; // stop further execution
+  }
 
-    };
+  const range = hasRange ? [fromDate, toDate] : [];
 
+  const usePartyDate = checkedStatuses.partyDate;
+  const dateRange = usePartyDate ? range : [];
 
+  const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
+  const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
 
-    fetchLeads(
-      "",                // studentName
-      statusFilters,     // all statuses object
-      dateRange,         // date filter (if Date of Party checked)
-      bookedByParams,   // booked by IDs
-      fromDateToSend,
-      toDateToSend,
-    );
+  // 🔹 Collect status flags
+  const statusFilters = {
+    paid: checkedStatuses.paid,
+    gold: checkedStatuses.gold,
+    cancelled: checkedStatuses.cancelled,
+    silver: checkedStatuses.silver,
+    pending: checkedStatuses.pending,
   };
+
+  fetchLeads(
+    "", // studentName
+    statusFilters, // all statuses object
+    dateRange, // date filter (if Date of Party checked)
+    bookedByParams, // booked by IDs
+    fromDateToSend,
+    toDateToSend
+  );
+};
 
   const prevMonth = () => {
     setCurrentDate((prev) => {
@@ -519,11 +530,36 @@ const BirthdayLeadsDashboard = () => {
   for (let i = 0; i < firstDay; i++) daysArray.push(null);
   for (let i = 1; i <= daysInMonth; i++) daysArray.push(i);
 
-  if (mainLoading) {
+  if (mainLoading || loading) {
     return (
       <>
         <Loader />
       </>
+    )
+  }
+
+  if (leadsData.length == 0) {
+    return (
+      <>
+        <div className="flex justify-end"> {leadsData.length == 0 && (
+          <button onClick={() => {
+            fetchLeads();
+            setFromDate('');
+            setToDate('');
+          }}
+            className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
+
+            Reset Filters
+          </button>
+
+        )}</div>
+
+        <div className="flex flex-col items-center justify-center py-10 text-gray-600">
+          <p className="text-lg font-medium mb-3"> No Data Found</p>
+        </div>
+
+      </>
+
     )
   }
   return (

@@ -12,7 +12,8 @@ const ParentProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const { adminInfo, setAdminInfo } = useNotification();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { formData, setFormData, emergency, setEmergency, handleUpdate } = useAccountsInfo();
+  const { formData, setFormData, emergency, setEmergency, handleUpdate,students } = useAccountsInfo();
+  console.log('students',students)
 
   const [commentsList, setCommentsList] = useState([]);
   const [comment, setComment] = useState('');
@@ -31,10 +32,7 @@ const ParentProfile = () => {
     setCurrentPage(page);
   };
 
-  const handleModalChange = (e) => {
-    const { name, value } = e.target;
-    setNewParent((prev) => ({ ...prev, [name]: value }));
-  };
+ 
 
   const relationOptions = [
     { value: "Mother", label: "Mother" },
@@ -84,6 +82,20 @@ const ParentProfile = () => {
     );
   };
 
+
+  const handleModalChange = (e) => {
+  // For standard input fields
+  const { name, value } = e.target;
+  setNewParent((prev) => ({ ...prev, [name]: value }));
+};
+
+// Handle react-select separately
+const handleSelectChangeNew = (selectedOption, actionMeta) => {
+  const { name } = actionMeta;
+  setNewParent((prev) => ({ ...prev, [name]: selectedOption.value }));
+};
+
+
   // Handle phone input changes
   const handlePhoneChange = (index, e) => {
     const value = e.target.value;
@@ -92,7 +104,18 @@ const ParentProfile = () => {
         i === index ? { ...parent, phoneNumber: value } : parent
       )
     );
+ 
   };
+
+  const handlePhoneChangeNew = (e) => {
+  const value = e.target.value;
+
+  setNewParent((prev) => ({
+    ...prev,
+    phoneNumber: value,
+  }));
+};
+
 
 
   const formatTimeAgo = (timestamp) => {
@@ -113,6 +136,16 @@ const ParentProfile = () => {
     });
   };
 
+  const handleChangeDial = (index, value, data) => {
+    setDialCodes((prev) =>
+      prev.map((code, i) => (i === index ? "+" + data.dialCode : code))
+    );
+  };
+  const handleChangeEmergency = (index, value, data) => {
+    setDialCodesEmergency((prev) =>
+      prev.map((code, i) => (i === index ? "+" + data.dialCode : code))
+    );
+  };
   const fetchComments = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
@@ -139,16 +172,6 @@ const ParentProfile = () => {
       });
     }
   }, []);
-  const handleChangeDial = (index, value, data) => {
-    setDialCodes((prev) =>
-      prev.map((code, i) => (i === index ? "+" + data.dialCode : code))
-    );
-  };
-  const handleChangeEmergency = (index, value, data) => {
-    setDialCodesEmergency((prev) =>
-      prev.map((code, i) => (i === index ? "+" + data.dialCode : code))
-    );
-  };
 
 
   const handleSubmitComment = async (e) => {
@@ -217,6 +240,14 @@ const ParentProfile = () => {
   // Add parent from modal
   const handleAddParent = () => {
     setFormData((prev) => [...prev, newParent]);
+    // Create the updated students array
+    const updatedStudents = [...formData, { ...newParent,studentId :students[0]?.id }];
+
+    // Update local state
+    setFormData(updatedStudents);
+
+    // Call API update
+    handleUpdate('parents', updatedStudents);
     setShowModal(false);
     setNewParent({
       parentFirstName: "",
@@ -467,19 +498,19 @@ const ParentProfile = () => {
 
         {showModal && (
           <div className="fixed inset-0 bg-[#000000b8] bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl p-6 w-5/12  shadow-lg relative">
+            <div className="bg-white rounded-2xl p-6 w-5/12 shadow-lg relative">
               <h3 className="text-lg font-semibold mb-4 text-[#282829]">
                 Add New Parent
               </h3>
 
               {/* Name Fields */}
-              <div className="md:flex gap-6  mb-4">
+              <div className="md:flex gap-6 mb-4">
                 <div className="md:w-1/2">
                   <label className="block text-sm font-semibold">First name</label>
                   <input
                     name="parentFirstName"
                     className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
-                    value={newParent.parentFirstName}
+                    value={newParent.parentFirstName || ""}
                     onChange={handleModalChange}
                   />
                 </div>
@@ -488,21 +519,21 @@ const ParentProfile = () => {
                   <input
                     name="parentLastName"
                     className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
-                    value={newParent.parentLastName}
+                    value={newParent.parentLastName || ""}
                     onChange={handleModalChange}
                   />
                 </div>
               </div>
 
               {/* Email + Phone */}
-              <div className="md:flex gap-6  mb-4">
+              <div className="md:flex gap-6 mb-4">
                 <div className="md:w-1/2">
                   <label className="block text-sm font-semibold">Email</label>
                   <input
                     type="email"
                     name="parentEmail"
                     className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
-                    value={newParent.parentEmail}
+                    value={newParent.parentEmail || ""}
                     onChange={handleModalChange}
                   />
                 </div>
@@ -530,8 +561,8 @@ const ParentProfile = () => {
                     <input
                       type="tel"
                       name="phoneNumber"
-                      value={newParent.phoneNumber}
-                      onChange={handlePhoneChange}
+                      value={newParent.phoneNumber || ""}
+                      onChange={handlePhoneChangeNew}
                       placeholder="Enter number"
                       className="border-none focus:outline-none flex-1"
                     />
@@ -542,9 +573,7 @@ const ParentProfile = () => {
               {/* Relation + How Did You Hear */}
               <div className="md:flex gap-6 mb-6">
                 <div className="md:w-1/2">
-                  <label className="block text-sm font-semibold">
-                    Relation to child
-                  </label>
+                  <label className="block text-sm font-semibold">Relation to child</label>
                   <Select
                     options={relationOptions}
                     name="relationChild"
@@ -554,13 +583,11 @@ const ParentProfile = () => {
                     value={relationOptions.find(
                       (o) => o.value === newParent.relationChild
                     )}
-                    onChange={handleSelectChange}
+                    onChange={handleSelectChangeNew}
                   />
                 </div>
                 <div className="md:w-1/2">
-                  <label className="block text-sm font-semibold">
-                    How did you hear?
-                  </label>
+                  <label className="block text-sm font-semibold">How did you hear?</label>
                   <Select
                     options={hearOptions}
                     name="howDidHear"
@@ -570,7 +597,7 @@ const ParentProfile = () => {
                     value={hearOptions.find(
                       (o) => o.value === newParent.howDidHear
                     )}
-                    onChange={handleSelectChange}
+                    onChange={handleSelectChangeNew}
                   />
                 </div>
               </div>
@@ -593,6 +620,7 @@ const ParentProfile = () => {
             </div>
           </div>
         )}
+
       </div>
       <div className="bg-white p-6 rounded-3xl mt-5 shadow-sm space-y-6">
         <h2

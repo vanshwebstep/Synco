@@ -332,7 +332,7 @@ const handleDeleteGroup = async (groupId) => {
                     <Droppable droppableId="weekList" direction="horizontal">
                         {(provided) => (
                             <div
-                                className="flex flex-wrap gap-6"
+                                className="grid md:grid-cols-4 gap-6"
                                 ref={provided.innerRef}
                                 {...provided.droppableProps}
                             >
@@ -349,7 +349,7 @@ const handleDeleteGroup = async (groupId) => {
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}
                                                     ref={provided.innerRef}
-                                                    className={`bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl w-[280px] h-auto transition-all ${reorderMode
+                                                    className={`bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl h-auto transition-all ${reorderMode
                                                         ? "cursor-grab hover:shadow-lg"
                                                         : "hover:shadow-md"
                                                         }`}

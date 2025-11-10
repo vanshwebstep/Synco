@@ -5,6 +5,7 @@ const AccountsInfoContext = createContext();
 
 export const AccountsInfoProvider = ({ children }) => {
   const [data, setData] = useState([]);
+  const [oneToOneData, setOneToOneData] = useState([]);
   const [students, setStudents] = useState([]);
   const [formData, setFormData] = useState([]);
   const [emergency, setEmergency] = useState([]);
@@ -57,7 +58,7 @@ export const AccountsInfoProvider = ({ children }) => {
         },
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/booking/update/${data.id}`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/booking/update/${oneToOneData?.id}`, requestOptions);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -77,7 +78,7 @@ export const AccountsInfoProvider = ({ children }) => {
         timer: 2000,
         showConfirmButton: false,
       });
-      fetchOneToOneMembers(data.id);
+      fetchOneToOneMembers(oneToOneData?.id);
 
       console.log("Update Result:", result);
       return result;
@@ -323,8 +324,9 @@ export const AccountsInfoProvider = ({ children }) => {
 
       const result = resultRaw.data || [];
 
-      setData(result || []);
+      console.log('result',result)
 
+      setOneToOneData(result || []);
       setStudents(result?.booking?.students || []);
       setFormData(result?.booking?.parents || []);
       setEmergency(result?.booking?.emergency || []);
@@ -485,7 +487,7 @@ export const AccountsInfoProvider = ({ children }) => {
     }
   };
   return (
-    <AccountsInfoContext.Provider value={{ data, handleUpdateAcountInfo, sendOnetoOneMail, sendBirthdayMail, handleUpdateBirthday, fetchBirthdyPartiesMembers, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
+    <AccountsInfoContext.Provider value={{ data,oneToOneData, handleUpdateAcountInfo, sendOnetoOneMail, sendBirthdayMail, handleUpdateBirthday, fetchBirthdyPartiesMembers, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
       {children}
     </AccountsInfoContext.Provider>
   );

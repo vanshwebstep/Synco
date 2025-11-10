@@ -310,8 +310,8 @@ const SessionPlan = () => {
                                 <div key={index} className="bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl w-full  h-auto">
                                     {/* Header */}
                                     <div className="flex items-center justify-between p-3">
-                                        <h2 className="text-[24px] font-semibold text-[#282829]">{group.groupName}</h2>
-                                        <div className="flex items-center gap-2">
+                                        <h2 className="text-[24px] font-semibold text-[#282829] md:w-7/12">{group.groupName}</h2>
+                                        <div className="flex items-center justify-end gap-2 md:w-5/12">
                                             <button
                                                 className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                                 onClick={() => navigate(`/one-to-one/session-plan-preview?id=${group.id}`)}

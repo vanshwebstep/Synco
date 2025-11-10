@@ -411,27 +411,44 @@ const LeadsDashboard = () => {
       setToDate(null);
     }
   };
-  const applyFilter = () => {
-    const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
+const applyFilter = () => {
+  const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
 
-    const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
-    const hasRange = isValidDate(fromDate) && isValidDate(toDate);
-    const range = hasRange ? [fromDate, toDate] : [];
+  const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+  const hasFrom = isValidDate(fromDate);
+  const hasTo = isValidDate(toDate);
+  const hasRange = hasFrom && hasTo;
 
-    // If trialDate is checked: send range as dateBookedFrom/To
-    // Else: send range as createdAtFrom/To
-    const dateRangeMembership = checkedStatuses.trialDate ? range : [];
-    const otherDateRange = checkedStatuses.trialDate ? [] : range;
+  // ✅ SweetAlert if only one date is selected
+  if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
+    Swal.fire({
+      icon: "warning",
+      title: "Incomplete Date Range",
+      text: hasFrom
+        ? "Please select a To Date to complete the date range."
+        : "Please select a From Date to complete the date range.",
+      confirmButtonColor: "#3085d6",
+    });
+    return; // stop further execution
+  }
 
-    fetchLeads(
-      "",                                   // venueName
-      checkedStatuses.paid,             // status1
-      checkedStatuses.trial,              // month2 -> duration 3
-      checkedStatuses.canceled,           // month3 -> duration 1 (flexi)
-      otherDateRange,                      // createdAt range [from,to] OR []
-      bookedByParams                       // bookedBy ids
-    );
-  };
+  const range = hasRange ? [fromDate, toDate] : [];
+
+  // If trialDate is checked: send range as dateBookedFrom/To
+  // Else: send range as createdAtFrom/To
+  const dateRangeMembership = checkedStatuses.trialDate ? range : [];
+  const otherDateRange = checkedStatuses.trialDate ? [] : range;
+
+  fetchLeads(
+    "",                  // venueName
+    checkedStatuses.paid,   // status1
+    checkedStatuses.trial,  // month2 -> duration 3
+    checkedStatuses.canceled, // month3 -> duration 1 (flexi)
+    otherDateRange,         // createdAt range [from,to] OR []
+    bookedByParams          // bookedBy ids
+  );
+};
+
   const prevMonth = () => {
     setCurrentDate((prev) => {
       const newDate = new Date(prev);
@@ -520,88 +537,108 @@ const LeadsDashboard = () => {
                   <Plus size={16} />
                   Add new lead
                 </button>
+                {leadsData.length == 0 && (
+                  <button onClick={() => {
+                    fetchLeads();
+                    setFromDate('');
+                    setToDate('');
+                  }}
+                    className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
+
+                    Reset Filters
+                  </button>
+
+                )}
               </div>
             </div>
 
-            {/* Table */}
-            <div className="overflow-auto rounded-2xl bg-white shadow-sm">
-              <table className="min-w-full text-sm">
-                <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
-                  <tr className="font-semibold text-[#717073]">
-                    <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Child Name</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Age</th>
-                    <th className="py-3 px-4 whitespace-nowrap">PostCode</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Package Interest</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Availability</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Source</th>
-                    <th className="py-3 px-4 whitespace-nowrap">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leadsData.map((lead, i) => {
-                    const isChecked = selectedUserIds.includes(lead.id);
-                    return (
-                      <tr
-                        key={i}
-
-                        onClick={() => {
-                          if (lead?.booking) {
-                            Swal.fire({
-                              title: "Already Booked",
-                              text: "This lead has already been booked.",
-                              icon: "info",
-                              confirmButtonText: "OK",
-                              confirmButtonColor: "#3085d6",
-                            });
-                            return;
-                          }
-
-                          navigate(`/one-to-one/leads/booking-form?leadId=${lead.id}`)
-                        }}
-
-                        className={` border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer ${lead?.booking ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
-                          }`}
-                      >
-                        <td className="py-3 px-4 whitespace-nowrap font-semibold">
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation(); // ⛔ prevent row click
-                                toggleCheckbox(lead.id);
-                              }}
-                              className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? "border-gray-500" : "border-gray-300"
-                                }`}
-                            >
-                              {isChecked && (
-                                <Check
-                                  size={16}
-                                  strokeWidth={3}
-                                  className="text-gray-500"
-                                />
-                              )}
-                            </button>
-                            {lead.parentName}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.childName}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.postCode}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.availability}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
-                        <td className="py-3 px-4 whitespace-nowrap">
-                          <span className="bg-[#FBEECE] capitalize semibold text-[#EDA600] px-7 py-2 rounded-xl text-xs font-medium">
-                            {lead.status}
-                          </span>
-                        </td>
+            {
+              leadsData.length > 0 ? (
+                <div className="overflow-auto rounded-2xl bg-white shadow-sm">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
+                      <tr className="font-semibold text-[#717073]">
+                        <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Child Name</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Age</th>
+                        <th className="py-3 px-4 whitespace-nowrap">PostCode</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Package Interest</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Availability</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Source</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Status</th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                      {leadsData.map((lead, i) => {
+                        const isChecked = selectedUserIds.includes(lead.id);
+                        return (
+                          <tr
+                            key={i}
 
-            </div>
+                            onClick={() => {
+                              if (lead?.booking) {
+                                Swal.fire({
+                                  title: "Already Booked",
+                                  text: "This lead has already been booked.",
+                                  icon: "info",
+                                  confirmButtonText: "OK",
+                                  confirmButtonColor: "#3085d6",
+                                });
+                                return;
+                              }
+
+                              navigate(`/one-to-one/leads/booking-form?leadId=${lead.id}`)
+                            }}
+
+                            className={` border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer ${lead?.booking ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+                              }`}
+                          >
+                            <td className="py-3 px-4 whitespace-nowrap font-semibold">
+                              <div className="flex items-center gap-3">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // ⛔ prevent row click
+                                    toggleCheckbox(lead.id);
+                                  }}
+                                  className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? "border-gray-500" : "border-gray-300"
+                                    }`}
+                                >
+                                  {isChecked && (
+                                    <Check
+                                      size={16}
+                                      strokeWidth={3}
+                                      className="text-gray-500"
+                                    />
+                                  )}
+                                </button>
+                                {lead.parentName}
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.childName}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.postCode}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.availability}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">
+                              <span className="bg-[#FBEECE] capitalize semibold text-[#EDA600] px-7 py-2 rounded-xl text-xs font-medium">
+                                {lead.status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+
+                </div>
+
+              ) : (
+                <>
+                  <p className="text-center py-3">No Data Found</p>
+                </>
+              )
+            }
           </div>
         </div>
 
@@ -753,7 +790,7 @@ const LeadsDashboard = () => {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-2 justify-between">
+          <div className="grid grid-cols-3 gap-2 justify-between mt-5">
             <button
               onClick={() => {
                 if (selectedUserIds && selectedUserIds.length > 0) {

@@ -14,7 +14,7 @@ const CreateLead = () => {
         lastName: "",
         email: "",
         phone: "",
-        postCode: "",
+        postcode: "",
         childAge: "",
     });
     const navigate = useNavigate();
@@ -189,7 +189,7 @@ const CreateLead = () => {
                 lastName: "",
                 email: "",
                 phone: "",
-                postCode: "",
+                postcode: "",
                 childAge: "",
             });
 
@@ -295,8 +295,8 @@ const CreateLead = () => {
                         <label className="block text-[16px] font-semibold">Postal Code</label>
                         <input
                             type="text"
-                            name="postCode"
-                            value={formData.postCode}
+                            name="postcode"
+                            value={formData.postcode}
                             onChange={handleInputChange}
                             placeholder="Enter postal code"
                             className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3"

@@ -75,10 +75,13 @@ const SalesDashboard = () => {
             CoachBy = [],
             packageIntrest = "",
             source = "",
-            location = ""
+            location = "",
+            fromDateToSend,
+            toDateToSend,
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
+            setLoading(true);
 
             try {
                 const queryParams = new URLSearchParams();
@@ -86,6 +89,12 @@ const SalesDashboard = () => {
                 // ✅ Add only if non-empty and string
                 if (typeof studentName === "string" && studentName.trim())
                     queryParams.append("studentName", studentName.trim());
+
+
+                if (fromDateToSend && toDateToSend) {
+                    queryParams.append("fromDate", fromDateToSend);
+                    queryParams.append("toDate", toDateToSend);
+                }
 
                 if (typeof packageIntrest === "string" && packageIntrest.trim())
                     queryParams.append("packageInterest", packageIntrest.trim());
@@ -144,6 +153,7 @@ const SalesDashboard = () => {
                 if (resultRaw.coachList) setCoachList(resultRaw.coachList);
                 setLeadsData(resultRaw.data || []);
                 setSummary(resultRaw.summary);
+                setLoading(false);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
             }
@@ -479,6 +489,29 @@ const SalesDashboard = () => {
         const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
         const coachByParams = Array.isArray(savedCoach) ? savedCoach : [];
 
+        const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+        const hasFrom = isValidDate(fromDate);
+        const hasTo = isValidDate(toDate);
+        const hasRange = hasFrom && hasTo;
+
+        // ✅ SweetAlert check for incomplete date range
+        if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
+            Swal.fire({
+                icon: "warning",
+                title: "Incomplete Date Range",
+                text: hasFrom
+                    ? "Please select a To Date to complete the range."
+                    : "Please select a From Date to complete the range.",
+                confirmButtonColor: "#3085d6",
+            });
+            return; // stop further execution
+        }
+
+        const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
+        const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
+
+        console.log("fromDateToSend", fromDateToSend, toDateToSend);
+
         fetchLeads(
             "",
             checkedStatuses.package,
@@ -490,9 +523,11 @@ const SalesDashboard = () => {
             selectedPackages,
             selectedSources,
             selectedVenue,
-
+            fromDateToSend,
+            toDateToSend
         );
     };
+
 
 
     const prevMonth = () => {
@@ -593,7 +628,7 @@ const SalesDashboard = () => {
             selectedVenueParam
         );
     }, [selectedVenue]);
-    if (mainLoading) {
+    if (mainLoading || loading) {
         return (
             <>
                 <Loader />
@@ -638,76 +673,97 @@ const SalesDashboard = () => {
 
                     {/* Leads Table */}
                     <div className="mt-5 ">
+                        <div className="flex justify-end"> {leadsData.length == 0 && (
+                            <button onClick={() => {
+                                fetchLeads();
+                                setFromDate('');
+                                setToDate('');
+                            }}
+                                className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
+
+                                Reset Filters
+                            </button>
+
+                        )}</div>
 
 
-                        {/* Table */}
-                        <div className="overflow-auto rounded-2xl bg-white shadow-sm">
-                            <table className="min-w-full text-sm">
-                                <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
-                                    <tr className="font-semibold text-[#717073]">
-                                        <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Child Age</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Location</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Date Of Class</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Package</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Source</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Coach</th>
-                                        <th className="py-3 px-4 whitespace-nowrap">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {leadsData.map((lead, i) => {
-                                        const isChecked = selectedUserIds.includes(lead.id);
-                                        return (
-                                            <tr
-                                                key={i}
-                                                onClick={() => navigate(`/one-to-one/sales/account-information?id=${lead.id}`)}
-                                                className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
-                                            >
-                                                <td className="py-3 px-4 whitespace-nowrap font-semibold">
-                                                    <div className="flex items-center gap-3">
-                                                        <button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation(); // ⛔ prevent row click
-                                                                toggleCheckbox(lead.id);
-                                                            }}
-                                                            className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? "border-gray-500" : "border-gray-300"
-                                                                }`}
-                                                        >
-                                                            {isChecked && (
-                                                                <Check
-                                                                    size={16}
-                                                                    strokeWidth={3}
-                                                                    className="text-gray-500"
-                                                                />
-                                                            )}
-                                                        </button>
-                                                        {lead.parentName}
-                                                    </div>
-                                                </td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.location || "N/A"}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.date || "N/A"}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.paymentPlan?.price || "N/A"}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
-                                                <td className="py-3 px-4 whitespace-nowrap">
-                                                    {lead.booking?.coach
-                                                        ? `${lead.booking.coach.firstName} ${lead.booking.coach.lastName}`
-                                                        : "N/A"}
-                                                </td>                                                <td className="py-3 px-4 whitespace-nowrap">
-                                                    <span className="bg-green-50 text-green-400 semibold capitalize px-7 py-2 rounded-xl text-xs font-medium">
-                                                        {lead.status}
-                                                    </span>
-                                                </td>
+
+                        {
+                            leadsData.length > 0 ? (
+                                <div className="overflow-auto rounded-2xl bg-white shadow-sm">
+                                    <table className="min-w-full text-sm">
+                                        <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
+                                            <tr className="font-semibold text-[#717073]">
+                                                <th className="py-3 px-4 whitespace-nowrap">Parent Name</th>
+                                                <th className="py-3 px-4 whitespace-nowrap">Child Age</th>
+                                                <th className="py-3 px-4 whitespace-nowrap">Location</th>
+                                                <th className="py-3 px-4 whitespace-nowrap">Date Of Class</th>
+                                                <th className="py-3 px-4 whitespace-nowrap">Package</th>
+                                                <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
+                                                <th className="py-3 px-4 whitespace-nowrap">Source</th>
+                                                <th className="py-3 px-4 whitespace-nowrap">Coach</th>
+                                                <th className="py-3 px-4 whitespace-nowrap">Status</th>
                                             </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                                        </thead>
+                                        <tbody>
+                                            {leadsData.map((lead, i) => {
+                                                const isChecked = selectedUserIds.includes(lead.id);
+                                                return (
+                                                    <tr
+                                                        key={i}
+                                                        onClick={() => navigate(`/one-to-one/sales/account-information?id=${lead.id}`)}
+                                                        className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
+                                                    >
+                                                        <td className="py-3 px-4 whitespace-nowrap font-semibold">
+                                                            <div className="flex items-center gap-3">
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation(); // ⛔ prevent row click
+                                                                        toggleCheckbox(lead.id);
+                                                                    }}
+                                                                    className={`w-5 h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? "border-gray-500" : "border-gray-300"
+                                                                        }`}
+                                                                >
+                                                                    {isChecked && (
+                                                                        <Check
+                                                                            size={16}
+                                                                            strokeWidth={3}
+                                                                            className="text-gray-500"
+                                                                        />
+                                                                    )}
+                                                                </button>
+                                                                {lead.parentName}
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.location || "N/A"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.date || "N/A"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.paymentPlan?.price || "N/A"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">
+                                                            {lead.booking?.coach
+                                                                ? `${lead.booking.coach.firstName} ${lead.booking.coach.lastName}`
+                                                                : "N/A"}
+                                                        </td>                                                <td className="py-3 px-4 whitespace-nowrap">
+                                                            <span className="bg-green-50 text-green-400 semibold capitalize px-7 py-2 rounded-xl text-xs font-medium">
+                                                                {lead.status}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
 
-                        </div>
+                                </div>
+
+                            ) : (
+                                <>
+                                    <p className="text-center py-3">No Data Found</p>
+                                </>
+                            )
+                        }
                     </div>
                 </div>
 
@@ -1082,7 +1138,7 @@ const SalesDashboard = () => {
 
                             <div>
                                 <label className="block text-sm text-gray-600 mb-1">
-                                    postCode
+                                    Postal Code
                                 </label>
                                 <input
                                     type="text"

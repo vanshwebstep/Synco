@@ -79,12 +79,13 @@ const SalesDashboard = () => {
             statusFilters = {},
             dateRange,
             fromDateToSend,
-            toDateToSend,statusData
+            toDateToSend,
+            statusData
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
 
-         
+            setLoading(true);
 
             try {
                 const queryParams = new URLSearchParams();
@@ -189,8 +190,9 @@ const SalesDashboard = () => {
                 setLeadsData(resultRaw.data || []);
 
                 setSummary(resultRaw.summary);
+                setLoading(false);
             } catch (error) {
-              
+
             }
         },
         []
@@ -354,7 +356,7 @@ const SalesDashboard = () => {
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [currentDate, setCurrentDate] = useState(new Date());
 
-  
+
     const toggleCheckbox = (userId) => {
         setSelectedUserIds((prev) =>
             prev.includes(userId)
@@ -517,15 +519,31 @@ const SalesDashboard = () => {
             silver: checkedStatuses.silver,
             pending: checkedStatuses.pending,
         };
-        const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
-        const hasRange = isValidDate(fromDate) && isValidDate(toDate);
-        const range = hasRange ? [fromDate, toDate] : [];
 
+        const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
+        const hasFrom = isValidDate(fromDate);
+        const hasTo = isValidDate(toDate);
+        const hasRange = hasFrom && hasTo;
+
+        // ✅ Show alert if only one date selected
+        if ((hasFrom && !hasTo) || (!hasFrom && hasTo)) {
+            Swal.fire({
+                icon: "warning",
+                title: "Incomplete Date Range",
+                text: hasFrom
+                    ? "Please select a To Date to complete the date range."
+                    : "Please select a From Date to complete the date range.",
+                confirmButtonColor: "#3085d6",
+            });
+            return; // stop further execution
+        }
+
+        const range = hasRange ? [fromDate, toDate] : [];
         const usePartyDate = checkedStatuses.partyDate;
+        const dateRange = usePartyDate ? range : [];
 
         const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
         const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
-        const dateRange = usePartyDate ? range : [];
 
         fetchLeads(
             "",
@@ -543,12 +561,13 @@ const SalesDashboard = () => {
             fromDateToSend,
             toDateToSend,
             checkedStatuses
-
         );
 
+        // ✅ Clear both dates only if the fetch runs successfully
         setFromDate('');
         setToDate('');
     };
+
 
 
     const prevMonth = () => {
@@ -669,7 +688,7 @@ const SalesDashboard = () => {
     const handleClearFilters = () => {
         fetchLeads();
     }
-    if (mainLoading) {
+    if (mainLoading || loading) {
         return (
             <>
                 <Loader />
@@ -679,18 +698,25 @@ const SalesDashboard = () => {
 
     if (leadsData.length == 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-10 text-gray-600">
-                <p className="text-lg font-medium mb-3">😕 No Data Found</p>
-                <p className="text-sm text-gray-400 mb-5">
-                    Try adjusting your filters or search criteria.
-                </p>
-                <button
-                    onClick={handleClearFilters} // ✅ your reset logic
-                    className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-md transition-all duration-200"
-                >
-                    Clear Filters
-                </button>
-            </div>
+            <>
+                <div className="flex justify-end"> {leadsData.length == 0 && (
+                    <button onClick={() => {
+                        fetchLeads();
+                        setFromDate('');
+                        setToDate('');
+                    }}
+                        className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
+
+                        Reset Filters
+                    </button>
+
+                )}</div>
+
+                <div className="flex flex-col items-center justify-center py-10 text-gray-600">
+                    <p className="text-lg font-medium mb-3"> No Data Found</p>
+                </div>
+
+            </>
 
         )
     }
@@ -1154,7 +1180,7 @@ const SalesDashboard = () => {
 
                             <div>
                                 <label className="block text-sm text-gray-600 mb-1">
-                                    postCode
+                                    Postal Code
                                 </label>
                                 <input
                                     type="text"

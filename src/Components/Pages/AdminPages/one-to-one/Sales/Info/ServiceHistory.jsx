@@ -16,7 +16,7 @@ const bookings = [
   //   venue: "Acton",
   //   id: "XHDJDHLS314",
   //   price: "£3999",
-  //   bookingDate: "Nov 18 2021, 17:00",
+  //   createdAt: "Nov 18 2021, 17:00",
   //   progress: "6/12 months",
   //   source: "Ben Marcus",
   //   status: "Active",
@@ -27,7 +27,7 @@ const bookings = [
   //   package: "Gold",
   //   pricePaid: "£315.00",
   //   stripeID: "XHDJDHLS314",
-  //   bookingDate: "Nov 18 2021, 17:00",
+  //   createdAt: "Nov 18 2021, 17:00",
   //   partyDate: "Nov 18 2021, 17:00",
   //   coach: "Ethan Bond-Vaughan",
   //   source: "Abdul Ali",
@@ -40,7 +40,7 @@ const bookings = [
     students: 1,
     pricePaid: "£3999",
     stripeID: "XHDJDHLS314",
-    bookingDate: "Nov 18 2021, 17:00",
+    createdAt: "Nov 18 2021, 17:00",
     venue: "Chelsea Park",
     coach: "Ethan Bond-Vaughan",
     source: "Abdul Ali",
@@ -53,7 +53,7 @@ const bookings = [
   //   students: 2,
   //   pricePaid: "£3999",
   //   stripeID: "XHDJDHLS314",
-  //   bookingDate: "Nov 18 2021, 17:00",
+  //   createdAt: "Nov 18 2021, 17:00",
   //   venue: "Chelsea Park",
   //   discount: "15% Early Bird Discount",
   //   source: "Abdul Ali",
@@ -66,7 +66,7 @@ const bookings = [
   //   quantity: 2,
   //   pricePaid: "£3999",
   //   transactionID: "XHDJDHLS314",
-  //   bookingDate: "Nov 18 2021, 17:00",
+  //   createdAt: "Nov 18 2021, 17:00",
   //   discount: 0,
   //   fulfillment: "Fulfilled",
   //   source: "Online Store",
@@ -98,18 +98,25 @@ const renderField = (label, value) => {
 };
 
 const BookingCard = ({ booking }) => {
-  const { students, setStudents, handleUpdate, mainId, data } = useAccountsInfo();
-
+  const { students, setStudents, handleUpdate, mainId, oneToOneData } = useAccountsInfo();
+  const [bookingId, setBookingId] = useState('')
   // console.log('booking', booking) 
-  // const booking = data.booking
-  //  console.log('data', data.booking)
-  // data.packageInterest
-  // data.booking.students.length
-  // data.booking.paymentPlan.price
-  // data.booking.payment.stripePaymentIntentId
-  // data.booking.location
-  // data.booking.coach.firstName ,data.booking.coach.lastName 
-  // data.booking.Flyer 
+  // const booking = data?.booking
+  //  console.log('data', data?.booking)
+  // data?.packageInterest
+  // data?.booking?.students.length
+  // data?.booking?.paymentPlan.price
+  // data?.booking?.payment.stripePaymentIntentId
+  // data?.booking?.location
+  // data?.booking?.coach.firstName ,data?.booking?.coach.lastName 
+  // data?.booking?.Flyer 
+
+  const data = oneToOneData;
+
+  useEffect(() => {
+    if (oneToOneData) setBookingId(oneToOneData.booking?.id);
+  }, [oneToOneData]);
+
 
   const navigate = useNavigate();
   const statusColors = {
@@ -125,8 +132,8 @@ const BookingCard = ({ booking }) => {
       <div className="flex justify-between items-center bg-[#3D444F] rounded-2xl p-4">
         <div className="flex items-center gap-3">
           <img
-            src={renderImage(booking.type)}
-            alt={booking.type}
+            src={renderImage(booking?.type)}
+            alt={booking?.type}
             className="w-8 h-8 rounded-full"
           />
           <h3 className="text-white font-semibold">One to One Booking</h3>
@@ -141,9 +148,9 @@ const BookingCard = ({ booking }) => {
             396
           </button>
           <span
-            className={`px-3 py-2 rounded-lg capitalize text-sm ${statusColors[data.status]}`}
+            className={`px-3 py-2 rounded-lg capitalize text-sm ${statusColors[data?.status]}`}
           >
-            {data.status}
+            {data?.status}
           </span>
         </div>
       </div>
@@ -151,83 +158,91 @@ const BookingCard = ({ booking }) => {
       {/* Details */}
       <div className="bg-[#FCF9F6] rounded-2xl p-4 mt-4">
         <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4 mb-4`}>
-          {booking.type === "Weekly Classes Membership" && (
+          {booking?.type === "Weekly Classes Membership" && (
             <>
-              {renderField("Membership Plan", booking.plan)}
-              {renderField("Students", booking.students)}
-              {renderField("Venue", booking.venue)}
-              {renderField("KGo/Cardless ID", booking.id)}
-              {renderField("Monthly Price", booking.price)}
-              {renderField("Date Of Booking", booking.bookingDate)}
-              {renderField("Progress", booking.progress)}
-              {renderField("Booking Source", booking.source)}
+              {renderField("Membership Plan", booking?.plan)}
+              {renderField("Students", booking?.students)}
+              {renderField("Venue", booking?.venue)}
+              {renderField("KGo/Cardless ID", booking?.id)}
+              {renderField("Monthly Price", booking?.price)}
+              {renderField("Date Of Booking", booking?.createdAt)}
+              {renderField("Progress", booking?.progress)}
+              {renderField("Booking Source", booking?.source)}
             </>
           )}
 
-          {booking.type === "Birthday Party Booking" && (
+          {booking?.type === "Birthday Party Booking" && (
             <>
-              {renderField("Package", booking.package)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Stripe Transaction ID", booking.stripeID)}
-              {renderField("Date of Booking", booking.bookingDate)}
-              {renderField("Date of Party", booking.partyDate)}
-              {renderField("Coach", booking.coach)}
-              {renderField("Booking Source", booking.source)}
+              {renderField("Package", booking?.package)}
+              {renderField("Price Paid", booking?.pricePaid)}
+              {renderField("Stripe Transaction ID", booking?.stripeID)}
+              {renderField("Date of Booking", booking?.createdAt)}
+              {renderField("Date of Party", booking?.partyDate)}
+              {renderField("Coach", booking?.coach)}
+              {renderField("Booking Source", booking?.source)}
             </>
           )}
 
-          {booking.type === "One to One Booking" && (
+          {booking?.type === "One to One Booking" && (
             <>
-              {renderField("Package", data.packageInterest)}
-              {renderField("Students", data.booking.students.length)}
-              {renderField("Price Paid", data.booking.paymentPlan.price)}
-              {renderField("Stripe Transaction ID", data.booking.payment.stripePaymentIntentId)}
-              {renderField("Date of Booking", data.booking.date)}
-              {renderField("Venue", data.booking.location)}
-              {renderField("Coach", `${data.booking.coach.firstName} ${data.booking.coach.lastName}`)}
-              {renderField("Booking Source", data.source)}
+              {renderField("Package", data?.packageInterest)}
+              {renderField("Students", data?.booking?.students.length)}
+              {renderField("Price Paid", data?.booking?.paymentPlan.price)}
+              {renderField("Stripe Transaction ID", data?.booking?.payment.stripePaymentIntentId)}
+              {renderField(
+                "Date of Booking",
+                new Date(data.createdAt).toLocaleDateString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+              )}
+
+              {renderField("Venue", data?.booking?.location)}
+              {renderField("Coach", `${data?.booking?.coach.firstName} ${data?.booking?.coach.lastName}`)}
+              {renderField("Booking Source", data?.source)}
             </>
           )}
 
-          {booking.type === "Holiday Camp" && (
+          {booking?.type === "Holiday Camp" && (
             <>
-              {renderField("Camp", booking.camp)}
-              {renderField("Students", booking.students)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Stripe Transaction ID", booking.stripeID)}
-              {renderField("Date of Booking", booking.bookingDate)}
-              {renderField("Venue", booking.venue)}
-              {renderField("Discount", booking.discount)}
-              {renderField("Coach", booking.coach)}
-              {renderField("Booking Source", booking.source)}
+              {renderField("Camp", booking?.camp)}
+              {renderField("Students", booking?.students)}
+              {renderField("Price Paid", booking?.pricePaid)}
+              {renderField("Stripe Transaction ID", booking?.stripeID)}
+              {renderField("Date of Booking", booking?.createdAt)}
+              {renderField("Venue", booking?.venue)}
+              {renderField("Discount", booking?.discount)}
+              {renderField("Coach", booking?.coach)}
+              {renderField("Booking Source", booking?.source)}
             </>
           )}
 
-          {booking.type === "Merchandise" && (
+          {booking?.type === "Merchandise" && (
             <>
-              {renderField("Item", booking.item)}
-              {renderField("Quantity", booking.quantity)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Transaction ID", booking.transactionID)}
-              {renderField("Date of Booking", booking.bookingDate)}
-              {renderField("Discount", booking.discount)}
-              {renderField("Fulfillment Status", booking.fulfillment)}
-              {renderField("Booking Source", booking.source)}
+              {renderField("Item", booking?.item)}
+              {renderField("Quantity", booking?.quantity)}
+              {renderField("Price Paid", booking?.pricePaid)}
+              {renderField("Transaction ID", booking?.transactionID)}
+              {renderField("Date of Booking", booking?.createdAt)}
+              {renderField("Discount", booking?.discount)}
+              {renderField("Fulfillment Status", booking?.fulfillment)}
+              {renderField("Booking Source", booking?.source)}
             </>
           )}
         </div>
 
         {/* Buttons */}
         <div className="flex gap-3">
-          <button onClick={() => navigate(`/one-to-one/sales/account-information/see-details?id=${'1'}`)} className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
+          <button onClick={() => navigate(`/one-to-one/sales/account-information/see-details?id=${oneToOneData?.id}`)} className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
             See details
           </button>
-          {booking.type !== "Merchandise" && (
+          {booking?.type !== "Merchandise" && (
             <>
               <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
                 See payments
               </button>
-              {booking.students && (
+              {booking?.students && (
                 <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
                   Attendance
                 </button>
