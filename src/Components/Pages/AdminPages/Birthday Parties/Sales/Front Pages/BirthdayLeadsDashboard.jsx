@@ -108,7 +108,7 @@ const BirthdayLeadsDashboard = () => {
           activeStatuses
             .filter((s) => s !== "gold" && s !== "silver")
             .forEach((statusKey) => {
-              queryParams.append("status", statusKey);
+              queryParams.append("type", statusKey);
             });
         }
 
@@ -194,9 +194,9 @@ const BirthdayLeadsDashboard = () => {
 
   // then your summaryCards
   const summaryCards = [
-    { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: "+28.14%" },
-    { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: "+12.47%" },
-    { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: "+9.31%" },
+    { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: "0" },
+    { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: "0" },
+    { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: "0" },
     { icon: PiUsersThreeBold, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
   ];
   const [formData, setFormData] = useState({
@@ -995,13 +995,18 @@ const BirthdayLeadsDashboard = () => {
                 <label className="block text-sm text-gray-600 mb-1">
                   Package Interest
                 </label>
-                <input
-                  type="text"
+
+                <select
                   name="packageInterest"
                   value={formData.packageInterest}
                   onChange={handleChange}
                   className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
-                />
+                >
+                  <option value="">Select Package</option>
+                  <option value="silver">Silver</option>
+                  <option value="gold">Gold</option>
+                  <option value="platinum">Platinum</option>
+                </select>
               </div>
 
 

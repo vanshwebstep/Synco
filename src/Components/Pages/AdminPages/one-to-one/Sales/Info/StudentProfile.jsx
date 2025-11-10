@@ -9,6 +9,7 @@ import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 import { FaSave, FaEdit } from "react-icons/fa";
 import { useNotification } from "../../../contexts/NotificationContext";
 import Swal from "sweetalert2";
+import { formatDate } from "date-fns";
 const StudentProfile = () => {
   const [editStudent, setEditStudent] = useState({});
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -192,6 +193,14 @@ const StudentProfile = () => {
     }
   }
 
+
+  const formatLocalDate = (date) => {
+    if (!date) return null;
+    const local = new Date(date);
+    local.setMinutes(local.getMinutes() - local.getTimezoneOffset()); // adjust to local
+    return local.toISOString().split("T")[0]; // yyyy-mm-dd, stays same as selected
+  };
+
   // --- Add Student ---
   const handleAddStudent = () => {
     if (!newStudent.studentFirstName && !newStudent.studentLastName) {
@@ -199,7 +208,14 @@ const StudentProfile = () => {
     }
 
     // Create the updated students array
-    const updatedStudents = [...students, { ...newStudent }];
+    const updatedStudents = [
+      ...students,
+      {
+        ...newStudent,
+        dateOfBirth: formatLocalDate(newStudent.dateOfBirth)
+      }
+    ];
+
 
     // Update local state
     setStudents(updatedStudents);

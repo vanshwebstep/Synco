@@ -460,7 +460,7 @@ const Facebook = () => {
 
                                           <div key={idx} className="flex  md:w-[25%]  flex-wrap justify-end gap-3 ">
                                             {
-                                              cls.capacity == 0 && (
+                                              available == 0 && (
                                                 <button onClick={() => handleAddToWaitingList(cls.id)} className="bg-[#237FEA]  text-white px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-[#006AE6] transition">
                                                   Add to Waiting List
                                                 </button>

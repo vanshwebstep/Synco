@@ -73,7 +73,7 @@ const LeadsDashboard = () => {
       // console.log('dateoftrial', dateoftrial)
       // console.log('forOtherDate', forOtherDate)
 
-     if (noLoaderShow ===false) setLoading(true);
+      if (noLoaderShow === false) setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
@@ -119,7 +119,7 @@ const LeadsDashboard = () => {
       } catch (error) {
         console.error("Failed to fetch bookFreeTrials:", error);
       } finally {
-       if (noLoaderShow ===false) setLoading(false); // only stop loader if it was started
+        if (noLoaderShow === false) setLoading(false); // only stop loader if it was started
       }
     },
     []
@@ -157,9 +157,9 @@ const LeadsDashboard = () => {
 
   // then your summaryCards
   const summaryCards = [
-    { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: "+28.14%" },
-    { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: "+12.47%" },
-    { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: "+9.31%" },
+    { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: 0 },
+    { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: 0 },
+    { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: 0 },
     { icon: PiUsersThreeBold, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
   ];
   const [formData, setFormData] = useState({
@@ -261,26 +261,26 @@ const LeadsDashboard = () => {
       setLoading(false);
     }
   };
-const handleSearch = (e) => {
-  const value = e.target.value.trim();
-  setSearchTerm(value);
+  const handleSearch = (e) => {
+    const value = e.target.value.trim();
+    setSearchTerm(value);
 
-  // If search is cleared, hide loader and optionally reset data
-  if (value.length === 0) {
-    setNoLoaderShow(false);
-    fetchLeads(""); // optional: reload default list
-    return;
-  }
+    // If search is cleared, hide loader and optionally reset data
+    if (value.length === 0) {
+      setNoLoaderShow(false);
+      fetchLeads(""); // optional: reload default list
+      return;
+    }
 
-  // Show loader while searching
-  setNoLoaderShow(true);
+    // Show loader while searching
+    setNoLoaderShow(true);
 
-  // Debounce to prevent too many API calls while typing
-  clearTimeout(window.searchTimeout);
-  window.searchTimeout = setTimeout(() => {
-    fetchLeads(value);
-  }, 400);
-};
+    // Debounce to prevent too many API calls while typing
+    clearTimeout(window.searchTimeout);
+    window.searchTimeout = setTimeout(() => {
+      fetchLeads(value);
+    }, 400);
+  };
 
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -916,13 +916,17 @@ const handleSearch = (e) => {
                 <label className="block text-sm text-gray-600 mb-1">
                   Package Interest
                 </label>
-                <input
-                  type="text"
+                <select
                   name="packageInterest"
                   value={formData.packageInterest}
                   onChange={handleChange}
                   className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
-                />
+                >
+                  <option value="">Select Package</option>
+                  <option value="silver">Silver</option>
+                  <option value="gold">Gold</option>
+                  <option value="platinum">Platinum</option>
+                </select>
               </div>
 
               <div>

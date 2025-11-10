@@ -83,7 +83,7 @@ const AllDashboard = () => {
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
-           if (noLoaderShow ===false) setLoading(true);
+            if (noLoaderShow === false) setLoading(true);
 
             try {
                 const queryParams = new URLSearchParams();
@@ -153,7 +153,7 @@ const AllDashboard = () => {
                 if (resultRaw.coachList) setCoachList(resultRaw.coachList);
                 setLeadsData(resultRaw.data || []);
                 setSummary(resultRaw.summary);
-               if (noLoaderShow ===false) setLoading(false);
+                if (noLoaderShow === false) setLoading(false);
                 setFromDate('');
                 setToDate('');
 
@@ -200,9 +200,9 @@ const AllDashboard = () => {
 
     // then your summaryCards
     const summaryCards = [
-        { icon: CircleDollarSign, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: "+28.14%" },
-        { icon: CirclePoundSterling, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: '£20.000', change: "+12.47%" },
-        { icon: PiUsersThreeBold, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: '£20.000', change: "+9.31%" },
+        { icon: CircleDollarSign, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: 0 },
+        { icon: CirclePoundSterling, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: 0 },
+        { icon: PiUsersThreeBold, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: 0 },
         { icon: FiUsers, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
     ]
     const [formData, setFormData] = useState({
@@ -315,26 +315,26 @@ const AllDashboard = () => {
             setLoading(false);
         }
     };
-   const handleSearch = (e) => {
-  const value = e.target.value.trim();
-  setSearchTerm(value);
+    const handleSearch = (e) => {
+        const value = e.target.value.trim();
+        setSearchTerm(value);
 
-  // If search is cleared, hide loader and optionally reset data
-  if (value.length === 0) {
-    setNoLoaderShow(false);
-    fetchLeads(""); // optional: reload default list
-    return;
-  }
+        // If search is cleared, hide loader and optionally reset data
+        if (value.length === 0) {
+            setNoLoaderShow(false);
+            fetchLeads(""); // optional: reload default list
+            return;
+        }
 
-  // Show loader while searching
-  setNoLoaderShow(true);
+        // Show loader while searching
+        setNoLoaderShow(true);
 
-  // Debounce to prevent too many API calls while typing
-  clearTimeout(window.searchTimeout);
-  window.searchTimeout = setTimeout(() => {
-    fetchLeads(value);
-  }, 400);
-};
+        // Debounce to prevent too many API calls while typing
+        clearTimeout(window.searchTimeout);
+        window.searchTimeout = setTimeout(() => {
+            fetchLeads(value);
+        }, 400);
+    };
 
     const [selectedUserIds, setSelectedUserIds] = useState([]);
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -761,8 +761,8 @@ const AllDashboard = () => {
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.source || "N/A"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.coachId || "N/A"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">
-                                                            <span
-                                                                className={`capitalize px-7 py-2 rounded-xl text-xs font-medium
+                                                            <button
+                                                                className={`capitalize w-[90px] py-2 rounded-xl text-xs font-medium
     ${lead.status === "active"
                                                                         ? "bg-green-50 text-green-500"
                                                                         : lead.status === "pending"
@@ -775,7 +775,7 @@ const AllDashboard = () => {
                                                                     }`}
                                                             >
                                                                 {lead.status || "N/A"}
-                                                            </span>
+                                                            </button>
 
                                                         </td>
                                                     </tr>
@@ -1182,13 +1182,17 @@ const AllDashboard = () => {
                                 <label className="block text-sm text-gray-600 mb-1">
                                     Package Interest
                                 </label>
-                                <input
-                                    type="text"
+                                <select
                                     name="packageInterest"
                                     value={formData.packageInterest}
                                     onChange={handleChange}
                                     className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
-                                />
+                                >
+                                    <option value="">Select Package</option>
+                                    <option value="silver">Silver</option>
+                                    <option value="gold">Gold</option>
+                                    <option value="platinum">Platinum</option>
+                                </select>
                             </div>
 
                             <div>

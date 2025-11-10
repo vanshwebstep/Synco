@@ -1,5 +1,5 @@
 
-  1. One to One
+  1. One to One & Birthday Party Booking
 
      . Postal Code Field Update
      . Medical Information and How did you hear about us is visible after the booking
@@ -15,6 +15,10 @@
      . Fix Student Add ISSUE
      . fix parent profile add or input change issue's
      . date of Booking is wrong in Service History in One to One
+     . Change Package Interest Field Into Select options
+     . Venue is not visible outside of the profile in sales tab
+     
+
 
 
 

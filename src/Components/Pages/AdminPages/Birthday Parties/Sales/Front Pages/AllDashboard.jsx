@@ -143,7 +143,7 @@ const AllDashboard = () => {
                 const queryString = queryParams.toString();
                 const url = `${API_BASE_URL}/api/admin/birthday-party/all/list${queryString ? `?${queryString}` : ""}`;
 
-                console.log("✅ Clean Fetch URL:", url);
+
 
                 const response = await fetch(url, {
                     method: "GET",
@@ -200,9 +200,9 @@ const AllDashboard = () => {
 
     // then your summaryCards
     const summaryCards = [
-        { icon: CircleDollarSign, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: "+28.14%" },
-        { icon: CirclePoundSterling, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: '£20.000', change: "+12.47%" },
-        { icon: PiUsersThreeBold, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: '£20.000', change: "+9.31%" },
+        { icon: CircleDollarSign, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: 0 },
+        { icon: CirclePoundSterling, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: 0 },
+        { icon: PiUsersThreeBold, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: 0 },
         { icon: FiUsers, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
     ]
     const [formData, setFormData] = useState({
@@ -1190,13 +1190,18 @@ const AllDashboard = () => {
                                 <label className="block text-sm text-gray-600 mb-1">
                                     Package Interest
                                 </label>
-                                <input
-                                    type="text"
+                                <select
                                     name="packageInterest"
                                     value={formData.packageInterest}
                                     onChange={handleChange}
                                     className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
-                                />
+                                >
+                                    <option value="">Select Package</option>
+                                    <option value="silver">Silver</option>
+                                    <option value="gold">Gold</option>
+                                    <option value="platinum">Platinum</option>
+                                </select>
+
                             </div>
 
                             <div>

@@ -688,7 +688,7 @@ const BirthdayBookingForm = () => {
       location: locationValue,
       address: address,
       capacity: numberOfCapacity,
-      date: selectedDate,
+      date: formatLocalDate(selectedDate),
       time: time,
       totalStudents: students.length,
       areaWorkOn: areasToWorkOn,

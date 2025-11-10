@@ -191,6 +191,12 @@ const StudentProfile = () => {
       });
     }
   }
+const formatLocalDate = (date) => {
+  if (!date) return null;
+  const local = new Date(date);
+  local.setMinutes(local.getMinutes() - local.getTimezoneOffset()); // adjust to local
+  return local.toISOString().split("T")[0]; // yyyy-mm-dd, stays same as selected
+};
 
   // --- Add Student ---
   const handleAddStudent = () => {
@@ -199,8 +205,13 @@ const StudentProfile = () => {
     }
 
     // Create the updated students array
-    const updatedStudents = [...students, { ...newStudent }];
-
+  const updatedStudents = [
+      ...students,
+      {
+        ...newStudent,
+        dateOfBirth: formatLocalDate(newStudent.dateOfBirth)
+      }
+    ];
     // Update local state
     setStudents(updatedStudents);
 
