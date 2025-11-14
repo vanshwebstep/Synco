@@ -111,7 +111,7 @@ const SalesDashboard = () => {
                 }
 
                 if (statusData?.partyDate) {
-                    queryParams.append("partyData", "partyDate");
+                    queryParams.append("partyDate", "partyDate");
                 }
 
                 // 👩‍🎓 Student name
@@ -237,10 +237,10 @@ const SalesDashboard = () => {
 
     // then your summaryCards
     const summaryCards = [
-        { icon: CircleDollarSign, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: "0" },
-        { icon: CirclePoundSterling, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: "0" },
-        { icon: PiUsersThreeBold, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: "0" },
-        { icon: FiUsers, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
+        { icon: "/demo/synco/reportsIcons/money-receive-circle.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: "0" },
+        { icon: "/demo/synco/reportsIcons/pound.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: "0" },
+        { icon: "/demo/synco/reportsIcons/orange-user-group.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: "0" },
+        { icon: "/demo/synco/reportsIcons/purple-user-multiple.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
     ]
     const [formData, setFormData] = useState({
         parentName: "",
@@ -532,7 +532,7 @@ const SalesDashboard = () => {
         const statusFilters = {
             paid: checkedStatuses.paid,
             gold: checkedStatuses.gold,
-            canceled: checkedStatuses.canceled,
+            cancelled: checkedStatuses.cancelled,
             silver: checkedStatuses.silver,
             pending: checkedStatuses.pending,
         };
@@ -631,7 +631,7 @@ const SalesDashboard = () => {
                 "dateOfParty",
                 "paid",
                 "gold",
-                "canceled",
+                "cancelled",
                 "silver",
                 "pending",
                 "partyDate",
@@ -659,7 +659,7 @@ const SalesDashboard = () => {
     const filterOptions = [
         { label: "Paid", key: "paid", apiParam: "type", apiValue: "paid" },
         { label: "Gold", key: "gold", apiParam: "type", apiValue: "gold" },
-        { label: "Canceled", key: "canceled", apiParam: "type", apiValue: "canceled" },
+        { label: "cancelled", key: "cancelled", apiParam: "type", apiValue: "cancelled" },
         { label: "Silver", key: "silver", apiParam: "type", apiValue: "silver" },
         { label: "Pending", key: "pending", apiParam: "type", apiValue: "pending" },
         { label: "Date of party ", key: "partyDate", apiParam: "type", apiValue: "partyDate" },
@@ -734,7 +734,7 @@ const SalesDashboard = () => {
                                         <div
                                             className={`p-2 h-[50px] w-[50px] rounded-full ${card.iconStyle} bg-opacity-10 flex items-center justify-center`}
                                         >
-                                            <Icon size={24} className={card.iconStyle} />
+                                            <img src={Icon} alt="" className="p-1"/>
                                         </div>
                                     </div>
                                     <div className="mt-3">
@@ -755,7 +755,7 @@ const SalesDashboard = () => {
                     <div className=" ">
 
                         <div className="flex justify-between items-center p-4">
-                            <h2 className="font-semibold text-lg">Birthday Party Sales</h2>
+                            <h2 className="font-semibold text-2xl">Birthday Party Sales</h2>
 
                         </div>
 
@@ -829,7 +829,7 @@ const SalesDashboard = () => {
                                                         }).replace(/ /g, "-") // to get "10-Oct-2025"
                                                         : "-"}</td>
                                                     <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
-                                                    <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.paymentPlan?.price || "N/A"}</td>
+                                                    <td className="py-3 px-4 whitespace-nowrap">£{lead.booking?.paymentPlan?.price || "N/A"}</td>
                                                     <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
                                                     <td className="py-3 px-4 whitespace-nowrap">
                                                         {lead.booking?.coach

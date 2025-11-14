@@ -84,7 +84,7 @@ const LeadsDashboard = () => {
         // Status filters
         if (status1) queryParams.append("type", "paid");
         if (status2) queryParams.append("type", "trial");
-        if (status3) queryParams.append("type", "canceled");
+        if (status3) queryParams.append("type", "cancelled");
 
 
         if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
@@ -157,10 +157,10 @@ const LeadsDashboard = () => {
 
   // then your summaryCards
   const summaryCards = [
-    { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: 0 },
-    { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: 0 },
-    { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: 0 },
-    { icon: PiUsersThreeBold, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
+    { icon: "/demo/synco/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: 0 },
+    { icon: '/demo/synco/reportsIcons/greenuser.png', iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: 0 },
+    { icon: '/demo/synco/reportsIcons/orangeuser.png', iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: 0 },
+    { icon: '/demo/synco/reportsIcons/purple-user-group.png', iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
   ];
   const [formData, setFormData] = useState({
     parentName: "",
@@ -461,7 +461,7 @@ const LeadsDashboard = () => {
       "",                  // venueName
       checkedStatuses.paid,   // status1
       checkedStatuses.trial,  // month2 -> duration 3
-      checkedStatuses.canceled, // month3 -> duration 1 (flexi)
+      checkedStatuses.cancelled, // month3 -> duration 1 (flexi)
       otherDateRange,         // createdAt range [from,to] OR []
       bookedByParams          // bookedBy ids
     );
@@ -488,7 +488,7 @@ const LeadsDashboard = () => {
   const filterOptions = [
     { label: "Paid", key: "paid", apiParam: "type", apiValue: "paid" },
     { label: "Trial", key: "trial", apiParam: "type", apiValue: "trial" },
-    { label: "Canceled", key: "canceled", apiParam: "type", apiValue: "canceled" },
+    { label: "cancelled", key: "cancelled", apiParam: "type", apiValue: "cancelled" },
   ]
   const [checkedStatuses, setCheckedStatuses] = useState(
     filterOptions.reduce((acc, option) => ({ ...acc, [option.key]: false }), {})
@@ -527,7 +527,8 @@ const LeadsDashboard = () => {
                     <div
                       className={`p-2 h-[50px] w-[50px] rounded-full ${card.iconStyle} bg-opacity-10 flex items-center justify-center`}
                     >
-                      <Icon size={24} className={card.iconStyle} />
+                      {/* <Icon size={24} className={card.iconStyle} /> */}
+                      <img src={Icon} alt="" className="p-1"/>
                     </div>
                   </div>
                   <div className="mt-3">
@@ -547,7 +548,7 @@ const LeadsDashboard = () => {
           {/* Leads Table */}
           <div className="">
             <div className="flex justify-between items-center p-4">
-              <h2 className="font-semibold text-lg">One to One Leads</h2>
+              <h2 className="font-semibold text-2xl">One to One Leads</h2>
               <div className="flex gap-4 items-center">
                 <button className="bg-white border border-[#E2E1E5] rounded-full flex justify-center items-center h-10 w-10"><TiUserAdd className="text-xl" /></button>
                 <button onClick={() => setIsOpen(true)}

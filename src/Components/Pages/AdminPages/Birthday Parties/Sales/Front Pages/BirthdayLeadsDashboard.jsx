@@ -30,7 +30,7 @@ const BirthdayLeadsDashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [noLoaderShow, setNoLoaderShow] = useState(null);
   console.log('noLoaderShow', noLoaderShow)
-
+  const modalRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const [mainLoading, setMainLoading] = useState(false);
   const [leadsData, setLeadsData] = useState([]);
@@ -194,10 +194,10 @@ const BirthdayLeadsDashboard = () => {
 
   // then your summaryCards
   const summaryCards = [
-    { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: "0" },
-    { icon: User, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: "0" },
-    { icon: UserRoundPlus, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: "0" },
-    { icon: PiUsersThreeBold, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
+    { icon: "/demo/synco/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: "0" },
+    { icon: "/demo/synco/reportsIcons/greenuser.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: "0" },
+    { icon: "/demo/synco/reportsIcons/login-icon-orange.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: "0" },
+    { icon: "/demo/synco/reportsIcons/magnet-purple.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
   ];
   const [formData, setFormData] = useState({
     parentName: "",
@@ -213,11 +213,11 @@ const BirthdayLeadsDashboard = () => {
   };
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
-  const handleDateChange = (date) => {
-    setFormData((prev) => ({ ...prev, partyDate: date }));
-    setIsPickerOpen(false);
-  };
-
+const handleDateChange = (date) => {
+  const formatted = date.toISOString().split("T")[0]; // "2025-11-15"
+  setFormData((prev) => ({ ...prev, partyDate: formatted }));
+  setIsPickerOpen(false);
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('formData', formData)
@@ -445,7 +445,21 @@ const BirthdayLeadsDashboard = () => {
     );
   };
 
+useEffect(() => {
+    function handleClickOutside(e) {
+      if (modalRef.current && !modalRef.current.contains(e.target)) {
+        setIsPickerOpen(false);
+      }
+    }
 
+    if (isPickerOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isPickerOpen]);
   const handleDateClick = (date) => {
     if (!date) return;
 
@@ -579,7 +593,8 @@ const BirthdayLeadsDashboard = () => {
                     <div
                       className={`p-2 h-[50px] w-[50px] rounded-full ${card.iconStyle} bg-opacity-10 flex items-center justify-center`}
                     >
-                      <Icon size={24} className={card.iconStyle} />
+                       <img src={Icon} alt="" className="p-1"/>
+                      {/* <Icon size={24} className={card.iconStyle} /> */}
                     </div>
                   </div>
                   <div className="mt-3">
@@ -599,7 +614,7 @@ const BirthdayLeadsDashboard = () => {
           {/* Leads Table */}
           <div className="">
             <div className="flex justify-between items-center p-4">
-              <h2 className="font-semibold text-lg">Birthday Party Leads</h2>
+              <h2 className="font-semibold text-2xl">Birthday Party Leads</h2>
               <div className="flex gap-4 items-center">
                 <button className="bg-white border border-[#E2E1E5] rounded-full flex justify-center items-center h-10 w-10"><TiUserAdd className="text-xl" /></button>
                 <button onClick={() => setIsOpen(true)}
@@ -957,39 +972,43 @@ const BirthdayLeadsDashboard = () => {
                   className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
                 />
               </div>
+ <div>
+      <label className="block text-sm text-gray-600 mb-1">
+        Date of Party
+      </label>
 
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Date of Party</label>
+      {/* Input Field */}
+      <div
+        onClick={() => setIsPickerOpen(true)}
+        className="w-full border border-gray-200 rounded-lg p-2.5 
+                   focus:ring-2 focus:ring-blue-400 outline-none cursor-pointer bg-white"
+      >
+        {formData.partyDate
+          ? new Date(formData.partyDate).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+          : "Select date"}
+      </div>
 
-                {/* Input Field */}
-                <div
-                  onClick={() => setIsPickerOpen(true)}
-                  className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none cursor-pointer bg-white"
-                >
-                  {formData.partyDate
-                    ? new Date(formData.partyDate).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })
-                    : "Select date"}
-                </div>
-
-                {/* Popup Modal */}
-                {isPickerOpen && (
-                  <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-                    <div className="bg-white p-4 rounded-xl shadow-lg flex justify-center">
-                      <DatePicker
-                        selected={formData.partyDate}
-                        onChange={handleDateChange}
-                        inline
-                        dateFormat="dd-MMM-yyyy"
-                      />
-
-                    </div>
-                  </div>
-                )}
-              </div>
+      {/* Popup Modal */}
+      {isPickerOpen && (
+        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+          <div
+            ref={modalRef}
+            className="bg-white p-4 rounded-xl shadow-lg flex justify-center"
+          >
+            <DatePicker
+              selected={formData.partyDate}
+              onChange={handleDateChange}
+              inline
+              dateFormat="dd-MMM-yyyy"
+            />
+          </div>
+        </div>
+      )}
+    </div>
 
               <div>
                 <label className="block text-sm text-gray-600 mb-1">

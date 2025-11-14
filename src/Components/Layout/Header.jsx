@@ -121,6 +121,9 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'weekly-classes/term-dates/create': { title: 'Configuration' },
     'weekly-classes/account-information': { title: 'Account Information' },
     'weekly-classes/cancellation/account-info/': { title: 'Account Information' },
+    'one-to-one/sales/account-information': { title: 'Account Information' },
+    'birthday-party/sales/account-information': { title: 'Account Information' },
+
     'one-to-one': { title: 'One to One ' },
     'one-to-one/session-plan-preview': { title: 'Configuration ' },
     'one-to-one/session-plan': { title: 'Configuration ' },
@@ -132,6 +135,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'weekly-classes/central-leads': { title: 'Weekly Classes Lead Database ' },
     'weekly-classes/central-leads/create': { title: 'Weekly Classes ' },
     'birthday-party/leads': { title: 'Birthday party  ' },
+    'one-to-one/leads/booking-form': { title: 'Booking Form' },
 
 
 
@@ -189,6 +193,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     }
   };
   const popupRef = useRef(null);
+const profileRef = useRef(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -208,20 +213,27 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setProfileOpen(false);
-      }
+  function handleClickOutside(event) {
+    // prevent closing when clicking the profile button
+    if (
+      dropdownRef.current &&
+      !dropdownRef.current.contains(event.target) &&
+      profileRef.current &&
+      !profileRef.current.contains(event.target)
+    ) {
+      setProfileOpen(false);
     }
+  }
 
-    if (profileOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+  if (profileOpen) {
+    document.addEventListener("mousedown", handleClickOutside);
+  }
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [profileOpen]);
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, [profileOpen]);
+
   const hasPermission =
     checkPermission({ module: 'notification', action: 'view-listing' }) ||
     checkPermission({ module: 'custom-notification', action: 'view-listing' });
@@ -244,7 +256,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
         </div>
 
         {/* Mobile: Top Row (Menu - WelcomeImg - Profile) */}
-        <div className="flex w-full justify-between items-center lg:hidden">
+        <div  className="flex w-full justify-between items-center lg:hidden">
           {/* Mobile Menu Toggle */}
           <button onClick={toggleMobileMenu}>
             {isMobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
@@ -256,8 +268,9 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
           </div>
 
           {/* Profile Image */}
-          <div className="relative">
+          <div   className="relative">
             <div
+             ref={profileRef}
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => setProfileOpen(!profileOpen)}
             >
@@ -357,6 +370,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
             {/* Profile Info + Dropdown */}
             <div className="relative">
               <div
+              ref={profileRef}
                 className="profile mt-1 sm:mt-2 flex items-center gap-3 cursor-pointer"
                 onClick={() => setProfileOpen(!profileOpen)}
               >

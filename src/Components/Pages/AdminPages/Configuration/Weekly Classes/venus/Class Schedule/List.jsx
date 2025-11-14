@@ -631,7 +631,7 @@ const List = () => {
                                                                                                                     cancelSession: session?.sessionPlan?.cancelSession,
                                                                                                                     sessionId: session?.sessionPlan?.mapId || session?.sessionPlanId,
                                                                                                                     schedule: item,
-                                                                                                                    canceled: session?.sessionPlan?.status === "cancelled",
+                                                                                                                    cancelled: session?.sessionPlan?.status === "cancelled",
                                                                                                                 },
                                                                                                             });
                                                                                                         }}

@@ -265,9 +265,14 @@ const Facebook = () => {
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
-  const handleBookFreeTrial = (classId) => {
+  const handleBookFreeTrial = (classId, leadId) => {
+    console.log('leadId',leadId)
     navigate('/weekly-classes/find-a-class/book-a-free-trial', {
-      state: { classId },
+      state: {
+        classId,
+        from_lead: 'yes',
+        leadId:leadId // pass dynamically (fallback for safety)
+      },
     });
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'auto' });
@@ -434,8 +439,8 @@ const Facebook = () => {
                                 <div className="md:w-[75%]">
                                   {venue.classSchedules?.length > 0 ? (
                                     venue.classSchedules.map((cls, idx) => {
-                                      const available = cls.totalCapacity - cls.capacity;
-                                      const isFull = available <= 0;
+                                      const available = cls.capacity ;
+                                      const isFull = cls.capacity == 0;
                                       return (
 
                                         <div
@@ -469,7 +474,7 @@ const Facebook = () => {
                                             }
                                             {cls.allowFreeTrial ? (
 
-                                              <button onClick={() => handleBookFreeTrial(cls.id)} className="border px-4 py-2  rounded-lg text-[14px] hover:bg-gray-50 transition">
+                                              <button onClick={() => handleBookFreeTrial(cls.id , lead.id)} className="border px-4 py-2  rounded-lg text-[14px] hover:bg-gray-50 transition">
                                                 Book a Free Trial
                                               </button>
                                             ) : (

@@ -560,7 +560,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       <ul
         className={`
         ${level === 0 ? 'px-4 py-10 lg:px-1' : 'pl-6 lg:pl-13 innersub'} 
-        ${level >= 2 ? 'list-disc' : 'list-disc'} 
+        ${level >= 2 ? 'md:list-disc' : 'md:list-disc'} 
         space-y-1
       `}
       >
@@ -602,7 +602,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               onMouseEnter={() => setHoveredItem(itemTitle)}
               onMouseLeave={() => setHoveredItem(null)}
               className={`flex items-center subitems justify-between font-semibold cursor-pointer 
-    px-3 sm:px-4 lg:px-4 ${noPaddingx ? 'px-0' : 'px-3 sm:px-4 lg:px-4'} py-1.5 sm:py-2 rounded-lg ${isActiveTitle && isActive ? 'bg-blue-500 text-white' : 'bg-[#FDFDFF] '}  transition-all duration-100
+    md:px-3 sm:px-4 lg:px-4 ${noPaddingx ? 'px-0' : 'md:px-3 sm:px-4 lg:px-4'} py-1.5 sm:py-2 rounded-lg ${isActiveTitle && isActive ? 'bg-blue-500 text-white' : 'bg-[#FDFDFF] '}  transition-all duration-100
     ${level === 0
                   ? isItemActive(item)
                     ? 'bg-blue-500 text-white'
@@ -723,7 +723,16 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               transition={{ type: 'tween' }}
               className="fixed top-0 left-0 w-72 h-full bg-white z-50 shadow-lg border-r lg:hidden flex flex-col"
             >
-              <div className="p-6 font-semibold text-2xl text-center flex items-center gap-1 justify-center">
+<div className="p-6 relative font-semibold text-2xl text-center flex items-center gap-1 justify-center">
+  <img
+    src="/demo/synco/icons/cross.png"
+    className="absolute left-[5%] w-3 h-3 cursor-pointer"
+    onClick={() => {
+      setIsMobileMenuOpen(false);
+    }}
+    alt=""
+  />
+
                 <img src="/demo/synco/images/synco-text.png" alt="Logo" className="h-10 w-auto object-contain" />
                 <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className="h-10 w-auto object-contain" />
               </div>

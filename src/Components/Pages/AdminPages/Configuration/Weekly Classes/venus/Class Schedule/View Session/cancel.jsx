@@ -323,7 +323,7 @@ const ViewSessions = () => {
                 <div className="text-end ">
                   <button
                     onClick={handleSubmit}
-                    disabled={submitLoading || isCancel}  // 🚫 disable if loading OR already canceled
+                    disabled={submitLoading || isCancel}  // 🚫 disable if loading OR already cancelled
                     className={`mt-4 w-full md:w-auto text-sm md:text-base px-6 py-3 md:px-20 rounded-lg 
     ${(submitLoading || isCancel)
                         ? "bg-gray-400 cursor-not-allowed"
@@ -331,7 +331,7 @@ const ViewSessions = () => {
   `}
                   >
                     {isCancel
-                      ? "Already Canceled"
+                      ? "Already cancelled"
                       : submitLoading
                         ? "Sending..."
                         : "Send"}

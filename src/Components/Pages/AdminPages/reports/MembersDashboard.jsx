@@ -32,7 +32,7 @@ const MembersDashboard = () => {
     const [mainData, setMainData] = useState([]);
     const [membersData, setMembersData] = useState([]);
     const [loading, setLoading] = useState(false);
-    
+
 
 
     const venueOptions = [
@@ -174,6 +174,7 @@ const MembersDashboard = () => {
         fetchData();
     }, []);
 
+
     const lineData = [
         { month: "Jan", current: 380, previous: 300 },
         { month: "Feb", current: 400, previous: 310 },
@@ -246,17 +247,65 @@ const MembersDashboard = () => {
     };
     const yearlyGrouped = membersData?.yealyGrouped || {};
     const yearKeys = Object.keys(yearlyGrouped);
-
+// console.log('yearlyGrouped',yearlyGrouped)
+console.log('yearlyGrouped',yearlyGrouped)
     const latestYear = yearKeys.length ? yearKeys.sort().pop() : null;
     const monthlyGrouped = latestYear ? yearlyGrouped[latestYear]?.monthlyGrouped || {} : {};
     const monthKeys = Object.keys(monthlyGrouped);
 
     const latestMonth = monthKeys.length ? monthKeys.sort().pop() : null;
 
+
     // ✅ Get duration data safely
     const durationData =
         (latestYear && latestMonth && yearlyGrouped[latestYear]?.monthlyGrouped?.[latestMonth]?.durationOfMembership) ||
         {};
+
+
+// by vansh
+const getTotalMembers = (data, year, month) => {
+  const bookings =
+    data?.data?.yealyGrouped?.[year]?.monthlyGrouped?.[month]?.bookings || [];
+
+  return bookings.reduce(
+    (sum, booking) => sum + (booking.totalStudents || 0),
+    0
+  );
+};
+
+    const years = Object.keys(yearlyGrouped).map(Number).sort((a, b) => b - a);
+    const currentYear = years[0]?.toString();
+
+    const months = Object.keys(yearlyGrouped[currentYear]?.monthlyGrouped || {})
+        .map(Number)
+        .sort((a, b) => b - a);
+    const currentMonth = months[0]?.toString().padStart(2, "0");
+
+    // 2) Previous period
+    let prevYear = currentYear;
+    let prevMonth = (Number(currentMonth) - 1).toString().padStart(2, "0");
+
+    if (prevMonth === "00") {
+        prevYear = (Number(currentYear) - 1).toString();
+        prevMonth = "12";
+    }
+
+    // 3) Safe check: previous period exists?
+    const prevExists =
+       yearlyGrouped?.[prevYear]?.monthlyGrouped?.[prevMonth];
+
+    // 4) Members calculations
+    const currentMembers = getTotalMembers(membersData, currentYear, currentMonth);
+
+    const prevMembers = prevExists
+        ? getTotalMembers(membersData, prevYear, prevMonth)
+        : 0;
+
+    const diffPercent =
+        prevMembers > 0
+            ? (((currentMembers - prevMembers) / prevMembers) * 100).toFixed(1)
+            : "0";
+
 
     if (loading) return (<><Loader /></>)
 

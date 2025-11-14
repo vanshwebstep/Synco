@@ -469,7 +469,7 @@ const List = () => {
     });
   };
 
- 
+
   const modalRef = useRef(null);
   const PRef = useRef(null);
 
@@ -965,71 +965,64 @@ const List = () => {
   );
 
   // 2️⃣ Package options (filtered by selected coach)
+
   const packageOptions = useMemo(() => {
-    console.group("[useMemo] packageOptions");
-    console.log("dependencies:", { selectedCoach, numberOfStudents, paymentGroupsLength: paymentGroups?.length ?? 0 });
+    // console.log("RUNNING packageOptions");
 
     if (!selectedCoach) {
-      console.log("→ No selectedCoach, returning []");
-      console.groupEnd();
+      // console.log("⛔ selectedCoach is NULL → returning []");
       return [];
     }
 
-    console.log("selectedCoach:", selectedCoach);
+    // console.log("selectedCoach.value =", selectedCoach.value);
 
-    const group = paymentGroups.find((g) => g.adminId === selectedCoach);
-    if (!group) {
-      console.log("→ No group found for selectedCoach, returning []");
-      console.groupEnd();
+    // console.log("paymentGroups received →", paymentGroups);
+
+    // Step 1: Merge groups
+    const mergedGroups = Object.values(
+      paymentGroups.reduce((acc, group) => {
+        const id = group.adminId;
+
+        if (!acc[id]) {
+          acc[id] = { ...group, paymentPlans: [] };
+        }
+
+        group.paymentPlans.forEach((plan) => {
+          if (!acc[id].paymentPlans.some((p) => p.id === plan.id)) {
+            acc[id].paymentPlans.push(plan);
+          }
+        });
+
+        return acc;
+      }, {})
+    );
+
+    // console.log("Merged groups result →", mergedGroups);
+
+    // Step 2: Select correct group
+    const selectedGroup = mergedGroups.find(
+      (g) => g.adminId === selectedCoach
+    );
+
+    // console.log("Selected group →", selectedGroup);
+
+    if (!selectedGroup) {
+      // console.log("⛔ No group found for adminId =", selectedCoach);
       return [];
     }
 
-    console.log("Found group:", group);
-
-    if (!Array.isArray(group.paymentPlans) || group.paymentPlans.length === 0) {
-      console.log("→ group.paymentPlans empty or not an array, returning []");
-      console.groupEnd();
+    if (!selectedGroup.paymentPlans?.length) {
+      // console.log("⛔ selectedGroup.paymentPlans is EMPTY");
       return [];
     }
 
-    // Filter by numberOfStudents if it's set
-    const studentsNum = numberOfStudents ? Number(numberOfStudents) : null;
-    console.log("numberOfStudents (raw):", numberOfStudents, "parsed:", studentsNum);
+    // console.log("Final Payment Plans →", selectedGroup.paymentPlans);
 
-     const filteredPlans = group.paymentPlans
-
-    // const filteredPlans = studentsNum
-    //   ? group.paymentPlans.filter((plan) => {
-    //     const match = plan.students === studentsNum;
-    //     console.log(`filter plan ${plan.id} (students=${plan.students}) => ${match}`);
-    //     return match;
-    //   })
-    //   : group.paymentPlans.slice();
- 
-    console.log("Filtered Payment Plans:", filteredPlans);
-
-    const mapped = filteredPlans.map((plan) => {
-      const result = {
-        value: plan.id,
-        label: plan.title,
-        id: plan.id,
-        title: plan.title,
-        price: plan.price,
-        interval: plan.interval,
-        students: plan.students,
-        duration: plan.duration,
-        priceLesson: plan.priceLesson,
-        joiningFee: plan.joiningFee,
-        holidayCampPackage: plan.HolidayCampPackage,
-        termsAndCondition: plan.termsAndCondition,
-      };
-      console.log("mapped plan:", plan.id, result);
-      return result;
-    });
-
-    console.log("Final packageOptions:", mapped);
-    console.groupEnd();
-    return mapped;
+    return selectedGroup.paymentPlans.map((plan) => ({
+      value: plan.id,
+      label: plan.title,
+      ...plan,
+    }));
   }, [selectedCoach, paymentGroups, numberOfStudents]);
 
 
@@ -1046,7 +1039,18 @@ const List = () => {
   );
   const selectedPackages = packageOptions.find(pkg => pkg.id === selectedPackage);
 
-  // console.log('selectedPackages', selectedPackages)
+  console.log('paymentGroups', paymentGroups)
+  console.log('packageOptions', packageOptions)
+  // selectedPackage = ID (ex: 94)
+  // packageOptions = array of all plans (your full array)
+  const finalPaymentPreview = (paymentGroups || []).find(group =>
+    Array.isArray(group.paymentPlans) &&
+    group.paymentPlans.some(plan => plan.id === selectedPackage)
+  );
+
+  console.log('parents', parents)
+  
+  console.log('finalPaymentPreview', finalPaymentPreview)
 
   if (loading) return <Loader />;
 
@@ -1090,7 +1094,7 @@ const List = () => {
                       <img src="/demo/synco/icons/cross.png" onClick={() => togglePopup(null)} alt="close" className="w-5 h-5" />
                     </button>
                   </div>
-                  <PlanTabs selectedPlans={selectedPlans} />
+                  <PlanTabs selectedPlans={finalPaymentPreview?.paymentPlans} />
                 </div>
               </div>
             </div>
@@ -1960,35 +1964,59 @@ const List = () => {
               >
                 Cancel
               </button>
+<button
+  type="button"
+  onClick={() => {
+    const parentEmail = parents?.[0]?.parentEmail || "";
 
-              <button
-                type="button"
-                onClick={() => {
-                  if (!selectedPackage || !selectedDate) {
-                    let msg = "";
-                    if (!selectedPackage && !selectedDate) msg = "Please select Package and Date";
-                    else if (!selectedPackage) msg = "Please select package";
-                    else if (!selectedDate) msg = "Please select Date";
+    console.log("parentEmail:", parentEmail);
 
-                    Swal.fire({
-                      icon: "warning",
-                      title: "Required Fields",
-                      text: msg,
-                    });
-                    return;
-                  }
+    if (!selectedPackage || !selectedDate || !parentEmail) {
+      let msg = "";
+      if (!selectedPackage && !selectedDate) msg = "Please select Package and Date";
+      else if (!selectedPackage) msg = "Please select package";
+      else if (!parentEmail) msg = "Please enter Parent email";
+      else if (!selectedDate) msg = "Please select Date";
 
-                  // If both are selected, proceed
-                  setShowPopup(true);
-                }}
-                disabled={isSubmitting || !selectedPackage || !selectedDate}
-                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${!isSubmitting && selectedPackage && selectedDate
-                    ? "bg-[#237FEA] border border-[#237FEA]"
-                    : "bg-gray-400 border-gray-400 cursor-not-allowed"
-                  }`}
-              >
-                {isSubmitting ? "Submitting..." : "Make Payment"}
-              </button>
+      Swal.fire({
+        icon: "warning",
+        title: "Required Fields",
+        text: msg,
+      });
+      return;
+    }
+
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail.trim());
+    if (!isValidEmail) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Email",
+        text: "Please enter a valid email address",
+      });
+      return;
+    }
+
+    setShowPopup(true);
+  }}
+  disabled={
+    isSubmitting ||
+    !selectedPackage ||
+    !selectedDate ||
+    !parents?.[0]?.parentEmail
+  }
+  className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${
+    !isSubmitting &&
+    selectedPackage &&
+    selectedDate &&
+    parents?.[0]?.parentEmail
+      ? "bg-[#237FEA] border border-[#237FEA]"
+      : "bg-gray-400 border-gray-400 cursor-not-allowed"
+  }`}
+>
+  {isSubmitting ? "Submitting..." : "Make Payment"}
+</button>
+
+
 
 
             </div>

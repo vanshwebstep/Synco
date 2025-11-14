@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import LeadsDashboard from "./LeadsDashboard";
 import SalesDashboard from "./SalesDashboard";
-import { Handler } from "leaflet";
-import SessionPlan from "../../Session plan/SessionPlan";
 import AllDashboard from "./AllDashboard";
 
 const tabs = [
@@ -13,19 +11,31 @@ const tabs = [
 ];
 
 const Leads = () => {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState(
-    localStorage.getItem("activeTab") || tabs[0].name
-  );
+  // Get the 'tab' parameter from URL or fallback to localStorage or default
+  const urlTab = searchParams.get("tab");
+  const defaultTab = urlTab || localStorage.getItem("activeTab") || tabs[0].name;
 
+  const [activeTab, setActiveTab] = useState(defaultTab);
+
+  // When activeTab changes → update localStorage + URL param
   useEffect(() => {
     localStorage.setItem("activeTab", activeTab);
-  }, [activeTab]);
+    setSearchParams({ tab: activeTab });
+  }, [activeTab, setSearchParams]);
 
- const handleTabChange =(tab)=>{
+  // If user directly changes URL ?tab=Something → update state
+  useEffect(() => {
+    if (urlTab && urlTab !== activeTab) {
+      setActiveTab(urlTab);
+    }
+  }, [urlTab]);
+
+  const handleTabChange = (tab) => {
     setActiveTab(tab);
-     localStorage.setItem("activeTab", tab);
-  }
+  };
 
   return (
     <div className="mt-3 relative">
@@ -33,7 +43,7 @@ const Leads = () => {
         {tabs.map((tab) => (
           <button
             key={tab.name}
-            onClick={()=> handleTabChange(tab.name)}
+            onClick={() => handleTabChange(tab.name)}
             className={`relative flex-1 w-auto text-[18px] md:text-base font-semibold py-3 px-4 rounded-xl transition-all ${
               activeTab === tab.name
                 ? "bg-[#237FEA] shadow text-white"

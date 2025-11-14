@@ -165,62 +165,136 @@ const DynamicTable = ({
       </div>
 
       {/* Pagination Footer */}
-      {totalItems > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
-          <div className="flex items-center gap-2 mb-3 sm:mb-0">
-            <span>Rows per page:</span>
-            <select
-              value={rowsPerPage}
-              onChange={(e) => setRowsPerPage(Number(e.target.value))}
-              className="border rounded-md px-2 py-1"
-            >
-              {[5, 10, 20, 50].map((num) => (
-                <option key={num} value={num}>
-                  {num}
-                </option>
-              ))}
-            </select>
-            <span className="ml-2">
-              {Math.min(startIndex + 1, totalItems)} - {Math.min(startIndex + rowsPerPage, totalItems)} of {totalItems}
-            </span>
-          </div>
+    {totalItems > 0 && (
+  <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
+    <div className="flex items-center gap-2 mb-3 sm:mb-0">
+      <span>Rows per page:</span>
+      <select
+        value={rowsPerPage}
+        onChange={(e) => setRowsPerPage(Number(e.target.value))}
+        className="border rounded-md px-2 py-1"
+      >
+        {[5, 10, 20, 50].map((num) => (
+          <option key={num} value={num}>
+            {num}
+          </option>
+        ))}
+      </select>
+      <span className="ml-2">
+        {Math.min(startIndex + 1, totalItems)} -{" "}
+        {Math.min(startIndex + rowsPerPage, totalItems)} of {totalItems}
+      </span>
+    </div>
 
-          <div className="flex items-center gap-2">
+    {/* Pagination buttons */}
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+        disabled={currentPage === 1}
+        className={`px-3 py-1 rounded-md border ${
+          currentPage === 1
+            ? "text-gray-400 border-gray-200"
+            : "hover:bg-gray-100 border-gray-300"
+        }`}
+      >
+        Prev
+      </button>
+
+      {/* Compact page range logic */}
+      {(() => {
+        const pageButtons = [];
+        const maxVisible = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let endPage = startPage + maxVisible - 1;
+
+        if (endPage > totalPages) {
+          endPage = totalPages;
+          startPage = Math.max(1, endPage - maxVisible + 1);
+        }
+
+        // show first + ellipsis if needed
+        if (startPage > 1) {
+          pageButtons.push(
             <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-              className={`px-3 py-1 rounded-md border ${currentPage === 1 ? "text-gray-400 border-gray-200" : "hover:bg-gray-100 border-gray-300"
-                }`}
+              key={1}
+              onClick={() => setCurrentPage(1)}
+              className={`px-3 py-1 rounded-md border ${
+                currentPage === 1
+                  ? "bg-blue-500 text-white border-blue-500"
+                  : "hover:bg-gray-100 border-gray-300"
+              }`}
             >
-              Prev
+              1
             </button>
+          );
+          if (startPage > 2) {
+            pageButtons.push(
+              <span key="start-ellipsis" className="px-2">
+                ...
+              </span>
+            );
+          }
+        }
 
-            {/* Basic page buttons (shows all pages). If you have many pages we can collapse to a windowed paginator.) */}
-            {[...Array(totalPages)].map((_, i) => {
-              const pageNum = i + 1;
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`px-3 py-1 rounded-md border ${currentPage === pageNum ? "bg-blue-500 text-white border-blue-500" : "hover:bg-gray-100 border-gray-300"
-                    }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
-
+        // main page window
+        for (let i = startPage; i <= endPage; i++) {
+          pageButtons.push(
             <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded-md border ${currentPage === totalPages ? "text-gray-400 border-gray-200" : "hover:bg-gray-100 border-gray-300"
-                }`}
+              key={i}
+              onClick={() => setCurrentPage(i)}
+              className={`px-3 py-1 rounded-md border ${
+                currentPage === i
+                  ? "bg-blue-500 text-white border-blue-500"
+                  : "hover:bg-gray-100 border-gray-300"
+              }`}
             >
-              Next
+              {i}
             </button>
-          </div>
-        </div>
-      )}
+          );
+        }
+
+        // show last + ellipsis if needed
+        if (endPage < totalPages) {
+          if (endPage < totalPages - 1) {
+            pageButtons.push(
+              <span key="end-ellipsis" className="px-2">
+                ...
+              </span>
+            );
+          }
+          pageButtons.push(
+            <button
+              key={totalPages}
+              onClick={() => setCurrentPage(totalPages)}
+              className={`px-3 py-1 rounded-md border ${
+                currentPage === totalPages
+                  ? "bg-blue-500 text-white border-blue-500"
+                  : "hover:bg-gray-100 border-gray-300"
+              }`}
+            >
+              {totalPages}
+            </button>
+          );
+        }
+
+        return pageButtons;
+      })()}
+
+      <button
+        onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+        disabled={currentPage === totalPages}
+        className={`px-3 py-1 rounded-md border ${
+          currentPage === totalPages
+            ? "text-gray-400 border-gray-200"
+            : "hover:bg-gray-100 border-gray-300"
+        }`}
+      >
+        Next
+      </button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

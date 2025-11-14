@@ -27,8 +27,8 @@ const MainTable = () => {
 
             const merged = [
                 ...(data.membership || []),
-                ...(data.oneToOne || []),
-                ...(data.birthdayParty || []),
+                // ...(data.oneToOne || []),
+                // ...(data.birthdayParty || []),
             ];
 
             // Normalize ids for select functionality

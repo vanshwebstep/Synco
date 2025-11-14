@@ -598,7 +598,7 @@ const General = () => {
 
                             {/* Date of Class */}
                             <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Date of Class</p>
+                                <p className="text-white text-[18px] font-semibold">Date of Party</p>
                                 <p className="text-[16px] mt-1 text-[#BDC0C3]">
                                     {data?.booking?.date
                                         ? new Date(data.booking.date).toLocaleDateString("en-GB", {

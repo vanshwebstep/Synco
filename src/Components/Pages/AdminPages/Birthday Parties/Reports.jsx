@@ -112,29 +112,29 @@ export default function BirthdayReports() {
   /** =====================
    * ✅ Stat Cards
    * ===================== */
-useEffect(() => {
-  const enrolledData = charts?.packageBackground || [];
-  let formatted = [];
+  useEffect(() => {
+    const enrolledData = charts?.packageBackground || [];
+    let formatted = [];
 
-  if (packageActiveTab === "revenue") {
-    const totals = enrolledData?.[0]?.revenue || [];
-    formatted = totals.map(v => ({
-      label: v.name,
-      value: v.percentage,
-      count: v.count,
-    }));
-  } 
-  else if (packageActiveTab === "growth") {
-    const totals = enrolledData?.[1]?.growth || [];
-    formatted = totals.map(v => ({
-      label: v.name,
-      value: v.percentage,
-      count: v.count,
-    }));
-  }
+    if (packageActiveTab === "revenue") {
+      const totals = enrolledData?.[0]?.revenue || [];
+      formatted = totals.map(v => ({
+        label: v.name,
+        value: v.percentage,
+        count: v.count,
+      }));
+    }
+    else if (packageActiveTab === "growth") {
+      const totals = enrolledData?.[1]?.growth || [];
+      formatted = totals.map(v => ({
+        label: v.name,
+        value: v.percentage,
+        count: v.count,
+      }));
+    }
 
-  setPackageData(formatted);
-}, [packageActiveTab, charts]);
+    setPackageData(formatted);
+  }, [packageActiveTab, charts]);
 
 
 
@@ -251,42 +251,42 @@ useEffect(() => {
 
   const statCards = [
     {
-      icon: PiUsersThreeBold,
+      icon: '/demo/synco/reportsIcons/user-group.png',
       iconStyle: "text-[#3DAFDB]",
       title: "Total Leads",
       value: summary?.totalLeads?.thisMonth ?? 0,
       sub: `Last month: ${summary?.totalLeads?.previousMonth ?? 0}`,
     },
     {
-      icon: Database,
+      icon: '/demo/synco/reportsIcons/Coins.png',
       iconStyle: "text-[#6F65F1]",
       title: "Number of Sales",
       value: summary?.numberOfSales?.thisMonth ?? 0,
       sub: `Last month: ${summary?.numberOfSales?.previousMonth ?? 0}`,
     },
     {
-      icon: CirclePercent,
+      icon: '/demo/synco/reportsIcons/Percent.png',
       iconStyle: "text-[#34AE56]",
       title: "Conversion Rate",
       value: summary?.conversionRate?.thisMonth ?? "0%",
       sub: `Last month: ${summary?.conversionRate?.previousMonth ?? "0%"}`,
     },
     {
-      icon: CirclePoundSterling,
+      icon: '/demo/synco/reportsIcons/pound.png',
       iconStyle: "text-[#E769BD]",
       title: "Revenue Generated",
       value: summary?.revenueGenerated?.thisMonth ?? "£0",
       sub: `Last month: ${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
     },
     {
-      icon: PackageOpen,
+      icon: '/demo/synco/reportsIcons/Package.png',
       iconStyle: "text-[#099699]",
       title: "Revenue Gold Package",
       value: `£${goldData?.currentRevenue?.toLocaleString() ?? 0}`,
       sub: `vs. previous £${goldData?.lastRevenue?.toLocaleString() ?? 0}`,
     },
     {
-      icon: Box,
+      icon: '/demo/synco/reportsIcons/silver-package.png',
       iconStyle: "text-[#F38B4D]",
       title: "Revenue Silver Package",
       value: `£${silverData?.currentRevenue?.toLocaleString() ?? 0}`,
@@ -389,7 +389,7 @@ useEffect(() => {
                 <div
                   className={`p-2 h-[50px] w-[50px] rounded-full flex items-center justify-center ${s.iconStyle} bg-opacity-10`}
                 >
-                  <Icon size={24} className={s.iconStyle} />
+                  <img src={Icon} alt="" className="p-1" />
                 </div>
                 <div>
                   <div className="text-[14px] text-[#717073] font-semibold">{s.title}</div>
@@ -407,7 +407,7 @@ useEffect(() => {
           <div className="space-y-6 md:w-[75%] md:pe-6">
             {/* Students Chart */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h2 className="font-semibold text-[24px] mb-4">One to One Students</h2>
+              <h2 className="font-semibold text-[24px] mb-4">Total Students</h2>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart
@@ -529,7 +529,7 @@ useEffect(() => {
                             ></div>
 
                             {/* Example floating label (only for first item) */}
-                           
+
                           </div>
                           <span className="text-xs text-gray-500 font-medium">
                             {item.value}%

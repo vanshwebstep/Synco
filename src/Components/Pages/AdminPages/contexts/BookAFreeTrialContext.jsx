@@ -289,8 +289,10 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
-  const createBookFreeTrials = async (bookFreeTrialData) => {
+  const createBookFreeTrials = async (bookFreeTrialData,islead) => {
     setLoading(true);
+console.log('bookFreeTrialData',bookFreeTrialData)
+console.log('islead',islead)
 
     const headers = {
       "Content-Type": "application/json",
@@ -299,9 +301,15 @@ export const BookFreeTrialProvider = ({ children }) => {
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
+let url = `${API_BASE_URL}/api/admin/book/free-trials/`;
+
+if (islead) {  
+  // if isLead exists (true / string / non-null)  
+  url += `${encodeURIComponent(islead)}`; 
+}
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book/free-trials/`, {
+      const response = await fetch(url, {
         method: "POST",
         headers,
         body: JSON.stringify(bookFreeTrialData),

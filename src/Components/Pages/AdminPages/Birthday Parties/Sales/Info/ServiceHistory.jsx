@@ -115,7 +115,8 @@ const BookingCard = ({ booking }) => {
   const statusColors = {
     active: "bg-green-500 text-white",
     expired: "bg-red-500 text-white",
-    canceled: "bg-red-500 text-white",
+    cancelled: "bg-red-500 text-white",
+    cancel: "bg-red-500 text-white",
     pending: "bg-orange-500 text-white",
   };
 
@@ -129,7 +130,7 @@ const BookingCard = ({ booking }) => {
             alt={booking.type}
             className="w-8 h-8 rounded-full"
           />
-          <h3 className="text-white font-semibold">One to One Booking</h3>
+          <h3 className="text-white font-semibold">Birthday party Booking</h3>
         </div>
         <div className="flex items-center gap-2">
           <button className="px-3 py-2 flex items-center gap-2 rounded-lg text-sm bg-white">
@@ -155,10 +156,19 @@ const BookingCard = ({ booking }) => {
             <>
               {renderField("Membership Plan", booking.plan)}
               {renderField("Students", booking.students)}
-              {renderField("Venue", booking.venue)}
+              {renderField("Venue", booking.address)}
               {renderField("KGo/Cardless ID", booking.id)}
               {renderField("Monthly Price", booking.price)}
-              {renderField("Date Of Booking", booking.bookingDate)}
+              {renderField("Date Of Booking",
+                new Date(booking.bookingDate).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,   // 24-hour format; set true for AM/PM format
+                })
+              )}
               {renderField("Progress", booking.progress)}
               {renderField("Booking Source", booking.source)}
             </>
@@ -169,7 +179,14 @@ const BookingCard = ({ booking }) => {
               {renderField("Package", booking.package)}
               {renderField("Price Paid", booking.pricePaid)}
               {renderField("Stripe Transaction ID", booking.stripeID)}
-              {renderField("Date of Booking", booking.bookingDate)}
+              {renderField("Date of Booking", new Date(booking.bookingDate).toLocaleString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,   // 24-hour format; set true for AM/PM format
+              }))}
               {renderField("Date of Party", booking.partyDate)}
               {renderField("Coach", booking.coach)}
               {renderField("Booking Source", booking.source)}
@@ -182,8 +199,17 @@ const BookingCard = ({ booking }) => {
               {renderField("Students", data.booking.students.length)}
               {renderField("Price Paid", data.booking.paymentPlan?.price)}
               {renderField("Stripe Transaction ID", data.booking.payment.stripePaymentIntentId)}
-              {renderField("Date of Booking", data.booking.date)}
-              {renderField("Venue", data.booking.location)}
+              {renderField("Date of Booking",
+                new Date(data.booking.date).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,   // 24-hour format; set true for AM/PM format
+                })
+              )}
+              {renderField("Venue", data.booking.address)}
               {renderField("Coach", `${data.booking.coach.firstName} ${data.booking.coach.lastName}`)}
               {renderField("Booking Source", data.source)}
             </>
@@ -195,7 +221,14 @@ const BookingCard = ({ booking }) => {
               {renderField("Students", booking.students)}
               {renderField("Price Paid", booking.pricePaid)}
               {renderField("Stripe Transaction ID", booking.stripeID)}
-              {renderField("Date of Booking", booking.bookingDate)}
+              {renderField("Date of Booking", new Date(booking.bookingDate).toLocaleString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,   // 24-hour format; set true for AM/PM format
+              }))}
               {renderField("Venue", booking.venue)}
               {renderField("Discount", booking.discount)}
               {renderField("Coach", booking.coach)}
@@ -209,7 +242,14 @@ const BookingCard = ({ booking }) => {
               {renderField("Quantity", booking.quantity)}
               {renderField("Price Paid", booking.pricePaid)}
               {renderField("Transaction ID", booking.transactionID)}
-              {renderField("Date of Booking", booking.bookingDate)}
+              {renderField("Date of Booking", new Date(booking.bookingDate).toLocaleString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,   // 24-hour format; set true for AM/PM format
+              }))}
               {renderField("Discount", booking.discount)}
               {renderField("Fulfillment Status", booking.fulfillment)}
               {renderField("Booking Source", booking.source)}
@@ -227,11 +267,7 @@ const BookingCard = ({ booking }) => {
               <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
                 See payments
               </button>
-              {booking.students && (
-                <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
-                  Attendance
-                </button>
-              )}
+
             </>
           )}
           <button className="ml-auto text-gray-500 hover:text-gray-800">

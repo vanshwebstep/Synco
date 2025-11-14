@@ -280,7 +280,7 @@ export const ClassScheduleProvider = ({ children }) => {
 
       await Swal.fire({
         title: "Success!",
-        text: result.message || "ClassSchedule has been Canceled successfully.",
+        text: result.message || "ClassSchedule has been cancelled successfully.",
         icon: "success",
         confirmButtonText: "OK",
       });

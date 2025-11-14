@@ -212,7 +212,7 @@ const userDashboard = () => {
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
-                  <p className="font-semibold text-lg">
+                  <p className="font-semibold text-2xl">
                     {currentDate.toLocaleString("default", { month: "long" })} {year}
                   </p>
                   <button

@@ -21,6 +21,7 @@ import Swal from "sweetalert2";
 import { PiUsersThreeBold } from "react-icons/pi";
 import {
   Database,
+  EllipsisVertical,
   CirclePercent,
   CirclePoundSterling,
   PackageOpen,
@@ -48,49 +49,48 @@ export default function Reports() {
   /** =====================
    * ✅ Fetch Reports
    * ===================== */
- const fetchReports = useCallback(async () => {
-   if (!token) return;
-   setLoading(true);
- 
-   try {
-     // add ?filterType=selectedFilter?.value
-     const url = `${API_BASE_URL}/api/admin/one-to-one/analytics${
-       selectedFilter?.value ? `?filterType=${selectedFilter.value}` : ""
-     }`;
- 
-     const response = await fetch(url, {
-       headers: { Authorization: `Bearer ${token}` },
-     });
- 
-     if (!response.ok) {
-       const text = await response.text();
-       throw new Error(`HTTP ${response.status}: ${text}`);
-     }
- 
-     const result = await response.json();
-     if (!result.status) {
-       Swal.fire({
-         icon: "error",
-         title: "Fetch Failed",
-         text: result.message || "Something went wrong while fetching analytics data.",
-       });
-       return;
-     }
- 
-     setData(result);
-     setSummary(result.summary || {});
-     setCharts(result.charts || {});
-   } catch (error) {
-     console.error("Failed to fetch reports:", error);
-     Swal.fire({
-       icon: "error",
-       title: "Fetch Failed",
-       text: error.message,
-     });
-   } finally {
-     setLoading(false);
-   }
- }, [API_BASE_URL, token, selectedFilter]);
+  const fetchReports = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+
+    try {
+      // add ?filterType=selectedFilter?.value
+      const url = `${API_BASE_URL}/api/admin/one-to-one/analytics${selectedFilter?.value ? `?filterType=${selectedFilter.value}` : ""
+        }`;
+
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`HTTP ${response.status}: ${text}`);
+      }
+
+      const result = await response.json();
+      if (!result.status) {
+        Swal.fire({
+          icon: "error",
+          title: "Fetch Failed",
+          text: result.message || "Something went wrong while fetching analytics data.",
+        });
+        return;
+      }
+
+      setData(result);
+      setSummary(result.summary || {});
+      setCharts(result.charts || {});
+    } catch (error) {
+      console.error("Failed to fetch reports:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Fetch Failed",
+        text: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [API_BASE_URL, token, selectedFilter]);
 
   useEffect(() => {
     fetchReports();
@@ -108,16 +108,22 @@ export default function Reports() {
   const currentMonthName = currentDate.toLocaleString("default", { month: "long" });
 
   const allMonths = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
 
   // Step 1: Convert API data to dictionary for easy merge
-  const existingData = {};
-  (charts?.monthlyStudents || []).forEach(d => {
-    existingData[d.month] = d.students;
-  });
+  const fullToShort = {
+    January: "Jan", February: "Feb", March: "Mar", April: "Apr",
+    May: "May", June: "Jun", July: "Jul", August: "Aug",
+    September: "Sep", October: "Oct", November: "Nov", December: "Dec",
+  };
 
+  const existingData = {};
+  (charts?.monthlyStudents || []).forEach(item => {
+    const short = fullToShort[item.month] || item.month;
+    existingData[short] = item.students;
+  });
   // Step 2: Add current month if missing
   if (charts?.thisMonth && !existingData[currentMonthName]) {
     existingData[currentMonthName] = charts.thisMonth.students;
@@ -146,9 +152,9 @@ export default function Reports() {
     charts?.topAgents?.map((a) => ({
       name: `${a.creator.firstName} ${a.creator.lastName}`,
       value: a.leadCount,
-      avatar: a.creator.firstName[0],
+      avatar: a.creator.profile,
     })) || [];
-
+  console.log('topAgents', topAgents)
   const pieData = charts?.packageBreakdown || [];
   const renewalData = charts?.renewalBreakdown || [];
   const revenueByPackage = charts?.revenueByPackage || [];
@@ -222,42 +228,42 @@ export default function Reports() {
 
   const statCards = [
     {
-      icon: PiUsersThreeBold,
+      icon: '/demo/synco/reportsIcons/user-group.png',
       iconStyle: "text-[#3DAFDB]",
       title: "Total Leads",
       value: summary?.totalLeads?.thisMonth ?? 0,
       sub: `Last month: ${summary?.totalLeads?.previousMonth ?? 0}`,
     },
     {
-      icon: Database,
+      icon: '/demo/synco/reportsIcons/Coins.png',
       iconStyle: "text-[#6F65F1]",
       title: "Number of Sales",
       value: summary?.numberOfSales?.thisMonth ?? 0,
       sub: `Last month: ${summary?.numberOfSales?.previousMonth ?? 0}`,
     },
     {
-      icon: CirclePercent,
+      icon: '/demo/synco/reportsIcons/Percent.png',
       iconStyle: "text-[#34AE56]",
       title: "Conversion Rate",
       value: summary?.conversionRate?.thisMonth ?? "0%",
       sub: `Last month: ${summary?.conversionRate?.previousMonth ?? "0%"}`,
     },
     {
-      icon: CirclePoundSterling,
+      icon: '/demo/synco/reportsIcons/pound.png',
       iconStyle: "text-[#E769BD]",
       title: "Revenue Generated",
       value: summary?.revenueGenerated?.thisMonth ?? "£0",
       sub: `Last month: ${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
     },
     {
-      icon: PackageOpen,
+      icon: '/demo/synco/reportsIcons/Package.png',
       iconStyle: "text-[#099699]",
       title: "Revenue Gold Package",
       value: `£${goldData?.currentRevenue?.toLocaleString() ?? 0}`,
       sub: `vs. previous £${goldData?.lastRevenue?.toLocaleString() ?? 0}`,
     },
     {
-      icon: Box,
+      icon: '/demo/synco/reportsIcons/silver-package.png',
       iconStyle: "text-[#F38B4D]",
       title: "Revenue Silver Package",
       value: `£${silverData?.currentRevenue?.toLocaleString() ?? 0}`,
@@ -309,7 +315,7 @@ export default function Reports() {
                 <div
                   className={`p-2 h-[50px] w-[50px] rounded-full flex items-center justify-center ${s.iconStyle} bg-opacity-10`}
                 >
-                  <Icon size={24} className={s.iconStyle} />
+                  <img src={Icon} alt="" className="p-1" />
                 </div>
                 <div>
                   <div className="text-[14px] text-[#717073] font-semibold">{s.title}</div>
@@ -403,7 +409,10 @@ export default function Reports() {
             <div className="md:grid grid-cols-2 gap-6">
               {/* Marketing */}
               <div className="bg-white p-5 rounded-2xl shadow-sm">
-                <h3 className="font-semibold mb-4">Marketing Channel Performance</h3>
+                <div className="flex justify-between item-center">
+                  <h3 className="font-semibold mb-4">Marketing Channel Performance</h3>
+                  <EllipsisVertical className="text-gray-500" />
+                </div>
                 <div className="space-y-4">
                   {marketingData.map((m, idx) => (
                     <div key={idx}>
@@ -411,25 +420,53 @@ export default function Reports() {
                         <div className="text-slate-600">{m.name}</div>
                         <div className="text-slate-400">{m.percentText}</div>
                       </div>
-                      <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+
+                      {/* Wrapper (hover trigger) */}
+                      <div className="relative group">
+
+                        {/* Tooltip */}
                         <div
-                          className="h-3 rounded-full bg-blue-500"
-                          style={{ width: `${m.percentage}%` }}
-                        />
+                          className="absolute -top-8 opacity-0 group-hover:opacity-100 
+                       transition-opacity duration-200 text-xs
+                       bg-white text-black px-2 py-1 rounded-full shadow-md 
+                       pointer-events-none border border-slate-200"
+                          style={{
+                            left: `${m.percentage}%`,
+                            transform: "translateX(-50%)"
+                          }}
+                        >
+                          {m.percentage}%
+                        </div>
+
+                        {/* Bar */}
+                        <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                          <div
+                            className="h-3 rounded-full bg-blue-500"
+                            style={{ width: `${m.percentage}%` }}
+                          />
+                        </div>
+
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
+
+
               {/* Top Agents */}
               <div className="bg-white p-5 rounded-2xl shadow-sm">
-                <h3 className="font-semibold mb-4">Top Agents</h3>
+
+                <div className="flex justify-between item-center">
+                  <h3 className="font-semibold mb-4">Top Agents</h3>
+                  <EllipsisVertical className="text-gray-500" />
+                </div>
                 <div className="space-y-4">
                   {topAgents.map((a, idx) => (
                     <div key={idx} className="flex items-center space-x-3">
-                      <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center font-medium text-indigo-700">
-                        {a.avatar}
+                      <div className="h-10 w-10 rounded-full overflow-hidden bg-indigo-100 flex items-center justify-center font-medium text-indigo-700">
+
+                        <img src={a.avatar || '/demo/synco/members/dummyuser.png'} alt="" />
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between">
@@ -465,11 +502,32 @@ export default function Reports() {
                       dataKey="value"
                       startAngle={90}
                       endAngle={-270}
+                      labelLine={false}   // <-- removes lines
+                      label={({ cx, cy, midAngle, outerRadius, percent }) => {
+                        const RADIAN = Math.PI / 180;
+                        const radius = outerRadius + 20; // distance of % label from ring
+                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+                        return (
+                          <text
+                            x={x}
+                            y={y}
+                            fill="#000"
+                            textAnchor={x > cx ? "start" : "end"}
+                            dominantBaseline="central"
+                            className="text-sm font-semibold"
+                          >
+                            {(percent * 100).toFixed(0)}%
+                          </text>
+                        );
+                      }}
                     >
                       {pieData.map((entry, idx) => (
                         <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
                       ))}
                     </Pie>
+
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -477,34 +535,49 @@ export default function Reports() {
                 {pieData.map((p, idx) => (
                   <div key={idx}>
                     <div className="text-slate-500">{p.name} Package</div>
-                    <div className="font-semibold">{p.percentage ?? 0}%</div>
+                    <div className="font-semibold">{p.value ?? 0}</div>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Renewal Breakdown */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-semibold mb-4">Renewal Breakdown</h3>
-              {renewalData.map((r, idx) => (
-                <div key={idx} className="mb-3">
-                  <div className="flex justify-between text-sm mb-1">
-                    <div>{r.name}</div>
-                    <div>{r.percentage ?? 0}%</div>
-                  </div>
-                  <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                    <div
-                      className="h-3 bg-blue-500 rounded-full"
-                      style={{ width: `${100}%` }}
-                    />
-                  </div>
+        <div className="bg-white rounded-2xl p-5 shadow-sm">
+  <div className="flex justify-between item-center mb-2">
+                  <h3 className="font-semibold mb-4">Renewal Breakdown</h3>
+                  <EllipsisVertical className="text-gray-500" />
                 </div>
-              ))}
-            </div>
+
+  {renewalData.map((r, idx) => {
+    const percent = r.percentage ?? 0; // fallback
+
+    return (
+      <div key={idx} className="mb-3">
+        {/* Label + % */}
+        <div className="flex justify-between text-sm mb-1">
+          <div>{r.name}</div>
+          <div>{percent}%</div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+          <div
+            className="h-3 bg-blue-500 rounded-full transition-all duration-300"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+      </div>
+    );
+  })}
+</div>
+
 
             {/* Revenue by Package */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-semibold mb-4">Revenue by Package</h3>
+              <div className="flex justify-between item-center mb-2">
+                  <h3 className="font-semibold mb-4">Revenue by Package</h3>
+                  <EllipsisVertical className="text-gray-500" />
+                </div>
               <div className="space-y-3">
                 {revenueByPackage.map((pkg, idx) => (
                   <div key={idx} className="p-3 bg-slate-50 rounded-lg">

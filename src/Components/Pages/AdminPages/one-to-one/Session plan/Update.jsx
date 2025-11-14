@@ -308,67 +308,95 @@ console.log('exercises',groupData.exercises)
         [token, fetchExercises]
     );
 
-    const deleteExercise = useCallback(
-        async (id) => {
-            if (!token) return;
+  const deleteExercise = useCallback(
+    async (id) => {
+        if (!token) return;
 
-            try {
-                // Confirm deletion first
-                const result = await Swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to revert this deletion!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#d33",
-                    cancelButtonColor: "#3085d6",
-                    confirmButtonText: "Yes, delete it!",
+        try {
+            const result = await Swal.fire({
+                title: "Delete Exercise",
+                html: `
+                    <div class="text-[15px] text-gray-700">
+                        Choose how you want to delete this exercise.
+                    </div>
+                `,
+                icon: "warning",
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: "Permanent Delete",
+                denyButtonText: "Just Remove",
+                cancelButtonText: "Cancel",
+                confirmButtonColor: "#d33",
+                denyButtonColor: "#3b82f6",
+                cancelButtonColor: "#6b7280",
+            });
+
+            // ❌ CANCEL → Do nothing
+            if (result.isDismissed) return;
+
+            // 🟦 JUST REMOVE → Remove only from groupData.exercises
+            if (result.isDenied) {
+                setGroupData((prev) => ({
+                    ...prev,
+                    exercises: prev.exercises.filter((ex) => ex.value !== id),
+                }));
+
+                Swal.fire({
+                    icon: "info",
+                    title: "Removed",
+                    text: "Exercise removed from this group only.",
+                    timer: 1400,
+                    showConfirmButton: false,
+                });
+                return;
+            }
+
+            // 🔴 PERMANENT DELETE → Delete from database & remove from list
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "Deleting Exercise...",
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading(),
                 });
 
-                if (result.isConfirmed) {
-                    // Show loader
-                    Swal.fire({
-                        title: "Deleting Exercise...",
-                        text: "Please wait while your exercise is being deleted",
-                        allowOutsideClick: false,
-                        didOpen: () => Swal.showLoading(),
-                    });
+                const response = await fetch(
+                    `${API_BASE_URL}/api/admin/one-to-one/session-exercise-struture/delete/${id}`,
+                    {
+                        method: "DELETE",
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
+                );
 
-                    const response = await fetch(
-                        `${API_BASE_URL}/api/admin/one-to-one/session-exercise-struture/delete/${id}`,
-                        {
-                            method: "DELETE",
-                            headers: { Authorization: `Bearer ${token}` },
-                        }
-                    );
+                const data = await response.json();
 
-                    const data = await response.json();
+                if (response.ok) {
                     await fetchExercises();
-
-                    // Remove from groupData.exercises
                     setGroupData((prev) => ({
                         ...prev,
                         exercises: prev.exercises.filter((ex) => ex.value !== id),
                     }));
-
-                    Swal.fire({
-                        icon: response.ok ? "success" : "error",
-                        title: response.ok ? "Deleted!" : "Failed to Delete",
-                        text: data.message || (response.ok ? "Exercise deleted successfully." : "Something went wrong."),
-                        showConfirmButton: false,
-                        timer: 1500,
-                    });
                 }
-            } catch (err) {
+
                 Swal.fire({
-                    icon: "error",
-                    title: "Failed to Delete",
-                    text: err.message || "Something went wrong while deleting the exercise.",
+                    icon: response.ok ? "success" : "error",
+                    title: response.ok ? "Deleted!" : "Failed",
+                    text: data.message || "Something went wrong.",
+                    timer: 1500,
+                    showConfirmButton: false,
                 });
-                console.error("Failed to delete Exercise:", err);
             }
-        },
-        [token, fetchExercises]
-    );
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Failed to Delete",
+                text: err.message || "Something went wrong.",
+            });
+            console.error("Failed to delete Exercise:", err);
+        }
+    },
+    [token, fetchExercises]
+);
+    
 
 const handleSavePlan = async (id) => {
     if (!token) return;

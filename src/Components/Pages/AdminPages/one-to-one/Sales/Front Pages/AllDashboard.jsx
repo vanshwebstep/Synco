@@ -200,10 +200,10 @@ const AllDashboard = () => {
 
     // then your summaryCards
     const summaryCards = [
-        { icon: CircleDollarSign, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: 0 },
-        { icon: CirclePoundSterling, iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: 0 },
-        { icon: PiUsersThreeBold, iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: 0 },
-        { icon: FiUsers, iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
+        { icon: '/demo/synco/reportsIcons/money-receive-circle.png', iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: 0 },
+        { icon: '/demo/synco/reportsIcons/pound.png', iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: 0 },
+        { icon: '/demo/synco/reportsIcons/orange-user-group.png', iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: 0 },
+        { icon: '/demo/synco/reportsIcons/purple-user-multiple.png', iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
     ]
     const [formData, setFormData] = useState({
         parentName: "",
@@ -321,13 +321,13 @@ const AllDashboard = () => {
 
         // If search is cleared, hide loader and optionally reset data
         if (value.length === 0) {
-            setNoLoaderShow(false);
+            setNoLoaderShow(true);
             fetchLeads(""); // optional: reload default list
             return;
         }
 
         // Show loader while searching
-        setNoLoaderShow(true);
+        setNoLoaderShow(false);
 
         // Debounce to prevent too many API calls while typing
         clearTimeout(window.searchTimeout);
@@ -670,7 +670,7 @@ const AllDashboard = () => {
                                         <div
                                             className={`p-2 h-[50px] w-[50px] rounded-full ${card.iconStyle} bg-opacity-10 flex items-center justify-center`}
                                         >
-                                            <Icon size={24} className={card.iconStyle} />
+                                              <img src={Icon} alt="" className="p-1"/>
                                         </div>
                                     </div>
                                     <div className="mt-3">
@@ -724,12 +724,15 @@ const AllDashboard = () => {
                                             {leadsData.map((lead, i) => {
                                                 const isChecked = selectedUserIds.includes(lead.id);
                                                 const hasId = !!lead.booking; // ✅ Check if id exists
-
+console.log('lead',lead)
                                                 return (
                                                     <tr
                                                         key={i}
                                                         onClick={() => {
-                                                            if (hasId) navigate(`/one-to-one/sales/account-information?id=${lead.id}`);
+                                                            if (hasId) {navigate(`/one-to-one/sales/account-information?id=${lead.id}`)}
+                                                            else {
+                                                                navigate(`/one-to-one/leads/booking-form?leadId=${lead.id}`)
+                                                            };
                                                         }}
                                                         className={`border-b border-[#EFEEF2] hover:bg-gray-50 transition ${hasId ? "cursor-pointer" : ""
                                                             }`}
@@ -754,12 +757,14 @@ const AllDashboard = () => {
                                                         </td>
 
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.age || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.location || "N/A"}</td>
+                                                        <td className="py-3 px-4 min-w-100">{lead.booking?.location || "N/A"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.date || "N/A"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.paymentPlan?.price || "N/A"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.source || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.coachId || "N/A"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">    {lead.booking?.coach
+                                                                ? `${lead.booking.coach.firstName} ${lead.booking.coach.lastName}`
+                                                                : "N/A"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">
                                                             <button
                                                                 className={`capitalize w-[90px] py-2 rounded-xl text-xs font-medium

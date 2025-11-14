@@ -40,13 +40,13 @@ const List = () => {
     const [result, setResult] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
-    const { classId } = location.state || {};
+    const { classId, from_lead ,leadId} = location.state || {};
     const popup1Ref = useRef(null);
     const popup2Ref = useRef(null);
     const popup3Ref = useRef(null);
-      const img3Ref = useRef(null); // add a ref for the image
-        const img1Ref = useRef(null); // add a ref for the image
-        const img2Ref = useRef(null); 
+    const img3Ref = useRef(null); // add a ref for the image
+    const img1Ref = useRef(null); // add a ref for the image
+    const img2Ref = useRef(null);
     const { pathname } = useLocation();
     const [isOpen, setIsOpen] = useState(false);
     // console.log('classId', classId)
@@ -120,7 +120,7 @@ const List = () => {
             year: "numeric",
         });
     };
-  const handleCancel = () => {
+    const handleCancel = () => {
         Swal.fire({
             title: "Are you sure?",
             text: "Your changes will not be saved!",
@@ -681,7 +681,13 @@ const List = () => {
         };
 
         try {
-            await createBookFreeTrials(payload); // assume it's a promise
+            if (from_lead) {
+                await createBookFreeTrials(payload, leadId); // assume it's a promise
+            }
+            else {
+                await createBookFreeTrials(payload); // assume it's a promise
+
+            }
             // console.log("Final Payload:", JSON.stringify(payload, null, 2));
             // Optionally show success alert or reset form
         } catch (error) {
@@ -766,10 +772,10 @@ const List = () => {
     ];
     const handleClickOutside = (e) => {
         if (
-        (activePopup === 1 && popup1Ref.current && !popup1Ref.current.contains(e.target) && img1Ref.current && !img1Ref.current.contains(e.target)) ||
-        (activePopup === 2 && popup2Ref.current && !popup2Ref.current.contains(e.target) && img2Ref.current && !img2Ref.current.contains(e.target)) ||
-        (activePopup === 3 && popup3Ref.current && !popup3Ref.current.contains(e.target) && img3Ref.current && !img3Ref.current.contains(e.target))
-    ) {
+            (activePopup === 1 && popup1Ref.current && !popup1Ref.current.contains(e.target) && img1Ref.current && !img1Ref.current.contains(e.target)) ||
+            (activePopup === 2 && popup2Ref.current && !popup2Ref.current.contains(e.target) && img2Ref.current && !img2Ref.current.contains(e.target)) ||
+            (activePopup === 3 && popup3Ref.current && !popup3Ref.current.contains(e.target) && img3Ref.current && !img3Ref.current.contains(e.target))
+        ) {
             togglePopup(null);
         }
     };
@@ -873,7 +879,7 @@ const List = () => {
                 </h2>
                 <div className="flex gap-3 relative items-center">
                     <img
-                    ref={img1Ref}
+                        ref={img1Ref}
 
                         src="/demo/synco/members/booktrial1.png"
                         className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 1 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
@@ -1113,9 +1119,9 @@ const List = () => {
                                     transition={{ duration: 0.4, delay: index * 0.1 }}
                                     className="bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6"
                                 >
-                                   <h2 className="text-[20px] font-semibold">
-      Student {index > 0 ? `${index + 1} ` : ''}Information
-    </h2>
+                                    <h2 className="text-[20px] font-semibold">
+                                        Student {index > 0 ? `${index + 1} ` : ''}Information
+                                    </h2>
 
                                     {/* Row 1 */}
                                     <div className="flex gap-4">
@@ -1650,7 +1656,7 @@ const List = () => {
                         </div>
                         <div className="flex justify-end  pb-10 gap-4">
                             <button
-                            onClick={handleCancel}
+                                onClick={handleCancel}
                                 type="button"
                                 className="flex items-center justify-center gap-1 border border-[#717073] text-[#717073] px-12 text-[18px]  py-2 rounded-lg font-semibold bg-none"
                             >
@@ -1662,8 +1668,8 @@ const List = () => {
                                 onClick={handleSubmitClick}
                                 disabled={isSubmitting || selectedDate == null}
                                 className={`${isSubmitting || selectedDate == null
-                                        ? "bg-gray-400 border-gray-400 cursor-not-allowed"
-                                        : "bg-[#237FEA] border-[#237FEA] hover:bg-[#1f6dc9] cursor-pointer"
+                                    ? "bg-gray-400 border-gray-400 cursor-not-allowed"
+                                    : "bg-[#237FEA] border-[#237FEA] hover:bg-[#1f6dc9] cursor-pointer"
                                     } text-white text-[18px] font-semibold border  px-6 py-3 rounded-lg transition`}
                             >
                                 {isSubmitting ? "Submitting..." : "Book FREE Trial"}

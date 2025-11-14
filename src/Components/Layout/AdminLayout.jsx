@@ -47,6 +47,8 @@ const routeTitleMap = {
   '/weekly-classes/cancellation/account-info/': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
   '/weekly-classes/add-to-waiting-list': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
   '/one-to-one': { title: 'One to One ', icon: '/demo/synco/members/Document.png' },
+  '/one-to-one?tab=Leads': { title: 'One to One Leads', icon: '/demo/synco/members/Document.png' },
+  '/one-to-one?tab=Sales': { title: 'One to One Sales', icon: '/demo/synco/members/Document.png' },
   '/reports/members': { title: 'Members ', icon: '/demo/synco/reportsIcons/report.png' },
   '/reports/trials': { title: 'Trials and conversions ', icon: '/demo/synco/reportsIcons/report.png' },
   '/reports/sales': { title: 'Sales', icon: '/demo/synco/reportsIcons/report.png' },
@@ -62,6 +64,10 @@ const routeTitleMap = {
   '/birthday-party/session-plan': { title: 'Birthday Party Session Plans  ', icon: '/demo/synco/members/Document.png' },
   '/birthday-party/leads': { title: 'Birthday Party ', icon: '/demo/synco/members/BirthdayIcon.png' },
   '/birthday-party/reports': { title: 'Birthday Party Reports ', icon: '/demo/synco/members/BirthdayIcon.png' },
+  '/one-to-one/leads/booking-form': { title: 'Book a One to One Package ', icon: '/demo/synco/members/bookMembership.png' },
+  '/one-to-one/sales/account-information': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
+  '/birthday-party/leads/booking-form': { title: 'Book a Birthday Party ', icon: '/demo/synco/members/BirthdayIcon.png' },
+  '/birthday-party/sales/account-information': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
 
 
 
@@ -74,11 +80,13 @@ const AdminLayout = ({ children }) => {
 
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const routeInfo =
-    Object.entries(routeTitleMap)
-      .sort((a, b) => b[0].length - a[0].length)
-      .find(([route]) => location.pathname.startsWith(route))?.[1]
-    || { title: 'Admin Panel', icon: '/demo/synco/members/Category.png' };
+  const fullPath = location.pathname + location.search;
+
+const routeInfo =
+  Object.entries(routeTitleMap)
+    .sort((a, b) => b[0].length - a[0].length)
+    .find(([route]) => fullPath.startsWith(route))?.[1]
+  || { title: 'Admin Panel', icon: '/demo/synco/members/Category.png' };
   const { title, icon: Icon } = routeInfo;
 
   return (

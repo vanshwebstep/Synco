@@ -321,7 +321,7 @@ const StudentProfile = ({ StudentProfile }) => {
         switch (status) {
             case "active": return "bg-[#43BE4F]";
             case "frozen": return "bg-[#509EF9]";
-            case "canceled": return "bg-[#FC5D5D]";
+            case "cancelled": return "bg-[#FC5D5D]";
             case "waiting list": return "bg-[#A4A5A6]";
             default: return "bg-[#A4A5A6]";
         }

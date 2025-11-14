@@ -122,7 +122,7 @@ const BookingCard = ({ booking }) => {
   const statusColors = {
     active: "bg-green-500 text-white",
     expired: "bg-red-500 text-white",
-    canceled: "bg-red-500 text-white",
+    cancelled: "bg-red-500 text-white",
     pending: "bg-orange-500 text-white",
   };
 
@@ -165,7 +165,14 @@ const BookingCard = ({ booking }) => {
               {renderField("Venue", booking?.venue)}
               {renderField("KGo/Cardless ID", booking?.id)}
               {renderField("Monthly Price", booking?.price)}
-              {renderField("Date Of Booking", booking?.createdAt)}
+              {renderField("Date Of Booking", new Date(booking.createdAt).toLocaleString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,   // 24-hour format; set true for AM/PM format
+              }))}
               {renderField("Progress", booking?.progress)}
               {renderField("Booking Source", booking?.source)}
             </>
@@ -174,9 +181,16 @@ const BookingCard = ({ booking }) => {
           {booking?.type === "Birthday Party Booking" && (
             <>
               {renderField("Package", booking?.package)}
-              {renderField("Price Paid", booking?.pricePaid)}
+              {renderField("Price Paid", `£${booking?.pricePaid}`)}
               {renderField("Stripe Transaction ID", booking?.stripeID)}
-              {renderField("Date of Booking", booking?.createdAt)}
+              {renderField("Date of Booking", new Date(booking.createdAt).toLocaleString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,   // 24-hour format; set true for AM/PM format
+              }))}
               {renderField("Date of Party", booking?.partyDate)}
               {renderField("Coach", booking?.coach)}
               {renderField("Booking Source", booking?.source)}
@@ -187,14 +201,17 @@ const BookingCard = ({ booking }) => {
             <>
               {renderField("Package", data?.packageInterest)}
               {renderField("Students", data?.booking?.students.length)}
-              {renderField("Price Paid", data?.booking?.paymentPlan?.price)}
+              {renderField("Price Paid", `£${data?.booking?.paymentPlan?.price}`)}
               {renderField("Stripe Transaction ID", data?.booking?.payment.stripePaymentIntentId)}
               {renderField(
                 "Date of Booking",
-                new Date(data.createdAt).toLocaleDateString("en-IN", {
+                new Date(data.createdAt).toLocaleString("en-IN", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,   // 24-hour format; set true for AM/PM format
                 })
               )}
 
@@ -208,9 +225,16 @@ const BookingCard = ({ booking }) => {
             <>
               {renderField("Camp", booking?.camp)}
               {renderField("Students", booking?.students)}
-              {renderField("Price Paid", booking?.pricePaid)}
+              {renderField("Price Paid", `£${booking?.pricePaid}`)}
               {renderField("Stripe Transaction ID", booking?.stripeID)}
-              {renderField("Date of Booking", booking?.createdAt)}
+              {renderField("Date of Booking", new Date(booking.createdAt).toLocaleString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,   // 24-hour format; set true for AM/PM format
+              }))}
               {renderField("Venue", booking?.venue)}
               {renderField("Discount", booking?.discount)}
               {renderField("Coach", booking?.coach)}
@@ -222,9 +246,16 @@ const BookingCard = ({ booking }) => {
             <>
               {renderField("Item", booking?.item)}
               {renderField("Quantity", booking?.quantity)}
-              {renderField("Price Paid", booking?.pricePaid)}
+              {renderField("Price Paid", `£${booking?.pricePaid}`)}
               {renderField("Transaction ID", booking?.transactionID)}
-              {renderField("Date of Booking", booking?.createdAt)}
+              {renderField("Date of Booking", new Date(booking.createdAt).toLocaleString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,   // 24-hour format; set true for AM/PM format
+              }))}
               {renderField("Discount", booking?.discount)}
               {renderField("Fulfillment Status", booking?.fulfillment)}
               {renderField("Booking Source", booking?.source)}

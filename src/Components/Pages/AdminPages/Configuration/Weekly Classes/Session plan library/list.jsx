@@ -280,7 +280,7 @@ const List = () => {
   console.log('setTempList', editedWeekTitle)
 
 
-  const handleCancelEdit = () => {
+  const handlecancelledit = () => {
     setEditingWeek(null);
   };
 
@@ -417,7 +417,7 @@ const List = () => {
                                 Save
                               </button>
                               <button
-                                onClick={handleCancelEdit}
+                                onClick={handlecancelledit}
                                 className="text-red-500 font-semibold"
                               >
                                 Cancel

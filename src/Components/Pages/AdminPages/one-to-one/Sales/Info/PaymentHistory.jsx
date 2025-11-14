@@ -72,7 +72,7 @@ const PaymentHistory = () => {
                 <tr className="bg-gray-100 text-gray-600 text-sm">
                   <th className="py-3 px-4 font-medium">Status</th>
                   <th className="py-3 px-4 font-medium">Source</th>
-                  <th className="py-3 px-4 font-medium">Charge ID</th>
+                  <th className="py-3 px-4 font-medium">Charge</th>
                   <th className="py-3 px-4 font-medium">Paid Out</th>
                   <th className="py-3 px-4 font-medium">Amount</th>
                 </tr>
@@ -96,10 +96,7 @@ const PaymentHistory = () => {
                   </td>
 
                   <td className="py-3 px-4">
-                    {data?.booking?.payment?.stripePaymentIntentId || "N/A"}
-                  </td>
-
-                  <td className="py-3 px-4">
+                    {/* {data?.booking?.payment?.stripePaymentIntentId || "N/A"} */}
                     {data?.booking?.payment?.paymentDate
                       ? new Date(data.booking.payment.paymentDate).toLocaleDateString(
                         "en-GB",
@@ -108,11 +105,15 @@ const PaymentHistory = () => {
                       : "N/A"}
                   </td>
 
+                  <td className="py-3 px-4">
+                    -
+                  </td>
+
                   <td className="py-3 px-4 font-medium">
                     £
                     {data?.booking?.payment?.amount
                       ? parseFloat(data.booking.payment.amount).toFixed(2)
-                      : "0.00"}
+                      : "0.00"} GBP
                   </td>
                 </tr>
               </tbody>

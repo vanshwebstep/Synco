@@ -51,13 +51,14 @@ const PaymentHistory = () => {
       <div className="flex justify-between py-3 text-sm md:text-base">
         <span className="text-gray-500">Created</span>
         <span className="text-gray-800 font-semibold">
-          {data?.createdAt
-            ? new Date(data.createdAt).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })
-            : "N/A"}
+            {data?.createdAt
+    ? new Date(data.createdAt).toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      })
+    : "N/A"}
+
         </span>
       </div>
 
@@ -87,7 +88,7 @@ const PaymentHistory = () => {
           <tr className="bg-gray-100 text-gray-600 text-sm">
             <th className="py-3 px-4 font-medium">Status</th>
             <th className="py-3 px-4 font-medium">Source</th>
-            <th className="py-3 px-4 font-medium">Charge ID</th>
+            <th className="py-3 px-4 font-medium">Charge</th>
             <th className="py-3 px-4 font-medium">Paid Out</th>
             <th className="py-3 px-4 font-medium">Amount</th>
           </tr>
@@ -112,16 +113,17 @@ const PaymentHistory = () => {
             </td>
 
             <td className="py-3 px-4">
-              {data?.booking?.payment?.stripePaymentIntentId || "N/A"}
-            </td>
-
-            <td className="py-3 px-4">
-              {data?.booking?.payment?.paymentDate
+               {data?.booking?.payment?.paymentDate
                 ? new Date(data.booking.payment.paymentDate).toLocaleDateString(
                     "en-GB",
                     { day: "2-digit", month: "short", year: "numeric" }
                   )
                 : "N/A"}
+              {/* {data?.booking?.payment?.stripePaymentIntentId || "N/A"} */}
+            </td>
+
+            <td className="py-3 px-4">
+             -
             </td>
 
             <td className="py-3 px-4 font-medium">
