@@ -239,9 +239,11 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
   }
   // Add parent from modal
   const handleAddParent = () => {
+    console.log('newParent',newParent)
     setFormData((prev) => [...prev, newParent]);
     // Create the updated students array
     const updatedStudents = [...formData, { ...newParent,studentId :students[0]?.id }];
+    console.log('updatedStudents',updatedStudents)
 
     // Update local state
     setFormData(updatedStudents);
@@ -818,7 +820,7 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
                       className="w-10 h-10 rounded-full object-cover mt-1"
                     />
                     <div>
-                      <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName}</p>
+                      <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName} {c?.bookedByAdmin?.lastName}</p>
                     </div>
                   </div>
                   <span className="text-gray-400 text-[16px] whitespace-nowrap mt-1">

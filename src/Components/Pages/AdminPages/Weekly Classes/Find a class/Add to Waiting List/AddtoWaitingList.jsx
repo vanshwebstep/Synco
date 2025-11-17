@@ -34,7 +34,7 @@ const AddtoWaitingList = () => {
   const [result, setResult] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
-  const { classId } = location.state || {};
+  const { classId, from_lead, leadId } = location.state || {};
   const popup1Ref = useRef(null);
   const popup2Ref = useRef(null);
   const popup3Ref = useRef(null);
@@ -630,7 +630,12 @@ const AddtoWaitingList = () => {
     };
 
     try {
-      await createWaitinglist(payload); // assume it's a promise
+      if (leadId) {
+        await createWaitinglist(payload, leadId);
+      }
+      else {
+        await createWaitinglist(payload);
+      } // assume it's a promise
       // console.log("Final Payload:", JSON.stringify(payload, null, 2));
       // Optionally show success alert or reset form
     } catch (error) {
@@ -1566,7 +1571,7 @@ const AddtoWaitingList = () => {
                             className="w-10 h-10 rounded-full object-cover mt-1"
                           />
                           <div>
-                            <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName}</p>
+                            <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName} {c?.bookedByAdmin?.lastName}</p>
                           </div>
                         </div>
                         <span className="text-gray-400 text-[16px] whitespace-nowrap mt-1">

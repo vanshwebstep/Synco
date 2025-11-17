@@ -75,7 +75,7 @@ const List = () => {
     const [result, setResult] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
-    const { classId, TrialData, comesFrom } = location.state || {};
+    const { classId, TrialData, comesFrom, from_lead, leadId } = location.state || {};
     const popup1Ref = useRef(null);
     const popup2Ref = useRef(null);
     const popup3Ref = useRef(null);
@@ -605,7 +605,12 @@ const List = () => {
         try {
             if (TrialData) {
                 await createBookMembershipByfreeTrial(payload, TrialData.id);
-            } else {
+            }
+            else if(leadId){
+                await createBookMembership(payload, leadId);
+                
+            } 
+            else {
                 await createBookMembership(payload);
             }
             // console.log("Final Payload:", JSON.stringify(payload, null, 2));
@@ -1740,7 +1745,7 @@ const List = () => {
                                                         className="w-10 h-10 rounded-full object-cover mt-1"
                                                     />
                                                     <div>
-                                                        <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName}</p>
+                                                        <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName} {c?.bookedByAdmin?.lastName}</p>
                                                     </div>
                                                 </div>
                                                 <span className="text-gray-400 text-[16px] whitespace-nowrap mt-1">

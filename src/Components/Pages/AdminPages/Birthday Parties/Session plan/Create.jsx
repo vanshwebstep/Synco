@@ -1,4 +1,4 @@
-import React, { useState, useCallback,useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import Select from "react-select";
 import { FaEye } from "react-icons/fa";
 const tabs = ["Beginner", "Intermediate", "Advanced", "Pro"];
@@ -10,7 +10,7 @@ import Loader from "../../contexts/Loader";
 
 export default function BirthdayCreate() {
     const navigate = useNavigate();
-const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
@@ -26,7 +26,7 @@ const [isSubmitting, setIsSubmitting] = useState(false);
         video: null,
         banner: null,
     });
-    
+
     const MultiValue = () => null; // Hides the default selected boxes
     const [savedTabsData, setSavedTabsData] = useState({});
     const [exercises, setExercises] = useState([]);
@@ -54,14 +54,14 @@ const [isSubmitting, setIsSubmitting] = useState(false);
         setSavedTabsData(null);
     }
     useEffect(() => {
-            if (showExerciseModal) {
-                const isMobile = window.innerWidth <= 769; // mobile + tablet breakpoint
-                exerciseRef.current?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: isMobile ? '' : 'start', // scroll bottom on mobile, top on desktop
-                });
-            }
-        }, [showExerciseModal]);
+        if (showExerciseModal) {
+            const isMobile = window.innerWidth <= 769; // mobile + tablet breakpoint
+            exerciseRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: isMobile ? '' : 'start', // scroll bottom on mobile, top on desktop
+            });
+        }
+    }, [showExerciseModal]);
 
 
     const emptyExcerCises = () => {
@@ -228,188 +228,188 @@ const [isSubmitting, setIsSubmitting] = useState(false);
     );
 
     const deleteExercise = useCallback(
-    async (id) => {
-        if (!token) return;
+        async (id) => {
+            if (!token) return;
 
-        try {
-            const result = await Swal.fire({
-                title: "Delete Exercise",
-                html: `
+            try {
+                const result = await Swal.fire({
+                    title: "Delete Exercise",
+                    html: `
                     <div class="text-[15px] text-gray-700">
                         Choose how you want to delete this exercise.
                     </div>
                 `,
-                icon: "warning",
-                showCancelButton: true,
-                showDenyButton: true,
-                confirmButtonText: "Permanent Delete",
-                denyButtonText: "Just Remove",
-                cancelButtonText: "Cancel",
-                confirmButtonColor: "#d33",
-                denyButtonColor: "#3b82f6",
-                cancelButtonColor: "#6b7280",
-            });
-
-            // ------------------------------
-            // ❌ CANCEL — DO NOTHING
-            // ------------------------------
-            if (result.isDismissed) return;
-
-            // ------------------------------
-            // 🟦 JUST REMOVE (local only)
-            // ------------------------------
-            if (result.isDenied) {
-                setGroupData((prev) => ({
-                    ...prev,
-                    exercises: prev.exercises.filter((ex) => ex.value !== id),
-                }));
-
-                Swal.fire({
-                    icon: "info",
-                    title: "Removed",
-                    text: "Exercise removed from this group only.",
-                    showConfirmButton: false,
-                    timer: 1400,
+                    icon: "warning",
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: "Permanent Delete",
+                    denyButtonText: "Just Remove",
+                    cancelButtonText: "Cancel",
+                    confirmButtonColor: "#d33",
+                    denyButtonColor: "#3b82f6",
+                    cancelButtonColor: "#6b7280",
                 });
 
-                return;
-            }
+                // ------------------------------
+                // ❌ CANCEL — DO NOTHING
+                // ------------------------------
+                if (result.isDismissed) return;
 
-            // ------------------------------
-            // 🔴 PERMANENT DELETE (API DELETE)
-            // ------------------------------
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: "Deleting Exercise...",
-                    text: "Please wait while your exercise is being deleted",
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading(),
-                });
+                // ------------------------------
+                // 🟦 JUST REMOVE (local only)
+                // ------------------------------
+                if (result.isDenied) {
+                    setGroupData((prev) => ({
+                        ...prev,
+                        exercises: prev.exercises.filter((ex) => ex.value !== id),
+                    }));
 
-                const response = await fetch(
-                    `${API_BASE_URL}/api/admin/birthday-party/session-exercise/delete/${id}`,
-                    {
-                        method: "DELETE",
-                        headers: { Authorization: `Bearer ${token}` },
-                    }
-                );
+                    Swal.fire({
+                        icon: "info",
+                        title: "Removed",
+                        text: "Exercise removed from this group only.",
+                        showConfirmButton: false,
+                        timer: 1400,
+                    });
 
-                const data = await response.json();
-                if (response.ok) {
-                    await fetchExercises();
+                    return;
                 }
 
-                // remove from local data
-                setGroupData((prev) => ({
-                    ...prev,
-                    exercises: prev.exercises.filter((ex) => ex.value !== id),
-                }));
+                // ------------------------------
+                // 🔴 PERMANENT DELETE (API DELETE)
+                // ------------------------------
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Deleting Exercise...",
+                        text: "Please wait while your exercise is being deleted",
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading(),
+                    });
 
+                    const response = await fetch(
+                        `${API_BASE_URL}/api/admin/birthday-party/session-exercise/delete/${id}`,
+                        {
+                            method: "DELETE",
+                            headers: { Authorization: `Bearer ${token}` },
+                        }
+                    );
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        await fetchExercises();
+                    }
+
+                    // remove from local data
+                    setGroupData((prev) => ({
+                        ...prev,
+                        exercises: prev.exercises.filter((ex) => ex.value !== id),
+                    }));
+
+                    Swal.fire({
+                        icon: response.ok ? "success" : "error",
+                        title: response.ok ? "Deleted!" : "Failed to Delete",
+                        text:
+                            data.message ||
+                            (response.ok
+                                ? "Exercise deleted successfully."
+                                : "Something went wrong."),
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }
+            } catch (err) {
                 Swal.fire({
-                    icon: response.ok ? "success" : "error",
-                    title: response.ok ? "Deleted!" : "Failed to Delete",
+                    icon: "error",
+                    title: "Failed to Delete",
                     text:
-                        data.message ||
-                        (response.ok
-                            ? "Exercise deleted successfully."
-                            : "Something went wrong."),
-                    showConfirmButton: false,
-                    timer: 1500,
+                        err.message ||
+                        "Something went wrong while deleting the exercise.",
+                });
+                console.error("Failed to delete Exercise:", err);
+            }
+        },
+        [token, fetchExercises]
+    );
+
+
+
+    const handleSavePlan = async (finalData = savedTabsData) => {
+        if (!token) return;
+
+        try {
+            setLoading(true);
+            const formData = new FormData();
+            const levels = {};
+
+            Object.keys(finalData).forEach((level) => {
+                const data = finalData[level];
+                if (!data) return;
+
+                levels[level.toLowerCase()] = [
+                    {
+                        skillOfTheDay: data.skill || "",
+                        description: data.description || "",
+                        sessionExerciseId: data.exercises?.map((ex) => ex.value) || [],
+                    },
+                ];
+
+                if (data.video?.file) {
+                    formData.append(`${level.toLowerCase()}_video`, data.video.file, data.video.file.name);
+                }
+                if (data.banner?.file) {
+                    formData.append(`${level.toLowerCase()}_upload`, data.banner.file, data.banner.file.name);
+                }
+            });
+
+            formData.append("levels", JSON.stringify(levels));
+            formData.append("groupName", groupData.groupName || "");
+            formData.append("player", groupData.player || "");
+            if (groupData.banner?.file) {
+                formData.append("banner", groupData.banner.file, groupData.banner.file.name);
+            }
+            if (groupData.video?.file) {
+                formData.append("video", groupData.video.file, groupData.video.file.name);
+            }
+
+            const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/session-plan-birthdayParty/create`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.status) {
+                await Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: data.message || "Group created successfully.",
+                    confirmButtonColor: "#237FEA",
+                });
+                emptySession();
+                navigate(`/birthday-party/session-plan`);
+            } else {
+                await Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: data.message || "Failed to create session group.",
+                    confirmButtonColor: "#d33",
                 });
             }
         } catch (err) {
-            Swal.fire({
-                icon: "error",
-                title: "Failed to Delete",
-                text:
-                    err.message ||
-                    "Something went wrong while deleting the exercise.",
-            });
-            console.error("Failed to delete Exercise:", err);
-        }
-    },
-    [token, fetchExercises]
-);
-
-
-
-   const handleSavePlan = async (finalData = savedTabsData) => {
-    if (!token) return;
-
-    try {
-        setLoading(true);
-        const formData = new FormData();
-        const levels = {};
-
-        Object.keys(finalData).forEach((level) => {
-            const data = finalData[level];
-            if (!data) return;
-
-            levels[level.toLowerCase()] = [
-                {
-                    skillOfTheDay: data.skill || "",
-                    description: data.description || "",
-                    sessionExerciseId: data.exercises?.map((ex) => ex.value) || [],
-                },
-            ];
-
-            if (data.video?.file) {
-                formData.append(`${level.toLowerCase()}_video`, data.video.file, data.video.file.name);
-            }
-            if (data.banner?.file) {
-                formData.append(`${level.toLowerCase()}_upload`, data.banner.file, data.banner.file.name);
-            }
-        });
-
-        formData.append("levels", JSON.stringify(levels));
-        formData.append("groupName", groupData.groupName || "");
-        formData.append("player", groupData.player || "");
-        if (groupData.banner?.file) {
-            formData.append("banner", groupData.banner.file, groupData.banner.file.name);
-        }
-        if (groupData.video?.file) {
-            formData.append("video", groupData.video.file, groupData.video.file.name);
-        }
-
-        const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/session-plan-birthdayParty/create`, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.status) {
-            await Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: data.message || "Group created successfully.",
-                confirmButtonColor: "#237FEA",
-            });
-            emptySession();
-            navigate(`/birthday-party/session-plan`);
-        } else {
+            console.error("Failed to create session group:", err);
             await Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: data.message || "Failed to create session group.",
+                text: "Something went wrong while creating the session group.",
                 confirmButtonColor: "#d33",
             });
+        } finally {
+            setLoading(false);
         }
-    } catch (err) {
-        console.error("Failed to create session group:", err);
-        await Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Something went wrong while creating the session group.",
-            confirmButtonColor: "#d33",
-        });
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
 
 
@@ -452,18 +452,18 @@ const [isSubmitting, setIsSubmitting] = useState(false);
             exercises: selected || [],
         }));
     };
-   const handleImageUpload = (e) => {
-  const files = Array.from(e.target.files);
-  if (files.length > 0) {
-    const imageUrls = files.map((file) => URL.createObjectURL(file));
+    const handleImageUpload = (e) => {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+            const imageUrls = files.map((file) => URL.createObjectURL(file));
 
-    setExercise((prev) => ({
-      ...prev,
-      image: [...(prev.image || []), ...imageUrls],
-      imageToSend: [...(prev.imageToSend || []), ...files],
-    }));
-  }
-};
+            setExercise((prev) => ({
+                ...prev,
+                image: [...(prev.image || []), ...imageUrls],
+                imageToSend: [...(prev.imageToSend || []), ...files],
+            }));
+        }
+    };
 
     // Save current tab data excluding banner
     const saveCurrentTab = () => {
@@ -506,112 +506,155 @@ const [isSubmitting, setIsSubmitting] = useState(false);
         }
     };
 
-const handleCreateSessionClick = async () => {
-    if (isSubmitting) return; // 🧤 prevent double click
-    setIsSubmitting(true);
+    const handleCreateSessionClick = async () => {
+        if (isSubmitting) return; // 🧤 prevent double click
+        setIsSubmitting(true);
 
-    try {
-        const currentIndex = tabs.indexOf(activeTab);
-        const isLastTab = currentIndex === tabs.length - 1;
+        try {
+            const currentIndex = tabs.indexOf(activeTab);
+            const isLastTab = currentIndex === tabs.length - 1;
 
-        // ✅ Validate fields
-        if (!groupData.skill?.trim() || !groupData.description?.trim() || !groupData.exercises?.length) {
-            await Swal.fire({
-                icon: "warning",
-                title: "Incomplete Data",
-                html: `
+            // ✅ Validate fields
+            if (!groupData.skill?.trim() || !groupData.description?.trim() || !groupData.exercises?.length) {
+                await Swal.fire({
+                    icon: "warning",
+                    title: "Incomplete Data",
+                    html: `
                     <div style="text-align:left;">
                         ${!groupData.skill?.trim() ? "• Please enter <b>Skill of the Day</b>.<br/>" : ""}
                         ${!groupData.description?.trim() ? "• Please enter <b>Description</b>.<br/>" : ""}
                         ${!groupData.exercises?.length ? "• Please select at least one <b>Exercise</b>." : ""}
                     </div>
                 `,
-                confirmButtonColor: "#237FEA",
-            });
-            return;
+                    confirmButtonColor: "#237FEA",
+                });
+                return;
+            }
+
+            const updatedData = {
+                ...savedTabsData,
+                [activeTab]: {
+                    ...groupData,
+                    banner: undefined,
+                },
+            };
+            setSavedTabsData(updatedData);
+
+            if (isLastTab) {
+                await handleSavePlan(updatedData);
+            } else {
+                const nextTab = tabs[currentIndex + 1];
+                setActiveTab(nextTab);
+
+                const nextData = updatedData[nextTab] || {};
+                setGroupData({
+                    skill: nextData.skill || "",
+                    description: nextData.description || "",
+                    exercises: nextData.exercises || [],
+                    video: nextData.video || null,
+                    groupName: nextData.groupName || groupData.groupName,
+                    player: nextData.player || groupData.player,
+                    banner: groupData.banner,
+                });
+            }
+        } finally {
+            setIsSubmitting(false);
         }
+    };
+    const handleCreateGroupClick = async () => {
+        if (!token) return;
 
-        const updatedData = {
-            ...savedTabsData,
-            [activeTab]: {
-                ...groupData,
-                banner: undefined,
-            },
-        };
-        setSavedTabsData(updatedData);
-
-        if (isLastTab) {
-            await handleSavePlan(updatedData);
-        } else {
-            const nextTab = tabs[currentIndex + 1];
-            setActiveTab(nextTab);
-
-            const nextData = updatedData[nextTab] || {};
-            setGroupData({
-                skill: nextData.skill || "",
-                description: nextData.description || "",
-                exercises: nextData.exercises || [],
-                video: nextData.video || null,
-                groupName: nextData.groupName || groupData.groupName,
-                player: nextData.player || groupData.player,
-                banner: groupData.banner,
-            });
-        }
-    } finally {
-        setIsSubmitting(false);
-    }
-};
-const handleCreateGroupClick = async () => {
-    if (!token) return;
-
-    // ✅ Validate required fields before saving
-    if (!groupData.skill?.trim() || !groupData.description?.trim() || !groupData.exercises?.length) {
-        await Swal.fire({
-            icon: "warning",
-            title: "Incomplete Data",
-            html: `
+        // ✅ Validate required fields before saving
+        if (!groupData.skill?.trim() || !groupData.description?.trim() || !groupData.exercises?.length) {
+            await Swal.fire({
+                icon: "warning",
+                title: "Incomplete Data",
+                html: `
                 <div style="text-align:left;">
                     ${!groupData.skill?.trim() ? "• Please enter <b>Skill of the Day</b>.<br/>" : ""}
                     ${!groupData.description?.trim() ? "• Please enter <b>Description</b>.<br/>" : ""}
                     ${!groupData.exercises?.length ? "• Please select at least one <b>Exercise</b>." : ""}
                 </div>
             `,
-            confirmButtonColor: "#237FEA",
-        });
-        return;
-    }
+                confirmButtonColor: "#237FEA",
+            });
+            return;
+        }
 
-    // 🧠 Merge current tab data into savedTabsData before submission
-    const finalData = {
-        ...savedTabsData,
-        [activeTab]: {
-            ...groupData,
-            banner: undefined,
-        },
+        // 🧠 Merge current tab data into savedTabsData before submission
+
+        const updatedTabs = {
+            ...savedTabsData,
+            [activeTab]: {
+                ...groupData,
+                banner: undefined,
+            },
+        };
+
+        // 2️⃣ Remove tabs where skill/description/exercises are invalid
+        const finalData = Object.fromEntries(
+            Object.entries(updatedTabs).filter(([key, tab]) => {
+                return (
+                    tab.skill?.trim() &&
+                    tab.description?.trim() &&
+                    Array.isArray(tab.exercises) &&
+                    tab.exercises.length > 0
+                );
+            })
+        );
+        setSavedTabsData(finalData);
+
+        // ✅ Now submit everything
+        await handleSavePlan(finalData);
     };
-    setSavedTabsData(finalData);
+const handleRemoveImage = (indexToRemove) => {
+  setExercise(prev => {
+    const merged = [...prev.mergedImages];
+    merged.splice(indexToRemove, 1);
 
-    // ✅ Now submit everything
-    await handleSavePlan(finalData);
-};
- const handleRemoveImage = (indexToRemove) => {
-  setExercise((prev) => ({
-    ...prev,
-    image: prev.image.filter((_, i) => i !== indexToRemove),
-    imageToSend: prev.imageToSend?.filter((_, i) => i !== indexToRemove),
-  }));
+    let serverImages = [];
+    let localImages = [];
+
+    // Split merged array again
+    merged.forEach((img, idx) => {
+      if (idx < prev.serverCount) serverImages.push(img);
+      else localImages.push(img);
+    });
+
+    return {
+      ...prev,
+      mergedImages: merged,
+      imageUrl: JSON.stringify(serverImages),
+      serverCount: serverImages.length,
+      image: localImages,
+      imageToSend: prev.imageToSend?.slice(0, localImages.length) || []
+    };
+  });
 };
 
-// optional cleanup
+
+    // optional cleanup
+    useEffect(() => {
+        return () => {
+            if (exercise.image) {
+                exercise.image.forEach((url) => URL.revokeObjectURL(url));
+            }
+        };
+    }, [exercise.image]);
 useEffect(() => {
-  return () => {
-    if (exercise.image) {
-      exercise.image.forEach((url) => URL.revokeObjectURL(url));
-    }
-  };
-}, [exercise.image]);
+  if (exercise.imageUrl || exercise.image) {
+    const serverImages = exercise.imageUrl ? JSON.parse(exercise.imageUrl) : [];
+    const localImages = exercise.image || [];
 
+    setExercise(prev => ({
+      ...prev,
+      mergedImages: [...serverImages, ...localImages],   // Preview list
+      serverCount: serverImages.length                   // To know which images came from server
+    }));
+  }
+}, [exercise.imageUrl, exercise.image]);
 
+console.log('exercise',exercise)
     if (loading) {
         return (
             <>
@@ -622,7 +665,7 @@ useEffect(() => {
 
     return (
         <>
-            <div  ref={exerciseRef} className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start my-5" onClick={() => navigate('/birthday-party/session-plan')}>
+            <div ref={exerciseRef} className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start my-5" onClick={() => navigate('/birthday-party/session-plan')}>
                 <img
                     src="/demo/synco/icons/arrow-left.png"
                     alt="Back"
@@ -895,16 +938,16 @@ useEffect(() => {
                             Add New Exercise
                         </button>
 
-                     <div className="flex justify-end">
-    <button
-        onClick={handleCreateSessionClick}
-        className="w-auto bg-[#237FEA] text-white p-3 py-2 px-10 rounded-xl mt-2 hover:bg-blue-700"
-    >
-        {tabs.indexOf(activeTab) === tabs.length - 1
-            ? "Finish & Save All"
-            : "Create Session"}
-    </button>
-</div>
+                        <div className="flex justify-end">
+                            <button
+                                onClick={handleCreateSessionClick}
+                                className="w-auto bg-[#237FEA] text-white p-3 py-2 px-10 rounded-xl mt-2 hover:bg-blue-700"
+                            >
+                                {tabs.indexOf(activeTab) === tabs.length - 1
+                                    ? "Finish & Save All"
+                                    : "Create Session"}
+                            </button>
+                        </div>
 
                     </div>
                 </div>
@@ -1023,42 +1066,42 @@ useEffect(() => {
 
                                         {exercise.imageUrl && JSON.parse(exercise.imageUrl).length > 0 && (
                                             <div className="mt-3 flex flex-wrap gap-3">
-                                                {JSON.parse(exercise.imageUrl).map((img, index) => (
-                                                     <div key={index} className="relative" >
-                                                    <img
-                                                        src={img}
-                                                        alt={`Preview ${index + 1}`}
-                                                        className="rounded-xl w-40 h-28 object-cover"
-                                                    />
-                                                      <button
+                                              {exercise.mergedImages?.map((img, index) => (
+                                                    <div key={index} className="relative" >
+                                                        <img
+                                                            src={img}
+                                                            alt={`Preview ${index + 1}`}
+                                                            className="rounded-xl w-40 h-28 object-cover"
+                                                        />
+                                                        <button
                                                             type="button"
                                                             onClick={() => handleRemoveImage(index)}
                                                             className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1.5"
                                                         >
                                                             ✕
                                                         </button>
-                                                        </div>
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}
                                         {exercise.image && exercise.image.length > 0 && (
                                             <div className="mt-3 flex flex-wrap gap-3">
-                                                {exercise.image.map((img, index) => (
+                                             {exercise.mergedImages?.map((img, index) => (
                                                     <div key={index} className="relative" >
-                                                    <img
-                                                        
-                                                        src={img}
-                                                        alt={`Preview ${index + 1}`}
-                                                        className="rounded-xl w-40 h-28 object-cover"
-                                                    />
-                                                      <button
+                                                        <img
+
+                                                            src={img}
+                                                            alt={`Preview ${index + 1}`}
+                                                            className="rounded-xl w-40 h-28 object-cover"
+                                                        />
+                                                        <button
                                                             type="button"
                                                             onClick={() => handleRemoveImage(index)}
                                                             className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1.5"
                                                         >
                                                             ✕
                                                         </button>
-                                                        </div>
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}
@@ -1081,7 +1124,7 @@ useEffect(() => {
                         </div>
                     )}
                     <div className="flex justify-end gap-3 mt-5">
-                        <button  disabled className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex bg-gray-100  cursor-not-allowed gap-2 items-center">Preview Sessions <FaEye /> </button>
+                        <button disabled className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex bg-gray-100  cursor-not-allowed gap-2 items-center">Preview Sessions <FaEye /> </button>
                         <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700" onClick={handleCreateGroupClick}>Create Group</button>
                     </div>
 

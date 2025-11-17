@@ -160,7 +160,17 @@ const BookingCard = ({ booking }) => {
               {renderField("KGo/Cardless ID", booking.id)}
               {renderField("Monthly Price", booking.price)}
               {renderField("Date Of Booking",
-                new Date(booking.bookingDate).toLocaleString("en-IN", {
+                new Date(booking.createdAt).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,   // 24-hour format; set true for AM/PM format
+                })
+              )}
+              {renderField("Date Of Party",
+                new Date(booking.createdAt).toLocaleString("en-IN", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
@@ -200,7 +210,17 @@ const BookingCard = ({ booking }) => {
               {renderField("Price Paid", data.booking.paymentPlan?.price)}
               {renderField("Stripe Transaction ID", data.booking.payment.stripePaymentIntentId)}
               {renderField("Date of Booking",
-                new Date(data.booking.date).toLocaleString("en-IN", {
+                new Date(data.booking.createdAt).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,   // 24-hour format; set true for AM/PM format
+                })
+              )}
+                {renderField("Date Of Party",
+                new Date(data.partyDate).toLocaleString("en-IN", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
@@ -229,6 +249,16 @@ const BookingCard = ({ booking }) => {
                 minute: "2-digit",
                 hour12: false,   // 24-hour format; set true for AM/PM format
               }))}
+                {renderField("Date Of Party",
+                new Date(booking.createdAt).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,   // 24-hour format; set true for AM/PM format
+                })
+              )}
               {renderField("Venue", booking.venue)}
               {renderField("Discount", booking.discount)}
               {renderField("Coach", booking.coach)}

@@ -290,7 +290,7 @@ const handleDeleteGroup = async (groupId) => {
         <div className="">
             {/* Header Section */}
             <div className="flex justify-between py-5">
-                <h2 className="font-bold text-gray-800 pl-5 text-2xl">
+                <h2 className="text-[28px] font-semibold">
                     Session Plan Library
                 </h2>
 
@@ -356,7 +356,7 @@ const handleDeleteGroup = async (groupId) => {
                                                 >
                                                     {/* Header */}
                                                     <div className="flex items-center justify-between p-3">
-                                                        <h2 className="text-[20px] font-semibold text-[#282829]">
+                                                        <h2 className="font-semibold text-[24px] max-w-[215px] overflow-hidden">
                                                             {group.groupName}
                                                         </h2>
                                                         <div className="flex items-center gap-2">

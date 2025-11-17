@@ -17,10 +17,10 @@ export const BookFreeTrialProvider = ({ children }) => {
   const [statsFreeTrial, setStatsFreeTrial] = useState([]);
   const [bookedByAdmin, setBookedByAdmin] = useState([]);
   const [addToWaitingList, setaddToWaitingList] = useState(null);
-    const [showCancelTrial, setshowCancelTrial] = useState(false);
+  const [showCancelTrial, setshowCancelTrial] = useState(false);
   const [loading, setLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
-    const [removeWaiting, setRemoveWaiting] = useState(false);
+  const [removeWaiting, setRemoveWaiting] = useState(false);
 
   const [isEditBookFreeTrial, setIsEditBookFreeTrial] = useState(false);
   const [singleBookFreeTrials, setSingleBookFreeTrials] = useState([]);
@@ -289,10 +289,10 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
-  const createBookFreeTrials = async (bookFreeTrialData,islead) => {
+  const createBookFreeTrials = async (bookFreeTrialData, islead) => {
     setLoading(true);
-console.log('bookFreeTrialData',bookFreeTrialData)
-console.log('islead',islead)
+    console.log('bookFreeTrialData', bookFreeTrialData)
+    console.log('islead', islead)
 
     const headers = {
       "Content-Type": "application/json",
@@ -301,12 +301,12 @@ console.log('islead',islead)
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
-let url = `${API_BASE_URL}/api/admin/book/free-trials/`;
+    let url = `${API_BASE_URL}/api/admin/book/free-trials/`;
 
-if (islead) {  
-  // if isLead exists (true / string / non-null)  
-  url += `${encodeURIComponent(islead)}`; 
-}
+    if (islead) {
+      // if isLead exists (true / string / non-null)  
+      url += `${encodeURIComponent(islead)}`;
+    }
 
     try {
       const response = await fetch(url, {
@@ -997,7 +997,7 @@ if (islead) {
       setLoading(false);
     }
   }, []);
-  const createBookMembership = async (bookFreeMembershipData) => {
+  const createBookMembership = async (bookFreeMembershipData, leadId) => {
     setLoading(true);
 
     const headers = {
@@ -1008,8 +1008,15 @@ if (islead) {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
+    let url = `${API_BASE_URL}/api/admin/book-membership/`;
+
+    if (leadId) {
+      // if leadId exists (true / string / non-null)  
+      url += `${encodeURIComponent(leadId)}`;
+    }
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership`, {
+      const response = await fetch(url, {
         method: "POST",
         headers,
         body: JSON.stringify(bookFreeMembershipData),
@@ -1044,7 +1051,7 @@ if (islead) {
       setLoading(false);
     }
   };
-    const createBookLeads = async (bookFreeMembershipData) => {
+  const createBookLeads = async (bookFreeMembershipData) => {
     setLoading(true);
 
     const headers = {
@@ -1091,7 +1098,7 @@ if (islead) {
       setLoading(false);
     }
   };
-    const createBookBirthday = async (bookFreeMembershipData) => {
+  const createBookBirthday = async (bookFreeMembershipData) => {
     setLoading(true);
 
     const headers = {
@@ -1875,7 +1882,7 @@ if (islead) {
         navigate(`/weekly-classes/all-members/membership-sales`);
       }
       setRemoveWaiting(false);
-            setshowCancelTrial(false)
+      setshowCancelTrial(false)
 
 
       return result;
@@ -2025,7 +2032,7 @@ if (islead) {
       setSearchLoading(false);
     }
   }, []);
-  const createWaitinglist = async (waitingListData) => {
+  const createWaitinglist = async (waitingListData ,islead ) => {
     setLoading(true);
 
     const headers = {
@@ -2035,9 +2042,15 @@ if (islead) {
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
+ let url = `${API_BASE_URL}/api/admin/waiting-list/`;
+
+    if (islead) {
+      // if isLead exists (true / string / non-null)  
+      url += `${encodeURIComponent(islead)}`;
+    }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/waiting-list/`, {
+      const response = await fetch(url, {
         method: "POST",
         headers,
         body: JSON.stringify(waitingListData),
@@ -2596,52 +2609,52 @@ if (islead) {
       setLoading(false);
     }
   }, []);
-   const ServiceHistoryFulltto = useCallback(async (ID) => {
-      const token = localStorage.getItem("adminToken");
-      if (!token) return;
-  
-      setLoading(true);
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/full-cancellation/service-history/${ID}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-  
-        const resultRaw = await response.json();
-        const result = resultRaw.data || [];
-        setServiceHistory(result);
-      } catch (error) {
-        console.error("Failed to fetch bookFreeTrials:", error);
-      } finally {
-        setLoading(false);
-      }
-    }, []);
-       const ServiceHistoryAlltto = useCallback(async (ID) => {
-      const token = localStorage.getItem("adminToken");
-      if (!token) return;
-  
-      setLoading(true);
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/all/service-history/${ID}`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-  
-        const resultRaw = await response.json();
-        const result = resultRaw.data || [];
-        setServiceHistory(result);
-      } catch (error) {
-        console.error("Failed to fetch bookFreeTrials:", error);
-      } finally {
-        setLoading(false);
-      }
-    }, []);
+  const ServiceHistoryFulltto = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/full-cancellation/service-history/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setServiceHistory(result);
+    } catch (error) {
+      console.error("Failed to fetch bookFreeTrials:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  const ServiceHistoryAlltto = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancellation/all/service-history/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setServiceHistory(result);
+    } catch (error) {
+      console.error("Failed to fetch bookFreeTrials:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   return (
     <BookFreeTrialContext.Provider
       value={{// Free Trials
@@ -2735,12 +2748,12 @@ if (islead) {
         sendAllmail,
         ServiceHistoryRequestto,
         updateBookMembershipFamily,
-removeWaiting, setRemoveWaiting,
+        removeWaiting, setRemoveWaiting,
         fetchBookFreeTrialsLoading,
         fetchBookMembershipsLoading,
         ServiceHistoryFulltto,
         ServiceHistoryAlltto,
-        fetchMembershipSalesLoading,createBookLeads,createBookBirthday, addToWaitingList, setaddToWaitingList,showCancelTrial, setshowCancelTrial
+        fetchMembershipSalesLoading, createBookLeads, createBookBirthday, addToWaitingList, setaddToWaitingList, showCancelTrial, setshowCancelTrial
       }}>
       {children}
     </BookFreeTrialContext.Provider>

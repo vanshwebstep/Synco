@@ -369,7 +369,7 @@ const ParentProfile = () => {
                           className="w-10 h-10 rounded-full object-cover"
                         />
                         <p className="font-semibold text-[#237FEA] text-[16px]">
-                          {c?.bookedByAdmin?.firstName}
+                          {c?.bookedByAdmin?.firstName} {c?.bookedByAdmin?.lastName}
                         </p>
                       </div>
                       <span className="text-gray-400 text-[16px]">

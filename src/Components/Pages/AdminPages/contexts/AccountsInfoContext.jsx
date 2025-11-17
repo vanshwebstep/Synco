@@ -22,6 +22,7 @@ export const AccountsInfoProvider = ({ children }) => {
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append("Authorization", `Bearer ${token}`);
     let raw;
+    console.log('mainData',mainData)
     if (title == "students") {
       raw = JSON.stringify({
         'student': mainData,

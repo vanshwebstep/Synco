@@ -306,13 +306,13 @@ const handleDateChange = (date) => {
     setSearchTerm(value);
 
     if (value.length === 0) {
-      setNoLoaderShow(false);
+      setNoLoaderShow(true);
       // Optionally re-fetch default data when cleared
       fetchLeads("");
       return;
     }
 
-    setNoLoaderShow(true);
+    setNoLoaderShow(false);
 
     // ✅ Optional debounce for better performance
     clearTimeout(window.searchTimeout);

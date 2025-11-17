@@ -355,13 +355,13 @@ const SalesDashboard = () => {
 
         // If search is cleared, hide loader and optionally reset data
         if (value.length === 0) {
-            setNoLoaderShow(false);
+            setNoLoaderShow(true);
             fetchLeads(""); // optional: reload default list
             return;
         }
 
         // Show loader while searching
-        setNoLoaderShow(true);
+        setNoLoaderShow(false);
 
         // Debounce to prevent too many API calls while typing
         clearTimeout(window.searchTimeout);

@@ -266,27 +266,42 @@ const Facebook = () => {
   }, []);
 
   const handleBookFreeTrial = (classId, leadId) => {
-    console.log('leadId',leadId)
+    console.log('leadId', leadId)
     navigate('/weekly-classes/find-a-class/book-a-free-trial', {
       state: {
         classId,
         from_lead: 'yes',
-        leadId:leadId // pass dynamically (fallback for safety)
+        leadId: leadId // pass dynamically (fallback for safety)
       },
     });
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'auto' });
     }, 50);
   };
-  const handleAddToWaitingList = (classId) => {
-    navigate('/weekly-classes/find-a-class/add-to-waiting-list', {
-      state: { classId },
+  const handleAddToWaitingList = (classId, leadId) => {
+      navigate('/weekly-classes/find-a-class/add-to-waiting-list', {
+      state: {
+        classId,
+        from_lead: 'yes',
+        leadId: leadId // pass dynamically (fallback for safety)
+      },
     });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }, 50);
   };
-  const handleBookMembership = (classId) => {
+  
+  const handleBookMembership = (classId, leadId) => {
     navigate('/weekly-classes/find-a-class/book-a-membership', {
-      state: { classId },
+      state: {
+        classId,
+        from_lead: 'yes',
+        leadId: leadId // pass dynamically (fallback for safety)
+      },
     });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }, 50);
   };
 
   if (loading) return <Loader />;
@@ -439,7 +454,7 @@ const Facebook = () => {
                                 <div className="md:w-[75%]">
                                   {venue.classSchedules?.length > 0 ? (
                                     venue.classSchedules.map((cls, idx) => {
-                                      const available = cls.capacity ;
+                                      const available = cls.capacity;
                                       const isFull = cls.capacity == 0;
                                       return (
 
@@ -466,22 +481,40 @@ const Facebook = () => {
                                           <div key={idx} className="flex  md:w-[25%]  flex-wrap justify-end gap-3 ">
                                             {
                                               available == 0 && (
-                                                <button onClick={() => handleAddToWaitingList(cls.id)} className="bg-[#237FEA]  text-white px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-[#006AE6] transition">
+                                                <button onClick={() => handleAddToWaitingList(cls.id ,lead?.id)} className="bg-[#237FEA]  text-white px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-[#006AE6] transition">
                                                   Add to Waiting List
                                                 </button>
 
                                               )
                                             }
                                             {cls.allowFreeTrial ? (
+                                              !isFull && (
+                                                <>
+                                                  <button
+                                                    onClick={() => handleBookFreeTrial(cls.id, lead?.id)}
+                                                    className="border px-4 py-2 rounded-lg text-[14px] hover:bg-gray-50 transition"
+                                                  >
+                                                    Book a Free Trial
+                                                  </button>
 
-                                              <button onClick={() => handleBookFreeTrial(cls.id , lead.id)} className="border px-4 py-2  rounded-lg text-[14px] hover:bg-gray-50 transition">
-                                                Book a Free Trial
-                                              </button>
+                                                  <button
+                                                    onClick={() => handleBookMembership(cls.id, lead?.id)}
+                                                    className="border px-4 py-2 rounded-lg text-[14px] hover:bg-gray-50 transition"
+                                                  >
+                                                    Book a Membership
+                                                  </button>
+                                                </>
+                                              )
                                             ) : (
-                                              <button onClick={() => handleBookMembership(cls.id)} className="border px-4 py-2  rounded-lg text-[14px] hover:bg-gray-50 transition">
+                                              <button
+                                                onClick={() => handleBookMembership(cls.id, lead?.id)}
+                                                className="border px-4 py-2 rounded-lg text-[14px] hover:bg-gray-50 transition"
+                                              >
                                                 Book a Membership
                                               </button>
                                             )}
+
+
                                           </div>
                                         </div>
                                       );

@@ -262,7 +262,7 @@ const SessionPlan = () => {
     return (
         <>
             <div className="flex justify-between py-5">
-                <h2 className="font-bold text-gray-800 pl-5 text-2xl">Session Plan Structure</h2>
+                <h2 className="text-[28px] font-semibold">Session Plan Structure</h2>
                 <button
                     className="bg-[#237FEA] text-white p-3 px-4 rounded-2xl hover:bg-[#1f6fd2] transition"
                     // onClick={async () => {
@@ -310,7 +310,7 @@ const SessionPlan = () => {
                                 <div key={index} className="bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl w-full  h-auto">
                                     {/* Header */}
                                     <div className="flex items-center justify-between p-4">
-                                        <h2 className="text-[24px] font-semibold text-[#282829] md:w-9/12">{group.groupName}</h2>
+                                        <h2 className="font-semibold text-[24px] max-w-[215px] overflow-hidden">{group.groupName}</h2>
                                         <div className="flex items-center justify-end gap-2 md:w-3/12">
                                             <button
                                                 className="text-gray-800 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"

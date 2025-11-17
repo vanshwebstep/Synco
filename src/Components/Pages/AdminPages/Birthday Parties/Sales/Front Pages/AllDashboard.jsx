@@ -83,7 +83,8 @@ const AllDashboard = () => {
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
-            if (noLoaderShow === false) setLoading(true);
+            // ✅ Always show loader unless noLoaderShow is true
+            if (noLoaderShow === false) { setLoading(true); }
 
             try {
                 const queryParams = new URLSearchParams();
@@ -156,7 +157,7 @@ const AllDashboard = () => {
                 if (resultRaw.coachList) setCoachList(resultRaw.coachList);
                 setLeadsData(resultRaw.data || []);
                 setSummary(resultRaw.summary);
-                if (noLoaderShow === false) setLoading(false);
+                if (noLoaderShow === false) { setLoading(false); }
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
             }
@@ -199,7 +200,7 @@ const AllDashboard = () => {
     }
 
     // then your summaryCards
- const summaryCards = [
+    const summaryCards = [
         { icon: "/demo/synco/reportsIcons/money-receive-circle.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: "0" },
         { icon: "/demo/synco/reportsIcons/pound.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: "0" },
         { icon: "/demo/synco/reportsIcons/orange-user-group.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: "0" },
@@ -321,13 +322,13 @@ const AllDashboard = () => {
 
         // If search is cleared, hide loader and optionally reset data
         if (value.length === 0) {
-            setNoLoaderShow(false);
+            setNoLoaderShow(true);
             fetchLeads(""); // optional: reload default list
             return;
         }
 
         // Show loader while searching
-        setNoLoaderShow(true);
+        setNoLoaderShow(false);
 
         // Debounce to prevent too many API calls while typing
         clearTimeout(window.searchTimeout);
@@ -667,7 +668,7 @@ const AllDashboard = () => {
                                         <div
                                             className={`p-2 h-[50px] w-[50px] rounded-full ${card.iconStyle} bg-opacity-10 flex items-center justify-center`}
                                         >
-                                            <img src={Icon} alt="" className="p-1"/>
+                                            <img src={Icon} alt="" className="p-1" />
                                         </div>
                                     </div>
                                     <div className="mt-3">
@@ -727,9 +728,10 @@ const AllDashboard = () => {
                                                     <tr
                                                         key={i}
                                                         onClick={() => {
-                                                            if (hasId){ navigate(`/birthday-party/sales/account-information?id=${lead.id}`);
+                                                            if (hasId) {
+                                                                navigate(`/birthday-party/sales/account-information?id=${lead.id}`);
                                                             } else {
- navigate(`/birthday-party/leads/booking-form?leadId=${lead.id}`)
+                                                                navigate(`/birthday-party/leads/booking-form?leadId=${lead.id}`)
                                                             }
                                                         }}
                                                         className={`border-b border-[#EFEEF2] hover:bg-gray-50 transition ${hasId ? "cursor-pointer" : ""

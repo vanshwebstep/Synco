@@ -565,16 +565,39 @@ const handleCreateGroupClick = async () => {
         return;
     }
 
-    // 🧠 Merge current tab data into savedTabsData before submission
-    const finalData = {
+    console.log('savedTabsData',savedTabsData)
+    console.log('groupData',groupData)
+     const updatedTabs = {
         ...savedTabsData,
         [activeTab]: {
             ...groupData,
             banner: undefined,
         },
     };
-    setSavedTabsData(finalData);
 
+    // 2️⃣ Remove tabs where skill/description/exercises are invalid
+    const finalData = Object.fromEntries(
+        Object.entries(updatedTabs).filter(([key, tab]) => {
+            return (
+                tab.skill?.trim() &&
+                tab.description?.trim() &&
+                Array.isArray(tab.exercises) &&
+                tab.exercises.length > 0
+            );
+        })
+    );
+    // 🧠 Merge current tab data into savedTabsData before submission
+    // const finalData = {
+    //     ...savedTabsData,
+    //     [activeTab]: {
+    //         ...groupData,
+    //         banner: undefined,
+    //     },
+    // };
+    setSavedTabsData(finalData);
+//  console.log('cleanedTabs',cleanedTabs)
+
+ console.log('finalData',finalData)
     // ✅ Now submit everything
     await handleSavePlan(finalData);
 };
