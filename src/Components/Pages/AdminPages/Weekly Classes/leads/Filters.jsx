@@ -9,12 +9,58 @@ import {
     Check
 } from "lucide-react";
 import { useLeads } from "../../contexts/LeadsContext";
+import Select from "react-select";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+function exportDataToExcel(data) {
+  // Prepare flat data for excel rows
+  const flattenedData = data.map((lead) => {
+    return {
+      Date: new Date(lead.createdAt).toLocaleDateString("en-GB"),
+      "Parent Name": lead.firstName + " " + lead.lastName,
+      Email: lead.email || "-",
+      Phone: lead.phone || "-",
+      Postcode: lead.postcode || "-",
+      "Kid Range": lead.childAge || "-",
+      "Assigned Agent":
+        lead.assignedAgent?.firstName && lead.assignedAgent?.lastName
+          ? lead.assignedAgent.firstName + " " + lead.assignedAgent.lastName
+          : "-",
+      Status: lead.status,
+      // For nested nearestVenues, flatten to a string (comma separated names)
+      "Nearest Venues":
+        lead.nearestVenues && lead.nearestVenues.length > 0
+          ? lead.nearestVenues.map((v) => v.name).join(", ")
+          : "No nearest venues",
+    };
+  });
 
+  // Create worksheet and workbook
+  const worksheet = XLSX.utils.json_to_sheet(flattenedData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+
+  // Generate buffer
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  // Save file using file-saver
+  const dataBlob = new Blob([excelBuffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+
+  saveAs(dataBlob, `Leads_export_${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
 const Filters = () => {
 
-    const { fetchData } = useLeads()
+    const { fetchData, activeTabm, setActiveTab, data } = useLeads()
+    const [selectedVenue, setSelectedVenue] = useState(null);
     const today = new Date();
+    const [noLoaderShow, setNoLoaderShow] = useState(false);
 
+    const [searchTerm, setSearchTerm] = useState("");
 
     // 🔹 States
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -26,6 +72,21 @@ const Filters = () => {
         facebook: false,
         "referall": false,
     });
+    const myVenues = data.map(lead => ({
+        id: lead.id,
+        venuesLabel: lead.bookingData
+            .map(booking => booking.venue?.name)
+            .filter(Boolean)
+            .join(", "),
+    }));
+    const options = myVenues.map((venue) => ({
+        value: venue.venuesLabel,
+        label: venue.venuesLabel,
+        id: venue.id,
+    }));
+    console.log(myVenues);
+    console.log('venueNamesPerLead', myVenues);
+
 
     // 🔹 Handle input changes
     const handleInputChange = (e) => {
@@ -35,12 +96,55 @@ const Filters = () => {
     const handleVenueChange = (e) => {
         setVenueName(e.target.value);
     };
+const handleChange = (selectedOption) => {
+    setSelectedVenue(selectedOption);
+    console.log('selectedOption', selectedOption);
+
+    if (selectedOption === null) {
+        // Reset fetchData when venue is cleared
+        fetchData({ venueName: "" });  // or just fetchData() if that works for you
+    } else {
+        fetchData({ venueName: selectedOption.label });
+    }
+};
+
+
 
     const handleCheckboxChange = (key) => {
-        setCheckedStatuses((prev) => ({
-            ...prev,
-            [key]: !prev[key],
-        }));
+        setCheckedStatuses((prev) => {
+            // create all false
+            const newState = Object.keys(prev).reduce((acc, k) => {
+                acc[k] = false;
+                return acc;
+            }, {});
+
+            // toggle the selected one
+            newState[key] = !prev[key];
+
+            // update active tab
+            if (newState[key]) {
+
+                console.log('mykey', key)
+                if (key === 'facebook') {
+                    setActiveTab('Facebook')
+                }
+                else if (key === 'referall') {
+                    setActiveTab('Referral')
+                }
+                // setActiveTab(key);
+            } else {
+                console.log('mykey2', key)
+                // setActiveTab(null);
+                if (key === 'facebook') {
+                    setActiveTab('Facebook')
+                }
+                else if (key === 'referall') {
+                    setActiveTab('Referral')
+                }
+            }
+
+            return newState;
+        });
     };
 
     // 🔹 Calendar helpers
@@ -103,6 +207,19 @@ const Filters = () => {
         const day = String(date.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
     };
+    const handleSearch = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+
+        if (value.length === 0) {
+            setNoLoaderShow(true);
+            fetchData({ studentName: "" }); // Reset search
+            return;
+        }
+
+        // pass object correctly
+        fetchData({ studentName: value });
+    };
 
     const applyFilter = () => {
         const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
@@ -139,8 +256,8 @@ const Filters = () => {
                     <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
                     <input
                         type="text"
-                        value={studentName}
-                        onChange={handleInputChange}
+                        value={searchTerm}
+                        onChange={handleSearch}
                         placeholder="Search by student name"
                         className="pl-9 pr-3 py-2 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                     />
@@ -148,15 +265,17 @@ const Filters = () => {
 
                 <label className="text-[16px] font-semibold mt-2 block">Venue</label>
                 <div className="relative mt-1">
-                    <select
-                        value={venueName}
-                        onChange={handleVenueChange}
-                        className="p-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                    >
-                        <option value="">Choose Venue</option>
-                        <option value="Venue A">Venue A</option>
-                        <option value="Venue B">Venue B</option>
-                    </select>
+                    <Select
+                        value={selectedVenue}
+                        onChange={handleChange}
+                        options={options}
+                        isClearable // shows the cross (clear) icon
+                        placeholder="Choose Venue"
+                        className="mt-1"
+                        classNamePrefix="react-select"
+                    />
+                    {/* You can display selected venue info here for debug */}
+
                 </div>
             </div>
 
@@ -199,7 +318,7 @@ const Filters = () => {
                                     <span className="w-5 h-5 inline-flex text-gray-500 items-center justify-center border border-[#717073] rounded-sm bg-transparent peer-checked:text-white peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors">
                                         <Check className="w-4 h-4 transition-all" strokeWidth={3} />
                                     </span>
-                                    <span>{label=="facebook" ? 'FaceBooked':"Referral Leads"}</span>
+                                    <span>{label == "facebook" ? 'FaceBooked' : "Referral Leads"}</span>
                                 </label>
                             );
                         })}
@@ -312,7 +431,7 @@ const Filters = () => {
                 <button className="flex-1 flex items-center justify-center gap-1 border text-[#717073] border-[#717073] rounded-lg py-2 text-sm hover:bg-gray-50">
                     <MessageSquare size={16} className="text-[#717073]" /> Send Text
                 </button>
-                <button className="flex items-center justify-center gap-1 bg-[#237FEA] text-white text-sm py-2 rounded-lg hover:bg-blue-700 transition">
+                <button onClick={() => exportDataToExcel(data)} className="flex items-center justify-center gap-1 bg-[#237FEA] text-white text-sm py-2 rounded-lg hover:bg-blue-700 transition">
                     <Download size={16} /> Export Data
                 </button>
             </div>

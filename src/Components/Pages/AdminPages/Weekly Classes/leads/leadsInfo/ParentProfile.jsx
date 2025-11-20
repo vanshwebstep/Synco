@@ -15,6 +15,9 @@ const ParentProfile = (fetchedData) => {
   const [showMembershipPopup, setShowMembershipPopup] = useState(false);
   const [showAddtoWaitingPoppup, setShowAddtoWaitingPoppup] = useState(false);
   const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem("adminToken");
+
   const [showEmailPopup, setShowEmailPopup] = useState(false);
   const [studentsData, setStudentsData] = useState([]);
 
@@ -55,15 +58,11 @@ const ParentProfile = (fetchedData) => {
   }, [fetchedData]);
 
   const navigate = useNavigate();
-  const [dialCode, setDialCode] = useState("+1");
   const [country, setCountry] = useState("us");
-
   const [commentsList, setCommentsList] = useState([]);
-
   const [comment, setComment] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const commentsPerPage = 5;
-
   // Pagination calculations
   const indexOfLastComment = currentPage * commentsPerPage;
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
@@ -155,7 +154,7 @@ const ParentProfile = (fetchedData) => {
         confirmButtonText: "OK",
       });
     }
-  }, [API_BASE_URL]);
+  }, []);
 
 
 
@@ -211,237 +210,268 @@ const ParentProfile = (fetchedData) => {
       });
     }
   };
-  const handleAddLead = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
-
-    try {
-      Swal.fire({
-        title: "Creating...",
-        text: "Please wait while we create your lead",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
-
-      const response = await fetch(`${API_BASE_URL}/api/admin/lead`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        // ✅ send form data as key-value, not nested under "formData"
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        Swal.fire({
-          icon: "error",
-          title: "Failed to Add Lead",
-          text: result.message || "Something went wrong.",
-        });
-        return;
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: "Lead Created",
-        text: "Lead has been added successfully!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-
-      // ✅ reset form
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        mobile: "",
-        postalCode: "",
-        childAge: "",
-      });
-
-      navigate('/weekly-classes/central-leads/')
-    } catch (error) {
-      console.error("Error creating lead:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Network Error",
-        text: error.message || "An error occurred while submitting.",
-      });
-    }
+  
+const handleSendEmail = useCallback(async (bookingIds, type) => {
+  setLoading(true);
+ const mybookingIds = [bookingIds];
+  const endpoints = {
+    paid: "/api/admin/book-membership/send/email",
+    free: "/api/admin/book/free-trials/send-email",
+    waiting_list: "/api/admin/waiting-list/send-email",
   };
 
+  try {
+    const res = await fetch(API_BASE_URL + endpoints[type], {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` })
+      },
+      body: JSON.stringify({bookingIds: mybookingIds } ),
+    });
 
-  useEffect(() => {
-    (async () => {
-      await fetchComments();          // run first
-      // pass required parameter
-    })();
-  }, [fetchComments,]);
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.message);
+    setLoading(false);
 
 
-  const renderPopup = (title, onClose, onBookClick) => (
-    <div
-      className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50"
-      onClick={onClose}
-    >
+    await Swal.fire("Success!", json.message, "success");
+    return json;
+
+  } catch (e) {
+    await Swal.fire("Error", e.message, "error");
+    throw e;
+
+  } finally {
+    setLoading(false);
+    setShowEmailPopup(false);
+  }
+}, [token, API_BASE_URL]);
+
+useEffect(() => {
+  fetchComments();
+}, [fetchComments]); 
+
+
+  const renderPopup = useCallback(
+    (title, onClose, onBookClick) => (
       <div
-        className="bg-white rounded-lg p-6 w-[90vw] max-w-md max-h-[80vh] overflow-y-auto shadow-lg"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn"
+        onClick={onClose}
       >
-        <h2 className="text-xl font-semibold mb-4">{title}</h2>
-
-        {fetchedData?.leadData?.nearestVenues?.length ? (
-          fetchedData.leadData.nearestVenues.map((venue) => {
-            // Filter classes with id !== 0 AND capacity !== 0
-            const availableClasses = venue.classSchedules?.filter(
-              (cls) => cls.id !== 0 && cls.capacity !== 0
-            );
-
-            if (!availableClasses || availableClasses.length === 0) {
-              // If no classes to show, skip this venue
-              return null;
-            }
-
-            return (
-              <div key={venue.id} className="mb-6 border-b pb-4">
-                <h3 className="text-lg font-medium mb-2">{venue.name}</h3>
-
-                <ul className="space-y-3">
-                  {availableClasses.map((cls) => (
-                    <li
-                      key={cls.id}
-                      className="flex justify-between items-center border rounded px-3 py-2 shadow-sm hover:shadow-md transition"
-                    >
-                      <span className="font-medium">{cls.className}</span>
-                      <button
-                        onClick={() => onBookClick(cls.id, leadId)}
-                        className="bg-[#237FEA] hover:bg-blue-700 text-white px-3 py-1.5 rounded"
-                      >
-                        {title}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })
-        ) : (
-          <p>No nearest venues found.</p>
-        )}
-
-        <button
-          className="mt-4 px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
-          onClick={onClose}
+        <div
+          className="bg-white rounded-2xl w-[90%] max-w-md max-h-[80vh] p-6 overflow-y-auto shadow-2xl border border-gray-100 animate-scaleIn"
+          onClick={(e) => e.stopPropagation()}
         >
-          Close
-        </button>
+          {/* Title */}
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
+            <button
+             type="button"
+              onClick={onClose}
+              className="text-gray-500 hover:text-red-500 transition text-xl"
+            >
+              ✕
+            </button>
+          </div>
+
+          {/* Venue List */}
+          {fetchedData?.leadData?.nearestVenues?.length ? (
+            fetchedData.leadData.nearestVenues.map((venue) => {
+              const availableClasses = venue.classSchedules?.filter(
+                (cls) => cls.id !== 0 && cls.capacity !== 0
+              );
+
+              if (!availableClasses?.length) return null;
+
+              return (
+                <div
+                  key={venue.id}
+                  className="mb-6 border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition"
+                >
+                  {/* Venue Name */}
+                  <h3 className="text-lg font-bold text-[#237FEA] mb-3">
+                    {venue.name}
+                  </h3>
+
+                  {/* Class List */}
+                  <ul className="space-y-3">
+                    {availableClasses.map((cls) => (
+                      <li
+                        key={cls.id}
+                        className="flex justify-between items-center border border-gray-200 rounded-xl px-4 py-3 shadow-sm hover:bg-gray-50 hover:shadow-md transition group"
+                      >
+                        <span className="font-medium text-gray-700 group-hover:text-[#237FEA] transition">
+                          {cls.className}
+                        </span>
+
+                        <button
+                         type="button"
+                          onClick={() => onBookClick(cls.id, leadId)}
+                          className="bg-[#237FEA] hover:bg-blue-700 text-white px-4 py-1.5 text-sm rounded-lg transition font-medium"
+                        >
+                          {title}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })
+          ) : (
+            <p className="text-gray-500 text-center py-4">
+              No nearest venues found.
+            </p>
+          )}
+
+          {/* Close Button */}
+          <button
+           type="button"
+            onClick={onClose}
+            className="w-full mt-4 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-semibold text-gray-700 transition"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    ),
+    []
+  );
+
+  const grouped = studentsData.reduce((acc, student) => {
+    const venue = student.bookingVenue;
+    if (!acc[venue]) acc[venue] = [];
+    acc[venue].push(student);
+    return acc;
+  }, {});
+
+
+function EmailPopup({ loading, grouped, handleSendEmail, close }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+      <div className={`
+        bg-white rounded-2xl w-[90%] md:w-[600px] shadow-2xl border border-gray-100 
+        max-h-[80vh] overflow-y-auto p-6 animate-scaleIn
+        ${loading ? "opacity-50 pointer-events-none select-none" : ""}
+      `}>
+
+        {/* Header */}
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="text-2xl font-semibold text-gray-800">Send Email</h2>
+          <button
+            onClick={close}
+            className="text-gray-500 hover:text-red-500 transition text-xl"
+          >✕</button>
+        </div>
+
+        {/* Venue groups */}
+        <div className="space-y-6">
+          {Object.entries(grouped).map(([venue, students]) => (
+            <div
+              key={venue}
+              className="border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition"
+            >
+              <h3 className="text-lg font-bold text-[#237FEA] mb-3">{venue}</h3>
+
+              <div className="space-y-3">
+                {students.map((stu, idx) => {
+                  const type =
+                    stu.bookingType === "waiting list"
+                      ? "waiting_list"
+                      : stu.bookingType;
+
+                  return (
+                    <button
+                      key={idx}
+                       type="button"
+                      onClick={() => handleSendEmail(stu.bookingTrialId, type)}
+                      className="w-full p-4 rounded-xl border border-gray-200 hover:bg-gray-50 
+                        transition flex flex-col text-left group"
+                    >
+                      <div className="flex justify-between items-center">
+                        <p className="font-semibold text-gray-800 group-hover:text-[#237FEA] transition capitalize">
+                          {stu.studentFirstName} {stu.studentLastName}
+                        </p>
+
+                        <span className="bg-[#237FEA] hover:bg-blue-700 text-white px-4 py-1.5 text-sm rounded-lg transition font-medium">
+                          {type === "paid"
+                            ? "Send Membership Email"
+                            : type === "free"
+                              ? "Send Free Trial Email"
+                              : "Send Waiting List Email"}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-gray-500 mt-1">
+                        Age {stu.age} • {stu.gender}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
-const grouped = studentsData.reduce((acc, student) => {
-  const venue = student.bookingVenue;
-  if (!acc[venue]) acc[venue] = [];
-  acc[venue].push(student);
-  return acc;
-}, {});
-const EmailPopup = () => (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded-2xl w-[90%] md:w-[600px] max-h-[80vh] overflow-y-auto">
-
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Send Email</h2>
-        <button onClick={() => setShowEmailPopup(false)}>❌</button>
-      </div>
-
-      <div className="space-y-6">
-        {Object.entries(grouped).map(([venue, students]) => (
-          <div key={venue} className="border rounded-xl p-4">
-            
-            {/* Venue Header */}
-            <h3 className="text-lg font-semibold text-blue-600">{venue}</h3>
-
-            <div className="mt-3 space-y-3">
-              {students.map((stu, idx) => (
-                <button
-                  key={idx}
-                  onClick={() =>
-                    handleSendEmail(stu.bookingTrialId, stu.bookingType)
-                  }
-                  className="w-full p-3 rounded-xl border hover:bg-gray-50 text-left"
-                >
-                  <div className="flex justify-between">
-                    <p className="font-semibold capitalize">
-                      {stu.studentFirstName} {stu.studentLastName}
-                    </p>
-
-                    <span className="text-sm px-2 py-1 rounded-lg bg-gray-200">
-                      {stu.bookingType}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-gray-500 mt-1">
-                    Age {stu.age} • {stu.gender}
-                  </p>
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-const handleSendEmail = (bookingTrialId, bookingType) => {
-  console.log("Sending Email for:", bookingTrialId, bookingType);
-
-  // HERE call your API
-  // sendEmailAPI({ bookingTrialId, bookingType });
-
-  setShowEmailPopup(false);
-};
-
+}
   const renderAddtoWaiting = (title, onClose, onAddToWaitingList) => (
     <div
-      className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg p-6 w-[90vw] max-w-md max-h-[80vh] overflow-y-auto shadow-lg"
+        className="bg-white rounded-2xl w-[90%] max-w-md max-h-[80vh] p-6 overflow-y-auto shadow-2xl border border-gray-100 animate-scaleIn"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-semibold mb-4">{title}</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
+          <button
+           type="button"
+            onClick={onClose}
+            className="text-gray-500 hover:text-red-500 transition text-xl"
+          >
+            ✕
+          </button>
+        </div>
 
+        {/* Venue + Waiting Classes */}
         {fetchedData?.leadData?.nearestVenues?.length ? (
           fetchedData.leadData.nearestVenues.map((venue) => {
-            // Filter only classes with capacity === 0 (full)
+            // Only classes fully booked
             const waitingListClasses = venue.classSchedules?.filter(
               (cls) => cls.id && cls.capacity === 0
             );
 
-            if (!waitingListClasses || waitingListClasses.length === 0) {
-              // If no classes to show in waiting list for this venue, skip rendering venue
-              return null;
-            }
+            if (!waitingListClasses?.length) return null;
 
             return (
-              <div key={venue.id} className="mb-6 border-b pb-4">
-                <h3 className="text-lg font-medium mb-2">{venue.name}</h3>
+              <div
+                key={venue.id}
+                className="mb-6 border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition"
+              >
+                {/* Venue Name */}
+                <h3 className="text-lg font-bold text-[#237FEA] mb-3">
+                  {venue.name}
+                </h3>
 
+                {/* Waiting List Classes */}
                 <ul className="space-y-3">
                   {waitingListClasses.map((cls) => (
                     <li
                       key={cls.id}
-                      className="flex justify-between items-center border rounded px-3 py-2 shadow-sm hover:shadow-md transition"
+                      className="flex justify-between items-center border border-gray-200 rounded-xl px-4 py-3 shadow-sm hover:bg-gray-50 hover:shadow-md transition group"
                     >
-                      <span className="font-medium">{cls.className}</span>
+                      <span className="font-medium text-gray-700 group-hover:text-[#237FEA] transition">
+                        {cls.className}
+                      </span>
 
                       <button
+                       type="button"
                         onClick={() => onAddToWaitingList(cls.id, leadId)}
-                        className="bg-[#237FEA] hover:bg-blue-700 text-white px-3 py-1.5 rounded"
+                        className="bg-[#237FEA] hover:bg-blue-700 text-white px-4 py-1.5 text-sm rounded-lg transition font-medium"
                       >
                         {title}
                       </button>
@@ -452,12 +482,16 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
             );
           })
         ) : (
-          <p>No nearest venues found.</p>
+          <p className="text-gray-500 text-center py-4">
+            No nearest venues found.
+          </p>
         )}
 
+        {/* Close Button */}
         <button
-          className="mt-4 px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
+         type="button"
           onClick={onClose}
+          className="w-full mt-4 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-semibold text-gray-700 transition"
         >
           Close
         </button>
@@ -466,7 +500,6 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
   );
 
 
-  console.log('students', students)
 
   return (
     <>
@@ -569,21 +602,6 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
                 />
               </div>
             </div>
-
-            {/* <div className="flex gap-3">
-                <button
-                  className="px-15 py-4 border border-gray-200 text-gray-500 rounded-xl  transition"
-                  onClick={() => navigate('/weekly-classes/central-leads')}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-15 py-4 bg-[#237FEA] text-white rounded-xl hover:bg-[#1e6fd2] transition"
-                  onClick={handleAddLead}
-                >
-                  Add Lead
-                </button>
-              </div> */}
           </div>
 
           <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
@@ -603,6 +621,7 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
                 className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none"
               />
               <button
+               type="button"
                 className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
                 onClick={handleSubmitComment}
               >
@@ -640,6 +659,7 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
                 {totalPages > 1 && (
                   <div className="flex justify-center items-center gap-2 mt-4">
                     <button
+                     type="button"
                       className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-100"
                       onClick={() => goToPage(currentPage - 1)}
                       disabled={currentPage === 1}
@@ -648,6 +668,7 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
                     </button>
                     {Array.from({ length: totalPages }, (_, i) => (
                       <button
+                       type="button"
                         key={i}
                         className={`px-3 py-1 rounded-lg border ${currentPage === i + 1
                           ? "bg-blue-500 text-white border-blue-500"
@@ -659,6 +680,7 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
                       </button>
                     ))}
                     <button
+                     type="button"
                       className="px-3 py-1 rounded-lg border border-gray-300 hover:bg-gray-100"
                       onClick={() => goToPage(currentPage + 1)}
                       disabled={currentPage === totalPages}
@@ -765,6 +787,7 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
             <div className="p-6 flex flex-col bg-white rounded-3xl mt-5 items-center space-y-3">
               <div className="flex w-full justify-between gap-2">
                 <button
+                 type="button"
                   className="flex-1 flex items-center gap-2 justify-center border border-[#717073] text-[#717073] rounded-xl font-semibold py-3 text-[18px] hover:bg-gray-50 transition"
                   onClick={() => {
                     setStudentsData(students);   // your array
@@ -773,12 +796,13 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
                 >
                   <Mail className="w-4 h-4 mr-1" /> Send Email
                 </button>
-                <button className="flex-1 flex items-center gap-2 justify-center border border-[#717073] rounded-xl font-semibold py-3 text-[18px] text-[#717073]  hover:bg-gray-50 transition">
+                <button  type="button" className="flex-1 flex items-center gap-2 justify-center border border-[#717073] rounded-xl font-semibold py-3 text-[18px] text-[#717073]  hover:bg-gray-50 transition">
                   <MessageSquare className="w-4 h-4 mr-1" /> Send Text
                 </button>
               </div>
 
               <button
+               type="button"
                 className="w-full bg-[#237FEA] text-white my-3 text-[18px] py-3 rounded-xl font-medium hover:bg-blue-600 transition flex items-center justify-center"
                 onClick={() => setShowFreeTrialPopup(true)}
               >
@@ -802,14 +826,24 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
                   () => setShowAddtoWaitingPoppup(false),
                   handleAddToWaitingList
                 )}
+{showEmailPopup && (
+  EmailPopup({
+    loading: loading,
+    grouped: grouped,
+    handleSendEmail: handleSendEmail,
+    close: () => setShowEmailPopup(false)
+  })
+)}
 
               <button
+               type="button"
                 className="w-full bg-[#237FEA] text-white my-3 text-[18px] py-3 rounded-xl font-medium hover:bg-blue-600 transition flex items-center justify-center"
                 onClick={() => setShowMembershipPopup(true)}
               >
                 Book A Membership
               </button>
               <button
+               type="button"
                 className={`w-full my-3 text-[18px] py-3 rounded-xl font-medium flex items-center justify-center transition
     ${hasWaitingListClasses
                     ? "bg-[#237FEA] text-white hover:bg-blue-600 cursor-pointer"
@@ -823,8 +857,7 @@ const handleSendEmail = (bookingTrialId, bookingType) => {
               >
                 Add To Waiting List
               </button>
-{showEmailPopup && <EmailPopup />}
-            </div>
+        </div>
           </div>
         </div>
       </div>

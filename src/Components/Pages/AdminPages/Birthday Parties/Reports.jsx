@@ -45,7 +45,7 @@ export default function BirthdayReports() {
   const [summary, setSummary] = useState({});
   const [charts, setCharts] = useState({});
   const [loading, setLoading] = useState(false);
-
+console.log('charts',charts)
   const token = localStorage.getItem("adminToken");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [selectedFilter, setSelectedFilter] = useState(null);

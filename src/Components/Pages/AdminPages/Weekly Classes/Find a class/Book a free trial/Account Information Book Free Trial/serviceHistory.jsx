@@ -82,7 +82,7 @@ const ServiceHistory = ({ serviceHistory }) => {
             {/* Venue Content */}
             <div className="flex items-center bg-[#FCF9F6] flex-col lg:flex-row">
               <div className="px-4 w-full py-2 flex-1 space-y-6">
-                <div className="md:flex gap-6 justify-between items-center flex-wrap">
+                <div className="md:flex gap-6 justify-between items-center ">
                   {/* Trial Date */}
                   <div>
                     <div className="whitespace-nowrap font-semibold text-[14px]">

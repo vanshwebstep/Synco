@@ -279,7 +279,7 @@ const Facebook = () => {
     }, 50);
   };
   const handleAddToWaitingList = (classId, leadId) => {
-      navigate('/weekly-classes/find-a-class/add-to-waiting-list', {
+    navigate('/weekly-classes/find-a-class/add-to-waiting-list', {
       state: {
         classId,
         from_lead: 'yes',
@@ -290,7 +290,7 @@ const Facebook = () => {
       window.scrollTo({ top: 0, behavior: 'auto' });
     }, 50);
   };
-  
+
   const handleBookMembership = (classId, leadId) => {
     navigate('/weekly-classes/find-a-class/book-a-membership', {
       state: {
@@ -303,7 +303,7 @@ const Facebook = () => {
       window.scrollTo({ top: 0, behavior: 'auto' });
     }, 50);
   };
-
+  console.log('selectedUserIds', selectedUserIds)
   if (loading) return <Loader />;
   if (data.length == 0) return <p className="text-center">No Data Found</p>;
   return (
@@ -481,7 +481,7 @@ const Facebook = () => {
                                           <div key={idx} className="flex  md:w-[25%]  flex-wrap justify-end gap-3 ">
                                             {
                                               available == 0 && (
-                                                <button onClick={() => handleAddToWaitingList(cls.id ,lead?.id)} className="bg-[#237FEA]  text-white px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-[#006AE6] transition">
+                                                <button onClick={() => handleAddToWaitingList(cls.id, lead?.id)} className="bg-[#237FEA]  text-white px-4 py-2 rounded-lg text-[14px] font-semibold hover:bg-[#006AE6] transition">
                                                   Add to Waiting List
                                                 </button>
 

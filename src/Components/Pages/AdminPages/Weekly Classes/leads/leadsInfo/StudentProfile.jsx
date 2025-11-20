@@ -2,20 +2,26 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
-import { FaPlus } from "react-icons/fa";
-import "react-datepicker/dist/react-datepicker.css";
+import { FaPlus, FaSave, FaEdit } from "react-icons/fa";
 import { RxCross2 } from "react-icons/rx";
-import { FaSave, FaEdit } from "react-icons/fa";
+
+import "react-datepicker/dist/react-datepicker.css";
+
 import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
+import { useBookFreeTrial } from "../../../contexts/BookAFreeTrialContext";
+import Loader from "../../../contexts/Loader";
 
 const StudentProfile = (fetchedData) => {
   const [editStudent, setEditStudent] = useState({});
-
-  const { handleUpdate, mainId } = useAccountsInfo();
-
+  const [currentEditId, setCurrentEditId] = useState(null);
+  const [bookingType, setBookingType] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  const { updateBookMembershipFamily, updateBookFreeTrialsFamily, updateWaitingListFamily } =
+    useBookFreeTrial();
+
   const [students, setStudents] = useState([]);
+const [studentLoading, setStudentLoading] = useState(false);
 
   const genderOptions = [
     { value: "male", label: "Male" },
@@ -23,6 +29,50 @@ const StudentProfile = (fetchedData) => {
     { value: "other", label: "Other" },
   ];
 
+  /** -------------------------------
+   *       UPDATE STUDENT API
+   --------------------------------*/
+ const handleUpdate = async (key, dataArray) => {
+  try {
+    setStudentLoading(true); // <-- START LOADING
+
+    const filtered = dataArray
+      .filter((s) => s.bookingTrialId === currentEditId)
+      .map((s) => ({
+        id: s.id,
+        studentFirstName: s.studentFirstName,
+        studentLastName: s.studentLastName,
+        dateOfBirth: s.dateOfBirth,
+        age: s.age,
+        gender: s.gender,
+        medicalInformation: s.medicalInformation,
+      }));
+
+    if (bookingType === "free") {
+      await updateBookFreeTrialsFamily(currentEditId, filtered);
+    } else if (bookingType === "waiting list") {
+      await updateWaitingListFamily(currentEditId, filtered);
+    } else if (bookingType === "membership") {
+      await updateBookMembershipFamily(currentEditId, filtered);
+    } else {
+      await updateBookFreeTrialsFamily(currentEditId, filtered);
+    }
+
+    // Optional: close edit mode
+    setEditStudent({});
+    setCurrentEditId(null);
+
+  } catch (error) {
+    console.error("Update error:", error);
+  } finally {
+    setStudentLoading(false); // <-- END LOADING
+  }
+};
+
+
+  /** -------------------------------
+   *   MODAL: Add New Student Data
+   --------------------------------*/
   const [newStudent, setNewStudent] = useState({
     studentFirstName: "",
     studentLastName: "",
@@ -31,16 +81,15 @@ const StudentProfile = (fetchedData) => {
     gender: "",
     medicalInformation: "",
   });
-  // --- Input handlers ---
-  // --- modal input change only updates newStudent ---
+
   const handleModalChange = (field, value) => {
     setNewStudent((prev) => ({ ...prev, [field]: value }));
   };
 
-  // --- DOB change inside modal ---
   const handleDOBChange = (index, date, isModal = false) => {
     const today = new Date();
     let age = "";
+
     if (date) {
       const diff = today.getFullYear() - date.getFullYear();
       const monthDiff = today.getMonth() - date.getMonth();
@@ -59,22 +108,16 @@ const StudentProfile = (fetchedData) => {
     }
   };
 
-  // --- Add Student ---
   const handleAddStudent = () => {
     if (!newStudent.studentFirstName && !newStudent.studentLastName) {
       return alert("Please enter at least first or last name.");
     }
 
-    // Create the updated students array
     const updatedStudents = [...students, { ...newStudent }];
-
-    // Update local state
     setStudents(updatedStudents);
 
-    // Call API update
-    handleUpdate('students', updatedStudents);
+    handleUpdate("students", updatedStudents);
 
-    // Reset modal
     setShowModal(false);
     setNewStudent({
       studentFirstName: "",
@@ -86,7 +129,9 @@ const StudentProfile = (fetchedData) => {
     });
   };
 
-
+  /** -------------------------------
+   *           INPUT CHANGE
+   --------------------------------*/
   const handleInputChange = (index, field, value) => {
     const updated = [...students];
     updated[index][field] = value;
@@ -94,33 +139,44 @@ const StudentProfile = (fetchedData) => {
   };
 
   const handleEditStudents = () => {
-    handleUpdate('students', students)
-  }
+    handleUpdate("students", students);
+    setEditStudent({});
+  };
 
+  /** -------------------------------
+   *          LOAD DATA
+   --------------------------------*/
   useEffect(() => {
     const bookings = fetchedData?.leadData?.bookings;
 
     if (Array.isArray(bookings)) {
-      const allStudents = bookings.flatMap(b =>
-        (b?.students || []).map(student => ({
+      const allStudents = bookings.flatMap((b) =>
+        (b?.students || []).map((student) => ({
           ...student,
-          bookingType: b?.bookingType || "unknown", // attach paid/free
-          bookingVenue: b?.venue.name || "Venue", // attach paid/free
+          bookingType: b?.bookingType || "unknown",
+          bookingVenue: b?.venue?.name || "Venue",
           bookingId: b?.bookingId,
-          bookingScheduleId: b?.classScheduleId
+          bookingScheduleId: b?.classScheduleId,
+          bookingTrialId: student.bookingTrialId, // IMPORTANT FIX
         }))
       );
 
       setStudents(allStudents);
     }
   }, [fetchedData]);
+  console.log('bookings', fetchedData)
 
 
-  console.log('studentss', students)
-
+    if (studentLoading) {
+      return (
+        <>
+          <Loader/>
+        </>
+      )
+    }
   return (
-    <div className="space-y-10  p-6">
-      {/* Add Student Button */}
+    <div className="space-y-10 p-6">
+      {/* Add Student */}
       <div className="flex justify-end mb-6">
         {students.length < 3 && (
           <button
@@ -133,7 +189,6 @@ const StudentProfile = (fetchedData) => {
         )}
       </div>
 
-      {/* Student List */}
       {students.length === 0 && (
         <p className="text-gray-500 italic text-sm">No student added yet.</p>
       )}
@@ -147,29 +202,29 @@ const StudentProfile = (fetchedData) => {
           className="bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6"
         >
           <h2
-            // onClick={() =>
-            //   setEditStudent((prev) => ({ ...prev, [index]: !prev[index] }))
-            // }
+            onClick={() => {
+              setEditStudent((prev) => ({ ...prev, [index]: !prev[index] }));
+              setBookingType(student.bookingType);
+              setCurrentEditId(student.bookingTrialId);
+            }}
             className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
           >
-            {editStudent?.[index] ? "Editing Student" : `Student ${index + 1} Information (${editStudent?.[index]
+            {editStudent?.[index]
               ? "Editing Student"
-              : ` ${student.bookingType === "free"
+              : `Student ${index + 1} Information (${student.bookingType === "free"
                 ? "Trials ="
                 : student.bookingType === "waiting list"
                   ? "Waiting List ="
                   : "Membership ="
-              } ${student.bookingVenue})`
-              }`}
-
-            {/* {editStudent?.[index]
-              ? <FaSave onClick={handleEditStudents} />
-              : <FaEdit />} */}
-
+              } ${student.bookingVenue})`}
+            {editStudent?.[index] ? (
+              <FaSave onClick={handleEditStudents} />
+            ) : (
+              <FaEdit />
+            )}
           </h2>
 
-
-          {/* Row 1: Names */}
+          {/* Names */}
           <div className="flex gap-4">
             <div className="w-1/2">
               <label className="block text-[16px] font-semibold">First name</label>
@@ -183,6 +238,7 @@ const StudentProfile = (fetchedData) => {
                 readOnly={!editStudent?.[index]}
               />
             </div>
+
             <div className="w-1/2">
               <label className="block text-[16px] font-semibold">Last name</label>
               <input
@@ -197,7 +253,7 @@ const StudentProfile = (fetchedData) => {
             </div>
           </div>
 
-          {/* Row 2: DOB + Age */}
+          {/* DOB + Age */}
           <div className="flex gap-4">
             <div className="w-1/2">
               <label className="block text-[16px] font-semibold">Date of birth</label>
@@ -225,12 +281,11 @@ const StudentProfile = (fetchedData) => {
                 value={student.age}
                 readOnly
                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base bg-gray-50"
-                placeholder="Automatic entry"
               />
             </div>
           </div>
 
-          {/* Row 3: Gender + Medical Info */}
+          {/* Gender + Medical */}
           <div className="flex gap-4">
             <div className="w-1/2">
               <label className="block text-[16px] font-semibold">Gender</label>
@@ -238,9 +293,9 @@ const StudentProfile = (fetchedData) => {
                 className="w-full mt-2 text-base"
                 classNamePrefix="react-select"
                 placeholder="Select gender"
-                value={genderOptions.find((option) => option.value === student.gender) || null}
+                value={genderOptions.find((option) => option.value === student.gender)}
                 onChange={(selectedOption) =>
-                  handleInputChange(index, "gender", selectedOption ? selectedOption.value : "")
+                  handleInputChange(index, "gender", selectedOption?.value || "")
                 }
                 options={genderOptions}
                 isDisabled={!editStudent?.[index]}
@@ -264,52 +319,54 @@ const StudentProfile = (fetchedData) => {
         </motion.div>
       ))}
 
-      {/* --- Modal for adding new student --- */}
+      {/* MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-[#0202025c] bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6  shadow-lg relative max-h-[90vh] md:w-3/12 overflow-auto">
-            <div className=" gap-7 relative  border-b border-gray-300 pb-3">
-
-              <h3 className="text-xl font-semibold text-center text-[#282829]">Add Student</h3>
+          <div className="bg-white rounded-2xl p-6 shadow-lg relative max-h-[90vh] md:w-3/12 overflow-auto">
+            <div className="border-b border-gray-300 pb-3 relative">
+              <h3 className="text-xl font-semibold text-center text-[#282829]">
+                Add Student
+              </h3>
               <button
-                className="p-2 border-none absolute left-3 top-0"
+                className="absolute left-3 top-0 p-2"
                 onClick={() => setShowModal(false)}
               >
                 <RxCross2 />
               </button>
             </div>
 
-            {/* Row 1 */}
-            <div className="  mb-4">
-              <div className="mt-3">
-                <label className="block text-[15px] mb-1 font-semibold">First name</label>
-                <input
-                  type="text"
-                  className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
-                  value={newStudent.studentFirstName}
-                  onChange={(e) => handleModalChange("studentFirstName", e.target.value)}
-                />
-              </div>
+            {/* First & Last Name */}
+            <div className="mb-4 mt-3">
+              <label className="block text-[15px] mb-1 font-semibold">First name</label>
+              <input
+                type="text"
+                className="w-full border border-gray-300 rounded-xl px-3 py-3 text-base"
+                value={newStudent.studentFirstName}
+                onChange={(e) => handleModalChange("studentFirstName", e.target.value)}
+              />
+
               <div className="mt-3">
                 <label className="block text-[15px] mb-1 font-semibold">Surname</label>
                 <input
                   type="text"
-                  className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
+                  className="w-full border border-gray-300 rounded-xl px-3 py-3 text-base"
                   value={newStudent.studentLastName}
                   onChange={(e) => handleModalChange("studentLastName", e.target.value)}
                 />
               </div>
             </div>
 
-            {/* Row 2 */}
-            <div className=" mb-4">
-              <div className="mt-3">
-                <label className="block text-[15px] mb-1 font-semibold">Date of birth</label>
+            {/* DOB + Age */}
+            <div className="mb-4">
+              <div>
+                <label className="block text-[15px] mb-1 font-semibold">
+                  Date of birth
+                </label>
                 <DatePicker
                   withPortal
                   selected={newStudent.dateOfBirth}
-                  onChange={(date) => handleDOBChange(null, date, true)} // index is null, isModal = true
-                  className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
+                  onChange={(date) => handleDOBChange(null, date, true)}
+                  className="w-full border border-gray-300 rounded-xl px-3 py-3 text-base"
                   showYearDropdown
                   scrollableYearDropdown
                   yearDropdownItemNumber={100}
@@ -318,45 +375,48 @@ const StudentProfile = (fetchedData) => {
                   minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))}
                   isClearable
                 />
-
               </div>
+
               <div className="mt-3">
                 <label className="block text-[15px] mb-1 font-semibold">Age</label>
                 <input
                   type="text"
                   value={newStudent.age}
                   readOnly
-                  className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base bg-gray-50"
+                  className="w-full border border-gray-300 rounded-xl px-3 py-3 text-base bg-gray-50"
                 />
               </div>
             </div>
 
-            {/* Row 3 */}
-            <div className=" mb-6">
+            {/* Gender + Medical */}
+            <div className="mb-6">
+              <label className="block text-[15px] mb-1 font-semibold">Gender</label>
+              <Select
+                className="mt-1"
+                classNamePrefix="react-select"
+                value={genderOptions.find((o) => o.value === newStudent.gender)}
+                onChange={(selected) =>
+                  handleModalChange("gender", selected ? selected.value : "")
+                }
+                options={genderOptions}
+              />
+
               <div className="mt-3">
-                <label className="block text-[15px] mb-1 font-semibold">Gender</label>
-                <Select
-                  className="mt-1"
-                  classNamePrefix="react-select"
-                  value={genderOptions.find((o) => o.value === newStudent.gender) || null}
-                  onChange={(selected) => handleModalChange("gender", selected ? selected.value : "")}
-                  options={genderOptions}
-                />
-              </div>
-              <div className="mt-3">
-                <label className="block text-[15px] mb-1 font-semibold">Medical Info</label>
+                <label className="block text-[15px] mb-1 font-semibold">
+                  Medical Info
+                </label>
                 <input
                   type="text"
-                  className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
+                  className="w-full border border-gray-300 rounded-xl px-3 py-3 text-base"
                   value={newStudent.medicalInformation}
-                  onChange={(e) => handleModalChange("medicalInformation", e.target.value)}
+                  onChange={(e) =>
+                    handleModalChange("medicalInformation", e.target.value)
+                  }
                 />
               </div>
             </div>
 
-            {/* Modal Actions */}
             <div className="flex justify-end gap-3">
-
               <button
                 className="px-6 py-3 bg-[#237FEA] text-white rounded-xl hover:bg-[#1e6fd2] transition"
                 onClick={handleAddStudent}

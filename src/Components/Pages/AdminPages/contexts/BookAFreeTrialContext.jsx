@@ -774,9 +774,9 @@ export const BookFreeTrialProvider = ({ children }) => {
         if (status1) queryParams.append("status", "pending");
         if (status2) queryParams.append("status", "active");
 
-        if (month1) queryParams.append("duration", "6");
-        if (month2) queryParams.append("duration", "3");
-        if (month3) queryParams.append("duration", "1");
+        if (month1) queryParams.append("duration", "6 Month");
+        if (month2) queryParams.append("duration", "3 Month");
+        if (month3) queryParams.append("duration", "1 Month");
 
         if (Array.isArray(BookedBy) && BookedBy.length > 0) {
           BookedBy.forEach(agent => queryParams.append("bookedBy", agent));

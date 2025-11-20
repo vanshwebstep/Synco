@@ -631,10 +631,18 @@ const WaitingList = () => {
                                                             )}
                                                         </span>
                                                         <img
-                                                            src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/demo/synco/members/dummyuser.png"}
-                                                            alt={`${admin.firstName} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`}
-                                                            className="w-8 h-8 rounded-full"
-                                                        />
+                                                                src={`${API_BASE_URL}${admin.profile}`}
+                                                                alt={
+                                                                    admin?.firstName || admin?.lastName
+                                                                        ? `${admin?.firstName ?? ""} ${admin?.lastName && admin.lastName !== "null" ? admin.lastName : ""}`.trim()
+                                                                        : "Unknown Admin"
+                                                                }
+                                                                className="w-8 h-8 rounded-full object-cover"
+                                                                onError={(e) => {
+                                                                    e.target.onerror = null;
+                                                                    e.target.src = "/demo/synco/members/dummyuser.png";
+                                                                }}
+                                                            />
                                                         <span>
                                                             {admin?.firstName || admin?.lastName
                                                                 ? `${admin?.firstName ?? ""}${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()

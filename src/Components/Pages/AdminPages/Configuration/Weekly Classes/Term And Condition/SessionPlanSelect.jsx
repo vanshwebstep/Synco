@@ -30,6 +30,9 @@ const customStyles = {
   }),
   option: (base, state) => ({
     ...base,
+    opacity: state.isDisabled ? 0.4 : 1,
+    cursor: state.isDisabled ? 'not-allowed' : 'pointer',
+
     backgroundColor: state.isFocused ? '#F2F2F2' : '#fff',
     color: '#000',
     fontWeight: 600,
@@ -50,7 +53,8 @@ const customStyles = {
   }),
 };
 
-const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
+const SessionPlanSelect = ({ idx = 0, label = '', value, onChange, usedSessionPlans = [] }) => {
+
   const { fetchSessionGroup, sessionGroup, loading } = useSessionPlan();
   const [options, setOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -72,10 +76,13 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
       const transformedWeeks = sessionGroup.map((group) => ({
         value: group.id,
         label: group.groupName,
+        isDisabled: usedSessionPlans.includes(group.id), // <-- DISABLE IF USED
       }));
+
       setOptions(transformedWeeks);
     }
-  }, [sessionGroup]);
+  }, [sessionGroup, usedSessionPlans]);
+
 
   // Sync selected value when options or value change
   useEffect(() => {
@@ -97,7 +104,7 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange }) => {
       {loading ? (
 
         <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-2xl px-4 py-3 mb-4 shadow-sm">
-        Loading...
+          Loading...
         </div>
       ) : (
         <Select

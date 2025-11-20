@@ -362,27 +362,27 @@ const Create = () => {
         );
     };
 
-  const filterSessionDay = (date, term) => {
-    if (!term.day) return false; // use the term's specific selected day
+    const filterSessionDay = (date, term) => {
+        if (!term.day) return false; // use the term's specific selected day
 
-    const dayMap = {
-        sunday: 0,
-        monday: 1,
-        tuesday: 2,
-        wednesday: 3,
-        thursday: 4,
-        friday: 5,
-        saturday: 6,
+        const dayMap = {
+            sunday: 0,
+            monday: 1,
+            tuesday: 2,
+            wednesday: 3,
+            thursday: 4,
+            friday: 5,
+            saturday: 6,
+        };
+
+        const dayOk = date.getDay() === dayMap[term.day.toLowerCase()];
+        const dateStr = date.toLocaleDateString("en-CA");
+
+        // disable if in exclusions
+        const notExcluded = !term.exclusions.includes(dateStr);
+
+        return dayOk && notExcluded;
     };
-
-    const dayOk = date.getDay() === dayMap[term.day.toLowerCase()];
-    const dateStr = date.toLocaleDateString("en-CA");
-
-    // disable if in exclusions
-    const notExcluded = !term.exclusions.includes(dateStr);
-
-    return dayOk && notExcluded;
-};
 
 
     const filterExclusionDay = (date, term) => {
@@ -488,7 +488,24 @@ const Create = () => {
 
 
     const handleMappingChange = (index, field, value) => {
-        // console.log('index', field, value)
+        if (field === "sessionPlanId") {
+            // check duplicate
+            const alreadyExists = sessionMappings.some(
+                (item, idx) => idx !== index && item.sessionPlanId === value
+            );
+
+            if (alreadyExists) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Duplicate Session Plan',
+                    text: 'This session plan is already used in this term. Please select a unique one.',
+                    confirmButtonColor: '#d33'
+                });
+
+                return; // stop update
+            }
+        }
+
         const updated = [...sessionMappings];
         updated[index] = {
             ...updated[index],
@@ -1236,7 +1253,9 @@ const Create = () => {
                                                         idx={index}
                                                         value={sessionMappings[index]?.sessionPlanId}
                                                         onChange={handleMappingChange}
+                                                        usedSessionPlans={sessionMappings.map(s => s.sessionPlanId)}
                                                     />
+
                                                 </motion.div>
                                             </div>
                                         </div>

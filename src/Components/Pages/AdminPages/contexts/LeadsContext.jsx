@@ -18,21 +18,26 @@ export const LeadsContextProvider = ({ children }) => {
   const [data, setData] = useState([]);
   const [analytics, setAnalytics] = useState([]);
   const [loading, setLoading] = useState(false);
-
-  const fetchData = useCallback(async (params = {}) => {
+const fetchData = useCallback(
+  async (params = {}) => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
 
     setLoading(true);
-    const { studentName, venueName, filterTypes = [], fromDate, toDate } = params;
 
-    // build query params
+    const {
+      studentName,
+      venueName,
+      filterTypes = [],
+      fromDate,
+      toDate,
+    } = params;
+
     const searchParams = new URLSearchParams();
 
     if (studentName) searchParams.append("studentName", studentName);
     if (venueName) searchParams.append("venueName", venueName);
 
-    // support multiple filterTypes
     filterTypes.forEach((ft) => searchParams.append("filterType", ft));
 
     if (fromDate) searchParams.append("fromDate", fromDate);
@@ -40,7 +45,6 @@ export const LeadsContextProvider = ({ children }) => {
 
     const query = searchParams.toString();
 
-    // ✅ Simplified mapping for active tab endpoint
     const tabEndpoints = {
       Facebook: "facebook",
       Referral: "referall",
@@ -51,10 +55,15 @@ export const LeadsContextProvider = ({ children }) => {
     const activeTabData = tabEndpoints[activeTab] || "all";
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/lead/${activeTabData}${query ? `?${query}` : ""}`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/lead/${activeTabData}${
+          query ? `?${query}` : ""
+        }`,
+        {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       const resultRaw = await response.json();
 
@@ -83,7 +92,10 @@ export const LeadsContextProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, [API_BASE_URL, activeTab]);
+  },
+  [API_BASE_URL, activeTab]
+);
+
   const fetchDataById = useCallback(async (params = {}) => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;

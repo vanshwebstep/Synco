@@ -611,6 +611,7 @@ export const AccountsInfoProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  
   const sendHolidayMail = async (bookingIds) => {
     setLoading(true);
 

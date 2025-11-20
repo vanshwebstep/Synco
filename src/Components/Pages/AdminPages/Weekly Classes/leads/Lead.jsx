@@ -16,6 +16,7 @@ const Lead = () => {
     useEffect(() => {
         fetchData();
     }, [activeTab]);
+    console.log('acsstiveTab',activeTab)
     if(!leadsData) return (<>Loading</>)
     return (
         <div className="min-h-screen overflow-hidden bg-gray-50 py-6 flex flex-col lg:flex-row ">

@@ -1399,7 +1399,7 @@ const List = () => {
                                             {index === 0 && (
                                                 <button
                                                     onClick={handleAddParent}
-                                                    disabled={parents.length >= 5}
+                                                    disabled={parents.length >= 3}
                                                     className="text-white text-[14px] px-4 py-2 bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50"
                                                 >
                                                     Add Parent
