@@ -5,48 +5,22 @@ import "react-datepicker/dist/react-datepicker.css";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { Search } from "lucide-react";
-import { motion } from "framer-motion";
-import { useNotification } from "../../../contexts/NotificationContext";
-import { useMembers } from "../../../contexts/MemberContext";
-import { Mail, MessageSquare, AlertTriangle } from "lucide-react";
-import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
+import { useNotification } from "../contexts/NotificationContext";
+import { useMembers } from "../contexts/MemberContext";
+import { ChevronDown, ChevronUp, X } from "lucide-react";
+
 import Swal from "sweetalert2";
-const General = () => {
-    const { oneToOneData } = useAccountsInfo();
-
-    console.log('oneToOneData', oneToOneData)
+const BookACamp = () => {
     const [formData, setFormData] = useState({
-        student: {
-            firstName: oneToOneData?.booking?.students?.[0]?.studentFirstName || "",
-            lastName: oneToOneData?.booking?.students?.[0]?.studentLastName || "",
-            dob: oneToOneData?.booking?.students?.[0]?.dateOfBirth
-                ? new Date(oneToOneData.booking.students[0].dateOfBirth)
-                : null,
-            age: oneToOneData?.booking?.students?.[0]?.age || "",
-            medical: oneToOneData?.booking?.students?.[0]?.medicalInfo || "",
-            ability: oneToOneData?.booking?.students?.[0]?.ability || "",
-        },
-        parent: oneToOneData?.booking?.parents?.map((p) => ({
-            firstName: p?.parentFirstName || "",
-            lastName: p?.parentLastName || "",
-            email: p?.parentEmail || "",
-            phone: p?.phoneNumber || "",
-            referral: p?.howDidHear || "",
-        })) || [{}],
+        student: {},
+        parent: [
+            { firstName: "", lastName: "", email: "", phone: "", relation: "Mother" },
+        ],
+        emergency: {},
+        general: {},
     });
-    const [bookingId, setBookingId] = useState([]);
-
-    useEffect(() => {
-        if (oneToOneData?.booking?.leadId) {
-            setBookingId(prev => [...prev, oneToOneData.booking.leadId]);
-        }
-    }, [oneToOneData]);
-
-    console.log('bookingId', bookingId);
-
-
     const [selectedKeyInfo, setSelectedKeyInfo] = useState(null);
-    const { sendOnetoOneMail } = useAccountsInfo();
+
     const [isOpen, setIsOpen] = useState(false);
 
     const { keyInfoData, fetchKeyInfo } = useMembers();
@@ -63,7 +37,7 @@ const General = () => {
                     if (text) items.push(text);
                 } else if (child.nodeName === "OL" || child.nodeName === "UL") {
                     traverse(child);
-                } else if (child.nodeType !== 3) { // skip text nodes outside li
+                } else if (child.nodeType !== 3) {
                     traverse(child);
                 }
             });
@@ -71,7 +45,6 @@ const General = () => {
 
         traverse(tempDiv);
 
-        // If no <li> found, fallback to plain text
         if (items.length === 0) {
             const plainText = tempDiv.textContent.trim();
             if (plainText) items.push(plainText);
@@ -80,20 +53,16 @@ const General = () => {
         return items;
     }
 
-    // Example usage:
     const keyInfoArray = htmlToArray(keyInfoData?.keyInformation);
     const keyInfoOptions = keyInfoArray.map((item) => ({
         value: item,
         label: item,
     }));
 
-    // console.log('keyInfoData', keyInfoData)
+
     const selectedLabel =
         keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
         "Key Information";
-
-    const [isOpenMembership, setIsOpenMembership] = useState(false);
-    const [membershipPlan, setMembershipPlan] = useState(null);
     const token = localStorage.getItem("adminToken");
     const { adminInfo } = useNotification();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -134,17 +103,22 @@ const General = () => {
         setCurrentPage(page);
     };
 
-    const handleChange = (section, name, value, index = null) => {
+    const handleChange = (section, field, value, index = null) => {
         setFormData((prev) => {
-            if (section === "parent" && index !== null) {
+            if (section === "parent") {
                 const updatedParents = [...prev.parent];
-                updatedParents[index] = { ...updatedParents[index], [name]: value };
+                updatedParents[index][field] = value;
                 return { ...prev, parent: updatedParents };
             }
-            return {
-                ...prev,
-                [section]: { ...prev[section], [name]: value },
-            };
+
+            const updatedSection = { ...prev[section], [field]: value };
+
+
+            if (section === "student" && field === "dob") {
+                updatedSection.age = calculateAge(value);
+            }
+
+            return { ...prev, [section]: updatedSection };
         });
     };
 
@@ -262,28 +236,34 @@ const General = () => {
         fetchComments();
     }, [])
 
-    const status =
-        oneToOneData?.status ||
-        oneToOneData?.booking?.payment?.paymentStatus ||
-        "N/A";
-
-    const getBg = () => {
-        switch (status?.toLowerCase()) {
-            case "pending":
-                return "/demo/synco/frames/Pending.png";
-            case "active":
-                return "/demo/synco/frames/Active.png";
-            case "completed":
-                return "/demo/synco/frames/Completed.png";
-            case "cancelled":
-                return "/demo/synco/frames/Cancelled.png";
-            default:
-                return "/demo/synco/frames/Default.png"; // fallback if needed
-        }
+    const addParent = () => {
+        setFormData((prev) => ({
+            ...prev,
+            parent: [
+                ...prev.parent,
+                { firstName: "", lastName: "", email: "", phone: "", relation: "Other" },
+            ],
+        }));
     };
 
-
-
+    const handleSameAsAbove = () => {
+        setSameAsAbove((prev) => {
+            const newValue = !prev;
+            if (newValue) {
+                // Copy first parent's data to emergency
+                setFormData((prevData) => ({
+                    ...prevData,
+                    emergency: { ...prevData.parent[0] },
+                }));
+            } else {
+                setFormData((prevData) => ({
+                    ...prevData,
+                    emergency: {},
+                }));
+            }
+            return newValue;
+        });
+    };
 
     const calculateAge = (dob) => {
         if (!dob) return "";
@@ -296,13 +276,24 @@ const General = () => {
         }
         return age;
     };
+
+
+    const generalInputs = [
+        { name: "Venue", placeholder: "Select Venue", type: "text", label: "Venue" },
+        { name: "numberOfStudents", placeholder: "Choose number of students", type: "number", label: "Number of students" },
+        { name: "holidayCamps", placeholder: "Choose holiday camp(s)", type: "select", label: "Select Camp(s)", options: ["", "Camp 1", "Camp 2"] },
+        { name: "discount", placeholder: "Apply discount", type: "select", label: "Apply Discount", options: ["Select A Discount Code", "IVH4654G#22"] },
+    ];
+
     const studentInputs = [
         { name: "firstName", placeholder: "Enter First Name", type: "text", label: "First Name" },
         { name: "lastName", placeholder: "Enter Last Name", type: "text", label: "Last Name" },
         { name: "dob", placeholder: "Date of Birth", type: "date", label: "Date Of Birth" },
         { name: "age", placeholder: "Automatic Entry", type: "text", label: "Age" },
+        { name: "gender", placeholder: "Gender", type: "select", options: ["Male", "Female"], label: "Gender" },
         { name: "medical", placeholder: "Enter Medical Information", type: "text", label: "Medical Information" },
-        { name: "ability", placeholder: "", type: "select", options: ["Select Ability Level"], label: "Ability Levels" },
+        { name: "class", placeholder: "Class", type: "select", options: ["4-7 Years", "5-9 Years"], label: "Class" },
+        { name: "time", placeholder: "Automatic Entry", type: "text", label: "Time" },
     ];
 
     const parentInputs = [
@@ -310,7 +301,15 @@ const General = () => {
         { name: "lastName", placeholder: "Enter Last Name", type: "text", label: "Last Name" },
         { name: "email", placeholder: "Enter Email", type: "email", label: "Email" },
         { name: "phone", placeholder: "Phone Number", type: "phone", label: "Phone Number" },
+        { name: "relation", placeholder: "Relation", type: "select", options: ["Mother", "Father"], label: "Relation To Child" },
         { name: "referral", placeholder: "How did you hear about us?", type: "select", options: ["Friend", "Website", "Other"], label: "How Did You Hear About Us" },
+    ];
+
+    const emergencyInputs = [
+        { name: "firstName", placeholder: "Enter First Name", type: "text", label: "First Name" },
+        { name: "lastName", placeholder: "Enter Last Name", type: "text", label: "Last Name" },
+        { name: "phone", placeholder: "Phone Number", type: "phone", label: "Phone Number" },
+        { name: "relation", placeholder: "Relation", type: "select", options: ["Mother", "Father"], label: "Relation To Child" },
     ];
 
     const renderInputs = (inputs, section, index = null) => (
@@ -319,7 +318,7 @@ const General = () => {
                 <div key={idx}>
                     <label className="block text-[16px] font-semibold">{input.label}</label>
 
-                    {/* TEXT / EMAIL / NUMBER / TEXTAREA */}
+
                     {["text", "email", "number", "textarea"].includes(input.type) &&
                         (input.type === "textarea" ? (
                             <textarea
@@ -335,10 +334,10 @@ const General = () => {
                             />
                         ) : (
                             <div
-                                className={`flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2 ${input.name === "location" || input.name === "address" ? "gap-2" : ""
+                                className={`flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2 ${input.name === "Venue" || input.name === "address" ? "gap-2" : ""
                                     }`}
                             >
-                                {(input.name === "location" || input.name === "address") && (
+                                {(input.name === "Venue" || input.name === "address") && (
                                     <Search className="w-5 h-5 text-gray-500 flex-shrink-0" />
                                 )}
                                 <input
@@ -384,7 +383,7 @@ const General = () => {
                         />
                     )}
 
-                    {/* DATE */}
+
                     {input.type === "date" && (
                         <div className="mt-2">
                             <DatePicker
@@ -412,7 +411,7 @@ const General = () => {
                         </div>
                     )}
 
-                    {/* PHONE */}
+
                     {input.type === "phone" && (
                         <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                             <PhoneInput
@@ -451,25 +450,105 @@ const General = () => {
     );
 
     return (
-        <>
-            <div className="flex">
-                <div className="md:w-[66%] pe-4">
+        <div className="md:p-6 min-h-screen">
+            <div className="flex justify-between mb-5">
+                <h2
+                className="flex gap-2 items-center text-2xl font-bold"
+                    onClick={() => {
+                        navigate(`/`)
+                    }}>
+                    <img
+                        src="/demo/synco/icons/arrow-left.png"
+                        alt="Back"
+                        className="w-5 h-5 md:w-6 md:h-6"
+                    />
+                    Book a Holiday Camp
+                </h2>
+                <ul className="flex gap-4 items-center">
+                    <li className="max-w-[40px]"><img src="/demo/synco/images/icon1.png" alt="" /></li>
+                    <li className="max-w-[40px]"><img src="/demo/synco/images/calendar-circle.png" alt="" /></li>
+                    <li className="max-w-[40px]"><img src="/demo/synco/images/calendar-circle-2.png" alt="" /></li>
+                </ul>
+            </div>
+            <div className="flex flex-col md:flex-row gap-6">
+
+                <div className="md:w-[30%]">
+                    <section className="bg-white rounded-2xl p-4">
+                        <h3 className="text-xl font-bold text-[#282829] pb-4">Enter Information</h3>
+                        {renderInputs(generalInputs, "general")}
+
+
+                    </section>
+
+                </div>
+
+                <div className="md:w-[70%] space-y-5">
                     <section className="bg-white rounded-2xl p-4">
                         <h3 className="text-xl font-bold text-[#282829] pb-4">Student Information</h3>
                         {renderInputs(studentInputs, "student")}
                     </section>
 
-                    <section className="bg-white rounded-2xl p-4 mt-5">
+                    <section className="bg-white rounded-2xl p-4">
                         <div className="flex justify-between items-center pb-4">
                             <h3 className="text-xl font-bold text-[#282829]">Parent Information</h3>
-
+                            <button
+                                type="button"
+                                disabled={formData.parent.length == 3}
+                                onClick={addParent}
+                                className="bg-[#237FEA] text-sm px-4 py-2 rounded-xl text-white hover:bg-[#1e6fd2] transition"
+                            >
+                                + Add Parent
+                            </button>
                         </div>
                         {formData.parent.map((_, index) => (
-                            <div key={index} className="rounded-xl p-4 mb-4 ">
+                            <div key={index} className="border border-gray-200 rounded-xl p-4 mb-4 ">
+                                <h4 className="font-semibold text-gray-700 mb-3">Parent {index + 1}</h4>
                                 {renderInputs(parentInputs, "parent", index)}
                             </div>
                         ))}
                     </section>
+
+                    <section className="bg-white rounded-2xl p-4">
+                        <div className="pb-4">
+                            <h3 className="text-xl font-bold text-[#282829]">Emergency Contact Details</h3>
+                            <div className="flex items-center gap-2 mt-3">
+                                <input
+                                    type="checkbox"
+                                    checked={sameAsAbove}
+                                    onChange={handleSameAsAbove}
+                                    className="cursor-pointer w-4 h-4"
+                                />
+                                <label className="text-base font-semibold text-gray-700">
+                                    Fill same as above
+                                </label>
+                            </div>
+                        </div>
+                        {renderInputs(emergencyInputs, "emergency")}
+                    </section>
+
+                    <div
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="flex items-center justify-between text-[20px] p-3 border border-gray-200 rounded-xl cursor-pointer bg-white shadow-md hover:border-gray-400 transition"
+                    >
+                        <span
+                            className={`${selectedKeyInfo ? "font-medium text-gray-900" : "text-gray-500"
+                                }`}
+                        >
+                            {selectedLabel}
+                        </span>
+                        {isOpen ? (
+                            <ChevronUp className="w-5 h-5 text-gray-500" />
+                        ) : (
+                            <ChevronDown className="w-5 h-5 text-gray-500" />
+                        )}
+                    </div>
+
+                    <div className="flex justify-end gap-4 mt-6">
+                        <button className="px-8 py-2 border border-[#717073] text-[#717073] rounded-md">Cancel</button>
+                        <button onClick={() => setShowPayment(true)} className="bg-[#237FEA] text-sm px-8 py-2 rounded-md text-white hover:bg-[#1e6fd2] transition">
+                            Make Payment
+                        </button>
+                    </div>
 
                     <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
@@ -519,7 +598,7 @@ const General = () => {
                                                     className="w-10 h-10 rounded-full object-cover mt-1"
                                                 />
                                                 <div>
-                                                    <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName} {c?.bookedByAdmin?.lastName}</p>
+                                                    <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName}</p>
                                                 </div>
                                             </div>
                                             <span className="text-gray-400 text-[16px] whitespace-nowrap mt-1">
@@ -563,142 +642,139 @@ const General = () => {
                         )}
                     </div>
                 </div>
-                <div className="md:w-[34%]">
-                    <div className="md:max-w-[510px]">
-                        {/* Status Header */}
-
-
-                        {/* Details Section */}
-                        <div className="bg-[#363E49] text-white rounded-4xl p-6 space-y-3">
-
-                            {/* Status */}
-                            <div
-                                className="text-white rounded-2xl p-4 relative overflow-hidden"
-                                style={{
-                                    backgroundImage: `url('${getBg()}')`,
-                                    backgroundSize: "cover",
-                                    backgroundPosition: "center",
-                                }}
-                            >
-                                <p className="text-[20px] text-black font-bold relative z-10">Status</p>
-                                <p className="text-sm text-black relative z-10 capitalize">
-                                    {status}
-                                </p>
-                            </div>
-
-
-                            {/* Coach */}
-                            <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
-                                <div>
-                                    <img src="/demo/synco/members/user2.png" alt="Coach" className="w-10 h-10 rounded-full object-cover" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-semibold">Coach</h3>
-                                    <p className="text-gray-300 text-sm">
-                                        {oneToOneData?.booking?.coach
-                                            ? `${oneToOneData.booking.coach.firstName} ${oneToOneData.booking.coach.lastName}`
-                                            : "N/A"}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Venue */}
-                            <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Venue</p>
-                                <span className="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded-md mt-1">
-                                    {oneToOneData?.booking?.location || "N/A"}
-                                </span>
-                            </div>
-
-                            {/* Parent */}
-                            <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Parent Name</p>
-                                <p className="text-[16px] mt-1 text-[#BDC0C3]">
-                                    {oneToOneData?.booking?.parents?.[0]
-                                        ? `${oneToOneData.booking.parents[0].parentFirstName} ${oneToOneData.booking.parents[0].parentLastName}`
-                                        : oneToOneData?.parentName || "N/A"}
-                                </p>
-                            </div>
-
-                            {/* Date of Class */}
-                            <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Date of Class</p>
-                                <p className="text-[16px] mt-1 text-[#BDC0C3]">
-                                    {oneToOneData?.booking?.date
-                                        ? new Date(oneToOneData.booking.date).toLocaleDateString("en-GB", {
-                                            day: "2-digit",
-                                            month: "short",
-                                            year: "numeric",
-                                        })
-                                        : "N/A"}
-                                </p>
-                            </div>
-
-                            {/* Package */}
-                            <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Package</p>
-                                <p className="text-[16px] mt-1 text-[#BDC0C3]">
-                                    {oneToOneData?.booking?.paymentPlan?.title || oneToOneData?.packageInterest || "N/A"}
-                                </p>
-                            </div>
-
-                            {/* Source */}
-                            <div className="border-b border-[#495362] pb-3">
-                                <p className="text-white text-[18px] font-semibold">Source</p>
-                                <p className="text-[16px] mt-1 text-[#BDC0C3]">
-                                    {oneToOneData?.source || oneToOneData?.booking?.parents?.[0]?.howDidHear || "N/A"}
-                                </p>
-                            </div>
-
-                            {/* Price */}
-                            <div>
-                                <p className="text-white text-[18px] font-semibold">Price</p>
-                                <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">
-                                    £
-                                    {oneToOneData?.booking?.payment?.amount
-                                        ? parseFloat(oneToOneData.booking.payment.amount).toFixed(2)
-                                        : "0.00"}
-                                </p>
-                            </div>
-                        </div>
-
-
-                        {/* Action Buttons */}
-                        <div className="p-6 flex flex-col bg-white rounded-3xl mt-5 items-center space-y-3">
-                            <div className="flex w-full justify-between gap-2">
-                                <button onClick={() => {
-                                    if (bookingId) {
-                                        sendOnetoOneMail(bookingId);
-                                    } else {
-                                        Swal.fire({
-                                            icon: "warning",
-                                            title: "No Students Selected",
-                                            text: "Please select at least one Lead before sending an email.",
-                                            confirmButtonText: "OK",
-                                        });
-                                    }
-                                }} className="flex-1 flex items-center gap-2 justify-center border border-[#717073] text-[#717073] rounded-xl font-semibold py-3 text-[18px] text-[18px]  hover:bg-gray-50 transition">
-                                    <Mail className="w-4 h-4 mr-1" /> Send Email
-                                </button>
-                                <button className="flex-1 flex items-center gap-2 justify-center border border-[#717073] rounded-xl font-semibold py-3 text-[18px] text-[#717073]  hover:bg-gray-50 transition">
-                                    <MessageSquare className="w-4 h-4 mr-1" /> Send Text
-                                </button>
-                            </div>
-
-                            <button className="w-full bg-[#FF6C6C] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-red-600 transition flex items-center justify-center">
-                                Cancel Package
-                            </button>
-
-                            <button className="w-full bg-[#237FEA] text-white text-[18px] py-3 rounded-xl  font-medium hover:bg-blue-700 transition">
-                                Renew Package
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-        </>
-    )
-}
+            {showPayment && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-5">
+                    <div className="bg-white rounded-2xl max-h-[90vh] overflow-auto w-full max-w-lg p-6 relative shadow-lg">
 
-export default General
+                        <button
+                            onClick={() => setShowPayment(null)}
+                            className="absolute top-7 left-6 text-gray-400 hover:text-gray-600"
+                        >
+                            <X />
+                        </button>
+
+                        <h2 className="text-center text-lg font-semibold mb-4 border-b border-[#E2E1E5] pb-4">Payment</h2>
+
+
+                        <div
+                            className="bg-blue-500 text-white rounded-xl p-4 mb-6 text-left font-medium"
+                            style={{ backgroundImage: "url('/demo/synco/frames/holidayCamp.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}
+                        >
+                            <p>Holiday Camp (1 Student)</p>
+                            <p className="text-2xl font-bold">£39.99</p>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="space-y-4">
+
+                            <div>
+                                <h3 className="text-[#282829] font-semibold text-[20px] mb-2">Personal Details</h3>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="flex flex-col">
+                                        <label htmlFor="firstName" className="text-[#282829] text-[16px] font-semibold">First Name</label>
+                                        <input
+                                            type="text"
+                                            name="firstName"
+                                            id="firstName"
+                                            value={paymentData.firstName}
+                                            onChange={handlePaymentChange}
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-2 text-base"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="lastName" className="text-[#282829] text-[16px] font-semibold">Last Name</label>
+                                        <input
+                                            type="text"
+                                            name="lastName"
+                                            id="lastName"
+                                            value={paymentData.lastName}
+                                            onChange={handlePaymentChange}
+                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-2 text-base"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col mt-2">
+                                    <label htmlFor="email" className="text-[#282829] text-[16px] font-semibold mb-1">Email Address</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        id="email"
+                                        value={paymentData.email}
+                                        onChange={handlePaymentChange}
+                                        className="w-full border border-gray-300 rounded-xl px-4 py-2 text-base"
+                                    />
+                                </div>
+
+                                <div className="flex flex-col mt-2">
+                                    <label htmlFor="billingAddress" className="text-[#282829] text-[16px] font-semibold mb-1">Billing Address</label>
+                                    <input
+                                        type="text"
+                                        name="billingAddress"
+                                        id="billingAddress"
+                                        value={paymentData.billingAddress}
+                                        onChange={handlePaymentChange}
+                                        className="w-full border border-gray-300 rounded-xl px-4 py-2 text-base"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Bank Details */}
+                            <div>
+                                <h3 className="[text-[#282829] font-semibold text-[20px] mb-2">Bank Details</h3>
+                                <div className="flex flex-col">
+                                    <label htmlFor="cardNumber" className="text-[#282829] text-[16px] font-semibold mb-1">Card Number</label>
+                                    <input
+                                        type="text"
+                                        name="cardNumber"
+                                        id="cardNumber"
+                                        value={paymentData.cardNumber}
+                                        onChange={handlePaymentChange}
+                                        className="w-full border border-gray-300 rounded-xl px-4 py-2 text-base"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-2 mt-2">
+                                    <div className="flex flex-col">
+                                        <label htmlFor="expiryDate" className="text-[#282829] text-[16px] font-semibold mb-1">Expiry Date</label>
+                                        <input
+                                            type="text"
+                                            name="expiryDate"
+                                            id="expiryDate"
+                                            value={paymentData.expiryDate}
+                                            onChange={handlePaymentChange}
+                                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-base"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <label htmlFor="securityCode" className="text-[#282829] text-[16px] font-semibold mb-1">Security Code</label>
+                                        <input
+                                            type="text"
+                                            name="securityCode"
+                                            id="securityCode"
+                                            value={paymentData.securityCode}
+                                            onChange={handlePaymentChange}
+                                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-base"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                className="w-full bg-blue-500 text-white rounded-lg py-2 mt-4 hover:bg-blue-600 transition"
+                            >
+                                Make Payment
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            )}
+
+        </div>
+    );
+};
+
+export default BookACamp;

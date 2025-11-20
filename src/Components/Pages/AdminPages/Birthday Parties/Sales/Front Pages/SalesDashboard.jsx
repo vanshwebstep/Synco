@@ -88,7 +88,7 @@ const SalesDashboard = () => {
             if (!token) return;
 
             // ✅ Always show loader unless noLoaderShow is true
-            if (noLoaderShow === false) { setLoading(true); }
+            if (!studentName) { setLoading(true); }
 
             try {
                 const queryParams = new URLSearchParams();
@@ -194,7 +194,7 @@ const SalesDashboard = () => {
                 });
             } finally {
                 // ✅ Always stop loader — success or error
-                if (noLoaderShow === false) { setLoading(false); }
+                setLoading(false);
             }
         },
         []
@@ -350,7 +350,7 @@ const SalesDashboard = () => {
         }
     };
     const handleSearch = (e) => {
-        const value = e.target.value.trim();
+        const value = e.target.value;
         setSearchTerm(value);
 
         // If search is cleared, hide loader and optionally reset data
@@ -734,7 +734,7 @@ const SalesDashboard = () => {
                                         <div
                                             className={`p-2 h-[50px] w-[50px] rounded-full ${card.iconStyle} bg-opacity-10 flex items-center justify-center`}
                                         >
-                                            <img src={Icon} alt="" className="p-1"/>
+                                            <img src={Icon} alt="" className="p-1" />
                                         </div>
                                     </div>
                                     <div className="mt-3">
@@ -820,7 +820,7 @@ const SalesDashboard = () => {
                                                         </div>
                                                     </td>
                                                     <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
-                                                    <td className="py-3 px-4 whitespace-nowrap">{lead?.booking?.location  || lead?.booking?.address || "N/A"}</td>
+                                                    <td className="py-3 px-4 min-w-100">{lead?.booking?.location || lead?.booking?.address || "N/A"}</td>
                                                     <td className="py-3 px-4 whitespace-nowrap"> {lead.partyDate
                                                         ? new Date(lead.partyDate).toLocaleDateString("en-GB", {
                                                             day: "numeric",
@@ -829,7 +829,7 @@ const SalesDashboard = () => {
                                                         }).replace(/ /g, "-") // to get "10-Oct-2025"
                                                         : "-"}</td>
                                                     <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
-                                                    <td className="py-3 px-4 whitespace-nowrap">£{lead.booking?.paymentPlan?.price || "N/A"}</td>
+                                                    <td className="py-3 px-4 whitespace-nowrap">£{lead.booking?.payment?.amount || "N/A"}</td>
                                                     <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
                                                     <td className="py-3 px-4 whitespace-nowrap">
                                                         {lead.booking?.coach

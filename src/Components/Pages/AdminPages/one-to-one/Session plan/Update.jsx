@@ -11,12 +11,13 @@ import { usePermission } from "../../Common/permission";
 export default function OnetoOneUpdate() {
     const navigate = useNavigate();
     const exerciseRef = useRef(null);
+    const [photoPreview, setPhotoPreview] = useState([]);
 
     const [sessionGroup, setSessionGroup] = useState([]);
     const [searchParams] = useSearchParams();
     const id = searchParams.get("id");
     const groupName = searchParams.get("groupName");
-const tabs = [];
+    const tabs = [];
 
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -60,7 +61,34 @@ const tabs = [];
     }
 
 
-    // edit fuctionality  
+    const removeImage = (id) => {
+        setPhotoPreview((prev) => {
+            const toDelete = prev.find((img) => img.id === id);
+
+            if (toDelete?.url?.startsWith("blob:")) {
+                URL.revokeObjectURL(toDelete.url);
+            }
+
+            // Remove preview
+            return prev.filter((img) => img.id !== id);
+        });
+
+        // Remove from actual data
+        setExercise((prev) => {
+            const newPreviewList = photoPreview.filter((img) => img.id !== id);
+
+            return {
+                ...prev,
+                image: newPreviewList.map((img) => img.url),
+                imageToSend: newPreviewList
+                    .map((img) => img.file)
+                    .filter((f) => f !== null)
+            };
+        });
+    };
+
+
+
 
     const fetchSessionGroup = useCallback(async () => {
         if (!token) return;
@@ -91,55 +119,55 @@ const tabs = [];
             setLoading(false);
         }
     }, [token, API_BASE_URL]);
- useEffect(() => {
-            if (showExerciseModal) {
-                const isMobile = window.innerWidth <= 769; // mobile + tablet breakpoint
-                exerciseRef.current?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: isMobile ? '' : 'start', // scroll bottom on mobile, top on desktop
-                });
-            }
-        }, [showExerciseModal]);
+    useEffect(() => {
+        if (showExerciseModal) {
+            const isMobile = window.innerWidth <= 769; // mobile + tablet breakpoint
+            exerciseRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: isMobile ? '' : 'start', // scroll bottom on mobile, top on desktop
+            });
+        }
+    }, [showExerciseModal]);
 
-useEffect(() => {
-  if (sessionGroup && Object.keys(sessionGroup).length > 0) {
-    const selectedGroupName = searchParams.get("groupName"); // e.g. Beginner, Intermediate
-    const selectedLevelKey = selectedGroupName?.toLowerCase(); // match keys like beginner, intermediate, etc.
+    useEffect(() => {
+        if (sessionGroup && Object.keys(sessionGroup).length > 0) {
+            const selectedGroupName = searchParams.get("groupName"); // e.g. Beginner, Intermediate
+            const selectedLevelKey = selectedGroupName?.toLowerCase(); // match keys like beginner, intermediate, etc.
 
-    // fallback to first level if not found
-    const levelKey = sessionGroup.levels?.[selectedLevelKey]
-      ? selectedLevelKey
-      : Object.keys(sessionGroup.levels || {})[0];
+            // fallback to first level if not found
+            const levelKey = sessionGroup.levels?.[selectedLevelKey]
+                ? selectedLevelKey
+                : Object.keys(sessionGroup.levels || {})[0];
 
-    const levelData = sessionGroup.levels?.[levelKey]?.[0];
+            const levelData = sessionGroup.levels?.[levelKey]?.[0];
 
-    // 🟢 Transform exercises into value/label pair
-    const formattedExercises = (levelData?.sessionExercises || []).map((ex) => ({
-      value: ex.id,
-      label: `${ex.title?.trim()} - ${ex.duration?.trim()}`,
-    }));
+            // 🟢 Transform exercises into value/label pair
+            const formattedExercises = (levelData?.sessionExercises || []).map((ex) => ({
+                value: ex.id,
+                label: `${ex.title?.trim()} - ${ex.duration?.trim()}`,
+            }));
 
-    setGroupData({
-      groupName: sessionGroup.groupName || "",
-      player: sessionGroup.player || "",
-      skill: levelData?.skillOfTheDay || "",
-      description: levelData?.description || "",
-      exercises: formattedExercises, // ✅ formatted array
-      video: sessionGroup[`${levelKey}_video`]
-        ? {
-            url: sessionGroup[`${levelKey}_video`],
-            file: null,
-          }
-        : null,
-      banner: sessionGroup.banner
-        ? { url: sessionGroup.banner, file: null }
-        : null,
-    });
-  }
-}, [sessionGroup, searchParams]);
+            setGroupData({
+                groupName: sessionGroup.groupName || "",
+                player: sessionGroup.player || "",
+                skill: levelData?.skillOfTheDay || "",
+                description: levelData?.description || "",
+                exercises: formattedExercises, // ✅ formatted array
+                video: sessionGroup[`${levelKey}_video`]
+                    ? {
+                        url: sessionGroup[`${levelKey}_video`],
+                        file: null,
+                    }
+                    : null,
+                banner: sessionGroup.banner
+                    ? { url: sessionGroup.banner, file: null }
+                    : null,
+            });
+        }
+    }, [sessionGroup, searchParams]);
 
 
-console.log('exercises',groupData.exercises)
+    console.log('exercises', groupData.exercises)
 
 
     // edit fuctionality  end 
@@ -184,6 +212,23 @@ console.log('exercises',groupData.exercises)
             });
             const result = await response.json();
             setExercise(result.data || []);
+            const existingImages =
+                typeof result.data?.imageUrl === "string" && result.data?.imageUrl.trim() !== ""
+                    ? JSON.parse(result.data.imageUrl)
+                    : Array.isArray(result.data?.imageUrl)
+                        ? result.data.imageUrl
+                        : [];
+
+            setPhotoPreview(
+                existingImages.map((img, i) => ({
+                    id: `api-${i}-${Date.now()}`,
+                    type: "api",
+                    url: img,
+                    file: null
+                }))
+            );
+
+
         } catch (err) {
             console.error("Failed to fetch packages:", err);
         } finally {
@@ -308,200 +353,200 @@ console.log('exercises',groupData.exercises)
         [token, fetchExercises]
     );
 
-  const deleteExercise = useCallback(
-    async (id) => {
-        if (!token) return;
+    const deleteExercise = useCallback(
+        async (id) => {
+            if (!token) return;
 
-        try {
-            const result = await Swal.fire({
-                title: "Delete Exercise",
-                html: `
+            try {
+                const result = await Swal.fire({
+                    title: "Delete Exercise",
+                    html: `
                     <div class="text-[15px] text-gray-700">
                         Choose how you want to delete this exercise.
                     </div>
                 `,
-                icon: "warning",
-                showCancelButton: true,
-                showDenyButton: true,
-                confirmButtonText: "Permanent Delete",
-                denyButtonText: "Just Remove",
-                cancelButtonText: "Cancel",
-                confirmButtonColor: "#d33",
-                denyButtonColor: "#3b82f6",
-                cancelButtonColor: "#6b7280",
-            });
-
-            // ❌ CANCEL → Do nothing
-            if (result.isDismissed) return;
-
-            // 🟦 JUST REMOVE → Remove only from groupData.exercises
-            if (result.isDenied) {
-                setGroupData((prev) => ({
-                    ...prev,
-                    exercises: prev.exercises.filter((ex) => ex.value !== id),
-                }));
-
-                Swal.fire({
-                    icon: "info",
-                    title: "Removed",
-                    text: "Exercise removed from this group only.",
-                    timer: 1400,
-                    showConfirmButton: false,
-                });
-                return;
-            }
-
-            // 🔴 PERMANENT DELETE → Delete from database & remove from list
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: "Deleting Exercise...",
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading(),
+                    icon: "warning",
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: "Permanent Delete",
+                    denyButtonText: "Just Remove",
+                    cancelButtonText: "Cancel",
+                    confirmButtonColor: "#d33",
+                    denyButtonColor: "#3b82f6",
+                    cancelButtonColor: "#6b7280",
                 });
 
-                const response = await fetch(
-                    `${API_BASE_URL}/api/admin/one-to-one/session-exercise-struture/delete/${id}`,
-                    {
-                        method: "DELETE",
-                        headers: { Authorization: `Bearer ${token}` },
-                    }
-                );
+                // ❌ CANCEL → Do nothing
+                if (result.isDismissed) return;
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    await fetchExercises();
+                // 🟦 JUST REMOVE → Remove only from groupData.exercises
+                if (result.isDenied) {
                     setGroupData((prev) => ({
                         ...prev,
                         exercises: prev.exercises.filter((ex) => ex.value !== id),
                     }));
+
+                    Swal.fire({
+                        icon: "info",
+                        title: "Removed",
+                        text: "Exercise removed from this group only.",
+                        timer: 1400,
+                        showConfirmButton: false,
+                    });
+                    return;
                 }
 
+                // 🔴 PERMANENT DELETE → Delete from database & remove from list
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Deleting Exercise...",
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading(),
+                    });
+
+                    const response = await fetch(
+                        `${API_BASE_URL}/api/admin/one-to-one/session-exercise-struture/delete/${id}`,
+                        {
+                            method: "DELETE",
+                            headers: { Authorization: `Bearer ${token}` },
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        await fetchExercises();
+                        setGroupData((prev) => ({
+                            ...prev,
+                            exercises: prev.exercises.filter((ex) => ex.value !== id),
+                        }));
+                    }
+
+                    Swal.fire({
+                        icon: response.ok ? "success" : "error",
+                        title: response.ok ? "Deleted!" : "Failed",
+                        text: data.message || "Something went wrong.",
+                        timer: 1500,
+                        showConfirmButton: false,
+                    });
+                }
+            } catch (err) {
                 Swal.fire({
-                    icon: response.ok ? "success" : "error",
-                    title: response.ok ? "Deleted!" : "Failed",
-                    text: data.message || "Something went wrong.",
-                    timer: 1500,
-                    showConfirmButton: false,
+                    icon: "error",
+                    title: "Failed to Delete",
+                    text: err.message || "Something went wrong.",
+                });
+                console.error("Failed to delete Exercise:", err);
+            }
+        },
+        [token, fetchExercises]
+    );
+
+
+    const handleSavePlan = async (id) => {
+        if (!token) return;
+
+        try {
+            setLoading(true);
+
+            // Ensure active tab data is merged properly
+            const finalTabsData = {
+                ...savedTabsData,
+                [activeTab.toLowerCase()]: {
+                    ...groupData,
+                    banner: groupData.banner,
+                },
+            };
+
+            console.log("🧩 finalTabsData:", finalTabsData);
+
+            const formData = new FormData();
+            const levels = {};
+
+            Object.entries(finalTabsData).forEach(([level, data]) => {
+                if (!data) return;
+
+                const levelKey = level.toLowerCase();
+
+                levels[levelKey] = [
+                    {
+                        skillOfTheDay: data.skill || "",
+                        description: data.description || "",
+                        sessionExerciseId: Array.isArray(data.exercises)
+                            ? data.exercises.map((ex) => ex.value)
+                            : [],
+                    },
+                ];
+
+                // ✅ Append files only if new
+                if (data.video?.file instanceof File) {
+                    formData.append(`${levelKey}_video`, data.video.file, data.video.file.name);
+                }
+
+                if (data.banner?.file instanceof File) {
+                    formData.append(`${levelKey}_upload`, data.banner.file, data.banner.file.name);
+                }
+            });
+
+
+            // ✅ Append all fields
+            formData.append("id", id); // 👈 must include if updating existing
+            formData.append("levels", JSON.stringify(levels));
+            formData.append("groupName", groupData.groupName || "");
+            formData.append("player", groupData.player || "");
+
+            // ✅ Group-level banner/video
+            if (groupData.banner?.file instanceof File) {
+                formData.append("banner", groupData.banner.file, groupData.banner.file.name);
+            }
+            if (groupData.video?.file instanceof File) {
+                formData.append("video", groupData.video.file, groupData.video.file.name);
+            }
+
+            // ✅ API call
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/update/${id}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: formData,
+                }
+            );
+
+            const data = await response.json();
+            console.log("📦 API Response:", data);
+
+            if (response.ok && data.status) {
+                await Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: data.message || "Group updated successfully.",
+                    confirmButtonColor: "#237FEA",
+                });
+                emptySession();
+                navigate('/one-to-one/session-plan')
+            } else {
+                await Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: data.message || "Failed to update session group.",
+                    confirmButtonColor: "#d33",
                 });
             }
         } catch (err) {
-            Swal.fire({
-                icon: "error",
-                title: "Failed to Delete",
-                text: err.message || "Something went wrong.",
-            });
-            console.error("Failed to delete Exercise:", err);
-        }
-    },
-    [token, fetchExercises]
-);
-    
-
-const handleSavePlan = async (id) => {
-    if (!token) return;
-
-    try {
-        setLoading(true);
-
-        // Ensure active tab data is merged properly
-        const finalTabsData = {
-            ...savedTabsData,
-            [activeTab.toLowerCase()]: {
-                ...groupData,
-                banner: groupData.banner,
-            },
-        };
-
-        console.log("🧩 finalTabsData:", finalTabsData);
-
-        const formData = new FormData();
-        const levels = {};
-
-        Object.entries(finalTabsData).forEach(([level, data]) => {
-            if (!data) return;
-
-            const levelKey = level.toLowerCase();
-
-            levels[levelKey] = [
-                {
-                    skillOfTheDay: data.skill || "",
-                    description: data.description || "",
-                    sessionExerciseId: Array.isArray(data.exercises)
-                        ? data.exercises.map((ex) => ex.value)
-                        : [],
-                },
-            ];
-
-            // ✅ Append files only if new
-            if (data.video?.file instanceof File) {
-                formData.append(`${levelKey}_video`, data.video.file, data.video.file.name);
-            }
-
-            if (data.banner?.file instanceof File) {
-                formData.append(`${levelKey}_upload`, data.banner.file, data.banner.file.name);
-            }
-        });
-
-
-        // ✅ Append all fields
-        formData.append("id", id); // 👈 must include if updating existing
-        formData.append("levels", JSON.stringify(levels));
-        formData.append("groupName", groupData.groupName || "");
-        formData.append("player", groupData.player || "");
-
-        // ✅ Group-level banner/video
-        if (groupData.banner?.file instanceof File) {
-            formData.append("banner", groupData.banner.file, groupData.banner.file.name);
-        }
-        if (groupData.video?.file instanceof File) {
-            formData.append("video", groupData.video.file, groupData.video.file.name);
-        }
-
-        // ✅ API call
-        const response = await fetch(
-            `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/update/${id}`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                body: formData,
-            }
-        );
-
-        const data = await response.json();
-        console.log("📦 API Response:", data);
-
-        if (response.ok && data.status) {
-            await Swal.fire({
-                icon: "success",
-                title: "Success",
-                text: data.message || "Group updated successfully.",
-                confirmButtonColor: "#237FEA",
-            });
-            emptySession();
-            navigate('/one-to-one/session-plan')
-        } else {
+            console.error("❌ Failed to create session group:", err);
             await Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: data.message || "Failed to update session group.",
+                text: "Something went wrong while creating the session group.",
                 confirmButtonColor: "#d33",
             });
+        } finally {
+            setLoading(false);
         }
-    } catch (err) {
-        console.error("❌ Failed to create session group:", err);
-        await Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Something went wrong while creating the session group.",
-            confirmButtonColor: "#d33",
-        });
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
 
 
@@ -551,21 +596,30 @@ const handleSavePlan = async (id) => {
     };
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
-        if (files.length > 0) {
-            const imageUrls = files.map((file) => URL.createObjectURL(file));
 
-            setExercise((prev) => ({
-                ...prev,
-                image: [...(prev.image || []), ...imageUrls], // store preview URLs
-                imageToSend: [...(prev.imageToSend || []), ...files], // store actual files
-            }));
-        }
+        const mapped = files.map((file) => ({
+            id: `local-${file.name}-${Math.random()}`,
+            type: "local",
+            url: URL.createObjectURL(file),
+            file
+        }));
+
+        // update preview
+        setPhotoPreview((prev) => [...prev, ...mapped]);
+
+        // update exercise
+        setExercise((prev) => ({
+            ...prev,
+            image: [...(prev.image || []), ...mapped.map((m) => m.url)],
+            imageToSend: [...(prev.imageToSend || []), ...mapped.map((m) => m.file)]
+        }));
     };
 
-    // Save current tab data excluding banner
-  
 
-console.log('SavedTabsData',savedTabsData)
+    // Save current tab data excluding banner
+
+
+    console.log('SavedTabsData', savedTabsData)
     if (loading) {
         return (
             <>
@@ -633,25 +687,16 @@ console.log('SavedTabsData',savedTabsData)
                             />
                         )}
                         <div className="flex border border-[#E2E1E5] rounded-2xl p-2 mb-6 overflow-auto">
-                  
-                                    <button
-                                        // disabled={isDisabled}
-                                        className={` w-fit p-2 px-4 rounded-xl text-[17px] font-semibold transition-all 
+
+                            <button
+                                className={` w-fit p-2 px-4 rounded-xl text-[17px] font-semibold transition-all 
                 ${activeTab === groupName ? "bg-[#237FEA] text-white" : "text-gray-600 hover:text-[#237FEA]"} 
               `}
-                                    
-                                    >
-                                        {groupName}
-                                    </button>
-                          
 
-
+                            >
+                                {groupName}
+                            </button>
                         </div>
-
-
-
-
-
                         <div>
                             <label className="text-[18px] font-semibold my-2 block text-[#282829]">
                                 Skill of the day
@@ -804,7 +849,7 @@ console.log('SavedTabsData',savedTabsData)
 
                         <div className="flex justify-end" onClick={() => handleSavePlan(sessionGroup.id)}>
                             <button className="w-auto bg-[#237FEA] text-white p-3 py-2 px-10 rounded-xl mt-2 hover:bg-blue-700">
-                                Update session 
+                                Update session
                             </button>
                         </div>
                     </div>
@@ -907,8 +952,14 @@ console.log('SavedTabsData',savedTabsData)
                                 <div>
 
 
-                                    <label className="w-full block cursor-pointer border border-[#237FEA] text-[#237FEA] rounded-xl p-3 py-2 hover:bg-blue-50 transition text-center">
-                                        {exercise.image ? "Update Image" : "Upload Image"}
+
+
+                                    <label
+                                        className="w-full block cursor-pointer border border-[#237FEA] text-[#237FEA] rounded-xl p-3 py-2 hover:bg-blue-50 transition text-center"
+                                    >
+                                        {exercise.image?.length > 0 || exercise.imageUrl?.length > 0
+                                            ? "Update Images"
+                                            : "Upload Images"}
 
                                         <input
                                             type="file"
@@ -917,36 +968,32 @@ console.log('SavedTabsData',savedTabsData)
                                             multiple
                                             onChange={handleImageUpload}
                                         />
-
                                     </label>
 
-                                    <div className="flex flex-wrap gap-4">
+                                    <div className="mt-3 flex flex-wrap gap-4">
 
-                                        {exercise.imageUrl && JSON.parse(exercise.imageUrl).length > 0 && (
-                                            <div className="mt-3 flex flex-wrap gap-3">
-                                                {JSON.parse(exercise.imageUrl).map((img, index) => (
-                                                    <img
-                                                        key={index}
-                                                        src={img}
-                                                        alt={`Preview ${index + 1}`}
-                                                        className="rounded-xl w-40 h-28 object-cover"
-                                                    />
-                                                ))}
+                                        {photoPreview.map((img) => (
+                                            <div key={img.id} className="relative">
+                                                <img
+                                                    src={img.url}
+                                                    alt="preview"
+                                                    className="w-24 h-24 object-cover rounded-md border border-gray-200"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImage(img.id)}
+                                                    className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1.5"
+                                                >
+                                                    ✕
+                                                </button>
                                             </div>
-                                        )}
-                                        {exercise.image && exercise.image.length > 0 && (
-                                            <div className="mt-3 flex flex-wrap gap-3">
-                                                {exercise.image.map((img, index) => (
-                                                    <img
-                                                        key={index}
-                                                        src={img}
-                                                        alt={`Preview ${index + 1}`}
-                                                        className="rounded-xl w-40 h-28 object-cover"
-                                                    />
-                                                ))}
-                                            </div>
-                                        )}
+                                        ))}
+
+
+
                                     </div>
+
+
 
 
                                 </div>
@@ -965,8 +1012,8 @@ console.log('SavedTabsData',savedTabsData)
                         </div>
                     )}
                     <div className="flex justify-end gap-3 mt-5">
-                        <button onClick={() => navigate(`/one-to-one/session-plan-preview?id=${id}`)}  className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex gap-2 items-center">Preview Sessions <FaEye /> </button>
-                        <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700" onClick={() => handleSavePlan(sessionGroup.id)}>Create Group</button>
+                        <button onClick={() => navigate(`/one-to-one/session-plan-preview?id=${id}`)} className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex gap-2 items-center">Preview Sessions <FaEye /> </button>
+                        <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700" onClick={() => handleSavePlan(sessionGroup.id)}>Update Group</button>
                     </div>
 
 

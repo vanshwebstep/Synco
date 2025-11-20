@@ -14,7 +14,7 @@ import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 const General = () => {
     const { data } = useAccountsInfo();
     const { sendBirthdayMail } = useAccountsInfo();
-  const [bookingId, setBookingId] = useState([]);
+    const [bookingId, setBookingId] = useState([]);
 
     useEffect(() => {
         if (data?.id) {
@@ -289,6 +289,25 @@ const General = () => {
         { name: "phone", placeholder: "Phone Number", type: "phone", label: "Phone Number" },
         { name: "referral", placeholder: "How did you hear about us?", type: "select", options: ["Friend", "Website", "Other"], label: "How Did You Hear About Us" },
     ];
+const status =
+  data?.status ||
+  data?.booking?.payment?.paymentStatus ||
+  "N/A";
+
+const getBg = () => {
+  switch (status?.toLowerCase()) {
+    case "pending":
+      return "/demo/synco/frames/Pending.png";
+    case "active":
+      return "/demo/synco/frames/Active.png";
+    case "completed":
+      return "/demo/synco/frames/Completed.png";
+    case "cancelled":
+      return "/demo/synco/frames/Cancelled.png";
+    default:
+      return "/demo/synco/frames/Default.png"; // fallback if needed
+  }
+};
 
     const renderInputs = (inputs, section, index = null) => (
         <div className={`grid ${section === "general" ? "md:grid-cols-1" : "md:grid-cols-2"} gap-4`}>
@@ -549,17 +568,17 @@ const General = () => {
                         <div className="bg-[#363E49] text-white rounded-4xl p-6 space-y-3">
 
                             {/* Status */}
-                            <div
+                              <div
                                 className="text-white rounded-2xl p-4 relative overflow-hidden"
                                 style={{
-                                    backgroundImage: "url('/demo/synco/frames/Active.png')",
+                                    backgroundImage: `url('${getBg()}')`,
                                     backgroundSize: "cover",
                                     backgroundPosition: "center",
                                 }}
                             >
                                 <p className="text-[20px] text-black font-bold relative z-10">Status</p>
                                 <p className="text-sm text-black relative z-10 capitalize">
-                                    {data?.status || data?.booking?.payment?.paymentStatus || "N/A"}
+                                    {status}
                                 </p>
                             </div>
 
@@ -593,6 +612,12 @@ const General = () => {
                                     {data?.booking?.parents?.[0]
                                         ? `${data.booking.parents[0].parentFirstName} ${data.booking.parents[0].parentLastName}`
                                         : data?.parentName || "N/A"}
+                                </p>
+                            </div>
+                            <div className="border-b border-[#495362] pb-3">
+                                <p className="text-white text-[18px] font-semibold">Child Age</p>
+                                <p className="text-[16px] mt-1 text-[#BDC0C3]">
+                                    {data?.age || "N/A"}
                                 </p>
                             </div>
 
@@ -665,9 +690,7 @@ const General = () => {
                                 Cancel Package
                             </button>
 
-                            <button className="w-full bg-[#237FEA] text-white text-[18px] py-3 rounded-xl  font-medium hover:bg-blue-700 transition">
-                                Renew Package
-                            </button>
+
                         </div>
                     </div>
                 </div>

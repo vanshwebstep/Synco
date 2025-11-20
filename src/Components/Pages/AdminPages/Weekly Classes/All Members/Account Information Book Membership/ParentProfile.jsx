@@ -897,7 +897,7 @@ const ParentProfile = ({ profile }) => {
                                 </div>
                              
 
-                                {(status === "active" || status === "frozen" || status === "cancelled") && (
+                                {(status === "active" || status === "frozen" || status !== "cancelled") && (
                                     <button
                                         onClick={() => setaddToWaitingList(true)}
                                         className={`w-full rounded-xl py-3 text-[18px] font-medium transition-shadow duration-300 

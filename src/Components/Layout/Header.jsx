@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2";
 import { useMembers } from "../Pages/AdminPages/contexts/MemberContext";
 import { usePermission } from '../Pages/AdminPages/Common/permission';
+import { useAccountsInfo } from '../Pages/AdminPages/contexts/AccountsInfoContext';
 
 const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpen }) => {
   const isFetchingRef = useRef(false);
@@ -77,6 +78,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
 
   const latestUnread = unreadNotifications[0]; // Show the most recent unread
   const navigate = useNavigate();
+  const { historyActiveTab } = useAccountsInfo();
 
   const routeTitleMap = {
     '': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
@@ -136,21 +138,23 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'weekly-classes/central-leads/create': { title: 'Weekly Classes ' },
     'birthday-party/leads': { title: 'Birthday party  ' },
     'one-to-one/leads/booking-form': { title: 'Booking Form' },
-
-
-
+    'birthday-party/leads/booking-form': { title: 'Booking Form' },
 
   };
   // Extract the part after `/demo/synco/`
   const subPath = location.pathname.split('/demo/synco/')[1] || '';
 
   // Match the longest route
-  const routeInfo =
+  let routeInfo =
     Object.entries(routeTitleMap)
       .sort((a, b) => b[0].length - a[0].length)
       .find(([route]) => subPath.startsWith(route))?.[1]
     || { title: 'Configuration', icon: '/demo/synco/images/Welcomeback.png' };
-
+  // if (historyActiveTab === "History Of Payments") {
+  //   routeInfo = {
+  //     title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png'
+  //   };
+  // }
   const { title, icon: Icon } = routeInfo;
 
   useEffect(() => {

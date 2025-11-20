@@ -164,6 +164,7 @@ export default function Reports() {
   const customStyles = {
     control: (provided) => ({
       ...provided,
+      padding: '2px',
       borderRadius: "10px",
       borderColor: "#ddd",
     }),
@@ -229,47 +230,48 @@ export default function Reports() {
   const statCards = [
     {
       icon: '/demo/synco/reportsIcons/user-group.png',
-      iconStyle: "text-[#3DAFDB]",
+      iconStyle: "bg-[#D9F1FB]",
       title: "Total Leads",
       value: summary?.totalLeads?.thisMonth ?? 0,
       sub: `Last month: ${summary?.totalLeads?.previousMonth ?? 0}`,
     },
     {
       icon: '/demo/synco/reportsIcons/Coins.png',
-      iconStyle: "text-[#6F65F1]",
+      iconStyle: "bg-[#E3E1FB]",
       title: "Number of Sales",
       value: summary?.numberOfSales?.thisMonth ?? 0,
       sub: `Last month: ${summary?.numberOfSales?.previousMonth ?? 0}`,
     },
     {
       icon: '/demo/synco/reportsIcons/Percent.png',
-      iconStyle: "text-[#34AE56]",
+      iconStyle: "bg-[#DDF5E6]",
       title: "Conversion Rate",
       value: summary?.conversionRate?.thisMonth ?? "0%",
       sub: `Last month: ${summary?.conversionRate?.previousMonth ?? "0%"}`,
     },
     {
       icon: '/demo/synco/reportsIcons/pound.png',
-      iconStyle: "text-[#E769BD]",
+      iconStyle: "bg-[#FBE3F2]",
       title: "Revenue Generated",
       value: summary?.revenueGenerated?.thisMonth ?? "£0",
       sub: `Last month: ${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
     },
     {
       icon: '/demo/synco/reportsIcons/Package.png',
-      iconStyle: "text-[#099699]",
+      iconStyle: "bg-[#D4F3F3]",
       title: "Revenue Gold Package",
       value: `£${goldData?.currentRevenue?.toLocaleString() ?? 0}`,
       sub: `vs. previous £${goldData?.lastRevenue?.toLocaleString() ?? 0}`,
     },
     {
       icon: '/demo/synco/reportsIcons/silver-package.png',
-      iconStyle: "text-[#F38B4D]",
+      iconStyle: "bg-[#FDE6D7]",
       title: "Revenue Silver Package",
       value: `£${silverData?.currentRevenue?.toLocaleString() ?? 0}`,
       sub: `vs. previous £${silverData?.lastRevenue?.toLocaleString() ?? 0}`,
     },
   ];
+
 
   /** =====================
    * ✅ UI Layout
@@ -333,7 +335,10 @@ export default function Reports() {
           <div className="space-y-6 md:w-[75%] md:pe-6">
             {/* Students Chart */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h2 className="font-semibold text-[24px] mb-4">One to One Students</h2>
+              <div className="flex justify-between mb-4">
+
+                <h2 className="font-semibold text-[24px] ">One to One Students</h2><EllipsisVertical />
+              </div>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart
@@ -370,14 +375,19 @@ export default function Reports() {
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 12, fill: "#94A3B8" }}
+                      padding={{ bottom: 30 }}   // 👈 add extra space here
+
                     />
 
                     <Tooltip
+                      cursor={false}
                       contentStyle={{
                         borderRadius: "10px",
                         border: "none",
+
                         boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
                       }}
+
                       labelStyle={{ fontWeight: 600 }}
                     />
 
@@ -418,7 +428,7 @@ export default function Reports() {
                     <div key={idx}>
                       <div className="flex justify-between text-sm mb-1">
                         <div className="text-slate-600">{m.name}</div>
-                        <div className="text-slate-400">{m.percentText}</div>
+
                       </div>
 
                       {/* Wrapper (hover trigger) */}
@@ -439,11 +449,14 @@ export default function Reports() {
                         </div>
 
                         {/* Bar */}
-                        <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                          <div
-                            className="h-3 rounded-full bg-blue-500"
-                            style={{ width: `${m.percentage}%` }}
-                          />
+                        <div className="flex gap-2 justify-between items-center">
+                          <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                            <div
+                              className="h-3 rounded-full bg-blue-500"
+                              style={{ width: `${m.percentage}%` }}
+                            />
+                          </div>
+                          <div className="text-slate-400">{m.percentText}</div>
                         </div>
 
                       </div>
@@ -471,13 +484,16 @@ export default function Reports() {
                       <div className="flex-1">
                         <div className="flex justify-between">
                           <div className="text-sm font-medium">{a.name}</div>
-                          <div className="text-sm text-slate-400">{a.value}</div>
+
                         </div>
-                        <div className="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden">
-                          <div
-                            className="h-2 rounded-full bg-blue-400"
-                            style={{ width: `${(a.value / 10) * 100}%` }}
-                          />
+                        <div className="flex justify-between items-center gap-2">
+                          <div className="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden">
+                            <div
+                              className="h-2 rounded-full bg-blue-400"
+                              style={{ width: `${(a.value / 10) * 100}%` }}
+                            />
+                          </div>
+                          <div className="text-sm text-slate-400">{a.value}</div>
                         </div>
                       </div>
                     </div>
@@ -491,7 +507,9 @@ export default function Reports() {
           <div className="md:w-[25%] space-y-6">
             {/* Package Breakdown */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-semibold mb-4">Package Breakdown</h3>
+              <div className="flex justify-between mb-4">
+                <h3 className="font-semibold ">Package Breakdown</h3><EllipsisVertical />
+              </div>
               <div className="h-60">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -534,66 +552,73 @@ export default function Reports() {
               <div className="flex justify-between text-sm mt-2">
                 {pieData.map((p, idx) => (
                   <div key={idx}>
-                    <div className="text-slate-500">{p.name} Package</div>
-                    <div className="font-semibold">{p.value ?? 0}</div>
+                    <div className="text-slate-500 flex gap-1 capitalize"><span className="" style={{ color: COLORS[idx % COLORS.length] }}>●</span>
+                      {p.name}</div>
+                    <div className="font-semibold pl-3 mt-2">{p.value ?? 0}</div>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Renewal Breakdown */}
-        <div className="bg-white rounded-2xl p-5 shadow-sm">
-  <div className="flex justify-between item-center mb-2">
-                  <h3 className="font-semibold mb-4">Renewal Breakdown</h3>
-                  <EllipsisVertical className="text-gray-500" />
-                </div>
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+              <div className="flex justify-between item-center mb-2">
+                <h3 className="font-semibold mb-4">Renewal </h3>
+                <EllipsisVertical className="text-gray-500" />
+              </div>
 
-  {renewalData.map((r, idx) => {
-    const percent = r.percentage ?? 0; // fallback
+              {renewalData.map((r, idx) => {
+                const percent = r.percentage ?? 0; // fallback
 
-    return (
-      <div key={idx} className="mb-3">
-        {/* Label + % */}
-        <div className="flex justify-between text-sm mb-1">
-          <div>{r.name}</div>
-          <div>{percent}%</div>
-        </div>
+                return (
+                  <div key={idx} className="mb-3">
+                    {/* Label + % */}
+                    <div className="flex justify-between text-sm mb-1">
+                      <div>{r.name}</div>
+                    </div>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-          <div
-            className="h-3 bg-blue-500 rounded-full transition-all duration-300"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-      </div>
-    );
-  })}
-</div>
+                    {/* Progress Bar */}
+                    <div className="flex justify-between items-center gap-2"> <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                      <div
+                        className="h-3 bg-blue-500 rounded-full transition-all duration-300"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                      <p className="text-xs md:w-[10%]">{percent}%</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
 
             {/* Revenue by Package */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
               <div className="flex justify-between item-center mb-2">
-                  <h3 className="font-semibold mb-4">Revenue by Package</h3>
-                  <EllipsisVertical className="text-gray-500" />
-                </div>
+                <h3 className="font-semibold mb-4">Revenue by Package</h3>
+                <EllipsisVertical className="text-gray-500" />
+              </div>
               <div className="space-y-3">
                 {revenueByPackage.map((pkg, idx) => (
-                  <div key={idx} className="p-3 bg-slate-50 rounded-lg">
-                    <div className="flex justify-between">
+                  <div key={idx} className="  rounded-lg">
+                    <div className="">
                       <div>
-                        <div className="text-sm text-slate-500">{pkg.name}</div>
-                        <div className="font-semibold">£{pkg.currentRevenue}</div>
+                        <div className="text-[20px] font-semibold text-[#101828]">{pkg.name}</div>
+                        <div className="font-semibold text-[#717073] text-[16px]">£{pkg.currentRevenue}</div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xs text-slate-400">Revenue Growth</div>
-                        <div className="font-semibold text-sm">{pkg.revenueGrowth}%</div>
-                        <div
-                          className={`text-xs ${pkg.revenueGrowth < 0 ? "text-red-500" : "text-green-500"
-                            }`}
-                        >
-                          vs last month £{pkg.lastRevenue}
+                      <div className="flex items-center gap-4">
+                        <div className=" ">
+                          <img src="/demo/synco/icons/growth.png" alt="" className="w-[60px]" />
+                        </div>
+                        <div className="">
+                          <div className="text-[16px] font-semibold">Revenue Growth</div>
+                          <div className="font-semibold text-[24px] ">{pkg.revenueGrowth}%</div>
+                          <div
+                            className={`text-xs font-semibold ${pkg.revenueGrowth < 0 ? "text-red-500" : "text-[#717073]"
+                              }`}
+                          >
+                            vs last month {pkg.lastRevenue} %
+                          </div>
                         </div>
                       </div>
                     </div>

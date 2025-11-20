@@ -56,7 +56,7 @@ const AllDashboard = () => {
     const [selectedPackages, setSelectedPackages] = useState([]);
     const [selectedSources, setSelectedSources] = useState([]);
     const [selectedLocation, setSelectedLocation] = useState("");
-    const [tempSelectedAgent, setTempSelectedAgent] = useState(null);
+    const [venues, setVenues] = useState([]);
     const [savedAgent, setSavedAgent] = useState([]);
     function formatLocalDate(dateString) {
         const d = new Date(dateString);
@@ -78,13 +78,13 @@ const AllDashboard = () => {
             packageIntrest = "",
             source = "",
             location = "",
-            toDateToSend,
             fromDateToSend,
+            toDateToSend,
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
             // ✅ Always show loader unless noLoaderShow is true
-            if (noLoaderShow === false) { setLoading(true); }
+            if (!studentName) { setLoading(true); }
 
             try {
                 const queryParams = new URLSearchParams();
@@ -106,9 +106,9 @@ const AllDashboard = () => {
                     queryParams.append("source", source.join(","));
 
                 if (typeof location === "string" && location.trim())
-                    queryParams.append("location", location.trim());
+                    queryParams.append("address", location.trim());
                 else if (Array.isArray(location) && location.length > 0)
-                    queryParams.append("location", location.join(","));
+                    queryParams.append("address", location.join(","));
 
                 // ✅ Date range
                 if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
@@ -152,12 +152,13 @@ const AllDashboard = () => {
                 });
 
                 const resultRaw = await response.json();
-                setMyVenues(resultRaw?.locations)
+                setMyVenues(resultRaw?.allAddress);
+
                 if (resultRaw.agentList) setAgentList(resultRaw.agentList);
                 if (resultRaw.coachList) setCoachList(resultRaw.coachList);
                 setLeadsData(resultRaw.data || []);
                 setSummary(resultRaw.summary);
-                if (noLoaderShow === false) { setLoading(false); }
+                setLoading(false);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
             }
@@ -231,6 +232,7 @@ const AllDashboard = () => {
         }
         setShowPopup(false);
     };
+    const updatedLeadData = leadsData.filter(items => items?.booking)
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log('formData', formData)
@@ -317,7 +319,7 @@ const AllDashboard = () => {
         }
     };
     const handleSearch = (e) => {
-        const value = e.target.value.trim();
+        const value = e.target.value;
         setSearchTerm(value);
 
         // If search is cleared, hide loader and optionally reset data
@@ -326,15 +328,8 @@ const AllDashboard = () => {
             fetchLeads(""); // optional: reload default list
             return;
         }
+        fetchLeads(value);
 
-        // Show loader while searching
-        setNoLoaderShow(false);
-
-        // Debounce to prevent too many API calls while typing
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(() => {
-            fetchLeads(value);
-        }, 400);
     };
 
     const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -752,24 +747,22 @@ const AllDashboard = () => {
                                                                         <Check size={16} strokeWidth={3} className="text-gray-500" />
                                                                     )}
                                                                 </button>
-                                                                {lead.parentName || "N/A"}
+                                                                {lead.parentName || "-"}
                                                             </div>
                                                         </td>
 
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.age || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.address || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.date || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.paymentPlan?.price || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.source || "N/A"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.age || "-"}</td>
+                                                        <td className="py-3 px-4 min-w-100 ">{lead.booking?.address || "-"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.date || "-"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "-"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.payment?.amount || "-"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.source || "-"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">
-
-
 
                                                             {lead?.booking?.coach?.firstName ? (
                                                                 lead?.booking?.coach?.firstName + " " + lead?.booking?.coach?.lastName
                                                             ) : (
-                                                                <td>N/A</td>
+                                                                <td>-</td>
 
                                                             )}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">
@@ -786,7 +779,7 @@ const AllDashboard = () => {
                                                                                     : "bg-gray-100 text-gray-500"
                                                                     }`}
                                                             >
-                                                                {lead.status || "N/A"}
+                                                                {lead.status || "-"}
                                                             </span>
 
                                                         </td>
@@ -830,9 +823,9 @@ const AllDashboard = () => {
                             <label htmlFor="" className="text-base font-semibold">Venue</label>
                             <div className="relative mt-2 ">
                                 <Select
-                                    options={myVenues?.map((venue) => ({
-                                        label: venue, // or `${venue.name} (${venue.area})`
-                                        value: venue,
+                                    options={updatedLeadData?.map((item) => ({
+                                        label: item?.booking?.address, // or `${venue.name} (${venue.area})`
+                                        value: item?.booking?.address,
                                     }))}
                                     value={selectedVenue}
                                     onChange={(venue) => setSelectedVenue(venue)}

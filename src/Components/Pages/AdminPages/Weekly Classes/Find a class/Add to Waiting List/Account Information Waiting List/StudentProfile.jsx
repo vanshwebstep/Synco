@@ -15,6 +15,7 @@ import { addDays } from "date-fns";
 import { FaEdit, FaSave } from "react-icons/fa";
 import { useNotification } from '../../../../contexts/NotificationContext';
 import Swal from "sweetalert2";
+import { useNavigate } from 'react-router-dom';
 const StudentProfile = ({ profile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const {
@@ -30,7 +31,7 @@ const StudentProfile = ({ profile }) => {
     const parentsList = profile?.parents || [];
     const emergencyList = profile?.emergency || [];
     const [editingIndex, setEditingIndex] = useState(null);
-
+const navigate = useNavigate();
     const [students, setStudents] = useState(profile?.students || []);
     const [commentsList, setCommentsList] = useState([]);
     const [comment, setComment] = useState('');

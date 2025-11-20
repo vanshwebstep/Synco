@@ -12,8 +12,8 @@ const ParentProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const { adminInfo, setAdminInfo } = useNotification();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { formData, setFormData, emergency, setEmergency, handleUpdate,students } = useAccountsInfo();
-  console.log('students',students)
+  const { formData, setFormData, emergency, setEmergency, handleUpdate, students } = useAccountsInfo();
+  console.log('students', students)
 
   const [commentsList, setCommentsList] = useState([]);
   const [comment, setComment] = useState('');
@@ -32,7 +32,7 @@ const ParentProfile = () => {
     setCurrentPage(page);
   };
 
- 
+
 
   const relationOptions = [
     { value: "Mother", label: "Mother" },
@@ -48,12 +48,12 @@ const ParentProfile = () => {
     howDidHear: "",
   });
 
-  const [dialCodes, setDialCodes] = useState(["+1", "+1"]);
-  const [dialCodesEmergency, setDialCodesEmergency] = useState(["+1", "+1"]);
+  const [dialCodes, setDialCodes] = useState(["", ""]);
+  const [dialCodesEmergency, setDialCodesEmergency] = useState(["", ""]);
   const [countries, setCountries] = useState(["us", "us"]);
   const [countriesEmergency, setCountriesEmergency] = useState(["us", "us"]);
-  const [dialCodeEmergency, setDialCodeEmergency] = useState("+1");
-  const [dialCode, setDialCode] = useState("+1");
+  const [dialCodeEmergency, setDialCodeEmergency] = useState("");
+  const [dialCode, setDialCode] = useState("");
   const [country, setCountry] = useState("us");
   const [countryEmergency, setCountryEmergency] = useState("us");
 
@@ -84,16 +84,16 @@ const ParentProfile = () => {
 
 
   const handleModalChange = (e) => {
-  // For standard input fields
-  const { name, value } = e.target;
-  setNewParent((prev) => ({ ...prev, [name]: value }));
-};
+    // For standard input fields
+    const { name, value } = e.target;
+    setNewParent((prev) => ({ ...prev, [name]: value }));
+  };
 
-// Handle react-select separately
-const handleSelectChangeNew = (selectedOption, actionMeta) => {
-  const { name } = actionMeta;
-  setNewParent((prev) => ({ ...prev, [name]: selectedOption.value }));
-};
+  // Handle react-select separately
+  const handleSelectChangeNew = (selectedOption, actionMeta) => {
+    const { name } = actionMeta;
+    setNewParent((prev) => ({ ...prev, [name]: selectedOption.value }));
+  };
 
 
   // Handle phone input changes
@@ -104,17 +104,17 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
         i === index ? { ...parent, phoneNumber: value } : parent
       )
     );
- 
+
   };
 
   const handlePhoneChangeNew = (e) => {
-  const value = e.target.value;
+    const value = e.target.value;
 
-  setNewParent((prev) => ({
-    ...prev,
-    phoneNumber: value,
-  }));
-};
+    setNewParent((prev) => ({
+      ...prev,
+      phoneNumber: value,
+    }));
+  };
 
 
 
@@ -237,11 +237,42 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
       });
     }
   }
+
+  const validateParent = () => {
+  let newErrors = {};
+
+  if (!newParent.parentFirstName.trim()) newErrors.parentFirstName = "First name is required";
+  if (!newParent.parentLastName.trim()) newErrors.parentLastName = "Last name is required";
+  if (!newParent.parentEmail.trim()) newErrors.parentEmail = "Email is required";
+  if (!newParent.phoneNumber.trim()) newErrors.phoneNumber = "Phone number is required";
+  if (!newParent.relationChild) newErrors.relationChild = "Relation is required";
+  if (!newParent.howDidHear) newErrors.howDidHear = "This field is required";
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0; // returns true if valid
+};
+
   // Add parent from modal
   const handleAddParent = () => {
+  if (
+    !newParent.parentFirstName?.trim() ||
+    !newParent.parentLastName?.trim() ||
+    !newParent.parentEmail?.trim() ||
+    !newParent.phoneNumber?.trim() ||
+    !newParent.relationChild ||
+    !newParent.howDidHear
+  ) {
+    Swal.fire({
+      icon: "error",
+      title: "Missing Required Fields",
+      text: "Please fill all required fields before saving.",
+      confirmButtonColor: "#237FEA",
+    });
+    return;
+  }
     setFormData((prev) => [...prev, newParent]);
     // Create the updated students array
-    const updatedStudents = [...formData, { ...newParent,studentId :students[0]?.id }];
+    const updatedStudents = [...formData, { ...newParent, studentId: students[0]?.id }];
 
     // Update local state
     setFormData(updatedStudents);
@@ -257,7 +288,7 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
       relationChild: "",
       howDidHear: "",
     });
-    setDialCode("+1");
+    setDialCode("");
     setCountry("us");
   };
   const handleCountryChange = (index, countryData) => {
@@ -313,20 +344,24 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
     fetchComments();
   }, [fetchComments])
 
+  console.log('formData',formData.length)
+
   return (
     <>
       <div className="">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
+          {formData.length < 3 && (
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
 
-          <button
-            type="button"
-            onClick={() => setShowModal(true)}
+              className="bg-[#237FEA] md:absolute right-0 -top-0 text-sm px-4 py-2 rounded-xl text-white hover:bg-[#1e6fd2] transition"
+            >
+              Add Parent
+            </button>
 
-            className="bg-[#237FEA] md:absolute right-0 -top-0 text-sm px-4 py-2 rounded-xl text-white hover:bg-[#1e6fd2] transition"
-          >
-            Add Parent
-          </button>
+          )}
         </div>
 
         {/* Render multiple parent sections */}
@@ -557,7 +592,6 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
                       }}
                       buttonClass="!bg-white !border-none !p-0"
                     />
-                    <span className="text-gray-600 mr-2">{dialCode}</span>
                     <input
                       type="tel"
                       name="phoneNumber"

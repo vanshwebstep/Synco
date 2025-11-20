@@ -111,6 +111,8 @@ import BirthdayUpdate from './Components/Pages/AdminPages/Birthday Parties/Sessi
 import BirthdayReports from './Components/Pages/AdminPages/Birthday Parties/Reports.jsx';
 import AccountMainBirthDay from './Components/Pages/AdminPages/Birthday Parties/Sales/Info/AccountMainBirthday.jsx';
 import SeeDetailsAccountBirthday from './Components/Pages/AdminPages/Birthday Parties/Sales/Info/SeeDetailsAccountBirthday.jsx';
+import BookACamp from './Components/Pages/AdminPages/holiday-camps/BookACamp.jsx';
+import StudentCamp from './Components/Pages/AdminPages/holiday-camps/StudentCamp.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -587,7 +589,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-         <Route path="/birthday-party/session-plan-update" element={
+      <Route path="/birthday-party/session-plan-update" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -614,7 +616,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-         <Route path="/birthday-party/reports" element={
+      <Route path="/birthday-party/reports" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -623,7 +625,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-         <Route path="/birthday-party/sales/account-information" element={
+      <Route path="/birthday-party/sales/account-information" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -632,11 +634,29 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-         <Route path="/birthday-party/sales/account-information/see-details" element={
+      <Route path="/birthday-party/sales/account-information/see-details" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
               <SeeDetailsAccountBirthday />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/holiday-camp" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <StudentCamp />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/holiday-camp/find-a-camp" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <BookACamp />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

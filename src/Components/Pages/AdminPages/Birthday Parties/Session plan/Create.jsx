@@ -27,6 +27,8 @@ export default function BirthdayCreate() {
         banner: null,
     });
 
+
+
     const MultiValue = () => null; // Hides the default selected boxes
     const [savedTabsData, setSavedTabsData] = useState({});
     const [exercises, setExercises] = useState([]);
@@ -53,6 +55,36 @@ export default function BirthdayCreate() {
         });
         setSavedTabsData(null);
     }
+
+    const [photoPreview, setPhotoPreview] = useState([]);
+
+    const removeImage = (id) => {
+        setPhotoPreview((prev) => {
+            const toDelete = prev.find((img) => img.id === id);
+
+            if (toDelete?.url?.startsWith("blob:")) {
+                URL.revokeObjectURL(toDelete.url);
+            }
+
+            // Remove preview
+            return prev.filter((img) => img.id !== id);
+        });
+
+        // Remove from actual data
+        setExercise((prev) => {
+            const newPreviewList = photoPreview.filter((img) => img.id !== id);
+
+            return {
+                ...prev,
+                image: newPreviewList.map((img) => img.url),
+                imageToSend: newPreviewList
+                    .map((img) => img.file)
+                    .filter((f) => f !== null)
+            };
+        });
+    };
+
+
     useEffect(() => {
         if (showExerciseModal) {
             const isMobile = window.innerWidth <= 769; // mobile + tablet breakpoint
@@ -103,6 +135,24 @@ export default function BirthdayCreate() {
             });
             const result = await response.json();
             setExercise(result.data || []);
+            const existingImages =
+                typeof result.data?.imageUrl === "string" && result.data?.imageUrl.trim() !== ""
+                    ? JSON.parse(result.data.imageUrl)
+                    : Array.isArray(result.data?.imageUrl)
+                        ? result.data.imageUrl
+                        : [];
+
+            setPhotoPreview(
+                existingImages.map((img, i) => ({
+                    id: `api-${i}-${Date.now()}`,
+                    type: "api",
+                    url: img,
+                    file: null
+                }))
+            );
+
+
+
         } catch (err) {
             console.error("Failed to fetch packages:", err);
         } finally {
@@ -454,16 +504,25 @@ export default function BirthdayCreate() {
     };
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
-        if (files.length > 0) {
-            const imageUrls = files.map((file) => URL.createObjectURL(file));
 
-            setExercise((prev) => ({
-                ...prev,
-                image: [...(prev.image || []), ...imageUrls],
-                imageToSend: [...(prev.imageToSend || []), ...files],
-            }));
-        }
+        const mapped = files.map((file) => ({
+            id: `local-${file.name}-${Math.random()}`,
+            type: "local",
+            url: URL.createObjectURL(file),
+            file
+        }));
+
+        // update preview
+        setPhotoPreview((prev) => [...prev, ...mapped]);
+
+        // update exercise
+        setExercise((prev) => ({
+            ...prev,
+            image: [...(prev.image || []), ...mapped.map((m) => m.url)],
+            imageToSend: [...(prev.imageToSend || []), ...mapped.map((m) => m.file)]
+        }));
     };
+
 
     // Save current tab data excluding banner
     const saveCurrentTab = () => {
@@ -607,30 +666,30 @@ export default function BirthdayCreate() {
         // ✅ Now submit everything
         await handleSavePlan(finalData);
     };
-const handleRemoveImage = (indexToRemove) => {
-  setExercise(prev => {
-    const merged = [...prev.mergedImages];
-    merged.splice(indexToRemove, 1);
+    const handleRemoveImage = (indexToRemove) => {
+        setExercise(prev => {
+            const merged = [...prev.mergedImages];
+            merged.splice(indexToRemove, 1);
 
-    let serverImages = [];
-    let localImages = [];
+            let serverImages = [];
+            let localImages = [];
 
-    // Split merged array again
-    merged.forEach((img, idx) => {
-      if (idx < prev.serverCount) serverImages.push(img);
-      else localImages.push(img);
-    });
+            // Split merged array again
+            merged.forEach((img, idx) => {
+                if (idx < prev.serverCount) serverImages.push(img);
+                else localImages.push(img);
+            });
 
-    return {
-      ...prev,
-      mergedImages: merged,
-      imageUrl: JSON.stringify(serverImages),
-      serverCount: serverImages.length,
-      image: localImages,
-      imageToSend: prev.imageToSend?.slice(0, localImages.length) || []
+            return {
+                ...prev,
+                mergedImages: merged,
+                imageUrl: JSON.stringify(serverImages),
+                serverCount: serverImages.length,
+                image: localImages,
+                imageToSend: prev.imageToSend?.slice(0, localImages.length) || []
+            };
+        });
     };
-  });
-};
 
 
     // optional cleanup
@@ -641,20 +700,20 @@ const handleRemoveImage = (indexToRemove) => {
             }
         };
     }, [exercise.image]);
-useEffect(() => {
-  if (exercise.imageUrl || exercise.image) {
-    const serverImages = exercise.imageUrl ? JSON.parse(exercise.imageUrl) : [];
-    const localImages = exercise.image || [];
+    useEffect(() => {
+        if (exercise.imageUrl || exercise.image) {
+            const serverImages = exercise.imageUrl ? JSON.parse(exercise.imageUrl) : [];
+            const localImages = exercise.image || [];
 
-    setExercise(prev => ({
-      ...prev,
-      mergedImages: [...serverImages, ...localImages],   // Preview list
-      serverCount: serverImages.length                   // To know which images came from server
-    }));
-  }
-}, [exercise.imageUrl, exercise.image]);
+            setExercise(prev => ({
+                ...prev,
+                mergedImages: [...serverImages, ...localImages],   // Preview list
+                serverCount: serverImages.length                   // To know which images came from server
+            }));
+        }
+    }, [exercise.imageUrl, exercise.image]);
 
-console.log('exercise',exercise)
+    console.log('exercise', exercise)
     if (loading) {
         return (
             <>
@@ -1062,49 +1121,25 @@ console.log('exercise',exercise)
 
                                     </label>
 
-                                    <div className="flex flex-wrap gap-4">
-
-                                        {exercise.imageUrl && JSON.parse(exercise.imageUrl).length > 0 && (
-                                            <div className="mt-3 flex flex-wrap gap-3">
-                                              {exercise.mergedImages?.map((img, index) => (
-                                                    <div key={index} className="relative" >
-                                                        <img
-                                                            src={img}
-                                                            alt={`Preview ${index + 1}`}
-                                                            className="rounded-xl w-40 h-28 object-cover"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRemoveImage(index)}
-                                                            className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1.5"
-                                                        >
-                                                            ✕
-                                                        </button>
-                                                    </div>
-                                                ))}
+                                    <div className="flex flex-wrap gap-4 mt-3">
+                                        {photoPreview.map((img) => (
+                                            <div key={img.id} className="relative">
+                                                <img
+                                                    src={img.url}
+                                                    alt="preview"
+                                                    className="w-24 h-24 object-cover rounded-md border border-gray-200"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImage(img.id)}
+                                                    className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1.5"
+                                                >
+                                                    ✕
+                                                </button>
                                             </div>
-                                        )}
-                                        {exercise.image && exercise.image.length > 0 && (
-                                            <div className="mt-3 flex flex-wrap gap-3">
-                                             {exercise.mergedImages?.map((img, index) => (
-                                                    <div key={index} className="relative" >
-                                                        <img
+                                        ))}
 
-                                                            src={img}
-                                                            alt={`Preview ${index + 1}`}
-                                                            className="rounded-xl w-40 h-28 object-cover"
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleRemoveImage(index)}
-                                                            className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1.5"
-                                                        >
-                                                            ✕
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
+
                                     </div>
 
 

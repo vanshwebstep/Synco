@@ -52,7 +52,7 @@ const BirthdayBookingForm = () => {
   const [areasToWorkOn, setAreasToWorkOn] = useState("");
 
   const [numberOfStudents, setNumberOfStudents] = useState('1');
-  const [numberOfCapacity, setNumberOfCapacity] = useState('');
+  const [numberOfCapacity, setNumberOfCapacity] = useState('1');
 
   const { keyInfoData, fetchKeyInfo } = useMembers();
   const token = localStorage.getItem("adminToken");
@@ -61,6 +61,7 @@ const BirthdayBookingForm = () => {
   const [country2, setCountry2] = useState("us"); // default country
   const [dialCode, setDialCode] = useState("+1"); // store selected code silently
   const [dialCode2, setDialCode2] = useState("+1"); // store selected code silently
+
   const handleChange = (value, data) => {
     // When library fires onChange, just update the dial code
     setDialCode("+" + data.dialCode);
@@ -180,7 +181,7 @@ const BirthdayBookingForm = () => {
   };
   // console.log('TrialData', TrialData)
   // console.log('classId', classId)
-  const { fetchFindClassID,  } = useClassSchedule() || {};
+  const { fetchFindClassID, } = useClassSchedule() || {};
   const [singleClassSchedulesOnly, setSingleClassSchedulesOnly] = useState([]);
 
   const [students, setStudents] = useState([
@@ -201,6 +202,8 @@ const BirthdayBookingForm = () => {
     emergencyLastName: "",
     emergencyPhoneNumber: "",
     emergencyRelation: "",
+      dialCode: dialCode,
+    
   });
   const [parents, setParents] = useState([
     {
@@ -210,7 +213,8 @@ const BirthdayBookingForm = () => {
       parentEmail: '',
       phoneNumber: '',
       relationChild: '',
-      howDidHear: ''
+      howDidHear: '',
+      dialCode: dialCode,
 
     }
   ]);
@@ -650,6 +654,47 @@ const BirthdayBookingForm = () => {
       }));
     }
   }, [emergency.sameAsAbove, parents]);
+
+
+
+  function combineLocalDateTime(date, timeValue) {
+    let hours, minutes;
+
+    // If timeValue is a Date object
+    if (timeValue instanceof Date) {
+      hours = timeValue.getHours();
+      minutes = timeValue.getMinutes();
+    }
+
+    // If timeValue is "HH:mm" string
+    else if (typeof timeValue === "string" && timeValue.includes(":")) {
+      [hours, minutes] = timeValue.split(":");
+    }
+
+    // Create date in **local timezone**
+    const d = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      hours,
+      minutes,
+      0,
+      0
+    );
+
+    // IMPORTANT: Do NOT use toISOString() (it converts to UTC!)
+    // Use manual formatting:
+    const pad = (n) => String(n).padStart(2, "0");
+
+    const finalString =
+      `${d.getFullYear()}-` +
+      `${pad(d.getMonth() + 1)}-` +
+      `${pad(d.getDate())}T` +
+      `${pad(d.getHours())}:` +
+      `${pad(d.getMinutes())}:00`;
+
+    return finalString; // stays in local time
+  }
   // console.log('selectedDiscount', selectedDiscount)
   const handleSubmit = async () => {
     if (!selectedDate) {
@@ -679,6 +724,8 @@ const BirthdayBookingForm = () => {
     }
 
     // Handle PAN
+    const formattedTime = combineLocalDateTime(selectedDate, time);
+
     if (transformedPayment.cardNumber) {
       transformedPayment.cardNumber = transformedPayment.cardNumber.replace(/\s+/g, ""); // remove spaces
     }
@@ -690,9 +737,9 @@ const BirthdayBookingForm = () => {
       coachId: selectedCoach,
       location: locationValue,
       address: address,
-      capacity: numberOfCapacity,
+      capacity: numberOfStudents,
       date: formatLocalDate(selectedDate),
-      time: time,
+      time: formattedTime,
       totalStudents: students.length,
       areaWorkOn: areasToWorkOn,
       paymentPlanId: selectedPackage,
@@ -784,32 +831,32 @@ const BirthdayBookingForm = () => {
     };
   }, [activePopup]);
 
-useEffect(() => {
-  const paymentGroups = singleClassSchedulesOnly?.paymentGroups || [];
-console.log('paymentGroups',paymentGroups)
-  // Find first group that actually has paymentPlans
-  const groupWithPlans = paymentGroups.find(
-    (g) => g.paymentPlans && g.paymentPlans.length > 0
-  );
-console.log('groupWithPlans',groupWithPlans)
-  if (groupWithPlans) {
-    const cleanedPlans = groupWithPlans.paymentPlans.map((plan) => ({
-      id: plan.id,
-      title: plan.title,
-      price: plan.price,
-      interval: plan.interval,
-      students: plan.students,
-      duration: plan.duration,
-      joiningFee: plan.joiningFee,
-      holidayCampPackage: plan.HolidayCampPackage,
-      termsAndCondition: plan.termsAndCondition,
-    }));
+  useEffect(() => {
+    const paymentGroups = singleClassSchedulesOnly?.paymentGroups || [];
+    console.log('paymentGroups', paymentGroups)
+    // Find first group that actually has paymentPlans
+    const groupWithPlans = paymentGroups.find(
+      (g) => g.paymentPlans && g.paymentPlans.length > 0
+    );
+    console.log('groupWithPlans', groupWithPlans)
+    if (groupWithPlans) {
+      const cleanedPlans = groupWithPlans.paymentPlans.map((plan) => ({
+        id: plan.id,
+        title: plan.title,
+        price: plan.price,
+        interval: plan.interval,
+        students: plan.students,
+        duration: plan.duration,
+        joiningFee: plan.joiningFee,
+        holidayCampPackage: plan.HolidayCampPackage,
+        termsAndCondition: plan.termsAndCondition,
+      }));
 
-    setSelectedPlans(cleanedPlans);
-  }
-}, [singleClassSchedulesOnly]);
+      setSelectedPlans(cleanedPlans);
+    }
+  }, [singleClassSchedulesOnly]);
 
-console.log('setSelectedPlans',selectedPlans)
+  console.log('setSelectedPlans', selectedPlans)
   // ✅ now it runs when data is fetched
 
   const buttons = [
@@ -833,7 +880,8 @@ console.log('setSelectedPlans',selectedPlans)
   ];
 
 
-
+  console.log('ialCode',country2)
+  console.log('dialCode2',dialCode)
 
   const handleSubmitComment = async (e) => {
 
@@ -985,69 +1033,69 @@ console.log('setSelectedPlans',selectedPlans)
     [admins]
   );
 
-const packageOptions = useMemo(() => {
-  // console.log("RUNNING packageOptions");
+  const packageOptions = useMemo(() => {
+    // console.log("RUNNING packageOptions");
 
-  if (!selectedCoach) {
-    // console.log("⛔ selectedCoach is NULL → returning []");
-    return [];
-  }
+    if (!selectedCoach) {
+      // console.log("⛔ selectedCoach is NULL → returning []");
+      return [];
+    }
 
-  // console.log("selectedCoach.value =", selectedCoach.value);
+    // console.log("selectedCoach.value =", selectedCoach.value);
 
-  // console.log("paymentGroups received →", paymentGroups);
+    // console.log("paymentGroups received →", paymentGroups);
 
-  // Step 1: Merge groups
-  const mergedGroups = Object.values(
-    paymentGroups.reduce((acc, group) => {
-      const id = group.adminId;
+    // Step 1: Merge groups
+    const mergedGroups = Object.values(
+      paymentGroups.reduce((acc, group) => {
+        const id = group.adminId;
 
-      if (!acc[id]) {
-        acc[id] = { ...group, paymentPlans: [] };
-      }
-
-      group.paymentPlans.forEach((plan) => {
-        if (!acc[id].paymentPlans.some((p) => p.id === plan.id)) {
-          acc[id].paymentPlans.push(plan);
+        if (!acc[id]) {
+          acc[id] = { ...group, paymentPlans: [] };
         }
-      });
 
-      return acc;
-    }, {})
+        group.paymentPlans.forEach((plan) => {
+          if (!acc[id].paymentPlans.some((p) => p.id === plan.id)) {
+            acc[id].paymentPlans.push(plan);
+          }
+        });
+
+        return acc;
+      }, {})
+    );
+
+    // console.log("Merged groups result →", mergedGroups);
+
+    // Step 2: Select correct group
+    const selectedGroup = mergedGroups.find(
+      (g) => g.adminId === selectedCoach
+    );
+
+    // console.log("Selected group →", selectedGroup);
+
+    if (!selectedGroup) {
+      // console.log("⛔ No group found for adminId =", selectedCoach);
+      return [];
+    }
+
+    if (!selectedGroup.paymentPlans?.length) {
+      // console.log("⛔ selectedGroup.paymentPlans is EMPTY");
+      return [];
+    }
+
+    // console.log("Final Payment Plans →", selectedGroup.paymentPlans);
+
+    return selectedGroup.paymentPlans.map((plan) => ({
+      value: plan.id,
+      label: plan.title,
+      ...plan,
+    }));
+  }, [selectedCoach, paymentGroups, numberOfStudents]);
+
+  const finalPaymentPreview = (paymentGroups || []).find(group =>
+    Array.isArray(group.paymentPlans) &&
+    group.paymentPlans.some(plan => plan.id === selectedPackage)
   );
-
-  // console.log("Merged groups result →", mergedGroups);
-
-  // Step 2: Select correct group
-  const selectedGroup = mergedGroups.find(
-    (g) => g.adminId === selectedCoach
-  );
-
-  // console.log("Selected group →", selectedGroup);
-
-  if (!selectedGroup) {
-    // console.log("⛔ No group found for adminId =", selectedCoach);
-    return [];
-  }
-
-  if (!selectedGroup.paymentPlans?.length) {
-    // console.log("⛔ selectedGroup.paymentPlans is EMPTY");
-    return [];
-  }
-
-  // console.log("Final Payment Plans →", selectedGroup.paymentPlans);
-
-  return selectedGroup.paymentPlans.map((plan) => ({
-    value: plan.id,
-    label: plan.title,
-    ...plan,
-  }));
-}, [selectedCoach, paymentGroups, numberOfStudents]);
-
-const finalPaymentPreview = (paymentGroups || []).find(group =>
-  Array.isArray(group.paymentPlans) &&
-  group.paymentPlans.some(plan => plan.id === selectedPackage)
-);
 
   // console.log('packageOptions', packageOptions)
   // 3️⃣ Discount options
@@ -1062,7 +1110,7 @@ const finalPaymentPreview = (paymentGroups || []).find(group =>
   );
   const selectedPackages = packageOptions.find(pkg => pkg.id === selectedPackage);
 
-  // console.log('selectedPackages', selectedPackages)
+  // console.log('selectedPackage', selectedPackage)
 
   if (loading) return <Loader />;
 
@@ -1279,8 +1327,8 @@ const finalPaymentPreview = (paymentGroups || []).find(group =>
 
               </div>
             </div>
-            {/* <div className="mb-5">
-              <label htmlFor="" className="text-base font-semibold">Students</label>
+            <div className="mb-5">
+              <label htmlFor="" className="text-base font-semibold">Capacity</label>
               <div className="relative mt-2 ">
 
                 <input
@@ -1298,25 +1346,28 @@ const finalPaymentPreview = (paymentGroups || []).find(group =>
                 />
 
               </div>
-            </div> */}
-            <div className="mb-5">
+            </div>
+            {/* <div className="mb-5">
               <label htmlFor="" className="text-base font-semibold">Capacity</label>
               <div className="relative mt-2 ">
 
                 <input
                   type="number"
                   value={numberOfCapacity}
-                  onChange={(e) => {
+                    onChange={(e) => {
                     const val = Number(e.target.value);
-                    setNumberOfCapacity(e.target.value);
+                    if ([1, 2, 3].includes(val) || e.target.value === "") {
+                      setNumberOfCapacity(e.target.value);
+                    }
+                    // Do nothing if invalid
                   }}
                   placeholder="Choose number of students"
                   className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 focus:outline-none"
                 />
 
               </div>
-            </div>
-          
+            </div> */}
+
 
             <div className="w-full">
               <label className="block text-[16px] font-semibold">Select a Coach </label>
@@ -1549,7 +1600,7 @@ const finalPaymentPreview = (paymentGroups || []).find(group =>
                       {index === 0 && (
                         <button
                           onClick={handleAddParent}
-                          disabled={parents.length >= 5}
+                          disabled={parents.length === 3}
                           className="text-white text-[14px] px-4 py-2 bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50"
                         >
                           Add Parent
@@ -1839,7 +1890,7 @@ const finalPaymentPreview = (paymentGroups || []).find(group =>
                           : "text-gray-700"
                           }`}
                       >
-                        {option.label}
+                        {option.label || 'N/A'}
                       </span>
                     </div>
                   ))}
@@ -1971,8 +2022,8 @@ const finalPaymentPreview = (paymentGroups || []).find(group =>
                 }}
                 disabled={isSubmitting || !selectedPackage || !selectedDate}
                 className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${!isSubmitting && selectedPackage && selectedDate
-                    ? "bg-[#237FEA] border border-[#237FEA]"
-                    : "bg-gray-400 border-gray-400 cursor-not-allowed"
+                  ? "bg-[#237FEA] border border-[#237FEA]"
+                  : "bg-gray-400 border-gray-400 cursor-not-allowed"
                   }`}
               >
                 {isSubmitting ? "Submitting..." : "Make Payment"}
@@ -1996,9 +2047,9 @@ const finalPaymentPreview = (paymentGroups || []).find(group =>
 
                   </div>
                   <div className="text-left directDebitBg p-6 mb-4 m-6 rounded-2xl ">
-                    <p className="text-white text-[16px]">One to One Package{membershipPlan?.label || ''}</p>
+                     <p className="text-white text-[16px]">Birthday Party Package ( {selectedPackages?.label || ''} )</p>
                     <p className="font-semibold text-white text-[24px]">
-                      {selectedPackages?.joiningFee != null && `£${selectedPackages?.joiningFee}`}
+                      {selectedPackages?.price != null && `£${selectedPackages?.price}`}
                     </p>
                   </div>
                   <div className="space-y-2 px-6 pb-0">

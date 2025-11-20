@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { usePermission } from "../Pages/AdminPages/Common/permission";
 import { X } from 'lucide-react'; // Add this to your imports
+import { useAccountsInfo } from '../Pages/AdminPages/contexts/AccountsInfoContext';
 
 function normalizePath(path) {
   if (!path) return "";
@@ -60,6 +61,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const sidebarRef = useRef();
   const { checkPermission } = usePermission();
   const MyRole = localStorage.getItem("role");
+  const { historyActiveTab,setHistoryActiveTab } = useAccountsInfo();
   useEffect(() => {
     const result = findActiveItemAndParents(menuItems, location.pathname);
     if (result) {
@@ -324,6 +326,57 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       ],
     },
     {
+      title: "Holiday camps",
+      icon: "/demo/synco/SidebarLogos/Birthday.png",
+      path: '/holiday-camp',
+
+      iconHover: "/demo/synco/SidebarLogos/BirthdayH.png",
+      needPermissions: [
+        { module: 'session-exercise-one-to-one', action: 'view-listing' },
+
+      ],
+      subItems: [
+        {
+          title: "Find a Camp",
+          link: '/holiday-camp/find-a-camp',
+
+
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" }
+          ],
+
+
+        },
+        {
+          title: "Members",
+          link: '/holiday-camp/members',
+
+
+          needPermissions: [
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+
+        },
+        {
+          title: "Waiting List",
+          link: '/holiday-camp/waiting-list',
+
+
+          needPermissions: [
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+
+        },
+
+
+      ],
+    },
+    {
       title: 'Key Information',
       icon: '/demo/synco/SidebarLogos/Management.png',
       iconHover: '/demo/synco/SidebarLogos/ManagementH.png',
@@ -536,6 +589,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     localStorage.removeItem("openClassIndex");
     localStorage.removeItem("openTerms");
     localStorage.removeItem("activeTab");
+    setHistoryActiveTab('General');
     setOpenDropdowns((prev) => ({ ...prev, [title]: !prev[title] }));
   };
 
@@ -543,6 +597,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     localStorage.removeItem("openClassIndex");
     localStorage.removeItem("openTerms");
     localStorage.removeItem("activeTab");
+      setHistoryActiveTab('General');
   };
 
   const toggleMobileMenu = () => {
@@ -575,7 +630,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
           // Usage for top-level item
           const noPaddingx = hasNoPadding(item.subItems);
-           // true if any inner subItem has noPaddingx
+          // true if any inner subItem has noPaddingx
 
           // const noPaddingx =item.subItems.noPaddingx;
           const itemTitle = typeof item === 'string' ? item : item.title;
@@ -723,15 +778,15 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               transition={{ type: 'tween' }}
               className="fixed top-0 left-0 w-72 h-full bg-white z-50 shadow-lg border-r lg:hidden flex flex-col"
             >
-<div className="p-6 relative font-semibold text-2xl text-center flex items-center gap-1 justify-center">
-  <img
-    src="/demo/synco/icons/cross.png"
-    className="absolute left-[5%] w-3 h-3 cursor-pointer"
-    onClick={() => {
-      setIsMobileMenuOpen(false);
-    }}
-    alt=""
-  />
+              <div className="p-6 relative font-semibold text-2xl text-center flex items-center gap-1 justify-center">
+                <img
+                  src="/demo/synco/icons/cross.png"
+                  className="absolute left-[5%] w-3 h-3 cursor-pointer"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                  }}
+                  alt=""
+                />
 
                 <img src="/demo/synco/images/synco-text.png" alt="Logo" className="h-10 w-auto object-contain" />
                 <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className="h-10 w-auto object-contain" />

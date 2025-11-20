@@ -63,29 +63,29 @@ const PaymentHistory = () => {
         </div>
 
         {/* ==== PAYMENTS TABLE ==== */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 w-full mx-auto">
-          <h2 className="text-gray-800 text-lg font-semibold mb-4">Payments</h2>
+        <div className="bg-white rounded-2xl shadow-sm py-6 w-full mx-auto">
+          <h2 className="text-gray-800 px-6 text-lg font-semibold mb-4">Payments</h2>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-gray-100 text-gray-600 text-sm">
-                  <th className="py-3 px-4 font-medium">Status</th>
-                  <th className="py-3 px-4 font-medium">Source</th>
-                  <th className="py-3 px-4 font-medium">Charge</th>
-                  <th className="py-3 px-4 font-medium">Paid Out</th>
-                  <th className="py-3 px-4 font-medium">Amount</th>
+                <tr className="text-[#717073] bg-[#F5F5F5] text-sm">
+                  <th className="py-3  font-semibold px-6 md:w-6/12">Status</th>
+                  <th className="py-3 px-4 font-semibold">Source</th>
+                  <th className="py-3 px-4 font-semibold">Charge</th>
+                  <th className="py-3 px-4 font-semibold">Paid Out</th>
+                  <th className="py-3 px-4 font-semibold">Amount</th>
                 </tr>
               </thead>
 
               <tbody>
                 {/* You can have multiple payments, but in your data only one exists */}
-                <tr className="border-b border-gray-100 hover:bg-gray-50 transition">
-                  <td className="py-3 px-4 flex items-center gap-2">
+                <tr className="relative after:content-[''] after:block after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-[97%] after:h-px after:bg-[#F2F1F5] hover:bg-gray-50 transition">
+                  <td className="py-3 px-6 flex items-center gap-2 md:w-6/12">
                     <span
                       className={`w-2 h-2 rounded-full ${data?.booking?.payment?.paymentStatus === "paid"
-                          ? "bg-green-500"
-                          : "bg-red-500"
+                        ? "bg-green-500"
+                        : "bg-red-500"
                         }`}
                     ></span>
                     {data?.booking?.payment?.paymentStatus || "N/A"}

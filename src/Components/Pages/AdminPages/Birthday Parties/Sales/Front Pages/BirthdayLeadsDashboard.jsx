@@ -36,6 +36,7 @@ const BirthdayLeadsDashboard = () => {
   const [leadsData, setLeadsData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [summary, setSummary] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   const popupRef = useRef(null);
   const [myVenues, setMyVenues] = useState([]);
@@ -78,7 +79,7 @@ const BirthdayLeadsDashboard = () => {
         return;
       }
 
-      if (!noLoaderShow) setLoading(true);
+      if (!studentName) setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
@@ -154,7 +155,7 @@ const BirthdayLeadsDashboard = () => {
       } catch (error) {
         console.error("❌ Failed to fetch leads:", error);
       } finally {
-        if (!noLoaderShow) setLoading(false);
+         setLoading(false);
       }
     },
     []
@@ -195,8 +196,8 @@ const BirthdayLeadsDashboard = () => {
   // then your summaryCards
   const summaryCards = [
     { icon: "/demo/synco/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: "0" },
-    { icon: "/demo/synco/reportsIcons/greenuser.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: "0" },
-    { icon: "/demo/synco/reportsIcons/login-icon-orange.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: "0" },
+    { icon: "/demo/synco/reportsIcons/greenuser.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary?.newLeads, change: "0" },
+    { icon: "/demo/synco/reportsIcons/login-icon-orange.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary?.leadsWithBookings, change: "0" },
     { icon: "/demo/synco/reportsIcons/magnet-purple.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
   ];
   const [formData, setFormData] = useState({
@@ -213,96 +214,127 @@ const BirthdayLeadsDashboard = () => {
   };
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
-const handleDateChange = (date) => {
-  const formatted = date.toISOString().split("T")[0]; // "2025-11-15"
-  setFormData((prev) => ({ ...prev, partyDate: formatted }));
-  setIsPickerOpen(false);
-};
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log('formData', formData)
-    // 🔍 Validate required fields (example)
-    if (
-      !formData.parentName ||
-      !formData.partyDate ||
-      !formData.age ||
-      !formData.childName ||
-      !formData.packageInterest ||
-      !formData.source
-    ) {
-      const missingFields = [];
+  const handleDateChange = (date) => {
+    const formatted = date.toISOString().split("T")[0]; // yyyy-mm-dd
 
-      if (!formData.parentName) missingFields.push("Parent Name");
-      if (!formData.childName) missingFields.push("Child Name");
-      if (!formData.age) missingFields.push("Age");
-      if (!formData.packageInterest) missingFields.push("Package Interest");
-      if (!formData.partyDate) missingFields.push("Party Date");
-      if (!formData.source) missingFields.push("Source");
+    setFormData((prev) => ({
+      ...prev,
+      partyDate: formatted,          // store Date object for the picker
+      partyDateFormatted: formatted, // store string for API
+    }));
 
-      Swal.fire({
-        icon: "warning",
-        title: "Missing Fields",
-        html: `
-      <div style="text-align:left;">
-        <p>Please fill out the following required field(s):</p>
-        <ul style="margin-top:8px;">
-          ${missingFields.map(f => `<li>• ${f}</li>`).join("")}
-        </ul>
-      </div>
-    `,
-      });
-      return;
-    }
+    setIsPickerOpen(false);
+  };
 
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    console.log("Submitting lead:", formData);
+  console.log("formData:", formData);
 
-    setLoading(true); // 🌀 optional loader state
+  // ✅ Convert Date object → yyyy-mm-dd (DO NOT mutate state)
+  const formattedDate = selectedDate
+    ? formatLocalDate(selectedDate)
+    : "";
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/leads/create`, {
+  // Required field validation
+  const requiredFields = [
+    { key: "parentName", label: "Parent Name" },
+    { key: "childName", label: "Child Name" },
+    { key: "age", label: "Age" },
+    { key: "packageInterest", label: "Package Interest" },
+    { key: "source", label: "Source" },
+    { key: "partyDate", label: "Party Date" },
+  ];
+
+  const missingFields = requiredFields
+    .filter((f) => {
+      if (f.key === "partyDate") return !formattedDate;
+      return !formData[f.key];
+    })
+    .map((f) => f.label);
+
+  if (missingFields.length > 0) {
+    Swal.fire({
+      icon: "warning",
+      title: "Missing Fields",
+      html: `
+        <div style="text-align:left;">
+          <p>Please fill out the following required field(s):</p>
+          <ul style="margin-top:8px;">
+            ${missingFields.map((f) => `<li>• ${f}</li>`).join("")}
+          </ul>
+        </div>
+      `,
+    });
+    return;
+  }
+
+  // FINAL PAYLOAD
+  const payload = {
+    ...formData,
+    partyDate: formattedDate, // YYYY-MM-DD
+  };
+
+  console.log("Submitting lead:", payload);
+
+  setLoading(true);
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/birthday-party/leads/create`,
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData), // ✅ remove unnecessary wrapping {formData}
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        // ❌ Handle API error response
-        throw new Error(result.message || "Failed to create lead.");
+        body: JSON.stringify(payload),
       }
+    );
 
-      // ✅ Success alert
-      Swal.fire({
-        icon: "success",
-        title: "Lead Created",
-        text: "The lead has been successfully added.",
-        timer: 2000,
-        showConfirmButton: false,
-      });
+    const result = await response.json();
 
-      await fetchLeads(); // refresh roles or data
-      setIsOpen(false);   // close modal or form
-      setFormData({});    // reset form if needed
-
-    } catch (error) {
-      console.error("Create lead error:", error);
-
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.message || "Something went wrong while creating the lead.",
-      });
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(result.message || "Failed to create lead.");
     }
-  };
+
+    Swal.fire({
+      icon: "success",
+      title: "Lead Created",
+      text: "The lead has been successfully added.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    await fetchLeads();
+    setIsOpen(false);
+
+    // RESET FORM
+    setFormData({
+      parentName: "",
+      childName: "",
+      age: "",
+      packageInterest: "",
+      source: "",
+      partyDate: null,
+    });
+
+  } catch (error) {
+    console.error("Create lead error:", error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error.message || "Something went wrong.",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
   const handleSearch = (e) => {
-    const value = e.target.value.trim();
+    const value = e.target.value;
     setSearchTerm(value);
 
     if (value.length === 0) {
@@ -445,7 +477,7 @@ const handleDateChange = (date) => {
     );
   };
 
-useEffect(() => {
+  useEffect(() => {
     function handleClickOutside(e) {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         setIsPickerOpen(false);
@@ -579,7 +611,7 @@ useEffect(() => {
 
       <div className="min-h-screen overflow-hidden bg-gray-50 py-6 flex flex-col lg:flex-row ">
         {/* Left Section */}
-        <div className="md:w-[73%] gap-6 md:pe-3 mb-4 md:mb-0">
+        <div className="md:w-8/12 gap-6 md:pe-3 mb-4 md:mb-0">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {summaryCards.map((card, i) => {
@@ -593,7 +625,7 @@ useEffect(() => {
                     <div
                       className={`p-2 h-[50px] w-[50px] rounded-full ${card.iconStyle} bg-opacity-10 flex items-center justify-center`}
                     >
-                       <img src={Icon} alt="" className="p-1"/>
+                      <img src={Icon} alt="" className="p-1" />
                       {/* <Icon size={24} className={card.iconStyle} /> */}
                     </div>
                   </div>
@@ -972,43 +1004,23 @@ useEffect(() => {
                   className="w-full border border-gray-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-400 outline-none"
                 />
               </div>
- <div>
-      <label className="block text-sm text-gray-600 mb-1">
-        Date of Party
-      </label>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Date of Party</label>
 
-      {/* Input Field */}
-      <div
-        onClick={() => setIsPickerOpen(true)}
-        className="w-full border border-gray-200 rounded-lg p-2.5 
-                   focus:ring-2 focus:ring-blue-400 outline-none cursor-pointer bg-white"
-      >
-        {formData.partyDate
-          ? new Date(formData.partyDate).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })
-          : "Select date"}
-      </div>
 
-      {/* Popup Modal */}
-      {isPickerOpen && (
-        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-          <div
-            ref={modalRef}
-            className="bg-white p-4 rounded-xl shadow-lg flex justify-center"
-          >
-            <DatePicker
-              selected={formData.partyDate}
-              onChange={handleDateChange}
-              inline
-              dateFormat="dd-MMM-yyyy"
-            />
-          </div>
-        </div>
-      )}
-    </div>
+                <DatePicker
+                  withPortal
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                  className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                  showYearDropdown
+                  scrollableYearDropdown
+                  dateFormat="dd/MM/yyyy"
+                  placeholderText="Select date"
+                />
+
+              </div>
+
 
               <div>
                 <label className="block text-sm text-gray-600 mb-1">

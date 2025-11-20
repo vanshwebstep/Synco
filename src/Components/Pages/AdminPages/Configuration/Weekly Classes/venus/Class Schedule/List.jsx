@@ -610,6 +610,7 @@ const List = () => {
                                                                                                                 sessionDate: session.sessionDate,
                                                                                                                 classname: item,
                                                                                                                 statusIs: session?.sessionPlan?.status,
+                                                                                                                
                                                                                                             },
                                                                                                         })
                                                                                                     }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect , useState } from "react";
 import { motion } from "framer-motion";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
@@ -8,13 +8,15 @@ import { RxCross2 } from "react-icons/rx";
 import { FaSave, FaEdit } from "react-icons/fa";
 import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 
-const StudentProfile = () => {
+const StudentProfile = (fetchedData) => {
   const [editStudent, setEditStudent] = useState({});
 
-  const { students, setStudents, handleUpdate, mainId } = useAccountsInfo();
+  const { handleUpdate, mainId } = useAccountsInfo();
 
   const [showModal, setShowModal] = useState(false);
-
+  
+  const [students, setStudents] = useState([]);
+ 
   const genderOptions = [
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },
@@ -29,7 +31,6 @@ const StudentProfile = () => {
     gender: "",
     medicalInformation: "",
   });
-
   // --- Input handlers ---
   // --- modal input change only updates newStudent ---
   const handleModalChange = (field, value) => {
@@ -94,7 +95,14 @@ const handleAddStudent = () => {
 
   const handleEditStudents = () => {
     handleUpdate('students', students)
-  }
+  } 
+  
+  useEffect(() => {
+      if (fetchedData?.leadData?.bookings[0]?.students) {
+        setStudents(fetchedData?.leadData?.bookings[0]?.students);
+      }
+    }, [fetchedData]);
+  
 
   return (
     <div className="space-y-10  p-6">

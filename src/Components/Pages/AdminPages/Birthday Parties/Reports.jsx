@@ -112,32 +112,45 @@ export default function BirthdayReports() {
   /** =====================
    * ✅ Stat Cards
    * ===================== */
-  useEffect(() => {
-    const enrolledData = charts?.packageBackground || [];
-    let formatted = [];
+useEffect(() => {
+  const enrolledData = charts?.packageBackground || [];
+  let formatted = [];
 
-    if (packageActiveTab === "revenue") {
-      const totals = enrolledData?.[0]?.revenue || [];
-      formatted = totals.map(v => ({
-        label: v.name,
-        value: v.percentage,
-        count: v.count,
-      }));
-    }
-    else if (packageActiveTab === "growth") {
-      const totals = enrolledData?.[1]?.growth || [];
-      formatted = totals.map(v => ({
-        label: v.name,
-        value: v.percentage,
-        count: v.count,
-      }));
-    }
+  const findDataByKey = (key) => {
+    const item = enrolledData.find(obj => obj[key]);
+    return item ? item[key] : [];
+  };
 
-    setPackageData(formatted);
-  }, [packageActiveTab, charts]);
+  if (packageActiveTab === "revenue") {
+    const totals = findDataByKey("revenue");
+    formatted = totals.map(v => ({
+      label: v.name,
+      value: v.percentage,
+      count: v.count,
+    }));
+  } 
+  else if (packageActiveTab === "growth") {
+    const totals = findDataByKey("growth");
+    formatted = totals.map(v => ({
+      label: v.name,
+      value: v.percentage,
+      count: v.count,
+    }));
+  }
+  else if (packageActiveTab === "other") {
+    const totals = findDataByKey("other");
+    formatted = totals.map(v => ({
+      label: v.name,
+      value: v.percentage,
+      count: v.count,
+    }));
+  }
+
+  setPackageData(formatted);
+}, [packageActiveTab, charts]);
 
 
-
+console.log('setPackageData',charts)
   useEffect(() => {
     const enrolledData = charts?.partyBooking?.[0] || {};
 
@@ -187,17 +200,22 @@ export default function BirthdayReports() {
   const currentMonthIndex = currentDate.getMonth();
   const currentMonthName = currentDate.toLocaleString("default", { month: "long" });
 
-  const allMonths = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+ const allMonths = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
+ const fullToShort = {
+    January: "Jan", February: "Feb", March: "Mar", April: "Apr",
+    May: "May", June: "Jun", July: "Jul", August: "Aug",
+    September: "Sep", October: "Oct", November: "Nov", December: "Dec",
+  };
 
   // Step 1: Convert API data to dictionary for easy merge
-  const existingData = {};
-  (charts?.monthlyStudents || []).forEach(d => {
-    existingData[d.month] = d.students;
+   const existingData = {};
+  (charts?.monthlyStudents || []).forEach(item => {
+    const short = fullToShort[item.month] || item.month;
+    existingData[short] = item.students;
   });
-
   // Step 2: Add current month if missing
   if (charts?.thisMonth && !existingData[currentMonthName]) {
     existingData[currentMonthName] = charts.thisMonth.students;
@@ -252,47 +270,48 @@ export default function BirthdayReports() {
   const statCards = [
     {
       icon: '/demo/synco/reportsIcons/user-group.png',
-      iconStyle: "text-[#3DAFDB]",
+      iconStyle: "bg-[#E8F7FC] text-[#3DAFDB]",  // light cyan
       title: "Total Leads",
       value: summary?.totalLeads?.thisMonth ?? 0,
       sub: `Last month: ${summary?.totalLeads?.previousMonth ?? 0}`,
     },
     {
       icon: '/demo/synco/reportsIcons/Coins.png',
-      iconStyle: "text-[#6F65F1]",
+      iconStyle: "bg-[#EAE8FF] text-[#6F65F1]", // light violet
       title: "Number of Sales",
       value: summary?.numberOfSales?.thisMonth ?? 0,
       sub: `Last month: ${summary?.numberOfSales?.previousMonth ?? 0}`,
     },
     {
       icon: '/demo/synco/reportsIcons/Percent.png',
-      iconStyle: "text-[#34AE56]",
+      iconStyle: "bg-[#E9F7EE] text-[#34AE56]", // light green
       title: "Conversion Rate",
       value: summary?.conversionRate?.thisMonth ?? "0%",
       sub: `Last month: ${summary?.conversionRate?.previousMonth ?? "0%"}`,
     },
     {
       icon: '/demo/synco/reportsIcons/pound.png',
-      iconStyle: "text-[#E769BD]",
+      iconStyle: "bg-[#FCE9F3] text-[#E769BD]", // light pink
       title: "Revenue Generated",
       value: summary?.revenueGenerated?.thisMonth ?? "£0",
       sub: `Last month: ${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
     },
     {
       icon: '/demo/synco/reportsIcons/Package.png',
-      iconStyle: "text-[#099699]",
+      iconStyle: "bg-[#E5F7F7] text-[#099699]", // light teal
       title: "Revenue Gold Package",
       value: `£${goldData?.currentRevenue?.toLocaleString() ?? 0}`,
       sub: `vs. previous £${goldData?.lastRevenue?.toLocaleString() ?? 0}`,
     },
     {
       icon: '/demo/synco/reportsIcons/silver-package.png',
-      iconStyle: "text-[#F38B4D]",
+      iconStyle: "bg-[#FFF1E9] text-[#F38B4D]", // light orange
       title: "Revenue Silver Package",
       value: `£${silverData?.currentRevenue?.toLocaleString() ?? 0}`,
       sub: `vs. previous £${silverData?.lastRevenue?.toLocaleString() ?? 0}`,
     },
   ];
+
   const handleExportData = (type = "excel") => {
     try {
       const exportRows = [
@@ -407,7 +426,11 @@ export default function BirthdayReports() {
           <div className="space-y-6 md:w-[75%] md:pe-6">
             {/* Students Chart */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h2 className="font-semibold text-[24px] mb-4">Total Students</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold mb-4">Total Students</h3>
+
+                <EllipsisVertical className="text-gray-500" />
+              </div>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart
@@ -444,9 +467,11 @@ export default function BirthdayReports() {
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 12, fill: "#94A3B8" }}
+                      padding={{ bottom: 30 }}
                     />
 
                     <Tooltip
+                      cursor={false}
                       contentStyle={{
                         borderRadius: "10px",
                         border: "none",
@@ -486,9 +511,9 @@ export default function BirthdayReports() {
 
                 <div className="bg-white rounded-2xl p-4 md:max-h-[500px] overflow-auto">
                   <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-gray-800 font-semibold text-[24px]">
+                    <h3 className="text-gray-800 font-semibold ">
                       Package Background
-                    </h2>
+                    </h3>
                     <EllipsisVertical className="text-gray-500" />
                   </div>
 
@@ -541,19 +566,47 @@ export default function BirthdayReports() {
                 </div>
 
                 <div className="bg-white p-5 mt-5 rounded-2xl shadow-sm">
-                  <h3 className="font-semibold mb-4">Marketing Channel Performance</h3>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-semibold mb-4">Marketing Channel Performance</h3>
+
+                    <EllipsisVertical className="text-gray-500" />
+                  </div>
                   <div className="space-y-4">
                     {marketingData.map((m, idx) => (
                       <div key={idx}>
                         <div className="flex justify-between text-sm mb-1">
                           <div className="text-slate-600">{m.name}</div>
-                          <div className="text-slate-400">{m.percentText}</div>
+
                         </div>
-                        <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+
+                        {/* Wrapper (hover trigger) */}
+                        <div className="relative group">
+
+                          {/* Tooltip */}
                           <div
-                            className="h-3 rounded-full bg-blue-500"
-                            style={{ width: `${m.percentage}%` }}
-                          />
+                            className="absolute -top-8 opacity-0 group-hover:opacity-100 
+                       transition-opacity duration-200 text-xs
+                       bg-white text-black px-2 py-1 rounded-full shadow-md 
+                       pointer-events-none border border-slate-200"
+                            style={{
+                              left: `${m.percentage}%`,
+                              transform: "translateX(-50%)"
+                            }}
+                          >
+                            {m.percentage}%
+                          </div>
+
+                          {/* Bar */}
+                          <div className="flex gap-2 justify-between items-center">
+                            <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                              <div
+                                className="h-3 rounded-full bg-blue-500"
+                                style={{ width: `${m.percentage}%` }}
+                              />
+                            </div>
+                            <div className="text-slate-400">{m.percentText}</div>
+                          </div>
+
                         </div>
                       </div>
                     ))}
@@ -565,9 +618,9 @@ export default function BirthdayReports() {
               <div>
                 <div className="bg-white rounded-2xl p-4 md:max-h-[500px] overflow-auto">
                   <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-gray-800 font-semibold text-[24px]">
+                    <h3 className="text-gray-800 font-semibold ">
                       Party Booking
-                    </h2>
+                    </h3>
                     <EllipsisVertical className="text-gray-500" />
                   </div>
 
@@ -606,49 +659,67 @@ export default function BirthdayReports() {
                   <div>
                     {mainData.map((item, i) => (
                       <div key={i} className="mb-4">
-                        <div className="flex justify-between gap-3 items-center mb-1">
-                          <p className="text-xs text-[#344054] font-semibold">
-                            {item.label}
-                          </p>
-                          <div className="w-full bg-gray-100 h-2 rounded-full relative">
+
+
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-[#344054] font-semibold">{item.label}</p>
+
+                          <div className="relative group w-full bg-gray-100 h-2 rounded-full">
+
+                            {/* Tooltip */}
+                            <div
+                              className="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 
+        text-xs bg-white text-black px-2 py-1 rounded-full shadow-md pointer-events-none 
+        border border-slate-200"
+                              style={{
+                                left: `${item.value}%`,
+                                transform: "translateX(-50%)",
+                              }}
+                            >
+                              {item.value}%
+                            </div>
+
+                            {/* Progress Fill */}
                             <div
                               className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
                               style={{ width: `${item.value}%` }}
                             ></div>
 
-                            {/* Example floating label (only for first item) */}
-                            {i === 0 && (
-                              <div className="absolute -top-6 left-[60%] transform -translate-x-1/2 bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded-full shadow-md">
-                                {item.count} students
-                              </div>
-                            )}
+                            {/* Floating Label for First Item */}
+
                           </div>
-                          <span className="text-xs text-gray-500 font-medium">
-                            {item.value}%
-                          </span>
+                          <span className="text-xs text-gray-500 font-medium">{item.value}%</span>
                         </div>
                       </div>
                     ))}
+
                   </div>
                 </div>
                 <div className="bg-white p-5 mt-5 rounded-2xl shadow-sm">
-                  <h3 className="font-semibold mb-4">Top Agents</h3>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-semibold mb-4">Top Agents</h3>
+
+                    <EllipsisVertical className="text-gray-500" />
+                  </div>
                   <div className="space-y-4">
                     {topAgents.map((a, idx) => (
                       <div key={idx} className="flex items-center space-x-3">
                         <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center font-medium text-indigo-700">
                           {a.avatar}
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 items-center">
                           <div className="flex justify-between">
                             <div className="text-sm font-medium">{a.name}</div>
-                            <div className="text-sm text-slate-400">{a.value}</div>
+
                           </div>
-                          <div className="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden">
-                            <div
-                              className="h-2 rounded-full bg-blue-400"
-                              style={{ width: `${(a.value / 10) * 100}%` }}
-                            />
+                          <div className="flex justify-between gap-1 items-center">
+                            <div className="w-full bg-slate-100 h-2 rounded-full  overflow-hidden">
+                              <div
+                                className="h-2 rounded-full bg-blue-400"
+                                style={{ width: `${(a.value / 10) * 100}%` }}
+                              />
+                            </div>
+                            <div className="text-sm text-slate-400">{a.value}</div>
                           </div>
                         </div>
                       </div>
@@ -662,81 +733,59 @@ export default function BirthdayReports() {
 
           {/* Right column */}
           <div className="md:w-[25%] space-y-6">
-            {/* Package Breakdown */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-semibold mb-4">Package Breakdown</h3>
-              <div className="h-60">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      innerRadius={60}
-                      outerRadius={80}
-                      dataKey="value"
-                      startAngle={90}
-                      endAngle={-270}
-                    >
-                      {pieData.map((entry, idx) => (
-                        <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex justify-between text-sm mt-2">
-                {pieData.map((p, idx) => (
-                  <div key={idx}>
-                    <div className="text-slate-500">{p.name} Package</div>
-                    <div className="font-semibold">{p.percentage ?? 0}%</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Renewal Breakdown */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-semibold mb-4">Renewal Breakdown</h3>
-              {renewalData.map((r, idx) => (
-                <div key={idx} className="mb-3">
-                  <div className="flex justify-between text-sm mb-1">
-                    <div>{r.name}</div>
-                    <div>{r.percentage ?? 0}%</div>
-                  </div>
-                  <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                    <div
-                      className="h-3 bg-blue-500 rounded-full"
-                      style={{ width: `${100}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
 
             {/* Revenue by Package */}
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-              <h3 className="font-semibold mb-4">Revenue by Package</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold mb-4">Revenue by Package</h3>
+                <EllipsisVertical className="text-gray-500" />
+              </div>
               <div className="space-y-3">
                 {revenueByPackage.map((pkg, idx) => (
-                  <div key={idx} className="p-3 bg-slate-50 rounded-lg">
-                    <div className="flex justify-between">
+                  <div key={idx} className="  rounded-lg">
+                    <div className="">
                       <div>
-                        <div className="text-sm text-slate-500">{pkg.name}</div>
-                        <div className="font-semibold">£{pkg.currentRevenue}</div>
+                        <div className="text-[20px] font-semibold text-[#101828]">{pkg.name}</div>
+                        <div className="font-semibold text-[#717073] text-[16px]">£{pkg.currentRevenue}</div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xs text-slate-400">Revenue Growth</div>
-                        <div className="font-semibold text-sm">{pkg.revenueGrowth}%</div>
-                        <div
-                          className={`text-xs ${pkg.revenueGrowth < 0 ? "text-red-500" : "text-green-500"
-                            }`}
-                        >
-                          vs last month £{pkg.lastRevenue}
+                      <div className="flex items-center gap-4">
+                        <div className=" ">
+                          <img src="/demo/synco/icons/growth.png" alt="" className="w-[60px]" />
+                        </div>
+                        <div className="">
+                          <div className="text-[16px] font-semibold">Revenue Growth</div>
+                          <div className="font-semibold  ">{pkg.revenueGrowth}%</div>
+                          <div
+                            className={`text-xs font-semibold ${pkg.revenueGrowth < 0 ? "text-red-500" : "text-[#717073]"
+                              }`}
+                          >
+                            vs last month {pkg.lastRevenue} %
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
+            </div>
+            <div className="bg-white rounded-2xl p-5 shadow-sm">
+             
+
+              <div className="flex items-center gap-4">
+                <div className=" ">
+                  <img src="/demo/synco/icons/bdy.png" alt="" className="w-[60px]" />
+                </div>
+                <div className="">
+                  <div className="font-semibold text-[#717073] text-[14px]">Average of Birthday Child</div>
+                  <div
+                    className={`text-[20px] font-semibold`}
+                  >
+                   4 Years
+                  </div>
+                </div>
+              </div>
+
+
             </div>
           </div>
         </div>

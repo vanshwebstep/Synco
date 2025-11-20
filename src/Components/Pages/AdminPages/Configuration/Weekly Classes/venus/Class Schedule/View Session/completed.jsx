@@ -15,6 +15,8 @@ const ViewSessions = ({ item, sessionData }) => {
     const query = new URLSearchParams(location.search);
     const id = query.get("id");
     const venueId = location.state?.venueId;
+    const sessionDate = location.state?.sessionDate;
+
     const token = localStorage.getItem("adminToken");
     const statusIs = location.state?.statusIs;
     console.log('statusIs', location.state)
@@ -242,8 +244,8 @@ const ViewSessions = ({ item, sessionData }) => {
 
                                 <p>
                                     <span className="font-semibold">Date</span>
-                                    <br /> {data?.classSchedule?.createdAt
-                                        ? new Date(data.classSchedule.createdAt).toLocaleDateString("en-GB", {
+                                    <br /> {sessionDate
+                                        ? new Date(sessionDate).toLocaleDateString("en-GB", {
                                             weekday: "long",
                                             day: "numeric",
                                             month: "short",

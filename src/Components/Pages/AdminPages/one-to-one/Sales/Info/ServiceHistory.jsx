@@ -80,7 +80,7 @@ const renderImage = (type) => {
   const images = {
     "Weekly Classes Membership": "/demo/synco/icons/crown.png",
     "Birthday Party Booking": "/demo/synco/icons/crown.png",
-    "One to One Booking": "/demo/synco/icons/crown.png",
+    "One to One Booking": "/demo/synco/icons/one-to-one.png",
     "Holiday Camp": "/demo/synco/icons/crown.png",
     "Merchandise": "/demo/synco/icons/crown.png",
   };
@@ -123,7 +123,7 @@ const BookingCard = ({ booking }) => {
     active: "bg-green-500 text-white",
     expired: "bg-red-500 text-white",
     cancelled: "bg-red-500 text-white",
-    pending: "bg-orange-500 text-white",
+    pending: "bg-yellow-500 text-white",
   };
 
   return (
@@ -134,7 +134,7 @@ const BookingCard = ({ booking }) => {
           <img
             src={renderImage(booking?.type)}
             alt={booking?.type}
-            className="w-8 h-8 rounded-full"
+            className="w-8 h-8 "
           />
           <h3 className="text-white font-semibold">One to One Booking</h3>
         </div>
@@ -157,7 +157,7 @@ const BookingCard = ({ booking }) => {
 
       {/* Details */}
       <div className="bg-[#FCF9F6] rounded-2xl p-4 mt-4">
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4 mb-4`}>
+        <div className={`grid grid-cols-1 relative sm:grid-cols-2 lg:grid-cols-8 gap-4 mb-4`}>
           {booking?.type === "Weekly Classes Membership" && (
             <>
               {renderField("Membership Plan", booking?.plan)}
@@ -181,7 +181,7 @@ const BookingCard = ({ booking }) => {
           {booking?.type === "Birthday Party Booking" && (
             <>
               {renderField("Package", booking?.package)}
-              {renderField("Price Paid", `£${booking?.pricePaid}`)}
+              {renderField("Price Paid", `£${booking?.pricePaid + '.00'}`)}
               {renderField("Stripe Transaction ID", booking?.stripeID)}
               {renderField("Date of Booking", new Date(booking.createdAt).toLocaleString("en-IN", {
                 day: "2-digit",
@@ -201,7 +201,7 @@ const BookingCard = ({ booking }) => {
             <>
               {renderField("Package", data?.packageInterest)}
               {renderField("Students", data?.booking?.students.length)}
-              {renderField("Price Paid", `£${data?.booking?.paymentPlan?.price}`)}
+              {renderField("Price Paid", `£${data?.booking?.payment?.stripeChargeDetails?.amount + '.00'}`)}
               {renderField("Stripe Transaction ID", data?.booking?.payment.stripePaymentIntentId)}
               {renderField(
                 "Date of Booking",
@@ -218,6 +218,9 @@ const BookingCard = ({ booking }) => {
               {renderField("Venue", data?.booking?.location)}
               {renderField("Coach", `${data?.booking?.coach.firstName} ${data?.booking?.coach.lastName}`)}
               {renderField("Booking Source", data?.source)}
+                <button className="ml-auto absolute right-0 top-3 text-gray-500 hover:text-gray-800">
+            <FaEllipsisV />
+          </button>
             </>
           )}
 
@@ -225,7 +228,7 @@ const BookingCard = ({ booking }) => {
             <>
               {renderField("Camp", booking?.camp)}
               {renderField("Students", booking?.students)}
-              {renderField("Price Paid", `£${booking?.pricePaid}`)}
+              {renderField("Price Paid", `£${booking?.pricePaid  + '.00'}`)}
               {renderField("Stripe Transaction ID", booking?.stripeID)}
               {renderField("Date of Booking", new Date(booking.createdAt).toLocaleString("en-IN", {
                 day: "2-digit",
@@ -246,7 +249,7 @@ const BookingCard = ({ booking }) => {
             <>
               {renderField("Item", booking?.item)}
               {renderField("Quantity", booking?.quantity)}
-              {renderField("Price Paid", `£${booking?.pricePaid}`)}
+              {renderField("Price Paid", `£${booking?.pricePaid  + '.00'}`)}
               {renderField("Transaction ID", booking?.transactionID)}
               {renderField("Date of Booking", new Date(booking.createdAt).toLocaleString("en-IN", {
                 day: "2-digit",
@@ -261,6 +264,7 @@ const BookingCard = ({ booking }) => {
               {renderField("Booking Source", booking?.source)}
             </>
           )}
+
         </div>
 
         {/* Buttons */}
@@ -280,9 +284,7 @@ const BookingCard = ({ booking }) => {
               )}
             </>
           )}
-          <button className="ml-auto text-gray-500 hover:text-gray-800">
-            <FaEllipsisV />
-          </button>
+        
         </div>
       </div>
     </div>

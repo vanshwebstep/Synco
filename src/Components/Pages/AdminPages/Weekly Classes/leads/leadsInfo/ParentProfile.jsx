@@ -1,15 +1,22 @@
 import React, { useEffect, useState, useCallback } from "react";
 import PhoneInput from "react-phone-input-2";
+import { useLocation } from 'react-router-dom';
+
 import "react-phone-input-2/lib/style.css";
 import { useNotification } from "../../../contexts/NotificationContext";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { Mail, MessageSquare } from "lucide-react";
 
-const ParentProfile = () => {
+const ParentProfile = (fetchedData) => {
   const { adminInfo } = useNotification();
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const location = useLocation();
 
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const queryParams = new URLSearchParams(location.search);
+  const leadId = queryParams.get("id");
+  console.log('leadId', leadId)
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -18,11 +25,21 @@ const ParentProfile = () => {
     postalCode: "",
     childAge: "",
   });
+
+  console.log('fetchedData', fetchedData);
+
+  useEffect(() => {
+    if (fetchedData?.fetchedformData) {
+      setFormData(fetchedData.fetchedformData);
+    }
+  }, [fetchedData]);
+
   const navigate = useNavigate();
   const [dialCode, setDialCode] = useState("+1");
   const [country, setCountry] = useState("us");
 
   const [commentsList, setCommentsList] = useState([]);
+
   const [comment, setComment] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const commentsPerPage = 5;
@@ -89,6 +106,8 @@ const ParentProfile = () => {
       });
     }
   }, [API_BASE_URL]);
+
+
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
@@ -207,12 +226,17 @@ const ParentProfile = () => {
 
 
   useEffect(() => {
-    fetchComments();
-  }, [fetchComments]);
+    (async () => {
+      await fetchComments();          // run first
+      // pass required parameter
+    })();
+  }, [fetchComments,]);
+
+
 
   return (
     <>
-    
+
 
       <div className="flex">
         <div className="md:w-[66%] ">
@@ -312,20 +336,20 @@ const ParentProfile = () => {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                className="px-15 py-4 border border-gray-200 text-gray-500 rounded-xl  transition"
-                onClick={() => navigate('/weekly-classes/central-leads')}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-15 py-4 bg-[#237FEA] text-white rounded-xl hover:bg-[#1e6fd2] transition"
-                onClick={handleAddLead}
-              >
-                Add Lead
-              </button>
-            </div>
+            {/* <div className="flex gap-3">
+                <button
+                  className="px-15 py-4 border border-gray-200 text-gray-500 rounded-xl  transition"
+                  onClick={() => navigate('/weekly-classes/central-leads')}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-15 py-4 bg-[#237FEA] text-white rounded-xl hover:bg-[#1e6fd2] transition"
+                  onClick={handleAddLead}
+                >
+                  Add Lead
+                </button>
+              </div> */}
           </div>
 
           <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
@@ -424,43 +448,82 @@ const ParentProfile = () => {
             {/* Details Section */}
             <div className="bg-[#363E49] text-white rounded-4xl p-6 space-y-3">
 
-              <div className="text-white rounded-2xl p-4 relative overflow-hidden" style={{ backgroundImage: "url('/demo/synco/frames/Active.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+              <div className="text-white rounded-2xl p-4 relative overflow-hidden"        style={{
+                                backgroundImage: fetchedData?.leadData?.bookings?.[0]?.status === "cancelled"
+                                    ? "url('/demo/synco/frames/Cancelled.png')"
+                                    : fetchedData?.leadData?.bookings?.[0]?.status === "frozen"
+                                        ? "url('/demo/synco/frames/Frozen.png')"
+                                        : fetchedData?.leadData?.bookings?.[0]?.status === "active"
+                                            ? "url('/demo/synco/frames/Active.png')"
+                                            : fetchedData?.leadData?.bookings?.[0]?.status === "request_to_cancel"
+                                                ? "url('/demo/synco/frames/reqCancel.png')"
+                                                : fetchedData?.leadData?.bookings?.[0]?.status === "waiting list"
+                                                    ? "url('/demo/synco/frames/Waiting.png')"
+                                                    : "url('/demo/synco/frames/Pending.png')",
+
+
+                                backgroundSize: "cover",
+                            }}>
 
                 <p className="text-[20px] text-black font-bold relative z-10">Account Status</p>
-                <p className="text-sm text-black relative z-10">Lead</p>
+                <p className="text-sm text-black relative capitalize z-10"> {fetchedData?.leadData?.bookings?.[0]?.status || "N/A"}</p>
               </div>
               <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
                 <div><img src="/demo/synco/members/user2.png" alt="" /></div>
                 <div>  <h3 className="text-lg font-semibold">Assigned Agent</h3>
-                  <p className="text-gray-300 text-sm">Ethan Bond-Vaughan</p></div>
+                  <p className="text-gray-300 text-sm">{fetchedData?.leadData?.assignedAgent?.firstName} {fetchedData?.leadData?.assignedAgent?.lastName}</p></div>
               </div>
 
               <div className="border-b border-[#495362] pb-3">
                 <p className="text-white text-[18px] font-semibold">Nearest Venue</p>
-                <span className="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded-md mt-1">
-                  Aston
-                </span>
+ {fetchedData?.leadData?.nearestVenues?.map((v, index) => (
+  <span
+    key={index}
+    className="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded-md mt-1 mr-1"
+  >
+    {v.name}
+  </span>
+))}
+
               </div>
 
               <div className="border-b border-[#495362] pb-3">
                 <p className="text-white text-[18px] font-semibold">Date lead was added</p>
-              
-                <p className="text-[16px] mt-1 text-[#BDC0C3]">Nov 18 2021, 17:00</p>
+
+                <p className="text-[16px] mt-1 text-[#BDC0C3]">{fetchedData?.leadData?.createdAt
+    ? new Date(fetchedData.leadData.createdAt).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+    : ""}</p>
               </div>
 
               <div className="border-b border-[#495362] pb-3">
                 <p className="text-white text-[18px] font-semibold">Source</p>
-                <p className="text-[16px] mt-1 text-[#BDC0C3]">Facebook</p>
+                <p className="text-[16px] mt-1 text-[#BDC0C3]">{fetchedData?.leadData?.status || 'N/A'}</p>
               </div>
 
               <div className="border-b border-[#495362] pb-3">
                 <p className="text-white text-[18px] font-semibold">Last Contact Date</p>
-                <p className="text-[16px] mt-1 text-[#BDC0C3]">Nov 18 2021, 17:00</p>
+                <p className="text-[16px] mt-1 text-[#BDC0C3]">{fetchedData?.leadData?.updatedAt
+    ? new Date(fetchedData.leadData.createdAt).toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      })
+    : ""}</p>
               </div>
 
               <div>
                 <p className="text-white text-[18px] font-semibold">Current status</p>
-                <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">1 Voicemail</p>
+                <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">{fetchedData?.leadData?.bookings?.[0]?.status}</p>
               </div>
             </div>
 

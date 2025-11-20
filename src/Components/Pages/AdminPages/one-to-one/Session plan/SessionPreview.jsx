@@ -199,7 +199,7 @@ const SessionPreview = ({ item, sessionData }) => {
         <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
           <div className="flex w-full flex-col lg:flex-row gap-6">
-            <div className="w-full bg-white justify-between lg:w-1/2 flex gap-2 border border-gray-300 p-2 rounded-2xl flex-wrap">
+            <div className="w-full bg-white j lg:w-1/2 grid md:grid-cols-4 gap-2 border border-gray-300 p-2 rounded-2xl flex-wrap">
               {dynamicTabs.map((tab) => (
                 <button
                   key={tab}

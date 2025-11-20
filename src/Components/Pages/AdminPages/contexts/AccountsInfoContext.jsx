@@ -15,6 +15,7 @@ export const AccountsInfoProvider = ({ children }) => {
   const [mainId, setMainId] = useState('');
   const token = localStorage.getItem("adminToken");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const [historyActiveTab, setHistoryActiveTab] = useState('General');
 
   const handleUpdate = async (title, mainData) => {
     if (!token) return Swal.fire("Error", "Token not found. Please login again.", "error");
@@ -61,12 +62,14 @@ export const AccountsInfoProvider = ({ children }) => {
 
       const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/booking/update/${oneToOneData?.id}`, requestOptions);
 
+      const result = await response.json();
       if (!response.ok) {
-        const errorText = await response.text();
+
+        const errorText = await result.message;
+        console.log('response')
         throw new Error(errorText || "Something went wrong");
       }
 
-      const result = await response.json();
 
       // Close loading
       Swal.close();
@@ -144,12 +147,12 @@ export const AccountsInfoProvider = ({ children }) => {
 
       const response = await fetch(`${API_BASE_URL}/api/admin/account-information/${mainId}`, requestOptions);
 
+      const result = await response.json();
       if (!response.ok) {
-        const errorText = await response.text();
+        const errorText = await result.message;
         throw new Error(errorText || "Something went wrong");
       }
 
-      const result = await response.json();
 
       // Close loading
       Swal.close();
@@ -224,12 +227,12 @@ export const AccountsInfoProvider = ({ children }) => {
 
       const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/booking/update/${data.id}`, requestOptions);
 
+      const result = await response.json();
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Something went wrong");
+        const errorText = await result;
+        throw new Error(result.message || "Something went wrong");
       }
 
-      const result = await response.json();
 
       // Close loading
       Swal.close();
@@ -489,7 +492,7 @@ export const AccountsInfoProvider = ({ children }) => {
     }
   };
   return (
-    <AccountsInfoContext.Provider value={{ data,oneToOneData, handleUpdateAcountInfo, sendOnetoOneMail, sendBirthdayMail, handleUpdateBirthday, fetchBirthdyPartiesMembers, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
+    <AccountsInfoContext.Provider value={{ data,oneToOneData,historyActiveTab, setHistoryActiveTab, handleUpdateAcountInfo, sendOnetoOneMail, sendBirthdayMail, handleUpdateBirthday, fetchBirthdyPartiesMembers, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
       {children}
     </AccountsInfoContext.Provider>
   );

@@ -12,8 +12,8 @@ const ParentProfile = () => {
   const [showModal, setShowModal] = useState(false);
   const { adminInfo, setAdminInfo } = useNotification();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { formData, setFormData, emergency, setEmergency, handleUpdateBirthday,students } = useAccountsInfo();
-  console.log('students',students)
+  const { formData, setFormData, emergency, setEmergency, handleUpdateBirthday, students } = useAccountsInfo();
+  console.log('students', students)
 
   const [commentsList, setCommentsList] = useState([]);
   const [comment, setComment] = useState('');
@@ -32,7 +32,7 @@ const ParentProfile = () => {
     setCurrentPage(page);
   };
 
- 
+
 
   const relationOptions = [
     { value: "Mother", label: "Mother" },
@@ -84,16 +84,16 @@ const ParentProfile = () => {
 
 
   const handleModalChange = (e) => {
-  // For standard input fields
-  const { name, value } = e.target;
-  setNewParent((prev) => ({ ...prev, [name]: value }));
-};
+    // For standard input fields
+    const { name, value } = e.target;
+    setNewParent((prev) => ({ ...prev, [name]: value }));
+  };
 
-// Handle react-select separately
-const handleSelectChangeNew = (selectedOption, actionMeta) => {
-  const { name } = actionMeta;
-  setNewParent((prev) => ({ ...prev, [name]: selectedOption.value }));
-};
+  // Handle react-select separately
+  const handleSelectChangeNew = (selectedOption, actionMeta) => {
+    const { name } = actionMeta;
+    setNewParent((prev) => ({ ...prev, [name]: selectedOption.value }));
+  };
 
 
   // Handle phone input changes
@@ -104,17 +104,17 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
         i === index ? { ...parent, phoneNumber: value } : parent
       )
     );
- 
+
   };
 
   const handlePhoneChangeNew = (e) => {
-  const value = e.target.value;
+    const value = e.target.value;
 
-  setNewParent((prev) => ({
-    ...prev,
-    phoneNumber: value,
-  }));
-};
+    setNewParent((prev) => ({
+      ...prev,
+      phoneNumber: value,
+    }));
+  };
 
 
 
@@ -239,11 +239,27 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
   }
   // Add parent from modal
   const handleAddParent = () => {
-    console.log('newParent',newParent)
+     if (
+        !newParent.parentFirstName?.trim() ||
+        !newParent.parentLastName?.trim() ||
+        !newParent.parentEmail?.trim() ||
+        !newParent.phoneNumber?.trim() ||
+        !newParent.relationChild ||
+        !newParent.howDidHear
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Missing Required Fields",
+          text: "Please fill all required fields before saving.",
+          confirmButtonColor: "#237FEA",
+        });
+        return;
+      }
+    console.log('newParent', newParent)
     setFormData((prev) => [...prev, newParent]);
     // Create the updated students array
-    const updatedStudents = [...formData, { ...newParent,studentId :students[0]?.id }];
-    console.log('updatedStudents',updatedStudents)
+    const updatedStudents = [...formData, { ...newParent, studentId: students[0]?.id }];
+    console.log('updatedStudents', updatedStudents)
 
     // Update local state
     setFormData(updatedStudents);
@@ -321,14 +337,18 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
 
-          <button
-            type="button"
-            onClick={() => setShowModal(true)}
+      {formData.length < 3 && (
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
 
-            className="bg-[#237FEA] md:absolute right-0 -top-0 text-sm px-4 py-2 rounded-xl text-white hover:bg-[#1e6fd2] transition"
-          >
-            Add Parent
-          </button>
+              className="bg-[#237FEA] md:absolute right-0 -top-0 text-sm px-4 py-2 rounded-xl text-white hover:bg-[#1e6fd2] transition"
+            >
+              Add Parent
+            </button>
+
+          )}
+
         </div>
 
         {/* Render multiple parent sections */}
@@ -559,7 +579,6 @@ const handleSelectChangeNew = (selectedOption, actionMeta) => {
                       }}
                       buttonClass="!bg-white !border-none !p-0"
                     />
-                    <span className="text-gray-600 mr-2">{dialCode}</span>
                     <input
                       type="tel"
                       name="phoneNumber"

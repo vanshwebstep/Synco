@@ -76,7 +76,8 @@ const bookings = [
 // Helper function for images
 const renderImage = (type) => {
   const images = {
-    "Weekly Classes Membership": "/demo/synco/icons/crown.png",
+    "weekly class membership": "/demo/synco/icons/crown.png",
+    "weekly class trial": "/demo/synco/icons/crown.png",
     "Birthday Party Booking": "/demo/synco/icons/crown.png",
     "One to One Booking": "/demo/synco/icons/crown.png",
     "Holiday Camp": "/demo/synco/icons/crown.png",
@@ -90,17 +91,36 @@ const renderField = (label, value) => {
   return (
     <div>
       <p className="text-gray-500 text-sm">{label}</p>
-      <p className="mt-1 font-semibold">{value}</p>
+      <p className="mt-1 font-semibold">{value || 'N/A'}</p>
     </div>
   );
 };
 
 const BookingCard = ({ booking }) => {
   const statusColors = {
-    green: "bg-green-500 text-white",
-    red: "bg-red-500 text-white",
-    orange: "bg-orange-500 text-white",
+    active: "bg-green-500 text-white",
+    cancelled: "bg-red-500 text-white",
+    Hold: "bg-orange-500 text-white",
+    pending: "bg-yellow-500 text-white",
   };
+console.log('booking',booking)
+const formatPrettyDate = (dateString) => {
+  if (!dateString) return "N/A";
+
+  const date = new Date(dateString);
+
+  const day = date.getDate();
+  const month = date.toLocaleString("en-US", { month: "short" });
+  const year = date.getFullYear();
+
+  // suffix (st, nd, rd, th)
+  const suffix =
+    day % 10 === 1 && day !== 11 ? "st" :
+    day % 10 === 2 && day !== 12 ? "nd" :
+    day % 10 === 3 && day !== 13 ? "rd" : "th";
+
+  return `${month} ${day}${suffix} ${year}`;
+};
 
   return (
     <div className="bg-white rounded-2xl shadow p-3 mb-6">
@@ -108,11 +128,11 @@ const BookingCard = ({ booking }) => {
       <div className="flex justify-between items-center bg-[#3D444F] rounded-2xl p-4">
         <div className="flex items-center gap-3">
           <img
-            src={renderImage(booking.type)}
-            alt={booking.type}
+            src={renderImage(booking.serviceType)}
+            alt={booking.serviceType}
             className="w-8 h-8 rounded-full"
           />
-          <h3 className="text-white font-semibold">{booking.type}</h3>
+          <h3 className="text-white capitalize font-semibold">{booking.serviceType}</h3>
         </div>
         <div className="flex items-center gap-2">
           <button className="px-3 py-2 flex items-center gap-2 rounded-lg text-sm bg-white">
@@ -124,7 +144,7 @@ const BookingCard = ({ booking }) => {
             396
           </button>
           <span
-            className={`px-3 py-2 rounded-lg text-sm ${statusColors[booking.statusColor]}`}
+            className={`px-3 py-2 rounded-lg text-sm ${statusColors[booking.status]}`}
           >
             {booking.status}
           </span>
@@ -134,20 +154,31 @@ const BookingCard = ({ booking }) => {
       {/* Details */}
       <div className="bg-[#FCF9F6] rounded-2xl p-4 mt-4">
         <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4 mb-4`}>
-          {booking.type === "Weekly Classes Membership" && (
+          {booking.serviceType === "weekly class membership" && (
             <>
-              {renderField("Membership Plan", booking.plan)}
-              {renderField("Students", booking.students)}
-              {renderField("Venue", booking.venue)}
-              {renderField("KGo/Cardless ID", booking.id)}
-              {renderField("Monthly Price", booking.price)}
-              {renderField("Date Of Booking", booking.bookingDate)}
-              {renderField("Progress", booking.progress)}
-              {renderField("Booking Source", booking.source)}
+              {renderField("Membership Plan", booking?.paymentPlan?.title)}
+              {renderField("Students", booking?.totalStudents)}
+              {renderField("Venue", booking?.venue.name)}
+              {renderField("KGo/Cardless ID", booking?.payments?.merchantRef)}
+              {renderField("Monthly Price", booking?.paymentPlan.price)}
+              {renderField("Date Of Booking", booking?.startDate)}
+              {/* {renderField("Progress", booking?.paymentPlanId)} */}
+              {renderField("Booking Source", booking?.paymentPlanId)}
+            </>
+          )}
+           {booking.serviceType == "weekly class trial" && (
+            <>
+              {renderField("Date of trial", booking?.trialDate)}
+              {renderField("Students", booking?.totalStudents)}
+              {renderField("Venue", booking?.venue.name)}
+              {/* {renderField("ID", booking?.paymentPlanId)} */}
+              {renderField("Trial Attempt", booking?.attempt)}
+              {renderField("Date Of Booking", formatPrettyDate(booking?.createdAt))}
+              {renderField("Booking Source", booking?.source  )}
             </>
           )}
 
-          {booking.type === "Birthday Party Booking" && (
+          {booking.serviceType === "Birthday Party Booking" && (
             <>
               {renderField("Package", booking.package)}
               {renderField("Price Paid", booking.pricePaid)}
@@ -159,7 +190,7 @@ const BookingCard = ({ booking }) => {
             </>
           )}
 
-          {booking.type === "One to One Booking" && (
+          {booking.serviceType === "One to One Booking" && (
             <>
               {renderField("Package", booking.package)}
               {renderField("Students", booking.students)}
@@ -172,7 +203,7 @@ const BookingCard = ({ booking }) => {
             </>
           )}
 
-          {booking.type === "Holiday Camp" && (
+          {booking.serviceType === "Holiday Camp" && (
             <>
               {renderField("Camp", booking.camp)}
               {renderField("Students", booking.students)}
@@ -186,7 +217,7 @@ const BookingCard = ({ booking }) => {
             </>
           )}
 
-          {booking.type === "Merchandise" && (
+          {booking.serviceType === "Merchandise" && (
             <>
               {renderField("Item", booking.item)}
               {renderField("Quantity", booking.quantity)}
@@ -226,10 +257,21 @@ const BookingCard = ({ booking }) => {
   );
 };
 
-const ServiceHistory = () => {
+const ServiceHistory = (bookingData ) => {
+  console.log('bookig ',bookingData )
+
+
+  const [bookings, setBookings] = useState([]);
+
   const [showModal, setShowModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const filterModalRef = useRef(null);
+  
+  useEffect(() => {
+    if (bookingData?.leadData?.bookings) {
+      setBookings(bookingData?.leadData?.bookings);
+    }
+  }, [bookingData]);
 
   // Close modal when clicking outside
   useEffect(() => {
@@ -286,7 +328,7 @@ const ServiceHistory = () => {
 
   const month = currentDate.getMonth();
   const year = currentDate.getFullYear();
-
+console.log('bookings',bookings )
   const getDaysArray = () => {
     const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
     const daysInMonth = new Date(year, month + 1, 0).getDate();

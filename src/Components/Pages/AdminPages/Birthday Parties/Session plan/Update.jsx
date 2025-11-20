@@ -159,7 +159,37 @@ export default function BirthdayUpdate() {
     }
     useEffect(() => {
         setMounted(true);
-    }, [])
+    }, []);
+
+    const [photoPreview, setPhotoPreview] = useState([]);
+
+    const removeImage = (id) => {
+        setPhotoPreview((prev) => {
+            const toDelete = prev.find((img) => img.id === id);
+
+            if (toDelete?.url?.startsWith("blob:")) {
+                URL.revokeObjectURL(toDelete.url);
+            }
+
+            // Remove preview
+            return prev.filter((img) => img.id !== id);
+        });
+
+        // Remove from actual data
+        setExercise((prev) => {
+            const newPreviewList = photoPreview.filter((img) => img.id !== id);
+
+            return {
+                ...prev,
+                image: newPreviewList.map((img) => img.url),
+                imageToSend: newPreviewList
+                    .map((img) => img.file)
+                    .filter((f) => f !== null)
+            };
+        });
+    };
+
+
 
     const fetchExercises = useCallback(async () => {
         if (!token) return;
@@ -184,7 +214,25 @@ export default function BirthdayUpdate() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             const result = await response.json();
-            setExercise(result.data || []);
+            setExercise(result.data)
+            const existingImages =
+                typeof result.data?.imageUrl === "string" && result.data?.imageUrl.trim() !== ""
+                    ? JSON.parse(result.data.imageUrl)
+                    : Array.isArray(result.data?.imageUrl)
+                        ? result.data.imageUrl
+                        : [];
+
+            setPhotoPreview(
+                existingImages.map((img, i) => ({
+                    id: `api-${i}-${Date.now()}`,
+                    type: "api",
+                    url: img,
+                    file: null
+                }))
+            );
+
+
+
         } catch (err) {
             console.error("Failed to fetch packages:", err);
         } finally {
@@ -309,109 +357,109 @@ export default function BirthdayUpdate() {
         [token, fetchExercises]
     );
 
- const deleteExercise = useCallback(
-    async (id) => {
-        if (!token) return;
+    const deleteExercise = useCallback(
+        async (id) => {
+            if (!token) return;
 
-        try {
-            const result = await Swal.fire({
-                title: "Delete Exercise",
-                html: `
+            try {
+                const result = await Swal.fire({
+                    title: "Delete Exercise",
+                    html: `
                     <div class="text-[15px] text-gray-700">
                         Choose how you want to delete this exercise.
                     </div>
                 `,
-                icon: "warning",
-                showCancelButton: true,
-                showDenyButton: true,
-                confirmButtonText: "Permanent Delete",
-                denyButtonText: "Just Remove",
-                cancelButtonText: "Cancel",
-                confirmButtonColor: "#d33",
-                denyButtonColor: "#3b82f6",
-                cancelButtonColor: "#6b7280",
-            });
-
-            // ------------------------------
-            // ❌ CANCEL — DO NOTHING
-            // ------------------------------
-            if (result.isDismissed) return;
-
-            // ------------------------------
-            // 🟦 JUST REMOVE (local only)
-            // ------------------------------
-            if (result.isDenied) {
-                setGroupData((prev) => ({
-                    ...prev,
-                    exercises: prev.exercises.filter((ex) => ex.value !== id),
-                }));
-
-                Swal.fire({
-                    icon: "info",
-                    title: "Removed",
-                    text: "Exercise removed from this group only.",
-                    showConfirmButton: false,
-                    timer: 1400,
+                    icon: "warning",
+                    showCancelButton: true,
+                    showDenyButton: true,
+                    confirmButtonText: "Permanent Delete",
+                    denyButtonText: "Just Remove",
+                    cancelButtonText: "Cancel",
+                    confirmButtonColor: "#d33",
+                    denyButtonColor: "#3b82f6",
+                    cancelButtonColor: "#6b7280",
                 });
 
-                return;
-            }
+                // ------------------------------
+                // ❌ CANCEL — DO NOTHING
+                // ------------------------------
+                if (result.isDismissed) return;
 
-            // ------------------------------
-            // 🔴 PERMANENT DELETE (API DELETE)
-            // ------------------------------
-            if (result.isConfirmed) {
-                Swal.fire({
-                    title: "Deleting Exercise...",
-                    text: "Please wait while your exercise is being deleted",
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading(),
-                });
+                // ------------------------------
+                // 🟦 JUST REMOVE (local only)
+                // ------------------------------
+                if (result.isDenied) {
+                    setGroupData((prev) => ({
+                        ...prev,
+                        exercises: prev.exercises.filter((ex) => ex.value !== id),
+                    }));
 
-                const response = await fetch(
-                    `${API_BASE_URL}/api/admin/birthday-party/session-exercise/delete/${id}`,
-                    {
-                        method: "DELETE",
-                        headers: { Authorization: `Bearer ${token}` },
-                    }
-                );
+                    Swal.fire({
+                        icon: "info",
+                        title: "Removed",
+                        text: "Exercise removed from this group only.",
+                        showConfirmButton: false,
+                        timer: 1400,
+                    });
 
-                const data = await response.json();
-                if (response.ok) {
-                    await fetchExercises();
+                    return;
                 }
 
-                // remove from local data
-                setGroupData((prev) => ({
-                    ...prev,
-                    exercises: prev.exercises.filter((ex) => ex.value !== id),
-                }));
+                // ------------------------------
+                // 🔴 PERMANENT DELETE (API DELETE)
+                // ------------------------------
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Deleting Exercise...",
+                        text: "Please wait while your exercise is being deleted",
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading(),
+                    });
 
+                    const response = await fetch(
+                        `${API_BASE_URL}/api/admin/birthday-party/session-exercise/delete/${id}`,
+                        {
+                            method: "DELETE",
+                            headers: { Authorization: `Bearer ${token}` },
+                        }
+                    );
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        await fetchExercises();
+                    }
+
+                    // remove from local data
+                    setGroupData((prev) => ({
+                        ...prev,
+                        exercises: prev.exercises.filter((ex) => ex.value !== id),
+                    }));
+
+                    Swal.fire({
+                        icon: response.ok ? "success" : "error",
+                        title: response.ok ? "Deleted!" : "Failed to Delete",
+                        text:
+                            data.message ||
+                            (response.ok
+                                ? "Exercise deleted successfully."
+                                : "Something went wrong."),
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }
+            } catch (err) {
                 Swal.fire({
-                    icon: response.ok ? "success" : "error",
-                    title: response.ok ? "Deleted!" : "Failed to Delete",
+                    icon: "error",
+                    title: "Failed to Delete",
                     text:
-                        data.message ||
-                        (response.ok
-                            ? "Exercise deleted successfully."
-                            : "Something went wrong."),
-                    showConfirmButton: false,
-                    timer: 1500,
+                        err.message ||
+                        "Something went wrong while deleting the exercise.",
                 });
+                console.error("Failed to delete Exercise:", err);
             }
-        } catch (err) {
-            Swal.fire({
-                icon: "error",
-                title: "Failed to Delete",
-                text:
-                    err.message ||
-                    "Something went wrong while deleting the exercise.",
-            });
-            console.error("Failed to delete Exercise:", err);
-        }
-    },
-    [token, fetchExercises]
-);
+        },
+        [token, fetchExercises]
+    );
 
     console.log('activeTab', activeTab)
     console.log('grup', groupName)
@@ -569,16 +617,25 @@ export default function BirthdayUpdate() {
     };
     const handleImageUpload = (e) => {
         const files = Array.from(e.target.files);
-        if (files.length > 0) {
-            const imageUrls = files.map((file) => URL.createObjectURL(file));
 
-            setExercise((prev) => ({
-                ...prev,
-                image: [...(prev.image || []), ...imageUrls], // store preview URLs
-                imageToSend: [...(prev.imageToSend || []), ...files], // store actual files
-            }));
-        }
+        const mapped = files.map((file) => ({
+            id: `local-${file.name}-${Math.random()}`,
+            type: "local",
+            url: URL.createObjectURL(file),
+            file
+        }));
+
+        // update preview
+        setPhotoPreview((prev) => [...prev, ...mapped]);
+
+        // update exercise
+        setExercise((prev) => ({
+            ...prev,
+            image: [...(prev.image || []), ...mapped.map((m) => m.url)],
+            imageToSend: [...(prev.imageToSend || []), ...mapped.map((m) => m.file)]
+        }));
     };
+
 
     // Save current tab data excluding banner
 
@@ -938,32 +995,25 @@ export default function BirthdayUpdate() {
 
                                     </label>
 
-                                    <div className="flex flex-wrap gap-4">
+                                    <div className="flex flex-wrap gap-4 mt-3">
 
-                                        {exercise.imageUrl && JSON.parse(exercise.imageUrl).length > 0 && (
-                                            <div className="mt-3 flex flex-wrap gap-3">
-                                                {JSON.parse(exercise.imageUrl).map((img, index) => (
-                                                    <img
-                                                        key={index}
-                                                        src={img}
-                                                        alt={`Preview ${index + 1}`}
-                                                        className="rounded-xl w-40 h-28 object-cover"
-                                                    />
-                                                ))}
+                                        {photoPreview.map((img) => (
+                                            <div key={img.id} className="relative">
+                                                <img
+                                                    src={img.url}
+                                                    alt="preview"
+                                                    className="w-24 h-24 object-cover rounded-md border border-gray-200"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeImage(img.id)}
+                                                    className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full px-1.5"
+                                                >
+                                                    ✕
+                                                </button>
                                             </div>
-                                        )}
-                                        {exercise.image && exercise.image.length > 0 && (
-                                            <div className="mt-3 flex flex-wrap gap-3">
-                                                {exercise.image.map((img, index) => (
-                                                    <img
-                                                        key={index}
-                                                        src={img}
-                                                        alt={`Preview ${index + 1}`}
-                                                        className="rounded-xl w-40 h-28 object-cover"
-                                                    />
-                                                ))}
-                                            </div>
-                                        )}
+                                        ))}
+
                                     </div>
 
 
@@ -984,7 +1034,7 @@ export default function BirthdayUpdate() {
                     )}
                     <div className="flex justify-end gap-3 mt-5">
                         <button onClick={() => navigate(`/birthday-party/session-plan-preview?id=${id}`)} className="border-[#237FEA] text-[#237FEA] border rounded-xl px-6 py-2 flex gap-2 items-center">Preview Sessions <FaEye /> </button>
-                        <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700" onClick={() => handleSavePlan(sessionGroup.id)}>Create Group</button>
+                        <button className="bg-[#237FEA] text-white rounded-xl p-3 py-2 px-7 hover:bg-blue-700" onClick={() => handleSavePlan(sessionGroup.id)}>Update Group</button>
                     </div>
 
 

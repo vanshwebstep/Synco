@@ -73,7 +73,7 @@ const LeadsDashboard = () => {
       // console.log('dateoftrial', dateoftrial)
       // console.log('forOtherDate', forOtherDate)
 
-      if (noLoaderShow === false) setLoading(true);
+      if (!studentName) setLoading(true);
 
       try {
         const queryParams = new URLSearchParams();
@@ -119,7 +119,7 @@ const LeadsDashboard = () => {
       } catch (error) {
         console.error("Failed to fetch bookFreeTrials:", error);
       } finally {
-        if (noLoaderShow === false) setLoading(false); // only stop loader if it was started
+         setLoading(false); // only stop loader if it was started
       }
     },
     []
@@ -158,8 +158,8 @@ const LeadsDashboard = () => {
   // then your summaryCards
   const summaryCards = [
     { icon: "/demo/synco/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: 0 },
-    { icon: '/demo/synco/reportsIcons/greenuser.png', iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary.newLeads, change: 0 },
-    { icon: '/demo/synco/reportsIcons/orangeuser.png', iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary.leadsWithBookings, change: 0 },
+    { icon: '/demo/synco/reportsIcons/greenuser.png', iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary?.newLeads, change: 0 },
+    { icon: '/demo/synco/reportsIcons/orangeuser.png', iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary?.leadsWithBookings, change: 0 },
     { icon: '/demo/synco/reportsIcons/purple-user-group.png', iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
   ];
   const [formData, setFormData] = useState({
@@ -262,24 +262,19 @@ const LeadsDashboard = () => {
     }
   };
   const handleSearch = (e) => {
-    const value = e.target.value.trim();
+    const value = e.target.value;
     setSearchTerm(value);
 
     // If search is cleared, hide loader and optionally reset data
     if (value.length === 0) {
-      setNoLoaderShow(false);
       fetchLeads(""); // optional: reload default list
       return;
     }
 
-    // Show loader while searching
-    setNoLoaderShow(true);
 
-    // Debounce to prevent too many API calls while typing
-    clearTimeout(window.searchTimeout);
-    window.searchTimeout = setTimeout(() => {
+   
       fetchLeads(value);
-    }, 400);
+   
   };
 
   const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -513,7 +508,7 @@ const LeadsDashboard = () => {
 
       <div className="min-h-screen overflow-hidden bg-gray-50 py-6 flex flex-col lg:flex-row ">
         {/* Left Section */}
-        <div className="md:w-[73%] gap-6 md:pe-3 mb-4 md:mb-0">
+        <div className="md:w-8/12 gap-6 md:pe-3 mb-4 md:mb-0">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {summaryCards.map((card, i) => {
@@ -636,7 +631,7 @@ const LeadsDashboard = () => {
                             <td className="py-3 px-4 whitespace-nowrap">{lead.childName}</td>
                             <td className="py-3 px-4 whitespace-nowrap">{lead.age}</td>
                             <td className="py-3 px-4 whitespace-nowrap">{lead.postCode}</td>
-                            <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest}</td>
+                            <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest }</td>
                             <td className="py-3 px-4 whitespace-nowrap">{lead.availability}</td>
                             <td className="py-3 px-4 whitespace-nowrap">{lead.source}</td>
                             <td className="py-3 px-4 whitespace-nowrap">

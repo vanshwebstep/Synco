@@ -189,7 +189,7 @@ const BirthdaySessionPreview = ({ item, sessionData }) => {
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
-          <span className="truncate">     {selectedGroup?.groupName || 'View Session Plans'} Preview</span>
+          <span className="truncate">{selectedGroup?.groupName || 'View Session Plans'} Preview</span>
         </h2>
       </div>
       <div className=" rounded-3xl  p-6 pt-0 flex flex-col md:flex-row gap-6">
@@ -199,7 +199,7 @@ const BirthdaySessionPreview = ({ item, sessionData }) => {
         <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
           <div className="flex w-full flex-col lg:flex-row gap-6">
-            <div className="w-full bg-white justify-between lg:w-1/2 flex gap-2 border border-gray-300 p-2 rounded-2xl flex-wrap">
+            <div className="w-full bg-white grid md:grid-cols-4 lg:w-1/2  gap-2 border border-gray-300 p-2 rounded-2xl flex-wrap">
               {dynamicTabs.map((tab) => (
                 <button
                   key={tab}

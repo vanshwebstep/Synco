@@ -79,8 +79,8 @@ const bookings = [
 const renderImage = (type) => {
   const images = {
     "Weekly Classes Membership": "/demo/synco/icons/crown.png",
-    "Birthday Party Booking": "/demo/synco/icons/crown.png",
-    "One to One Booking": "/demo/synco/icons/crown.png",
+    "birthday party": "/demo/synco/icons/birthday.png",
+    "One to One Booking": "/demo/synco/icons/one-to-one.png",
     "Holiday Camp": "/demo/synco/icons/crown.png",
     "Merchandise": "/demo/synco/icons/crown.png",
   };
@@ -97,19 +97,9 @@ const renderField = (label, value) => {
   );
 };
 
-const BookingCard = ({ booking }) => {
+const BookingCard = ({ bookingInfo, booking }) => {
   const { students, setStudents, handleUpdate, mainId, data } = useAccountsInfo();
 
-  // console.log('booking', booking) 
-  // const booking = data.booking
-  //  console.log('data', data.booking)
-  // data.packageInterest
-  // data.booking.students.length
-  // data.booking.paymentPlan?.price
-  // data.booking.payment.stripePaymentIntentId
-  // data.booking.location
-  // data.booking.coach.firstName ,data.booking.coach.lastName 
-  // data.booking.Flyer 
 
   const navigate = useNavigate();
   const statusColors = {
@@ -126,8 +116,8 @@ const BookingCard = ({ booking }) => {
       <div className="flex justify-between items-center bg-[#3D444F] rounded-2xl p-4">
         <div className="flex items-center gap-3">
           <img
-            src={renderImage(booking.type)}
-            alt={booking.type}
+            src={renderImage(booking?.serviceType)}
+            alt={booking?.serviceType}
             className="w-8 h-8 rounded-full"
           />
           <h3 className="text-white font-semibold">Birthday party Booking</h3>
@@ -151,16 +141,16 @@ const BookingCard = ({ booking }) => {
 
       {/* Details */}
       <div className="bg-[#FCF9F6] rounded-2xl p-4 mt-4">
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4 mb-4`}>
-          {booking.type === "Weekly Classes Membership" && (
+        <div className={`flex flex-wrap gap-4 mb-4 justify-between`}>
+          {booking?.serviceType === "membership plan" && (
             <>
-              {renderField("Membership Plan", booking.plan)}
-              {renderField("Students", booking.students)}
-              {renderField("Venue", booking.address)}
-              {renderField("KGo/Cardless ID", booking.id)}
-              {renderField("Monthly Price", booking.price)}
+              {renderField("Membership Plan", booking?.paymentPlan?.title)}
+              {renderField("Students", booking?.paymentPlan?.students)}
+              {renderField("Venue", booking?.address)}
+              {renderField("KGo/Cardless ID", booking?.id)}
+              {renderField("Monthly Price", booking?.paymentPlan?.price)}
               {renderField("Date Of Booking",
-                new Date(booking.createdAt).toLocaleString("en-IN", {
+                new Date(booking?.createdAt).toLocaleString("en-IN", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
@@ -170,7 +160,7 @@ const BookingCard = ({ booking }) => {
                 })
               )}
               {renderField("Date Of Party",
-                new Date(booking.createdAt).toLocaleString("en-IN", {
+                new Date(booking?.createdAt).toLocaleString("en-IN", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
@@ -179,38 +169,56 @@ const BookingCard = ({ booking }) => {
                   hour12: false,   // 24-hour format; set true for AM/PM format
                 })
               )}
-              {renderField("Progress", booking.progress)}
-              {renderField("Booking Source", booking.source)}
+              {renderField("Progress", booking?.progress)}
+              {renderField("Booking Source", booking?.source)}
             </>
           )}
 
-          {booking.type === "Birthday Party Booking" && (
+          {booking?.serviceType === "birthday party" && (
             <>
-              {renderField("Package", booking.package)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Stripe Transaction ID", booking.stripeID)}
-              {renderField("Date of Booking", new Date(booking.bookingDate).toLocaleString("en-IN", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: false,   // 24-hour format; set true for AM/PM format
-              }))}
-              {renderField("Date of Party", booking.partyDate)}
-              {renderField("Coach", booking.coach)}
-              {renderField("Booking Source", booking.source)}
+              {renderField("Package", booking?.paymentPlan?.title)}
+              {renderField("Price Paid", `${'£' + booking?.paymentPlan?.price + '.00'}`)}
+              {renderField("Stripe Transaction ID", booking?.payment?.stripeChargeDetails?.id)}
+              {renderField(
+                "Date of Booking",
+                new Date(booking?.createdAt).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                  timeZone: "Asia/Kolkata",
+                })
+              )}
+
+              {renderField(
+                "Date of Party",
+                new Date(bookingInfo?.partyDate).toLocaleString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: false,
+                  timeZone: "Asia/Kolkata",
+                })
+              )}
+
+              {renderField("Coach", `${booking.coach.firstName} ${booking.coach.lastName}`
+              )}
+              {renderField("Booking Source", bookingInfo?.source)}
             </>
           )}
 
-          {booking.type === "One to One Booking" && (
+          {booking?.serviceType === "One to One Booking" && (
             <>
               {renderField("Package", data.packageInterest)}
-              {renderField("Students", data.booking.students.length)}
-              {renderField("Price Paid", data.booking.paymentPlan?.price)}
-              {renderField("Stripe Transaction ID", data.booking.payment.stripePaymentIntentId)}
+              {renderField("Students", data.booking?.students.length)}
+              {renderField("Price Paid", `${'£' + data.booking?.paymentPlan?.price + '.00'}`)}
+              {renderField("Stripe Transaction ID", data.booking?.payment.stripePaymentIntentId)}
               {renderField("Date of Booking",
-                new Date(data.booking.createdAt).toLocaleString("en-IN", {
+                new Date(data.booking?.createdAt).toLocaleString("en-IN", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
@@ -219,7 +227,7 @@ const BookingCard = ({ booking }) => {
                   hour12: false,   // 24-hour format; set true for AM/PM format
                 })
               )}
-                {renderField("Date Of Party",
+              {renderField("Date Of Party",
                 new Date(data.partyDate).toLocaleString("en-IN", {
                   day: "2-digit",
                   month: "short",
@@ -229,19 +237,19 @@ const BookingCard = ({ booking }) => {
                   hour12: false,   // 24-hour format; set true for AM/PM format
                 })
               )}
-              {renderField("Venue", data.booking.address)}
-              {renderField("Coach", `${data.booking.coach.firstName} ${data.booking.coach.lastName}`)}
+              {renderField("Venue", data.booking?.address)}
+              {renderField("Coach", `${data.booking?.coach.firstName} ${data.booking?.coach.lastName}`)}
               {renderField("Booking Source", data.source)}
             </>
           )}
 
-          {booking.type === "Holiday Camp" && (
+          {booking?.serviceType === "Holiday Camp" && (
             <>
-              {renderField("Camp", booking.camp)}
-              {renderField("Students", booking.students)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Stripe Transaction ID", booking.stripeID)}
-              {renderField("Date of Booking", new Date(booking.bookingDate).toLocaleString("en-IN", {
+              {renderField("Camp", booking?.camp)}
+              {renderField("Students", booking?.students)}
+              {renderField("Price Paid", `${'£' + booking?.pricePaid + '.00'}`)}
+              {renderField("Stripe Transaction ID", booking?.stripeID)}
+              {renderField("Date of Booking", new Date(booking?.bookingDate).toLocaleString("en-IN", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
@@ -249,8 +257,8 @@ const BookingCard = ({ booking }) => {
                 minute: "2-digit",
                 hour12: false,   // 24-hour format; set true for AM/PM format
               }))}
-                {renderField("Date Of Party",
-                new Date(booking.createdAt).toLocaleString("en-IN", {
+              {renderField("Date Of Party",
+                new Date(booking?.createdAt).toLocaleString("en-IN", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
@@ -259,20 +267,20 @@ const BookingCard = ({ booking }) => {
                   hour12: false,   // 24-hour format; set true for AM/PM format
                 })
               )}
-              {renderField("Venue", booking.venue)}
-              {renderField("Discount", booking.discount)}
-              {renderField("Coach", booking.coach)}
-              {renderField("Booking Source", booking.source)}
+              {renderField("Venue", booking?.venue)}
+              {renderField("Discount", booking?.discount)}
+              {renderField("Coach", `${booking.coach.firstName} ${booking.coach.lastName}`)}
+              {renderField("Booking Source", booking?.source)}
             </>
           )}
 
-          {booking.type === "Merchandise" && (
+          {booking?.serviceType === "Merchandise" && (
             <>
-              {renderField("Item", booking.item)}
-              {renderField("Quantity", booking.quantity)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Transaction ID", booking.transactionID)}
-              {renderField("Date of Booking", new Date(booking.bookingDate).toLocaleString("en-IN", {
+              {renderField("Item", booking?.item)}
+              {renderField("Quantity", booking?.quantity)}
+              {renderField("Price Paid", `${'£' + booking?.pricePaid + '.00'}`)}
+              {renderField("Transaction ID", booking?.transactionID)}
+              {renderField("Date of Booking", new Date(booking?.bookingDate).toLocaleString("en-IN", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
@@ -280,11 +288,14 @@ const BookingCard = ({ booking }) => {
                 minute: "2-digit",
                 hour12: false,   // 24-hour format; set true for AM/PM format
               }))}
-              {renderField("Discount", booking.discount)}
-              {renderField("Fulfillment Status", booking.fulfillment)}
-              {renderField("Booking Source", booking.source)}
+              {renderField("Discount", booking?.discount)}
+              {renderField("Fulfillment Status", booking?.fulfillment)}
+              {renderField("Booking Source", booking?.source)}
             </>
           )}
+          <button className="ml-auto absolute right-0 top-3 text-gray-500 hover:text-gray-800">
+            <FaEllipsisV />
+          </button>
         </div>
 
         {/* Buttons */}
@@ -292,7 +303,7 @@ const BookingCard = ({ booking }) => {
           <button onClick={() => navigate(`/birthday-party/sales/account-information/see-details?id=${data?.id}`)} className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
             See details
           </button>
-          {booking.type !== "Merchandise" && (
+          {booking?.serviceType !== "Merchandise" && (
             <>
               <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
                 See payments
@@ -300,9 +311,7 @@ const BookingCard = ({ booking }) => {
 
             </>
           )}
-          <button className="ml-auto text-gray-500 hover:text-gray-800">
-            <FaEllipsisV />
-          </button>
+
         </div>
       </div>
     </div>
@@ -310,6 +319,8 @@ const BookingCard = ({ booking }) => {
 };
 
 const ServiceHistory = () => {
+  const { data } = useAccountsInfo();
+
 
   const [showModal, setShowModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -505,15 +516,16 @@ const ServiceHistory = () => {
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
           >
             <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-            Add booking
+            Add booking?
           </button>
         </div>
       </div>
 
       <div className="p-6 bg-gray-100 min-h-screen">
-        {bookings.map((booking, index) => (
-          <BookingCard key={index} booking={booking} />
-        ))}
+
+        <BookingCard bookingInfo={data} booking={data.booking} />
+
+
 
         {/* Modal */}
         {showModal && (
@@ -535,7 +547,7 @@ const ServiceHistory = () => {
                   className="mt-1"
                   classNamePrefix="react-select"
                   value={servicesTypes.find((o) => o.value === selectedBooking) || null}
-                  onChange={(selected) => handleModalChange("booking", selected ? selected.value : "")}
+                  onChange={(selected) => handleModalChange("booking?", selected ? selected.value : "")}
                   options={servicesTypes}
                 />
               </div>

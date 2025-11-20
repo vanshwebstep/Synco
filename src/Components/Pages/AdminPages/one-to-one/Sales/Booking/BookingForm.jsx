@@ -196,6 +196,7 @@ const List = () => {
     emergencyLastName: "",
     emergencyPhoneNumber: "",
     emergencyRelation: "",
+    dialCode: dialCode,
   });
   const [parents, setParents] = useState([
     {
@@ -205,7 +206,8 @@ const List = () => {
       parentEmail: '',
       phoneNumber: '',
       relationChild: '',
-      howDidHear: ''
+      howDidHear: '',
+      dialCode: dialCode,
 
     }
   ]);
@@ -521,12 +523,15 @@ const List = () => {
       exclusions.some(ex => ex.toDateString() === date?.toDateString())
     );
   };
+
+
   const [dob, setDob] = useState('');
   const [age, setAge] = useState(null);
   const [time, setTime] = useState('');
   const [phone, setPhone] = useState('');
   const [emergencyPhone, setEmergencyPhone] = useState('');
   const [sameAsAbove, setSameAsAbove] = useState(false);
+  console.log('time', time);
 
   // 🔁 Calculate Age Automatically
   const handleDOBChange = (index, date) => {
@@ -637,7 +642,49 @@ const List = () => {
       }));
     }
   }, [emergency.sameAsAbove, parents]);
-  // console.log('selectedDiscount', selectedDiscount)
+
+
+  function combineLocalDateTime(date, timeValue) {
+    let hours, minutes;
+
+    // If timeValue is a Date object
+    if (timeValue instanceof Date) {
+      hours = timeValue.getHours();
+      minutes = timeValue.getMinutes();
+    }
+
+    // If timeValue is "HH:mm" string
+    else if (typeof timeValue === "string" && timeValue.includes(":")) {
+      [hours, minutes] = timeValue.split(":");
+    }
+
+    // Create date in **local timezone**
+    const d = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      hours,
+      minutes,
+      0,
+      0
+    );
+
+    // IMPORTANT: Do NOT use toISOString() (it converts to UTC!)
+    // Use manual formatting:
+    const pad = (n) => String(n).padStart(2, "0");
+
+    const finalString =
+      `${d.getFullYear()}-` +
+      `${pad(d.getMonth() + 1)}-` +
+      `${pad(d.getDate())}T` +
+      `${pad(d.getHours())}:` +
+      `${pad(d.getMinutes())}:00`;
+
+    return finalString; // stays in local time
+  }
+
+
+
   const handleSubmit = async () => {
     if (!selectedDate) {
       Swal.fire({
@@ -654,31 +701,34 @@ const List = () => {
       )
     );
 
-    // Transform payment fields
     const transformedPayment = { ...filteredPayment };
 
-    // Handle expiry date
     if (transformedPayment.expiryDate || transformedPayment["expiry date"]) {
       const rawExpiry =
         transformedPayment.expiryDate || transformedPayment["expiry date"];
-      transformedPayment.expiryDate = rawExpiry.replace("/", ""); // "12/12" -> "1212"
-      delete transformedPayment["expiry date"]; // remove old key if exists
+      transformedPayment.expiryDate = rawExpiry.replace("/", "");
+      delete transformedPayment["expiry date"];
     }
 
-    // Handle PAN
     if (transformedPayment.cardNumber) {
-      transformedPayment.cardNumber = transformedPayment.cardNumber.replace(/\s+/g, ""); // remove spaces
+      transformedPayment.cardNumber = transformedPayment.cardNumber.replace(/\s+/g, "");
     }
 
     setIsSubmitting(true);
+
+    // Proper local date
+    const formattedDate = formatLocalDate(selectedDate);
+
+    // FIX: Convert your selected time into local time (no UTC conversion!)
+    const formattedTime = combineLocalDateTime(selectedDate, time);
 
     const payload = {
       leadId: leadId,
       coachId: selectedCoach,
       location: locationValue,
       address: address,
-      date: formatLocalDate(selectedDate),
-      time: time,
+      date: formattedDate,
+      time: formattedTime,   // FIXED
       totalStudents: students.length,
       areaWorkOn: areasToWorkOn,
       paymentPlanId: selectedPackage,
@@ -686,24 +736,21 @@ const List = () => {
       students,
       parents,
       emergency,
-
       ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
     };
+
+    console.log("payload", payload);
+
     try {
       await createBookLeads(payload);
-
-      //// console.log("Final Payload:", JSON.stringify(payload, null, 2));
-      // Optionally show success alert or reset form
     } catch (error) {
       console.error("Error while submitting:", error);
-      // Optionally show error alert
     } finally {
-      setIsSubmitting(false); // Stop loading
+      setIsSubmitting(false);
     }
-    //// console.log("Final Payload:", JSON.stringify(payload, null, 2));
-    // send to API with fetch/axios
   };
-  console.log('selectedPackage', selectedPackage)
+
+
   const handleClick = (val) => {
     if (val === 'AC') {
       setExpression('');
@@ -812,6 +859,7 @@ const List = () => {
   ];
 
 
+  console.log('selectedPackage', selectedPackage)
 
 
   const handleSubmitComment = async (e) => {
@@ -1048,8 +1096,8 @@ const List = () => {
     group.paymentPlans.some(plan => plan.id === selectedPackage)
   );
 
-  console.log('parents', parents)
-  
+  console.log('selectedPackages', selectedPackages)
+
   console.log('finalPaymentPreview', finalPaymentPreview)
 
   if (loading) return <Loader />;
@@ -1565,7 +1613,7 @@ const List = () => {
                       {index === 0 && (
                         <button
                           onClick={handleAddParent}
-                          disabled={parents.length >= 5}
+                          disabled={parents.length === 3}
                           className="text-white text-[14px] px-4 py-2 bg-blue-600 rounded-xl hover:bg-blue-700 disabled:opacity-50"
                         >
                           Add Parent
@@ -1855,7 +1903,7 @@ const List = () => {
                           : "text-gray-700"
                           }`}
                       >
-                        {option.label}
+                        {option.label ||'N/A'}
                       </span>
                     </div>
                   ))}
@@ -1964,57 +2012,56 @@ const List = () => {
               >
                 Cancel
               </button>
-<button
-  type="button"
-  onClick={() => {
-    const parentEmail = parents?.[0]?.parentEmail || "";
+              <button
+                type="button"
+                onClick={() => {
+                  const parentEmail = parents?.[0]?.parentEmail || "";
 
-    console.log("parentEmail:", parentEmail);
+                  console.log("parentEmail:", parentEmail);
 
-    if (!selectedPackage || !selectedDate || !parentEmail) {
-      let msg = "";
-      if (!selectedPackage && !selectedDate) msg = "Please select Package and Date";
-      else if (!selectedPackage) msg = "Please select package";
-      else if (!parentEmail) msg = "Please enter Parent email";
-      else if (!selectedDate) msg = "Please select Date";
+                  if (!selectedPackage || !selectedDate || !parentEmail) {
+                    let msg = "";
+                    if (!selectedPackage && !selectedDate) msg = "Please select Package and Date";
+                    else if (!selectedPackage) msg = "Please select package";
+                    else if (!parentEmail) msg = "Please enter Parent email";
+                    else if (!selectedDate) msg = "Please select Date";
 
-      Swal.fire({
-        icon: "warning",
-        title: "Required Fields",
-        text: msg,
-      });
-      return;
-    }
+                    Swal.fire({
+                      icon: "warning",
+                      title: "Required Fields",
+                      text: msg,
+                    });
+                    return;
+                  }
 
-    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail.trim());
-    if (!isValidEmail) {
-      Swal.fire({
-        icon: "error",
-        title: "Invalid Email",
-        text: "Please enter a valid email address",
-      });
-      return;
-    }
+                  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail.trim());
+                  if (!isValidEmail) {
+                    Swal.fire({
+                      icon: "error",
+                      title: "Invalid Email",
+                      text: "Please enter a valid email address",
+                    });
+                    return;
+                  }
 
-    setShowPopup(true);
-  }}
-  disabled={
-    isSubmitting ||
-    !selectedPackage ||
-    !selectedDate ||
-    !parents?.[0]?.parentEmail
-  }
-  className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${
-    !isSubmitting &&
-    selectedPackage &&
-    selectedDate &&
-    parents?.[0]?.parentEmail
-      ? "bg-[#237FEA] border border-[#237FEA]"
-      : "bg-gray-400 border-gray-400 cursor-not-allowed"
-  }`}
->
-  {isSubmitting ? "Submitting..." : "Make Payment"}
-</button>
+                  setShowPopup(true);
+                }}
+                disabled={
+                  isSubmitting ||
+                  !selectedPackage ||
+                  !selectedDate ||
+                  !parents?.[0]?.parentEmail
+                }
+                className={`text-white font-semibold text-[18px] px-6 py-3 rounded-lg ${!isSubmitting &&
+                  selectedPackage &&
+                  selectedDate &&
+                  parents?.[0]?.parentEmail
+                  ? "bg-[#237FEA] border border-[#237FEA]"
+                  : "bg-gray-400 border-gray-400 cursor-not-allowed"
+                  }`}
+              >
+                {isSubmitting ? "Submitting..." : "Make Payment"}
+              </button>
 
 
 
@@ -2036,9 +2083,9 @@ const List = () => {
 
                   </div>
                   <div className="text-left directDebitBg p-6 mb-4 m-6 rounded-2xl ">
-                    <p className="text-white text-[16px]">One to One Package{membershipPlan?.label || ''}</p>
+                    <p className="text-white text-[16px]">One to One Package ( {selectedPackages?.label || ''} )</p>
                     <p className="font-semibold text-white text-[24px]">
-                      {selectedPackages?.joiningFee != null && `£${selectedPackages?.joiningFee}`}
+                      {selectedPackages?.price != null && `£${selectedPackages?.price}`}
                     </p>
                   </div>
                   <div className="space-y-2 px-6 pb-0">

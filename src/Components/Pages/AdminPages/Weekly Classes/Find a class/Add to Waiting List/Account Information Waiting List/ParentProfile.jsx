@@ -15,6 +15,7 @@ import { addDays } from "date-fns";
 import { FaEdit, FaSave } from "react-icons/fa";
 import { useNotification } from '../../../../contexts/NotificationContext';
 import Swal from "sweetalert2";
+import { useNavigate } from 'react-router-dom';
 const ParentProfile = ({ profile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const {
@@ -23,7 +24,7 @@ const ParentProfile = ({ profile }) => {
         sendWaitingListMail, transferMembershipSubmit,
         freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot, updateWaitingListFamily
     } = useBookFreeTrial() || {};
-
+    const navigate = useNavigate();
     console.log('profiless', profile)
     const [commentsList, setCommentsList] = useState([]);
     const [comment, setComment] = useState('');

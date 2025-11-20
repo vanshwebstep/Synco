@@ -83,7 +83,7 @@ const AllDashboard = () => {
         ) => {
             const token = localStorage.getItem("adminToken");
             if (!token) return;
-            if (noLoaderShow === false) setLoading(true);
+            if (!studentName) setLoading(true);
 
             try {
                 const queryParams = new URLSearchParams();
@@ -153,7 +153,7 @@ const AllDashboard = () => {
                 if (resultRaw.coachList) setCoachList(resultRaw.coachList);
                 setLeadsData(resultRaw.data || []);
                 setSummary(resultRaw.summary);
-                if (noLoaderShow === false) setLoading(false);
+                setLoading(false);
                 setFromDate('');
                 setToDate('');
 
@@ -316,24 +316,15 @@ const AllDashboard = () => {
         }
     };
     const handleSearch = (e) => {
-        const value = e.target.value.trim();
+        const value = e.target.value;
         setSearchTerm(value);
 
-        // If search is cleared, hide loader and optionally reset data
         if (value.length === 0) {
-            setNoLoaderShow(true);
             fetchLeads(""); // optional: reload default list
             return;
         }
+        fetchLeads(value);
 
-        // Show loader while searching
-        setNoLoaderShow(false);
-
-        // Debounce to prevent too many API calls while typing
-        clearTimeout(window.searchTimeout);
-        window.searchTimeout = setTimeout(() => {
-            fetchLeads(value);
-        }, 400);
     };
 
     const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -670,7 +661,7 @@ const AllDashboard = () => {
                                         <div
                                             className={`p-2 h-[50px] w-[50px] rounded-full ${card.iconStyle} bg-opacity-10 flex items-center justify-center`}
                                         >
-                                              <img src={Icon} alt="" className="p-1"/>
+                                            <img src={Icon} alt="" className="p-1" />
                                         </div>
                                     </div>
                                     <div className="mt-3">
@@ -724,12 +715,12 @@ const AllDashboard = () => {
                                             {leadsData.map((lead, i) => {
                                                 const isChecked = selectedUserIds.includes(lead.id);
                                                 const hasId = !!lead.booking; // ✅ Check if id exists
-console.log('lead',lead)
+                                                console.log('lead', lead)
                                                 return (
                                                     <tr
                                                         key={i}
                                                         onClick={() => {
-                                                            if (hasId) {navigate(`/one-to-one/sales/account-information?id=${lead.id}`)}
+                                                            if (hasId) { navigate(`/one-to-one/sales/account-information?id=${lead.id}`) }
                                                             else {
                                                                 navigate(`/one-to-one/leads/booking-form?leadId=${lead.id}`)
                                                             };
@@ -752,19 +743,19 @@ console.log('lead',lead)
                                                                         <Check size={16} strokeWidth={3} className="text-gray-500" />
                                                                     )}
                                                                 </button>
-                                                                {lead.parentName || "N/A"}
+                                                                {lead.parentName || "-"}
                                                             </div>
                                                         </td>
 
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.age || "N/A"}</td>
-                                                        <td className="py-3 px-4 min-w-100">{lead.booking?.location || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.date || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.paymentPlan?.price || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.source || "N/A"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.age || "-"}</td>
+                                                        <td className="py-3 px-4 min-w-100">{lead.booking?.location || "-"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{formatLocalDate(lead.booking?.date) || "-"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "-"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{'£' + lead.booking?.payment?.amount || "-"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.source || "-"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">    {lead.booking?.coach
-                                                                ? `${lead.booking.coach.firstName} ${lead.booking.coach.lastName}`
-                                                                : "N/A"}</td>
+                                                            ? `${lead.booking.coach.firstName} ${lead.booking.coach.lastName}`
+                                                            : "-"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">
                                                             <button
                                                                 className={`capitalize w-[90px] py-2 rounded-xl text-xs font-medium
@@ -779,7 +770,7 @@ console.log('lead',lead)
                                                                                     : "bg-gray-100 text-gray-500"
                                                                     }`}
                                                             >
-                                                                {lead.status || "N/A"}
+                                                                {lead.status || "-"}
                                                             </button>
 
                                                         </td>
