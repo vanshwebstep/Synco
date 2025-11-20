@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 const Lead = () => {
     const leadsData = useLeads();
-    const { activeTab, setActiveTab, tabs, fetchData } = leadsData;
+    const { activeTab, setActiveTab, tabs, fetchData ,loading } = leadsData;
     const navigate = useNavigate();
     useEffect(() => {
         fetchData();
@@ -31,6 +31,7 @@ const Lead = () => {
                         {tabs.map((tab) => (
                             <button
                                 key={tab.name}
+                                disabled={loading}
                                 onClick={() => setActiveTab(tab.name)}
                                 className={`relative flex-1 text-[15px] px-3 md:text-base font-semibold py-2 rounded-xl transition-all whitespace-nowrap ${activeTab === tab.name
                                     ? "bg-[#237FEA] shadow text-white"

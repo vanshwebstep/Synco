@@ -1,4 +1,4 @@
-import React, { useEffect , useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
@@ -14,9 +14,9 @@ const StudentProfile = (fetchedData) => {
   const { handleUpdate, mainId } = useAccountsInfo();
 
   const [showModal, setShowModal] = useState(false);
-  
+
   const [students, setStudents] = useState([]);
- 
+
   const genderOptions = [
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },
@@ -60,31 +60,31 @@ const StudentProfile = (fetchedData) => {
   };
 
   // --- Add Student ---
-const handleAddStudent = () => {
-  if (!newStudent.studentFirstName && !newStudent.studentLastName) {
-    return alert("Please enter at least first or last name.");
-  }
+  const handleAddStudent = () => {
+    if (!newStudent.studentFirstName && !newStudent.studentLastName) {
+      return alert("Please enter at least first or last name.");
+    }
 
-  // Create the updated students array
-  const updatedStudents = [...students, { ...newStudent }];
+    // Create the updated students array
+    const updatedStudents = [...students, { ...newStudent }];
 
-  // Update local state
-  setStudents(updatedStudents);
+    // Update local state
+    setStudents(updatedStudents);
 
-  // Call API update
-  handleUpdate('students', updatedStudents);
+    // Call API update
+    handleUpdate('students', updatedStudents);
 
-  // Reset modal
-  setShowModal(false);
-  setNewStudent({
-    studentFirstName: "",
-    studentLastName: "",
-    dateOfBirth: null,
-    age: "",
-    gender: "",
-    medicalInformation: "",
-  });
-};
+    // Reset modal
+    setShowModal(false);
+    setNewStudent({
+      studentFirstName: "",
+      studentLastName: "",
+      dateOfBirth: null,
+      age: "",
+      gender: "",
+      medicalInformation: "",
+    });
+  };
 
 
   const handleInputChange = (index, field, value) => {
@@ -95,14 +95,28 @@ const handleAddStudent = () => {
 
   const handleEditStudents = () => {
     handleUpdate('students', students)
-  } 
-  
+  }
+
   useEffect(() => {
-      if (fetchedData?.leadData?.bookings[0]?.students) {
-        setStudents(fetchedData?.leadData?.bookings[0]?.students);
-      }
-    }, [fetchedData]);
-  
+    const bookings = fetchedData?.leadData?.bookings;
+
+    if (Array.isArray(bookings)) {
+      const allStudents = bookings.flatMap(b =>
+        (b?.students || []).map(student => ({
+          ...student,
+          bookingType: b?.bookingType || "unknown", // attach paid/free
+          bookingVenue: b?.venue.name || "Venue", // attach paid/free
+          bookingId: b?.bookingId,
+          bookingScheduleId: b?.classScheduleId
+        }))
+      );
+
+      setStudents(allStudents);
+    }
+  }, [fetchedData]);
+
+
+  console.log('studentss', students)
 
   return (
     <div className="space-y-10  p-6">
@@ -133,16 +147,24 @@ const handleAddStudent = () => {
           className="bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6"
         >
           <h2
-            onClick={() =>
-              setEditStudent((prev) => ({ ...prev, [index]: !prev[index] }))
-            }
+            // onClick={() =>
+            //   setEditStudent((prev) => ({ ...prev, [index]: !prev[index] }))
+            // }
             className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
           >
-            {editStudent?.[index] ? "Editing Student" : `Student ${index + 1} Information`}
+            {editStudent?.[index] ? "Editing Student" : `Student ${index + 1} Information (${editStudent?.[index]
+              ? "Editing Student"
+              : ` ${student.bookingType === "free"
+                ? "Trials ="
+                : student.bookingType === "waiting list"
+                  ? "Waiting List ="
+                  : "Membership ="
+              } ${student.bookingVenue})`
+              }`}
 
-            {editStudent?.[index]
+            {/* {editStudent?.[index]
               ? <FaSave onClick={handleEditStudents} />
-              : <FaEdit />}
+              : <FaEdit />} */}
 
           </h2>
 

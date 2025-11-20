@@ -327,6 +327,7 @@ export const BookFreeTrialProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
+      
       navigate(`/weekly-classes/trial/list`)
       return result;
 

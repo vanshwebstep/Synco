@@ -10,11 +10,13 @@ import Swal from "sweetalert2";
 import { PiUsersThreeBold } from "react-icons/pi";
 import { useAccountsInfo } from "../contexts/AccountsInfoContext";
 import Select from "react-select";
+import { useNavigate } from "react-router-dom";
 
 
 
 
 const StudentCamp = () => {
+    const navigate = useNavigate();
     const [selected, setSelected] = useState(1);
     const camps = Array.from({ length: 7 }, (_, i) => ({
         id: i + 1,
@@ -238,7 +240,7 @@ const StudentCamp = () => {
                                             return (
                                                 <tr
                                                     key={i}
-                                                    onClick={() => navigate(`/one-to-one/sales/account-information?id=${lead.id}`)}
+                                                    onClick={() => navigate(`/holiday-camp/members/account-information?id=${lead.id}`)}
                                                     className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
                                                 >
                                                     <td className="py-3 px-4 whitespace-nowrap font-semibold">
@@ -263,7 +265,7 @@ const StudentCamp = () => {
                                                     <td className="py-3 px-4 whitespace-nowrap">{lead.price || "N/A"}</td>
                                                     <td className="py-3 px-4 whitespace-nowrap">{lead.source || "N/A"}</td>
                                                     <td className="py-3 px-4 whitespace-nowrap">
-                                                        <span className="bg-green-50 text-green-400 semibold capitalize px-7 py-2 rounded-xl text-xs font-medium">
+                                                        <span className="bg-green-50 text-[#34AE56] font-semibold capitalize px-7 py-2 rounded-xl text-xs font-medium">
                                                             {lead.status}
                                                         </span>
                                                     </td>

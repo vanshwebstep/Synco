@@ -23,7 +23,7 @@ export const AccountsInfoProvider = ({ children }) => {
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append("Authorization", `Bearer ${token}`);
     let raw;
-    console.log('mainData',mainData)
+    console.log('mainData', mainData)
     if (title == "students") {
       raw = JSON.stringify({
         'student': mainData,
@@ -62,14 +62,12 @@ export const AccountsInfoProvider = ({ children }) => {
 
       const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/booking/update/${oneToOneData?.id}`, requestOptions);
 
-      const result = await response.json();
       if (!response.ok) {
-
-        const errorText = await result.message;
-        console.log('response')
+        const errorText = await response.text();
         throw new Error(errorText || "Something went wrong");
       }
 
+      const result = await response.json();
 
       // Close loading
       Swal.close();
@@ -147,12 +145,12 @@ export const AccountsInfoProvider = ({ children }) => {
 
       const response = await fetch(`${API_BASE_URL}/api/admin/account-information/${mainId}`, requestOptions);
 
-      const result = await response.json();
       if (!response.ok) {
-        const errorText = await result.message;
+        const errorText = await response.text();
         throw new Error(errorText || "Something went wrong");
       }
 
+      const result = await response.json();
 
       // Close loading
       Swal.close();
@@ -227,12 +225,12 @@ export const AccountsInfoProvider = ({ children }) => {
 
       const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/booking/update/${data.id}`, requestOptions);
 
-      const result = await response.json();
       if (!response.ok) {
-        const errorText = await result;
-        throw new Error(result.message || "Something went wrong");
+        const errorText = await response.text();
+        throw new Error(errorText || "Something went wrong");
       }
 
+      const result = await response.json();
 
       // Close loading
       Swal.close();
@@ -257,11 +255,90 @@ export const AccountsInfoProvider = ({ children }) => {
       });
     }
   };
+  const handleUpdateHoliday = async (title, mainData) => {
+
+    if (!token) return Swal.fire("Error", "Token not found. Please login again.", "error");
+    console.log('mainData', mainData)
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", `Bearer ${token}`);
+    let raw;
+    if (title == "students") {
+      raw = JSON.stringify({
+        'student': mainData,
+      });
+
+    }
+    if (title == "parents") {
+      raw = JSON.stringify({
+
+        'parentDetails': mainData,
+      });
+
+    }
+    if (title == "emergency") {
+      raw = JSON.stringify({
+        'emergencyDetails': mainData,
+      });
+
+    }
+
+
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    try {
+      // Show loading
+      Swal.fire({
+        title: "Updating...",
+        text: "Please wait while we save changes.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday-booking/booking/update/${data.id}`, requestOptions);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Something went wrong");
+      }
+
+      const result = await response.json();
+
+      // Close loading
+      Swal.close();
+
+      // Show success
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: "Student information has been successfully updated.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      fetchHolidayCamps(data.id);
+      return result;
+    } catch (error) {
+      Swal.close();
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed!",
+        text: error.message || "Something went wrong while updating.",
+      });
+    }
+  };
 
   const fetchMembers = useCallback(async (id) => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
-    
+
 
     setLoading(true);
     try {
@@ -329,7 +406,7 @@ export const AccountsInfoProvider = ({ children }) => {
 
       const result = resultRaw.data || [];
 
-      console.log('result',result)
+      console.log('result', result)
 
       setOneToOneData(result || []);
       setStudents(result?.booking?.students || []);
@@ -377,6 +454,49 @@ export const AccountsInfoProvider = ({ children }) => {
 
       setData(result || []);
 
+      setStudents(result?.booking?.students || []);
+      setFormData(result?.booking?.parents || []);
+      setEmergency(result?.booking?.emergency || []);
+
+    } catch (error) {
+      console.error("Failed to fetch members:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Fetch Failed",
+        text: error.message || "Something went wrong while fetching account information.",
+        confirmButtonText: "Ok",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [API_BASE_URL]);
+  const fetchHolidayCamps = useCallback(async (id) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday-camps/list/${id}`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const resultRaw = await response.json();
+
+      // Check API response status
+      if (!resultRaw.status) {
+        Swal.fire({
+          icon: "error",
+          title: "Fetch Failed",
+          text: resultRaw.message || "Something went wrong while fetching account information.",
+          confirmButtonText: "Ok",
+        });
+        return; // Stop further execution
+      }
+
+      const result = resultRaw.data || [];
+      setData(result || []);
       setStudents(result?.booking?.students || []);
       setFormData(result?.booking?.parents || []);
       setEmergency(result?.booking?.emergency || []);
@@ -491,8 +611,56 @@ export const AccountsInfoProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  const sendHolidayMail = async (bookingIds) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    // console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/birthday-party/leads/send-email`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          leadIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      // await fetchOneToOneMembers(data.id);
+      setLoading(false);
+    }
+  };
   return (
-    <AccountsInfoContext.Provider value={{ data,oneToOneData,historyActiveTab, setHistoryActiveTab, handleUpdateAcountInfo, sendOnetoOneMail, sendBirthdayMail, handleUpdateBirthday, fetchBirthdyPartiesMembers, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
+    <AccountsInfoContext.Provider value={{ data, sendHolidayMail, handleUpdateHoliday, fetchHolidayCamps, oneToOneData, historyActiveTab, setHistoryActiveTab, handleUpdateAcountInfo, sendOnetoOneMail, sendBirthdayMail, handleUpdateBirthday, fetchBirthdyPartiesMembers, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
       {children}
     </AccountsInfoContext.Provider>
   );

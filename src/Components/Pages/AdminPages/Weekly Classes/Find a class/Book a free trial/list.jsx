@@ -40,7 +40,7 @@ const List = () => {
     const [result, setResult] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
-    const { classId, from_lead ,leadId} = location.state || {};
+    const { classId, from_lead, leadId } = location.state || {};
     const popup1Ref = useRef(null);
     const popup2Ref = useRef(null);
     const popup3Ref = useRef(null);
@@ -864,7 +864,11 @@ const List = () => {
             <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
 
                 <h2 onClick={() => {
-                    navigate('/weekly-classes/find-a-class');
+                    if (is_lead === "leadDatabase") {
+                        navigate("/weekly-classes/central-leads");
+                    } else {
+                        navigate("/weekly-classes/find-a-class");
+                    }
                 }}
                     className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
                 >

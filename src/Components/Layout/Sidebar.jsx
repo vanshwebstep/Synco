@@ -377,6 +377,56 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       ],
     },
     {
+      title: "Recruitment",
+      icon: "/demo/synco/SidebarLogos/Birthday.png",
+      path: '/recruitment',
+
+      iconHover: "/demo/synco/SidebarLogos/BirthdayH.png",
+      needPermissions: [
+        { module: 'session-exercise-one-to-one', action: 'view-listing' },
+
+      ],
+      subItems: [
+        {
+          title: "Leads Database",
+          link: '/recruitment/lead',
+
+
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" }
+          ],
+
+
+        },
+        {
+          title: "Franchise Leads",
+          link: '/recruitment/franchise-lead',
+
+
+          needPermissions: [
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+
+        },
+        {
+          title: "Reports",
+          link: '/recruitment/reports',
+
+
+          needPermissions: [
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+
+
+        },
+       
+      ],
+    },
+    {
       title: 'Key Information',
       icon: '/demo/synco/SidebarLogos/Management.png',
       iconHover: '/demo/synco/SidebarLogos/ManagementH.png',

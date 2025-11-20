@@ -113,6 +113,11 @@ import AccountMainBirthDay from './Components/Pages/AdminPages/Birthday Parties/
 import SeeDetailsAccountBirthday from './Components/Pages/AdminPages/Birthday Parties/Sales/Info/SeeDetailsAccountBirthday.jsx';
 import BookACamp from './Components/Pages/AdminPages/holiday-camps/BookACamp.jsx';
 import StudentCamp from './Components/Pages/AdminPages/holiday-camps/StudentCamp.jsx';
+import AccountMainHoliday from './Components/Pages/AdminPages/holiday-camps/accountInfo/AccountMainHoliday.jsx';
+import SeeDetailsAccountHoliday from './Components/Pages/AdminPages/holiday-camps/accountInfo/SeeDetailsAccountHoliday.jsx';
+import Recruitment from './Components/Pages/AdminPages/Recruitment/Recruitment.jsx';
+import CandidateDetails from './Components/Pages/AdminPages/Recruitment/applications/seeDetails/CandidateDetails.jsx';
+import ReportsMain from './Components/Pages/AdminPages/Recruitment/reports/ReportsMain.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -657,6 +662,60 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <BookACamp />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/holiday-camp/members/account-information" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <AccountMainHoliday />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/holiday-camp/members/account-information/see-details" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SeeDetailsAccountHoliday />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/holiday-camp/members/account-information/see-details" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SeeDetailsAccountHoliday />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/recruitment/lead" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <Recruitment />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/recruitment/lead/profile" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <CandidateDetails />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/recruitment/reports" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <ReportsMain />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
