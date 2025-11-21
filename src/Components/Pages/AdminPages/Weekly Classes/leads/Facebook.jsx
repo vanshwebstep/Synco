@@ -12,6 +12,7 @@ import Loader from "../../contexts/Loader";
 import PlanTabs from "../../Weekly Classes/Find a class/PlanTabs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from 'react-leaflet';
+import Swal from "sweetalert2";
 
 import ResizeMap from "../../Common/Resizemap";
 
@@ -21,8 +22,8 @@ const Facebook = () => {
   const modalRef = useRef(null);
   const PRef = useRef(null);
   const [calendarData, setCalendarData] = useState([]);
-  const { loading, fetchData, data } = useLeads();
-  const [selectedUserIds, setSelectedUserIds] = useState([]);
+
+  const { loading, fetchData, data ,selectedUserIds,setSelectedUserIds,setSelectedBookingIds,selectedBookingIds } = useLeads();
   const [expandedRow, setExpandedRow] = useState(null);
   const navigate = useNavigate()
   const iconContainerRef = useRef(null);
@@ -143,13 +144,38 @@ const Facebook = () => {
   };
 
   const toggleCheckbox = (userId, e) => {
-    e.stopPropagation();
-    setSelectedUserIds((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
-    );
-  };
+  e.stopPropagation();
+
+  setSelectedUserIds((prev) => {
+    let updated;
+
+    if (prev.includes(userId)) {
+      // REMOVE user
+      updated = prev.filter((id) => id !== userId);
+    } else {
+      // ADD user
+      updated = [...prev, userId];
+    }
+
+    // After updating selected users → update booking IDs
+    updateSelectedBookingIds(updated);
+
+    return updated;
+  });
+};
+
+const updateSelectedBookingIds = (selectedIds) => {
+  const allBookings = [];
+
+  selectedIds.forEach((id) => {
+    const lead = data.find((item) => item.id === id);
+    if (lead?.bookingData?.length > 0) {
+      lead.bookingData.forEach((b) => allBookings.push(b.id));
+    }
+  });
+
+  setSelectedBookingIds(allBookings);
+};
 
   const toggleExpand = (id, e) => {
     e.stopPropagation();
@@ -235,7 +261,7 @@ const Facebook = () => {
   };
 
 
-
+console.log('selectedBookingIds',selectedBookingIds)
 
   useEffect(() => {
     const activeVenueId =

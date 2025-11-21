@@ -13,11 +13,15 @@ export const LeadsContextProvider = ({ children }) => {
     { name: "All other leads", component: <Facebook /> },
     { name: "All", component: <Facebook /> },
   ];
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+const [selectedBookingIds, setSelectedBookingIds] = useState([]);
 
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   const [data, setData] = useState([]);
   const [analytics, setAnalytics] = useState([]);
   const [loading, setLoading] = useState(false);
+    const token = localStorage.getItem("adminToken");
+
 const fetchData = useCallback(
   async (params = {}) => {
     const token = localStorage.getItem("adminToken");
@@ -95,7 +99,56 @@ const fetchData = useCallback(
   },
   [API_BASE_URL, activeTab]
 );
+const sendleadsMail = async (bookingIds) => {
+    setLoading(true);
 
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    // console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/lead/send-email`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          bookingIds: bookingIds, // make sure bookingIds is an array like [96, 97]
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      // navigate(`/weekly-classes/all-members/list`);
+
+      await fetchData();
+      setLoading(false);
+    }
+  };
   const fetchDataById = useCallback(async (params = {}) => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
@@ -170,11 +223,16 @@ const fetchData = useCallback(
         activeTab,
         setActiveTab,
         setAnalytics,
+        setSelectedBookingIds,
+        selectedBookingIds,
         fetchData,
         setData,
         loading,
         setLoading,
+        selectedUserIds,
+        setSelectedUserIds,
         tabs,
+        sendleadsMail,
         fetchDataById
       }}
     >

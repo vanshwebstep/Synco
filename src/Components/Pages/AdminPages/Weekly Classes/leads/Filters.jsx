@@ -11,51 +11,53 @@ import {
 import { useLeads } from "../../contexts/LeadsContext";
 import Select from "react-select";
 import * as XLSX from "xlsx";
+import Swal from "sweetalert2";
+
 import { saveAs } from "file-saver";
 function exportDataToExcel(data) {
-  // Prepare flat data for excel rows
-  const flattenedData = data.map((lead) => {
-    return {
-      Date: new Date(lead.createdAt).toLocaleDateString("en-GB"),
-      "Parent Name": lead.firstName + " " + lead.lastName,
-      Email: lead.email || "-",
-      Phone: lead.phone || "-",
-      Postcode: lead.postcode || "-",
-      "Kid Range": lead.childAge || "-",
-      "Assigned Agent":
-        lead.assignedAgent?.firstName && lead.assignedAgent?.lastName
-          ? lead.assignedAgent.firstName + " " + lead.assignedAgent.lastName
-          : "-",
-      Status: lead.status,
-      // For nested nearestVenues, flatten to a string (comma separated names)
-      "Nearest Venues":
-        lead.nearestVenues && lead.nearestVenues.length > 0
-          ? lead.nearestVenues.map((v) => v.name).join(", ")
-          : "No nearest venues",
-    };
-  });
+    // Prepare flat data for excel rows
+    const flattenedData = data.map((lead) => {
+        return {
+            Date: new Date(lead.createdAt).toLocaleDateString("en-GB"),
+            "Parent Name": lead.firstName + " " + lead.lastName,
+            Email: lead.email || "-",
+            Phone: lead.phone || "-",
+            Postcode: lead.postcode || "-",
+            "Kid Range": lead.childAge || "-",
+            "Assigned Agent":
+                lead.assignedAgent?.firstName && lead.assignedAgent?.lastName
+                    ? lead.assignedAgent.firstName + " " + lead.assignedAgent.lastName
+                    : "-",
+            Status: lead.status,
+            // For nested nearestVenues, flatten to a string (comma separated names)
+            "Nearest Venues":
+                lead.nearestVenues && lead.nearestVenues.length > 0
+                    ? lead.nearestVenues.map((v) => v.name).join(", ")
+                    : "No nearest venues",
+        };
+    });
 
-  // Create worksheet and workbook
-  const worksheet = XLSX.utils.json_to_sheet(flattenedData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
+    // Create worksheet and workbook
+    const worksheet = XLSX.utils.json_to_sheet(flattenedData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Leads");
 
-  // Generate buffer
-  const excelBuffer = XLSX.write(workbook, {
-    bookType: "xlsx",
-    type: "array",
-  });
+    // Generate buffer
+    const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+    });
 
-  // Save file using file-saver
-  const dataBlob = new Blob([excelBuffer], {
-    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  });
+    // Save file using file-saver
+    const dataBlob = new Blob([excelBuffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
 
-  saveAs(dataBlob, `Leads_export_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    saveAs(dataBlob, `Leads_export_${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 const Filters = () => {
 
-    const { fetchData, activeTabm, setActiveTab, data } = useLeads()
+    const { fetchData, activeTabm, setActiveTab, data, selectedUserIds,sendleadsMail } = useLeads()
     const [selectedVenue, setSelectedVenue] = useState(null);
     const today = new Date();
     const [noLoaderShow, setNoLoaderShow] = useState(false);
@@ -86,6 +88,7 @@ const Filters = () => {
     }));
     console.log(myVenues);
     console.log('venueNamesPerLead', myVenues);
+    console.log('venueNaselectedUserIdsmesPerLessdad', selectedUserIds);
 
 
     // 🔹 Handle input changes
@@ -96,17 +99,17 @@ const Filters = () => {
     const handleVenueChange = (e) => {
         setVenueName(e.target.value);
     };
-const handleChange = (selectedOption) => {
-    setSelectedVenue(selectedOption);
-    console.log('selectedOption', selectedOption);
+    const handleChange = (selectedOption) => {
+        setSelectedVenue(selectedOption);
+        console.log('selectedOption', selectedOption);
 
-    if (selectedOption === null) {
-        // Reset fetchData when venue is cleared
-        fetchData({ venueName: "" });  // or just fetchData() if that works for you
-    } else {
-        fetchData({ venueName: selectedOption.label });
-    }
-};
+        if (selectedOption === null) {
+            // Reset fetchData when venue is cleared
+            fetchData({ venueName: "" });  // or just fetchData() if that works for you
+        } else {
+            fetchData({ venueName: selectedOption.label });
+        }
+    };
 
 
 
@@ -241,7 +244,22 @@ const handleChange = (selectedOption) => {
         setFromDate('');
         setToDate('');
     };
+const handleSendEmail = async () => {
+  console.log("selectedUserIds:", selectedUserIds);
 
+  if (!selectedUserIds || selectedUserIds.length === 0) {
+    await Swal.fire({
+      title: "No Users Selected",
+      text: "Please select at least one user before sending email.",
+      icon: "warning",
+      confirmButtonText: "OK",
+    });
+    return;
+  }
+
+  // If selectedUserIds exists → call API
+  await sendleadsMail(selectedUserIds);
+};
 
     return (
         <div className="md:w-[27%]  fullwidth20 flex-shrink-0 gap-5 md:ps-3">
@@ -425,9 +443,14 @@ const handleChange = (selectedOption) => {
 
             {/* Actions */}
             <div className="grid blockButton md:grid-cols-3 gap-3 mt-4">
-                <button className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-2 text-sm hover:bg-gray-50">
-                    <Mail size={16} className="text-[#717073]" /> Send Email
+                <button
+                    className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-2 text-sm hover:bg-gray-50"
+                    onClick={handleSendEmail}
+                >
+                    <Mail size={16} className="text-[#717073]" />
+                    Send Email
                 </button>
+
                 <button className="flex-1 flex items-center justify-center gap-1 border text-[#717073] border-[#717073] rounded-lg py-2 text-sm hover:bg-gray-50">
                     <MessageSquare size={16} className="text-[#717073]" /> Send Text
                 </button>
