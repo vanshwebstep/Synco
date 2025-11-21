@@ -429,11 +429,11 @@ const ParentProfile = () => {
                 </label>
                 <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                   <PhoneInput
-                    country={countries[index]}
+                    country="us"
                     value={dialCodes[index]}
                     onChange={(val, data) => handleChangeDial(index, val, data)}
                     onCountryChange={(data) => handleCountryChange(index, data)}
-                    disableDropdown={false}
+                    disableDropdown={true}
                     disableCountryCode={true}
                     countryCodeEditable={false}
                     inputStyle={{
@@ -545,11 +545,11 @@ const ParentProfile = () => {
                   <label className="block text-sm font-semibold">Phone</label>
                   <div className="flex items-center border border-gray-300 rounded-xl px-3 py-3 mt-1">
                     <PhoneInput
-                      country={country}
+                      country="us"
                       value={dialCode}
                       onChange={handleChangeDial}
                       onCountryChange={handleCountryChange}
-                      disableDropdown={false}
+                      disableDropdown={true}
                       disableCountryCode={true}
                       countryCodeEditable={false}
                       inputStyle={{
@@ -720,12 +720,12 @@ const ParentProfile = () => {
             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
               {/* Flag Dropdown */}
               <PhoneInput
-                country={countryEmergency}
+                country="us"
                 value={dialCodeEmergency}
 
                 onChange={handleChangeEmergency}
                 onCountryChange={handleCountryChangeEmergency}
-                disableDropdown={false}
+                disableDropdown={true}
                 disableCountryCode={true}
                 countryCodeEditable={false}
                 inputStyle={{

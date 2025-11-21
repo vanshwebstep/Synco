@@ -909,7 +909,6 @@ const AllDashboard = () => {
                                                 <option value="">Select Package</option>
                                                 <option value="Gold">Gold</option>
                                                 <option value="Silver">Silver</option>
-                                                <option value="Platinum">Platinum</option>
                                             </select>
                                         )}
 
@@ -1197,7 +1196,6 @@ const AllDashboard = () => {
                                     <option value="">Select Package</option>
                                     <option value="silver">Silver</option>
                                     <option value="gold">Gold</option>
-                                    <option value="platinum">Platinum</option>
                                 </select>
 
                             </div>

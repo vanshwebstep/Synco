@@ -389,7 +389,7 @@ const Facebook = () => {
                               className="p-3 relative border border-[#E2E1E5] mb-5 rounded-4xl space-y-5 bg-white"
                             >
                               {/* Header Bar */}
-                              <div className="flex justify-between items-center bg-[#3D444F] text-white rounded-2xl px-5 py-4">
+                              <div className="flex justify-between items-center bg-[#3D444F] text-white rounded-2xl px-5 py-4 mb-2">
                                 <div className="flex items-center gap-2 text-white">
                                   <MapPin size={18} />
                                   <span className="font-semibold">
@@ -437,7 +437,7 @@ const Facebook = () => {
                               {/* Inner White Box */}
                               <div className="bg-[#FCF9F6] rounded-2xl p-3 px-5 items-center flex justify-between overflow-auto gap-6">
                                 {/* Location Info */}
-                                <div className="flex justify-between items-center gap-4 border-b border-gray-100 pb-4 md:w-[25%]">
+                                <div className="flex border-r pr-5  justify-between items-center gap-4 border-gray-400 pb-4 md:w-[30%]">
                                   <div className="truncate">
                                     <p className="text-lg font-semibold text-[#333] truncate">{venue?.area}</p>
                                     <p className="text-sm text-gray-500 mt-2">{venue?.distance} miles</p>
@@ -462,7 +462,7 @@ const Facebook = () => {
                                           key={idx}
                                           className="flex justify-between gap-4 items-center mt-2"
                                         >
-                                          <p className=" text-[#000] md:w-[28%] flex gap-7 "><b>{`Class ${idx + 1}`} </b>{cls.className}</p>
+                                          <p className=" text-[#000] md:w-[22%] flex gap-7 "><b>{`Class ${idx + 1}`} </b>{cls.className}</p>
                                           <p className="text-sm md:w-[12%]  text-[#384455]  font-semibold capitalize">
                                             {cls.day}
                                           </p>

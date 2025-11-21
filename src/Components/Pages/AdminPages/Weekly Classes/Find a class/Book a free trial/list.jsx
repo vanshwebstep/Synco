@@ -1259,8 +1259,11 @@ const List = () => {
                                         }`}                                >
                                     {/* Top Header Row */}
                                     <div className="flex justify-between  items-start">
-                                        <h2 className="text-[20px] font-semibold">Parent information</h2>
-
+ <h2 className="text-[20px] font-semibold">
+        {index === 0
+          ? "Parent information"
+          : `Parent ${index + 1} information`}
+      </h2>
                                         <div className="flex items-center gap-2">
                                             {index === 0 && (
                                                 <button
@@ -1337,11 +1340,10 @@ const List = () => {
                                             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                                                 {/* Flag Dropdown */}
                                                 <PhoneInput
-                                                    country={country2}
+                                                    country="us"
                                                     value={dialCode2}
                                                     onChange={handleChange2}
-                                                    onCountryChange={handleCountryChange2}
-                                                    disableDropdown={false}
+                                                    disableDropdown={true}       // disables changing the country
                                                     disableCountryCode={true}
                                                     countryCodeEditable={false}
                                                     inputStyle={{
@@ -1349,11 +1351,12 @@ const List = () => {
                                                         maxWidth: '20px',
                                                         height: "0px",
                                                         opacity: 0,
-                                                        pointerEvents: "none", // ✅ prevents blocking typing
+                                                        pointerEvents: "none",
                                                         position: "absolute",
                                                     }}
                                                     buttonClass="!bg-white !border-none !p-0"
                                                 />
+
                                                 <input
                                                     type="tel"
                                                     value={parent.parentPhoneNumber}
@@ -1457,11 +1460,11 @@ const List = () => {
                                     <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                                         {/* Flag Dropdown */}
                                         <PhoneInput
-                                            country={country}
+                                            country="us"
                                             value={dialCode}
                                             onChange={handleChange}
                                             onCountryChange={handleCountryChange}
-                                            disableDropdown={false}
+                                            disableDropdown={true}
                                             disableCountryCode={true}
                                             countryCodeEditable={false}
                                             inputStyle={{

@@ -412,7 +412,7 @@ const getBg = () => {
                     {input.type === "phone" && (
                         <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                             <PhoneInput
-                                country={"gb"}
+                                country={"us"}
                                 value={
                                     section === "parent"
                                         ? formData.parent[index]?.dialCode || ""
@@ -422,7 +422,7 @@ const getBg = () => {
                                     handleChange(section, "dialCode", val, index);
                                     handleChange(section, "country", data?.countryCode, index);
                                 }}
-                                disableDropdown={false}
+                                disableDropdown={true}
                                 disableCountryCode={true}
                                 countryCodeEditable={false}
                                 inputStyle={{ display: "none" }}

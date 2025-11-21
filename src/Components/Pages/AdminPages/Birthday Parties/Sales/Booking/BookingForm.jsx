@@ -202,8 +202,8 @@ const BirthdayBookingForm = () => {
     emergencyLastName: "",
     emergencyPhoneNumber: "",
     emergencyRelation: "",
-      dialCode: dialCode,
-    
+    dialCode: dialCode,
+
   });
   const [parents, setParents] = useState([
     {
@@ -880,8 +880,8 @@ const BirthdayBookingForm = () => {
   ];
 
 
-  console.log('ialCode',country2)
-  console.log('dialCode2',dialCode)
+  console.log('ialCode', country2)
+  console.log('dialCode2', dialCode)
 
   const handleSubmitComment = async (e) => {
 
@@ -1594,8 +1594,11 @@ const BirthdayBookingForm = () => {
                 >
                   {/* Top Header Row */}
                   <div className="flex justify-between  items-start">
-                    <h2 className="text-[20px] font-semibold">Parent information</h2>
-
+                    <h2 className="text-[20px] font-semibold">
+                      {index === 0
+                        ? "Parent information"
+                        : `Parent ${index + 1} information`}
+                    </h2>
                     <div className="flex items-center gap-2">
                       {index === 0 && (
                         <button
@@ -1672,11 +1675,11 @@ const BirthdayBookingForm = () => {
                       <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                         {/* Flag Dropdown */}
                         <PhoneInput
-                          country={country2}
+                          country="us"
                           value={dialCode2}
                           onChange={handleChange2}
                           onCountryChange={handleCountryChange2}
-                          disableDropdown={false}
+                          disableDropdown={true}
                           disableCountryCode={true}
                           countryCodeEditable={false}
                           inputStyle={{
@@ -1790,11 +1793,11 @@ const BirthdayBookingForm = () => {
                   <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                     {/* Flag Dropdown */}
                     <PhoneInput
-                      country={country}
+                      country="us"
                       value={dialCode}
                       onChange={handleChange}
                       onCountryChange={handleCountryChange}
-                      disableDropdown={false}
+                      disableDropdown={true}
                       disableCountryCode={true}
                       countryCodeEditable={false}
                       inputStyle={{
@@ -2047,7 +2050,7 @@ const BirthdayBookingForm = () => {
 
                   </div>
                   <div className="text-left directDebitBg p-6 mb-4 m-6 rounded-2xl ">
-                     <p className="text-white text-[16px]">Birthday Party Package ( {selectedPackages?.label || ''} )</p>
+                    <p className="text-white text-[16px]">Birthday Party Package ( {selectedPackages?.label || ''} )</p>
                     <p className="font-semibold text-white text-[24px]">
                       {selectedPackages?.price != null && `£${selectedPackages?.price}`}
                     </p>

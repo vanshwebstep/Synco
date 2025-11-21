@@ -921,7 +921,6 @@ const LeadsDashboard = () => {
                   <option value="">Select Package</option>
                   <option value="silver">Silver</option>
                   <option value="gold">Gold</option>
-                  <option value="platinum">Platinum</option>
                 </select>
               </div>
 

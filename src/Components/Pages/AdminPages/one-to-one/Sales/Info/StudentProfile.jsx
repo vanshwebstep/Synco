@@ -202,38 +202,84 @@ const StudentProfile = () => {
   };
 
   // --- Add Student ---
-  const handleAddStudent = () => {
-    if (!newStudent.studentFirstName && !newStudent.studentLastName) {
-      return alert("Please enter at least first or last name.");
-    }
-
-    // Create the updated students array
-    const updatedStudents = [
-      ...students,
-      {
-        ...newStudent,
-        dateOfBirth: formatLocalDate(newStudent.dateOfBirth)
-      }
-    ];
-
-
-    // Update local state
-    setStudents(updatedStudents);
-
-    // Call API update
-    handleUpdate('students', updatedStudents);
-
-    // Reset modal
-    setShowModal(false);
-    setNewStudent({
-      studentFirstName: "",
-      studentLastName: "",
-      dateOfBirth: null,
-      age: "",
-      gender: "",
-      medicalInfo: "",
+const handleAddStudent = () => {
+  // Validate first or last name
+  if (!newStudent.studentFirstName.trim() && !newStudent.studentLastName.trim()) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Missing Name",
+      text: "Please enter at least first or last name.",
     });
-  };
+  }
+
+  // Validate date of birth (optional: must be a date)
+  if (!newStudent.dateOfBirth) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Missing Date of Birth",
+      text: "Please select the date of birth.",
+    });
+  }
+
+  // Validate age (must be a positive number)
+  if (!newStudent.age || isNaN(newStudent.age) || Number(newStudent.age) <= 0) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Invalid Age",
+      text: "Age must be a valid positive number.",
+    });
+  }
+
+  // Validate gender
+  if (!newStudent.gender) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Missing Gender",
+      text: "Please select a gender.",
+    });
+  }
+  if (!newStudent.medicalInfo) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Missing Medical info",
+      text: "Please Add Medical info",
+    });
+  }
+  // Medical Info - optional, no validation needed unless you want max length or something
+
+  // If all validations pass, add student:
+  const updatedStudents = [
+    ...students,
+    {
+      ...newStudent,
+      dateOfBirth: formatLocalDate(newStudent.dateOfBirth),
+    },
+  ];
+
+  setStudents(updatedStudents);
+  handleUpdate("students", updatedStudents);
+
+  // Reset modal and form
+  setShowModal(false);
+  setNewStudent({
+    studentFirstName: "",
+    studentLastName: "",
+    dateOfBirth: null,
+    age: "",
+    gender: "",
+    medicalInfo: "",
+  });
+
+  // Optionally, show success alert
+  Swal.fire({
+    icon: "success",
+    title: "Student Added",
+    text: "The student was added successfully.",
+    timer: 1500,
+    showConfirmButton: false,
+  });
+};
+
 
 
   const handleInputChange = (index, field, value) => {
@@ -242,9 +288,58 @@ const StudentProfile = () => {
     setStudents(updated);
   };
 
-  const handleEditStudents = () => {
-    handleUpdate('students', students)
+ const handleEditStudents = () => {
+  for (let i = 0; i < students.length; i++) {
+    const student = students[i];
+
+    // Validate name
+ if (!student.studentFirstName?.trim()) {
+  return Swal.fire({ icon: 'warning', title: 'Missing First Name', text: 'Please enter first name.' });
+}
+if (!student.studentLastName?.trim()) {
+  return Swal.fire({ icon: 'warning', title: 'Missing Last Name', text: 'Please enter last name.' });
+}
+
+
+    // Validate dateOfBirth - expect ISO string, non-empty
+    if (!student.dateOfBirth) {
+      return Swal.fire({
+        icon: "warning",
+        title: `Missing Date of Birth in Student #${i + 1}`,
+        text: "Please select the date of birth.",
+      });
+    }
+
+    // Validate age (number > 0)
+    if (!student.age || isNaN(student.age) || Number(student.age) <= 0) {
+      return Swal.fire({
+        icon: "warning",
+        title: `Invalid Age in Student #${i + 1}`,
+        text: "Age must be a valid positive number.",
+      });
+    }
+
+    // Validate gender (non-empty string)
+    if (!student.gender) {
+      return Swal.fire({
+        icon: "warning",
+        title: `Missing Gender in Student #${i + 1}`,
+        text: "Please select a gender.",
+      });
+    }
   }
+console.log('studentwweedws',students)
+  // All good, update
+  handleUpdate('students', students);
+
+  Swal.fire({
+    icon: "success",
+    title: "Students Updated",
+    text: "All student records updated successfully.",
+    timer: 1500,
+    showConfirmButton: false,
+  });
+};
 
   return (
     <div className="space-y-10  p-6">

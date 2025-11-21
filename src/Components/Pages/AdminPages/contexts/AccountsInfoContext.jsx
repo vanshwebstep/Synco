@@ -61,13 +61,13 @@ export const AccountsInfoProvider = ({ children }) => {
       });
 
       const response = await fetch(`${API_BASE_URL}/api/admin/one-to-one/booking/update/${oneToOneData?.id}`, requestOptions);
+      const result = await response.json();
 
       if (!response.ok) {
-        const errorText = await response.text();
+        const errorText = await result.message;
         throw new Error(errorText || "Something went wrong");
       }
 
-      const result = await response.json();
 
       // Close loading
       Swal.close();

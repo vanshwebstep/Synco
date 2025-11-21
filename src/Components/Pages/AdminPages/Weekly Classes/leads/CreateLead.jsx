@@ -262,9 +262,9 @@ const CreateLead = () => {
                         <label className="block text-[16px] font-semibold">Phone</label>
                         <div className="flex items-center border border-gray-300 rounded-xl px-3 py-3 mt-1">
                             <PhoneInput
-                                country={country}
+                                country="us"
                                 onChange={handlePhoneChange}
-                                disableDropdown={false}
+                                disableDropdown={true}
                                 disableCountryCode={true}
                                 countryCodeEditable={false}
                                 inputStyle={{
