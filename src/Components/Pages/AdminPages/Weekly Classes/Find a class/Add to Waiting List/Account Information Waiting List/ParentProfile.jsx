@@ -934,7 +934,8 @@ const ParentProfile = ({ profile }) => {
                                         >
                                             Remove Waiting List
                                         </button>
-                                        {(!profile?.paymentPlans || profile.paymentPlans.length === 0) && (
+                                        {!profile?.paymentPlans?.length && profile?.classSchedule?.capacity !== 0 && (
+
                                             <button
                                                 onClick={handleBookMembership}
                                                 className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"

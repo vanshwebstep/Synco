@@ -1431,7 +1431,7 @@ const Create = () => {
 
                                     <div className="mb-4 relative">
                                         <label className="block text-[18px] font-semibold text-gray-700 mb-2">
-                                            Descriptison
+                                            Description
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             { /* bullist numlist  code */}

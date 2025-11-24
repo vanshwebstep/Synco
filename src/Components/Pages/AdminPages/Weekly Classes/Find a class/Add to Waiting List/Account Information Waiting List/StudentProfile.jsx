@@ -31,13 +31,13 @@ const StudentProfile = ({ profile }) => {
     const parentsList = profile?.parents || [];
     const emergencyList = profile?.emergency || [];
     const [editingIndex, setEditingIndex] = useState(null);
-const navigate = useNavigate();
+    const navigate = useNavigate();
     const [students, setStudents] = useState(profile?.students || []);
     const [commentsList, setCommentsList] = useState([]);
     const [comment, setComment] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const commentsPerPage = 5; // Number of comments per page
-console.log('profile',profile)
+    console.log('profile', profile)
     // Pagination calculations
     const indexOfLastComment = currentPage * commentsPerPage;
     const indexOfFirstComment = indexOfLastComment - commentsPerPage;
@@ -300,7 +300,7 @@ console.log('profile',profile)
     const MembershipPrice = paymentPlan?.price;
     const duration = paymentPlan?.duration ?? 0;
     const interval = paymentPlan?.interval ?? "";
-  console.log('duration',duration,interval)
+    console.log('duration', duration, interval)
     const MembershipTenure = duration && interval
         ? `${duration} ${interval}`
         : "";
@@ -568,7 +568,7 @@ console.log('profile',profile)
 
                     </div>
 
-                     <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
+                    <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
 
                         {/* Input section */}
@@ -851,7 +851,8 @@ console.log('profile',profile)
                                         >
                                             Remove Waiting List
                                         </button>
-                                        {(!profile?.paymentPlans || profile.paymentPlans.length === 0) && (
+                                        {!profile?.paymentPlans?.length && profile?.classSchedule?.capacity !== 0 && (
+                                            
                                             <button
                                                 onClick={handleBookMembership}
                                                 className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"

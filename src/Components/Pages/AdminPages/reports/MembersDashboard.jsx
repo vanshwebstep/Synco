@@ -9,8 +9,9 @@ import {
     RotateCcw,
     Download,
     EllipsisVertical,
-
 } from "lucide-react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
     LineChart,
     Line,
@@ -24,6 +25,7 @@ import {
     Area,
     CartesianGrid
 } from "recharts";
+
 import Loader from "../contexts/Loader";
 
 const MembersDashboard = () => {
@@ -33,131 +35,229 @@ const MembersDashboard = () => {
     const [membersData, setMembersData] = useState([]);
     const [loading, setLoading] = useState(false);
 
-
-
     const venueOptions = [
         { value: "all", label: "All venues" },
         { value: "london", label: "London" },
         { value: "manchester", label: "Manchester" },
     ];
+
     const data = [
         { label: "Facebook", value: 60 },
         { label: "Website", value: 45 },
         { label: "Other", value: 10 },
     ];
-    const ageOptions = [
-        { value: "all", label: "All ages" },
-        { value: "under18", label: "Under 18" },
-        { value: "18-25", label: "18–25" },
-    ];
 
     const dateOptions = [
-        { value: "month", label: "This Month" },
-        { value: "quarter", label: "This Quarter" },
-        { value: "year", label: "This Year" },
+        { value: "thisMonth", label: "This Month" },
+        { value: "thisQuarter", label: "This Quarter" },
+        { value: "thisYear", label: "This Year" },
     ];
+
+    const currentYear = new Date().getFullYear().toString();
+    const yearData = membersData?.yealyGrouped?.[currentYear] || {};
+    const monthlyData = yearData?.monthlyGrouped || {};
+
+    const currentMonth = (new Date().getMonth() + 1).toString();
+    const monthData = yearData?.monthlyGrouped?.[currentMonth] || {};
+
+    // ------------------ TOTAL MEMBERS ------------------
+    const getMonthlyMembers = (data) => {
+        if (!data?.yealyGrouped) return {};
+
+        const yearKeys = Object.keys(data.yealyGrouped);
+        const yearData = data.yealyGrouped[yearKeys[0]];
+        const monthly = yearData?.monthlyGrouped || {};
+
+        let result = {};
+
+        Object.keys(monthly).forEach((monthKey) => {
+            const bookings = monthly[monthKey].bookings || [];
+            let count = 0;
+
+            bookings.forEach((b) => {
+                if (b.students?.length > 0) count += b.students.length;
+            });
+
+            result[monthKey] = count;
+        });
+
+        return result;
+    };
+
+    const monthlyMembers = getMonthlyMembers(membersData);
+    console.log('monthlyMembers', monthlyMembers)
+    const totalMembers = Object.values(monthlyMembers || {}).reduce(
+        (sum, value) => sum + value,
+        0
+    );
+
+    // ------------------ REVENUE DATA ------------------
+    const revenue = yearData?.salesTrend?.currentYearStats?.totalRevenue || 0;
+    const lastYearRevenue = yearData?.salesTrend?.lastYearStats?.totalRevenue || 0;
+
+    const bookingCount = yearData?.salesTrend?.currentYearStats?.bookingCount || 0;
+    const lastBookingCount = yearData?.salesTrend?.lastYearStats?.bookingCount || 0;
+
+    const avgMonthlyFee = totalMembers ? (revenue / totalMembers).toFixed(2) : "0";
+
+    // ------------------ AGE RANGE LOGIC ------------------
+    let allAges = [];
+
+    Object.values(monthlyData).forEach(month => {
+        const byAge = month?.enrolledStudents?.byAge;
+        if (byAge) {
+            allAges = [...allAges, ...Object.keys(byAge).map(a => Number(a))];
+        }
+    });
+
+    const avgLifeCycle = bookingCount
+        ? (totalMembers / bookingCount).toFixed(1)
+        : "0";
+
+    const newStudents = monthData?.bookings?.length || 0;
+
+    const retention = totalMembers
+        ? (((totalMembers - newStudents) / totalMembers) * 100).toFixed(1)
+        : "0";
 
     const stats = [
         {
             icon: <Users size={18} />,
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
-
             title: "Total Members",
-            value: "3,200",
+            value: totalMembers,
             diff: "+12%",
-            sub: "vs. prev period ",
-            subvalue: '2,900'
+            sub: "vs. prev period",
+            subvalue: lastBookingCount,
         },
         {
             icon: <PoundSterling size={18} />,
             iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
-
             title: "Monthly Revenue",
-            value: "£67,000",
+            value: `£${revenue}`,
             diff: "+8%",
             sub: "vs. prev period",
-            subvalue: '£57,000'
+            subvalue: `£${lastYearRevenue}`,
         },
         {
             icon: <Calendar size={18} />,
             iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
-
             title: "Average Monthly Fee",
-            value: "£43.94",
+            value: `£${avgMonthlyFee}`,
             diff: "+6%",
-            sub: "vs. prev period ",
-            subvalue: '£57,000'
+            sub: "vs. prev period",
+            subvalue: "—",
         },
         {
             icon: <Clock size={18} />,
             iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
-
             title: "Average Life Cycle",
-            value: "18 months",
+            value: `${avgLifeCycle} months`,
             diff: "+6%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
+            sub: "vs. prev period",
+            subvalue: "16.8 months",
         },
         {
             icon: <UserPlus size={18} />,
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
-
             title: "New Students",
-            value: "82",
+            value: newStudents,
             diff: "+3%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
+            sub: "vs. prev period",
+            subvalue: "—",
         },
         {
             icon: <RotateCcw size={18} />,
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
-
             title: "Retention",
-            value: "82",
+            value: `${retention}%`,
             diff: "+3%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
+            sub: "vs. prev period",
+            subvalue: "—",
         },
     ];
+const exportMemberStatsExcel = () => {
+  const exportData = stats.map((item) => ({
+    Title: item.title,
+    Value: String(item.value ?? "—"),
+    Change: String(item.diff ?? "—"),
+    "Prev Period": String(item.subvalue ?? "—"),
+  }));
 
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Member Stats");
+
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(data, "member-stats.xlsx");
+};
+    const ageOptions = (() => {
+        if (!allAges.length) return [{ value: "allAges", label: "All ages" }];
+
+        const ranges = [
+            { value: "under18", label: "Under 18", filter: age => age < 18 },
+            { value: "18-25", label: "18–25", filter: age => age >= 18 && age <= 25 },
+            { value: "25-35", label: "25–35", filter: age => age > 25 && age <= 35 },
+            { value: "35plus", label: "35+", filter: age => age > 35 },
+        ];
+
+        const dynamic = ranges.filter(range =>
+            allAges.some(age => range.filter(age))
+        );
+
+        return [
+            { value: "all", label: "All ages" },
+            ...dynamic
+        ];
+    })();
+
+    // ------------------ TAB CHANGE: AGE vs GENDER ------------------
     useEffect(() => {
         const enrolledData =
-            membersData?.yealyGrouped?.["2025"]?.monthlyGrouped?.["10"]
+            membersData?.yealyGrouped?.[currentYear]?.monthlyGrouped?.[currentMonth]
                 ?.enrolledStudents || {};
 
         if (activeTab === "age") {
             const byAge = enrolledData.byAge || {};
             const total = Object.values(byAge).reduce((a, b) => a + b, 0);
+
             const formatted = Object.entries(byAge).map(([age, count]) => ({
                 label: `${age} Years`,
-                value: ((count / total) * 100).toFixed(2), // percentage
+                value: ((count / total) * 100).toFixed(2),
                 count,
             }));
+
             setMainData(formatted);
         } else {
             const byGender = enrolledData.byGender || {};
             const total = Object.values(byGender).reduce((a, b) => a + b, 0);
+
             const formatted = Object.entries(byGender).map(([gender, count]) => ({
                 label: gender.charAt(0).toUpperCase() + gender.slice(1),
                 value: ((count / total) * 100).toFixed(2),
                 count,
             }));
+
             setMainData(formatted);
         }
     }, [activeTab, membersData]);
 
-
+    // ------------------ FETCH DATA ------------------
     const fetchData = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
         if (!token) return;
 
         setLoading(true);
+
         try {
             const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/member`, {
                 method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
 
             const resultRaw = await response.json();
@@ -174,50 +274,107 @@ const MembersDashboard = () => {
         fetchData();
     }, []);
 
+    const handleFilterChange = async (key, value) => {
+        const token = localStorage.getItem("adminToken");
 
-    const lineData = [
-        { month: "Jan", current: 380, previous: 300 },
-        { month: "Feb", current: 400, previous: 310 },
-        { month: "Mar", current: 450, previous: 320 },
-        { month: "Apr", current: 500, previous: 100 },
-        { month: "May", current: 600, previous: 140 },
-        { month: "Jun", current: 580, previous: 360 },
-        { month: "Jul", current: 620, previous: 370 },
-        { month: "Aug", current: 610, previous: 580 },
-        { month: "Sep", current: 630, previous: 390 },
-        { month: "Oct", current: 670, previous: 440 },
-        { month: "Nov", current: 690, previous: 410 },
-        { month: "Dec", current: 1120, previous: 420 },
-    ];
+        const query = new URLSearchParams({ [key]: value }).toString();
 
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/weekly-class/analytics/member?${query}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            const resultRaw = await response.json();
+            const result = resultRaw.data || null;
+
+            setMembersData(result);
+        } catch (error) {
+            console.error("Failed to fetch analytics:", error);
+            setMembersData(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    // ------------------ MEMBERS ADDED MONTHLY ------------------
+    const monthsMap = {
+        1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+        7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"
+    };
+
+    const getMembersAddedMonthly = (data) => {
+        if (!data?.yealyGrouped) return [];
+
+        const years = Object.keys(data.yealyGrouped);
+        const yearData = data.yealyGrouped[years[0]];
+        const monthly = yearData?.monthlyGrouped || {};
+
+        let result = [];
+
+        for (let i = 1; i <= 12; i++) {
+            const key = String(i);
+            const monthName = monthsMap[i];
+
+            if (!monthly[key]) {
+                result.push({ month: monthName, members: 0 });
+                continue;
+            }
+
+            const bookings = monthly[key].bookings || [];
+
+            let memberCount = 0;
+            bookings.forEach((b) => {
+                if (b.students?.length > 0) {
+                    memberCount += b.students.length;
+                }
+            });
+
+            result.push({ month: monthName, members: memberCount });
+        }
+
+        return result;
+    };
+
+    const lineChartData = getMembersAddedMonthly(membersData).map((item) => ({
+        month: item.month,
+        members: item.members,
+    }));
+
+    // ------------------ PIE CHART: PAYMENT PLANS ------------------
     const bookings =
         membersData?.yealyGrouped?.[2025]?.monthlyGrouped?.[10]?.bookings || [];
 
-    // ✅ Group bookings by paymentPlan title
     const planCounts = {};
     bookings.forEach((b) => {
         const planName = b?.paymentPlan?.title || "Unknown Plan";
         planCounts[planName] = (planCounts[planName] || 0) + 1;
     });
 
-    // ✅ Convert to chart format
     const total = Object.values(planCounts).reduce((a, b) => a + b, 0);
-    const colors = ["#8B5CF6", "#FACC15", "#22C55E", "#3B82F6", "#EF4444"]; // add more if needed
+
+    const colors = ["#8B5CF6", "#FACC15", "#22C55E", "#3B82F6", "#EF4444"];
 
     const pieData = Object.keys(planCounts).map((name, index) => ({
         name,
-        value: Math.round((planCounts[name] / total) * 100), // percentage
+        value: Math.round((planCounts[name] / total) * 100),
         color: colors[index % colors.length],
     }));
+
     const customSelectStyles = {
         control: (provided, state) => ({
             ...provided,
             border: "1px solid #E2E1E5",
-            borderRadius: "0.5rem", // rounded-xl
+            borderRadius: "0.5rem",
             boxShadow: state.isFocused ? "0 0 0 1px #237FEA" : "none",
-            "&:hover": {
-                borderColor: "#237FEA",
-            },
+            "&:hover": { borderColor: "#237FEA" },
             minHeight: "40px",
         }),
         option: (provided, state) => ({
@@ -245,43 +402,36 @@ const MembersDashboard = () => {
             paddingRight: "0.5rem",
         }),
     };
+
+    // ------------------ YEAR & MONTH LOGIC ------------------
     const yearlyGrouped = membersData?.yealyGrouped || {};
     const yearKeys = Object.keys(yearlyGrouped);
-// console.log('yearlyGrouped',yearlyGrouped)
-console.log('yearlyGrouped',yearlyGrouped)
+
     const latestYear = yearKeys.length ? yearKeys.sort().pop() : null;
     const monthlyGrouped = latestYear ? yearlyGrouped[latestYear]?.monthlyGrouped || {} : {};
     const monthKeys = Object.keys(monthlyGrouped);
 
     const latestMonth = monthKeys.length ? monthKeys.sort().pop() : null;
 
-
-    // ✅ Get duration data safely
     const durationData =
         (latestYear && latestMonth && yearlyGrouped[latestYear]?.monthlyGrouped?.[latestMonth]?.durationOfMembership) ||
         {};
 
-
-// by vansh
-const getTotalMembers = (data, year, month) => {
-  const bookings =
-    data?.data?.yealyGrouped?.[year]?.monthlyGrouped?.[month]?.bookings || [];
-
-  return bookings.reduce(
-    (sum, booking) => sum + (booking.totalStudents || 0),
-    0
-  );
-};
+    // ------------------ PERCENTAGE DIFFERENCE FIX ------------------
+    const getTotalMembers = (data, year, month) => {
+        const bookings = data?.yealyGrouped?.[year]?.monthlyGrouped?.[month]?.bookings || [];
+        return bookings.reduce(
+            (sum, booking) => sum + (booking.totalStudents || 0),
+            0
+        );
+    };
 
     const years = Object.keys(yearlyGrouped).map(Number).sort((a, b) => b - a);
-    const currentYear = years[0]?.toString();
 
     const months = Object.keys(yearlyGrouped[currentYear]?.monthlyGrouped || {})
         .map(Number)
         .sort((a, b) => b - a);
-    const currentMonth = months[0]?.toString().padStart(2, "0");
 
-    // 2) Previous period
     let prevYear = currentYear;
     let prevMonth = (Number(currentMonth) - 1).toString().padStart(2, "0");
 
@@ -290,25 +440,28 @@ const getTotalMembers = (data, year, month) => {
         prevMonth = "12";
     }
 
-    // 3) Safe check: previous period exists?
     const prevExists =
-       yearlyGrouped?.[prevYear]?.monthlyGrouped?.[prevMonth];
+        yearlyGrouped?.[prevYear]?.monthlyGrouped?.[prevMonth];
 
-    // 4) Members calculations
     const currentMembers = getTotalMembers(membersData, currentYear, currentMonth);
 
     const prevMembers = prevExists
         ? getTotalMembers(membersData, prevYear, prevMonth)
         : 0;
 
-    const diffPercent =
+    // -------- FIXED VERSION (COMPLETE & SAFE) --------
+    let diffPercent =
         prevMembers > 0
-            ? (((currentMembers - prevMembers) / prevMembers) * 100).toFixed(1)
-            : "0";
+            ? (((currentMembers - prevMembers) / prevMembers) * 100).toFixed(1) + "%"
+            : "0%";
 
+    // override if lastBookingCount exists
+    if (lastBookingCount > 0) {
+        diffPercent =
+            (((totalMembers - lastBookingCount) / lastBookingCount) * 100).toFixed(1) + "%";
+    }
 
-    if (loading) return (<><Loader /></>)
-
+    if (loading) return <Loader />;
     return (
         <div className="lg:p-6 bg-gray-50 min-h-screen">
 
@@ -316,19 +469,29 @@ const getTotalMembers = (data, year, month) => {
                 <h1 className="text-3xl font-semibold text-gray-800">Members</h1>
                 <div className="flex flex-wrap gap-3 items-center">
                     <Select
-                        options={venueOptions}
-                        defaultValue={venueOptions[0]}
+                        options={
+                            membersData?.allVenues
+                                ? [{ value: "", label: "All venues" }].concat(
+                                    membersData.allVenues.map((v) => ({ value: v.id, label: v.name }))
+                                )
+                                : venueOptions
+                        }
+                        defaultValue={
+                            membersData?.allVenues
+                                ? { value: "", label: "All venues" }
+                                : venueOptions[0]
+                        }
                         styles={customSelectStyles}
                         components={{ IndicatorSeparator: () => null }}
-
                         className="md:w-40"
+                        onChange={(selected) => handleFilterChange("venueId", selected.value)}
                     />
                     <Select
                         options={ageOptions}
                         defaultValue={ageOptions[0]}
                         styles={customSelectStyles}
                         components={{ IndicatorSeparator: () => null }}
-
+                        onChange={(selected) => handleFilterChange("age", selected.value)}
                         className="md:w-40"
                     />
                     <Select
@@ -337,9 +500,11 @@ const getTotalMembers = (data, year, month) => {
                         options={dateOptions}
                         defaultValue={dateOptions[0]}
                         styles={customSelectStyles}
+                        onChange={(selected) => handleFilterChange("period", selected.value)}
                         className="md:w-40"
                     />
-                    <button className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                    <button   onClick={exportMemberStatsExcel}
+ className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         <Download size={16} /> Export data
                     </button>
                 </div>
@@ -381,79 +546,70 @@ const getTotalMembers = (data, year, month) => {
                         </h2>
 
                         <div className="w-full h-[320px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart
-                                    data={lineData}
-                                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                                >
+                      <ResponsiveContainer width="100%" height={300}>
+  <LineChart
+    data={lineChartData}
+    margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+  >
+    {/* Light grid like screenshot */}
+    <CartesianGrid
+      vertical={false}
+      strokeDasharray="3 3"
+      stroke="#E5E7EB"
+    />
 
-                                    <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f3f4f6" />
+    {/* Clean axis styling */}
+    <XAxis
+      dataKey="month"
+      tick={{ fill: "#6B7280", fontSize: 12 }}
+      axisLine={false}
+      tickLine={false}
+    />
 
-                                    <XAxis
-                                        dataKey="month"
-                                        tick={{ fill: "#6b7280", fontSize: 12 }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
-                                    <YAxis
-                                        tick={{ fill: "#6b7280", fontSize: 12 }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
+    <YAxis
+      tick={{ fill: "#9CA3AF", fontSize: 12 }}
+      axisLine={false}
+      tickLine={false}
+    />
 
-                                    <Tooltip
-                                        cursor={false}
-                                        contentStyle={{
-                                            backgroundColor: "rgba(255,255,255,0.9)",
-                                            border: "1px solid #E5E7EB",
-                                            borderRadius: "8px",
-                                            fontSize: "12px",
-                                        }}
-                                    />
+    {/* Minimal tooltip */}
+    <Tooltip
+      contentStyle={{
+        borderRadius: 8,
+        border: "1px solid #e5e7eb",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+      }}
+      cursor={{ stroke: "#E5E7EB", strokeWidth: 1 }}
+    />
 
+    {/* The blue main line (smooth + thick) */}
+    <Line
+      type="monotone"
+      dataKey="members"
+      stroke="#3B82F6"
+      strokeWidth={3}
+      dot={false}
+      activeDot={{ r: 4 }}
+    />
 
-                                    <defs>
-                                        <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.05} />
-                                        </linearGradient>
-                                        <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#EC4899" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#EC4899" stopOpacity={0.05} />
-                                        </linearGradient>
-                                    </defs>
+    {/* Light filled area under line like screenshot */}
+    <defs>
+      <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.15} />
+        <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
+      </linearGradient>
+    </defs>
 
-
-                                    <Area
-                                        type="monotone"
-                                        dataKey="current"
-                                        stroke="none"
-                                        fill="url(#colorCurrent)"
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="previous"
-                                        stroke="none"
-                                        fill="url(#colorPrevious)"
-                                    />
+    <Area
+      type="monotone"
+      dataKey="members"
+      stroke="none"
+      fill="url(#colorMembers)"
+    />
+  </LineChart>
+</ResponsiveContainer>
 
 
-                                    <Line
-                                        type="monotone"
-                                        dataKey="current"
-                                        stroke="#3B82F6"
-                                        strokeWidth={2.5}
-                                        dot={false}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="previous"
-                                        stroke="#EC4899"
-                                        strokeWidth={2.5}
-                                        dot={false}
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
                         </div>
                     </div>
 
@@ -503,11 +659,11 @@ const getTotalMembers = (data, year, month) => {
                                                 ></div>
 
                                                 {/* Example floating label (only for first item) */}
-                                                {i === 0 && (
+                                                {/* {i === 0 && (
                                                     <div className="absolute -top-6 left-[60%] transform -translate-x-1/2 bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded-full shadow-md">
                                                         {item.count} students
                                                     </div>
-                                                )}
+                                                )} */}
                                             </div>
                                             <span className="text-xs text-gray-500 font-medium">
                                                 {item.value}%

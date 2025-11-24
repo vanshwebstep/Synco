@@ -16,6 +16,8 @@ import {
     MoreVertical,
 
 } from "lucide-react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
     LineChart,
     Line,
@@ -38,46 +40,8 @@ const TrialsDashboard = () => {
     const [loading, setLoading] = useState(false);
 
     const [mainData, setMainData] = useState([]);
-    const metrics = [
-        {
-            icon: <Users className="text-teal-500" size={24} />,
-            title: "Leads generated",
-            value: 200,
-            change: "+100%",
-            prev: 1200,
-        },
-        {
-            icon: <CalendarDays className="text-purple-500" size={24} />,
-            title: "Trials Booked",
-            value: 100,
-            change: "+87%",
-            prev: 120,
-            conversion: "86%",
-        },
-        {
-            icon: <CalendarCheck className="text-sky-500" size={24} />,
-            title: "Trials Attended",
-            value: 50,
-            change: "+87%",
-            prev: 42,
-            conversion: "50%",
-        },
-        {
-            icon: <UserCheck className="text-pink-400" size={24} />,
-            title: "Memberships Sold",
-            value: 25,
-            change: "+87%",
-            prev: 42,
-            conversion: "50%",
-        },
-        {
-            icon: <BarChart3 className="text-orange-400" size={24} />,
-            title: "Conversion Rate lead to Sale",
-            value: "12,5%",
-            change: "+87%",
-            prev: 42,
-        },
-    ];
+
+
 
 
     const venueOptions = [
@@ -90,11 +54,121 @@ const TrialsDashboard = () => {
         { label: "Website", value: 45 },
         { label: "Other", value: 10 },
     ];
-    const ageOptions = [
-        { value: "all", label: "All Classes" },
-        { value: "under18", label: "Under 18" },
-        { value: "18-25", label: "18–25" },
+    const currentYear = new Date().getFullYear().toString();
+    const yearData = membersData?.yealyGrouped?.[currentYear] || {};
+    const fb = yearData?.facebookPerformance;
+    const currentMonth = (new Date().getMonth() + 1).toString();
+
+    const metrics = [
+        {
+            icon: <Users className="text-teal-500" size={24} />,
+            title: "Leads generated",
+            value: fb?.currentYearStats?.leadsGenerated ?? 0,
+            change: fb?.percent ? `${fb.percent}%` : "0%",
+            prev: fb?.prevLeads ?? 0,   // If you have prev values, else remove
+        },
+        {
+            icon: <CalendarDays className="text-purple-500" size={24} />,
+            title: "Trials Booked",
+            value: fb?.currentYearStats?.trialsBooked ?? 0,
+            change: fb?.percent ? `${fb.percent}%` : "0%",
+            prev: fb?.prevTrials ?? 0,
+            conversion:
+                fb?.currentYearStats?.leadsGenerated
+                    ? `${(
+                        (fb.currentYearStats.trialsBooked /
+                            fb.currentYearStats.leadsGenerated) *
+                        100
+                    ).toFixed(1)}%`
+                    : "0%",
+        },
+        {
+            icon: <CalendarCheck className="text-sky-500" size={24} />,
+            title: "Trials Attended",
+            value: fb?.currentYearStats?.trialsAttended ?? 0,
+            change: fb?.percent ? `${fb.percent}%` : "0%",
+            prev: fb?.prevAttended ?? 0,
+            conversion:
+                fb?.currentYearStats?.trialsBooked
+                    ? `${(
+                        (fb.currentYearStats.trialsAttended /
+                            fb.currentYearStats.trialsBooked) *
+                        100
+                    ).toFixed(1)}%`
+                    : "0%",
+        },
+        {
+            icon: <UserCheck className="text-pink-400" size={24} />,
+            title: "Memberships Sold",
+            value: fb?.currentYearStats?.membershipsSold ?? 0,
+            change: fb?.percent ? `${fb.percent}%` : "0%",
+            prev: fb?.prevMemberships ?? 0,
+            conversion:
+                fb?.currentYearStats?.trialsAttended
+                    ? `${(
+                        (fb.currentYearStats.membershipsSold /
+                            fb.currentYearStats.trialsAttended) *
+                        100
+                    ).toFixed(1)}%`
+                    : "0%",
+        },
+        {
+            icon: <BarChart3 className="text-orange-400" size={24} />,
+            title: "Conversion Rate lead to Sale",
+            value: `${fb?.currentYearStats?.conversionRate ?? 0}%`,
+            change: fb?.percent ? `${fb.percent}%` : "0%",
+            prev: fb?.prevConversion ?? 0,
+        },
     ];
+    const exportFbMetricsExcel = () => {
+        const exportData = metrics.map((item) => ({
+            Title: item.title,
+            Value: String(item.value ?? "—"),
+            Change: String(item.change ?? "—"),
+            "Prev Period": String(item.prev ?? "—"),
+            Conversion: String(item.conversion ?? "—"),
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Facebook Metrics");
+
+        const excelBuffer = XLSX.write(workbook, {
+            bookType: "xlsx",
+            type: "array",
+        });
+
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "facebook-metrics.xlsx");
+    };
+    const monthlyData = yearData?.monthlyGrouped || {};     // ------------------ AGE RANGE LOGIC ------------------
+    let allAges = [];
+
+    Object.values(monthlyData).forEach(month => {
+        const byAge = month?.enrolledStudents?.byAge;
+        if (byAge) {
+            allAges = [...allAges, ...Object.keys(byAge).map(a => Number(a))];
+        }
+    })
+    const ageOptions = (() => {
+        if (!allAges.length) return [{ value: "allAges", label: "All ages" }];
+
+        const ranges = [
+            { value: "under18", label: "Under 18", filter: age => age < 18 },
+            { value: "18-25", label: "18–25", filter: age => age >= 18 && age <= 25 },
+            { value: "25-35", label: "25–35", filter: age => age > 25 && age <= 35 },
+            { value: "35plus", label: "35+", filter: age => age > 35 },
+        ];
+
+        const dynamic = ranges.filter(range =>
+            allAges.some(age => range.filter(age))
+        );
+
+        return [
+            { value: "all", label: "All ages" },
+            ...dynamic
+        ];
+    })();
 
     const dateOptions = [
         { value: "month", label: "This Month" },
@@ -110,7 +184,7 @@ const TrialsDashboard = () => {
             value: ` ${membersData?.overallTrends?.freeTrialsCount}`,
             diff: "+12%",
             sub: "vs. prev period ",
-            subvalue: '2,900'
+            subvalue: `${membersData?.overallTrends?.freeTrialsCount}`,
         },
         {
             icon: "/demo/synco/reportsIcons/attendent.png",
@@ -161,7 +235,7 @@ const TrialsDashboard = () => {
 
     useEffect(() => {
         const enrolledData =
-            membersData?.yealyGrouped?.["2025"]?.monthlyGrouped?.["10"]
+            membersData?.yealyGrouped?.[currentYear]?.monthlyGrouped?.[currentMonth]
                 ?.enrolledStudents || {};
 
         if (activeTab === "age") {
@@ -221,25 +295,91 @@ const TrialsDashboard = () => {
             setLoading(false);
         }
     }, []);
+    const handleFilterChange = async (key, value) => {
+        const token = localStorage.getItem("adminToken");
 
+        const query = new URLSearchParams({ [key]: value }).toString();
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/weekly-class/analytics/free-trial?${query}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            const resultRaw = await response.json();
+            const result = resultRaw.data || null;
+
+            setMembersData(result);
+        } catch (error) {
+            console.error("Failed to fetch analytics:", error);
+            setMembersData(null);
+        } finally {
+            setLoading(false);
+        }
+    };
     useEffect(() => {
         fetchData();
     }, []);
 
-    const lineData = [
-        { month: "Jan", current: 380, previous: 300 },
-        { month: "Feb", current: 400, previous: 310 },
-        { month: "Mar", current: 450, previous: 320 },
-        { month: "Apr", current: 500, previous: 100 },
-        { month: "May", current: 600, previous: 140 },
-        { month: "Jun", current: 580, previous: 360 },
-        { month: "Jul", current: 620, previous: 370 },
-        { month: "Aug", current: 610, previous: 580 },
-        { month: "Sep", current: 630, previous: 390 },
-        { month: "Oct", current: 670, previous: 440 },
-        { month: "Nov", current: 690, previous: 410 },
-        { month: "Dec", current: 1120, previous: 420 },
-    ];
+    const monthsMap = {
+        1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+        7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"
+    };
+
+    const getMembersAddedMonthly = (data) => {
+        if (!data?.yealyGrouped) return [];
+
+        const years = Object.keys(data.yealyGrouped);
+        const yearData = data.yealyGrouped[years[0]];
+        const monthly = yearData?.monthlyGrouped || {};
+
+        let result = [];
+
+        for (let i = 1; i <= 12; i++) {
+            const key = String(i);
+            const monthName = monthsMap[i];
+
+            if (!monthly[key]) {
+                result.push({ month: monthName, members: 0 });
+                continue;
+            }
+
+            const bookings = monthly[key].bookings || [];
+
+            // 🚫 Ignore cancelled
+            const activeBookings = bookings.filter(
+                (b) => b.status !== "cancelled"
+            );
+
+            // Count FREE bookings only
+            const freeActiveBookings = activeBookings.filter(
+                (b) => b.bookingType === "free"
+            );
+
+            // Count students for free bookings
+            let freeCount = 0;
+            freeActiveBookings.forEach((b) => {
+                if (b.students?.length > 0) {
+                    freeCount += b.students.length;
+                }
+            });
+
+            result.push({ month: monthName, members: freeCount });
+        }
+
+        return result;
+    };
+
+    const lineChartData = getMembersAddedMonthly(membersData).map((item) => ({
+        month: item.month,
+        members: item.members,
+    }));
 
     const bookings =
         membersData?.yealyGrouped?.[2025]?.monthlyGrouped?.[10]?.bookings || [];
@@ -307,19 +447,29 @@ const TrialsDashboard = () => {
                 <h1 className="text-3xl font-semibold text-gray-800">Trials and conversions</h1>
                 <div className="flex flex-wrap gap-3 items-center">
                     <Select
-                        options={venueOptions}
-                        defaultValue={venueOptions[0]}
+                        options={
+                            membersData?.allVenues
+                                ? [{ value: "", label: "All venues" }].concat(
+                                    membersData.allVenues.map((v) => ({ value: v.id, label: v.name }))
+                                )
+                                : venueOptions
+                        }
+                        defaultValue={
+                            membersData?.allVenues
+                                ? { value: "", label: "All venues" }
+                                : venueOptions[0]
+                        }
                         styles={customSelectStyles}
                         components={{ IndicatorSeparator: () => null }}
-
                         className="md:w-40"
+                        onChange={(selected) => handleFilterChange("venueId", selected.value)}
                     />
                     <Select
                         options={ageOptions}
                         defaultValue={ageOptions[0]}
                         styles={customSelectStyles}
                         components={{ IndicatorSeparator: () => null }}
-
+                        onChange={(selected) => handleFilterChange("age", selected.value)}
                         className="md:w-40"
                     />
                     <Select
@@ -328,9 +478,11 @@ const TrialsDashboard = () => {
                         options={dateOptions}
                         defaultValue={dateOptions[0]}
                         styles={customSelectStyles}
+                        onChange={(selected) => handleFilterChange("period", selected.value)}
                         className="md:w-40"
                     />
-                    <button className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                    <button onClick={exportFbMetricsExcel}
+                        className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         <Download size={16} /> Export data
                     </button>
                 </div>
@@ -372,69 +524,76 @@ const TrialsDashboard = () => {
                         </h2>
 
                         <div className="w-full h-[320px]">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height={300}>
                                 <LineChart
-                                    data={lineData}
-                                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                                    data={lineChartData}
+                                    margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
                                 >
+                                    {/* Soft grid like screenshot */}
+                                    <CartesianGrid
+                                        vertical={false}
+                                        strokeDasharray="3 3"
+                                        stroke="#E5E7EB"
+                                    />
 
-                                    <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f3f4f6" />
-
+                                    {/* Clean axis */}
                                     <XAxis
                                         dataKey="month"
-                                        tick={{ fill: "#6b7280", fontSize: 12 }}
+                                        tick={{ fill: "#6B7280", fontSize: 12 }}
                                         axisLine={false}
                                         tickLine={false}
                                     />
                                     <YAxis
-                                        tick={{ fill: "#6b7280", fontSize: 12 }}
+                                        tick={{ fill: "#9CA3AF", fontSize: 12 }}
                                         axisLine={false}
                                         tickLine={false}
                                     />
 
+                                    {/* Minimal tooltip */}
                                     <Tooltip
-                                        cursor={false}
                                         contentStyle={{
-                                            backgroundColor: "rgba(255,255,255,0.9)",
-                                            border: "1px solid #E5E7EB",
-                                            borderRadius: "8px",
-                                            fontSize: "12px",
+                                            borderRadius: 8,
+                                            border: "1px solid #e5e7eb",
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                                         }}
+                                        cursor={{ stroke: "#E5E7EB", strokeWidth: 1 }}
                                     />
 
-
+                                    {/* Gradient Areas */}
                                     <defs>
                                         <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.05} />
+                                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
+                                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.03} />
                                         </linearGradient>
+
                                         <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#EC4899" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#EC4899" stopOpacity={0.05} />
+                                            <stop offset="5%" stopColor="#EC4899" stopOpacity={0.25} />
+                                            <stop offset="95%" stopColor="#EC4899" stopOpacity={0.03} />
                                         </linearGradient>
                                     </defs>
 
-
+                                    {/* Current Members Line (Blue) */}
                                     <Area
                                         type="monotone"
-                                        dataKey="current"
+                                        dataKey="members"
                                         stroke="none"
                                         fill="url(#colorCurrent)"
                                     />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="members"
+                                        stroke="#3B82F6"
+                                        strokeWidth={3}
+                                        dot={false}
+                                        activeDot={{ r: 4 }}
+                                    />
+
+                                    {/* Previous Members Line (Pink) */}
                                     <Area
                                         type="monotone"
                                         dataKey="previous"
                                         stroke="none"
                                         fill="url(#colorPrevious)"
-                                    />
-
-
-                                    <Line
-                                        type="monotone"
-                                        dataKey="current"
-                                        stroke="#3B82F6"
-                                        strokeWidth={2.5}
-                                        dot={false}
                                     />
                                     <Line
                                         type="monotone"
@@ -442,9 +601,11 @@ const TrialsDashboard = () => {
                                         stroke="#EC4899"
                                         strokeWidth={2.5}
                                         dot={false}
+                                        activeDot={{ r: 4 }}
                                     />
                                 </LineChart>
                             </ResponsiveContainer>
+
                         </div>
                     </div>
 
@@ -603,57 +764,97 @@ const TrialsDashboard = () => {
                                 Marketing channel performance <EllipsisVertical />
                             </h2>
 
-                            {data.map((item, i) => (
-                                <div key={i} className="mb-4">
-                                    <div className="flex justify-between items-center mb-1">
-                                        <p className="text-xs text-[#344054] font-semibold">{item.label}</p>
+                            {(() => {
+                                const perfObj = yearData?.monthlyGrouped?.[currentMonth]?.marketingChannelPerformance;
 
-                                    </div>
-                                    <div className="flex items-center gap-2">
+                                // Convert object → array of { label, value }
+                                const list = perfObj
+                                    ? Object.entries(perfObj).map(([label, value]) => ({
+                                        label,
+                                        value
+                                    }))
+                                    : [];
 
-                                        <div className="w-full bg-gray-100 h-2 rounded-full">
-                                            <div
-                                                className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                                style={{ width: `${item.value}%` }}
-                                            ></div>
+                                if (list.length === 0) {
+                                    return (
+                                        <p className="text-xs text-gray-400 italic">
+                                            No data available
+                                        </p>
+                                    );
+                                }
+
+                                return list.map((item, i) => (
+                                    <div key={i} className="mb-4">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <p className="text-xs text-[#344054] font-semibold">
+                                                {item.label}
+                                            </p>
                                         </div>
-                                        <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
 
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                <div
+                                                    className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
+                                                    style={{ width: `${item.value}%` }}
+                                                ></div>
+                                            </div>
+
+                                            <span className="text-xs text-[#344054] font-semibold">
+                                                {item.value}%
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ));
+                            })()}
+
+
                         </div>
                         <div className="bg-white rounded-2xl p-4 mt-3">
                             <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
                                 Top Agents <EllipsisVertical />
                             </h2>
 
-                            {data.map((item, i) => (
-                                <div key={i} className="mb-4">
+                            {yearData?.monthlyGrouped?.[currentMonth]?.agentSummary?.map((item, i) => (
+                                <div key={item.id || i} className="mb-4">
                                     <div className="flex gap-5 justify-between">
-
-                                        <div className="w-10 h-10">
-                                            <img src="/demo/synco/reportsIcons/agent.png" alt="" />
+                                        <div className="profileimg w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
+                                            <img
+                                                className="object-cover w-full h-full"
+                                                onError={(e) => {
+                                                    e.currentTarget.onerror = null; // prevent infinite loop
+                                                    e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                }}
+                                                src={
+                                                    item?.profile
+                                                        ? `${item.profile}`
+                                                        : '/demo/synco/members/dummyuser.png'
+                                                } alt="" />
                                         </div>
-                                        <div className="w-full">  <div className="flex justify-between items-center mb-1">
-                                            <p className="text-xs text-[#344054] font-semibold">{item.label}</p>
 
-                                        </div >
+                                        <div className="w-full">
+                                            <div className="flex justify-between items-center mb-1">
+                                                <p className="text-xs text-[#344054] font-semibold">
+                                                    {item?.name || "Unknown"}
+                                                </p>
+                                            </div>
+
                                             <div className="flex items-center gap-2">
-
                                                 <div className="w-full bg-gray-100 h-2 rounded-full">
                                                     <div
                                                         className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                                        style={{ width: `${item.value}%` }}
+                                                        style={{ width: `${item?.value || 0}%` }}
                                                     ></div>
                                                 </div>
-                                                <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
 
-                                            </div></div>
+                                                <span className="text-xs text-[#344054] font-semibold">
+                                                    {item?.value || 0}%
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-
                                 </div>
                             ))}
+
                         </div>
                     </div>
                 </div>
@@ -670,7 +871,7 @@ const TrialsDashboard = () => {
                             <EllipsisVertical />
                         </div>
 
-                        <h1 className="text-[48px] font-semibold">£1.123</h1>
+                        <h1 className="text-[48px] font-semibold">£{yearData?.monthlyGrouped?.[currentMonth]?.revenue}</h1>
                         <p className="font-semibold text-[16px] text-[#717073]">Revenue generated from memberships acquired through free trials.</p>
                     </div>
                     <div className="bg-white rounded-2xl p-4 mt-3">

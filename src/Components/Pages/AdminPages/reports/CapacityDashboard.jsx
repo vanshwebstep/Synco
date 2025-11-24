@@ -11,7 +11,8 @@ import {
     EllipsisVertical,
 
 } from "lucide-react";
-
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
     LineChart,
     Line,
@@ -118,7 +119,26 @@ const CapacityDashboard = () => {
         },
     ];
 
+const exportCapacityStatsExcel = () => {
+  const exportData = stats.map((item) => ({
+    Title: item.title,
+    Value: String(item.value ?? "—"),
+    Change: String(item.diff ?? "—"),
+    "Prev Period": String(item.subvalue ?? "—"),
+  }));
 
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Capacity Summary");
+
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(data, "capacity-summary.xlsx");
+};
     const fetchData = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
         if (!token) return;
@@ -267,7 +287,8 @@ const CapacityDashboard = () => {
                         styles={customSelectStyles}
                         className="md:w-40"
                     />
-                    <button className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                    <button   onClick={exportCapacityStatsExcel}
+ className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         <Download size={16} /> Export data
                     </button>
                 </div>
@@ -309,64 +330,92 @@ const CapacityDashboard = () => {
                         </h2>
 
                         <div className="w-full h-[320px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart
-                                    data={membersData?.charts?.monthWise}
-                                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                                >
+                       <ResponsiveContainer width="100%" height="100%">
+    <LineChart
+        data={membersData?.charts?.monthWise}
+        margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
+    >
+        {/* Soft grid */}
+        <CartesianGrid
+            vertical={false}
+            strokeDasharray="3 3"
+            stroke="#E5E7EB"
+        />
 
-                                    <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f3f4f6" />
+        {/* Clean axes */}
+        <XAxis
+            dataKey="month"
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            axisLine={false}
+            tickLine={false}
+        />
+        <YAxis
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            axisLine={false}
+            tickLine={false}
+        />
 
-                                    <XAxis
-                                        dataKey="month"
-                                        tick={{ fill: "#6b7280", fontSize: 12 }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
-                                    <YAxis
-                                        tick={{ fill: "#6b7280", fontSize: 12 }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
+        {/* Smooth tooltip */}
+        <Tooltip
+            cursor={{ stroke: "#E5E7EB", strokeWidth: 1 }}
+            contentStyle={{
+                backgroundColor: "rgba(255,255,255,0.95)",
+                border: "1px solid #E5E7EB",
+                borderRadius: "8px",
+                fontSize: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            }}
+        />
 
-                                    <Tooltip
-                                        cursor={false}
-                                        contentStyle={{
-                                            backgroundColor: "rgba(255,255,255,0.9)",
-                                            border: "1px solid #E5E7EB",
-                                            borderRadius: "8px",
-                                            fontSize: "12px",
-                                        }}
-                                    />
+        {/* Gradient Areas */}
+        <defs>
+            <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.03} />
+            </linearGradient>
 
+            <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#EC4899" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#EC4899" stopOpacity={0.03} />
+            </linearGradient>
+        </defs>
 
-                                    <defs>
-                                        <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.05} />
-                                        </linearGradient>
-                                        <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#EC4899" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#EC4899" stopOpacity={0.05} />
-                                        </linearGradient>
-                                    </defs>
+        {/* Shaded Areas under lines */}
+        <Area
+            type="monotone"
+            dataKey="currentYearCount"
+            stroke="none"
+            fill="url(#colorCurrent)"
+        />
+        <Area
+            type="monotone"
+            dataKey="prevYearCount"
+            stroke="none"
+            fill="url(#colorPrevious)"
+        />
 
-                                    <Line
-                                        type="monotone"
-                                        dataKey="currentYearCount"
-                                        stroke="#3B82F6"
-                                        strokeWidth={2.5}
-                                        dot={false}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="prevYearCount"
-                                        stroke="#EC4899"
-                                        strokeWidth={2.5}
-                                        dot={false}
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
+        {/* Current (Blue) Line */}
+        <Line
+            type="monotone"
+            dataKey="currentYearCount"
+            stroke="#3B82F6"
+            strokeWidth={3}
+            dot={false}
+            activeDot={{ r: 4 }}
+        />
+
+        {/* Previous (Pink) Line */}
+        <Line
+            type="monotone"
+            dataKey="prevYearCount"
+            stroke="#EC4899"
+            strokeWidth={2.5}
+            dot={false}
+            activeDot={{ r: 4 }}
+        />
+    </LineChart>
+</ResponsiveContainer>
+
                         </div>
                     </div>
 

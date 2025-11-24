@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import Select from "react-select";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
     Users,
     CalendarDays,
@@ -28,8 +30,9 @@ const AttendanceDashboard = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [activeTab, setActiveTab] = useState("age"); // age | gender
     const [analytics, setAnalytics] = useState(null);
+    const [allClasses, setAllClasses] = useState([]);
     const [loading, setLoading] = useState(false);
-
+console.log('allClasses',allClasses)
     // Select options (use dynamic venues/classes from API when loaded)
     const staticVenueOptions = [
         { value: "all", label: "All venues" },
@@ -37,10 +40,13 @@ const AttendanceDashboard = () => {
         { value: "manchester", label: "Manchester" },
     ];
     const ageOptionsSelect = [
-        { value: "all", label: "All Classes" },
-        { value: "under18", label: "Under 18" },
-        { value: "18-25", label: "18–25" },
+        { value: "", label: "All Classes" },
+        ...allClasses.map(c => ({
+            value: c.id,
+            label: c.className
+        })),
     ];
+
     const dateOptions = [
         { value: "month", label: "This Month" },
         { value: "quarter", label: "This Quarter" },
@@ -106,6 +112,8 @@ const AttendanceDashboard = () => {
             // API response structure: { status, message, data: { ... } }
             const result = resultRaw.data || null;
             setAnalytics(result);
+            const classes = result.allClasses;
+            setAllClasses(classes)
         } catch (error) {
             console.error("Failed to fetch analytics:", error);
             setAnalytics(null);
@@ -192,7 +200,29 @@ const AttendanceDashboard = () => {
         //   change: analytics?.conversionChange || "-",
         // },
     ];
+const exportTopCardsExcel = () => {
+  // Prepare formatted export rows
+  const exportData = topCards.map((item) => ({
+    Title: item.title,
+    Value: typeof item.value === "string" ? item.value : String(item.value),
+    Change: item.change,
+  }));
 
+  // Create worksheet + workbook
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance Stats");
+
+  // Convert to excel buffer
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  // Download file
+  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(data, "attendance-top-cards.xlsx");
+};
     // Line chart data (monthly attendance rates)
     const lineData =
         analytics?.charts?.monthlyAttendance?.map((m) => ({
@@ -269,7 +299,7 @@ const AttendanceDashboard = () => {
                         styles={customSelectStyles}
                         components={{ IndicatorSeparator: () => null }}
                         className="md:w-40"
-                        onChange={(selected) => handleFilterChange("filterByVenue", selected.value)}
+                        onChange={(selected) => handleFilterChange("venueId", selected.value)}
                     />
 
                     {/* AGE SELECT */}
@@ -292,7 +322,7 @@ const AttendanceDashboard = () => {
                         onChange={(selected) => handleFilterChange("filterType", selected.value)}
                     />
 
-                    <button className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                    <button   onClick={exportTopCardsExcel} className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         <Download size={16} /> Export data
                     </button>
                 </div>
@@ -331,33 +361,74 @@ const AttendanceDashboard = () => {
                         <h2 className="text-gray-800 font-semibold text-[20px] mb-4">Attendance</h2>
 
                         <div className="w-full h-[320px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={lineChartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                                    <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f3f4f6" />
-                                    <XAxis dataKey="month" tick={{ fill: "#6b7280", fontSize: 12 }} axisLine={false} tickLine={false} />
-                                    <YAxis tick={{ fill: "#6b7280", fontSize: 12 }} axisLine={false} tickLine={false} />
-                                    <Tooltip
-                                        cursor={false}
-                                        formatter={(value) => (value != null ? `${value}%` : value)}
-                                        contentStyle={{
-                                            backgroundColor: "rgba(255,255,255,0.95)",
-                                            border: "1px solid #E5E7EB",
-                                            borderRadius: "8px",
-                                            fontSize: "12px",
-                                        }}
-                                    />
+                         <ResponsiveContainer width="100%" height="100%">
+    <LineChart
+        data={lineChartData}
+        margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
+    >
+        {/* Soft grid for modern look */}
+        <CartesianGrid
+            vertical={false}
+            strokeDasharray="3 3"
+            stroke="#E5E7EB"
+        />
 
-                                    <defs>
-                                        <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.05} />
-                                        </linearGradient>
-                                    </defs>
+        {/* Clean axes */}
+        <XAxis
+            dataKey="month"
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            axisLine={false}
+            tickLine={false}
+        />
+        <YAxis
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            axisLine={false}
+            tickLine={false}
+        />
 
-                                    <Area type="monotone" dataKey="rate" stroke="none" fill="url(#colorRate)" />
-                                    <Line type="monotone" dataKey="rate" stroke="#3B82F6" strokeWidth={2.5} dot={false} />
-                                </LineChart>
-                            </ResponsiveContainer>
+        {/* Tooltip clean + matches your % format */}
+        <Tooltip
+            cursor={{ stroke: "#E5E7EB", strokeWidth: 1 }}
+            formatter={(value) =>
+                value != null ? `${value}%` : value
+            }
+            contentStyle={{
+                backgroundColor: "rgba(255,255,255,0.95)",
+                border: "1px solid #E5E7EB",
+                borderRadius: "8px",
+                fontSize: "12px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            }}
+        />
+
+        {/* Soft gradient under line */}
+        <defs>
+            <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.03} />
+            </linearGradient>
+        </defs>
+
+        {/* Smooth shaded area */}
+        <Area
+            type="monotone"
+            dataKey="rate"
+            stroke="none"
+            fill="url(#colorRate)"
+        />
+
+        {/* Main line */}
+        <Line
+            type="monotone"
+            dataKey="rate"
+            stroke="#3B82F6"
+            strokeWidth={3}
+            dot={false}
+            activeDot={{ r: 4 }}
+        />
+    </LineChart>
+</ResponsiveContainer>
+
                         </div>
                     </div>
 

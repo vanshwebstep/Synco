@@ -299,7 +299,7 @@ const ParentProfile = () => {
       <div className="">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-
+    {formData.length < 3 && (
           <button
             type="button"
             onClick={() => setShowModal(true)}
@@ -308,8 +308,8 @@ const ParentProfile = () => {
           >
             Add Parent
           </button>
+       )}
         </div>
-
         {/* Render multiple parent sections */}
         {formData.map((parent, index) => (
           <div key={index} className="bg-white p-6  rounded-2xl shadow-sm rounded-2xl mb-6">

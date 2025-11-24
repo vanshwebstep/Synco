@@ -11,6 +11,8 @@ import {
     EllipsisVertical,
 
 } from "lucide-react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
     LineChart,
     Line,
@@ -33,6 +35,10 @@ const SaleDashboard = () => {
     const [loading, setLoading] = useState(false);
 
     const [mainData, setMainData] = useState([]);
+    const currentYear = new Date().getFullYear().toString();
+
+    const yearData = membersData?.yealyGrouped?.[currentYear] || {};
+    const currentMonth = (new Date().getMonth() + 1).toString();
 
     const venueOptions = [
         { value: "all", label: "All venues" },
@@ -56,66 +62,87 @@ const SaleDashboard = () => {
         { value: "year", label: "This Year" },
     ];
 
+    const overall = membersData?.overallTrends || {};
+
     const stats = [
         {
             icon: "/demo/synco/reportsIcons/user-group.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Total New Students",
-            value: "3,200",
+            value: overall.newStudents ?? 0,
             diff: "+12%",
-            sub: "vs. prev period ",
-            subvalue: '2,900'
+            sub: "vs. prev period",
+            subvalue: "—"
         },
         {
             icon: "/demo/synco/reportsIcons/pound.png",
             iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
             title: "Monthly Revenue",
-            value: "£67,000",
+            value: `£${(overall.totalRevenue || 0).toLocaleString()}`,
             diff: "+8%",
             sub: "vs. prev period",
-            subvalue: '£57,000'
+            subvalue: "—"
         },
         {
             icon: "/demo/synco/reportsIcons/pound2.png",
             iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
             title: "Average Monthly Fee",
-            value: "£43.94",
+            value: `£${(overall.averageMonthlyFee || 0).toFixed(2)}`,
             diff: "+6%",
-            sub: "vs. prev period ",
-            subvalue: '£57,000'
+            sub: "vs. prev period",
+            subvalue: "—"
         },
         {
             icon: "/demo/synco/reportsIcons/chart2.png",
             iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
             title: "Growth Comparison",
-            value: "18 months",
+            value: "18 months", // no API value provided
             diff: "+6%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
+            sub: "vs. prev period",
+            subvalue: "16.8 months"
         },
         {
             icon: "/demo/synco/reportsIcons/cancelled.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
             title: "Total Cancellations",
-            value: "82",
+            value: overall.totalCancellation ?? 0,
             diff: "+3%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
+            sub: "vs. prev period",
+            subvalue: "—"
         },
         {
             icon: "/demo/synco/reportsIcons/Userremove.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
             title: "Variance",
-            value: "82",
+            value: overall.variance ?? 0, // if you add it later
             diff: "+3%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
-        },
+            sub: "vs. prev period",
+            subvalue: "—"
+        }
     ];
+const exportOverviewStatsExcel = () => {
+  const exportData = stats.map((item) => ({
+    Title: item.title,
+    Value: String(item.value ?? "—"),
+    Change: String(item.diff ?? "—"),
+    "Prev Period": String(item.subvalue ?? "—"),
+  }));
 
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Overview Summary");
+
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(data, "overview-summary.xlsx");
+};
     useEffect(() => {
         const enrolledData =
-            membersData?.yealyGrouped?.["2025"]?.monthlyGrouped?.["10"]
+            membersData?.yealyGrouped?.[currentYear]?.monthlyGrouped?.[currentMonth]
                 ?.enrolledStudents || {};
 
         if (activeTab === "age") {
@@ -162,26 +189,82 @@ const SaleDashboard = () => {
             setLoading(false);
         }
     }, []);
+const handleFilterChange = async (key, value) => {
+        const token = localStorage.getItem("adminToken");
 
+        const query = new URLSearchParams({ [key]: value }).toString();
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/weekly-class/analytics/sales?${query}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            const resultRaw = await response.json();
+            const result = resultRaw.data || null;
+
+            setMembersData(result);
+        } catch (error) {
+            console.error("Failed to fetch analytics:", error);
+            setMembersData(null);
+        } finally {
+            setLoading(false);
+        }
+    };
     useEffect(() => {
         fetchData();
     }, []);
 
-    const lineData = [
-        { month: "Jan", current: 380, previous: 300 },
-        { month: "Feb", current: 400, previous: 310 },
-        { month: "Mar", current: 450, previous: 320 },
-        { month: "Apr", current: 500, previous: 100 },
-        { month: "May", current: 600, previous: 140 },
-        { month: "Jun", current: 580, previous: 360 },
-        { month: "Jul", current: 620, previous: 370 },
-        { month: "Aug", current: 610, previous: 580 },
-        { month: "Sep", current: 630, previous: 390 },
-        { month: "Oct", current: 670, previous: 440 },
-        { month: "Nov", current: 690, previous: 410 },
-        { month: "Dec", current: 1120, previous: 420 },
-    ];
+    const monthsMap = {
+        1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+        7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"
+    };
 
+    const getMembersAddedMonthly = (data) => {
+        if (!data?.yealyGrouped) return [];
+
+        const years = Object.keys(data.yealyGrouped);
+        const yearData = data.yealyGrouped[years[0]];
+        const monthly = yearData?.monthlyGrouped || {};
+
+        let result = [];
+
+        for (let i = 1; i <= 12; i++) {
+            const key = String(i);
+            const monthName = monthsMap[i];
+
+            if (!monthly[key]) {
+                result.push({ month: monthName, members: 0 });
+                continue;
+            }
+
+            const bookings = monthly[key].bookings || [];
+            const freeCount = bookings.filter(b => b.bookingType === "paid").length;
+            console.log('freeCount ', freeCount)
+
+            let memberCount = 0;
+            bookings.forEach((b) => {
+                if (b.students?.length > 0) {
+                    memberCount += b.students.length;
+                }
+            });
+
+            result.push({ month: monthName, members: freeCount });
+        }
+
+        return result;
+    };
+
+    const lineChartData = getMembersAddedMonthly(membersData).map((item) => ({
+        month: item.month,
+        members: item.members,
+    }));
     const bookings =
         membersData?.yealyGrouped?.[2025]?.monthlyGrouped?.[10]?.bookings || [];
 
@@ -248,19 +331,29 @@ const SaleDashboard = () => {
                 <h1 className="text-3xl font-semibold text-gray-800">Sales</h1>
                 <div className="flex flex-wrap gap-3 items-center">
                     <Select
-                        options={venueOptions}
-                        defaultValue={venueOptions[0]}
+                        options={
+                            membersData?.allVenues
+                                ? [{ value: "", label: "All venues" }].concat(
+                                    membersData.allVenues.map((v) => ({ value: v.id, label: v.name }))
+                                )
+                                : venueOptions
+                        }
+                        defaultValue={
+                            membersData?.allVenues
+                                ? { value: "", label: "All venues" }
+                                : venueOptions[0]
+                        }
                         styles={customSelectStyles}
                         components={{ IndicatorSeparator: () => null }}
-
                         className="md:w-40"
+                        onChange={(selected) => handleFilterChange("venueId", selected.value)}
                     />
                     <Select
                         options={ageOptions}
                         defaultValue={ageOptions[0]}
                         styles={customSelectStyles}
                         components={{ IndicatorSeparator: () => null }}
-
+                        onChange={(selected) => handleFilterChange("age", selected.value)}
                         className="md:w-40"
                     />
                     <Select
@@ -269,9 +362,11 @@ const SaleDashboard = () => {
                         options={dateOptions}
                         defaultValue={dateOptions[0]}
                         styles={customSelectStyles}
+                        onChange={(selected) => handleFilterChange("period", selected.value)}
                         className="md:w-40"
                     />
-                    <button className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                    <button   onClick={exportOverviewStatsExcel}
+ className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         <Download size={16} /> Export data
                     </button>
                 </div>
@@ -313,79 +408,92 @@ const SaleDashboard = () => {
                         </h2>
 
                         <div className="w-full h-[320px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart
-                                    data={lineData}
-                                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                                >
+                        <ResponsiveContainer width="100%" height={300}>
+    <LineChart
+        data={lineChartData}
+        margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
+    >
+        {/* Soft background grid */}
+        <CartesianGrid
+            vertical={false}
+            strokeDasharray="3 3"
+            stroke="#E5E7EB"
+        />
 
-                                    <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#f3f4f6" />
+        {/* Clean axes like screenshot */}
+        <XAxis
+            dataKey="month"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#6B7280", fontSize: 12 }}
+        />
+        <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#9CA3AF", fontSize: 12 }}
+        />
 
-                                    <XAxis
-                                        dataKey="month"
-                                        tick={{ fill: "#6b7280", fontSize: 12 }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
-                                    <YAxis
-                                        tick={{ fill: "#6b7280", fontSize: 12 }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
+        {/* Smooth tooltip */}
+        <Tooltip
+            contentStyle={{
+                borderRadius: 8,
+                border: "1px solid #e5e7eb",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            }}
+            cursor={{ stroke: "#E5E7EB", strokeWidth: 1 }}
+        />
 
-                                    <Tooltip
-                                        cursor={false}
-                                        contentStyle={{
-                                            backgroundColor: "rgba(255,255,255,0.9)",
-                                            border: "1px solid #E5E7EB",
-                                            borderRadius: "8px",
-                                            fontSize: "12px",
-                                        }}
-                                    />
+        {/* Gradients */}
+        <defs>
+            <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.03} />
+            </linearGradient>
 
+            <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#EC4899" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#EC4899" stopOpacity={0.03} />
+            </linearGradient>
+        </defs>
 
-                                    <defs>
-                                        <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.05} />
-                                        </linearGradient>
-                                        <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#EC4899" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#EC4899" stopOpacity={0.05} />
-                                        </linearGradient>
-                                    </defs>
+        {/* AREA SHADING UNDER CURRENT */}
+        <Area
+            type="monotone"
+            dataKey="members"
+            stroke="none"
+            fill="url(#colorCurrent)"
+        />
 
+        {/* CURRENT LINE (BLUE) */}
+        <Line
+            type="monotone"
+            dataKey="members"
+            stroke="#3B82F6"
+            strokeWidth={3}
+            dot={false}
+            activeDot={{ r: 4 }}
+        />
 
-                                    <Area
-                                        type="monotone"
-                                        dataKey="current"
-                                        stroke="none"
-                                        fill="url(#colorCurrent)"
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="previous"
-                                        stroke="none"
-                                        fill="url(#colorPrevious)"
-                                    />
+        {/* AREA SHADING UNDER PREVIOUS */}
+        <Area
+            type="monotone"
+            dataKey="previous"
+            stroke="none"
+            fill="url(#colorPrevious)"
+        />
 
+        {/* PREVIOUS LINE (PINK) */}
+        <Line
+            type="monotone"
+            dataKey="previous"
+            stroke="#EC4899"
+            strokeWidth={2.5}
+            dot={false}
+            activeDot={{ r: 4 }}
+        />
+    </LineChart>
+</ResponsiveContainer>
 
-                                    <Line
-                                        type="monotone"
-                                        dataKey="current"
-                                        stroke="#3B82F6"
-                                        strokeWidth={2.5}
-                                        dot={false}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="previous"
-                                        stroke="#EC4899"
-                                        strokeWidth={2.5}
-                                        dot={false}
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
                         </div>
                     </div>
 
@@ -568,30 +676,44 @@ const SaleDashboard = () => {
                             Top Sales Agents <EllipsisVertical />
                         </h2>
 
-                        {data.map((item, i) => (
-                            <div key={i} className="mb-4">
+                        {yearData?.monthlyGrouped?.[currentMonth]?.agentSummary?.map((item, i) => (
+                            <div key={item.id || i} className="mb-4">
                                 <div className="flex gap-5 justify-between">
-
-                                    <div className="w-10 h-10">
-                                        <img src="/demo/synco/reportsIcons/agent.png" alt="" />
+                                    <div className="profileimg w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
+                                        <img
+                                                className="object-cover w-full h-full"
+                                                onError={(e) => {
+                                                    e.currentTarget.onerror = null; // prevent infinite loop
+                                                    e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                }}
+                                                src={
+                                                    item?.profile
+                                                        ? `${item.profile}`
+                                                        : '/demo/synco/members/dummyuser.png'
+                                                } alt="" />
                                     </div>
-                                    <div className="w-full">  <div className="flex justify-between items-center mb-1">
-                                        <p className="text-xs text-[#344054] font-semibold">{item.label}</p>
 
-                                    </div >
+                                    <div className="w-full">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <p className="text-xs text-[#344054] font-semibold">
+                                                {item?.name || "Unknown"}
+                                            </p>
+                                        </div>
+
                                         <div className="flex items-center gap-2">
-
                                             <div className="w-full bg-gray-100 h-2 rounded-full">
                                                 <div
                                                     className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                                    style={{ width: `${item.value}%` }}
+                                                    style={{ width: `${item?.value || 0}%` }}
                                                 ></div>
                                             </div>
-                                            <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
 
-                                        </div></div>
+                                            <span className="text-xs text-[#344054] font-semibold">
+                                                {item?.value || 0}%
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-
                             </div>
                         ))}
                     </div>

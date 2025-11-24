@@ -83,7 +83,7 @@ const renderImage = (type) => {
     "Holiday Camp": "/demo/synco/icons/crown.png",
     "Merchandise": "/demo/synco/icons/crown.png",
   };
-  return images[type] || "/demo/synco/icons/default.png";
+  return images[type] || "/demo/synco/icons/crown.png";
 };
 
 // Render field helper

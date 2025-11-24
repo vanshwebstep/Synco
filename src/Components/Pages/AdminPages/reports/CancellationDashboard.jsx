@@ -1,5 +1,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Select from "react-select";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
     Users,
     PoundSterling,
@@ -55,15 +57,16 @@ const CancellationDashboard = () => {
         { value: "london", label: "London" },
         { value: "manchester", label: "Manchester" },
     ];
-    const data = [
-        { label: "Facebook", value: 60 },
-        { label: "Website", value: 45 },
-        { label: "Other", value: 10 },
-    ];
+   const data = membersData?.cancellationReasons?.reasons?.map(r => ({
+  label: r.reason,
+  value: r.percentage
+})) || [];
+
     const ageOptions = [
         { value: "all", label: "All ages" },
         { value: "under18", label: "Under 18" },
         { value: "18-25", label: "18–25" },
+        { value: "35plus", label: "35+"}
     ];
 
     const dateOptions = [
@@ -72,94 +75,108 @@ const CancellationDashboard = () => {
         { value: "year", label: "This Year" },
     ];
 
-    const stats = [
-        {
-            icon: <Users size={18} />,
-            iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
+   const stats = [
+  {
+    icon: <Users size={18} />,
+    iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
+    title: "Total Members",
+    value: membersData?.totalRTCs?.thisMonth ?? 0,
+    diff: membersData?.totalRTCs?.change ?? "0%",
+    sub: "vs. prev period",
+    subvalue: membersData?.totalRTCs?.lastMonth ?? 0
+  },
+  {
+    icon: <PoundSterling size={18} />,
+    iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
+    title: "Monthly Revenue Lost",
+    value: `£${membersData?.monthlyRevenueLost?.thisMonth ?? 0}`,
+    diff: membersData?.monthlyRevenueLost?.change ?? "0%",
+    sub: "vs. prev period",
+    subvalue: `£${membersData?.monthlyRevenueLost?.lastMonth ?? 0}`
+  },
+  {
+    icon: <Calendar size={18} />,
+    iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
+    title: "Avg Membership Tenure",
+    value: `${membersData?.avgMembershipTenure?.thisMonth ?? 0} months`,
+    diff: membersData?.avgMembershipTenure?.change ?? "0%",
+    sub: "vs. prev period",
+    subvalue: `${membersData?.avgMembershipTenure?.lastMonth ?? 0} months`
+  },
+  {
+    icon: <Clock size={18} />,
+    iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
+    title: "Reactivated Membership",
+    value: membersData?.reactivatedMembership?.thisMonth ?? 0,
+    diff: membersData?.reactivatedMembership?.change ?? "0%",
+    sub: "vs. prev period",
+    subvalue: membersData?.reactivatedMembership?.lastMonth ?? 0
+  },
+  {
+    icon: <UserPlus size={18} />,
+    iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
+    title: "New Students",
+    value: membersData?.totalNewStudents?.thisMonth ?? 0,
+    diff: membersData?.totalNewStudents?.change ?? "0%",
+    sub: "vs. prev period",
+    subvalue: membersData?.totalNewStudents?.lastMonth ?? 0
+  },
+  {
+    icon: <RotateCcw size={18} />,
+    iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
+    title: "Total Cancelled",
+    value: membersData?.totalCancelled?.thisMonth ?? 0,
+    diff: membersData?.totalCancelled?.change ?? "0%",
+    sub: "vs. prev period",
+    subvalue: membersData?.totalCancelled?.lastMonth ?? 0
+  }
+];
+const exportToExcel = () => {
+  // Prepare export rows
+  const exportData = stats.map((item) => ({
+    Title: item.title,
+    Value: typeof item.value === "string" ? item.value : String(item.value),
+    Change: item.diff,
+    "Last Period": item.subvalue,
+  }));
 
-            title: "Total Members",
-            value: "3,200",
-            diff: "+12%",
-            sub: "vs. prev period ",
-            subvalue: '2,900'
-        },
-        {
-            icon: <PoundSterling size={18} />,
-            iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
+  // Create worksheet + workbook
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Stats Report");
 
-            title: "Monthly Revenue",
-            value: "£67,000",
-            diff: "+8%",
-            sub: "vs. prev period",
-            subvalue: '£57,000'
-        },
-        {
-            icon: <Calendar size={18} />,
-            iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
+  // Convert to excel
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
 
-            title: "Average Monthly Fee",
-            value: "£43.94",
-            diff: "+6%",
-            sub: "vs. prev period ",
-            subvalue: '£57,000'
-        },
-        {
-            icon: <Clock size={18} />,
-            iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
+  // Download
+  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+  saveAs(data, "stats-report.xlsx");
+};
 
-            title: "Average Life Cycle",
-            value: "18 months",
-            diff: "+6%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
-        },
-        {
-            icon: <UserPlus size={18} />,
-            iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
+useEffect(() => {
+    if (!membersData?.getByAgeandByGender) return;
 
-            title: "New Students",
-            value: "82",
-            diff: "+3%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
-        },
-        {
-            icon: <RotateCcw size={18} />,
-            iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
+    const { byAge, byGender } = membersData.getByAgeandByGender;
 
-            title: "Retention",
-            value: "82",
-            diff: "+3%",
-            sub: "vs. prev period ",
-            subvalue: '16.8 months'
-        },
-    ];
-
-    useEffect(() => {
-        const enrolledData =
-            membersData?.yealyGrouped?.["2025"]?.monthlyGrouped?.["10"]
-                ?.enrolledStudents || {};
-
-        if (activeTab === "age") {
-            const byAge = enrolledData.byAge || {};
-            const total = Object.values(byAge).reduce((a, b) => a + b, 0);
-            const formatted = Object.entries(byAge).map(([age, count]) => ({
-                label: `${age} Years`,
-                value: ((count / total) * 100).toFixed(2), // percentage
-                count,
-            }));
-            setMainData(formatted);
-        } else {
-            const byGender = enrolledData.byGender || {};
-            const total = Object.values(byGender).reduce((a, b) => a + b, 0);
-            const formatted = Object.entries(byGender).map(([gender, count]) => ({
-                label: gender.charAt(0).toUpperCase() + gender.slice(1),
-                value: ((count / total) * 100).toFixed(2),
-                count,
-            }));
-            setMainData(formatted);
-        }
-    }, [activeTab, membersData]);
+    if (activeTab === "age") {
+        const formatted = byAge.map(item => ({
+            label: `${item.age} Years`,
+            value: item.percentage,   // already in API
+            count: item.count
+        }));
+        setMainData(formatted);
+    } else {
+        const formatted = byGender.map(item => ({
+            label: item.gender.charAt(0).toUpperCase() + item.gender.slice(1),
+            value: item.percentage,
+            count: item.count
+        }));
+        setMainData(formatted);
+    }
+}, [activeTab, membersData]);
 
 
     const fetchData = useCallback(async () => {
@@ -168,7 +185,7 @@ const CancellationDashboard = () => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/member`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/weekly-class/analytics/cancellation`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -184,25 +201,44 @@ const CancellationDashboard = () => {
             setLoading(false);
         }
     }, []);
+    const handleFilterChange = async (key, value) => {
+        const token = localStorage.getItem("adminToken");
 
+        const query = new URLSearchParams({ [key]: value }).toString();
+
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/weekly-class/analytics/cancellation?${query}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            const resultRaw = await response.json();
+            const result = resultRaw.data || null;
+
+            setMembersData(result);
+        } catch (error) {
+            console.error("Failed to fetch analytics:", error);
+            setMembersData(null);
+        } finally {
+            setLoading(false);
+        }
+    };
     useEffect(() => {
         fetchData();
     }, []);
 
-    const lineData = [
-        { month: "Jan", current: 380, previous: 300 },
-        { month: "Feb", current: 400, previous: 310 },
-        { month: "Mar", current: 450, previous: 320 },
-        { month: "Apr", current: 500, previous: 100 },
-        { month: "May", current: 600, previous: 140 },
-        { month: "Jun", current: 580, previous: 360 },
-        { month: "Jul", current: 620, previous: 370 },
-        { month: "Aug", current: 610, previous: 580 },
-        { month: "Sep", current: 630, previous: 390 },
-        { month: "Oct", current: 670, previous: 440 },
-        { month: "Nov", current: 690, previous: 410 },
-        { month: "Dec", current: 1120, previous: 420 },
-    ];
+  const lineData = membersData?.chart?.monthly?.map((item) => ({
+    month: item.month,
+    current: item.cancelled || 0,     // this year's actual data
+    previous: 0                       // no previous-year data available
+})) || [];
+
 
     const bookings =
         membersData?.yealyGrouped?.[2025]?.monthlyGrouped?.[10]?.bookings || [];
@@ -218,11 +254,13 @@ const CancellationDashboard = () => {
     const total = Object.values(planCounts).reduce((a, b) => a + b, 0);
     const colors = ["#8B5CF6", "#FACC15", "#22C55E", "#3B82F6", "#EF4444"]; // add more if needed
 
-    const pieData = Object.keys(planCounts).map((name, index) => ({
-        name,
-        value: Math.round((planCounts[name] / total) * 100), // percentage
-        color: colors[index % colors.length],
-    }));
+    const pieData = membersData?.cancellationReasons?.reasons?.map((item, i) => ({
+    name: item.reason,
+    value: item.percentage,
+    count: item.count,
+    color: ["#237FEA", "#F38B4D", "#6F65F1", "#E769BD", "#3DAFDB"][i % 5]
+})) || [];
+
     const customSelectStyles = {
         control: (provided, state) => ({
             ...provided,
@@ -282,30 +320,40 @@ const CancellationDashboard = () => {
                 <h1 className="text-3xl font-semibold text-gray-800">Cancellations</h1>
                 <div className="flex flex-wrap gap-3 items-center">
                     <Select
-                        options={venueOptions}
-                        defaultValue={venueOptions[0]}
+                        options={
+                            membersData?.allVenues
+                                ? [{ value: "", label: "All venues" }].concat(
+                                    membersData.allVenues.map((v) => ({ value: v.id, label: v.name }))
+                                )
+                                : venueOptions
+                        }
+                        defaultValue={
+                            membersData?.allVenues
+                                ? { value: "", label: "All venues" }
+                                : venueOptions[0]
+                        }
                         styles={customSelectStyles}
                         components={{ IndicatorSeparator: () => null }}
-
                         className="md:w-40"
+                        onChange={(selected) => handleFilterChange("venueId", selected.value)}
                     />
                     <Select
                         options={ageOptions}
                         defaultValue={ageOptions[0]}
                         styles={customSelectStyles}
                         components={{ IndicatorSeparator: () => null }}
-
+                        onChange={(selected) => handleFilterChange("age", selected.value)}
                         className="md:w-40"
                     />
                     <Select
                         components={{ IndicatorSeparator: () => null }}
-
                         options={dateOptions}
                         defaultValue={dateOptions[0]}
                         styles={customSelectStyles}
+                        onChange={(selected) => handleFilterChange("period", selected.value)}
                         className="md:w-40"
                     />
-                    <button className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                    <button   onClick={exportToExcel} className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         <Download size={16} /> Export data
                     </button>
                 </div>
@@ -390,19 +438,7 @@ const CancellationDashboard = () => {
                                     </defs>
 
 
-                                    <Area
-                                        type="monotone"
-                                        dataKey="current"
-                                        stroke="none"
-                                        fill="url(#colorCurrent)"
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="previous"
-                                        stroke="none"
-                                        fill="url(#colorPrevious)"
-                                    />
-
+                                        
 
                                     <Line
                                         type="monotone"
@@ -469,11 +505,11 @@ const CancellationDashboard = () => {
                                                 ></div>
 
                                                 {/* Example floating label (only for first item) */}
-                                                {i === 0 && (
+                                                {/* {i === 0 && (
                                                     <div className="absolute -top-6 left-[60%] transform -translate-x-1/2 bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded-full shadow-md">
                                                         {item.count} 
                                                     </div>
-                                                )}
+                                                )} */}
                                             </div>
                                             <span className="text-xs text-gray-500 font-medium">
                                                 {item.value}%
@@ -528,7 +564,7 @@ const CancellationDashboard = () => {
                                                 <span className="font-medium">{item.name}</span>
                                             </div>
                                             <div className="flex items-center gap-6 text-gray-800 font-semibold">
-                                                <span>{item.value}%</span>
+                                                <span> £{(item.count * 200).toLocaleString()}</span>
                                                 <span>
                                                     {i === 0
                                                         ? "10,234"
