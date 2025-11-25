@@ -52,7 +52,7 @@ export const MemberProvider = ({ children }) => {
                     JSON.stringify(result.hasPermission)
                 );
 
-                console.log("permission saved in protectedroute", result.hasPermission);
+                // console.log("permission saved in protectedroute", result.hasPermission);
                 return true; // ✅ success
             } else {
                 console.warn("Token invalid or expired");

@@ -127,7 +127,7 @@ const Filters = () => {
             // update active tab
             if (newState[key]) {
 
-                console.log('mykey', key)
+                // console.log('mykey', key)
                 if (key === 'facebook') {
                     setActiveTab('Facebook')
                 }
@@ -136,7 +136,7 @@ const Filters = () => {
                 }
                 // setActiveTab(key);
             } else {
-                console.log('mykey2', key)
+                // console.log('mykey2', key)
                 // setActiveTab(null);
                 if (key === 'facebook') {
                     setActiveTab('Facebook')

@@ -87,39 +87,68 @@ const Facebook = () => {
     setToDate(null);
   };
 
-  const getDateStatus = (date) => {
-    let isStartOrEnd = false;
-    let isInBetween = false;
-    let isExcluded = false;
-    let isSessionDate = false;
-    calendarData.forEach((term) => {
-      const start = new Date(term.startDate);
-      const end = new Date(term.endDate);
+ const getDateStatus = (date) => {
+  let isStartOrEnd = false;
+  let isInBetween = false;
+  let isExcluded = false;
+  let isSessionDate = false;
 
-      if (!date) return;
+  if (!date) return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
 
-      if (isSameDate(date, start) || isSameDate(date, end)) {
-        isStartOrEnd = true;
-      } else if (date >= start && date <= end) {
-        isInBetween = true;
+  calendarData.forEach((term) => {
+    const start = new Date(term.startDate);
+    const end = new Date(term.endDate);
+
+    // --------------------------
+    // FIX: normalize arrays safely
+    // --------------------------
+    let exclusions = [];
+    let sessions = [];
+
+    try {
+      exclusions = Array.isArray(term.exclusionDates)
+        ? term.exclusionDates
+        : term.exclusionDates
+        ? JSON.parse(term.exclusionDates)
+        : [];
+    } catch {
+      exclusions = [];
+    }
+
+    try {
+      sessions = Array.isArray(term.sessionsMap)
+        ? term.sessionsMap
+        : term.sessionsMap
+        ? JSON.parse(term.sessionsMap)
+        : [];
+    } catch {
+      sessions = [];
+    }
+
+    // --------------------------
+    // Date logic
+    // --------------------------
+    if (isSameDate(date, start) || isSameDate(date, end)) {
+      isStartOrEnd = true;
+    } else if (date >= start && date <= end) {
+      isInBetween = true;
+    }
+
+    exclusions.forEach((ex) => {
+      if (isSameDate(date, new Date(ex))) {
+        isExcluded = true;
       }
-
-      term.exclusionDates?.forEach((ex) => {
-        const exclusionDate = new Date(ex);
-        if (isSameDate(date, exclusionDate)) {
-          isExcluded = true;
-        }
-      });
-      term.sessionsMap?.forEach((session) => {
-        const sessionDate = new Date(session.sessionDate);
-        if (isSameDate(date, sessionDate)) {
-          isSessionDate = true;
-        }
-      });
     });
 
-    return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
-  };
+    sessions.forEach((session) => {
+      if (isSameDate(date, new Date(session.sessionDate))) {
+        isSessionDate = true;
+      }
+    });
+  });
+
+  return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
+};
 
   const isSameDate = (d1, d2) =>
     d1 && d2 &&
@@ -423,10 +452,10 @@ console.log('selectedBookingIds',selectedBookingIds)
                                   </span>
                                 </div>
 
-                                <div ref={iconContainerRef} className=" md:mt-0 mt-5 flex relative items-center gap-4">
+                                <div className=" md:mt-0 mt-5 flex relative items-center gap-4">
                                   <img
                                     src="/demo/synco/icons/fcDollar.png"
-                                    onClick={() => handleIconClick('payment', venue.id, venue?.paymentGroups[0]?.paymentPlans)} alt=""
+                                    onClick={() => handleIconClick('payment', venue.id, venue?.paymentPlans)} alt=""
                                     className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.id ? 'bg-[#0DD180]' : 'bg-white'}`}
                                   />
 
@@ -558,7 +587,8 @@ console.log('selectedBookingIds',selectedBookingIds)
                               </div>
 
                               {activeCongestionVenueId === venue.id && (
-                                <div ref={iconContainerRef} className="absolute top-16 right-4 z-20">
+                                <div
+                                 className="absolute top-16 right-4 z-20">
 
                                   <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
                                     <div className="flex items-start justify-between">
@@ -580,7 +610,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                               )}
 
                               {activeParkingVenueId === venue.id && (
-                                <div ref={iconContainerRef} className="absolute top-16 right-4 z-20">
+                                <div  className="absolute top-16 right-4 z-20">
 
                                   <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
                                     <div className="flex items-start justify-between">
@@ -603,7 +633,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                               )}
                               {showteamModal === venue.id && (
                                 <div
-                                  ref={iconContainerRef}
+                                  
                                   // ref={iconContainerRef}
                                   className="
         absolute bg-opacity-30 top-15 flex items-center justify-center z-50
@@ -614,7 +644,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                                 >
                                   <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
                                     {/* Header */}
-                                    <div ref={(el) => (modalRefs.current[venue.id] = el)} className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
+                                    <div  className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
                                       <h2 className="text-[24px]  font-semibold">Team Dates</h2>
                                       <button onClick={() => setShowteamModal(null)}>
                                         <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
@@ -623,22 +653,45 @@ console.log('selectedBookingIds',selectedBookingIds)
 
                                     {/* Term List */}
                                     <div className="space-y-6 max-h-80 overflow-y-scroll text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
-                                      {calendarData.map((term) => (
-                                        <div key={term.id}>
-                                          <h3 className="md:text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
-                                          <p className="md:text-[18px]">
-                                            {formatDate(term.startDate)} - {formatDate(term.endDate)}
-                                          </p>
-                                          <p className="md:text-[18px]">
-                                            Half term Exclusion:{" "}
-                                            {term.exclusionDates.map((ex, idx) => (
-                                              <span key={idx}>
-                                                {formatDate(ex)}{idx < term.exclusionDates.length - 1 ? ", " : ""}
-                                              </span>
-                                            ))}
-                                          </p>
-                                        </div>
-                                      ))}
+                             {calendarData.map((term) => {
+
+  let exclusions = [];
+
+  try {
+    if (Array.isArray(term.exclusionDates)) {
+      exclusions = term.exclusionDates;
+    } else if (typeof term.exclusionDates === "string" && term.exclusionDates.trim() !== "") {
+      exclusions = JSON.parse(term.exclusionDates);
+    }
+  } catch (e) {
+    exclusions = [];
+  }
+
+  return (
+    <div key={term.id}>
+      <h3 className="md:text-[20px] font-semibold mb-1">
+        {term.termName} Term {new Date(term.startDate).getFullYear()}
+      </h3>
+
+      <p className="md:text-[18px]">
+        {formatDate(term.startDate)} - {formatDate(term.endDate)}
+      </p>
+
+      <p className="md:text-[18px]">
+        Half term Exclusion:{" "}
+        {exclusions.length > 0
+          ? exclusions.map((ex, idx) => (
+              <span key={idx}>
+                {formatDate(ex)}
+                {idx < exclusions.length - 1 ? ", " : ""}
+              </span>
+            ))
+          : "None"}
+      </p>
+    </div>
+  );
+})}
+
                                     </div>
 
                                     {/* Calendar Section */}
@@ -718,8 +771,9 @@ console.log('selectedBookingIds',selectedBookingIds)
 
                               {showModal === venue.id && (
                                 <div className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
-                                  <div ref={(el) => (modalRefs.current[venue.id] = el)} className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
-                                    <div ref={iconContainerRef} className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+                                  <div className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
+                                    <div
+                                     className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
                                       {/* Header */}
                                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
                                         <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
@@ -733,9 +787,9 @@ console.log('selectedBookingIds',selectedBookingIds)
                                 </div>
                               )}
                               {openMapId === venue.id && (
-                                <div ref={iconContainerRef}>
+                                <div>
                                   <div
-                                    ref={(el) => (modalRefs.current[venue.id] = el)}
+                                    
                                     className="mt-4 h-[450px] w-full rounded-lg overflow-hidden"
                                   >
                                     {venue.latitude && venue.longitude ? (

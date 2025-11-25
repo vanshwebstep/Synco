@@ -12,7 +12,7 @@ export default function OnetoOneUpdate() {
     const navigate = useNavigate();
     const exerciseRef = useRef(null);
     const [photoPreview, setPhotoPreview] = useState([]);
-
+    const [removedImages, setRemovedImages] = useState([]);
     const [sessionGroup, setSessionGroup] = useState([]);
     const [searchParams] = useSearchParams();
     const id = searchParams.get("id");
@@ -64,7 +64,14 @@ export default function OnetoOneUpdate() {
     const removeImage = (id) => {
         setPhotoPreview((prev) => {
             const toDelete = prev.find((img) => img.id === id);
+            const urlToRemove = toDelete ? toDelete.url : null;
+            // Revoke the object URL to avoid memory leaks
+            URL.revokeObjectURL(urlToRemove);
 
+            // Remove the URL from preview array
+
+            // Update removedImages state outside formData
+            setRemovedImages((prevRemoved) => [...prevRemoved, urlToRemove]);
             if (toDelete?.url?.startsWith("blob:")) {
                 URL.revokeObjectURL(toDelete.url);
             }
@@ -167,7 +174,7 @@ export default function OnetoOneUpdate() {
     }, [sessionGroup, searchParams]);
 
 
-    console.log('exercises', groupData.exercises)
+    console.log('removedImages', removedImages)
 
 
     // edit fuctionality  end 
@@ -256,7 +263,9 @@ export default function OnetoOneUpdate() {
                 formdata.append("title", exercise.title);
                 formdata.append("description", exercise.description);
                 formdata.append("duration", exercise.duration);
-
+                if (removedImages) {
+                    formdata.append("removedImages", JSON.stringify(removedImages));
+                }
                 if (exercise.imageToSend && exercise.imageToSend.length > 0) {
                     exercise.imageToSend.forEach((file) => {
                         formdata.append("images", file);
@@ -295,6 +304,7 @@ export default function OnetoOneUpdate() {
                 });
                 emptyExcerCises();
                 setShowExerciseModal(false)
+            setRemovedImages([])
 
                 return result;
             } catch (err) {
@@ -307,7 +317,7 @@ export default function OnetoOneUpdate() {
                 throw err;
             }
         },
-        [token, fetchExercises, exercise, isEditExcercise]
+        [token, fetchExercises, exercise, isEditExcercise,removedImages]
     );
 
     const handleDuplicateExercise = useCallback(
@@ -494,7 +504,7 @@ export default function OnetoOneUpdate() {
             formData.append("levels", JSON.stringify(levels));
             formData.append("groupName", groupData.groupName || "");
             formData.append("player", groupData.player || "");
-
+       
             // ✅ Group-level banner/video
             if (groupData.banner?.file instanceof File) {
                 formData.append("banner", groupData.banner.file, groupData.banner.file.name);
@@ -502,7 +512,7 @@ export default function OnetoOneUpdate() {
             if (groupData.video?.file instanceof File) {
                 formData.append("video", groupData.video.file, groupData.video.file.name);
             }
-
+            console.log('ffformData,', formData)
             // ✅ API call
             const response = await fetch(
                 `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/update/${id}`,
@@ -760,6 +770,7 @@ export default function OnetoOneUpdate() {
                                                 <img
                                                     onClick={() => {
                                                         setIsEditExcercise(true);
+                                                        setRemovedImages([]);
                                                         setShowExerciseModal(true);
                                                         if (ex?.value) fetchExcercisesById(ex.value);
                                                     }}

@@ -329,10 +329,35 @@ const ParentProfile = () => {
     }
   }, [emergency.sameAsAbove, formData]);
 
-  const handleUpdateParent = () => {
-    console.log('clicked', formData)
-    handleUpdate("parents", formData)
+  const handleUpdateParent = (index) => {
+  const parent = formData[index];   // ✔ get single parent object
+
+  const requiredFields = [
+    "parentFirstName",
+    "parentLastName",
+    "parentEmail",
+    "phoneNumber",
+    "relationChild",
+    "howDidHear"
+  ];
+
+  const emptyFields = requiredFields.filter(
+    (field) =>
+      !parent[field] || parent[field].toString().trim() === ""
+  );
+
+  if (emptyFields.length > 0) {
+    Swal.fire({
+      icon: "warning",
+      title: "Missing Required Fields",
+      text: "Please fill all required fields before saving.",
+    });
+    return;  // ❌ block saving
   }
+
+  // If validation passes → allow save
+  handleUpdate("parents", formData);
+};
 
   const handleSaveEmergency = () => {
     console.log('clicked', emergency)

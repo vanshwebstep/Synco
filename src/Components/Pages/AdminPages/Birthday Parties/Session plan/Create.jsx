@@ -11,7 +11,7 @@ import Loader from "../../contexts/Loader";
 export default function BirthdayCreate() {
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false);
-
+    const [removedImages, setRemovedImages] = useState([]);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
     const [mounted, setMounted] = useState(false);
@@ -61,7 +61,15 @@ export default function BirthdayCreate() {
     const removeImage = (id) => {
         setPhotoPreview((prev) => {
             const toDelete = prev.find((img) => img.id === id);
+            const urlToRemove = toDelete ? toDelete.url : null;
+            // Revoke the object URL to avoid memory leaks
+            URL.revokeObjectURL(urlToRemove);
 
+            // Remove the URL from preview array
+
+
+            // Update removedImages state outside formData
+            setRemovedImages((prevRemoved) => [...prevRemoved, urlToRemove]);
             if (toDelete?.url?.startsWith("blob:")) {
                 URL.revokeObjectURL(toDelete.url);
             }
@@ -180,7 +188,9 @@ export default function BirthdayCreate() {
                 formdata.append("title", exercise.title);
                 formdata.append("description", exercise.description);
                 formdata.append("duration", exercise.duration);
-
+                if (removedImages) {
+                    formdata.append("removedImages", JSON.stringify(removedImages));
+                }
                 if (exercise.imageToSend && exercise.imageToSend.length > 0) {
                     exercise.imageToSend.forEach((file) => {
                         formdata.append("images", file);
@@ -219,7 +229,7 @@ export default function BirthdayCreate() {
                 });
                 emptyExcerCises();
                 setShowExerciseModal(false)
-
+                setRemovedImages([])
                 return result;
             } catch (err) {
                 // Show error alert
@@ -910,6 +920,7 @@ export default function BirthdayCreate() {
                                                 <img
                                                     onClick={() => {
                                                         setIsEditExcercise(true);
+                                                        setRemovedImages([]);
                                                         setShowExerciseModal(true);
                                                         if (ex?.value) fetchExcercisesById(ex.value);
                                                     }}

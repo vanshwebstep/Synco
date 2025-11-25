@@ -20,7 +20,7 @@ export const verifyToken = async (token) => {
           "hasPermission",
           JSON.stringify(result.hasPermission)
         );
-           console.log('permission saved in verifytoken',result.hasPermission)
+          //  console.log('permission saved in verifytoken',result.hasPermission)
     
       return true;
     } else {

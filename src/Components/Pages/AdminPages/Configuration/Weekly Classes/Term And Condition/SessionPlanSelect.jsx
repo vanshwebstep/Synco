@@ -110,6 +110,7 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange, usedSessionPl
         <Select
           options={options}
           value={selectedOption}
+           isClearable={true}   
           onChange={handleChange}
           placeholder="Search Session Plan Group"
           styles={customStyles}

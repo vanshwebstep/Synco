@@ -532,7 +532,7 @@ const SalesDashboard = () => {
         const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
         const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
 
-        console.log("fromDateToSend", fromDateToSend, toDateToSend);
+        // console.log("fromDateToSend", fromDateToSend, toDateToSend);
 
         fetchLeads(
             "",

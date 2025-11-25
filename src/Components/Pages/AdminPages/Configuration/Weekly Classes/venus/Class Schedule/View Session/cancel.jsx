@@ -27,7 +27,7 @@ const ViewSessions = () => {
   const [emailText, setEmailText] = useState('');
 
   const navigate = useNavigate();
-  const { schedule, sessionId, classScheduleId, statusIs, cancelSession } = location.state || {};
+  const { schedule, sessionId, classScheduleId, statusIs, cancelSession ,sessionDate } = location.state || {};
   console.log('sessionId', sessionId)
   console.log("Filtered Schedules in cancessl:", cancelSession);
 
@@ -193,7 +193,7 @@ const ViewSessions = () => {
           <div className="text-sm text-left px-6 text-gray-700 space-y-3">
             <p><strong>Venue</strong><br />{schedule?.venue?.name}</p>
             <p><strong>Class</strong><br />{schedule?.className}</p>
-            <p><strong>Date</strong><br />{formatDate(schedule?.createdAt)}</p>
+            <p><strong>Date</strong><br />{formatDate(sessionDate)}</p>
             <p><strong>Time</strong><br />{schedule?.startTime} - {schedule?.endTime}</p>
           </div>
         </div>

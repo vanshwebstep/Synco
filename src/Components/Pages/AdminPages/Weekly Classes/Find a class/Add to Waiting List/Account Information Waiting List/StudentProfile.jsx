@@ -51,7 +51,7 @@ const StudentProfile = ({ profile }) => {
         if (page > totalPages) page = totalPages;
         setCurrentPage(page);
     };
-    const bookedBy = profile?.bookedByAdmin;
+    const bookedBy = profile?.bookedByAdmin || profile?.bookedBy;
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
     const [removeWaiting, setRemoveWaiting] = useState(false);

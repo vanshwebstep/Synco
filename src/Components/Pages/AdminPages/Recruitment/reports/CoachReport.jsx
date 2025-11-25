@@ -1,14 +1,8 @@
 import React, { useState, useMemo } from "react";
 import Select from "react-select";
 import {
-    Users,
-    CalendarDays,
-    CalendarCheck,
-    UserCheck,
-    BarChart3,
     Download,
     EllipsisVertical,
-    MoreVertical,
 } from "lucide-react";
 import {
     ResponsiveContainer,
@@ -21,9 +15,7 @@ import {
     Tooltip,
 } from "recharts";
 
-/**
- * Dummy static data (based on what you provided earlier)
- */
+
 const dashboardData = {
     recruitmentChart: {
         labels: [
@@ -80,10 +72,10 @@ const dashboardData = {
     },
 
     qualifications: [
-        { label: "FA Qualification(s)", value: 3 ,img:'/demo/synco/reportsIcons/fa.png'},
-        { label: "DBS Certificate", value: 2 ,img:'/demo/synco/reportsIcons/dbs.png'},
-        { label: "2–3 years of coaching experience", value: 4 ,img:'/demo/synco/reportsIcons/coaching.png'},
-        { label: "No experience", value: 3 ,img:'/demo/synco/reportsIcons/experience.png'},
+        { label: "FA Qualification(s)", value: 3, img: '/demo/synco/reportsIcons/fa.png' },
+        { label: "DBS Certificate", value: 2, img: '/demo/synco/reportsIcons/dbs.png' },
+        { label: "2–3 years of coaching experience", value: 4, img: '/demo/synco/reportsIcons/coaching.png' },
+        { label: "No experience", value: 3, img: '/demo/synco/reportsIcons/experience.png' },
     ],
 
     onboardingResults: [
@@ -93,11 +85,11 @@ const dashboardData = {
     ],
 
     topAgents: [
-        { name: "Jessica Smith", count: 50 },
-        { name: "Aiden Jones", count: 30 },
-        { name: "Priya Kumar", count: 20 },
-        { name: "Liam Brown", count: 10 },
-        { name: "Mia White", count: 5 },
+        { label: "Jessica Smith", value: 50 },
+        { label: "Aiden Jones", value: 30 },
+        { label: "Priya Kumar", value: 20 },
+        { label: "Liam Brown", value: 10 },
+        { label: "Mia White", value: 5 },
     ],
 
     sourceOfLeads: [
@@ -195,13 +187,9 @@ const stats = [
 
 ];
 
-const Card = ({ children, className = "" }) => (
-    <div className={`bg-white rounded-2xl p-4 shadow-sm ${className}`}>{children}</div>
-);
 
 
 export default function CoachReport() {
-    const [dateRange, setDateRange] = useState(dateOptions[0]);
     const [activeTab, setActiveTab] = useState("byAge");
 
     // Build chart data for recharts: [{ month, current, previous }, ...]
@@ -254,7 +242,7 @@ export default function CoachReport() {
                             <span className="font-semibold text-[#717073] text-sm">{s.title}</span>
 
                             <h3 className="text-[20px] font-semibold text-gray-900">{s.value} <small className="text-green-500 font-normal text-xs">{s.diff}</small></h3>
-                            <p className="text-xs font-semibold text-[#717073]">
+                            <p className="text-4 font-semibold text-[#717073]">
                                 {s.sub} <span className="text-red-500">{s.subvalue}</span>
                             </p>
                         </div>
@@ -262,16 +250,15 @@ export default function CoachReport() {
                 ))}
             </div>
 
-            {/* Main Content */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left / center area */}
+            
                 <div className="lg:col-span-2 space-y-6">
 
                     <div className="grid  gap-6">
                         <div className="lg:col-span-2">
-                            <Card>
+                            <div className="bg-white p-5 rounded-2xl">
                                 <div className="flex justify-between items-center mb-3">
-                                    <h2 className="text-lg font-semibold text-gray-800">Recruitment Chart (Leads vs Hires)</h2>
+                                    <h2 className="text-[22px] font-semibold text-gray-800 ms-5">Recruitment Chart (Leads vs Hires)</h2>
                                     <EllipsisVertical className="text-gray-400" />
                                 </div>
 
@@ -309,104 +296,105 @@ export default function CoachReport() {
                                         </LineChart>
                                     </ResponsiveContainer>
                                 </div>
-                            </Card>
+                            </div>
                         </div>
-
-                        {/* Right small stats card (Recruitment Call Statistics) */}
+ 
 
                     </div>
 
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="md:col-span-1">
-                            <Card>
-                                <div className="flex justify-between items-center mb-3">
-                                    <h3 className="text-lg font-semibold text-gray-800">Coaches Demographics</h3>
-                                    <EllipsisVertical className="text-gray-400" />
+                        <div className="bg-white p-5 rounded-2xl">
+                            <div className="flex justify-between items-center mb-3">
+                                <h3 className="text-[22px] font-semibold text-gray-800">Coaches Demographics</h3>
+                                <EllipsisVertical className="text-gray-400" />
+                            </div>
+
+                            <div className="mb-3">
+                                <div className="grid md:grid-cols-3 items-center gap-3 mb-3 border border-[#E2E1E5] p-1 w-full rounded-2xl">
+                                    <button
+                                        onClick={() => setActiveTab("byAge")}
+                                        className={`px-3 py-2 rounded-xl text-sm ${activeTab === "byAge" ? "bg-[#237FEA] text-white" : "text-gray-600"
+                                            }`}
+                                    >
+                                        By age
+                                    </button>
+
+                                    <button
+                                        onClick={() => setActiveTab("byGender")}
+                                        className={`px-3 py-2 rounded-xl text-sm ${activeTab === "byGender" ? "bg-[#237FEA] text-white" : "text-gray-600"
+                                            }`}
+                                    >
+                                        By gender
+                                    </button>
+
+                                    <button
+                                        onClick={() => setActiveTab("venue")}
+                                        className={`px-3 py-2 rounded-xl text-sm ${activeTab === "venue" ? "bg-[#237FEA] text-white" : "text-gray-600"
+                                            }`}
+                                    >
+                                        By venue
+                                    </button>
                                 </div>
 
-                                <div className="mb-3">
-                                    <div className="grid md:grid-cols-3 items-center gap-3 mb-3 border border-[#E2E1E5] p-2 w-full rounded-2xl">
-                                        <button
-                                            onClick={() => setActiveTab("byAge")}
-                                            className={`px-3 py-2 rounded-xl text-sm ${activeTab === "byAge" ? "bg-[#237FEA] text-white" : "text-gray-600"
-                                                }`}
-                                        >
-                                            By age
-                                        </button>
+                                {dashboardData.coachesDemographics[activeTab]?.slice(0, 6).map((d, i) => (
+                                    <div key={i} className="mb-3 flex items-center gap-2">
+                                        <div className="flex justify-between  mb-1">
+                                            <p className="text-sm text-gray-700">{d.label}</p>
+                                        </div>
 
-                                        <button
-                                            onClick={() => setActiveTab("byGender")}
-                                            className={`px-3 py-2 rounded-xl text-sm ${activeTab === "byGender" ? "bg-[#237FEA] text-white" : "text-gray-600"
-                                                }`}
-                                        >
-                                            By gender
-                                        </button>
+                                        <div className="w-full bg-gray-100 h-2 rounded-full">
+                                            <div
+                                                style={{ width: `${d.percent}%` }}   // percent bar accuracy fixed
+                                                className="h-2 rounded-full bg-[#237FEA]"
+                                            ></div>
+                                        </div>
+                                        <p className="text-sm text-gray-500">{d.percent}%</p>
 
-                                        <button
-                                            onClick={() => setActiveTab("venue")}
-                                            className={`px-3 py-2 rounded-xl text-sm ${activeTab === "venue" ? "bg-[#237FEA] text-white" : "text-gray-600"
-                                                }`}
-                                        >
-                                            By venue
-                                        </button>
                                     </div>
+                                ))}
 
-                                    {dashboardData.coachesDemographics[activeTab]?.slice(0, 6).map((d, i) => (
-                                        <div key={i} className="mb-3 flex items-center gap-2">
-                                            <div className="flex justify-between  mb-1">
-                                                <p className="text-sm text-gray-700">{d.label}</p>
-                                            </div>
-
-                                            <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                <div
-                                                    style={{ width: `${d.percent}%` }}   // percent bar accuracy fixed
-                                                    className="h-2 rounded-full bg-[#237FEA]"
-                                                ></div>
-                                            </div>
-                                            <p className="text-sm text-gray-500">{d.percent}%</p>
-
-                                        </div>
-                                    ))}
-
-                                </div>
-                            </Card>
+                            </div>
                         </div>
+                        <div className="bg-white p-5 rounded-2xl">
+                            <div className="flex justify-between items-center mb-3">
+                                <h3 className="text-[22px] font-semibold text-gray-800">Qualifications & Experience</h3>
+                                <EllipsisVertical className="text-gray-400" />
+                            </div>
 
-                        <div>
-                            <Card>
-                                <div className="flex justify-between items-center mb-3">
-                                    <h3 className="text-lg font-semibold text-gray-800">Qualifications & Experience</h3>
-                                    <EllipsisVertical className="text-gray-400" />
-                                </div>
+                            <div className="space-y-4">
+                                {dashboardData.qualifications.map((q, i) => (
+                                    <div key={i}>
+                                        <div className="flex gap-3 items-center">
+                                            <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-[#237FEA]">
+                                                <img src={q.img} alt="" /></div>
+                                            <div className="w-full">
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <div className="flex items-center gap-3">
 
-                                <div className="space-y-4">
-                                    {dashboardData.qualifications.map((q, i) => (
-                                        <div key={i}>
-                                            <div className="flex justify-between items-center mb-1">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-[#237FEA]"><img src={q.img} alt="" /></div>
-                                                    <p className="text-sm text-gray-700">{q.label}</p>
+                                                        <p className="text-sm text-gray-700">{q.label}</p>
+                                                    </div>
+                                                    <div className="text-sm text-gray-500">{q.value}</div>
                                                 </div>
-                                                <div className="text-sm text-gray-500">{q.value}</div>
-                                            </div>
 
-                                            <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${(q.value / 5) * 100}%` }}></div>
+                                                <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                    <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${(q.value / 5) * 100}%` }}></div>
+                                                </div>
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
-                            </Card>
 
-
+                                    </div>
+                                ))}
+                            </div>
                         </div>
+
+
 
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <Card>
+                    <div className="grid md:grid-cols-2 gap-3">
+                        <div className="bg-white p-5 rounded-2xl">
                             <div className="flex justify-between items-center mb-3">
-                                <h3 className="text-lg font-semibold text-gray-800">Source of Leads</h3>
+                                <h3 className="text-[22px] font-semibold text-gray-800">Source of Leads</h3>
                                 <EllipsisVertical className="text-gray-400" />
                             </div>
 
@@ -415,128 +403,142 @@ export default function CoachReport() {
                                     <div key={i}>
                                         <div className="flex justify-between items-center mb-1">
                                             <p className="text-sm text-gray-700">{s.label}</p>
-                                            <p className="text-sm text-gray-500">{s.value}%</p>
                                         </div>
-                                        <div className="w-full bg-gray-100 h-2 rounded-full">
-                                            <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${s.value}%` }}></div>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${s.value}%` }}></div>
+                                            </div>
+                                            <p className="text-sm text-gray-500">{s.value}%</p>
+
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                        </Card>
-                        <Card>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-3">High demand venues</h3>
-                            <div className="space-y-3">
+                        </div>
+                        <div className="bg-white p-5 rounded-2xl">
+                            <h3 className="text-[22px] font-semibold text-gray-800 mb-3">High demand venues</h3>
+                            <div className="space-y-3 mt-8">
                                 {dashboardData.highDemandVenues.map((v, i) => (
-                                    <div key={i}>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <p className="text-sm text-gray-700">{v.label}</p>
-                                            <p className="text-sm text-gray-500">10%</p>
-                                        </div>
-                                        <div className="w-full bg-gray-100 h-2 rounded-full">
+                                    <div key={i} className="flex gap-2 items-center mb-5">
+
+                                        <p className="text-sm text-gray-700 md:w-2/12">{v.label}</p>
+
+
+                                        <div className="w-full bg-gray-100 h-2 rounded-full md:w-9/12">
                                             <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${(i + 1) * 12}%` }}></div>
                                         </div>
+                                        <p className="text-sm text-gray-500 md:w-1/12">10%</p>
                                     </div>
                                 ))}
                             </div>
-                        </Card>
+                        </div>
                     </div>
 
 
 
                 </div>
 
-                {/* Right column (summary + small cards) */}
-                <div className="space-y-6">
+                <div className="space-y-6 md:grid lg:block md:grid-cols-2 gap-3 ">
 
-                    <div>
-                        <Card>
-                            <div className="flex justify-between items-center mb-3">
-                                <h3 className="text-sm font-semibold text-gray-800">Recruitment Call Statistics</h3>
-                                <EllipsisVertical className="text-gray-400" />
-                            </div>
 
-                            <div className="space-y-4">
-                                <div className="flex items-start gap-3">
-                                    <div className="p-2 rounded-lg bg-[#F3FAFD] text-[#3DAFDB]">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 10.5C3 7 6.5 3.5 10 3.5c1.6 0 3 .6 4.2 1.6M15 9.5c0 4-2.2 7.5-6 8.5" stroke="#3DAFDB" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500">No. of calls made</p>
-                                        <div className="flex items-baseline gap-2">
-                                            <h4 className="text-lg font-semibold">1920</h4>
-                                            <span className="text-xs text-gray-400">vs. previous period 2004</span>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div className="bg-white p-3 rounded-2xl">
+                        <div className="flex justify-between items-center mb-3 px-4">
+                            <h3 className="text-[24px] font-semibold text-gray-800 pb-3">Recruitment Call Statistics</h3>
+                            <EllipsisVertical className="text-gray-400" />
+                        </div>
 
-                                <div className="flex items-start gap-3">
-                                    <div className="p-2 rounded-lg bg-[#FFF7F3] text-[#F38B4D]">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3" stroke="#F38B4D" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500">Avg. duration of calls</p>
-                                        <div className="flex items-baseline gap-2">
-                                            <h4 className="text-lg font-semibold">23 min</h4>
-                                            <span className="text-xs text-gray-400">vs. previous period 18 months</span>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div className="space-y-4 px-4">
+                            <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
 
-                                <div className="flex items-start gap-3">
-                                    <div className="p-2 rounded-lg bg-[#F3F9F6] text-[#34C38F]">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 7v6l4 2" stroke="#34C38F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500">Avg. time duration of first contact</p>
-                                        <div className="flex items-baseline gap-2">
-                                            <h4 className="text-lg font-semibold">3 hr 16 min</h4>
-                                            <span className="text-xs text-gray-400">vs. previous period 1 hr 8 minutes</span>
-                                        </div>
+                                <img src="/demo/synco/reportsIcons/Icon-with-shape.png" className="w-12" alt="" />
+                                <div>
+                                    <p className="text-[16px] ">No. of calls made</p>
+                                    <div className="">
+                                        <h4 className="text-[22px] font-semibold my-1">1920</h4>
+                                        <span className="text-xs text-gray-400 block">vs. previous period <span className="text-red-500 font-semibold">2004</span></span>
                                     </div>
                                 </div>
                             </div>
-                        </Card>
+
+                            <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
+                                <img src="/demo/synco/reportsIcons/greenphone.png" className="w-12" alt="" />
+
+                                <div>
+                                    <p className="text-[16px] ">Avg. duration of calls</p>
+                                    <div className="">
+                                        <h4 className="text-[22px] font-semibold my-1">23 min</h4>
+                                        <span className="text-xs text-gray-400 block">vs. previous period <span className="text-red-500 font-semibold">18 months</span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-4 items-center">
+                                <img src="/demo/synco/reportsIcons/purplephn.png" className="w-12" alt="" />
+
+                                <div>
+                                    <p className="text-[16px] ">Avg. time duration of first contact</p>
+                                    <div className="">
+                                        <h4 className="text-[22px] font-semibold my-1">3 hr 16 min</h4>
+                                        <span className="text-xs text-gray-400 block">vs. previous period <span className="text-red-500 font-semibold">1 hr 8 minutes</span> </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <Card className="mt-4">
-                        <div className="flex justify-between items-center mb-3">
-                            <h3 className="text-lg font-semibold text-gray-800">Onboarding Results</h3>
+
+                    <div className="mt-4 bg-white rounded-2xl p-4">
+                        <div className="flex justify-between items-center mb-5">
+                            <h3 className="text-[22px] font-semibold text-gray-800">Onboarding Results</h3>
                             <EllipsisVertical className="text-gray-400" />
                         </div>
 
                         <div className="space-y-3">
                             {dashboardData.onboardingResults.map((r, i) => (
                                 <div key={i}>
-                                    <p className="text-sm text-gray-700 mb-1">{r.label}</p>
-                                    <div className="w-full bg-gray-100 h-2 rounded-full">
-                                        <div className="h-2 rounded-full bg-[#34C38F]" style={{ width: `${parseInt(r.value)}%` }}></div>
+                                    <p className="text-sm text-gray-700 mb-3">{r.label}</p>
+                                    <div className="flex items-center gap-3"><div className="w-full bg-gray-100 h-2 rounded-full">
+                                        <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${parseInt(r.value)}%` }}></div>
                                     </div>
+                                        {r.value}</div>
                                 </div>
                             ))}
                         </div>
-                    </Card>
+                    </div>
 
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="">
 
 
-                        <Card>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-3">Top agents with most hires</h3>
+                        <div className="bg-white p-5 rounded-2xl">
+                            <h3 className="text-[22px] font-semibold text-gray-800 mb-3">Top agents with most hires</h3>
                             <div className="space-y-3">
-                                {dashboardData.topAgents.map((a, i) => (
-                                    <div key={i} className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">JS</div>
-                                            <div>
-                                                <p className="text-sm text-gray-700">{a.name}</p>
-                                                <p className="text-xs text-gray-400">Hires</p>
-                                            </div>
+                                {dashboardData.topAgents.map((item, i) => (<div key={i} className="mb-4">
+                                    <div className="flex gap-5 justify-between">
+
+                                        <div className="w-10 h-10">
+                                            <img src="/demo/synco/reportsIcons/agent.png" alt="" />
                                         </div>
-                                        <div className="text-sm text-gray-700">{a.count}</div>
+                                        <div className="w-full">  <div className="flex justify-between items-center mb-1">
+                                            <p className="text-sm text-[#344054] font-semibold">{item.label}</p>
+
+                                        </div >
+                                            <div className="flex items-center gap-2">
+
+                                                <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                    <div
+                                                        className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
+                                                        style={{ width: `${item.value}%` }}
+                                                    ></div>
+                                                </div>
+                                                <span className="text-xs text-[#344054] font-semibold">{item.value}</span>
+
+                                            </div></div>
                                     </div>
+
+                                </div>
                                 ))}
                             </div>
-                        </Card>
+                        </div>
                     </div>
                 </div>
             </div>

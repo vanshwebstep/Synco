@@ -188,7 +188,9 @@ export const SessionPlanContextProvider = ({ children }) => {
           }
         });
       }
-
+      if (Array.isArray(data.removedImages) && data.removedImages.length > 0) {
+        formdata.append("removedImages", JSON.stringify(data.removedImages));
+      }
       const response = await fetch(`${API_BASE_URL}/api/admin/session-plan-exercise/${id}`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },

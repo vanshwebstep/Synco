@@ -53,7 +53,7 @@ const LeadsDashboard = () => {
     return `${yyyy}-${mm}-${dd}`; // returns "2025-08-24"
   }
 
-  console.log('fromDate,toDate', fromDate, toDate)
+  // console.log('fromDate,toDate', fromDate, toDate)
 
   const fetchLeads = useCallback(
     async (

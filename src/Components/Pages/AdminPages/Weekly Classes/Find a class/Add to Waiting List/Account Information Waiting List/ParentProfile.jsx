@@ -56,8 +56,8 @@ const ParentProfile = ({ profile }) => {
     const students = profile?.students || [];
     const [parents, setParents] = useState(profile.parents || []);
     const [emergencyContacts, setEmergencyContacts] = useState(profile?.emergency || []);
-
-    const bookedBy = profile?.bookedByAdmin;
+console.log('profile',profile)
+    const bookedBy = profile?.bookedByAdmin || profile?.bookedBy;
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
     const [removeWaiting, setRemoveWaiting] = useState(false);

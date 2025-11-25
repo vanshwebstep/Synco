@@ -11,7 +11,7 @@ import { usePermission } from "../../Common/permission";
 export default function BirthdayUpdate() {
     const navigate = useNavigate();
     const exerciseRef = useRef(null);
-
+    const [removedImages, setRemovedImages] = useState([]);
     const [sessionGroup, setSessionGroup] = useState([]);
     const [searchParams] = useSearchParams();
     const id = searchParams.get("id");
@@ -166,7 +166,16 @@ export default function BirthdayUpdate() {
     const removeImage = (id) => {
         setPhotoPreview((prev) => {
             const toDelete = prev.find((img) => img.id === id);
+            console.log('toDelete',toDelete)
+            const urlToRemove = toDelete ? toDelete.url : null;
+            // Revoke the object URL to avoid memory leaks
+            URL.revokeObjectURL(urlToRemove);
 
+            // Remove the URL from preview array
+
+
+            // Update removedImages state outside formData
+            setRemovedImages((prevRemoved) => [...prevRemoved, urlToRemove]);
             if (toDelete?.url?.startsWith("blob:")) {
                 URL.revokeObjectURL(toDelete.url);
             }
@@ -239,10 +248,12 @@ export default function BirthdayUpdate() {
             setLoading(false);
         }
     }, [token]);
+                console.log('removedImages1111', removedImages)
 
     const saveExercise = useCallback(
         async (id) => {
             if (!token) return;
+                console.log('removedImages222', removedImages)
 
             try {
 
@@ -257,10 +268,11 @@ export default function BirthdayUpdate() {
 
 
                 const formdata = new FormData();
+                console.log('removedImages', removedImages)
                 formdata.append("title", exercise.title);
                 formdata.append("description", exercise.description);
                 formdata.append("duration", exercise.duration);
-
+            formdata.append("removedImages", JSON.stringify(removedImages || []));
                 if (exercise.imageToSend && exercise.imageToSend.length > 0) {
                     exercise.imageToSend.forEach((file) => {
                         formdata.append("images", file);
@@ -298,7 +310,8 @@ export default function BirthdayUpdate() {
                     timer: 1500,
                 });
                 emptyExcerCises();
-                setShowExerciseModal(false)
+                setShowExerciseModal(false);
+                setRemovedImages([]);
 
                 return result;
             } catch (err) {
@@ -311,7 +324,7 @@ export default function BirthdayUpdate() {
                 throw err;
             }
         },
-        [token, fetchExercises, exercise, isEditExcercise]
+        [token, fetchExercises, exercise, isEditExcercise,removedImages]
     );
 
     const handleDuplicateExercise = useCallback(
@@ -640,7 +653,7 @@ export default function BirthdayUpdate() {
     // Save current tab data excluding banner
 
 
-    console.log('SavedTabsData', savedTabsData)
+    console.log('removedImages', removedImages)
     if (loading) {
         return (
             <>
@@ -790,6 +803,7 @@ export default function BirthdayUpdate() {
                                                 <img
                                                     onClick={() => {
                                                         setIsEditExcercise(true);
+                                                        setRemovedImages([]);
                                                         setShowExerciseModal(true);
                                                         if (ex?.value) fetchExcercisesById(ex.value);
                                                     }}

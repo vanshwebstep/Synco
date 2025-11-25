@@ -864,7 +864,7 @@ const List = () => {
             <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
 
                 <h2 onClick={() => {
-                    if (is_lead === "leadDatabase") {
+                    if (from_lead === "leadDatabase") {
                         navigate("/weekly-classes/central-leads");
                     } else {
                         navigate("/weekly-classes/find-a-class");

@@ -117,7 +117,31 @@ import AccountMainHoliday from './Components/Pages/AdminPages/holiday-camps/acco
 import SeeDetailsAccountHoliday from './Components/Pages/AdminPages/holiday-camps/accountInfo/SeeDetailsAccountHoliday.jsx';
 import Recruitment from './Components/Pages/AdminPages/Recruitment/Recruitment.jsx';
 import CandidateDetails from './Components/Pages/AdminPages/Recruitment/applications/seeDetails/CandidateDetails.jsx';
+import CandidateVenueDetails from './Components/Pages/AdminPages/Recruitment/applications/seeCandidateDetails/CandidateVenueDetails.jsx';
 import ReportsMain from './Components/Pages/AdminPages/Recruitment/reports/ReportsMain.jsx';
+import HolidaySessionPlan from './Components/Pages/AdminPages/Configuration/holiday-camps/session-plan-library/HolidaySessionPlan.jsx';
+import { HolidaySessionPlanContextProvider } from './Components/Pages/AdminPages/contexts/HolidaySessionPlanContext.jsx';
+import HolidaySessionCreate from './Components/Pages/AdminPages/Configuration/holiday-camps/session-plan-library/HolidaySessionCreate.jsx';
+import HolidaySessionPreview from './Components/Pages/AdminPages/Configuration/holiday-camps/session-plan-library/HolidaySessionPreview.jsx';
+import HolidayTermList from './Components/Pages/AdminPages/Configuration/holiday-camps/Term-Dates/HolidayTermList.jsx';
+import HolidayTermsCreate from './Components/Pages/AdminPages/Configuration/holiday-camps/Term-Dates/HolidayTermsCreate.jsx';
+import { HolidayTermsProvider } from './Components/Pages/AdminPages/contexts/HolidayTermsContext.jsx';
+import HolidayVenueList from './Components/Pages/AdminPages/Configuration/holiday-camps/venus/HolidayVenueList.jsx';
+import ClassSheduleList from './Components/Pages/AdminPages/Configuration/holiday-camps/venus/Class Schedule/ClassSheduleList.jsx';
+import HolidayCampPending from './Components/Pages/AdminPages/Configuration/holiday-camps/venus/Class Schedule/View Session/HolidayCampPending.jsx';
+import HolidayCampCompleted from './Components/Pages/AdminPages/Configuration/holiday-camps/venus/Class Schedule/View Session/HolidayCampCompleted.jsx';
+import HolidayCampCancel from './Components/Pages/AdminPages/Configuration/holiday-camps/venus/Class Schedule/View Session/HolidayCampCancel.jsx';
+import HolidaySubscriptionPlanManager from './Components/Pages/AdminPages/Configuration/holiday-camps/Subscription plan manager/HolidaySubscriptionPlanManager.jsx';
+import HolidayAddPaymentPlanGroup from './Components/Pages/AdminPages/Configuration/holiday-camps/Subscription plan manager/HolidayAddPaymentPlanGroup.jsx';
+import HolidayDiscountList from './Components/Pages/AdminPages/Configuration/holiday-camps/Discounts/HolidayDiscountList.jsx';
+import HolidayDiscountCreate from './Components/Pages/AdminPages/Configuration/holiday-camps/Discounts/HolidayDiscountCreate.jsx';
+import CampList from './Components/Pages/AdminPages/holiday-camps/CampList.jsx';
+import MembersList from './Components/Pages/AdminPages/holiday-camps/MembersList.jsx';
+import WaitingLists from './Components/Pages/AdminPages/holiday-camps/Add to Waiting List/WaitingLists.jsx';
+import WaitingListTab from './Components/Pages/AdminPages/holiday-camps/Add to Waiting List/AccountInfo/WaitingListTab.jsx';
+import FranchiseLeads from './Components/Pages/AdminPages/Recruitment/franchise/FranchiseLeads.jsx';
+import FranchiseCandidateDetails from './Components/Pages/AdminPages/Recruitment/franchise/seeDetails/FranchiseCandidateDetails.jsx';
+import TodoList from './Components/Pages/AdminPages/Administration/todo/ToDoList.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -274,6 +298,7 @@ const AppRoutes = () => {
         path="/weekly-classes/cancellation"
         element={renderProtectedRoute(CancellationList, [{ module: "cancellation", action: "view-listing" }])}
       />
+
       <Route
         path="/configuration/weekly-classes/venues/class-schedule"
         element={renderProtectedRoute(ClassSchedule, [{ module: "class-schedule", action: "view-listing" }])}
@@ -657,11 +682,29 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
+      <Route path="/holiday-camp/members/list" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <MembersList />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
       <Route path="/holiday-camp/find-a-camp" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <BookACamp />
+              <CampList />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/holiday-camp/waiting-list" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <WaitingLists />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -675,11 +718,11 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-      <Route path="/holiday-camp/members/account-information/see-details" element={
+      <Route path="/holiday-camp/waiting-list/account-information" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <SeeDetailsAccountHoliday />
+              <WaitingListTab />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -693,6 +736,90 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
+
+      <Route path="/configuration/holiday-camp/session-plan/list" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <HolidaySessionPlan />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/holiday-camp/session-plan/create" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <HolidaySessionCreate />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/holiday-camp/session-plan/preview" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <HolidaySessionPreview />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/holiday-camp/terms/list" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <HolidayTermList />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/holiday-camp/terms/create" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <HolidayTermsCreate />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+ <Route path="/configuration/holiday-camp/discount/list" 
+ element={renderProtectedRoute(HolidayDiscountList, [{ module: "discount", action: "view-listing" }])} />
+
+      <Route
+        path="/configuration/holiday-camp/discount/create"
+        element={renderProtectedRoute(HolidayDiscountCreate, [{ module: "discount", action: "create" }])}
+      />
+
+      <Route
+        path="/configuration/holiday-camp/subscription-plan-group"
+        element={renderProtectedRoute(HolidaySubscriptionPlanManager, [{ module: "payment-plan", action: "view-listing" }, { module: "payment-group", action: "view-listing" }])}
+      />
+
+      <Route
+        path="/configuration/holiday-camp/subscription-plan-group/create"
+        element={renderProtectedRoute(HolidayAddPaymentPlanGroup, [{ module: "payment-group", action: "create" }])}
+      />
+      <Route
+        path="/configuration/holiday-camp/venues"
+        element={renderProtectedRoute(HolidayVenueList, [{ module: "venue", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/holiday-camp/venues/class-schedule"
+        element={renderProtectedRoute(ClassSheduleList, [{ module: "class-schedule", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/holiday-camp/venues/class-schedule/Sessions/viewSessions"
+        element={renderProtectedRoute(HolidayCampPending, [{ module: "class-schedule", action: "view-listing" }])}
+      />
+
+      <Route
+        path="/configuration/holiday-camp/venues/class-schedule/Sessions/completed"
+        element={renderProtectedRoute(HolidayCampCompleted, [{ module: "class-schedule", action: "view-listing" }])}
+      />
+      <Route
+        path="/configuration/holiday-camp/venues/class-schedule/Sessions/cancel"
+        element={renderProtectedRoute(HolidayCampCancel, [{ module: "class-schedule", action: "view-listing" }])}
+      />
       <Route path="/recruitment/lead" element={
         <ProtectedRoute>
           <AdminLayout>
@@ -702,11 +829,20 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-      <Route path="/recruitment/lead/profile" element={
+      <Route path="/recruitment/lead/coach/profile" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
               <CandidateDetails />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/recruitment/lead/venue-manager/profile" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <CandidateVenueDetails />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -716,6 +852,33 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <ReportsMain />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/recruitment/franchise-lead" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <FranchiseLeads />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/administration/to-do-list" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <TodoList />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/recruitment/franchise-lead/see-details" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <FranchiseCandidateDetails />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -739,25 +902,29 @@ function App() {
 
             <VenueProvider>
               <MemberProvider>
-                <PaymentPlanContextProvider>
-                  <DiscountContextProvider>
-                    <SessionPlanContextProvider>
-                      <TermDatesSessionProvider>
-                        <ClassScheduleProvider>
-                          <FindClassProvider>
-                            <BookFreeTrialProvider>
-                              <BookFreeTrialLoaderProvider>
-                                <PermissionProvider>
-                                  <AppRoutes />
-                                </PermissionProvider>
-                              </BookFreeTrialLoaderProvider>
-                            </BookFreeTrialProvider>
-                          </FindClassProvider>
-                        </ClassScheduleProvider>
-                      </TermDatesSessionProvider>
-                    </SessionPlanContextProvider>
-                  </DiscountContextProvider>
-                </PaymentPlanContextProvider>
+                <HolidaySessionPlanContextProvider>
+                  <HolidayTermsProvider>
+                    <PaymentPlanContextProvider>
+                      <DiscountContextProvider>
+                        <SessionPlanContextProvider>
+                          <TermDatesSessionProvider>
+                            <ClassScheduleProvider>
+                              <FindClassProvider>
+                                <BookFreeTrialProvider>
+                                  <BookFreeTrialLoaderProvider>
+                                    <PermissionProvider>
+                                      <AppRoutes />
+                                    </PermissionProvider>
+                                  </BookFreeTrialLoaderProvider>
+                                </BookFreeTrialProvider>
+                              </FindClassProvider>
+                            </ClassScheduleProvider>
+                          </TermDatesSessionProvider>
+                        </SessionPlanContextProvider>
+                      </DiscountContextProvider>
+                    </PaymentPlanContextProvider>
+                  </HolidayTermsProvider>
+                </HolidaySessionPlanContextProvider>
               </MemberProvider>
             </VenueProvider>
           </LeadsContextProvider>

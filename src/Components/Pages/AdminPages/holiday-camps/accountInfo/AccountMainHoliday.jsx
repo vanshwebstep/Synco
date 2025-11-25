@@ -41,7 +41,7 @@ const AccountMainHoliday = () => {
       <div className="flex  items-center md:w-7/12 bg-white p-3 gap-1 rounded-2xl p-1 space-x-2 overflow-auto">
         <h2
           onClick={() => {
-            navigate('/holiday-camp/members');
+            navigate('/holiday-camp/members/list');
           }}>
           <img
             src="/demo/synco/icons/arrow-left.png"

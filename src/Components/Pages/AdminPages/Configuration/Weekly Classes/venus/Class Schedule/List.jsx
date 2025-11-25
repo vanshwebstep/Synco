@@ -630,6 +630,7 @@ const List = () => {
                                                                                                                     statusIs: session?.sessionPlan?.status,
                                                                                                                     classScheduleId: session?.sessionPlan?.classScheduleId,
                                                                                                                     cancelSession: session?.sessionPlan?.cancelSession,
+                                                                                                                    sessionDate: session.sessionDate,
                                                                                                                     sessionId: session?.sessionPlan?.mapId || session?.sessionPlanId,
                                                                                                                     schedule: item,
                                                                                                                     cancelled: session?.sessionPlan?.status === "cancelled",

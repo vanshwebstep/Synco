@@ -327,8 +327,8 @@ const CandidateInfo = () => {
                         className="w-5 h-5 rounded-full border-2 border-gray-400 text-gray-400 flex items-center justify-center
                  transition-all peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white"
                       >
-                      
-                          <Check className='font-bold text-lg p-[2px]'/>
+
+                        <Check className='font-bold text-lg p-[2px]' />
                       </span>
 
                       {age}
@@ -343,7 +343,7 @@ const CandidateInfo = () => {
                 <p className="font-semibold text-[18px] mb-2">Access to your own vehicle?</p>
                 <div className="space-y-2">
                   {["Yes", "No"].map((val) => (
-                      <label key={val} className="flex items-center gap-3 cursor-pointer select-none">
+                    <label key={val} className="flex items-center gap-3 cursor-pointer select-none">
 
                       <input
                         type="radio"
@@ -358,14 +358,14 @@ const CandidateInfo = () => {
                         className="w-5 h-5 rounded-full border-2 border-gray-400 text-gray-400 flex items-center justify-center
                  transition-all peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white"
                       >
-                      
-                          <Check className='font-bold text-lg p-[2px]'/>
+
+                        <Check className='font-bold text-lg p-[2px]' />
                       </span>
 
                       {val}
                     </label>
 
-                    
+
                   ))}
                 </div>
               </div>
@@ -390,8 +390,8 @@ const CandidateInfo = () => {
                         className="w-5 h-5 rounded-full border-2 border-gray-400 text-gray-400 flex items-center justify-center
                  transition-all peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white"
                       >
-                      
-                          <Check className='font-bold text-lg p-[2px]'/>
+
+                        <Check className='font-bold text-lg p-[2px]' />
                       </span>
 
                       {qual}
@@ -407,7 +407,7 @@ const CandidateInfo = () => {
                 </p>
                 <div className="space-y-2">
                   {["0-1 year", "2 years", "3 years", "More"].map((yr) => (
-                  <label key={yr} className="flex items-center gap-3 cursor-pointer select-none">
+                    <label key={yr} className="flex items-center gap-3 cursor-pointer select-none">
 
                       <input
                         type="radio"
@@ -422,8 +422,8 @@ const CandidateInfo = () => {
                         className="w-5 h-5 rounded-full border-2 border-gray-400 text-gray-400 flex items-center justify-center
                  transition-all peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white"
                       >
-                      
-                          <Check className='font-bold text-lg p-[2px]'/>
+
+                        <Check className='font-bold text-lg p-[2px]' />
                       </span>
 
                       {yr}
@@ -661,6 +661,14 @@ const CandidateInfo = () => {
                           {step.buttonText}
                           <IoIosArrowDown />
                         </button>
+                      ) : step.buttonText === "Scorecard" ? (
+                        <button
+                          className="mt-3 flex items-center gap-2 bg-[#237FEA] text-white px-3 py-2 rounded-xl text-sm"
+                          onClick={() => setRateOpen(true)}
+                        >
+                          {step.buttonText}
+
+                        </button>
                       ) : (
                         <button
                           className="mt-3 flex items-center gap-2 bg-[#237FEA] text-white px-3 py-2 rounded-xl text-sm"
@@ -780,7 +788,7 @@ const CandidateInfo = () => {
               <div className="relative mt-6 border-b  border-[#E2E1E5]  pb-5">
                 <h2 className="text-xl font-semibold  text-center">Interview Questions & Call Scorecard</h2>
                 <button
-
+                  onClick={() => setRateOpen(false)}
                   className="absolute top-0 right-4 text-black hover:text-black text-xl"
                 >
                   ✕

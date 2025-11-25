@@ -582,12 +582,13 @@ const CancellationList = () => {
         if (active === "all") return allCancellationTable;
         return fullCancellationTable; // fallback
     }, [active]);
-    // compute cancelType before rendering
+    
     let cancelType = "";
 
     if (active === "request") cancelType = "request to cancel";
     else if (active === "all") cancelType = "all cancel";
     else if (active === "full") cancelType = "full cancel";
+// console.log('myVenues',myVenues)
 
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">

@@ -15,13 +15,17 @@ import { addDays } from "date-fns";
 import { FaEdit, FaSave } from "react-icons/fa";
 import { useNotification } from '../../../contexts/NotificationContext';
 import Swal from "sweetalert2";
+import { useNavigate } from 'react-router-dom';
+
 const StudentProfile = ({ profile }) => {
+    const navigate = useNavigate();
+
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const {
         loading,
         addtoWaitingListSubmit, cancelMembershipSubmit,
         sendBookMembershipMail, transferMembershipSubmit,
-        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot, updateBookMembershipFamily,removeWaiting, setRemoveWaiting,addToWaitingList, setaddToWaitingList,showCancelTrial, setshowCancelTrial
+        freezerMembershipSubmit, reactivateDataSubmit, cancelWaitingListSpot, updateBookMembershipFamily, removeWaiting, setRemoveWaiting, addToWaitingList, setaddToWaitingList, showCancelTrial, setshowCancelTrial
     } = useBookFreeTrial() || {};
     console.log('profile', profile)
 
@@ -52,8 +56,8 @@ const StudentProfile = ({ profile }) => {
 
     const [students, setStudents] = useState(profile?.students || []);
     const [editingIndex, setEditingIndex] = useState(null);
-    const bookedBy = profile?.bookedByAdmin;
- 
+    const bookedBy = profile?.bookedByAdmin || profile?.bookedBy;
+
 
     const [transferVenue, setTransferVenue] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);
@@ -203,6 +207,25 @@ const StudentProfile = ({ profile }) => {
         (payment) => payment.paymentStatus !== "success"
     ) || [];
 
+    const handleBookMembership = () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to book a membership?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#237FEA",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Book it!",
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Navigate to your component/route
+                navigate("/weekly-classes/find-a-class/book-a-membership", {
+                    state: { TrialData: profile, comesFrom: "waitingList" },
+                });
+            }
+        });
+    };
     const canCancelTrial =
         checkPermission({ module: 'cancel-free-trial', action: 'create' })
     const canRebooking =
@@ -742,7 +765,7 @@ const StudentProfile = ({ profile }) => {
                                 </div>
 
                                 <div className="border-t border-[#495362] py-5">
-                                      <div className=" text-[20px] text-white">Price</div>
+                                    <div className=" text-[20px] text-white">Price</div>
                                     <div className="text-[16px] mt-1 text-gray-400">
                                         {MembershipPrice
                                             ? `£${MembershipPrice}`
@@ -810,7 +833,7 @@ const StudentProfile = ({ profile }) => {
                                 ) : null}
 
 
-                                {status == 'active' || status === "request_to_cancel" && canCancelTrial && (
+                                {(status === "active" || (status === "request_to_cancel" && canCancelTrial)) && (
                                     <button
                                         onClick={() => setTransferVenue(true)}
                                         className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
@@ -857,7 +880,15 @@ const StudentProfile = ({ profile }) => {
                                         </button>
                                     </div>
                                 )}
+                                {!profile?.paymentPlans?.length && profile?.classSchedule?.capacity !== 0 && (
 
+                                    <button
+                                        onClick={handleBookMembership}
+                                        className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                    >
+                                        Book a Membership
+                                    </button>
+                                )}
 
                             </div>
                         </>
@@ -877,9 +908,18 @@ const StudentProfile = ({ profile }) => {
                                         <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
                                     </button>
                                 </div>
-                             
 
-                                {(status === "active" || status === "frozen" || status !== "cancelled") && (
+
+                                {(status === "frozen" || status === "cancelled") && canRebooking && (
+                                    <button
+                                        onClick={() => setReactivateMembership(true)}
+                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                    >
+                                        Reactivate Membership
+                                    </button>
+                                )}
+
+                                {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel") && (
                                     <button
                                         onClick={() => setaddToWaitingList(true)}
                                         className={`w-full rounded-xl py-3 text-[18px] font-medium transition-shadow duration-300 
@@ -1231,7 +1271,7 @@ const StudentProfile = ({ profile }) => {
 
                                 {/* Buttons */}
                                 <div className="flex justify-end gap-4 pt-4">
-                                     <button
+                                    <button
                                         onClick={() => {
                                             // Validation
                                             if (!cancelData.cancellationType) {
@@ -1262,7 +1302,7 @@ const StudentProfile = ({ profile }) => {
                                             }
 
                                             // If all validations pass → call submit function
-                                            
+
                                             setshowCancelTrial(false)
                                             cancelMembershipSubmit(cancelData, "allMembers");
                                         }}

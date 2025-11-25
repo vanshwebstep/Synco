@@ -316,7 +316,31 @@ const ParentProfile = () => {
     }
   }, [emergency.sameAsAbove, formData]);
 
-  const handleUpdateParent = () => {
+  const handleUpdateParent = (index) => {
+    const parent = formData[index];   // ✔ get single parent object
+    
+      const requiredFields = [
+        "parentFirstName",
+        "parentLastName",
+        "parentEmail",
+        "phoneNumber",
+        "relationChild",
+        "howDidHear"
+      ];
+    
+      const emptyFields = requiredFields.filter(
+        (field) =>
+          !parent[field] || parent[field].toString().trim() === ""
+      );
+    
+      if (emptyFields.length > 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Required Fields",
+          text: "Please fill all required fields before saving.",
+        });
+        return;  // ❌ block saving
+      }
     console.log('clicked', formData)
     handleUpdateBirthday("parents", formData)
   }

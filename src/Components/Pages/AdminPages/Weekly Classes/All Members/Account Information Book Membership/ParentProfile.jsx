@@ -15,8 +15,11 @@ import { addDays } from "date-fns";
 import { FaEdit, FaSave } from "react-icons/fa";
 import { useNotification } from '../../../contexts/NotificationContext';
 import Swal from "sweetalert2";
+import { useNavigate } from 'react-router-dom';
 
 const ParentProfile = ({ profile }) => {
+    const navigate = useNavigate();
+
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const {
         loading,
@@ -50,8 +53,7 @@ const ParentProfile = ({ profile }) => {
         setCurrentPage(page);
     };
     const studentsList = profile?.students || [];
-    const bookedBy = profile?.bookedByAdmin;
-
+    const bookedBy = profile?.bookedByAdmin || profile?.bookedBy;
     const [transferVenue, setTransferVenue] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -329,7 +331,8 @@ const ParentProfile = ({ profile }) => {
         return `${month} ${day} ${year}, ${hours}:${minutes}`;
     }
 
-    // console.log('profile',profile)
+    console.log('status', status)
+    console.log('canCancelTrial', canCancelTrial)
 
     const handleDataChange = (index, field, value) => {
         const updatedParents = [...parents];
@@ -440,6 +443,25 @@ const ParentProfile = ({ profile }) => {
     const selectedClass = newClasses?.find(
         (cls) => cls.value === waitingListData?.classScheduleId
     );
+    const handleBookMembership = () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to book a membership?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#237FEA",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Book it!",
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Navigate to your component/route
+                navigate("/weekly-classes/find-a-class/book-a-membership", {
+                    state: { TrialData: profile, comesFrom: "waitingList" },
+                });
+            }
+        });
+    };
     if (loading) return <Loader />;
 
 
@@ -828,7 +850,7 @@ const ParentProfile = ({ profile }) => {
                                 ) : null}
 
 
-                                {status == 'active' || status === "request_to_cancel" && canCancelTrial && (
+                                {(status === "active" || (status === "request_to_cancel" && canCancelTrial)) && (
                                     <button
                                         onClick={() => setTransferVenue(true)}
                                         className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
@@ -875,6 +897,15 @@ const ParentProfile = ({ profile }) => {
                                         </button>
                                     </div>
                                 )}
+                                {!profile?.paymentPlans?.length && profile?.classSchedule?.capacity !== 0 && (
+
+                                    <button
+                                        onClick={handleBookMembership}
+                                        className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
+                                    >
+                                        Book a Membership
+                                    </button>
+                                )}
 
 
                             </div>
@@ -895,9 +926,18 @@ const ParentProfile = ({ profile }) => {
                                         <img src="/demo/synco/icons/sendText.png" alt="" /> Send Text
                                     </button>
                                 </div>
-                             
 
-                                {(status === "active" || status === "frozen" || status !== "cancelled") && (
+
+                                  {(status === "frozen" || status === "cancelled") && canRebooking && (
+                                    <button
+                                        onClick={() => setReactivateMembership(true)}
+                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                    >
+                                        Reactivate Membership
+                                    </button>
+                                )}
+
+                                {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel") && (
                                     <button
                                         onClick={() => setaddToWaitingList(true)}
                                         className={`w-full rounded-xl py-3 text-[18px] font-medium transition-shadow duration-300 

@@ -191,12 +191,12 @@ const StudentProfile = () => {
       });
     }
   }
-const formatLocalDate = (date) => {
-  if (!date) return null;
-  const local = new Date(date);
-  local.setMinutes(local.getMinutes() - local.getTimezoneOffset()); // adjust to local
-  return local.toISOString().split("T")[0]; // yyyy-mm-dd, stays same as selected
-};
+  const formatLocalDate = (date) => {
+    if (!date) return null;
+    const local = new Date(date);
+    local.setMinutes(local.getMinutes() - local.getTimezoneOffset()); // adjust to local
+    return local.toISOString().split("T")[0]; // yyyy-mm-dd, stays same as selected
+  };
 
   // --- Add Student ---
   const handleAddStudent = () => {
@@ -205,7 +205,7 @@ const formatLocalDate = (date) => {
     }
 
     // Create the updated students array
-  const updatedStudents = [
+    const updatedStudents = [
       ...students,
       {
         ...newStudent,
@@ -236,10 +236,60 @@ const formatLocalDate = (date) => {
     updated[index][field] = value;
     setStudents(updated);
   };
-
   const handleEditStudents = () => {
+    for (let i = 0; i < students.length; i++) {
+      const student = students[i];
+
+      // Validate name
+      if (!student.studentFirstName?.trim()) {
+        return Swal.fire({ icon: 'warning', title: 'Missing First Name', text: 'Please enter first name.' });
+      }
+      if (!student.studentLastName?.trim()) {
+        return Swal.fire({ icon: 'warning', title: 'Missing Last Name', text: 'Please enter last name.' });
+      }
+
+
+      // Validate dateOfBirth - expect ISO string, non-empty
+      if (!student.dateOfBirth) {
+        return Swal.fire({
+          icon: "warning",
+          title: `Missing Date of Birth in Student #${i + 1}`,
+          text: "Please select the date of birth.",
+        });
+      }
+
+      // Validate age (number > 0)
+      if (!student.age || isNaN(student.age) || Number(student.age) <= 0) {
+        return Swal.fire({
+          icon: "warning",
+          title: `Invalid Age in Student #${i + 1}`,
+          text: "Age must be a valid positive number.",
+        });
+      }
+
+      // Validate gender (non-empty string)
+      if (!student.gender) {
+        return Swal.fire({
+          icon: "warning",
+          title: `Missing Gender in Student #${i + 1}`,
+          text: "Please select a gender.",
+        });
+      }
+    }
+    console.log('studentwweedws', students)
+    // All good, update
     handleUpdateBirthday('students', students)
-  }
+
+    Swal.fire({
+      icon: "success",
+      title: "Students Updated",
+      text: "All student records updated successfully.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  };
+
+
 
   return (
     <div className="space-y-10  p-6">

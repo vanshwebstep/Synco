@@ -172,13 +172,13 @@ const AddPaymentPlanGroup = () => {
 
     const handleSavePlan = async () => {
         if (Number(formData.price) < 100) {
-  Swal.fire({
-    icon: "warning",
-    title: "Price must be at least €100!",
-    confirmButtonColor: "#237FEA",
-  });
-  return;
-}
+            Swal.fire({
+                icon: "warning",
+                title: "Price must be at least €100!",
+                confirmButtonColor: "#237FEA",
+            });
+            return;
+        }
 
         const { title, price, priceLesson, interval, duration, joiningFee, students } = formData;
 
@@ -328,19 +328,37 @@ const AddPaymentPlanGroup = () => {
                             <div className="rounded-2xl w-full md:p-12 ">
                                 <form
                                     onSubmit={(e) => {
-                                        e.preventDefault(); // prevents page refresh
+                                        e.preventDefault();
 
-                                        // ✅ Check if at least one plan is selected
+                                        // --- VALIDATION USING SWEETALERT ONLY ---
+                                        if (!groupName.trim()) {
+                                            Swal.fire({
+                                                icon: "warning",
+                                                title: "Group Name Missing",
+                                                text: "Please enter a Payment Plan Group Name.",
+                                            });
+                                            return;
+                                        }
+
+                                        if (!description.trim()) {
+                                            Swal.fire({
+                                                icon: "warning",
+                                                title: "Description Missing",
+                                                text: "Please enter a description.",
+                                            });
+                                            return;
+                                        }
+
                                         if (selectedPlans.length === 0) {
                                             Swal.fire({
                                                 icon: "warning",
                                                 title: "No Plans Selected",
                                                 text: "Please select at least one Membership Plan.",
-                                                confirmButtonText: "OK",
                                             });
                                             return;
                                         }
 
+                                        // --- SUBMIT ACTION ---
                                         if (id && selectedGroup) {
                                             handleUpdateGroup();
                                         } else {
@@ -358,7 +376,7 @@ const AddPaymentPlanGroup = () => {
                                             value={groupName}
                                             onChange={(e) => setGroupName(e.target.value)}
                                             type="text"
-                                            required
+                                            
                                             placeholder="Enter Group Name"
                                             className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />
@@ -374,7 +392,7 @@ const AddPaymentPlanGroup = () => {
                                             value={description}
                                             onChange={(e) => setDescription(e.target.value)}
                                             type="text"
-                                            required
+                                            
                                             placeholder="Add Internal  reference"
                                             className="w-full px-4 font-semibold py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         />

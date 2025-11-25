@@ -641,7 +641,7 @@ const AllDashboard = () => {
             </>
         )
     }
-    console.log('myVenues', myVenues)
+    // console.log('myVenues', myVenues)
     return (
         <>
 

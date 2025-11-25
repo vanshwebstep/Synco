@@ -61,7 +61,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const sidebarRef = useRef();
   const { checkPermission } = usePermission();
   const MyRole = localStorage.getItem("role");
-  const { historyActiveTab,setHistoryActiveTab } = useAccountsInfo();
+  const { historyActiveTab, setHistoryActiveTab } = useAccountsInfo();
   useEffect(() => {
     const result = findActiveItemAndParents(menuItems, location.pathname);
     if (result) {
@@ -98,6 +98,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
       link: '/',
     },
+
     {
       title: 'Weekly Classes',
       path: '/weekly-classes',
@@ -129,251 +130,95 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             { module: "session-plan-group", action: "view-listing" },
             { module: "payment-group", action: "view-listing" },
           ],
-
-
         }
       ]
     },
     {
+      title: 'Holiday Camps',
+      path: '/holiday-camps',
+      icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
+      iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
+      needPermissions: [
+        { module: 'book-membership', action: 'view-listing' },
+        { module: 'book-free-trial', action: 'view-listing' },
+        { module: 'find-class', action: 'view-listing' },
+        { module: 'cancellation', action: 'view-listing' },
+        { module: 'waiting-list', action: 'view-listing' },
+        { module: 'account-information', action: 'view-listing' }
+      ],
+      subItems: [
+        { title: 'Find a Camp', link: '/holiday-camp/find-a-camp', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
+        { title: 'Members', link: '/holiday-camp/members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+        { title: 'Waiting List', link: '/holiday-camp/waiting-list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+
+      ]
+    },
+
+    {
       title: "One To One",
       icon: "/demo/synco/reportsIcons/user.png",
       path: '/one-to-one',
-
       iconHover: "/demo/synco/reportsIcons/userH.png",
-      needPermissions: [
-        { module: 'session-exercise-one-to-one', action: 'view-listing' },
-
-      ],
+      needPermissions: [{ module: 'session-exercise-one-to-one', action: 'view-listing' }],
       subItems: [
         {
           title: "Sales",
           link: '/one-to-one',
-
-
           needPermissions: [
             { module: "venue", action: "view-listing" },
             { module: "term-group", action: "view-listing" }
           ],
-
-
         },
         {
-          title: "Session plan Structure ",
+          title: "Session plan Structure",
           link: '/one-to-one/session-plan',
-
-
           needPermissions: [
             { module: "session-plan-group", action: "view-listing" },
             { module: "payment-group", action: "view-listing" },
           ],
-
-
         },
         {
           title: "Reports",
           link: '/one-to-one/reports',
-
-
           needPermissions: [
             { module: "session-plan-group", action: "view-listing" },
             { module: "payment-group", action: "view-listing" },
           ],
-
-
-        },
-
-
+        }
       ],
     },
+
     {
       title: "Birthday parties",
       icon: "/demo/synco/SidebarLogos/Birthday.png",
       path: '/birthday-party',
-
       iconHover: "/demo/synco/SidebarLogos/BirthdayH.png",
-      needPermissions: [
-        { module: 'session-exercise-one-to-one', action: 'view-listing' },
-
-      ],
+      needPermissions: [{ module: 'session-exercise-one-to-one', action: 'view-listing' }],
       subItems: [
         {
           title: "Sales",
           link: '/birthday-party/leads',
-
-
           needPermissions: [
             { module: "venue", action: "view-listing" },
             { module: "term-group", action: "view-listing" }
           ],
-
-
         },
         {
-          title: "Session plan Structure ",
+          title: "Session plan Structure",
           link: '/birthday-party/session-plan',
-
-
           needPermissions: [
             { module: "session-plan-group", action: "view-listing" },
             { module: "payment-group", action: "view-listing" },
           ],
-
-
         },
         {
           title: "Reports",
           link: '/birthday-party/reports',
-
-
           needPermissions: [
             { module: "session-plan-group", action: "view-listing" },
             { module: "payment-group", action: "view-listing" },
           ],
-
-
         },
-
-
-      ],
-    },
-    {
-      title: "Reports",
-      icon: "/demo/synco/reportsIcons/reports.png",
-      path: '/reports',
-      iconHover: "/demo/synco/reportsIcons/camper.png",
-      needPermissions: [
-        { module: 'configuration', action: 'view' },
-
-      ],
-      subItems: [
-        {
-          title: "Members",
-          link: "/reports/members",
-          needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-        },
-        {
-          title: "Trials and conversions",
-          link: "/reports/trials",
-          needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-        },
-        {
-          title: "Sales",
-          link: "/reports/sales",
-          needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-        },
-        {
-          title: "Class Capacity",
-          link: "/reports/class-capacity",
-          needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-        },
-        {
-          title: "Attendance",
-          link: "/reports/attendance",
-          needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-        },
-        {
-          title: "Cancellations",
-          link: "/reports/cancellations",
-          needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-        },
-        {
-          title: "Weekly Classes",
-          link: "/reports/weekly-classes",
-          needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-        },
-      ],
-    },
-    {
-      title: "Holiday camps",
-      icon: "/demo/synco/SidebarLogos/Birthday.png",
-      path: '/holiday-camp',
-
-      iconHover: "/demo/synco/SidebarLogos/BirthdayH.png",
-      needPermissions: [
-        { module: 'session-exercise-one-to-one', action: 'view-listing' },
-
-      ],
-      subItems: [
-        {
-          title: "Find a Camp",
-          link: '/holiday-camp/find-a-camp',
-
-
-          needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" }
-          ],
-
-
-        },
-        {
-          title: "Members",
-          link: '/holiday-camp/members',
-
-
-          needPermissions: [
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-
-        },
-        {
-          title: "Waiting List",
-          link: '/holiday-camp/waiting-list',
-
-
-          needPermissions: [
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
-          ],
-
-
-        },
-
-
       ],
     },
     {
@@ -403,7 +248,6 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           title: "Franchise Leads",
           link: '/recruitment/franchise-lead',
 
-
           needPermissions: [
             { module: "session-plan-group", action: "view-listing" },
             { module: "payment-group", action: "view-listing" },
@@ -415,17 +259,32 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           title: "Reports",
           link: '/recruitment/reports',
 
-
           needPermissions: [
             { module: "session-plan-group", action: "view-listing" },
             { module: "payment-group", action: "view-listing" },
           ],
 
-
         },
-       
+
       ],
     },
+    {
+      title: "Reports",
+      icon: "/demo/synco/reportsIcons/reports.png",
+      path: '/reports',
+      iconHover: "/demo/synco/reportsIcons/camper.png",
+      needPermissions: [{ module: 'configuration', action: 'view' }],
+      subItems: [
+        { title: "Members", link: "/reports/members" },
+        { title: "Trials and conversions", link: "/reports/trials" },
+        { title: "Sales", link: "/reports/sales" },
+        { title: "Class Capacity", link: "/reports/class-capacity" },
+        { title: "Attendance", link: "/reports/attendance" },
+        { title: "Cancellations", link: "/reports/cancellations" },
+        { title: "Weekly Classes", link: "/reports/weekly-classes" },
+      ],
+    },
+
     {
       title: 'Key Information',
       icon: '/demo/synco/SidebarLogos/Management.png',
@@ -437,20 +296,20 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { module: 'key-information', action: 'create' }
       ]
     },
+
     ...(MyRole === 'Super Admin'
-      ? [
-        {
-          title: 'Permission',
-          path: '/permission',
-          icon: '/demo/synco/SidebarLogos/Dashboard.png',
-          iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
-          link: '/permission',
-          needPermissions: [
-            { module: 'admin-role', action: 'view-listing' },
-            { module: 'admin-role', action: 'create' }
-          ]
-        }
-      ] : []),
+      ? [{
+        title: 'Permission',
+        path: '/permission',
+        icon: '/demo/synco/SidebarLogos/Dashboard.png',
+        iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
+        link: '/permission',
+        needPermissions: [
+          { module: 'admin-role', action: 'view-listing' },
+          { module: 'admin-role', action: 'create' }
+        ]
+      }]
+      : []),
 
     {
       title: 'Administration',
@@ -459,19 +318,19 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
       needPermissions: [{ module: 'member', action: 'view-listing' }],
       subItems: [
-        { title: 'Admin Panel', link: '/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] }
+        { title: 'Admin Panel', link: '/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] },
+        { title: 'To Do List', link: 'administration/to-do-list', needPermissions: [{ module: 'member', action: 'view-listing' }] }
       ]
     },
+
     {
       title: "Configuration",
       icon: "/demo/synco/SidebarLogos/config.png",
       path: '/configuration',
       iconHover: "/demo/synco/SidebarLogos/configH.png",
-      needPermissions: [
-        { module: 'configuration', action: 'view' },
-
-      ],
+      needPermissions: [{ module: 'configuration', action: 'view' }],
       subItems: [
+        // WEEKLY CLASSES
         {
           title: "Weekly classes",
           link: "#",
@@ -481,51 +340,73 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             { module: "session-plan-group", action: "view-listing" },
             { module: "payment-group", action: "view-listing" },
           ],
-
           subItems: [
-
             {
               noPaddingx: true,
               title: "Venues",
               link: "/configuration/weekly-classes/venues",
-              needPermissions: [
-                { module: "venue", action: "view-listing" },
-                { module: "venue", action: "create" },
-              ],
-
             },
             {
               noPaddingx: true,
               title: "Term Dates & Mapping",
               link: "/configuration/weekly-classes/term-dates/list",
-              needPermissions: [
-                { module: "term-group", action: "view-listing" },
-                { module: "term", action: "view-listing" },
-              ],
             },
             {
               noPaddingx: true,
               title: "Session Plan Library",
               link: "/configuration/weekly-classes/session-plan-list",
-              needPermissions: [
-                { module: "session-plan-group", action: "view-listing" },
-              ],
             },
             {
               noPaddingx: true,
               title: "Subscription Plan Manager",
               link: "/configuration/weekly-classes/subscription-planManager",
-              needPermissions: [
-                { module: "payment-group", action: "view-listing" },
-              ],
+            },
+          ],
+        },
+
+        // HOLIDAY CAMPS
+        {
+          title: "Holiday camps",
+          link: "#",
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+          subItems: [
+            {
+              noPaddingx: true,
+              title: "Venues",
+              link: '/configuration/holiday-camp/venues',
+            },
+            {
+              noPaddingx: true,
+              title: "Term Dates & Mapping",
+              link: '/configuration/holiday-camp/terms/list',
+            },
+            {
+              noPaddingx: true,
+              title: "Session Plan Library",
+              link: '/configuration/holiday-camp/session-plan/list',
+            },
+            {
+              noPaddingx: true,
+              title: "Subscription Plan Manager",
+              link: "/configuration/holiday-camp/subscription-plan-group",
+            },
+            {
+              noPaddingx: true,
+              title: "Discounts",
+              link: "/configuration/holiday-camp/discount/list",
             },
           ],
         },
       ],
     },
 
-
   ];
+
 
   let menuItems = [];
   // ... permission filtering logic remains unchanged ...
@@ -647,7 +528,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     localStorage.removeItem("openClassIndex");
     localStorage.removeItem("openTerms");
     localStorage.removeItem("activeTab");
-      setHistoryActiveTab('General');
+    setHistoryActiveTab('General');
   };
 
   const toggleMobileMenu = () => {

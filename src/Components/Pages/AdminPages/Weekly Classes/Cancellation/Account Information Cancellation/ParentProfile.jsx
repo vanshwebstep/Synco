@@ -20,8 +20,9 @@ const ParentProfile = ({ ParentProfile }) => {
     const [selectedDate, setSelectedDate] = useState(null);
     const { adminInfo, setAdminInfo } = useNotification();
     const token = localStorage.getItem("adminToken");
+    const [transferVenue, setTransferVenue] = useState(false);
 
-    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit, reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit, sendAllmail, sendFullTomail, sendRequestTomail } = useBookFreeTrial() || {};
+    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit, reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit, sendAllmail, sendFullTomail, sendRequestTomail,transferMembershipSubmit } = useBookFreeTrial() || {};
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [freezeMembership, setFreezeMembership] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);
@@ -775,14 +776,14 @@ const ParentProfile = ({ ParentProfile }) => {
                                         Freeze Membership
                                     </button>
                                 )}
-                                {/* {(status === "active" || status === "request_to_cancel") && canCancelTrial && (
+                                {(status === "active" || status === "request_to_cancel") && canCancelTrial && classSchedule?.venue?.name && (
                                     <button
                                         onClick={() => setTransferVenue(true)}
                                         className="w-full border border-gray-300 text-[#717073] text-[18px] rounded-xl py-3 hover:shadow-md transition-shadow duration-300 font-medium"
                                     >
                                         Transfer Class
                                     </button>
-                                )} */}
+                                )}
                                 {status == 'waiting list' && canCancelTrial && (
                                     <button
                                         onClick={() => setRemoveWaiting(true)}
@@ -823,6 +824,108 @@ const ParentProfile = ({ ParentProfile }) => {
                     </div>
 
                 </div>
+                 {transferVenue && (
+                                    <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                                        <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                                            <button
+                                                className="absolute top-4 left-4 p-2"
+                                                onClick={() => setTransferVenue(false)}
+                                            >
+                                                <img src="/demo/synco/icons/cross.png" alt="Close" />
+                                            </button>
+                
+                                            <div className="text-center py-6 border-b border-gray-300">
+                                                <h2 className="font-semibold text-[24px]">Transfer Class Form</h2>
+                                            </div>
+                
+                                            <div className="space-y-4 px-6 pb-6 pt-4">
+                                                {/* Current Class */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">Current Class</label>
+                                                    <input
+                                                        type="text"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        value={classSchedule?.className || "-"}
+                                                        readOnly
+                                                    />
+                                                </div>
+                
+                                                {/* Venue */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">Venue</label>
+                                                    <input
+                                                        type="text"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        value={classSchedule?.venue?.name || "-"}
+                                                        readOnly
+                                                    />
+                                                </div>
+                
+                                                {/* Select New Class */}
+                                                <div>
+                
+                
+                                                    <label className="block text-[16px] font-semibold">
+                                                        Select New Class
+                                                    </label>
+                
+                                                    <Select
+                                                        value={
+                                                            transferData.classScheduleId
+                                                                ? newClasses.find((cls) => cls.value === transferData.classScheduleId) || null
+                                                                : null
+                                                        }
+                                                        onChange={(selected) =>
+                                                            handleSelectChange(selected, "classScheduleId", setTransferData)
+                                                        }
+                                                        options={newClasses}
+                                                        placeholder="Select Class"
+                                                        className="rounded-lg mt-2"
+                                                        styles={{
+                                                            control: (base) => ({
+                                                                ...base,
+                                                                borderRadius: "0.7rem",
+                                                                boxShadow: "none",
+                                                                padding: "4px 8px",
+                                                                minHeight: "48px",
+                                                            }),
+                                                            placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                                            dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                                            indicatorSeparator: () => ({ display: "none" }),
+                                                        }}
+                                                    />
+                
+                                                </div>
+                
+                                                {/* Additional Notes */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">
+                                                        Reason for Transfer (Optional)
+                                                    </label>
+                                                    <textarea
+                                                        name="transferReasonClass"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        rows={6}
+                                                        value={transferData.transferReasonClass}
+                                                        onChange={(e) => handleInputChange(e, setTransferData)}
+                                                    />
+                                                </div>
+                
+                                                {/* Buttons */}
+                                                <div className="flex gap-4 pt-4 justify-end ">
+                
+                
+                                                    <button
+                                                        className="w-1/2 bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:shadow-md transition-shadow"
+                                                        onClick={() => transferMembershipSubmit(transferData, 'allMembers')}
+                                                    >
+                                                        Submit Transfer
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                 {showRebookTrial && (
                     <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
                         <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">

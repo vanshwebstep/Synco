@@ -234,7 +234,7 @@ const Coach = () => {
                                 const isChecked = selectedIds.includes(coach.id);
 
                                 return (
-                                    <tr onClick={() => navigate(`/recruitment/lead/profile?id=${coach?.id}`)} key={coach.id} className="border-b cursor-pointer border-gray-200">
+                                    <tr onClick={() => navigate(`/recruitment/lead/coach/profile?id=${coach?.id}`)} key={coach.id} className="border-b cursor-pointer border-gray-200">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
                                                 <button

@@ -139,6 +139,8 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'birthday-party/leads': { title: 'Birthday party  ' },
     'one-to-one/leads/booking-form': { title: 'Booking Form' },
     'birthday-party/leads/booking-form': { title: 'Booking Form' },
+    'configuration/holiday-camp/venues': { title: 'Configuration' },
+    'holiday-camp/': { title: 'Holiday Camps' },
 
   };
   // Extract the part after `/demo/synco/`

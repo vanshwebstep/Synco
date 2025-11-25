@@ -138,7 +138,6 @@ const BookACamp = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log("Payment Data:", paymentData);
         // Add payment processing logic here
     };
 

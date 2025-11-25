@@ -6,11 +6,11 @@ const PermissionProtectedRoute = ({ element, needPermissions = [] }) => {
   const { checkPermission } = usePermission();
 
   // ✅ If no permissions required, allow access
-  console.log('needPermissions',needPermissions)
+  // console.log('needPermissions',needPermissions)
   if (!needPermissions || needPermissions.length === 0) return element;
   // ✅ Check if user has *any* of the required permissions
   const hasPermission = needPermissions.some((perm) => checkPermission(perm));
-console.log('hasPermission',hasPermission)
+// console.log('hasPermission',hasPermission)
   // ❌ No valid permission → redirect to home
   if (!hasPermission) {
     return <Navigate to="/" replace />;

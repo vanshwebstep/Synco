@@ -1,6 +1,7 @@
 import { useState } from "react";
 import CandidateInfo from "./CandidateInfo";
 import Events from "./Events";
+import { useNavigate } from "react-router-dom";
 // import Loader from "../contexts/Loader";
 
 
@@ -11,14 +12,14 @@ const tabs = [
 
 const CandidateDetails = () => {
     const [activeTab, setActiveTab] = useState(tabs[0].name);
-
+    const navigate = useNavigate();
 
 
     return (
         <div className="mt-8 relative">
 
             <div className="flex items-center gap-5">
-                <img src="/demo/synco/reportsIcons/arrowBack.png" className="cursor-pointer w-6" alt="" />
+                <img onClick={()=> navigate(`/recruitment/lead`)} src="/demo/synco/reportsIcons/arrowBack.png" className="cursor-pointer w-6" alt="" />
                 <div className="flex items-center p-3 gap-1 rounded-2xl w-fit bg-white  p-1 space-x-2 overflow-auto">
                     {tabs.map((tab) => (
                         <button

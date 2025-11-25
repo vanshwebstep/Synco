@@ -13,6 +13,8 @@ import { useSessionPlan } from '../../../contexts/SessionPlanContext';
 
 const Create = () => {
     const videoInputRef = useRef(null);
+    const [removedImages, setRemovedImages] = useState([]); // Separate state for removed URLs
+
     const uploadInputRef = useRef(null);
     const [planLoading, setPlanLoading] = useState(false);
     const MultiValue = () => null; // Hides the default selected boxes
@@ -226,28 +228,31 @@ const Create = () => {
 
 
     const handleRemoveImage = (index) => {
-        // 1️⃣ Remove preview
         setPhotoPreview((prev) => {
-            // revoke old URL to avoid memory leak
-            URL.revokeObjectURL(prev[index]);
-            return prev.filter((_, i) => i !== index);
-        });
+            const urlToRemove = prev[index];
 
-        // 2️⃣ Remove corresponding file from images array (only files, not URLs)
-        setFormData((prev) => {
-            const existingFiles = Array.isArray(prev.images) ? prev.images : [];
-            return {
-                ...prev,
-                images: existingFiles.filter((_, i) => i !== index),
-            };
-        });
+            // Revoke the object URL to avoid memory leaks
+            URL.revokeObjectURL(urlToRemove);
 
-        // 3️⃣ Optionally, handle removal of existing uploaded images
-        // If you also want to remove an image that was already saved in `imageUrl`, 
-        // maintain a separate array like `removedImages` and push the removed URL there
-        // e.g., removedImages: [...prev.removedImages, prev.imageUrl[index]]
+            // Remove the URL from preview array
+            const newPreview = prev.filter((_, i) => i !== index);
+
+            // Update removedImages state outside formData
+            setRemovedImages((prevRemoved) => [...prevRemoved, urlToRemove]);
+
+            // Remove corresponding file from images in formData
+            setFormData((prevForm) => ({
+                ...prevForm,
+                images: Array.isArray(prevForm.images)
+                    ? prevForm.images.filter((_, i) => i !== index)
+                    : [],
+            }));
+
+            return newPreview;
+        });
     };
 
+    console.log('setRemovedImages', removedImages)
     const handleCreateSession = (finalSubmit = false) => {
         if (isProcessing) return;
 
@@ -711,7 +716,6 @@ const Create = () => {
             });
         };
 
-        // 🧩 Validation
         if (!title?.trim()) {
             showAlert({ type: "warning", message: "Title is required", title: "Missing Field" });
             return;
@@ -737,9 +741,12 @@ const Create = () => {
                 // ✅ Prepare API payload
                 const payload = {
                     ...formData,
-                    existingImages: planToEdit.imageUrl || [], // keep previously saved images
-                    newImages: formData.images || [], // new uploaded files
+                    existingImages: planToEdit.imageUrl || [],  // previously saved image URLs
+                    newImages: formData.images || [],            // newly uploaded image files
                 };
+                if (removedImages) {
+                    payload.removedImages = removedImages;
+                }
 
                 const res = await updateSessionExercise(exerciseId, payload);
                 const updatedExercise = res?.data?.data || res?.data;
@@ -783,6 +790,12 @@ const Create = () => {
                         }
                         : plan
                 );
+                console.log('Removed images:', removedImages);
+
+                // Only add removedImages if it's a non-empty array
+                if (Array.isArray(removedImages) && removedImages.length > 0) {
+                    updatedPlans.removedImages = removedImages;
+                }
 
                 setSelectedPlans(updatedPlans);
 
@@ -833,8 +846,10 @@ const Create = () => {
                 title: "Error",
             });
         } finally {
+            setRemovedImages([])
             setPlanLoading(false);
             fetchExercises()
+
         }
     };
 
@@ -1238,6 +1253,7 @@ const Create = () => {
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         setEditIndex(idx);
+                                                                        setRemovedImages([]);
 
                                                                         // Normalize existing images (from backend) for preview
                                                                         const existingImages =
@@ -1435,21 +1451,21 @@ const Create = () => {
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             { /* bullist numlist  code */}
-                                       <Editor
-  apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
-  value={formData.description}
-  onEditorChange={(content) =>
-    setFormData({ ...formData, description: content })
-  }
-  init={{
-    menubar: false,
-    plugins: "lists advlist code",
-    toolbar:
-      "fontsizeselect capitalize bold italic underline alignleft aligncenter bullist numlist",
-    height: 200,
-    branding: false,
-    skin: "oxide", // ✅ use default oxide skin (so we can override styles)
-    content_style: `
+                                            <Editor
+                                                apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
+                                                value={formData.description}
+                                                onEditorChange={(content) =>
+                                                    setFormData({ ...formData, description: content })
+                                                }
+                                                init={{
+                                                    menubar: false,
+                                                    plugins: "lists advlist code",
+                                                    toolbar:
+                                                        "fontsizeselect capitalize bold italic underline alignleft aligncenter bullist numlist",
+                                                    height: 200,
+                                                    branding: false,
+                                                    skin: "oxide", // ✅ use default oxide skin (so we can override styles)
+                                                    content_style: `
       body {
         background-color: #f3f4f6;
         font-family: inherit;
@@ -1458,28 +1474,28 @@ const Create = () => {
         color: #111827;
       }
     `,
-    setup: (editor) => {
-      // 🔹 Custom capitalize icon
-      editor.ui.registry.addIcon(
-        "capitalize-icon",
-        '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
-      );
+                                                    setup: (editor) => {
+                                                        // 🔹 Custom capitalize icon
+                                                        editor.ui.registry.addIcon(
+                                                            "capitalize-icon",
+                                                            '<img src="/demo/synco/icons/smallcaps.png" style="width:16px;height:16px;" />'
+                                                        );
 
-      // 🔹 Custom capitalize button
-      editor.ui.registry.addButton("capitalize", {
-        icon: "capitalize-icon",
-        tooltip: "Capitalize Text",
-        onAction: () => {
-          editor.formatter.register("capitalize", {
-            inline: "span",
-            styles: { textTransform: "capitalize" },
-          });
-          editor.formatter.toggle("capitalize");
-        },
-      });
-    },
-  }}
-/>
+                                                        // 🔹 Custom capitalize button
+                                                        editor.ui.registry.addButton("capitalize", {
+                                                            icon: "capitalize-icon",
+                                                            tooltip: "Capitalize Text",
+                                                            onAction: () => {
+                                                                editor.formatter.register("capitalize", {
+                                                                    inline: "span",
+                                                                    styles: { textTransform: "capitalize" },
+                                                                });
+                                                                editor.formatter.toggle("capitalize");
+                                                            },
+                                                        });
+                                                    },
+                                                }}
+                                            />
 
 
 
