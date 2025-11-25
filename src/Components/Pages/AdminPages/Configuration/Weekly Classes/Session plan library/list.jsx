@@ -375,12 +375,12 @@ const List = () => {
           )}
 
       </div>
-
+ <div className="p-6 bg-white min-h-[600px] rounded-3xl">
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="weekList" direction="horizontal">
           {(provided) => (
             <div
-              className="flex bg-white justify-center md:justify-start  flex-wrap rounded-3xl p-6 shadow gap-6 relative"
+              className="grid md:grid-cols-4 gap-6"
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
@@ -396,7 +396,7 @@ const List = () => {
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
-                      className={`bg-[#FAFAFA] rounded-2xl border border-gray-300  p-4 w-full md:min-w-[374px] md:max-w-xs transform ${snapshot.isDragging ? 'scale-105 shadow-xl transition-transform duration-200' : ''
+                      className={`bg-[#FAFAFA] rounded-2xl border border-gray-300  p-4 w-full  transform ${snapshot.isDragging ? 'scale-105 shadow-xl transition-transform duration-200' : ''
                         }`}
                     >
                       <div className="flex items-center justify-between p-2 w-full gap-2">
@@ -537,6 +537,7 @@ const List = () => {
           )}
         </Droppable>
       </DragDropContext>
+      </div>
     </div>
   );
 };

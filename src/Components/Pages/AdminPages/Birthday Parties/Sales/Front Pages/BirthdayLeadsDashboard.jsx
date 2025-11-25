@@ -155,7 +155,7 @@ const BirthdayLeadsDashboard = () => {
       } catch (error) {
         console.error("❌ Failed to fetch leads:", error);
       } finally {
-         setLoading(false);
+        setLoading(false);
       }
     },
     []
@@ -226,38 +226,38 @@ const BirthdayLeadsDashboard = () => {
     setIsPickerOpen(false);
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  console.log("formData:", formData);
+    console.log("formData:", formData);
 
-  // ✅ Convert Date object → yyyy-mm-dd (DO NOT mutate state)
-  const formattedDate = selectedDate
-    ? formatLocalDate(selectedDate)
-    : "";
+    // ✅ Convert Date object → yyyy-mm-dd (DO NOT mutate state)
+    const formattedDate = selectedDate
+      ? formatLocalDate(selectedDate)
+      : "";
 
-  // Required field validation
-  const requiredFields = [
-    { key: "parentName", label: "Parent Name" },
-    { key: "childName", label: "Child Name" },
-    { key: "age", label: "Age" },
-    { key: "packageInterest", label: "Package Interest" },
-    { key: "source", label: "Source" },
-    { key: "partyDate", label: "Party Date" },
-  ];
+    // Required field validation
+    const requiredFields = [
+      { key: "parentName", label: "Parent Name" },
+      { key: "childName", label: "Child Name" },
+      { key: "age", label: "Age" },
+      { key: "packageInterest", label: "Package Interest" },
+      { key: "source", label: "Source" },
+      { key: "partyDate", label: "Party Date" },
+    ];
 
-  const missingFields = requiredFields
-    .filter((f) => {
-      if (f.key === "partyDate") return !formattedDate;
-      return !formData[f.key];
-    })
-    .map((f) => f.label);
+    const missingFields = requiredFields
+      .filter((f) => {
+        if (f.key === "partyDate") return !formattedDate;
+        return !formData[f.key];
+      })
+      .map((f) => f.label);
 
-  if (missingFields.length > 0) {
-    Swal.fire({
-      icon: "warning",
-      title: "Missing Fields",
-      html: `
+    if (missingFields.length > 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Fields",
+        html: `
         <div style="text-align:left;">
           <p>Please fill out the following required field(s):</p>
           <ul style="margin-top:8px;">
@@ -265,72 +265,93 @@ const BirthdayLeadsDashboard = () => {
           </ul>
         </div>
       `,
-    });
-    return;
-  }
-
-  // FINAL PAYLOAD
-  const payload = {
-    ...formData,
-    partyDate: formattedDate, // YYYY-MM-DD
-  };
-
-  console.log("Submitting lead:", payload);
-
-  setLoading(true);
-
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/api/admin/birthday-party/leads/create`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      }
-    );
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.message || "Failed to create lead.");
+      });
+      return;
     }
 
-    Swal.fire({
-      icon: "success",
-      title: "Lead Created",
-      text: "The lead has been successfully added.",
-      timer: 2000,
-      showConfirmButton: false,
+    // FINAL PAYLOAD
+    const payload = {
+      ...formData,
+      partyDate: formattedDate, // YYYY-MM-DD
+    };
+
+    console.log("Submitting lead:", payload);
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/birthday-party/leads/create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create lead.");
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "Lead Created",
+        text: "The lead has been successfully added.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      await fetchLeads();
+      setIsOpen(false);
+
+      // RESET FORM
+      setFormData({
+        parentName: "",
+        childName: "",
+        age: "",
+        packageInterest: "",
+        source: "",
+        partyDate: null,
+      });
+
+    } catch (error) {
+      console.error("Create lead error:", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Something went wrong.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  const resetFilter = () => {
+    // Reset all checkboxes
+    const resetStatuses = {};
+    filterOptions.forEach(({ key }) => {
+      resetStatuses[key] = false;
     });
+    setCheckedStatuses(resetStatuses);
 
-    await fetchLeads();
-    setIsOpen(false);
+    // Reset date selection
+    setFromDate(null);
+    setToDate(null);
 
-    // RESET FORM
-    setFormData({
-      parentName: "",
-      childName: "",
-      age: "",
-      packageInterest: "",
-      source: "",
-      partyDate: null,
-    });
+    // Reset calendar to current month
+    setCurrentDate(new Date());
+    setYear(new Date().getFullYear());
 
-  } catch (error) {
-    console.error("Create lead error:", error);
+    // If you have filtered data:
+    // setFilteredData(originalData);
 
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error.message || "Something went wrong.",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
+    console.log("Filters reset successfully");
+  };
 
 
   const handleSearch = (e) => {
@@ -794,6 +815,13 @@ const BirthdayLeadsDashboard = () => {
                   <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                   Apply filter
                 </button>
+
+                <button
+                  onClick={resetFilter}
+                  className="flex gap-2 items-center bg-gray-200 text-black px-3 py-2 rounded-lg text-sm text-[16px] hover:bg-gray-300"
+                >
+                  Reset
+                </button>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg w-full">
                 <div className="font-semibold mb-2 text-[18px]">Choose type</div>
@@ -1010,8 +1038,8 @@ const BirthdayLeadsDashboard = () => {
 
                 <DatePicker
                   withPortal
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
+                  selected={selectedDate}
+                  onChange={(date) => setSelectedDate(date)}
                   className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                   showYearDropdown
                   scrollableYearDropdown

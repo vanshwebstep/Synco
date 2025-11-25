@@ -636,6 +636,7 @@ const AllDashboard = () => {
             selectedVenueParam
         );
     }, [selectedVenue]);
+    
     if (mainLoading || loading) {
         return (
             <>

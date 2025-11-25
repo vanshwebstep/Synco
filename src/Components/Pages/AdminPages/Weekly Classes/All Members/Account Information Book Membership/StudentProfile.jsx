@@ -709,7 +709,7 @@ const StudentProfile = ({ profile }) => {
 
                             {/* Details */}
                             <div className="space-y">
-                                <div>
+                                <div className='mb-2'>
                                     <div className="text-[20px] font-bold tracking-wide">Venue</div>
                                     <div className="inline-block bg-[#007BFF] text-white text-[14px] px-3 py-1 rounded-md my-2">
                                         {venueName || "-"}
@@ -739,7 +739,7 @@ const StudentProfile = ({ profile }) => {
 
                                     <div className="text-[20px] text-white">Membership Tenure</div>
                                     <div className="text-[1s6px] mt-1 text-gray-400">
-                                        {MembershipTenure}
+                                        {MembershipTenure || 'N/A'}
                                     </div>
 
                                 </div>

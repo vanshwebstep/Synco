@@ -177,7 +177,7 @@ const BookingCard = ({ bookingInfo, booking }) => {
           {booking?.serviceType === "birthday party" && (
             <>
               {renderField("Package", booking?.paymentPlan?.title)}
-              {renderField("Price Paid", `${'£' + booking?.paymentPlan?.price + '.00'}`)}
+              {renderField("Price Paid", `${'£' + booking?.payment?.amount}`)}
               {renderField("Stripe Transaction ID", booking?.payment?.stripeChargeDetails?.id)}
               {renderField(
                 "Date of Booking",

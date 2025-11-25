@@ -241,7 +241,7 @@ export default function BirthdayCreate() {
                 throw err;
             }
         },
-        [token, fetchExercises, exercise, isEditExcercise]
+        [token, fetchExercises, exercise, isEditExcercise,removedImages]
     );
 
     const handleDuplicateExercise = useCallback(

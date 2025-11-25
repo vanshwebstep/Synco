@@ -202,7 +202,7 @@ export const SessionPlanContextProvider = ({ children }) => {
       if (!response.ok) throw result;
 
       console.log("✅ Exercise updated");
-      await fetchExercises();
+      
       return result;
     } catch (err) {
       console.error("❌ Failed to update exercise:", err);
@@ -246,7 +246,10 @@ export const SessionPlanContextProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await res.json();
+          const data = result.data || null;
+
       setSelectedExercise(result.data || null);
+       return data;  
     } catch (err) {
       console.error("Failed to fetch group:", err);
     } finally {

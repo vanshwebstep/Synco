@@ -1099,7 +1099,9 @@ const List = () => {
   console.log('selectedPackages', selectedPackages)
 
   console.log('finalPaymentPreview', finalPaymentPreview)
-
+  const filteredPackages = packageOptions.filter(
+    (pkg) => Number(numberOfStudents) === pkg.students
+  );
   if (loading) return <Loader />;
 
   return (
@@ -1403,9 +1405,9 @@ const List = () => {
                 classNamePrefix="react-select"
                 placeholder={selectedCoach ? "Select a Package" : "Select a Coach first"}
                 isDisabled={!selectedCoach}
-                value={packageOptions.find((opt) => opt.value === selectedPackage) || null}
+                value={filteredPackages.find((opt) => opt.value === selectedPackage) || null}
                 onChange={(opt) => setSelectedPackage(opt?.value || null)}
-                options={packageOptions}
+                options={filteredPackages}
               />
             </div>
             <div className="w-full">

@@ -1247,7 +1247,6 @@ const List = () => {
                                 </motion.div>
                             ))}
                         </div>
-
                         <div className="space-y-6 ">
                             {parents.map((parent, index) => (
                                 <motion.div
@@ -1259,11 +1258,11 @@ const List = () => {
                                         }`}                                >
                                     {/* Top Header Row */}
                                     <div className="flex justify-between  items-start">
- <h2 className="text-[20px] font-semibold">
-        {index === 0
-          ? "Parent information"
-          : `Parent ${index + 1} information`}
-      </h2>
+                                        <h2 className="text-[20px] font-semibold">
+                                            {index === 0
+                                                ? "Parent information"
+                                                : `Parent ${index + 1} information`}
+                                        </h2>
                                         <div className="flex items-center gap-2">
                                             {index === 0 && (
                                                 <button

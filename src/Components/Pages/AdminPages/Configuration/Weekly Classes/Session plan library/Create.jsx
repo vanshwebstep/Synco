@@ -47,7 +47,7 @@ const Create = () => {
     const [descriptionSession, setDescriptionSession] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [previewShowModal, setPreviewShowModal] = useState(false);
-    const { fetchExercises, sessionGroup, groups, updateDiscount, createSessionExercise, deleteExercise, duplicatePlan, setLoading, updateSessionExercise, selectedGroup, loading, createGroup, selectedExercise, exercises, updateGroup, setExercises, createSessionGroup } = useSessionPlan();
+    const { fetchExercises, sessionGroup, groups, updateDiscount, createSessionExercise, fetchExerciseById, deleteExercise, duplicatePlan, setLoading, updateSessionExercise, selectedGroup, loading, createGroup, selectedExercise, exercises, updateGroup, setExercises, createSessionGroup } = useSessionPlan();
     const [selectedPlans, setSelectedPlans] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -848,7 +848,7 @@ const Create = () => {
         } finally {
             setRemovedImages([])
             setPlanLoading(false);
-            fetchExercises()
+            fetchExercises();
 
         }
     };
@@ -1250,34 +1250,38 @@ const Create = () => {
                                                                 <img
                                                                     src="/demo/synco/icons/edit2.png"
                                                                     alt="Edit"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        setEditIndex(idx);
-                                                                        setRemovedImages([]);
+                                                                   onClick={async (e) => {
+    e.stopPropagation();
 
-                                                                        // Normalize existing images (from backend) for preview
-                                                                        const existingImages =
-                                                                            typeof plan.imageUrl === "string" && plan.imageUrl.trim() !== ""
-                                                                                ? JSON.parse(plan.imageUrl)
-                                                                                : Array.isArray(plan.imageUrl)
-                                                                                    ? plan.imageUrl
-                                                                                    : [];
+    setEditIndex(idx);
+    setRemovedImages([]);
 
-                                                                        setFormData({
-                                                                            title: plan.title || "",
-                                                                            duration: plan.duration || "",
-                                                                            description: plan.description || "",
-                                                                            images: [], // new uploads go here, always empty initially
-                                                                            imageUrl: existingImages, // backend URLs
-                                                                        });
+    // 🔥 get fresh fetched data directly
+    const exerciseData = await fetchExerciseById(plan.id);
 
-                                                                        // Previews show existing images
-                                                                        setPhotoPreview(existingImages);
+    if (!exerciseData) return;
 
-                                                                        setOpenForm(true);
-                                                                    }}
+    console.log("exerciseData", exerciseData);
 
-                                                                    className="w-5 h-5 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+    const existingImages =
+        typeof exerciseData.imageUrl === "string"
+            ? JSON.parse(exerciseData.imageUrl || "[]")
+            : Array.isArray(exerciseData.imageUrl)
+                ? exerciseData.imageUrl
+                : [];
+
+    setFormData({
+        title: exerciseData.title || "",
+        duration: exerciseData.duration || "",
+        description: exerciseData.description || "",
+        images: [],
+        imageUrl: existingImages
+    });
+
+    setPhotoPreview(existingImages);
+    setOpenForm(true);
+}}
+                                                                    className="w-5 h-5 hover:scale-110 cursor-pointer"
                                                                 />
                                                                 <button
                                                                     type="button"

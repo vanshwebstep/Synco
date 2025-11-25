@@ -655,12 +655,15 @@ const StudentProfile = ({ StudentProfile }) => {
                                         <>
                                             <div className="text-[20px] text-white">Membership Plan</div>
 
-                                            {paymentPlan && (
+                                            {paymentPlan ? (
                                                 <div className="text-[16px] mt-1 text-gray-400">
-                                                    {paymentPlan?.title}
+                                                    {paymentPlan.title}
                                                 </div>
+                                            ) : (
+                                                <div className="text-[16px] mt-1 text-gray-400">N/A</div>
                                             )}
                                         </>
+
                                     ) : (
                                         <>
                                             <div className="text-[20px] text-white">Students</div>

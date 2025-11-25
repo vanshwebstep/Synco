@@ -1111,7 +1111,10 @@ const BirthdayBookingForm = () => {
   const selectedPackages = packageOptions.find(pkg => pkg.id === selectedPackage);
 
   // console.log('selectedPackage', selectedPackage)
-
+  console.log('packageOptions', packageOptions)
+  const filteredPackages = packageOptions.filter(
+    (pkg) => Number(numberOfStudents) === pkg.students
+  );
   if (loading) return <Loader />;
 
   return (
@@ -1390,9 +1393,9 @@ const BirthdayBookingForm = () => {
                 classNamePrefix="react-select"
                 placeholder={selectedCoach ? "Select a Package" : "Select a Coach first"}
                 isDisabled={!selectedCoach}
-                value={packageOptions.find((opt) => opt.value === selectedPackage) || null}
+                value={filteredPackages.find((opt) => opt.value === selectedPackage) || null}
                 onChange={(opt) => setSelectedPackage(opt?.value || null)}
-                options={packageOptions}
+                options={filteredPackages}
               />
             </div>
             <div className="w-full">

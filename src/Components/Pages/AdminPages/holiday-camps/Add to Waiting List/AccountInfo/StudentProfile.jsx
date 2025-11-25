@@ -747,7 +747,7 @@ const StudentProfile = ({ profile }) => {
 
                                     <div className="text-[20px] text-white">Membership Tenure</div>
                                     <div className="text-[1s6px] mt-1 text-gray-400">
-                                        {MembershipTenure}
+                                        {MembershipTenure  || 'N/A'}
                                     </div>
 
                                 </div>

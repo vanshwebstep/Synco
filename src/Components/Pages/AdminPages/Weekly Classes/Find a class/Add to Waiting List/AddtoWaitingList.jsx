@@ -776,6 +776,50 @@ const AddtoWaitingList = () => {
 
     hasInitialized.current = true; // ✅ mark as done
   }, [sessionDatesSet]);
+const isFormValid = () => {
+    // Validate Students
+    for (const s of students) {
+        if (
+            !s.studentFirstName?.trim() ||
+            !s.studentLastName?.trim() ||
+            !s.dateOfBirth ||
+            !s.gender
+        ) {
+            return false;
+        }
+    }
+
+    // Validate Parents
+    for (const p of parents) {
+        if (
+            !p.parentFirstName?.trim() ||
+            !p.parentLastName?.trim() ||
+            !p.parentEmail?.trim() ||
+            !p.parentPhoneNumber?.trim()
+        ) {
+            return false;
+        }
+    }
+
+    // Validate Level of Interest (you mentioned it but never checked)
+    if (!selectedLevelOfInterest) {
+        return false;
+    }
+
+    // Validate Emergency
+    if (!emergency.sameAsAbove) {
+        if (
+            !emergency.emergencyFirstName?.trim() ||
+            !emergency.emergencyLastName?.trim() ||
+            !emergency.emergencyPhoneNumber?.trim()
+        ) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
 
   if (loading) {
     return (
@@ -1518,8 +1562,12 @@ const AddtoWaitingList = () => {
               <button
                 type="submit"
                 onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-[#237FEA] text-white  text-[18px]  font-semibold border  border-[#237FEA] px-6 py-3 rounded-lg"
+                  disabled={isSubmitting || !isFormValid()}
+                 className={`${
+      isSubmitting || !isFormValid()
+          ? "bg-gray-400 border-gray-400 cursor-not-allowed"
+          : "bg-[#237FEA] border-[#237FEA] hover:bg-[#1f6dc9] cursor-pointer"
+  } text-white text-[18px] font-semibold border px-6 py-3 rounded-lg transition`}
               >
                 {isSubmitting ? "Submitting..." : "Add to Waiting List "}
 
