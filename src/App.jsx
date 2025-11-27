@@ -48,6 +48,7 @@ import MembershipSales from './Components/Pages/AdminPages/Weekly Classes/All Me
 import AccountInformation from './Components/Pages/AdminPages/Weekly Classes/Find a class/Book a free trial/Account Information Book Free Trial/list.jsx';
 import PermissionRole from './Components/Pages/AdminPages/Permissions/list.jsx';
 // import { AccountInformationMembership } from './Components/Pages/AdminPages/Configuration/Weekly Classes/All Members/Account Information Book Membership/List.jsx';
+import FileManager from './Components/Pages/AdminPages/Administration/folder/FileManager.jsx';
 
 
 // Import all context providers
@@ -142,6 +143,8 @@ import WaitingListTab from './Components/Pages/AdminPages/holiday-camps/Add to W
 import FranchiseLeads from './Components/Pages/AdminPages/Recruitment/franchise/FranchiseLeads.jsx';
 import FranchiseCandidateDetails from './Components/Pages/AdminPages/Recruitment/franchise/seeDetails/FranchiseCandidateDetails.jsx';
 import TodoList from './Components/Pages/AdminPages/Administration/todo/ToDoList.jsx';
+import Createtemplate from './Components/Pages/AdminPages/Templates/createTemplate.jsx';
+import TemplateBuilder from './Components/Pages/AdminPages/Templates/TemplateBuilder.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -782,8 +785,8 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
- <Route path="/configuration/holiday-camp/discount/list" 
- element={renderProtectedRoute(HolidayDiscountList, [{ module: "discount", action: "view-listing" }])} />
+      <Route path="/configuration/holiday-camp/discount/list"
+        element={renderProtectedRoute(HolidayDiscountList, [{ module: "discount", action: "view-listing" }])} />
 
       <Route
         path="/configuration/holiday-camp/discount/create"
@@ -874,11 +877,39 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
+           <Route path="/administration/file-manager" element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <RoleBasedRoute>
+                    <FileManager />
+                  </RoleBasedRoute>
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
       <Route path="/recruitment/franchise-lead/see-details" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
               <FranchiseCandidateDetails />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/templates/create" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <Createtemplate />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+        <Route path="/templates/builder" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <TemplateBuilder />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

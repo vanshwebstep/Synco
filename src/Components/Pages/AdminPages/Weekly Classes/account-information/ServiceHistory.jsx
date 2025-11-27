@@ -85,7 +85,23 @@ const renderImage = (serviceType) => {
   };
   return images[serviceType] || "/demo/synco/icons/crown.png";
 };
+const formatPrettyDate = (dateString) => {
+  if (!dateString) return "N/A";
 
+  const date = new Date(dateString);
+
+  const day = date.getDate();
+  const month = date.toLocaleString("en-US", { month: "short" });
+  const year = date.getFullYear();
+
+  // suffix (st, nd, rd, th)
+  const suffix =
+    day % 10 === 1 && day !== 11 ? "st" :
+      day % 10 === 2 && day !== 12 ? "nd" :
+        day % 10 === 3 && day !== 13 ? "rd" : "th";
+
+  return `${month} ${day}${suffix} ${year}`;
+};
 // Render field helper
 const renderField = (label, value) => {
   return (
@@ -95,12 +111,18 @@ const renderField = (label, value) => {
     </div>
   );
 };
-
+const formatStatus = (status) => {
+  return status
+    .replace(/_/g, " ")         // remove underscores
+    .replace(/\b\w/g, c => c.toUpperCase()); // capitalize first letters
+};
 const BookingCard = ({ booking }) => {
   const statusColors = {
     active: "bg-green-500 text-white",
     cancelled: "bg-red-500 text-white",
-    request_to_cancel : "bg-red-500 text-white",
+    request_to_cancel: "bg-red-500 text-white",
+    "waiting list": "bg-gray-200 text-black ",
+    "not attended": "bg-gray-200 text-black ",
     pending: "bg-orange-500 text-white",
     frozen: "bg-blue-500 text-white",
   };
@@ -127,10 +149,11 @@ const BookingCard = ({ booking }) => {
             396
           </button>
           <span
-            className={`px-3 py-2 capitalize rounded-lg text-sm ${statusColors[booking.status]}`}
+            className={`px-3 py-2 capitalize rounded-lg text-sm ${statusColors[booking.status] || "bg-gray-200 text-black"}`}
           >
-            {booking.status}
+            {formatStatus(booking.status)}
           </span>
+
         </div>
       </div>
 
@@ -141,17 +164,32 @@ const BookingCard = ({ booking }) => {
             <>
               {renderField("Membership Plan", booking?.paymentPlan?.title)}
               {renderField("Students", booking?.totalStudents)}
-              {renderField("Venue", booking?.classSchedule?.venue?.name)}
+              {renderField("Venue", booking?.classSchedule?.venue?.name || booking?.venue?.name || 'N/A')}
               {renderField("KGo/Cardless ID", booking?.bookingId)}
               {renderField("Monthly Price", `£${booking?.paymentPlan?.priceLesson}`)}
               {renderField("Date Of Booking", booking?.startDate)}
               {renderField("Progress", '70%')}
               {renderField(
                 "Booking Source",
-                booking?.bookedByAdmin?.lastName ? booking.bookedByAdmin.lastName : ""
-              )}            </>
+                booking?.bookedByAdmin
+                  ? `${booking.bookedByAdmin.firstName || ""} ${booking.bookedByAdmin.lastName || ""}`.trim()
+                  : ""
+              )}
+            </>
           )}
-
+          {booking.serviceType == "weekly class trial" && (
+            <>
+              {renderField("Date of trial", booking?.trialDate || booking?.startDate)}
+              {renderField("Students", booking?.totalStudents)}
+              {renderField("Venue", booking?.classSchedule?.venue?.name)}
+              {/* {renderField("ID", booking?.paymentPlanId)} */}
+              {renderField("Trial Attempt", booking?.attempt || 'N/A')}
+              {renderField("Date Of Booking", formatPrettyDate(booking?.createdAt))}
+              {renderField("Booking Source", booking?.bookedByAdmin
+                ? `${booking.bookedByAdmin.firstName || ""} ${booking.bookedByAdmin.lastName || ""}`.trim()
+                : "")}
+            </>
+          )}
           {booking.serviceType === "Birthday Party Booking" && (
             <>
               {renderField("Package", booking.package)}
@@ -233,10 +271,10 @@ const BookingCard = ({ booking }) => {
 
 const ServiceHistory = () => {
 
-    const { data } = useAccountsInfo();
+  const { data } = useAccountsInfo();
 
 
- 
+
   const [showModal, setShowModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const filterModalRef = useRef(null);

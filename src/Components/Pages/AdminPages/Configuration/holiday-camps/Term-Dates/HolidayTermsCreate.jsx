@@ -1,16 +1,13 @@
 import Select from "react-select";
-import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence, m } from 'framer-motion';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import SessionPlanSelect from "./SessionPlanSelect";
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import Loader from '../../../contexts/Loader';
-
-
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSearchParams } from "react-router-dom";
-import { format } from "date-fns";
 import { useHolidayTerm } from "../../../contexts/HolidayTermsContext";
 
 const initialTerms = [];
@@ -82,7 +79,7 @@ const HolidayTermsCreate = () => {
             setIsGroupSaved(true);
 
             const matchedTerms = termData.filter(
-                (term) => term.termGroup?.id === selectedTermGroup.id
+                (term) => term.TermGroupId === selectedTermGroup.id
             );
 
             if (matchedTerms?.length) {
@@ -123,12 +120,6 @@ const HolidayTermsCreate = () => {
 
                 setSessionMappings(extractedData);
             }
-        } else {
-          
-            setIsEditMode(false);
-            setGroupName('')
-            setTerms([]);
-            setMyGroupData(null)
         }
     }, [isEditMode, termData, selectedTermGroup]);
 
@@ -204,7 +195,6 @@ const HolidayTermsCreate = () => {
 
 
     useEffect(() => {
-
         const openTerm = terms.find(t => t.isOpen);
         if (openTerm) {
            
@@ -221,7 +211,7 @@ const HolidayTermsCreate = () => {
     }, [terms]);
 
     // IN PROGRESS
-
+console.log('terms',terms)
 
     // Term management functions
     const toggleTerm = (id) => {
@@ -445,7 +435,7 @@ const HolidayTermsCreate = () => {
 
         // Otherwise delete from backend
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/term/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/term/delete/${id}`, {
                 method: "DELETE",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -556,13 +546,15 @@ const HolidayTermsCreate = () => {
         });
     };
 
-
+console.log('myGroupData',myGroupData,selectedTermGroup)
     const handleSaveTerm = async (term) => {
         
         if (!myGroupData?.id && !selectedTermGroup) {
             console.error("Missing termGroupId");
             return;
         }
+
+        console.log('term',term)
 
 
         // Validate required fields
@@ -609,8 +601,8 @@ const HolidayTermsCreate = () => {
         // Determine if it's an existing term (edit)
         const isExistingTerm = termData.some((t) => t.id === term.id);
         const requestUrl = isExistingTerm
-            ? `${API_BASE_URL}/api/admin/term/${term.id}`
-            : `${API_BASE_URL}/api/admin/term`;
+            ? `${API_BASE_URL}/api/admin/holiday/term/update/${term.id}`
+            : `${API_BASE_URL}/api/admin/holiday/term/create`;
         const method = isExistingTerm ? "PUT" : "POST";
 
         setIsLoading(true);

@@ -61,6 +61,7 @@ const trialLists = () => {
         { label: "Pending", key: "pending", apiParam: "status", apiValue: "pending" },
         { label: "Active", key: "active", apiParam: "status", apiValue: "active" },
         { label: "Date Booked", key: "trialDate", apiParam: "trialDate" },
+        { label: "12 Months", key: "tweleveMonths", apiParam: "month", apiValue: "tweleveMonths" },
         { label: "6 Months", key: "sixMonths", apiParam: "month", apiValue: "sixMonths" },
         { label: "3 Months", key: "threeMonths", apiParam: "month", apiValue: "threeMonths" },
         { label: "flexi Plan", key: "flexiPlan", apiParam: "month", apiValue: "flexiPlan" },
@@ -180,7 +181,8 @@ const trialLists = () => {
             "",                                  // venueName
             checkedStatuses.pending,             // status1
             checkedStatuses.active,              // status2
-            dateRangeMembership,                 // dateBooked range [from,to] OR []
+            dateRangeMembership,     
+            checkedStatuses.tweleveMonths,              // dateBooked range [from,to] OR []
             checkedStatuses.sixMonths,           // month1 -> duration 6
             checkedStatuses.threeMonths,         // month2 -> duration 3
             checkedStatuses.flexiPlan,           // month3 -> duration 1 (flexi)

@@ -73,28 +73,54 @@ const StudentProfile = () => {
   const handleModalChange = (field, value) => {
     setNewStudent((prev) => ({ ...prev, [field]: value }));
   };
+  const normalizeToLocalDate = (date) => {
+    if (!date) return null;
+    return new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+  };
+  const parseYMDToDate = (ymd) => {
+    if (!ymd) return null;
+    const [y, m, d] = ymd.split("-").map(Number);
+    return new Date(y, m - 1, d); // local midnight
+  };
 
+  // Convert a Date (from DatePicker) into a date-only string YYYY-MM-DD
+  const formatDateToYMD = (date) => {
+    if (!date) return null;
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
   // --- DOB change inside modal ---
   const handleDOBChange = (index, date, isModal = false) => {
+    // date is a Date from react-datepicker (or null)
+    const ymd = date ? formatDateToYMD(date) : null; // <-- store this
     const today = new Date();
     let age = "";
-    if (date) {
-      const diff = today.getFullYear() - date.getFullYear();
-      const monthDiff = today.getMonth() - date.getMonth();
+
+    if (ymd) {
+      const picked = parseYMDToDate(ymd);
+      const diff = today.getFullYear() - picked.getFullYear();
+      const monthDiff = today.getMonth() - picked.getMonth();
       age =
-        monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())
+        monthDiff < 0 || (monthDiff === 0 && today.getDate() < picked.getDate())
           ? diff - 1
           : diff;
     }
 
     if (isModal) {
-      setNewStudent((prev) => ({ ...prev, dateOfBirth: date, age }));
+      setNewStudent((prev) => ({ ...prev, dateOfBirth: ymd, age }));
     } else {
       const updated = [...students];
-      updated[index] = { ...updated[index], dateOfBirth: date, age };
+      updated[index] = { ...updated[index], dateOfBirth: ymd, age };
       setStudents(updated);
     }
   };
+
 
   const fetchComments = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
@@ -202,83 +228,83 @@ const StudentProfile = () => {
   };
 
   // --- Add Student ---
-const handleAddStudent = () => {
-  // Validate first or last name
-  if (!newStudent.studentFirstName.trim() && !newStudent.studentLastName.trim()) {
-    return Swal.fire({
-      icon: "warning",
-      title: "Missing Name",
-      text: "Please enter at least first or last name.",
+  const handleAddStudent = () => {
+    // Validate first or last name
+    if (!newStudent.studentFirstName.trim() && !newStudent.studentLastName.trim()) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Missing Name",
+        text: "Please enter at least first or last name.",
+      });
+    }
+
+    // Validate date of birth (optional: must be a date)
+    if (!newStudent.dateOfBirth) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Missing Date of Birth",
+        text: "Please select the date of birth.",
+      });
+    }
+
+    // Validate age (must be a positive number)
+    if (!newStudent.age || isNaN(newStudent.age) || Number(newStudent.age) <= 0) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Invalid Age",
+        text: "Age must be a valid positive number.",
+      });
+    }
+
+    // Validate gender
+    if (!newStudent.gender) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Missing Gender",
+        text: "Please select a gender.",
+      });
+    }
+    if (!newStudent.medicalInfo) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Missing Medical info",
+        text: "Please Add Medical info",
+      });
+    }
+    // Medical Info - optional, no validation needed unless you want max length or something
+
+    // If all validations pass, add student:
+    const updatedStudents = [
+      ...students,
+      {
+        ...newStudent,
+        dateOfBirth: formatLocalDate(newStudent.dateOfBirth),
+      },
+    ];
+
+    setStudents(updatedStudents);
+    handleUpdate("students", updatedStudents);
+
+    // Reset modal and form
+    setShowModal(false);
+    setNewStudent({
+      studentFirstName: "",
+      studentLastName: "",
+      dateOfBirth: null,
+      age: "",
+      gender: "",
+      medicalInfo: "",
     });
-  }
 
-  // Validate date of birth (optional: must be a date)
-  if (!newStudent.dateOfBirth) {
-    return Swal.fire({
-      icon: "warning",
-      title: "Missing Date of Birth",
-      text: "Please select the date of birth.",
+    // Optionally, show success alert
+    Swal.fire({
+      icon: "success",
+      title: "Student Added",
+      text: "The student was added successfully.",
+      timer: 1500,
+      showConfirmButton: false,
     });
-  }
-
-  // Validate age (must be a positive number)
-  if (!newStudent.age || isNaN(newStudent.age) || Number(newStudent.age) <= 0) {
-    return Swal.fire({
-      icon: "warning",
-      title: "Invalid Age",
-      text: "Age must be a valid positive number.",
-    });
-  }
-
-  // Validate gender
-  if (!newStudent.gender) {
-    return Swal.fire({
-      icon: "warning",
-      title: "Missing Gender",
-      text: "Please select a gender.",
-    });
-  }
-  if (!newStudent.medicalInfo) {
-    return Swal.fire({
-      icon: "warning",
-      title: "Missing Medical info",
-      text: "Please Add Medical info",
-    });
-  }
-  // Medical Info - optional, no validation needed unless you want max length or something
-
-  // If all validations pass, add student:
-  const updatedStudents = [
-    ...students,
-    {
-      ...newStudent,
-      dateOfBirth: formatLocalDate(newStudent.dateOfBirth),
-    },
-  ];
-
-  setStudents(updatedStudents);
-  handleUpdate("students", updatedStudents);
-
-  // Reset modal and form
-  setShowModal(false);
-  setNewStudent({
-    studentFirstName: "",
-    studentLastName: "",
-    dateOfBirth: null,
-    age: "",
-    gender: "",
-    medicalInfo: "",
-  });
-
-  // Optionally, show success alert
-  Swal.fire({
-    icon: "success",
-    title: "Student Added",
-    text: "The student was added successfully.",
-    timer: 1500,
-    showConfirmButton: false,
-  });
-};
+  };
 
 
 
@@ -288,58 +314,58 @@ const handleAddStudent = () => {
     setStudents(updated);
   };
 
- const handleEditStudents = () => {
-  for (let i = 0; i < students.length; i++) {
-    const student = students[i];
+  const handleEditStudents = () => {
+    for (let i = 0; i < students.length; i++) {
+      const student = students[i];
 
-    // Validate name
- if (!student.studentFirstName?.trim()) {
-  return Swal.fire({ icon: 'warning', title: 'Missing First Name', text: 'Please enter first name.' });
-}
-if (!student.studentLastName?.trim()) {
-  return Swal.fire({ icon: 'warning', title: 'Missing Last Name', text: 'Please enter last name.' });
-}
+      // Validate name
+      if (!student.studentFirstName?.trim()) {
+        return Swal.fire({ icon: 'warning', title: 'Missing First Name', text: 'Please enter first name.' });
+      }
+      if (!student.studentLastName?.trim()) {
+        return Swal.fire({ icon: 'warning', title: 'Missing Last Name', text: 'Please enter last name.' });
+      }
 
 
-    // Validate dateOfBirth - expect ISO string, non-empty
-    if (!student.dateOfBirth) {
-      return Swal.fire({
-        icon: "warning",
-        title: `Missing Date of Birth in Student #${i + 1}`,
-        text: "Please select the date of birth.",
-      });
+      // Validate dateOfBirth - expect ISO string, non-empty
+      if (!student.dateOfBirth) {
+        return Swal.fire({
+          icon: "warning",
+          title: `Missing Date of Birth in Student #${i + 1}`,
+          text: "Please select the date of birth.",
+        });
+      }
+
+      // Validate age (number > 0)
+      if (!student.age || isNaN(student.age) || Number(student.age) <= 0) {
+        return Swal.fire({
+          icon: "warning",
+          title: `Invalid Age in Student #${i + 1}`,
+          text: "Age must be a valid positive number.",
+        });
+      }
+
+      // Validate gender (non-empty string)
+      if (!student.gender) {
+        return Swal.fire({
+          icon: "warning",
+          title: `Missing Gender in Student #${i + 1}`,
+          text: "Please select a gender.",
+        });
+      }
     }
+    console.log('studentwweedws', students)
+    // All good, update
+    handleUpdate('students', students);
 
-    // Validate age (number > 0)
-    if (!student.age || isNaN(student.age) || Number(student.age) <= 0) {
-      return Swal.fire({
-        icon: "warning",
-        title: `Invalid Age in Student #${i + 1}`,
-        text: "Age must be a valid positive number.",
-      });
-    }
-
-    // Validate gender (non-empty string)
-    if (!student.gender) {
-      return Swal.fire({
-        icon: "warning",
-        title: `Missing Gender in Student #${i + 1}`,
-        text: "Please select a gender.",
-      });
-    }
-  }
-console.log('studentwweedws',students)
-  // All good, update
-  handleUpdate('students', students);
-
-  Swal.fire({
-    icon: "success",
-    title: "Students Updated",
-    text: "All student records updated successfully.",
-    timer: 1500,
-    showConfirmButton: false,
-  });
-};
+    Swal.fire({
+      icon: "success",
+      title: "Students Updated",
+      text: "All student records updated successfully.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  };
 
   return (
     <div className="space-y-10  p-6">
@@ -449,9 +475,11 @@ console.log('studentwweedws',students)
               <label className="block text-[16px] font-semibold">Date of birth</label>
               <DatePicker
                 withPortal
-                selected={student.dateOfBirth}
-                onChange={(date) => handleDOBChange(index, date)}
-                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                selected={student.dateOfBirth ? parseYMDToDate(student.dateOfBirth) : null}
+                onChange={(date) => {
+                  // date is the Date object — pass to handler
+                  handleDOBChange(index, date, false);
+                }} className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                 showYearDropdown
                 scrollableYearDropdown
                 yearDropdownItemNumber={100}
@@ -462,6 +490,7 @@ console.log('studentwweedws',students)
                 isClearable
                 disabled={!editStudent?.[index]}
               />
+
             </div>
 
             <div className="md:w-1/2">
@@ -553,8 +582,8 @@ console.log('studentwweedws',students)
                 <label className="block text-[15px] mb-1 font-semibold">Date of birth</label>
                 <DatePicker
                   withPortal
-                  selected={newStudent.dateOfBirth}
-                  onChange={(date) => handleDOBChange(null, date, true)} // index is null, isModal = true
+                 selected={newStudent.dateOfBirth ? parseYMDToDate(newStudent.dateOfBirth) : null}
+  onChange={(date) => handleDOBChange(null, date, true)}
                   className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
                   showYearDropdown
                   scrollableYearDropdown

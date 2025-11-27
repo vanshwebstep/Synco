@@ -349,7 +349,7 @@ const BirthdayLeadsDashboard = () => {
 
     // If you have filtered data:
     // setFilteredData(originalData);
-
+    fetchLeads();
     console.log("Filters reset successfully");
   };
 
@@ -816,12 +816,7 @@ const BirthdayLeadsDashboard = () => {
                   Apply filter
                 </button>
 
-                <button
-                  onClick={resetFilter}
-                  className="flex gap-2 items-center bg-gray-200 text-black px-3 py-2 rounded-lg text-sm text-[16px] hover:bg-gray-300"
-                >
-                  Reset
-                </button>
+
               </div>
               <div className="bg-gray-50 p-4 rounded-lg w-full">
                 <div className="font-semibold mb-2 text-[18px]">Choose type</div>

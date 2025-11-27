@@ -319,10 +319,23 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       needPermissions: [{ module: 'member', action: 'view-listing' }],
       subItems: [
         { title: 'Admin Panel', link: '/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] },
-        { title: 'To Do List', link: 'administration/to-do-list', needPermissions: [{ module: 'member', action: 'view-listing' }] }
+        { title: 'To Do List', link: 'administration/to-do-list', needPermissions: [{ module: 'member', action: 'view-listing' }] },
+              { title: 'Folders', link: 'administration/file-manager', needPermissions: [{ module: 'member', action: 'view-listing' }] }
+
       ]
     },
-
+    {
+      title: 'Templates',
+      path: '/templates',
+      icon: '/demo/synco/SidebarLogos/Template.png',
+      iconHover: '/demo/synco/SidebarLogos/TemplateH.png',
+      needPermissions: [{ module: 'member', action: 'view-listing' }],
+      subItems: [
+        { title: 'Create a Template', link: '/templates/create' },
+        // { title: 'List of Teplates', link: 'administration/to-do-list' }
+        // { title: 'OutBound cons', link: 'administration/to-do-list' }
+      ]
+    },
     {
       title: "Configuration",
       icon: "/demo/synco/SidebarLogos/config.png",

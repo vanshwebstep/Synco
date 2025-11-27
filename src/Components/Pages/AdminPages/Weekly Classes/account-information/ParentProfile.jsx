@@ -225,7 +225,12 @@ const ParentProfile = () => {
       });
     }
   }
-  const validateNewParent = () => {
+  const isValidEmail = (email) => {
+  const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return pattern.test(email);
+};
+
+const validateNewParent = () => {
   const requiredFields = [
     "parentFirstName",
     "parentLastName",
@@ -239,36 +244,43 @@ const ParentProfile = () => {
     if (!newParent[f] || newParent[f].toString().trim() === "") return false;
   }
 
+  // Email validation
+  if (!isValidEmail(newParent.parentEmail)) return false;
+
   return true;
 };
 
+
   // Add parent from modal
-  const handleAddParent = () => {
-    if (!validateNewParent()) {
+ const handleAddParent = () => {
+  if (!validateNewParent()) {
     Swal.fire({
       icon: "error",
-      title: "Missing Information",
-      text: "Please fill all fields before saving.",
+      title: "Invalid or Missing Information",
+      text: "Please fill all fields and enter a valid email address.",
     });
     return;
   }
-    const updatedParents = [...formData, newParent];
-    setFormData(updatedParents);
 
-    handleUpdateAcountInfo("parents", updatedParents); // ✅ pass full array, not spread
-    setShowModal(false);
+  const updatedParents = [...formData, newParent];
+  setFormData(updatedParents);
 
-    setNewParent({
-      parentFirstName: "",
-      parentLastName: "",
-      parentEmail: "",
-      parentPhoneNumber: "",
-      relationToChild: "",
-      howDidYouHear: "",
-    });
-    setDialCode("+1");
-    setCountry("us");
-  };
+  handleUpdateAcountInfo("parents", updatedParents);
+  setShowModal(false);
+
+  setNewParent({
+    parentFirstName: "",
+    parentLastName: "",
+    parentEmail: "",
+    parentPhoneNumber: "",
+    relationToChild: "",
+    howDidYouHear: "",
+  });
+
+  setDialCode("+1");
+  setCountry("us");
+};
+
 
   const handleCountryChange = (index, countryData) => {
     setCountries((prev) =>

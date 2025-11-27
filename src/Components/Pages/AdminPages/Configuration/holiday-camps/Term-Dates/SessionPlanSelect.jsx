@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Search } from 'lucide-react';
 import { useSessionPlan } from '../../../contexts/SessionPlanContext';
+import { useHolidaySessionPlan } from '../../../contexts/HolidaySessionPlanContext';
 
 
 
@@ -49,7 +50,7 @@ const customStyles = {
 
 const SessionPlanSelect = ({ idx = 0, label = '', value, onChange, usedSessionPlans = [] }) => {
 
-  const { fetchSessionGroup, sessionGroup, loading } = useSessionPlan();
+  const { fetchSessionGroup, sessionGroup, loading } = useHolidaySessionPlan();
   const [options, setOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
 

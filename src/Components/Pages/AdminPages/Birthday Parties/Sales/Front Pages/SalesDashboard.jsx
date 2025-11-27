@@ -701,7 +701,27 @@ const SalesDashboard = () => {
             selectedVenueParam
         );
     }, [selectedVenue]);
+    const resetFilter = () => {
+        // Reset all checkboxes
+        const resetStatuses = {};
+        filterOptions.forEach(({ key }) => {
+            resetStatuses[key] = false;
+        });
+        setCheckedStatuses(resetStatuses);
 
+        // Reset date selection
+        setFromDate(null);
+        setToDate(null);
+
+        // Reset calendar to current month
+        setCurrentDate(new Date());
+        setYear(new Date().getFullYear());
+        fetchLeads();
+        // If you have filtered data:
+        // setFilteredData(originalData);
+
+        console.log("Filters reset successfully");
+    };
     const handleClearFilters = () => {
         fetchLeads();
     }
@@ -885,6 +905,7 @@ const SalesDashboard = () => {
                                     <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                                     Apply filter
                                 </button>
+                             
                             </div>
                             <div className="bg-gray-50 p-4 rounded-lg w-full">
                                 <div className="font-semibold mb-2 text-[18px]">Choose type</div>

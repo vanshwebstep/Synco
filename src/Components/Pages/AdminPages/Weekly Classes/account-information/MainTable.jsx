@@ -104,9 +104,8 @@ const MainTable = () => {
             val === 'null' ||
             val === 'undefined'
         ) {
-            return 'N/A';
+            return '';
         }
-        // Convert to string, replace underscores with spaces, and trim
         const formatted = String(val).replace(/_/g, ' ').trim();
         return formatted;
     };

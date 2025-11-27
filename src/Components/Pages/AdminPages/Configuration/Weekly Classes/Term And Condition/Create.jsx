@@ -72,8 +72,6 @@ const Create = () => {
         }
     }, [id, fetchTermGroupById]); // include fetchTermGroupById if it's stable (e.g., useCallback)
 
-
-
     // Second: Wait for isEditMode + termData + selectedTermGroup
     useEffect(() => {
         console.group('termData1', termData);
@@ -273,13 +271,6 @@ const Create = () => {
         }
     };
 
-    const [termselect, setTerm] = useState({
-        startDate: "",
-        endDate: "",
-        sessionDates: [],
-        exclusions: [],
-    });
-    // e.g., {value: "sunday", label: "Sunday"}
 
     const handleSessionDate = (termId, date) => {
         if (!selectedDay) {
@@ -327,8 +318,6 @@ const Create = () => {
             })
         );
     };
-
-
 
     // Handle exclusion dates
     const handleExclusionChange = (termId, idx, dateStr) => {
@@ -483,39 +472,33 @@ const Create = () => {
         }
     }, [token, savedTermIds, fetchTerm, myGroupData, fetchTermGroupById, navigate]);
 
+  const handleMappingChange = (index, field, value) => {
+  if (field === "sessionPlanId") {
+    // ignore empty values
+    if (!value) {
+      const updated = [...sessionMappings];
+      updated[index] = { ...updated[index], sessionPlanId: "" };
+      setSessionMappings(updated);
+      return;
+    }
 
+    // check duplicate
+    const alreadyExists = sessionMappings.some(
+      (item, idx) => idx !== index && item.sessionPlanId === value
+    );
 
+    if (alreadyExists) {
+      return;
+    }
+  }
 
-
-    const handleMappingChange = (index, field, value) => {
-        if (field === "sessionPlanId") {
-            // check duplicate
-            const alreadyExists = sessionMappings.some(
-                (item, idx) => idx !== index && item.sessionPlanId === value
-            );
-
-            if (alreadyExists) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Duplicate Session Plan',
-                    text: 'This session plan is already used in this term. Please select a unique one.',
-                    confirmButtonColor: '#d33'
-                });
-
-                return; // stop update
-            }
-        }
-
-        const updated = [...sessionMappings];
-        updated[index] = {
-            ...updated[index],
-            [field]: value,
-        };
-        setSessionMappings(updated);
-    };
-
-
-
+  const updated = [...sessionMappings];
+  updated[index] = {
+    ...updated[index],
+    [field]: value,
+  };
+  setSessionMappings(updated);
+};
     const handleSaveMappings = () => {
         if (!sessionMappings.length) {
             Swal.fire({
@@ -677,7 +660,6 @@ const Create = () => {
         }
     };
 
-
     const addNewTerm = () => {
         if (!isGroupSaved) {
             Swal.fire({
@@ -756,18 +738,6 @@ const Create = () => {
         }).then(() => {
             navigate('/configuration/weekly-classes/term-dates/list');
         });
-    };
-    // console.log('terms', terms)
-    // console.log('savedTermIds', savedTermIds)
-
-    // const isSaveDisabled = !terms.length || terms.some(t => !savedTermIds.has(t.id));
-
-    // console.log('selectedTermGroup', selectedTermGroup)
-    // console.log("myGroupData", myGroupData)
-    const parseLocalDate = (dateStr) => {
-        if (!dateStr) return null;
-        const [year, month, day] = dateStr.split("-").map(Number);
-        return new Date(year, month - 1, day); // <-- local date, no timezone shift
     };
 
     if (loading) return <Loader />;
@@ -1253,8 +1223,9 @@ const Create = () => {
                                                         idx={index}
                                                         value={sessionMappings[index]?.sessionPlanId}
                                                         onChange={handleMappingChange}
-                                                        usedSessionPlans={sessionMappings.map(s => s.sessionPlanId)}
-                                                    />
+                                                        usedSessionPlans={sessionMappings
+                                                            .map(s => s.sessionPlanId)
+                                                            .filter(id => id !== "" && id !== null && id !== undefined)} />
 
                                                 </motion.div>
                                             </div>

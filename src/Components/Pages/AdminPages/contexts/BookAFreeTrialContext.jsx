@@ -1194,6 +1194,53 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
+  const createBookMembershipByWaitingList = async (bookFreeMembershipData, trialId) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/waiting-list/convert-membership/${trialId}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(bookFreeMembershipData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Membership has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      navigate(`/weekly-classes/all-members/list`)
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchBookMemberships();
+      setLoading(false);
+    }
+  };
   const sendBookMembershipMail = async (bookingIds) => {
     setLoading(true);
 
@@ -1483,7 +1530,8 @@ export const BookFreeTrialProvider = ({ children }) => {
       venueName = "",
       status1 = false,
       status2 = false,
-      dateRangeMembership = [],   // 👉 will always be [fromDate, toDate] for trialDate
+      dateRangeMembership = [],
+      month0 = false,   // 👉 will always be [fromDate, toDate] for trialDate
       month1 = false,
       month2 = false,
       month3 = false,
@@ -1511,10 +1559,10 @@ export const BookFreeTrialProvider = ({ children }) => {
 
         if (status1) queryParams.append("status", "pending");
         if (status2) queryParams.append("status", "active");
-
-        if (month1) queryParams.append("duration", "6");
-        if (month2) queryParams.append("duration", "3");
-        if (month3) queryParams.append("duration", "1");
+        if (month0) queryParams.append("duration", "12 Month");
+        if (month1) queryParams.append("duration", "6 Month");
+        if (month2) queryParams.append("duration", "3 Month");
+        if (month3) queryParams.append("duration", "1 Month");
 
         if (Array.isArray(BookedBy) && BookedBy.length > 0) {
           BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
@@ -2707,6 +2755,7 @@ export const BookFreeTrialProvider = ({ children }) => {
         bookMembership,
         createBookMembership,
         createBookMembershipByfreeTrial,
+        createBookMembershipByWaitingList,
         fetchBookMemberships,
         cancelMembershipSubmit,
         transferMembershipSubmit,

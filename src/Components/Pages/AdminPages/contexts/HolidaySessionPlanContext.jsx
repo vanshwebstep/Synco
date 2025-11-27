@@ -86,7 +86,7 @@ export const HolidaySessionPlanContextProvider = ({ children }) => {
                     });
 
                     if (shouldRedirect) {
-                        navigate('/holiday-camp/session-plan/list');
+                        navigate('/configuration/holiday-camp/session-plan/list');
                     }
                 } else {
                     await Swal.fire({
@@ -390,7 +390,7 @@ export const HolidaySessionPlanContextProvider = ({ children }) => {
                 confirmButtonColor: "#237FEA",
             });
 
-            navigate("/holiday-camp/session-plan/list");
+            navigate("/configuration/holiday-camp/session-plan/list");
             await fetchSessionGroup();
         } catch (err) {
             console.error("Failed to update discount:", err);

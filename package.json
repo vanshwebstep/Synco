@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@headlessui/react": "^2.2.4",
     "@hello-pangea/dnd": "^18.0.1",
     "@tailwindcss/vite": "^4.1.11",
@@ -18,6 +21,7 @@
     "date-fns": "^4.1.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.23.0",
+    "grapesjs-preset-newsletter": "^1.0.2",
     "html-react-parser": "^5.2.6",
     "jspdf": "^3.0.3",
     "jspdf-autotable": "^5.0.2",
@@ -25,6 +29,7 @@
     "lucide-react": "^0.525.0",
     "mathjs": "^14.5.3",
     "react": "^19.1.0",
+    "react-beautiful-dnd": "^13.1.1",
     "react-countup": "^6.5.3",
     "react-datepicker": "^8.4.0",
     "react-dom": "^19.1.0",
@@ -37,6 +42,7 @@
     "react-select": "^5.10.1",
     "react-spinners": "^0.17.0",
     "recharts": "^3.1.2",
+    "swappy": "^0.0.0",
     "sweetalert2": "^11.26.3",
     "sweetalert2-react-content": "^5.1.0",
     "tailwind-scrollbar": "^4.0.2",

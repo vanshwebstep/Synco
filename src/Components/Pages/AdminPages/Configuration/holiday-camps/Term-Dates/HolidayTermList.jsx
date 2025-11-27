@@ -48,65 +48,52 @@ const HolidayTermList = () => {
       return 'summer';
     };
 
-    const grouped = termGroup.map((group, groupIdx) => {
+    const grouped = termGroup.map((group) => {
 
-      // Use termGroup?.id to match correctly
-      const terms = termData.filter((t) => t.termGroup?.id === group.id);
-      if (!terms.length) {
-        return null;
-      }
+      // FIX: match by holidayTermGroupId
+      const terms = termData.filter((t) => t.termGroupId === group.id);
 
+      if (!terms.length) return null;
 
-      // Step 2: Map each term to sessionData
-      const sessionData = terms.map((term, termIdx) => {
+      const sessionData = terms.map((term) => {
+
         const start = formatDate(term.startDate);
         const end = formatDate(term.endDate);
         const dateRange = `${start} - ${end}`;
-    
-        let exclusionArr = [];
-        try {
 
-          if (Array.isArray(term.exclusionDates)) {
-            exclusionArr = term.exclusionDates;
-          } else if (typeof term.exclusionDates === 'string') {
-            try {
-              exclusionArr = JSON.parse(term.exclusionDates || '[]');
-            } catch (e) {
-              exclusionArr = [];
-            }
+        // FIX: Normalize exclusionDates field
+        let exclusionArr = [];
+        if (Array.isArray(term.exclusionDates)) {
+          exclusionArr = term.exclusionDates;
+        } else if (typeof term.exclusionDates === 'string') {
+          try {
+            exclusionArr = JSON.parse(term.exclusionDates);
+          } catch (e) {
+            exclusionArr = [];
           }
-        } catch (err) {
-          console.error(`❌ Failed to parse exclusions for term ${term.id}:`, err);
         }
 
         const exclusion = exclusionArr.length
           ? exclusionArr.map((ex) => formatDate(ex)).join(', ')
           : 'None';
-        const sessions = term.sessionsMap.map((session, idx) => ({
+
+        const sessions = term.sessionsMap.map((session) => ({
           groupName: session?.sessionPlan?.groupName,
-          date: formatDate(session.sessionDate), // assuming you have a formatDate function
+          date: formatDate(session.sessionDate),
         }));
-
-
-
 
         const season = detectSeason(term.termName);
 
-        const sessionObj = {
-
+        return {
           term: term.termName,
           icon: `/demo/synco/icons/${season}.png`,
           date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
           exclusion,
           sessions,
-
         };
-
-        return sessionObj;
       });
 
-
-      // Step 3: Build the class card
+      // Create class card object
       const classCard = {
         id: group.id,
         name: group.name,
@@ -116,14 +103,14 @@ const HolidayTermList = () => {
         facility: 'Indoor',
       };
 
-      sessionData.forEach((termData) => {
-        const key = detectSeason(termData.term);
-        classCard[key] = `${termData.date}`;
+      sessionData.forEach((termObj) => {
+        const key = detectSeason(termObj.term);
+        classCard[key] = termObj.date;
       });
-
 
       return { sessionData, classCard };
     });
+
 
     const filtered = grouped.filter(Boolean);
     const allSessions = filtered.map((g) => g.sessionData);

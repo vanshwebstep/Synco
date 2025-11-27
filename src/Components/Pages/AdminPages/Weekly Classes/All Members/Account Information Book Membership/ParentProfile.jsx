@@ -455,11 +455,11 @@ const ParentProfile = ({ profile }) => {
             cancelButtonText: "Cancel",
         }).then((result) => {
             if (result.isConfirmed) {
-                console.log('profile',profile)
+                // console.log('profile',profile)
                 // Navigate to your component/route
-                // navigate("/weekly-classes/find-a-class/book-a-membership", {
-                //     state: { TrialData: profile, comesFrom: "waitingList" },
-                // });
+                navigate("/weekly-classes/find-a-class/book-a-membership", {
+                    state: { TrialData: profile, comesFrom: "waitingList" },
+                });
             }
         });
     };

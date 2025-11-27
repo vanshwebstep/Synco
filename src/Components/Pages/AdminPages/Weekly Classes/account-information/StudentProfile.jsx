@@ -37,28 +37,38 @@ const StudentProfile = () => {
   const handleModalChange = (field, value) => {
     setNewStudent((prev) => ({ ...prev, [field]: value }));
   };
-
+const fixTimezone = (date) => {
+  if (!date) return null;
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+};
   // --- DOB change inside modal ---
-  const handleDOBChange = (index, date, isModal = false) => {
-    const today = new Date();
-    let age = "";
-    if (date) {
-      const diff = today.getFullYear() - date.getFullYear();
-      const monthDiff = today.getMonth() - date.getMonth();
-      age =
-        monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())
-          ? diff - 1
-          : diff;
-    }
+const handleDOBChange = (index, date, isModal = false) => {
+  // Fix timezone only ONCE
+  const fixedDate = date ? fixTimezone(date) : null;
 
-    if (isModal) {
-      setNewStudent((prev) => ({ ...prev, dateOfBirth: date, age }));
-    } else {
-      const updated = [...students];
-      updated[index] = { ...updated[index], dateOfBirth: date, age };
-      setStudents(updated);
-    }
-  };
+  // Age calculation based on fixed date
+  const today = new Date();
+  let age = "";
+
+  if (fixedDate) {
+    const diff = today.getFullYear() - fixedDate.getFullYear();
+    const monthDiff = today.getMonth() - fixedDate.getMonth();
+    age =
+      monthDiff < 0 || (monthDiff === 0 && today.getDate() < fixedDate.getDate())
+        ? diff - 1
+        : diff;
+  }
+
+  if (isModal) {
+    setNewStudent((prev) => ({ ...prev, dateOfBirth: fixedDate, age }));
+  } else {
+    const updated = [...students];
+    updated[index] = { ...updated[index], dateOfBirth: fixedDate, age };
+    setStudents(updated);
+  }
+};
+
+
   const validateStudent = (student) => {
     const requiredFields = [
       "studentFirstName",

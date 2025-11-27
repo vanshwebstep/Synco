@@ -27,7 +27,7 @@ import { useNotification } from "../../../contexts/NotificationContext";
 const List = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { createBookMembership, createBookMembershipByfreeTrial } = useBookFreeTrial()
+    const { createBookMembership, createBookMembershipByfreeTrial ,createBookMembershipByWaitingList} = useBookFreeTrial()
     const [expression, setExpression] = useState('');
     const [numberOfStudents, setNumberOfStudents] = useState('1');
     const { keyInfoData, fetchKeyInfo } = useMembers();
@@ -150,7 +150,7 @@ const List = () => {
 
         }
     ]);
-    const finalClassId = classId || TrialData?.classScheduleId;
+    const finalClassId = classId || TrialData?.classScheduleId || TrialData?.classSchedule?.id;
     const allPaymentPlans =
         singleClassSchedulesOnly?.venue?.paymentGroups[0]?.paymentPlans?.map((plan) => ({
             label: `${plan.title} (${plan.students} student${plan.students > 1 ? "s" : ""})`,
@@ -602,9 +602,13 @@ const List = () => {
 
             ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
         };
+        console.log('TrialData',TrialData)
         try {
-            if (TrialData) {
+            if (comesFrom === "trials") {
                 await createBookMembershipByfreeTrial(payload, TrialData.id);
+            }
+             if (comesFrom === "waitingList") {
+                await createBookMembershipByWaitingList(payload, TrialData.bookingId);
             }
             else if (leadId) {
                 await createBookMembership(payload, leadId);
