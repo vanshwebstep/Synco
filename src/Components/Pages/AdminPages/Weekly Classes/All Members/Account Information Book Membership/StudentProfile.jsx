@@ -880,7 +880,7 @@ const StudentProfile = ({ profile }) => {
                                         </button>
                                     </div>
                                 )}
-                                {!profile?.paymentPlans?.length && profile?.classSchedule?.capacity !== 0 && (
+                                {!profile?.paymentPlan && profile?.classSchedule?.capacity !== 0 && status !== 'active' && status !== "request_to_cancel" &&(
 
                                     <button
                                         onClick={handleBookMembership}

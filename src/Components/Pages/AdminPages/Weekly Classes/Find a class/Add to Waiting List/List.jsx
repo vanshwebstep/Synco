@@ -343,7 +343,7 @@ const WaitingList = () => {
     const handleNext = () => {
         if (tempSelectedAgents.length > 0) {
             const selectedNames = tempSelectedAgents.map(
-                (agent) => `${agent.firstName}`
+                (agent) => `${agent.id}`
             );
             setSavedAgent(selectedNames); // ✅ saves full names as strings
             console.log("selectedNames", tempSelectedAgents);

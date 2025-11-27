@@ -455,10 +455,11 @@ const ParentProfile = ({ profile }) => {
             cancelButtonText: "Cancel",
         }).then((result) => {
             if (result.isConfirmed) {
+                console.log('profile',profile)
                 // Navigate to your component/route
-                navigate("/weekly-classes/find-a-class/book-a-membership", {
-                    state: { TrialData: profile, comesFrom: "waitingList" },
-                });
+                // navigate("/weekly-classes/find-a-class/book-a-membership", {
+                //     state: { TrialData: profile, comesFrom: "waitingList" },
+                // });
             }
         });
     };
@@ -897,7 +898,7 @@ const ParentProfile = ({ profile }) => {
                                         </button>
                                     </div>
                                 )}
-                                {!profile?.paymentPlans?.length && profile?.classSchedule?.capacity !== 0 && (
+                                {!profile?.paymentPlan && profile?.classSchedule?.capacity !== 0 && status !== 'active' &&  status !== "request_to_cancel" && (
 
                                     <button
                                         onClick={handleBookMembership}

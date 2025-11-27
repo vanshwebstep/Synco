@@ -7,6 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { RxCross2 } from "react-icons/rx";
 import { useAccountsInfo } from "../../contexts/AccountsInfoContext";
 import { FaSave, FaEdit } from "react-icons/fa";
+import Swal from "sweetalert2";
 
 const StudentProfile = () => {
   const [editStudent, setEditStudent] = useState({});
@@ -58,33 +59,61 @@ const StudentProfile = () => {
       setStudents(updated);
     }
   };
+  const validateStudent = (student) => {
+    const requiredFields = [
+      "studentFirstName",
+      "studentLastName",
+      "dateOfBirth",
+      "gender",
+    ];
+
+    for (let f of requiredFields) {
+      if (!student[f] || student[f].toString().trim() === "") return false;
+    }
+
+    return true;
+  };
+  const validateNewStudent = (student) => {
+    if (!student.studentFirstName.trim()) return false;
+    if (!student.studentLastName.trim()) return false;
+    if (!student.dateOfBirth) return false;
+    if (!student.gender) return false;
+
+    return true;
+  };
 
   // --- Add Student ---
-const handleAddStudent = () => {
-  if (!newStudent.studentFirstName && !newStudent.studentLastName) {
-    return alert("Please enter at least first or last name.");
-  }
+  const handleAddStudent = () => {
 
-  // Create the updated students array
-  const updatedStudents = [...students, { ...newStudent }];
+    if (!validateNewStudent(newStudent)) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Information",
+        text: "Please fill all required fields before adding the student."
+      });
+      return;
+    }
 
-  // Update local state
-  setStudents(updatedStudents);
+    // Create the updated students array
+    const updatedStudents = [...students, { ...newStudent }];
 
-  // Call API update
-  handleUpdateAcountInfo('students', updatedStudents);
+    // Update local state
+    setStudents(updatedStudents);
 
-  // Reset modal
-  setShowModal(false);
-  setNewStudent({
-    studentFirstName: "",
-    studentLastName: "",
-    dateOfBirth: null,
-    age: "",
-    gender: "",
-    medicalInformation: "",
-  });
-};
+    // Call API update
+    handleUpdateAcountInfo('students', updatedStudents);
+
+    // Reset modal
+    setShowModal(false);
+    setNewStudent({
+      studentFirstName: "",
+      studentLastName: "",
+      dateOfBirth: null,
+      age: "",
+      gender: "",
+      medicalInformation: "",
+    });
+  };
 
 
   const handleInputChange = (index, field, value) => {
@@ -93,7 +122,18 @@ const handleAddStudent = () => {
     setStudents(updated);
   };
 
-  const handleEditStudents = () => {
+  const handleEditStudents = (index) => {
+    const student = students[index];
+
+    if (!validateStudent(student)) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Information",
+        text: "Please fill all required fields before saving.",
+      });
+      return;
+    }
+
     handleUpdateAcountInfo('students', students)
   }
 
@@ -133,9 +173,17 @@ const handleAddStudent = () => {
           >
             {editStudent?.[index] ? "Editing Student" : `Student ${index + 1} Information`}
 
-            {editStudent?.[index]
-              ? <FaSave onClick={handleEditStudents} />
-              : <FaEdit />}
+            {editStudent?.[index] ? (
+              <FaSave
+                className={`cursor-pointer ${!validateStudent(student) ? "opacity-40 cursor-not-allowed" : ""
+                  }`}
+                onClick={() => {
+                  if (validateStudent(student)) handleEditStudents(index);
+                }}
+              />
+            ) : (
+              <FaEdit />
+            )}
 
           </h2>
 

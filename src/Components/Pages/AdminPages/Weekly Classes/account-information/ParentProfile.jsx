@@ -225,8 +225,33 @@ const ParentProfile = () => {
       });
     }
   }
+  const validateNewParent = () => {
+  const requiredFields = [
+    "parentFirstName",
+    "parentLastName",
+    "parentEmail",
+    "parentPhoneNumber",
+    "relationToChild",
+    "howDidYouHear",
+  ];
+
+  for (let f of requiredFields) {
+    if (!newParent[f] || newParent[f].toString().trim() === "") return false;
+  }
+
+  return true;
+};
+
   // Add parent from modal
   const handleAddParent = () => {
+    if (!validateNewParent()) {
+    Swal.fire({
+      icon: "error",
+      title: "Missing Information",
+      text: "Please fill all fields before saving.",
+    });
+    return;
+  }
     const updatedParents = [...formData, newParent];
     setFormData(updatedParents);
 
@@ -282,8 +307,36 @@ const ParentProfile = () => {
       }));
     }
   }, [emergency.sameAsAbove, formData]);
+const validateParent = (parent) => {
+  const requiredFields = [
+    "parentFirstName",
+    "parentLastName",
+    "parentEmail",
+    "parentPhoneNumber",
+    "relationToChild",
+    "howDidYouHear",
+  ];
 
-  const handleUpdateParent = () => {
+  for (let field of requiredFields) {
+    if (!parent[field] || parent[field].toString().trim() === "") {
+      return false; // Invalid
+    }
+  }
+  return true; // Valid
+};
+
+  const handleUpdateParent = (index) => {
+    const parent = formData[index];
+
+  if (!validateParent(parent)) {
+    Swal.fire({
+      icon: "error",
+      title: "Missing Information",
+      text: "Please fill all required fields before saving.",
+    });
+    return;
+  }
+
     handleUpdateAcountInfo("parents", formData)
   }
   const handleUpdateEmergency = () => {
@@ -299,16 +352,16 @@ const ParentProfile = () => {
       <div className="">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-    {formData.length < 3 && (
-          <button
-            type="button"
-            onClick={() => setShowModal(true)}
+          {formData.length < 3 && (
+            <button
+              type="button"
+              onClick={() => setShowModal(true)}
 
-            className="bg-[#237FEA] md:absolute right-0 -top-0 text-sm px-4 py-2 rounded-xl text-white hover:bg-[#1E6FD2] transition"
-          >
-            Add Parent
-          </button>
-       )}
+              className="bg-[#237FEA] md:absolute right-0 -top-0 text-sm px-4 py-2 rounded-xl text-white hover:bg-[#1E6FD2] transition"
+            >
+              Add Parent
+            </button>
+          )}
         </div>
         {/* Render multiple parent sections */}
         {formData.map((parent, index) => (
@@ -330,7 +383,7 @@ const ParentProfile = () => {
 
               </h2>
               {editParent?.[index]
-                ? <FaSave onClick={handleUpdateParent} className="cursor-pointer" />
+                ? <FaSave  onClick={() => handleUpdateParent(index)} className="cursor-pointer" />
                 : <FaEdit className="cursor-pointer" onClick={() =>
                   setEditParent((prev) => ({
                     ...prev,
