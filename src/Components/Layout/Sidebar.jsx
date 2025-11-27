@@ -284,7 +284,6 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { title: "Weekly Classes", link: "/reports/weekly-classes" },
       ],
     },
-
     {
       title: 'Key Information',
       icon: '/demo/synco/SidebarLogos/Management.png',

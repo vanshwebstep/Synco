@@ -1,0 +1,328 @@
+import React from "react";
+
+export default function BlockRenderer({ block, blocks, setBlocks }) {
+    const update = (key, value) => {
+        const updated = blocks.map((b) =>
+            b.id === block.id ? { ...b, [key]: value } : b
+        );
+        setBlocks(updated);
+    };
+    const updateBlock = (newData) => {
+        const updated = blocks.map((b) =>
+            b.id === block.id ? { ...b, ...newData } : b
+        );
+        setBlocks(updated);
+    };
+
+    const addChild = (colIndex, type) => {
+        const newChild = {
+            id: crypto.randomUUID(),
+            type,
+            content: type === "text" ? "Write here..." : "",
+            url: "",
+            placeholder: type === "input" ? "Enter value" : "",
+        };
+
+        const newColumns = [...block.columns];
+        newColumns[colIndex] = [...newColumns[colIndex], newChild];
+
+        updateBlock({ columns: newColumns });
+    };
+
+    const removeChild = (colIndex, childId) => {
+        const newColumns = [...block.columns];
+        newColumns[colIndex] = newColumns[colIndex].filter(
+            (c) => c.id !== childId
+        );
+        updateBlock({ columns: newColumns });
+    };
+
+    const updateChild = (colIndex, childId, key, value) => {
+        const newColumns = [...block.columns];
+
+        newColumns[colIndex] = newColumns[colIndex].map((c) =>
+            c.id === childId ? { ...c, [key]: value } : c
+        );
+
+        updateBlock({ columns: newColumns });
+    };
+
+   if (block.type === "text") {
+  const updateStyle = (key, value) => {
+    const updated = blocks.map((b) =>
+      b.id === block.id
+        ? { ...b, style: { ...b.style, [key]: value } }
+        : b
+    );
+    setBlocks(updated);
+  };
+
+  return (
+    <div className="space-y-3">
+
+      {/* Editable Text */}
+      <textarea
+        value={block.content}
+        onChange={(e) =>
+          setBlocks(
+            blocks.map((b) =>
+              b.id === block.id
+                ? { ...b, content: e.target.value }
+                : b
+            )
+          )
+        }
+        className="w-full border p-2 rounded"
+        style={{
+          color: block.style.textColor,
+          fontSize: block.style.fontSize,
+        }}
+      />
+
+      {/* Controls */}
+      <div className="flex justify-between gap-3">
+        
+        {/* Text Color */}
+        <div className="">
+          <label className="text-sm">Text Color</label>
+          <input
+            type="color"
+            className="w-10 rounded-full h-10 cursor-pointer"
+            value={block.style.textColor}
+            onChange={(e) => updateStyle("textColor", e.target.value)}
+          />
+        </div>
+
+        {/* Font Size */}
+        <div className="col-span-2">
+          <label className="text-sm">Font Size</label>
+          <input
+            type="range"
+            min="10"
+            max="40"
+            value={block.style.fontSize}
+            onChange={(e) =>
+              updateStyle("fontSize", parseInt(e.target.value))
+            }
+            className="w-full"
+          />
+          <p className="text-xs text-gray-500">
+            {block.style.fontSize}px
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+    // INPUT
+    if (block.type === "input")
+        return (
+            <input
+                className="w-full border p-3 rounded"
+                placeholder={block.placeholder}
+            />
+        );
+
+    // IMAGE
+    if (block.type === "image")
+        return (
+            <div>
+                {block.url && (
+                    <img
+                        src={block.url}
+                        className="w-full h-48 object-cover rounded mb-3"
+                    />
+                )}
+                <input
+                    type="file"
+                    onChange={(e) =>
+                        update("url", URL.createObjectURL(e.target.files[0]))
+                    }
+                />
+            </div>
+        );
+
+    // BUTTON
+   if (block.type === "btn") {
+  const updateStyle = (key, value) => {
+    const updated = blocks.map((b) =>
+      b.id === block.id
+        ? { ...b, style: { ...b.style, [key]: value } }
+        : b
+    );
+    setBlocks(updated);
+  };
+
+  return (
+    <div className="space-y-3">
+
+      {/* Editable Button */}
+      <button
+        className="px-4 py-2 rounded-lg"
+        style={{
+          backgroundColor: block.style.backgroundColor,
+          color: block.style.textColor,
+          fontSize: block.style.fontSize,
+        }}
+      >
+        {block.content}
+      </button>
+
+      {/* Customization Panel */}
+      <div className="grid grid-cols-2 gap-3">
+        
+        {/* Button Text */}
+        <div className="col-span-2">
+          <label className="text-sm">Button Text</label>
+          <input
+            className="w-full border px-2 py-1 rounded"
+            value={block.content}
+            onChange={(e) =>
+              setBlocks(
+                blocks.map((b) =>
+                  b.id === block.id
+                    ? { ...b, content: e.target.value }
+                    : b
+                )
+              )
+            }
+          />
+        </div>
+
+        {/* Background Color */}
+        <div>
+          <label className="text-sm">BG Color</label>
+          <input
+            type="color"
+            className="w-full h-10 cursor-pointer"
+            value={block.style.backgroundColor}
+            onChange={(e) => updateStyle("backgroundColor", e.target.value)}
+          />
+        </div>
+
+        {/* Text Color */}
+        <div>
+          <label className="text-sm">Text Color</label>
+          <input
+            type="color"
+            className="w-full h-10 cursor-pointer"
+            value={block.style.textColor}
+            onChange={(e) => updateStyle("textColor", e.target.value)}
+          />
+        </div>
+
+        {/* Font Size */}
+        <div className="col-span-2">
+          <label className="text-sm">Font Size</label>
+          <input
+            type="range"
+            min="10"
+            max="40"
+            value={block.style.fontSize}
+            onChange={(e) => updateStyle("fontSize", parseInt(e.target.value))}
+            className="w-full"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            {block.style.fontSize}px
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+    // SECTION GRID
+    if (block.type === "sectionGrid")
+        return (
+            <div className={`grid gap-4 grid-cols-${block.columns.length}`}>
+                {block.columns.map((col, i) => (
+                    <div key={i} className="border rounded-lg p-3 bg-gray-50">
+
+                        {/* Add buttons */}
+                        <div className="flex gap-2 mb-3">
+                            <button
+                                className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded"
+                                onClick={() => addChild(i, "text")}
+                            >
+                                + Text
+                            </button>
+
+                            <button
+                                className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded"
+                                onClick={() => addChild(i, "image")}
+                            >
+                                + Image
+                            </button>
+
+                            <button
+                                className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded"
+                                onClick={() => addChild(i, "input")}
+                            >
+                                + Input
+                            </button>
+
+                            <button
+                                className="px-2 py-1 text-xs bg-gray-800 text-white rounded"
+                                onClick={() => addChild(i, "btn")}
+                            >
+                                + Button
+                            </button>
+                        </div>
+
+                        {/* Render inside blocks */}
+                        {col.map((child) => (
+                            <div key={child.id} className="mb-3 p-2 bg-white border rounded relative">
+
+                                {/* Delete child button */}
+                                <button
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs"
+                                    onClick={() => removeChild(i, child.id)}
+                                >
+                                    ✕
+                                </button>
+
+                                {child.type === "text" && (
+                                    <textarea
+                                        className="border p-2 rounded w-full"
+                                        value={child.content}
+                                        onChange={(e) => updateChild(i, child.id, "content", e.target.value)}
+                                    />
+                                )}
+
+                                {child.type === "image" && (
+                                    <div>
+                                        {child.url && (
+                                            <img
+                                                src={child.url}
+                                                className="w-full h-40 mb-2 rounded object-cover"
+                                            />
+                                        )}
+                                        <input
+                                            type="file"
+                                            onChange={(e) =>
+                                                updateChild(i, child.id, "url", URL.createObjectURL(e.target.files[0]))
+                                            }
+                                        />
+                                    </div>
+                                )}
+
+                                {child.type === "input" && (
+                                    <input
+                                        className="border p-2 rounded w-full"
+                                        placeholder={child.placeholder}
+                                    />
+                                )}
+
+                                {child.type === "btn" && (
+                                    <button className="bg-black text-white px-3 py-1 rounded">
+                                        {child.content}
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        );
+}
