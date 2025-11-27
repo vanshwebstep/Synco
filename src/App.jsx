@@ -148,7 +148,8 @@ import FranchiseCandidateDetails from './Components/Pages/AdminPages/Recruitment
 import TodoList from './Components/Pages/AdminPages/Administration/todo/ToDoList.jsx';
 import Createtemplate from './Components/Pages/AdminPages/Templates/createTemplate.jsx';
 import TemplateBuilder from './Components/Pages/AdminPages/Templates/TemplateBuilder.jsx';
-
+import CommunicationsList from './Components/Pages/AdminPages/Templates/ListofTemplates/list.jsx';
+import SettingList from './Components/Pages/AdminPages/Templates/Settings/SettingList.jsx';
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
 // Role-based route component
@@ -706,6 +707,15 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
+      <Route path="/holiday-camp/find-a-camp/book" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <BookACamp />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
       <Route path="/holiday-camp/waiting-list" element={
         <ProtectedRoute>
           <AdminLayout>
@@ -913,6 +923,24 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <TemplateBuilder />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/templates/list" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <CommunicationsList />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/templates/settingList" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <SettingList />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

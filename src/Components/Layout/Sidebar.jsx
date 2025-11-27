@@ -319,7 +319,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       subItems: [
         { title: 'Admin Panel', link: '/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] },
         { title: 'To Do List', link: 'administration/to-do-list', needPermissions: [{ module: 'member', action: 'view-listing' }] },
-              { title: 'Folders', link: 'administration/file-manager', needPermissions: [{ module: 'member', action: 'view-listing' }] }
+        { title: 'Folders', link: 'administration/file-manager', needPermissions: [{ module: 'member', action: 'view-listing' }] }
 
       ]
     },
@@ -331,8 +331,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       needPermissions: [{ module: 'member', action: 'view-listing' }],
       subItems: [
         { title: 'Create a Template', link: '/templates/create' },
-        // { title: 'List of Teplates', link: 'administration/to-do-list' }
-        // { title: 'OutBound cons', link: 'administration/to-do-list' }
+        { title: 'List of Teplates', link: '/templates/list' },
+        { title: 'OutBound cons', link: '/templates/settingList' }
       ]
     },
     {
@@ -389,23 +389,23 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           subItems: [
             {
               noPaddingx: true,
-              title: "Venues",
-              link: '/configuration/holiday-camp/venues',
-            },
-            {
-              noPaddingx: true,
-              title: "Term Dates & Mapping",
-              link: '/configuration/holiday-camp/terms/list',
-            },
-            {
-              noPaddingx: true,
               title: "Session Plan Library",
               link: '/configuration/holiday-camp/session-plan/list',
             },
             {
               noPaddingx: true,
-              title: "Subscription Plan Manager",
+              title: "Term Dates & Session Plan Mapping",
+              link: '/configuration/holiday-camp/terms/list',
+            },
+            {
+              noPaddingx: true,
+              title: "Payment Plan Manager",
               link: "/configuration/holiday-camp/subscription-plan-group",
+            },
+            {
+              noPaddingx: true,
+              title: "Venues",
+              link: '/configuration/holiday-camp/venues',
             },
             {
               noPaddingx: true,

@@ -57,7 +57,7 @@ function exportDataToExcel(data) {
 }
 const Filters = () => {
 
-    const { fetchData, activeTabm, setActiveTab, data, selectedUserIds,sendleadsMail } = useLeads()
+    const { fetchData, activeTabm, setActiveTab, data, selectedUserIds, sendleadsMail } = useLeads()
     const [selectedVenue, setSelectedVenue] = useState(null);
     const today = new Date();
     const [noLoaderShow, setNoLoaderShow] = useState(false);
@@ -74,18 +74,34 @@ const Filters = () => {
         facebook: false,
         "referall": false,
     });
-    const myVenues = data.map(lead => ({
-        id: lead.id,
-        venuesLabel: lead.bookingData
-            .map(booking => booking.venue?.name)
-            .filter(Boolean)
-            .join(", "),
-    }));
-    const options = myVenues.map((venue) => ({
-        value: venue.venuesLabel,
-        label: venue.venuesLabel,
-        id: venue.id,
-    }));
+    const myVenues = data.map((lead) => {
+        // If no bookingData → return blank venue label
+        if (!Array.isArray(lead.bookingData) || lead.bookingData.length === 0) {
+            return {
+                id: lead.id,
+                venuesLabel: "",
+            };
+        }
+
+        // Extract venue names safely
+        const venueNames = lead.bookingData
+            .map(b => b?.venue?.name)
+            .filter(Boolean);
+
+        return {
+            id: lead.id,
+            venuesLabel: venueNames.join(", "),
+        };
+    });
+
+    const options = myVenues
+        .filter(v => v.venuesLabel !== "") // remove empty ones
+        .map(v => ({
+            value: v.venuesLabel,
+            label: v.venuesLabel,
+            id: v.id,
+        }));
+
     console.log(myVenues);
     console.log('venueNamesPerLead', myVenues);
     console.log('venueNaselectedUserIdsmesPerLessdad', selectedUserIds);
@@ -244,22 +260,22 @@ const Filters = () => {
         setFromDate('');
         setToDate('');
     };
-const handleSendEmail = async () => {
-  console.log("selectedUserIds:", selectedUserIds);
+    const handleSendEmail = async () => {
+        console.log("selectedUserIds:", selectedUserIds);
 
-  if (!selectedUserIds || selectedUserIds.length === 0) {
-    await Swal.fire({
-      title: "No Users Selected",
-      text: "Please select at least one user before sending email.",
-      icon: "warning",
-      confirmButtonText: "OK",
-    });
-    return;
-  }
+        if (!selectedUserIds || selectedUserIds.length === 0) {
+            await Swal.fire({
+                title: "No Users Selected",
+                text: "Please select at least one user before sending email.",
+                icon: "warning",
+                confirmButtonText: "OK",
+            });
+            return;
+        }
 
-  // If selectedUserIds exists → call API
-  await sendleadsMail(selectedUserIds);
-};
+        // If selectedUserIds exists → call API
+        await sendleadsMail(selectedUserIds);
+    };
 
     return (
         <div className="md:w-[27%]  fullwidth20 flex-shrink-0 gap-5 md:ps-3">

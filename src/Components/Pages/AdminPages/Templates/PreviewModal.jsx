@@ -1,19 +1,10 @@
 export default function PreviewModal({ blocks, onClose, subject }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center p-8">
-      <div className="bg-white w-full max-w-4xl p-6 rounded-lg shadow-xl overflow-auto max-h-[90vh]">
+    <div className="pt-10">
+      <div className="bg-white w-full max-w-full overflow-auto ">
 
         {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Preview</h2>
-          <button
-            className="px-3 py-1 bg-red-500 text-white rounded"
-            onClick={onClose}
-          >
-            Close
-          </button>
-        </div>
-
+      
         {/* ✅ Subject (render only once) */}
         {subject && (
           <h1 className="text-2xl font-semibold mb-6">{subject}</h1>
@@ -47,7 +38,7 @@ export default function PreviewModal({ blocks, onClose, subject }) {
             {block.type === "image" && (
               <img
                 src={block.url}
-                className="w-full rounded-lg object-cover"
+                className="w-full max-h-100 rounded-lg object-cover"
               />
             )}
 

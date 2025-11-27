@@ -8,7 +8,8 @@ const TermCard = ({ item, sessionData }) => {
   const navigate = useNavigate();
 
   const [showSessions, setShowSessions] = useState(false);
-  const {  deleteTermGroup } = useHolidayTerm();
+  const { deleteTermGroup } = useHolidayTerm();
+
   const handleDelete = (id) => {
     Swal.fire({
       title: 'Are you sure?',
@@ -32,6 +33,7 @@ const TermCard = ({ item, sessionData }) => {
   const handleEdit = (id) => {
     navigate(`/configuration/holiday-camp/terms/create?id=${id}`)
   };
+  console.log('item, sessionData',item, sessionData)
 
   const { checkPermission } = usePermission();
 
@@ -47,43 +49,61 @@ const TermCard = ({ item, sessionData }) => {
       <div className="flex flex-col md:flex-row justify-between p-4 gap-4 text-sm">
         {/* Left block */}
         <div className="flex-shrink-0 w-full md:w-1/12">
-          <p className="font-semibold line-clamp-2">{item.name}</p>
-          <p className="text-xs text-[#717073]">{item.Date}</p>
+          <h5 className='font-bold text-[18px]'>Camp Name</h5>
+          <p className="font-semibold line-clamp-2 text-[16px]">{item.name}</p>
         </div>
 
         {/* Term summary & sessions */}
-        <div className="grid md:grid-cols-3 gap-4 md:gap-8 md:w-10/12 overflow-x-auto scrollbar-hide">
-          {sessionData.map(({ id, term, icon, date, sessions }) => (
-            <div key={term} className="flex-shrink-0 w-full  flex flex-col gap-2">
-              <div className="flex items-center gap-3">
-                <img src={icon} alt={term} className="w-6 h-6 mt-1 flex-shrink-0" />
-                <div>
-                  <p className="text-[#717073]">{term}</p>
-                  <p className="whitespace-pre-line text-sm text-gray-600">{date}</p>
+        <div className='grid md:w-7/12 md:grid-cols-3'>
+
+          <div className="flex items-center gap-3">
+            <img src='/demo/synco/icons/spring.png' alt='' className="w-8 mt-1 flex-shrink-0" />
+            <div>
+              <p className="text-[#717073] font-semibold text-[16px] mb-1">Start Date</p>
+              <p className="whitespace-pre-line text-[16px] text-gray-600">{sessionData[0]?.startDate}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <img src='/demo/synco/icons/autumn.png' alt='' className="w-8 mt-1 flex-shrink-0" />
+            <div>
+              <p className="text-[#717073] font-semibold text-[16px] mb-1">End Date</p>
+              <p className="whitespace-pre-line text-[16px] text-gray-600">{sessionData[0]?.endDate}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <img src='/demo/synco/icons/summer.png' alt='' className="w-8 mt-1 flex-shrink-0" />
+            <div>
+              <p className="text-[#717073] font-semibold text-[16px] mb-1">No. of Days</p>
+              <p className="whitespace-pre-line text-[16px] text-gray-600">{sessionData[0]?.totalDays}</p>
+            </div>
+          </div>
+          <div className=" mt-3 col-span-2 overflow-x-auto scrollbar-hide">
+            {sessionData.map(({ id, term, icon, date, sessions }) => (
+              <div key={term} className="flex-shrink-0 w-full  flex flex-col gap-2">
+
+
+                {/* Sessions inside each column */}
+                <div className={`transition-all duration-500 overflow-hidden ${showSessions ? 'max-h-[1000px]' : 'max-h-0'}`}>
+                  <ul className="space-y-1 text-xs mt-1">
+                    {sessions.map((session, i) => (
+                      <li key={i}>
+                        <div
+                          className={`grid grid-cols-2 items-start ${i >= 6 ? 'font-semibold' : ''
+                            }`}
+                        >
+                          <span className="font-semibold text-[16px]">
+                            {`Session ${i + 1}: ${session.groupName || 'No Session Found'}`}
+                          </span>
+                          <span className="text-[#717073] text-left text-[16px]">{session.date}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+
                 </div>
               </div>
-
-              {/* Sessions inside each column */}
-              <div className={`transition-all duration-500 overflow-hidden ${showSessions ? 'max-h-[1000px]' : 'max-h-0'}`}>
-                <ul className="space-y-1 text-xs mt-1">
-                  {sessions.map((session, i) => (
-                    <li key={i}>
-                      <div
-                        className={`grid grid-cols-[1fr_120px] items-start ${i >= 6 ? 'font-semibold' : ''
-                          }`}
-                      >
-                        <span className="font-semibold truncate">
-                          {`Session ${i + 1}: ${session.groupName || 'No Session Found'}`}
-                        </span>
-                        <span className="text-[#717073] text-left">{session.date}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Action buttons */}

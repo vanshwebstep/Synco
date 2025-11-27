@@ -51,9 +51,10 @@ const HolidayTermList = () => {
     const grouped = termGroup.map((group) => {
 
       // FIX: match by holidayTermGroupId
-      const terms = termData.filter((t) => t.termGroupId === group.id);
+      const terms = termData.filter((t) => t.holidayCampId === group.id);
 
       if (!terms.length) return null;
+      console.log('termData',termData)
 
       const sessionData = terms.map((term) => {
 
@@ -86,6 +87,9 @@ const HolidayTermList = () => {
 
         return {
           term: term.termName,
+          endDate: term.endDate,
+          startDate: term.startDate,
+          totalDays: term.totalDays,
           icon: `/demo/synco/icons/${season}.png`,
           date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
           exclusion,
@@ -137,7 +141,7 @@ const HolidayTermList = () => {
     return (
       <>  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
         <h2 className="text-[22px] md:text-[28px] font-semibold">
-          Term Dates & Session Plan Mapping
+          Holiday Camp Dates & Session Plan Mapping
         </h2>
 
 
@@ -147,7 +151,7 @@ const HolidayTermList = () => {
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
           >
             <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-            Add New Term Group
+           Add Holiday Camp Dates
           </button>
         }
       </div>
@@ -162,7 +166,7 @@ const HolidayTermList = () => {
     return (
       <>  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
         <h2 className="text-[22px] md:text-[28px] font-semibold">
-          Term Dates & Session Plan Mapping
+          Holiday Camp Dates & Session Plan Mapping
         </h2>
 
 
@@ -172,7 +176,7 @@ const HolidayTermList = () => {
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
           >
             <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-            Add New Term Group
+           Add Holiday Camp Dates
           </button>
         }
       </div>
@@ -189,7 +193,7 @@ const HolidayTermList = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
         <h2 className="text-[22px] md:text-[28px] font-semibold">
-          Term Dates & Session Plan Mapping
+          Holiday Camp Dates & Session Plan Mapping
         </h2>
 
 
@@ -199,7 +203,7 @@ const HolidayTermList = () => {
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
           >
             <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-            Add New Term Group
+           Add Holiday Camp Dates
           </button>
         }
       </div>

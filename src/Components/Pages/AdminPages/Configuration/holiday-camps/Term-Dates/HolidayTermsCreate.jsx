@@ -18,21 +18,12 @@ const HolidayTermsCreate = () => {
     const mapSectionRef = useRef(null);
     const id = searchParams.get("id");
     const [selectedDay, setSelectedDay] = useState(null);
-    const [selectedDates, setSelectedDates] = useState([]);
-    const options = [
-        { value: "monday", label: "Monday" },
-        { value: "tuesday", label: "Tuesday" },
-        { value: "wednesday", label: "Wednesday" },
-        { value: "thursday", label: "Thursday" },
-        { value: "friday", label: "Friday" },
-        { value: "saturday", label: "Saturday" },
-        { value: "sunday", label: "Sunday" },
-    ];
-    const termOptions = [
-        { value: "Autumn", label: "Autumn" },
-        { value: "Spring", label: "Spring" },
-        { value: "Summer", label: "Summer" },
-    ];
+    const [holidayTerms, setHolidayTerms] = useState({
+        startDate: null,
+        endDate: null,
+        numberOfDays: 0,
+    });
+
 
     const [terms, setTerms] = useState(initialTerms);
     const [activeSessionValue, setActiveSessionValue] = useState('');
@@ -43,12 +34,11 @@ const HolidayTermsCreate = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [sessionsMap, setSessionsMap] = useState([]);
     const [savedTermIds, setSavedTermIds] = useState(new Set());
-    const activeTerm = terms.find(t => t.isOpen);
-    const activeSessionCount = parseInt(activeSessionValue || 0, 10);
     const [isMapping, setIsMapping] = useState(false);
     const navigate = useNavigate();
-   
+
     const { createTermGroup, updateTermGroup, myGroupData, setMyGroupData, setSelectedTermGroup, selectedTermGroup, fetchTerm, termData, fetchTermGroupById, loading } = useHolidayTerm();
+
 
     useEffect(() => {
         if (id) {
@@ -65,22 +55,87 @@ const HolidayTermsCreate = () => {
             setSelectedTermGroup(null);
         }
     }, [id, fetchTermGroupById]); // include fetchTermGroupById if it's stable (e.g., useCallback)
+    function formatDateLocal(date) {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, "0");
+        const day = date.getDate().toString().padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+    const handleMapClick = () => {
+        if (!holidayTerms.startDate || !holidayTerms.endDate) {
+            Swal.fire({
+                icon: "warning",
+                title: "Please select dates first",
+                text: "Start Date and End Date are required",
+                confirmButtonColor: "#237FEA",
+            });
+            return;
+        }
 
+        setIsMapping(true);
+    };
 
+    function handleDateChange(field, date) {
+        if (!date) return;
+
+        setHolidayTerms((prev) => {
+            const newTerm = { ...prev, [field]: date };
+
+            if (newTerm.startDate && newTerm.endDate) {
+                const start = new Date(newTerm.startDate);
+                start.setHours(0, 0, 0, 0);
+
+                const end = new Date(newTerm.endDate);
+                end.setHours(0, 0, 0, 0);
+
+                if (end < start) {
+                    return newTerm;
+                }
+
+                const diffTime = end.getTime() - start.getTime();
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                const sessions = [];
+                for (let i = 0; i < diffDays; i++) {
+                    const d = new Date(start);
+                    d.setDate(start.getDate() + i);
+                    sessions.push({
+                        sessionDate: formatDateLocal(d),
+                        sessionPlanId: null,
+                    });
+                }
+
+                setSessionMappings(sessions);
+
+                return {
+                    ...newTerm,
+                    numberOfDays: diffDays,
+                };
+            }
+
+            return newTerm;
+        });
+    }
 
     // Second: Wait for isEditMode + termData + selectedTermGroup
     useEffect(() => {
-        console.group('termData1', termData);
+
 
         if (isEditMode && termData.length && selectedTermGroup?.id) {
-          
+
             setMyGroupData(null);
             setGroupName(selectedTermGroup.name);
             setIsGroupSaved(true);
 
             const matchedTerms = termData.filter(
-                (term) => term.TermGroupId === selectedTermGroup.id
+                (term) => term.holidayCampId === selectedTermGroup.id
             );
+
+            setHolidayTerms({
+                startDate: matchedTerms[0].startDate,
+                endDate: matchedTerms[0].endDate,
+                numberOfDays: matchedTerms[0].totalDays,
+            })
 
             if (matchedTerms?.length) {
                 const mappedTerms = matchedTerms.map((term) => {
@@ -89,20 +144,15 @@ const HolidayTermsCreate = () => {
 
                     return {
                         id: term.id,
-                        day: term.day,
-                        name: term.termName,
                         startDate: term.startDate,
                         endDate: term.endDate,
-                        exclusions: Array.isArray(term?.exclusionDates)
-                            ? term.exclusionDates
-                            : JSON.parse(term?.exclusionDates || '[]'),
                         sessions: term.sessionsMap?.length || 0,
                         isOpen: false,
                         sessionsMap: term.sessionsMap || [],
                     };
                 });
 
-                setTerms(mappedTerms);
+
 
                 const extractedData = mappedTerms.flatMap((term) =>
                     term.sessionsMap.map((session) => ({
@@ -169,35 +219,13 @@ const HolidayTermsCreate = () => {
         }
     };
 
-    const handleMapSession = (termId) => {
-        if (!isGroupSaved) {
-            alert('Please save the group name first');
-            return;
-        }
 
-        if (!activeTerm) {
-            alert('Please select a term to map sessions');
-            return;
-        }
-
-        // Only scroll when opening
-        if (!isMapping) {
-            setIsMapping(true);
-
-            setTimeout(() => {
-                mapSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 100); // small delay to ensure the section is rendered
-        } else {
-            // If it's already open, just close
-            setIsMapping(false);
-        }
-    };
 
 
     useEffect(() => {
         const openTerm = terms.find(t => t.isOpen);
         if (openTerm) {
-           
+
             setActiveSessionValue(openTerm.sessions || '');
             // Load either saved mappings or unsaved mappings
             setSessionMappings(openTerm.sessionsMap.length > 0 ?
@@ -210,8 +238,6 @@ const HolidayTermsCreate = () => {
         }
     }, [terms]);
 
-    // IN PROGRESS
-console.log('terms',terms)
 
     // Term management functions
     const toggleTerm = (id) => {
@@ -249,163 +275,11 @@ console.log('terms',terms)
         }
     };
 
-    const handleInputChange = (id, field, value) => {
-
-        setTerms((prev) =>
-            prev.map((term) =>
-                term.id === id ? { ...term, [field]: value } : term
-            )
-        );
-
-        if (field === 'sessions') {
-            const current = terms.find(t => t.id === id);
-            if (current?.isOpen) {
-                setActiveSessionValue(value);
-            }
-        }
-    };
-
-    const [termselect, setTerm] = useState({
-        startDate: "",
-        endDate: "",
-        sessionDates: [],
-        exclusions: [],
-    });
-    // e.g., {value: "sunday", label: "Sunday"}
-
-    const handleSessionDate = (termId, date) => {
-        if (!selectedDay) {
-            Swal.fire({ icon: "warning", title: "Oops...", text: "Select a day first!" });
-            return;
-        }
-
-        setTerms((prev) =>
-            prev.map((t) => {
-                if (t.id !== termId) return t;
-
-                // if user clears the picker
-                if (!date) {
-                    return {
-                        ...t,
-                        startDate: null,
-                        endDate: null,
-                        sessionsMap: [],
-                    };
-                }
-
-                const dateStr = date.toLocaleDateString("en-CA");
-
-                let updatedDates = t.sessionsMap.map((s) => s.sessionDate);
-
-                if (updatedDates.includes(dateStr)) {
-                    updatedDates = updatedDates.filter((d) => d !== dateStr);
-                } else {
-                    updatedDates.push(dateStr);
-                }
-
-                updatedDates.sort((a, b) => new Date(a) - new Date(b));
-
-                const updatedSessionsMap = updatedDates.map((d) => {
-                    const existing = t.sessionsMap.find((s) => s.sessionDate === d);
-                    return existing || { sessionDate: d, sessionPlanId: null, sessionPlan: null };
-                });
-
-                return {
-                    ...t,
-                    startDate: updatedDates.length ? updatedDates[0] : null,
-                    endDate: updatedDates.length ? updatedDates[updatedDates.length - 1] : null,
-                    sessionsMap: updatedSessionsMap,
-                };
-            })
-        );
-    };
 
 
 
-    // Handle exclusion dates
-    const handleExclusionChange = (termId, idx, dateStr) => {
-        setTerms((prev) =>
-            prev.map((t) => {
-                if (t.id === termId) {
-                    const updatedExclusions = [...t.exclusions];
-                    updatedExclusions[idx] = dateStr;
-                    return { ...t, exclusions: updatedExclusions };
-                }
-                return t;
-            })
-        );
-    };
-
-    const addExclusionDate = (termId) => {
-        setTerms((prev) =>
-            prev.map((t) =>
-                t.id === termId ? { ...t, exclusions: [...t.exclusions, ""] } : t
-            )
-        );
-    };
-
-    const removeExclusionDate = (termId, idx) => {
-        setTerms((prev) =>
-            prev.map((t) =>
-                t.id === termId
-                    ? { ...t, exclusions: t.exclusions.filter((_, i) => i !== idx) }
-                    : t
-            )
-        );
-    };
-
-    const filterSessionDay = (date, term) => {
-        if (!term.day) return false; // use the term's specific selected day
-
-        const dayMap = {
-            sunday: 0,
-            monday: 1,
-            tuesday: 2,
-            wednesday: 3,
-            thursday: 4,
-            friday: 5,
-            saturday: 6,
-        };
-
-        const dayOk = date.getDay() === dayMap[term.day.toLowerCase()];
-        const dateStr = date.toLocaleDateString("en-CA");
-
-        // disable if in exclusions
-        const notExcluded = !term.exclusions.includes(dateStr);
-
-        return dayOk && notExcluded;
-    };
 
 
-    const filterExclusionDay = (date, term) => {
-        if (!selectedDay) return false;
-
-        const dayMap = {
-            sunday: 0,
-            monday: 1,
-            tuesday: 2,
-            wednesday: 3,
-            thursday: 4,
-            friday: 5,
-            saturday: 6,
-        };
-
-        const dayOk = date.getDay() === dayMap[selectedDay];
-        const dateStr = date.toLocaleDateString("en-CA");
-
-        // must be within start/end
-        const withinTerm =
-            term.startDate && term.endDate
-                ? dateStr >= term.startDate && dateStr <= term.endDate
-                : false;
-
-        // cannot select session dates
-        const notSession = !term.sessionsMap.map((s) => s.sessionDate).includes(dateStr);
-
-        return dayOk && withinTerm && notSession;
-    };
-  
-    
     const deleteTerm = useCallback(async (id) => {
         if (!token) return;
 
@@ -534,7 +408,7 @@ console.log('terms',terms)
 
         // Save mappings exactly as added
         setSessionsMap(sessionMappings);
- 
+
 
         setIsMapping(false);
 
@@ -545,20 +419,31 @@ console.log('terms',terms)
             confirmButtonColor: '#3085d6',
         });
     };
+    const toDateOnly = (date) => {
+        if (!date) return null;
+        const d = new Date(date);
 
-console.log('myGroupData',myGroupData,selectedTermGroup)
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+
+        // PURE DATE, NO TIMEZONE CONVERSION POSSIBLE
+        return `${year}-${month}-${day}`;
+    };
+
+
     const handleSaveTerm = async (term) => {
-        
+
         if (!myGroupData?.id && !selectedTermGroup) {
             console.error("Missing termGroupId");
             return;
         }
 
-        console.log('term',term)
+        console.log('term', term)
 
 
         // Validate required fields
-        if (!term.name || !term.startDate || !term.endDate) {
+        if (!holidayTerms.startDate || !holidayTerms.endDate) {
             Swal.fire({
                 icon: 'error',
                 title: 'Missing Information',
@@ -581,16 +466,13 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
             });
             return;
         }
-       
+
         const payload = {
-            termName: term.name,
-            day: term.day,
-            termGroupId: myGroupData?.id || selectedTermGroup?.id,
+            holidayCampId: myGroupData?.id || selectedTermGroup?.id,
             sessionPlanGroupId: 1, // static value
-            startDate: term.startDate,
-            endDate: term.endDate,
-            totalNumberOfSessions: Number(term.sessions),
-            exclusionDates: term.exclusions.filter((ex) => ex.trim() !== ""),
+            startDate: toDateOnly(holidayTerms.startDate),
+            endDate: toDateOnly(holidayTerms.endDate),
+            totalDays: holidayTerms?.numberOfDays,
             sessionsMap: sessionMappings.map((session) => ({
                 sessionDate: session.sessionDate,
                 sessionPlanId: session.sessionPlanId,
@@ -601,8 +483,8 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
         // Determine if it's an existing term (edit)
         const isExistingTerm = termData.some((t) => t.id === term.id);
         const requestUrl = isExistingTerm
-            ? `${API_BASE_URL}/api/admin/holiday/term/update/${term.id}`
-            : `${API_BASE_URL}/api/admin/holiday/term/create`;
+            ? `${API_BASE_URL}/api/admin/holiday/campDate/update/${term.id}`
+            : `${API_BASE_URL}/api/admin/holiday/campDate/create`;
         const method = isExistingTerm ? "PUT" : "POST";
 
         setIsLoading(true);
@@ -649,6 +531,9 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
             });
 
             toggleTerm(term.id);
+
+            navigate('/configuration/holiday-camp/terms/list');
+
         } catch (error) {
             console.error("❌ Error saving term:", error);
             Swal.fire({
@@ -663,49 +548,6 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
     };
 
 
-    const addNewTerm = () => {
-        if (!isGroupSaved) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Save Group First',
-                text: 'Please save the group name before adding terms',
-                confirmButtonColor: '#d33'
-            });
-            return;
-        }
-
-        // Check for unsaved terms
-        const hasUnsavedTerms = terms.some(t => !savedTermIds.has(t.id));
-        if (hasUnsavedTerms) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Unsaved Term',
-                text: 'Please save the current term before adding a new one',
-                confirmButtonColor: '#d33'
-            });
-            return;
-        }
-
-
-        setSessionMappings([]);
-        const newTerm = {
-            id: Date.now(),
-            name: '',
-            startDate: '',
-            endDate: '',
-            exclusions: [''],
-            sessions: '',
-            isOpen: true,
-            sessionsMap: []
-        };
-        setTerms(prev => [
-            ...prev.map(term => ({ ...term, isOpen: false })),
-            newTerm
-        ]);
-        setIsMapping(false);
-
-
-    };
 
     const handleSaveAll = async () => {
         if (!terms.length) {
@@ -742,12 +584,6 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
             navigate('/configuration/holiday-camp/terms/list');
         });
     };
-   
-    const parseLocalDate = (dateStr) => {
-        if (!dateStr) return null;
-        const [year, month, day] = dateStr.split("-").map(Number);
-        return new Date(year, month - 1, day); // <-- local date, no timezone shift
-    };
 
     if (loading) return <Loader />;
     return (
@@ -768,17 +604,17 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
                         alt="Back"
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
-                    <span className="truncate">Add Term Dates</span>
+                    <span className="truncate">Add Holiday Camp Dates</span>
                 </h2>
             </div>
             <div className="flex flex-col gap-8 md:flex-row rounded-3xl w-full">
                 <div className="transition-all duration-300 md:w-1/2">
-                    <h3 className="font-semibold  mb-4 text-[24px]"> <b>Step 1: </b>Add term Dates </h3>
+                    <h3 className="font-semibold  mb-4 text-[24px]"> <b>Step 1: </b>Add camp Dates </h3>
                     <div className="rounded-2xl mb-5 bg-white md:p-6">
                         <div className="border border-gray-200 rounded-3xl px-4 py-3">
                             <div className="flex items-center justify-between">
                                 <label className="block text-base font-semibold text-gray-700 mb-2">
-                                    Name of Term Group
+                                    Name of Holiday Camp Dates
                                 </label>
                                 {isGroupSaved && (
                                     <img
@@ -794,7 +630,6 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
                                 placeholder="Enter Term Group Name"
                                 value={groupName}
                                 onChange={(e) => setGroupName(e.target.value)}
-                                onBlur={handleGroupNameSave}
                                 className="md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 disabled={isGroupSaved && !isEditMode}
                             />
@@ -815,319 +650,144 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
                         </div>
                     </div>
 
-                    {isGroupSaved && (
+                    {groupName && (
                         <div className="rounded-2xl mb-5 bg-white md:p-6">
-                            {terms.map((term) => (
-                                <div
-                                    key={term.id}
-                                    className="border mb-5 border-gray-200 rounded-3xl px-4 py-3"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <label className="rounded-3xl block text-base font-semibold text-gray-700 mb-2">
-                                            {term.name || 'Term Name'}
-                                        </label>
-                                        <div className="flex gap-2">
-                                            <img
-                                                src="/demo/synco/icons/edit.png"
-                                                className="w-[18px] cursor-pointer"
-                                                onClick={() => toggleTerm(term.id)}
-                                            />
-                                            <img
-                                                src="/demo/synco/icons/deleteIcon.png"
-                                                className="w-[18px] cursor-pointer"
-                                                onClick={() => deleteTerm(term.id)}
-                                            />
-                                            {term.isOpen && (
-                                                <img
-                                                    src="/demo/synco/icons/crossGray.png"
-                                                    className="w-[18px] cursor-pointer"
-                                                    onClick={() => toggleTerm(term.id)}
-                                                />
-                                            )}
-                                        </div>
+                            <div
+
+                                className="border mb-5 border-gray-200 rounded-3xl px-4 py-3"
+                            >
+                                <div className="flex items-center justify-end py-3">
+
+                                    <div className="flex gap-2">
+                                        <img
+                                            src="/demo/synco/icons/edit.png"
+                                            className="w-[18px] cursor-pointer"
+                                        // onClick={() => toggleTerm(term.id)}
+                                        />
+                                        <img
+                                            src="/demo/synco/icons/deleteIcon.png"
+                                            className="w-[18px] cursor-pointer"
+                                        // onClick={() => deleteTerm(term.id)}
+                                        />
+
+                                        <img
+                                            src="/demo/synco/icons/crossGray.png"
+                                            className="w-[18px] cursor-pointer"
+                                        // onClick={() => toggleTerm(term.id)}
+                                        />
+
                                     </div>
-
-                                    <AnimatePresence>
-                                        {term.isOpen && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: 'auto', opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                transition={{ duration: 0.3 }}
-                                                className="overflow-hidden"
-                                            >
-                                                <div className="md:flex items-center justify-between">
-                                                    <Select
-                                                        value={termOptions.find(option => option.value === term.name)}
-                                                        onChange={(selectedOption) =>
-                                                            handleInputChange(term.id, "name", selectedOption.value)
-                                                        }
-                                                        options={termOptions}
-                                                        placeholder="Select Term"
-                                                        className="md:w-1/2 mb-5 mx-2 mt-2 font-semibold text-base"
-                                                        classNamePrefix="react-select"
-                                                        styles={{
-                                                            control: (base, state) => ({
-                                                                ...base,
-                                                                borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
-                                                                boxShadow: "none",
-                                                                padding: "6px 8px",
-                                                                minHeight: "48px",
-                                                            }),
-                                                            placeholder: (base) => ({ ...base, fontWeight: 600 }),
-                                                            dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
-                                                            indicatorSeparator: () => ({ display: "none" }),
-                                                        }}
-                                                    />
-                                                    <div className="md:w-1/2 mb-5 mx-2 mt-2">
-                                                        <Select
-                                                            options={options}
-                                                            value={options.find(option => option.value === term.day) || null}
-                                                            onChange={async (selectedOption, { action }) => {
-                                                                if (action === 'clear') {
-                                                                    const newTerms = terms.map(t =>
-                                                                        t.id === term.id
-                                                                            ? { ...t, day: "", sessionsMap: [], exclusions: [], startDate: "", endDate: "" }
-                                                                            : t
-                                                                    );
-                                                                    setTerms(newTerms);
-                                                                    setSelectedDay("");
-                                                                    return;
-                                                                }
-
-                                                                const newDay = selectedOption?.value;
-                                                                if (!newDay) return;
-
-                                                                // If changing the day (not initial select)
-                                                                if (term.day && term.day !== newDay) {
-                                                                    const confirmChange = await Swal.fire({
-                                                                        title: "Change Day?",
-                                                                        text: "Changing the day will reset all selected dates and exclusions. Do you want to continue?",
-                                                                        icon: "warning",
-                                                                        showCancelButton: true,
-                                                                        confirmButtonColor: "#3085d6",
-                                                                        cancelButtonColor: "#d33",
-                                                                        confirmButtonText: "Yes, change it",
-                                                                        cancelButtonText: "No, keep current day",
-                                                                    });
-
-                                                                    if (!confirmChange.isConfirmed) return; // user cancelled
-                                                                }
-
-                                                                // ✅ Proceed with change (reset sessionMap, exclusions, startDate, endDate)
-                                                                const newTerms = terms.map(t =>
-                                                                    t.id === term.id
-                                                                        ? { ...t, day: newDay, sessionsMap: [], exclusions: [], startDate: "", endDate: "" }
-                                                                        : t
-                                                                );
-
-                                                                setSelectedDay(newDay);
-                                                                setTerms(newTerms);
-                                                            }}
-
-                                                            placeholder="Select a day"
-                                                            className="rounded-lg px-0 py-0"
-                                                            classNamePrefix="react-select"
-                                                            isClearable={true}
-                                                            styles={{
-                                                                control: (base, state) => ({
-                                                                    ...base,
-                                                                    borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
-                                                                    boxShadow: "none",
-                                                                    padding: "6px 8px",
-                                                                    minHeight: "48px",
-                                                                }),
-                                                                placeholder: (base) => ({ ...base, fontWeight: 600 }),
-                                                                dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
-                                                                indicatorSeparator: () => ({ display: "none" }),
-                                                            }}
-                                                        />
-
-
-                                                    </div>
-                                                </div>
-                                                <div className="md:flex gap-4 px-2 mb-5 justify-between">
-                                                    <div className="w-full">
-                                                        <label className="block text-base font-semibold text-gray-700 mb-2">
-                                                            Start Date
-                                                        </label>
-                                                        <DatePicker
-                                                            disabled={!term.day}
-                                                            placeholderText="Enter Start Date"
-                                                            selected={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
-                                                            onChange={(date) => handleSessionDate(term.id, date)}
-                                                            filterDate={(d) => filterSessionDay(d, term)}
-                                                            dayClassName={(date) => {
-                                                                const dateStr = date.toLocaleDateString("en-CA");
-                                                                if (term.sessionsMap.map((s) => s.sessionDate).includes(dateStr))
-                                                                    return "selected-date";
-                                                                if (term.exclusions.includes(dateStr)) return "exclusion-date";
-                                                                return undefined;
-                                                            }}
-                                                            shouldCloseOnSelect={false}
-                                                            dateFormat="EEEE, dd MMM"
-                                                            isClearable
-                                                            className={`w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg ${term.day ? "bg-white" : "bg-gray-200 cursor-not-allowed"
-                                                                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                                                            withPortal
-                                                            minDate={new Date()}
-                                                        />
-
-
-
-                                                        <ul>
-                                                            {selectedDates.map((d) => (
-                                                                <li key={d}>{d}</li>
-                                                            ))}
-                                                        </ul>
-
-
-
-
-                                                    </div>
-                                                    <div className="w-full">
-                                                        <label className="block text-base font-semibold text-gray-700 mb-2">
-                                                            End Date
-                                                        </label>
-                                                        <DatePicker
-                                                            readOnly
-                                                            placeholderText="End Date"
-                                                            selected={term.endDate ? new Date(term.endDate + "T00:00:00") : null}
-                                                            onChange={(date) => {
-                                                                const localDate = date ? date.toLocaleDateString("en-CA") : "";
-                                                                handleInputChange(term.id, "endDate", localDate);
-                                                            }}
-                                                            dateFormat="EEEE, dd MMM"
-                                                            minDate={term.startDate ? new Date(term.startDate + "T00:00:00") : null}
-                                                            className="w-full px-4 font-semibold text-base py-3 cursor-default border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-white"
-                                                            withPortal
-                                                        />
-
-
-
-                                                    </div>
-                                                </div>
-
-                                                <div className="md:flex gap-4 px-2 mb-5 justify-between">
-                                                    <div className="w-full">
-                                                        <label className="block text-base font-semibold text-gray-700 mb-2">
-                                                            Exclusion Date(s)
-                                                        </label>
-                                                        {term.exclusions.map((ex, idx) => (
-                                                            <div key={idx} className=" relative gap-2 mb-2 items-center">
-                                                                <DatePicker
-                                                                    placeholderText={`Exclusion Date ${idx + 1}`}
-                                                                    selected={ex ? new Date(ex + "T00:00:00") : null}
-                                                                    onChange={(date) =>
-                                                                        handleExclusionChange(
-                                                                            term.id,
-                                                                            idx,
-                                                                            date ? date.toLocaleDateString("en-CA") : ""
-                                                                        )
-                                                                    }
-                                                                    dateFormat="EEEE, dd MMM"
-                                                                    filterDate={(d) => filterExclusionDay(d, term)}
-                                                                    withPortal
-                                                                    className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                                    dayClassName={(date) => {
-                                                                        const dateStr = date.toLocaleDateString("en-CA");
-                                                                        if (term.exclusions.includes(dateStr)) return "exclusion-date";
-                                                                        if (term.sessionsMap.map((s) => s.sessionDate).includes(dateStr))
-                                                                            return "selected-date";
-                                                                        return undefined;
-                                                                    }}
-                                                                />
-                                                                {term.exclusions.length > 1 && (
-                                                                    <button
-                                                                        onClick={() => removeExclusionDate(term.id, idx)}
-                                                                        type="button"
-                                                                        className="text-red-500 absolute top-[10px] right-[15px] hover:text-red-700 font-bold text-xl"
-                                                                        title="Remove"
-                                                                    >
-                                                                        &times;
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        ))}
-
-
-                                                        <button
-                                                            className="text-sm text-blue-500 mt-1 font-semibold"
-                                                            onClick={() => addExclusionDate(term.id)}
-                                                        >
-                                                            + Add Exclusion Date
-                                                        </button>
-                                                    </div>
-
-                                                    <div className="w-full">
-                                                        <label className="block text-base font-semibold text-gray-700 mb-2">
-                                                            Total Number of Sessions
-                                                        </label>
-                                                        <input
-                                                            type="number"
-                                                            placeholder="Total Number of Sessions"
-                                                            value={term.sessionsMap.length}
-                                                            readOnly
-                                                            onChange={(e) =>
-                                                                handleInputChange(term.id, 'sessions', e.target.value)
-                                                            }
-                                                            className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                            min="1"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                {activeSessionValue && (
-                                                    <div className="text-right font-semibold text-blue-600 mb-4">
-                                                        Active Term Sessions: {activeSessionValue}
-                                                    </div>
-                                                )}
-
-                                                <div className="flex gap-4 justify-between">
-                                                    <div className="w-full md:block hidden" />
-                                                    <div className="w-full md:flex items-center gap-2 space-y-2 md:space-y-0">
-                                                        <button
-                                                            className={`flex whitespace-nowrap px-2 md:w-5/12 w-full items-center justify-center gap-1 border ${term.isSubmitted ? 'border-gray-300 text-gray-400 bg-gray-100 cursor-not-allowed' : 'border-blue-500 text-[#237FEA] hover:bg-blue-50'
-                                                                } px-6 py-2 rounded-lg text-[14px] font-semibold`}
-                                                            onClick={() => !term.isSubmitted && handleMapSession(term.id)}
-                                                            disabled={term.isSubmitted}
-                                                        >
-                                                            Map Session
-                                                        </button>
-
-                                                        <button
-                                                            className="bg-[#237FEA] whitespace-nowrap text-white text-[14px] md:w-7/12 w-full font-semibold px-6 py-3 rounded-lg hover:bg-blue-700"
-                                                            onClick={() => {
-                                                                const activeTerm = terms.find(t => t.isOpen);
-                                                                if (activeTerm) handleSaveTerm(activeTerm);
-                                                            }}
-                                                            disabled={isLoading}
-                                                        >
-                                                            {isLoading
-                                                                ? 'Saving...'
-                                                                : (() => {
-                                                                    const activeTerm = terms.find(t => t.isOpen);
-                                                                    return activeTerm && savedTermIds?.has(activeTerm.id)
-                                                                        ? 'Update Term'
-                                                                        : 'Save Term';
-                                                                })()}
-
-                                                        </button>
-
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
                                 </div>
-                            ))}
 
+                                <AnimatePresence>
+
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="overflow-hidden"
+                                    >
+
+                                        <div className="md:flex gap-4 px-2 mb-5 justify-between">
+                                            <div className="w-full">
+                                                <label className="block text-base font-semibold text-gray-700 mb-2">
+                                                    Start Date
+                                                </label>
+                                                <DatePicker
+                                                    selected={holidayTerms.startDate}
+                                                    onChange={(date) => handleDateChange('startDate', date)}
+                                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                    showYearDropdown
+                                                    scrollableYearDropdown
+                                                    yearDropdownItemNumber={100}
+                                                    dateFormat="dd/MM/yyyy"
+                                                    placeholderText="Select start date"
+                                                    withPortal
+                                                    minDate={new Date()}  // disable past dates before today
+                                                />
+                                            </div>
+
+                                            <div className="w-full">
+                                                <label className="block text-base font-semibold text-gray-700 mb-2">
+                                                    End Date
+                                                </label>
+                                                <DatePicker
+                                                    selected={holidayTerms.endDate}
+                                                    onChange={(date) => handleDateChange('endDate', date)}
+                                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                    showYearDropdown
+                                                    scrollableYearDropdown
+                                                    yearDropdownItemNumber={100}
+                                                    dateFormat="dd/MM/yyyy"
+                                                    placeholderText="Select end date"
+                                                    withPortal
+                                                    minDate={holidayTerms.startDate || new Date()}  // disable dates before start date or today
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="md:flex gap-4 px-2 mb-5 justify-between">
+
+
+                                            <div className="w-full">
+                                                <label className="block text-base font-semibold text-gray-700 mb-2">
+                                                    Total Number of Days
+                                                </label>
+                                                <input
+                                                    type="number"
+                                                    value={holidayTerms.numberOfDays}
+                                                    readOnly
+                                                    name="numberOfDays"
+                                                    placeholder="Total Number of Sessions"
+                                                    className="w-full px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    min="1"
+                                                />
+                                            </div>
+                                        </div>
+                                        {activeSessionValue && (
+                                            <div className="text-right font-semibold text-blue-600 mb-4">
+                                                Active Term Sessions: {activeSessionValue}
+                                            </div>
+                                        )}
+
+                                        <div className="flex gap-4 justify-between">
+                                            <div className="w-full md:block hidden" />
+                                            <div className="w-full md:flex items-center gap-2 space-y-2 md:space-y-0">
+                                                <button
+                                                    className={`flex whitespace-nowrap px-2 md:w-5/12 w-full items-center justify-center gap-1 
+        border border-blue-500 text-[#237FEA] hover:bg-blue-50
+        px-6 py-2 rounded-lg text-[14px] font-semibold`}
+                                                    onClick={handleMapClick}
+                                                >
+                                                    Map Session
+                                                </button>
+
+
+                                                <button
+                                                    className="bg-[#237FEA] whitespace-nowrap text-white text-[14px] md:w-7/12 w-full font-semibold px-6 py-3 rounded-lg hover:bg-blue-700"
+                                                    onClick={handleSaveTerm}
+                                                    disabled={isLoading}
+                                                >
+                                                    {isLoading
+                                                        ? 'Saving...'
+                                                        : (() => {
+                                                            const activeTerm = terms.find(t => t.isOpen);
+                                                            return activeTerm && savedTermIds?.has(activeTerm.id)
+                                                                ? 'Update '
+                                                                : 'Save ';
+                                                        })()}
+
+                                                </button>
+
+                                            </div>
+                                        </div>
+                                    </motion.div>
+
+                                </AnimatePresence>
+                            </div>
                             <div className="flex mb-5 flex-wrap flex-col-reverse gap-4 md:flex-row md:items-center md:justify-end md:gap-4">
-                                <button
-                                    onClick={addNewTerm}
-                                    className="flex items-center min-w-40 justify-center gap-1 border border-gray-400 text-gray-400 text-[14px] px-4 py-3 rounded-lg hover:bg-gray-100 w-full md:w-auto"
-                                >
-                                    + Add Term
-                                </button>
+
                                 <button
                                     className={`min-w-40 font-semibold px-6 py-3 rounded-lg text-[14px] w-full md:w-auto 
         ${!isGroupSaved ? 'bg-gray-400 cursor-not-allowed text-white' : 'bg-[#237FEA] hover:bg-blue-700 text-white'}`}
@@ -1143,7 +803,7 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
                 </div>
 
                 <AnimatePresence>
-                    {activeTerm && isMapping && (
+                    {sessionMappings && holidayTerms.startDate && holidayTerms.endDate && isMapping && (
                         <motion.div
                             key="session-step"
                             initial={{ opacity: 0, y: 20 }}
@@ -1154,8 +814,7 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
                             className="transition-all duration-300 md:w-1/2"
                         >
                             <h3 className="font-semibold text-[24px] mb-4">
-                                <b>Step 2:</b> Map Sessions Plans for{' '}
-                                <span className="text-blue-600">{activeTerm.name}</span>
+                                <b>Step 2:</b> Map Sessions Plans{' '}
                             </h3>
 
                             <motion.div
@@ -1168,13 +827,13 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
                                 <div className="border border-gray-200 rounded-3xl px-4 py-3">
                                     <div className="md:flex items-center justify-between mb-2">
                                         <label className="block text-[22px] font-semibold">
-                                            {activeTerm?.name}
+                                            {groupName || 'N/A'}
                                         </label>
                                     </div>
                                     <div className="flex justify-between gap-4 w-full text-[18px] mb-4 font-semibold">
                                         <label className=" md:w-1/2">Session Date</label> <label className=" md:w-1/2 md:pl-5">Session Plan</label>
                                     </div>
-                                    {Array.from({ length: activeTerm?.sessionsMap?.length || 0 }).map((_, index) => (
+                                    {sessionMappings.map((session, index) => (
                                         <div key={index} className="md:flex w-full items-start gap-4 justify-between mb-4">
                                             <div className="w-1/2">
                                                 <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-2xl px-4 py-3 mb-4 shadow-sm">
@@ -1183,61 +842,34 @@ console.log('myGroupData',myGroupData,selectedTermGroup)
                                                     </span>
                                                     <DatePicker
                                                         readOnly
-                                                        selected={
-                                                            sessionMappings[index]?.sessionDate
-                                                                ? new Date(sessionMappings[index].sessionDate + "T00:00:00")
-                                                                : null
-                                                        }
+                                                        selected={session.sessionDate ? new Date(session.sessionDate + "T00:00:00") : null}
                                                         onChange={(date) =>
                                                             handleMappingChange(
                                                                 index,
                                                                 "sessionDate",
-                                                                date ? date.toLocaleDateString("en-CA") : ""
+                                                                date ? date.toISOString().slice(0, 10) : ""
                                                             )
                                                         }
                                                         dateFormat="EEEE, dd MMM"
                                                         placeholderText="Select date"
                                                         withPortal
-                                                        minDate={
-                                                            activeTerm?.startDate
-                                                                ? new Date(activeTerm.startDate + "T00:00:00")
-                                                                : null
-                                                        }
-                                                        maxDate={
-                                                            activeTerm?.endDate
-                                                                ? new Date(activeTerm.endDate + "T00:00:00")
-                                                                : null
-                                                        }
-                                                        excludeDates={
-                                                            activeTerm?.exclusions?.length
-                                                                ? activeTerm.exclusions.map(
-                                                                    (ex) => new Date(ex + "T00:00:00")
-                                                                )
-                                                                : []
-                                                        }
+                                                        minDate={holidayTerms.startDate}
+                                                        maxDate={holidayTerms.endDate}
                                                         className="text-[#717073] text-[15px] font-semibold bg-transparent focus:outline-none"
                                                     />
                                                 </div>
                                             </div>
                                             <div className="w-1/2">
-                                                <motion.div
-                                                    key={`sessionPlanId-${index}`}
-                                                    initial={{ opacity: 0, x: 10 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    exit={{ opacity: 0, x: 10 }}
-                                                    transition={{ delay: index * 0.05 }}
-                                                >
-                                                    <SessionPlanSelect
-                                                        idx={index}
-                                                        value={sessionMappings[index]?.sessionPlanId}
-                                                        onChange={handleMappingChange}
-                                                        usedSessionPlans={sessionMappings.map(s => s.sessionPlanId)}
-                                                    />
-
-                                                </motion.div>
+                                                <SessionPlanSelect
+                                                    idx={index}
+                                                    value={session.sessionPlanId}
+                                                    onChange={handleMappingChange}
+                                                    usedSessionPlans={sessionMappings.map(s => s.sessionPlanId)}
+                                                />
                                             </div>
                                         </div>
                                     ))}
+
 
 
                                     <div className="flex gap-4 justify-between">

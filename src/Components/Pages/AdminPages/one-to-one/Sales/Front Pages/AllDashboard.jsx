@@ -66,6 +66,16 @@ const AllDashboard = () => {
         const dd = String(d.getDate()).padStart(2, "0");
         return `${yyyy}-${mm}-${dd}`; // returns "2025-08-24"
     }
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10; // you can change this
+
+    const indexOfLast = currentPage * itemsPerPage;
+    const indexOfFirst = indexOfLast - itemsPerPage;
+
+    const currentData = leadsData.slice(indexOfFirst, indexOfLast);
+    const totalPages = Math.ceil(leadsData.length / itemsPerPage);
+
     const fetchLeads = useCallback(
         async (
             studentName = "",
@@ -681,7 +691,7 @@ const AllDashboard = () => {
                     {/* Leads Table */}
                     <div className="mt-5 ">
 
-                        <div className="flex justify-end"> {leadsData.length == 0 && (
+                        <div className="flex justify-end"> {currentData.length == 0 && (
                             <button onClick={() => {
                                 fetchLeads();
                                 setFromDate('');
@@ -695,7 +705,7 @@ const AllDashboard = () => {
                         )}</div>
 
                         {
-                            leadsData.length > 0 ? (
+                            currentData.length > 0 ? (
                                 < div className="overflow-auto rounded-2xl bg-white shadow-sm">
                                     <table className="min-w-full text-sm">
                                         <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
@@ -712,7 +722,7 @@ const AllDashboard = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {leadsData.map((lead, i) => {
+                                            {currentData.map((lead, i) => {
                                                 const isChecked = selectedUserIds.includes(lead.id);
                                                 const hasId = !!lead.booking; // ✅ Check if id exists
                                                 console.log('lead', lead)
@@ -790,6 +800,51 @@ const AllDashboard = () => {
                             )
                         }
                     </div>
+
+                      {leadsData.length > 0 && (
+                            <div className="flex justify-end gap-3 items-center mt-4 px-2">
+
+                                {/* Prev Button */}
+                                <button
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage(currentPage - 1)}
+                                    className={`px-3 py-2 rounded-lg text-sm border ${currentPage === 1
+                                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                            : "bg-white hover:bg-gray-100"
+                                        }`}
+                                >
+                                    Previous
+                                </button>
+
+                                {/* Page Numbers */}
+                                <div className="flex gap-2">
+                                    {Array.from({ length: totalPages }, (_, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => setCurrentPage(i + 1)}
+                                            className={`px-3 py-2 rounded-lg text-sm border ${currentPage === i + 1
+                                                    ? "bg-blue-500 text-white border-blue-500"
+                                                    : "bg-white hover:bg-gray-100"
+                                                }`}
+                                        >
+                                            {i + 1}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Next Button */}
+                                <button
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage(currentPage + 1)}
+                                    className={`px-3 py-2 rounded-lg text-sm border ${currentPage === totalPages
+                                            ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                                            : "bg-white hover:bg-gray-100"
+                                        }`}
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
                 </div>
 
                 {/* Right Sidebar */}

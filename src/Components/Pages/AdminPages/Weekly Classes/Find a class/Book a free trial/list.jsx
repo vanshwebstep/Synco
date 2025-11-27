@@ -658,6 +658,19 @@ const List = () => {
             }));
         }
     }, [emergency.sameAsAbove, parents]);
+
+
+    const toDateOnly = (date) => {
+        if (!date) return null;
+        const d = new Date(date);
+
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+
+        // PURE DATE, NO TIMEZONE CONVERSION POSSIBLE
+        return `${year}-${month}-${day}`;
+    };
     const handleSubmit = async () => {
         if (!selectedDate) {
             Swal.fire({
@@ -675,10 +688,14 @@ const List = () => {
             classScheduleId: singleClassSchedulesOnly?.id,
             trialDate: selectedDate,
             totalStudents: students.length,
-            students,
+            students: students.map(s => ({
+                ...s,
+                dateOfBirth: toDateOnly(s.dateOfBirth),
+            })),
             parents,
             emergency,
         };
+
 
         try {
             if (from_lead) {

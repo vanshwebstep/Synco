@@ -279,8 +279,8 @@ const HolidaySubscriptionPlanManager = () => {
                             <div className="flex gap-4 items-center justify-center">
                               <button
                                 onClick={() => handleShow(user.id)}
-                                disabled={!user.paymentPlans?.length}
-                                className={`group ${!user.paymentPlans?.length
+                                disabled={!user.holidayPaymentPlans?.length}
+                                className={`group ${!user.holidayPaymentPlans?.length
                                   ? "opacity-50 cursor-not-allowed"
                                   : ""
                                   }`}

@@ -331,7 +331,7 @@ const StudentProfile = () => {
       if (!student.dateOfBirth) {
         return Swal.fire({
           icon: "warning",
-          title: `Missing Date of Birth in Student #${i + 1}`,
+          title: `Missing Date of Birth in Student ${i + 1}`,
           text: "Please select the date of birth.",
         });
       }
@@ -340,7 +340,7 @@ const StudentProfile = () => {
       if (!student.age || isNaN(student.age) || Number(student.age) <= 0) {
         return Swal.fire({
           icon: "warning",
-          title: `Invalid Age in Student #${i + 1}`,
+          title: `Invalid Age in Student ${i + 1}`,
           text: "Age must be a valid positive number.",
         });
       }
@@ -349,7 +349,7 @@ const StudentProfile = () => {
       if (!student.gender) {
         return Swal.fire({
           icon: "warning",
-          title: `Missing Gender in Student #${i + 1}`,
+          title: `Missing Gender in Student ${i + 1}`,
           text: "Please select a gender.",
         });
       }

@@ -27,7 +27,7 @@ import { useNotification } from "../../../contexts/NotificationContext";
 const List = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { createBookMembership, createBookMembershipByfreeTrial ,createBookMembershipByWaitingList} = useBookFreeTrial()
+    const { createBookMembership, createBookMembershipByfreeTrial, createBookMembershipByWaitingList } = useBookFreeTrial()
     const [expression, setExpression] = useState('');
     const [numberOfStudents, setNumberOfStudents] = useState('1');
     const { keyInfoData, fetchKeyInfo } = useMembers();
@@ -555,6 +555,20 @@ const List = () => {
             }));
         }
     }, [emergency.sameAsAbove, parents]);
+
+
+
+    const toDateOnly = (date) => {
+        if (!date) return null;
+        const d = new Date(date);
+
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+
+        // PURE DATE, NO TIMEZONE CONVERSION POSSIBLE
+        return `${year}-${month}-${day}`;
+    };
     const handleSubmit = async () => {
         if (!selectedDate) {
             Swal.fire({
@@ -595,19 +609,23 @@ const List = () => {
             startDate: selectedDate,
             totalStudents: students.length,
             keyInformation: selectedKeyInfo,
-            students,
+            students: students.map(s => ({
+                ...s,
+                dateOfBirth: toDateOnly(s.dateOfBirth),
+            })),
             parents,
             emergency,
             paymentPlanId: membershipPlan?.value ?? null, // only value
 
             ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
         };
-        console.log('TrialData',TrialData)
+        console.log('payload', payload)
+        return;
         try {
             if (comesFrom === "trials") {
                 await createBookMembershipByfreeTrial(payload, TrialData.id);
             }
-             if (comesFrom === "waitingList") {
+            if (comesFrom === "waitingList") {
                 await createBookMembershipByWaitingList(payload, TrialData.bookingId);
             }
             else if (leadId) {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   DragDropContext,
   Droppable,
@@ -8,10 +8,16 @@ import {
 import BlockRenderer from "./BlockRenderer";
 import PreviewModal from "./PreviewModal";
 
-export default function TemplateBuilder() {
-  const [blocks, setBlocks] = useState([]);
-  const [isPreview, setIsPreview] = useState(false);
-const [subject, setSubject] = useState("");
+export default function TemplateBuilder({
+  blocks,
+  setBlocks,
+  subject,
+  setSubject,
+  isPreview,
+  setIsPreview
+}) {
+
+ 
   const sidebarBlocks = [
     { id: "text", label: "Text field" },
     { id: "input", label: "Input" },
@@ -21,37 +27,37 @@ const [subject, setSubject] = useState("");
   ];
 
   const addBlock = async (type) => {
-const newBlock = {
-  id: crypto.randomUUID(),
-  type,
-  content:
-    type === "text"
-      ? "Edit your text..."
-      : type === "btn"
-      ? "Click me"
-      : "",
-  url: "",
-  placeholder: type === "input" ? "Enter value" : "",
-  style:
-    type === "btn"
-      ? {
-          backgroundColor: "#000000",
-          textColor: "#ffffff",
-          fontSize: 16,
-        }
-      : type === "text"
-      ? {
-          textColor: "#000000",
-          fontSize: 16,
-        }
-      : {},
-  columns:
-    type === "sectionGrid"
-      ? Array(2)
-          .fill(null)
-          .map(() => [])
-      : null,
-};
+    const newBlock = {
+      id: crypto.randomUUID(),
+      type,
+      content:
+        type === "text"
+          ? "Edit your text..."
+          : type === "btn"
+            ? "Click me"
+            : "",
+      url: "",
+      placeholder: type === "input" ? "Enter value" : "",
+      style:
+        type === "btn"
+          ? {
+            backgroundColor: "#000000",
+            textColor: "#ffffff",
+            fontSize: 16,
+          }
+          : type === "text"
+            ? {
+              textColor: "#000000",
+              fontSize: 16,
+            }
+            : {},
+      columns:
+        type === "sectionGrid"
+          ? Array(2)
+            .fill(null)
+            .map(() => [])
+          : null,
+    };
 
 
     setBlocks((prev) => [...prev, newBlock]);
@@ -83,24 +89,19 @@ const newBlock = {
       {/* Canvas */}
       <div className="flex-1 p-6 border-r">
         <div className="flex justify-between items-center mb-5">
-          
 
-          <button
-            className="px-4 py-2 bg-black text-white rounded-lg"
-            onClick={() => setIsPreview(true)}
-          >
-            Preview
-          </button>
+
+
         </div>
-<div className="mb-6">
-  <label className="font-medium text-gray-700">Subject line</label>
-  <input
-    className="w-full border px-4 py-2 rounded-lg mt-1"
-    value={subject}
-    onChange={(e) => setSubject(e.target.value)}
-    placeholder="Enter subject..."
-  />
-</div>
+        <div className="mb-6">
+          <label className="font-medium text-gray-700">Subject line</label>
+          <input
+            className="w-full border px-4 py-2 rounded-lg mt-1"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            placeholder="Enter subject..."
+          />
+        </div>
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="canvas">
             {(provided) => (
@@ -175,11 +176,7 @@ const newBlock = {
         </div>
       </div>
 
-      {/* Preview Modal */}
-      {isPreview && (
-        <PreviewModal blocks={blocks} subject={subject} onClose={() => setIsPreview(false)} />
-      )}
- 
+
     </div>
   );
 }

@@ -121,30 +121,17 @@ const ClassSheduleList = () => {
             return newIndex;
         });
     };
-    const uniqueDays = [...new Set(allDays.map(item => item))];
+    
 
-    const dayOrder = [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-    ];
-
-    const days = uniqueDays.sort(
-        (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)
-    );
+   
     // Reset for new form
     const handleAddNew = () => {
         setFormData({
             className: '',
             capacity: '',
-            day: days[0], // default selected
+           
             startTime: null,
             endTime: null,
-            allowFreeTrial: false
         })
         setIsEditing(false);
         setOpenForm(true);
@@ -155,15 +142,10 @@ const ClassSheduleList = () => {
     const [formData, setFormData] = useState({
         className: '',
         capacity: '',
-        day: days[0], // default selected
         startTime: null,
         endTime: null,
-        allowFreeTrial: false
     });
-
-    const [selectedUserIds, setSelectedUserIds] = useState([]);
-
-
+    console.log('venues', venues)
 
     const handleChange = (field, value) => {
         setFormData({ ...formData, [field]: value });
@@ -196,10 +178,7 @@ const ClassSheduleList = () => {
             return;
         }
 
-        if (!formData.day) {
-            Swal.fire("Validation Error", "Please select a day", "error");
-            return;
-        }
+        
 
         if (!formData.startTime || !formData.endTime) {
             Swal.fire("Validation Error", "Please select both start and end times", "error");
@@ -232,10 +211,8 @@ const ClassSheduleList = () => {
         setFormData({
             className: "",
             capacity: "",
-            day: "",
             startTime: "",
             endTime: "",
-            allowFreeTrial: false,
         });
 
         setOpenForm(false);
@@ -389,10 +366,7 @@ const ClassSheduleList = () => {
                                                     <p className="text-[#717073] font-semibold text-[16px]">Capacity</p>
                                                     <p className="font-semibold text-[#717073]  text-[16px]">{item.capacity}</p>
                                                 </div>
-                                                <div className='text-[#717073] font-semibold text-[16px]'>
-                                                    <p className="text-[#717073]">Day</p>
-                                                    <p className="font-semibold capitalize">{item.day}</p>
-                                                </div>
+                                               
                                                 <div className='text-[#717073] font-semibold text-[16px]'>
                                                     <p className="text-[#717073]">Start time</p>
                                                     <p className="font-semibold">{item.startTime}</p>
@@ -401,10 +375,7 @@ const ClassSheduleList = () => {
                                                     <p className="text-[#717073]">End time</p>
                                                     <p className="font-semibold">{item.endTime}</p>
                                                 </div>
-                                                <div className='text-[#717073]  font-semibold text-[16px]'>
-                                                    <p className="text-[#717073]">Free Trials?</p>
-                                                    <p className="font-semibold">{item.allowFreeTrial == true ? 'yes' : 'no'}</p>
-                                                </div>
+                                               
                                                 <div className='text-[#717073] font-semibold  text-[16px]'>
                                                     <p className="text-[#717073]">Facility</p>
                                                     <p className="font-semibold">{singleClassSchedules.facility || 'null'}</p>
@@ -685,19 +656,7 @@ const ClassSheduleList = () => {
                                         </div>
                                     </div>
                                     <div className="flex gap-4">
-                                        <div className='w-1/2'>
-                                            <label htmlFor="">Day</label>
-                                            <select
-                                                value={formData.day}
-                                                onChange={(e) => handleChange('day', e.target.value)}
-                                                className="w-full border border-[#E2E1E5] rounded-xl capitalize p-3 text-sm"
-                                            >
-                                                <option value="">Day</option>
-                                                {days.map((day) => (
-                                                    <option key={day} value={day}>{day}</option>
-                                                ))}
-                                            </select>
-                                        </div>
+                                     
                                         <div className='flex md:w-1/2 gap-4'>
                                             <div className="flex gap-4">
                                                 <div className="w-1/2">
@@ -735,21 +694,6 @@ const ClassSheduleList = () => {
 
                                     </div>
 
-
-                                    <div className="block items-center gap-3 mt-2">
-                                        <label className="text-base  font-medium">Allow Free Trial?</label>
-                                        <br />
-                                        <label className="inline-flex mt-2 relative items-center cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={formData.allowFreeTrial}
-                                                onChange={(e) => handleChange('allowFreeTrial', e.target.checked)}
-                                                className="sr-only peer"
-                                            />
-                                            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-[#237FEA] peer-focus:ring-4 peer-focus:ring-blue-300 transition-all"></div>
-                                            <div className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow-md transform peer-checked:translate-x-5 transition-transform"></div>
-                                        </label>
-                                    </div>
                                 </div>
 
 

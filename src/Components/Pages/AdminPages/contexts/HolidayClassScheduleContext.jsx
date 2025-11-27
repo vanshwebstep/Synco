@@ -34,7 +34,7 @@ export const HolidayClassScheduleProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/class-schedule/list`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -57,7 +57,7 @@ export const HolidayClassScheduleProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/venue/${ID}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/venue/listBy/${ID}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -80,7 +80,7 @@ export const HolidayClassScheduleProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule/${ID}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/class-schedule/listBy/${ID}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -132,7 +132,7 @@ export const HolidayClassScheduleProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/class-schedule/create`, {
         method: "POST",
         headers,
         body: JSON.stringify(classScheduleData),
@@ -185,7 +185,7 @@ export const HolidayClassScheduleProvider = ({ children }) => {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule/${classScheduleId}`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/class-schedule/update/${classScheduleId}`, requestOptions);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -220,7 +220,7 @@ export const HolidayClassScheduleProvider = ({ children }) => {
     if (!token) return;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/admin/class-schedule/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/holiday/class-schedule/delete/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

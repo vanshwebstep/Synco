@@ -25,7 +25,7 @@ export const HolidayTermsProvider = ({ children }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/term-group/list`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/camp/list`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
@@ -41,7 +41,7 @@ export const HolidayTermsProvider = ({ children }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/term/list`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/campDate/list`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
@@ -72,7 +72,7 @@ export const HolidayTermsProvider = ({ children }) => {
 
       try {
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/holiday/term-group/create`, requestOptions);
+        const response = await fetch(`${API_BASE_URL}/api/admin/holiday/camp/create`, requestOptions);
         const data = await response.json();
         setMyGroupData(data.data);
 
@@ -131,7 +131,7 @@ export const HolidayTermsProvider = ({ children }) => {
         if (response.ok && data.status === true) {
           // ✅ Only redirect on final submission
           if (shouldRedirect) {
-            navigate('/configuration/weekly-classes/term-dates/list');
+            navigate('/configuration/weekly-classes/campDate-dates/list');
           }
         } else {
           console.error("API Error:", data.message || "Unknown error");
@@ -180,7 +180,6 @@ export const HolidayTermsProvider = ({ children }) => {
         },
         body: formdata,
       });
-      console.log('doneeee')
       await fetchExercises(); // optional if refreshing UI
     } catch (err) {
       console.error("Failed to create exercise:", err);
@@ -208,7 +207,7 @@ export const HolidayTermsProvider = ({ children }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/term-group/listBy/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/camp/listBy/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
@@ -223,7 +222,7 @@ export const HolidayTermsProvider = ({ children }) => {
     if (!token) return;
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/term/listBy/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/campDate/listBy/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
@@ -291,7 +290,7 @@ export const HolidayTermsProvider = ({ children }) => {
         myHeaders.append("Content-Type", "application/json");
         myHeaders.append("Authorization", `Bearer ${token}`);
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/holiday/term-group/update/${id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin/holiday/camp/update/${id}`, {
           method: "PUT",
           headers: myHeaders,
           body: JSON.stringify(data),
@@ -301,7 +300,7 @@ export const HolidayTermsProvider = ({ children }) => {
 
         await fetchTermGroup();
       } catch (err) {
-        console.error("Failed to update term group:", err);
+        console.error("Failed to update campDate group:", err);
       }
     },
     [token, fetchTermGroup, navigate]
@@ -312,7 +311,7 @@ export const HolidayTermsProvider = ({ children }) => {
   const deleteTermGroup = useCallback(async (id) => {
     if (!token) return;
     try {
-      await fetch(`${API_BASE_URL}/api/admin/holiday/term-group/delete/${id}`, {
+      await fetch(`${API_BASE_URL}/api/admin/holiday/camp/delete/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
