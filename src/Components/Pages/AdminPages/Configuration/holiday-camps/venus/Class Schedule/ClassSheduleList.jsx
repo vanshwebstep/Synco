@@ -1,17 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Create from '../Create';
-import { Check } from "lucide-react";
+
 import Loader from '../../../../contexts/Loader';
-import { useVenue } from '../../../../contexts/VenueContext';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useClassSchedule } from '../../../../contexts/ClassScheduleContent';
+import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2"; // make sure it's installed
 import { usePermission } from '../../../../Common/permission';
+import { useHolidayClassSchedule } from '../../../../contexts/HolidayClassScheduleContext';
+import { useHolidayVenue } from '../../../../contexts/HolidayVenueContext';
 
 const ClassSheduleList = () => {
     const navigate = useNavigate();
@@ -19,12 +18,8 @@ const ClassSheduleList = () => {
     const [searchParams] = useSearchParams();
     const venueId = searchParams.get("id");
     const [sessionStates, setSessionStates] = useState({});
-    const [openDropdownSessionId, setOpenDropdownSessionId] = useState(null);
+    ;
 
-    const startRef = useRef(null);
-    const endRef = useRef(null);
-
-    // ✅ Scroll to 8:00 AM in the time list
     const scrollTo8AM = () => {
         requestAnimationFrame(() => {
             const list = document.querySelector(".react-datepicker__time-list");
@@ -59,7 +54,8 @@ const ClassSheduleList = () => {
     };
 
 
-    const { fetchClassSchedules, createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useClassSchedule()
+    const { fetchClassSchedules, createClassSchedules, updateClassSchedules, fetchClassSchedulesID, singleClassSchedules, classSchedules, loading, deleteClassSchedule } = useHolidayClassSchedule()
+
     useEffect(() => {
         const fetchData = async () => {
             await fetchClassSchedules();
@@ -94,13 +90,6 @@ const ClassSheduleList = () => {
     };
 
 
-
-    const [showModal, setShowModal] = useState(false);
-    const [clickedIcon, setClickedIcon] = useState(null);
-    const handleIconClick = (icon) => {
-        setClickedIcon(icon);
-        setShowModal(true);
-    };
     const handleEditClick = (classItem) => {
         setFormData(classItem);
         setIsEditing(true);
@@ -162,9 +151,7 @@ const ClassSheduleList = () => {
     };
 
     const [isEditing, setIsEditing] = useState(false);
-    const [value, setValue] = useState('Some text');
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    const { venues, isEditVenue, setIsEditVenue, fetchVenues } = useVenue()
+    const { venues, fetchVenues } = useHolidayVenue()
     const [formData, setFormData] = useState({
         className: '',
         capacity: '',
@@ -175,13 +162,7 @@ const ClassSheduleList = () => {
     });
 
     const [selectedUserIds, setSelectedUserIds] = useState([]);
-    const toggleCheckbox = (userId) => {
-        setSelectedUserIds((prev) =>
-            prev.includes(userId)
-                ? prev.filter((id) => id !== userId)
-                : [...prev, userId]
-        );
-    };
+
 
 
     const handleChange = (field, value) => {
@@ -272,22 +253,11 @@ const ClassSheduleList = () => {
     };
 
 
-    const isAllSelected = venues.length > 0 && selectedUserIds.length === venues.length;
-
-    const toggleSelectAll = () => {
-        if (isAllSelected) {
-            setSelectedUserIds([]);
-        } else {
-            const allIds = venues.map((user) => user.id);
-            setSelectedUserIds(allIds);
-        }
-    };
-
-
     const [openForm, setOpenForm] = useState(false);
     useEffect(() => {
         fetchVenues();
     }, [fetchVenues]);
+
     const handleDeleteClick = (item) => {
         Swal.fire({
             title: 'Are you sure?',
@@ -327,13 +297,7 @@ const ClassSheduleList = () => {
         }));
     };
 
-    if (loading) {
-        return (
-            <>
-                <Loader />
-            </>
-        )
-    }
+
     const parseTimeStringToDate = (timeString) => {
         if (!timeString || typeof timeString !== "string") return null;
 
@@ -370,6 +334,15 @@ const ClassSheduleList = () => {
 
     const cancelSession =
         checkPermission({ module: 'cancel-session', action: 'view-listing' });
+
+
+    if (loading) {
+        return (
+            <>
+                <Loader />
+            </>
+        )
+    }
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
             <div className={`md:flex pe-4 justify-between items-center mb-4 w-full`}>

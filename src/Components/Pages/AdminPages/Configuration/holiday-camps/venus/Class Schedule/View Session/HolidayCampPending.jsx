@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import  { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
-import { formatDistanceToNow } from 'date-fns';
 const HolidayCampPending = ({ item, sessionData }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 

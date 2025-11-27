@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
-import { useVenue } from "../../../contexts/VenueContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 import Select from "react-select";
-import { ChevronDown } from "lucide-react"; // you can replace with plain "<" if you prefer
+import { useHolidayVenue } from "../../../contexts/HolidayVenueContext";
 
 const Create = ({ groups, termGroup }) => {
 
 
-  const { formData, setFormData, createVenues, isEditVenue, updateVenues, setIsEditVenue, openForm, setOpenForm } = useVenue();
+  const { formData, setFormData, createVenues, isEditVenue, updateVenues, setIsEditVenue, openForm, setOpenForm } = useHolidayVenue();
 
 
   const handleInputChange = (e) => {
@@ -20,7 +19,6 @@ const Create = ({ groups, termGroup }) => {
   };
   const [showTermDropdown, setShowTermDropdown] = useState(false);
   const [showSubDropdown, setShowSubDropdown] = useState(false);
-  const [selectedTerms, setSelectedTerms] = useState([]);
   const [selectedSub, setSelectedSub] = useState(null);
   const [selectedTermIds, setSelectedTermIds] = useState([]);
   const validateForm = () => {
@@ -64,11 +62,8 @@ const Create = ({ groups, termGroup }) => {
 
   };
 
-  const toggleValue = (list, setList, value) => {
-    setList((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
-  };
+
+
   const handleUpdate = (id) => {
     const err = validateForm();
     if (err) {
@@ -188,7 +183,7 @@ const Create = ({ groups, termGroup }) => {
       }
     }
 
- 
+
     // Handle term group ID
     if (formData?.termGroupId != null) {
       try {
@@ -260,9 +255,9 @@ const Create = ({ groups, termGroup }) => {
             onChange={(selectedOption) =>
               handleInputChange({ target: { name: "facility", value: selectedOption.value } })
             }
-             components={{
-    IndicatorSeparator: () => null, // 🚀 removes the "|" separator
-  }}
+            components={{
+              IndicatorSeparator: () => null, // 🚀 removes the "|" separator
+            }}
             options={facilityOptions}
             className="w-full text-sm"
             classNamePrefix="react-select"
@@ -356,12 +351,12 @@ const Create = ({ groups, termGroup }) => {
             <label className="block font-semibold text-[16px] pb-2">
               Term Date Linkage
             </label>
-          <div
-  onClick={() => setShowTermDropdown(!showTermDropdown)}
-  className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white relative cursor-pointer 
+            <div
+              onClick={() => setShowTermDropdown(!showTermDropdown)}
+              className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white relative cursor-pointer 
   after:content-[''] after:absolute after:right-4 after:top-1/2 after:-translate-y-1/2 
   after:w-2 after:h-2 after:border-r-2 after:border-b-2 after:border-[#717073] after:rotate-45"
->
+            >
               {labels.length > 0
                 ? labels.join(", ")
                 : "Select Term Date Group"}
@@ -407,16 +402,16 @@ const Create = ({ groups, termGroup }) => {
             <label className="block font-semibold text-[16px] pb-2">
               Subscription Plan Linkage
             </label>
-       <div
-  onClick={() => setShowSubDropdown(!showSubDropdown)}
-  className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white relative cursor-pointer
+            <div
+              onClick={() => setShowSubDropdown(!showSubDropdown)}
+              className="w-full border border-[#E2E1E5] rounded-xl p-4 text-sm text-[#717073] bg-white relative cursor-pointer
   after:content-[''] after:absolute after:right-4 after:top-1/2 after:-translate-y-1/2 
   after:w-2 after:h-2 after:border-r-2 after:border-b-2 after:border-[#717073] after:rotate-45 min-h-[40px] flex items-center"
->
-  {selectedSub
-    ? subOptions.find(opt => opt.id === selectedSub)?.label
-    : <span className="invisible">placeholder</span>}
-</div>
+            >
+              {selectedSub
+                ? subOptions.find(opt => opt.id === selectedSub)?.label
+                : <span className="invisible">placeholder</span>}
+            </div>
 
 
             <AnimatePresence>

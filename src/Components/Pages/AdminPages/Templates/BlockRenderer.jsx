@@ -80,10 +80,10 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
       />
 
       {/* Controls */}
-      <div className="flex justify-between gap-3">
+      <div className="flex justify-between items-center gap-3">
         
         {/* Text Color */}
-        <div className="">
+        <div className="flex justify-between gap-2 items-center">
           <label className="text-sm">Text Color</label>
           <input
             type="color"
@@ -170,64 +170,66 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
       </button>
 
       {/* Customization Panel */}
-      <div className="grid grid-cols-2 gap-3">
-        
-        {/* Button Text */}
-        <div className="col-span-2">
-          <label className="text-sm">Button Text</label>
-          <input
-            className="w-full border px-2 py-1 rounded"
-            value={block.content}
-            onChange={(e) =>
-              setBlocks(
-                blocks.map((b) =>
-                  b.id === block.id
-                    ? { ...b, content: e.target.value }
-                    : b
-                )
-              )
-            }
-          />
-        </div>
+   <div className="grid grid-cols-2 gap-3 text-sm">
 
-        {/* Background Color */}
-        <div>
-          <label className="text-sm">BG Color</label>
-          <input
-            type="color"
-            className="w-full h-10 cursor-pointer"
-            value={block.style.backgroundColor}
-            onChange={(e) => updateStyle("backgroundColor", e.target.value)}
-          />
-        </div>
+  {/* Button Text */}
+  <div className="col-span-2">
+    <label className="text-xs font-medium">Button Text</label>
+    <input
+      className="w-full border rounded px-2 py-1 text-sm"
+      value={block.content}
+      onChange={(e) =>
+        setBlocks(
+          blocks.map((b) =>
+            b.id === block.id ? { ...b, content: e.target.value } : b
+          )
+        )
+      }
+    />
+  </div>
 
-        {/* Text Color */}
-        <div>
-          <label className="text-sm">Text Color</label>
-          <input
-            type="color"
-            className="w-full h-10 cursor-pointer"
-            value={block.style.textColor}
-            onChange={(e) => updateStyle("textColor", e.target.value)}
-          />
-        </div>
+  {/* Background Color */}
+  <div className="flex flex-col gap-1">
+    <label className="text-xs font-medium">BG</label>
+    <input
+      type="color"
+      className="w-10 h-10 rounded-full border cursor-pointer"
+      value={block.style.backgroundColor}
+      onChange={(e) => updateStyle("backgroundColor", e.target.value)}
+    />
+  </div>
 
-        {/* Font Size */}
-        <div className="col-span-2">
-          <label className="text-sm">Font Size</label>
-          <input
-            type="range"
-            min="10"
-            max="40"
-            value={block.style.fontSize}
-            onChange={(e) => updateStyle("fontSize", parseInt(e.target.value))}
-            className="w-full"
-          />
-          <p className="text-xs text-gray-500 mt-1">
-            {block.style.fontSize}px
-          </p>
-        </div>
-      </div>
+  {/* Text Color */}
+  <div className="flex flex-col gap-1">
+    <label className="text-xs font-medium">Text</label>
+    <input
+      type="color"
+      className="w-10 h-10 rounded-full border cursor-pointer"
+      value={block.style.textColor}
+      onChange={(e) => updateStyle("textColor", e.target.value)}
+    />
+  </div>
+
+  {/* Font Size */}
+  <div className="col-span-2 mt-1">
+    <label className="text-xs font-medium">Font Size</label>
+    <div className="flex items-center gap-3">
+      <input
+        type="range"
+        min="10"
+        max="40"
+        value={block.style.fontSize}
+        onChange={(e) => updateStyle("fontSize", parseInt(e.target.value))}
+        className="w-full"
+      />
+      <span className="text-xs text-gray-500 w-10">
+        {block.style.fontSize}px
+      </span>
+    </div>
+  </div>
+
+</div>
+
     </div>
   );
 }

@@ -8,9 +8,9 @@ import Loader from '../../../contexts/Loader';
 import { Editor } from '@tinymce/tinymce-react';
 import Swal from 'sweetalert2'; // If not already imported
 
-import { usePayments } from '../../../contexts/PaymentPlanContext';
 import PlanTabs from "../../../Weekly Classes/Find a class/PlanTabs";
 import { usePermission } from "../../../Common/permission";
+import { useHolidayPayments } from "../../../contexts/HolidayPaymentContext";
 
 const HolidayAddPaymentPlanGroup = () => {
     const [isSavePlan, setIsSavePlan] = useState(false);
@@ -20,7 +20,7 @@ const HolidayAddPaymentPlanGroup = () => {
 
     const [groupName, setGroupName] = useState('');
     const [previewShowModal, setPreviewShowModal] = useState(false);
-    const { fetchPackages, groups, createPackage, fetchGroupById, loading, createGroup, selectedGroup, packages, updateGroup } = usePayments();
+    const { fetchPackages, groups, createPackage, fetchGroupById, loading, createGroup, selectedGroup, packages, updateGroup } = useHolidayPayments();
     const [selectedPlans, setSelectedPlans] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
@@ -41,6 +41,8 @@ const HolidayAddPaymentPlanGroup = () => {
             // setIsLoading(false);
         }
     }, [id]);
+
+    console.log('selectedGroup', selectedGroup)
 
     const [description, setDescription] = useState('');
     const [packageDetails, setPackageDetails] = useState('');
@@ -99,25 +101,13 @@ const HolidayAddPaymentPlanGroup = () => {
 
         getPackages();
     }, [fetchPackages]);
-    const previewPlans = [
-        { students: '1 Student', price: '£99.99' },
-        { students: '2 Student', price: '£99.99' },
-        { students: '3 Student', price: '£99.99' },
-    ];
+
 
     const [openForm, setOpenForm] = useState(false);
     const navigate = useNavigate();
 
     const handleAddPlan = () => {
         setOpenForm(true);
-    };
-    const handleTogglePlan = (plan) => {
-        const isSelected = selectedPlans.some((p) => p.id === plan.id);
-        if (isSelected) {
-            setSelectedPlans(selectedPlans.filter((p) => p.id !== plan.id));
-        } else {
-            setSelectedPlans([...selectedPlans, plan]);
-        }
     };
 
     const handleRemovePlan = (index) => {
@@ -177,10 +167,10 @@ const HolidayAddPaymentPlanGroup = () => {
             return;
         }
 
-        const { title, price, priceLesson, interval, duration, joiningFee, students } = formData;
+        const { title, price, interval, duration, joiningFee, students } = formData;
 
         // ✅ Validation
-        if (!title || !price || !interval || !priceLesson || !duration || !students || !joiningFee) {
+        if (!title || !price || !interval || !duration || !students || !joiningFee) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Missing Fields',
@@ -192,7 +182,6 @@ const HolidayAddPaymentPlanGroup = () => {
         const newPlan = {
             title,
             price,
-            priceLesson,
             interval,
             duration,
             joiningFee,
@@ -288,7 +277,7 @@ const HolidayAddPaymentPlanGroup = () => {
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
                     <span className="truncate">
-                        {previewShowModal ? `${selectedGroup?.name} ` : 'Add Membership Plan Group'}
+                        {previewShowModal ? `${selectedGroup?.name || groupName} ` : id ? 'Update Payment Plan Group' : 'Add Payment Plan Group'}
                     </span>
                 </h2>
 
@@ -302,7 +291,7 @@ const HolidayAddPaymentPlanGroup = () => {
 
                             {/* Header */}
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-                                <h2 className="font-semibold text-[20px] sm:text-[24px]">Subscription Plan</h2>
+                                <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
                                 <button
                                     onClick={() => setPreviewShowModal(false)}
                                     className="text-gray-400 hover:text-black text-xl font-bold"
@@ -331,7 +320,7 @@ const HolidayAddPaymentPlanGroup = () => {
                                             Swal.fire({
                                                 icon: "warning",
                                                 title: "No Plans Selected",
-                                                text: "Please select at least one Membership Plan.",
+                                                text: "Please select at least one Payment Plans.",
                                                 confirmButtonText: "OK",
                                             });
                                             return;
@@ -384,7 +373,7 @@ const HolidayAddPaymentPlanGroup = () => {
                                             onClick={() => setIsOpen(!isOpen)}
                                         >
                                             <label className="block text-base font-semibold text-gray-700">
-                                                Membership Plan
+                                                Payment Plans
                                             </label>
 
                                         </div>
@@ -435,14 +424,14 @@ const HolidayAddPaymentPlanGroup = () => {
                                                     transition={{ duration: 0.3 }}
                                                     className="transition-all" // remove "overflow-hidden"
                                                 >
-                                                    <div className="w-full mb-4">
+                                                    <div className="w-full my-4">
                                                         <Select
                                                             options={sortedOptions}
                                                             value={selectedOptions}
                                                             onChange={handleSelectChange}
                                                             isMulti
                                                             components={{ MultiValue }}
-                                                            placeholder="Select Membership plans..."
+                                                            placeholder="Select Payment Plans ..."
                                                             className="react-select-container"
                                                             classNamePrefix="react-select"
 
@@ -556,7 +545,7 @@ const HolidayAddPaymentPlanGroup = () => {
                                             onClick={handleAddPlan}
                                             className="w-full bg-[#237FEA] mb-8 text-white text-[16px] font-semibold py-2 rounded-lg hover:bg-blue-700"
                                         >
-                                            Add Membership Plan
+                                            Add Payment Plans
                                         </button>
                                     }
                                     {/* Footer Buttons */}
@@ -568,7 +557,7 @@ const HolidayAddPaymentPlanGroup = () => {
                                                 onClick={() => setPreviewShowModal(true)}
                                                 className="flex items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 w-full md:w-auto"
                                             >
-                                                Preview Membership Plans
+                                                Preview Payment Plans
                                                 <Eye size={16} />
                                             </button>
                                         )}
@@ -607,7 +596,7 @@ const HolidayAddPaymentPlanGroup = () => {
                                         &times;
                                     </button>
                                     {/* Add your form content here */}
-                                    <div className="text-[24px] font-semibold mb-4">Membership Plan</div>
+                                    <div className="text-[24px] font-semibold mb-4">Payment Plans</div>
                                     {[
                                         { label: "Title", name: "title", type: "text" },
                                         { label: "Price (€)", name: "price", type: "number" },
@@ -738,7 +727,7 @@ const HolidayAddPaymentPlanGroup = () => {
 
                                     <div className="mb-4 relative">
                                         <label className="block text-base font-semibold text-gray-700 mb-2">
-                                            Membership Package Details
+                                            Holiday Camps Package Details
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             <Editor

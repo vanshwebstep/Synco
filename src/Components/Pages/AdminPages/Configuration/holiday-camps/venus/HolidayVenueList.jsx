@@ -3,14 +3,13 @@ import Create from './Create';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
 import Loader from '../../../contexts/Loader';
-import { useVenue } from '../../../contexts/VenueContext';
-import { usePayments } from '../../../contexts/PaymentPlanContext';
 import Swal from "sweetalert2"; // make sure it's installed
 import PlanTabs from '../../../Weekly Classes/Find a class/PlanTabs';
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { format, parseISO } from "date-fns";
-import { useTermContext } from '../../../contexts/TermDatesSessionContext';
 import { usePermission } from '../../../Common/permission';
+import { useHolidayVenue } from '../../../contexts/HolidayVenueContext';
+import { useHolidayPayments } from '../../../contexts/HolidayPaymentContext';
+import { useHolidayTerm } from '../../../contexts/HolidayTermsContext';
 const HolidayVenueList = () => {
   const navigate = useNavigate();
   const formRef = useRef(null);
@@ -22,6 +21,8 @@ const HolidayVenueList = () => {
   const [clickedIcon, setClickedIcon] = useState(null);
 
   const handleIconClick = (icon, plan = null) => {
+
+    console.log('plan',plan)
 
     if (Array.isArray(plan)) {
       console.table(plan);
@@ -70,13 +71,10 @@ const HolidayVenueList = () => {
     setShowModal(true);
   };
 
+  const { fetchGroups, groups } = useHolidayPayments()
+  const { fetchTermGroup, termGroup, fetchTerm, termData } = useHolidayTerm()
 
-
-  const { fetchGroups, groups } = usePayments()
-  const { fetchTermGroup, termGroup, fetchTerm, termData } = useTermContext()
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues, loading, openForm, setOpenForm } = useVenue()
+  const { venues, setFormData, setIsEditVenue, deleteVenue, fetchVenues, loading, openForm, setOpenForm } = useHolidayVenue()
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
@@ -317,7 +315,7 @@ const HolidayVenueList = () => {
   const grouped = termGroup.map((group, groupIdx) => {
 
     // Use termGroup?.id to match correctly
-    const terms = termData.filter((t) => t.termGroup?.id === group.id);
+    const terms = termData.filter((t) => t.holidayTermGroup?.id === group.id);
     if (!terms.length) {
       return null;
     }
@@ -439,7 +437,7 @@ const HolidayVenueList = () => {
           {
             venues.length > 0 ? (
 
-              <div className={`overflow-auto min-h-[600px] bg-white border-[#E2E1E5] border rounded-4xl w-full`}>
+              <div className={`overflow-auto max-h-[600px] bg-white border-[#E2E1E5] border rounded-4xl w-full`}>
 
                 <table className="overflow-hidden rounded-4xl border border-[#E2E1E5] bg-white w-full">
                   <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
@@ -491,7 +489,7 @@ const HolidayVenueList = () => {
                                 onClick={() =>
                                   handleIconClick(
                                     "calendar",
-                                    user.termGroups?.flatMap(group => group.terms) || []
+                                    user.termGroups?.flatMap(group => group.holidayTerms) || []
                                   )
                                 } className="cursor-pointer"
                               >
@@ -502,7 +500,7 @@ const HolidayVenueList = () => {
                                 />
                               </div>
                               <div
-                                onClick={() => handleIconClick("currency", user.paymentGroups[0]?.paymentPlans)}
+                                onClick={() => handleIconClick("currency", user.paymentGroups[0]?.holidayPaymentPlans)}
                                 className="cursor-pointer"
                               >
                                 <img

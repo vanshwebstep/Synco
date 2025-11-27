@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import { Check, X } from 'lucide-react';
 import { useLocation } from "react-router-dom";
-import { useClassSchedule } from '../../../../../contexts/ClassScheduleContent';
+import { useHolidayClassSchedule } from '../../../../../contexts/HolidayClassScheduleContext';
 
 const HolidayCampCancel = () => {
   const tabs = ['Members', 'Trials', 'Coaches'];
   const location = useLocation();
-  const { cancelClass, } = useClassSchedule()
+  const { cancelClass, } = useHolidayClassSchedule()
   const [activeTab, setActiveTab] = useState('Members');
   const [rolesData, setRolesData] = useState({
     Members: { subject: "", emailBody: "", deliveryMethod: "Email", templateKey: "cancel_member" },

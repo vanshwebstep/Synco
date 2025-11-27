@@ -7,6 +7,9 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { useEffect } from 'react';
+import { HolidayPaymentPlanContextProvider } from './Components/Pages/AdminPages/contexts/HolidayPaymentContext.jsx';
+import { HolidayVenueProvider } from './Components/Pages/AdminPages/contexts/HolidayVenueContext.jsx';
+import { HolidayClassScheduleProvider } from './Components/Pages/AdminPages/contexts/HolidayClassScheduleContext.jsx';
 
 import AdminLogin from './Components/AdminLogin.jsx';
 import ResetPassword from './Components/ResetPassword.jsx';
@@ -877,15 +880,15 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-           <Route path="/administration/file-manager" element={
-              <ProtectedRoute>
-                <AdminLayout>
-                  <RoleBasedRoute>
-                    <FileManager />
-                  </RoleBasedRoute>
-                </AdminLayout>
-              </ProtectedRoute>
-            } />
+      <Route path="/administration/file-manager" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <FileManager />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
       <Route path="/recruitment/franchise-lead/see-details" element={
         <ProtectedRoute>
           <AdminLayout>
@@ -905,7 +908,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-        <Route path="/templates/builder" element={
+      <Route path="/templates/builder" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -929,35 +932,39 @@ function App() {
       <NotificationProvider>
         <AccountsInfoProvider>
           <LeadsContextProvider>
-
-
-            <VenueProvider>
-              <MemberProvider>
-                <HolidaySessionPlanContextProvider>
-                  <HolidayTermsProvider>
-                    <PaymentPlanContextProvider>
-                      <DiscountContextProvider>
-                        <SessionPlanContextProvider>
-                          <TermDatesSessionProvider>
-                            <ClassScheduleProvider>
-                              <FindClassProvider>
-                                <BookFreeTrialProvider>
-                                  <BookFreeTrialLoaderProvider>
-                                    <PermissionProvider>
-                                      <AppRoutes />
-                                    </PermissionProvider>
-                                  </BookFreeTrialLoaderProvider>
-                                </BookFreeTrialProvider>
-                              </FindClassProvider>
-                            </ClassScheduleProvider>
-                          </TermDatesSessionProvider>
-                        </SessionPlanContextProvider>
-                      </DiscountContextProvider>
-                    </PaymentPlanContextProvider>
-                  </HolidayTermsProvider>
-                </HolidaySessionPlanContextProvider>
-              </MemberProvider>
-            </VenueProvider>
+            <HolidayPaymentPlanContextProvider>
+              <HolidayVenueProvider>
+                <HolidayClassScheduleProvider>
+                  <VenueProvider>
+                    <MemberProvider>
+                      <HolidaySessionPlanContextProvider>
+                        <HolidayTermsProvider>
+                          <PaymentPlanContextProvider>
+                            <DiscountContextProvider>
+                              <SessionPlanContextProvider>
+                                <TermDatesSessionProvider>
+                                  <ClassScheduleProvider>
+                                    <FindClassProvider>
+                                      <BookFreeTrialProvider>
+                                        <BookFreeTrialLoaderProvider>
+                                          <PermissionProvider>
+                                            <AppRoutes />
+                                          </PermissionProvider>
+                                        </BookFreeTrialLoaderProvider>
+                                      </BookFreeTrialProvider>
+                                    </FindClassProvider>
+                                  </ClassScheduleProvider>
+                                </TermDatesSessionProvider>
+                              </SessionPlanContextProvider>
+                            </DiscountContextProvider>
+                          </PaymentPlanContextProvider>
+                        </HolidayTermsProvider>
+                      </HolidaySessionPlanContextProvider>
+                    </MemberProvider>
+                  </VenueProvider>
+                </HolidayClassScheduleProvider>
+              </HolidayVenueProvider>
+            </HolidayPaymentPlanContextProvider>
           </LeadsContextProvider>
         </AccountsInfoProvider>
       </NotificationProvider>

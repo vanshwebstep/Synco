@@ -1,0 +1,356 @@
+import { createContext, useContext, useState, useCallback } from "react";
+import Swal from "sweetalert2"; // make sure it's installed
+import { useNavigate } from 'react-router-dom';
+
+const HolidayClassScheduleContext = createContext();
+
+export const HolidayClassScheduleProvider = ({ children }) => {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const [classSchedules, setClassSchedules] = useState([]);
+  const token = localStorage.getItem("adminToken");
+
+  const [loading, setLoading] = useState(false);
+  const [isEditClassSchedule, setIsEditClassSchedule] = useState(false);
+  const [singleClassSchedules, setSingleClassSchedules] = useState([]);
+  const [singleClassSchedulesOnly, setSingleClassSchedulesOnly] = useState([]);
+  const [cancelledClassData, setCancelledClassData] = useState([]);
+
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    area: "",
+    name: "",
+    address: "",
+    facility: "",
+    parking: false,
+    congestion: false,
+    parkingNote: "",
+    entryNote: "",
+  });
+
+  const fetchClassSchedules = useCallback(async () => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setClassSchedules(result);
+    } catch (error) {
+      console.error("Failed to fetch classSchedules:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchClassSchedulesID = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/venue/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setSingleClassSchedules(result);
+    } catch (error) {
+      console.error("Failed to fetch classSchedules:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  const fetchClassSchedulesByID = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setSingleClassSchedulesOnly(result);
+    } catch (error) {
+      console.error("Failed to fetch classSchedules:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  const fetchFindClassID = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/find-class/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setSingleClassSchedulesOnly(result);
+    } catch (error) {
+      console.error("Failed to fetch classSchedules:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  const createClassSchedules = async (classScheduleData) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(classScheduleData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create class schedule");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Class schedule has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchClassSchedules();
+      setLoading(false);
+    }
+  };
+
+  // UPDATE VENUE
+  const updateClassSchedules = async (classScheduleId, updatedClassScheduleData) => {
+    setLoading(true);
+
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    if (token) {
+      myHeaders.append("Authorization", `Bearer ${token}`);
+    }
+
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: JSON.stringify(updatedClassScheduleData),
+      redirect: "follow",
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule/${classScheduleId}`, requestOptions);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update classSchedule");
+      }
+
+      const result = await response.json();
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "ClassSchedule has been updated successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Error updating classSchedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while updating classSchedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchClassSchedules();
+      setLoading(false);
+    }
+  };
+  const deleteClassSchedule = useCallback(async (id) => {
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/class-schedule/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to delete classSchedule");
+      }
+
+      await Swal.fire({
+        icon: "success",
+        title: data.message || "ClassSchedule deleted successfully",
+        confirmButtonColor: "#3085d6",
+      });
+
+      await fetchClassSchedules(); // Refresh the list
+    } catch (err) {
+      console.error("Failed to delete classSchedule:", err);
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message || "Something went wrong",
+        confirmButtonColor: "#d33",
+      });
+    }
+  }, [token, fetchClassSchedules]);
+ const cancelClass = async  (classScheduleId, sessionId,updatedClassScheduleData,venueId) => {
+  console.log('classScheduleId, sessionId,updatedClassScheduleData',classScheduleId, sessionId,updatedClassScheduleData)
+    setLoading(true);
+
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    if (token) {
+      myHeaders.append("Authorization", `Bearer ${token}`);
+    }
+
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: JSON.stringify(updatedClassScheduleData),
+      redirect: "follow",
+    };
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-session/${classScheduleId}/cancel?mapId=${sessionId}`, requestOptions);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update classSchedule");
+      }
+
+      const result = await response.json();
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "ClassSchedule has been cancelled successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+
+      return result;
+    } catch (error) {
+      console.error("Error updating classSchedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while updating classSchedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchClassSchedules();
+      navigate(`/configuration/weekly-classes/venues/class-schedule?id=${venueId}`)
+      setLoading(false);
+    }
+  };
+
+    const fetchCancelledClass = useCallback(async (ID) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-session/${ID}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setCancelledClassData(result);
+    } catch (error) {
+      console.error("Failed to fetch classSchedules:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  return (
+    <HolidayClassScheduleContext.Provider
+      value={{
+        classSchedules,
+        createClassSchedules,
+        updateClassSchedules,
+        deleteClassSchedule,
+        fetchClassSchedulesID,
+        fetchCancelledClass,
+        fetchClassSchedulesByID,
+        fetchFindClassID,
+        singleClassSchedules,
+        formData,
+        singleClassSchedulesOnly,
+        setFormData,
+        isEditClassSchedule,
+        setIsEditClassSchedule,
+        setClassSchedules,
+        fetchClassSchedules,
+        loading,
+        cancelClass,
+      }}>
+      {children}
+    </HolidayClassScheduleContext.Provider>
+  );
+};
+
+export const useHolidayClassSchedule = () => useContext(HolidayClassScheduleContext);

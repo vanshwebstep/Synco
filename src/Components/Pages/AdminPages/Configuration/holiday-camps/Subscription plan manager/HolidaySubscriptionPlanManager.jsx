@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
-import { usePayments } from '../../../contexts/PaymentPlanContext';
 import Swal from "sweetalert2"; // make sure it's installed
 import Loader from '../../../contexts/Loader';
 import { usePermission } from '../../../Common/permission';
+import { useHolidayPayments } from '../../../contexts/HolidayPaymentContext';
 const HolidaySubscriptionPlanManager = () => {
-  const { fetchGroups, groups, deleteGroup, fetchGroupById, selectedGroup, loading } = usePayments();
+  const { fetchGroups, groups, deleteGroup, fetchGroupById, selectedGroup, loading } = useHolidayPayments();
   const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
   const [checkedIds, setCheckedIds] = useState([]);
@@ -204,14 +204,14 @@ const HolidaySubscriptionPlanManager = () => {
       ) ||
         <>
           <div className={`flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 ${openForm ? 'md:w-3/4' : 'w-full md:w-[55%]'}`}>
-            <h2 className="text-2xl font-semibold">Subscription Plan Manager</h2>
+            <h2 className="text-2xl font-semibold">Payment Plan Manager</h2>
             {canCreate &&
               <button
                 onClick={() => navigate(`/configuration/holiday-camp/subscription-plan-group/create`)}
                 // onClick={() => setOpenForm(true)}
                 className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
               >
-                <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add Membership Plan Group
+                <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add Payment Plan Group
               </button>
             }
           </div>
