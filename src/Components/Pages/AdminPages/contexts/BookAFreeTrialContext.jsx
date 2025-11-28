@@ -393,7 +393,7 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
-  const updateBookFreeTrialsFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
+  const updateBookFreeTrialsFamily = async (bookFreeTrialId, updatedBookFreeTrialData, updateType) => {
     setLoading(true);
     // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
     const myHeaders = new Headers();
@@ -437,7 +437,9 @@ export const BookFreeTrialProvider = ({ children }) => {
       });
       throw error;
     } finally {
-      navigate(`/weekly-classes/trial/list`)
+      if (updateType !== "leadsbooking") {
+        navigate(`/weekly-classes/trial/list`);
+      }
       setLoading(false);
     }
   };
@@ -914,7 +916,7 @@ export const BookFreeTrialProvider = ({ children }) => {
     },
     [API_BASE_URL]
   );
-  const updateBookMembershipFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
+  const updateBookMembershipFamily = async (bookFreeTrialId, updatedBookFreeTrialData , updateType) => {
     setLoading(true);
     // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
     const myHeaders = new Headers();
@@ -958,7 +960,10 @@ export const BookFreeTrialProvider = ({ children }) => {
       });
       throw error;
     } finally {
-      navigate(`/weekly-classes/all-members/list`)
+       if (updateType !== "leadsbooking") {
+       navigate(`/weekly-classes/all-members/list`)
+      }
+      
       setLoading(false);
     }
   };
@@ -2602,7 +2607,7 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
-  const updateWaitingListFamily = async (bookFreeTrialId, updatedBookFreeTrialData) => {
+  const updateWaitingListFamily = async (bookFreeTrialId, updatedBookFreeTrialData,updateType) => {
     setLoading(true);
     // console.log('updatedBookFreeTrialData',updatedBookFreeTrialData)
     const myHeaders = new Headers();
@@ -2646,7 +2651,10 @@ export const BookFreeTrialProvider = ({ children }) => {
       });
       throw error;
     } finally {
-      navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`)
+       if (updateType !== "leadsbooking") {
+        navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`)
+      }
+      
       setLoading(false);
     }
   };

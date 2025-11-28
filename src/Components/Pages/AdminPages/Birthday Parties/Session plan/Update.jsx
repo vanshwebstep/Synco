@@ -128,9 +128,10 @@ export default function BirthdayUpdate() {
                 skill: levelData?.skillOfTheDay || "",
                 description: levelData?.description || "",
                 exercises: formattedExercises, // ✅ formatted array
-                video: sessionGroup[`${levelKey}_video`]
+                
+                video: sessionGroup[`${activeTab}_video`]
                     ? {
-                        url: sessionGroup[`${levelKey}_video`],
+                        url: sessionGroup[`${activeTab}_video`],
                         file: null,
                     }
                     : null,

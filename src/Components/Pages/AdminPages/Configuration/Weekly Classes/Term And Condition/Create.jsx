@@ -3,7 +3,6 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { motion, AnimatePresence, m } from 'framer-motion';
 import SessionPlanSelect from "./SessionPlanSelect";
 import { useNavigate, useParams } from 'react-router-dom';
-import { useTermContext } from '../../../contexts/TermDatesSessionContext';
 import Swal from 'sweetalert2';
 import Loader from '../../../contexts/Loader';
 
@@ -12,6 +11,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSearchParams } from "react-router-dom";
 import { format } from "date-fns";
+import { useTermContext } from "../../../contexts/termDatesSessionContext";
 
 const initialTerms = [];
 const Create = () => {
@@ -472,33 +472,33 @@ const Create = () => {
         }
     }, [token, savedTermIds, fetchTerm, myGroupData, fetchTermGroupById, navigate]);
 
-  const handleMappingChange = (index, field, value) => {
-  if (field === "sessionPlanId") {
-    // ignore empty values
-    if (!value) {
-      const updated = [...sessionMappings];
-      updated[index] = { ...updated[index], sessionPlanId: "" };
-      setSessionMappings(updated);
-      return;
-    }
+    const handleMappingChange = (index, field, value) => {
+        if (field === "sessionPlanId") {
+            // ignore empty values
+            if (!value) {
+                const updated = [...sessionMappings];
+                updated[index] = { ...updated[index], sessionPlanId: "" };
+                setSessionMappings(updated);
+                return;
+            }
 
-    // check duplicate
-    const alreadyExists = sessionMappings.some(
-      (item, idx) => idx !== index && item.sessionPlanId === value
-    );
+            // check duplicate
+            const alreadyExists = sessionMappings.some(
+                (item, idx) => idx !== index && item.sessionPlanId === value
+            );
 
-    if (alreadyExists) {
-      return;
-    }
-  }
+            if (alreadyExists) {
+                return;
+            }
+        }
 
-  const updated = [...sessionMappings];
-  updated[index] = {
-    ...updated[index],
-    [field]: value,
-  };
-  setSessionMappings(updated);
-};
+        const updated = [...sessionMappings];
+        updated[index] = {
+            ...updated[index],
+            [field]: value,
+        };
+        setSessionMappings(updated);
+    };
     const handleSaveMappings = () => {
         if (!sessionMappings.length) {
             Swal.fire({
@@ -872,6 +872,7 @@ const Create = () => {
                                                         }}
                                                     />
                                                     <div className="md:w-1/2 mb-5 mx-2 mt-2">
+
                                                         <Select
                                                             options={options}
                                                             value={options.find(option => option.value === term.day) || null}
@@ -916,12 +917,14 @@ const Create = () => {
                                                                 setSelectedDay(newDay);
                                                                 setTerms(newTerms);
                                                             }}
-
                                                             placeholder="Select a day"
                                                             className="rounded-lg px-0 py-0"
                                                             classNamePrefix="react-select"
                                                             isClearable={true}
+                                                            menuPortalTarget={document.body}   // ⭐ IMPORTANT
+                                                            menuPosition="fixed"               // ⭐ IMPORTANT
                                                             styles={{
+                                                                menuPortal: (base) => ({ ...base, zIndex: 9999 }),
                                                                 control: (base, state) => ({
                                                                     ...base,
                                                                     borderColor: state.isFocused ? "#ccc" : "#E5E7EB",
@@ -929,9 +932,6 @@ const Create = () => {
                                                                     padding: "6px 8px",
                                                                     minHeight: "48px",
                                                                 }),
-                                                                placeholder: (base) => ({ ...base, fontWeight: 600 }),
-                                                                dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
-                                                                indicatorSeparator: () => ({ display: "none" }),
                                                             }}
                                                         />
 

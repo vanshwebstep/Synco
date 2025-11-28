@@ -608,17 +608,17 @@ const AddtoWaitingList = () => {
   }, [emergency.sameAsAbove, parents]);
 
 
- const toDateOnly = (date) => {
-  if (!date) return null;
-  const d = new Date(date);
+  const toDateOnly = (date) => {
+    if (!date) return null;
+    const d = new Date(date);
 
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
 
-  // PURE DATE, NO TIMEZONE CONVERSION POSSIBLE
-  return `${year}-${month}-${day}`;
-};
+    // PURE DATE, NO TIMEZONE CONVERSION POSSIBLE
+    return `${year}-${month}-${day}`;
+  };
 
 
   const handleSubmit = async () => {
@@ -853,7 +853,15 @@ const AddtoWaitingList = () => {
       <div className={`flex pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
 
         <h2 onClick={() => {
-          navigate('/weekly-classes/find-a-class');
+
+          if (from_lead === "leadDatabase") {
+            navigate("/weekly-classes/central-leads");
+          } else if (from_lead === "yes") {
+            navigate("/weekly-classes/central-leads");
+          }
+          else {
+            navigate("/weekly-classes/find-a-class");
+          }
         }}
           className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
         >
@@ -1583,8 +1591,8 @@ const AddtoWaitingList = () => {
                 onClick={handleSubmit}
                 disabled={isSubmitting || !isFormValid()}
                 className={`${isSubmitting || !isFormValid()
-                    ? "bg-gray-400 border-gray-400 cursor-not-allowed"
-                    : "bg-[#237FEA] border-[#237FEA] hover:bg-[#1f6dc9] cursor-pointer"
+                  ? "bg-gray-400 border-gray-400 cursor-not-allowed"
+                  : "bg-[#237FEA] border-[#237FEA] hover:bg-[#1f6dc9] cursor-pointer"
                   } text-white text-[18px] font-semibold border px-6 py-3 rounded-lg transition`}
               >
                 {isSubmitting ? "Submitting..." : "Add to Waiting List "}

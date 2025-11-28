@@ -70,7 +70,7 @@ const TermCard = ({ item, sessionData }) => {
                   {sessions.map((session, i) => (
                     <li key={i}>
                       <div
-                        className={`grid grid-cols-[1fr_120px] items-start ${i >= 6 ? 'font-semibold' : ''
+                        className={`grid grid-cols-2 items-start ${i >= 6 ? 'font-semibold' : ''
                           }`}
                       >
                         <span className="font-semibold truncate">

@@ -393,6 +393,19 @@ const StudentProfile = ({ profile }) => {
 
     const toggleEditStudent = (index) => {
         if (editingIndex === index) {
+
+            const s = students[index];
+
+        // Validation: required fields
+        if (
+            !s.studentFirstName?.trim() ||
+            !s.studentLastName?.trim() ||
+            !s.age?.toString().trim() ||
+            !s.dateOfBirth?.trim()
+        ) {
+            Swal.fire("Missing fields", "Please fill all required student fields before saving.", "warning");
+            return; // stop save
+        }
             saveStudentData();
             setEditingIndex(null);
         } else {
@@ -910,14 +923,17 @@ const StudentProfile = ({ profile }) => {
                                 </div>
 
 
-                                {(status === "frozen" || status === "cancelled") && canRebooking && (
-                                    <button
-                                        onClick={() => setReactivateMembership(true)}
-                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
-                                    >
-                                        Reactivate Membership
-                                    </button>
-                                )}
+                               {(status === "frozen" || status === "cancelled") &&
+                                    classSchedule?.capacity > 0 &&
+                                    canRebooking && (
+                                        <button
+                                            onClick={() => setReactivateMembership(true)}
+                                            className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                        >
+                                            Reactivate Membership
+                                        </button>
+                                    )}
+
 
                                 {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel") && (
                                     <button

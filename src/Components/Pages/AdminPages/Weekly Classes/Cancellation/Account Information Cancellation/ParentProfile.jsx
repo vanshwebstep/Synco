@@ -22,7 +22,7 @@ const ParentProfile = ({ ParentProfile }) => {
     const token = localStorage.getItem("adminToken");
     const [transferVenue, setTransferVenue] = useState(false);
 
-    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit, cancelMembershipSubmit,reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit, sendAllmail, sendFullTomail, sendRequestTomail, transferMembershipSubmit } = useBookFreeTrial() || {};
+    const { loading, cancelFreeTrial, sendCancelFreeTrialmail, rebookFreeTrialsubmit, cancelMembershipSubmit, reactivateDataSubmit, addtoWaitingListSubmit, freezerMembershipSubmit, sendAllmail, sendFullTomail, sendRequestTomail, transferMembershipSubmit } = useBookFreeTrial() || {};
     const [addToWaitingList, setaddToWaitingList] = useState(false);
     const [freezeMembership, setFreezeMembership] = useState(false);
     const [reactivateMembership, setReactivateMembership] = useState(false);
@@ -693,10 +693,11 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </div>
                                 ) : (
                                     <>
-
-                                        <div className=" text-[20px] text-white">Lifecycle</div>
-                                        <div className="text-[16px] mt-1 text-gray-400">
-                                            {paymentPlan?.duration} {paymentPlan?.interval}{paymentPlan?.duration > 1 ? "s" : ""}
+                                        <div className="border-t border-[#495362] py-5">
+                                            <div className="  text-[20px] text-white">Lifecycle</div>
+                                            <div className="text-[16px] mt-1 text-gray-400">
+                                                {paymentPlan?.duration} {paymentPlan?.interval}{paymentPlan?.duration > 1 ? "s" : ""}
+                                            </div>
                                         </div>
                                     </>
                                 )}
@@ -748,14 +749,17 @@ const ParentProfile = ({ ParentProfile }) => {
 
                                 {/* Top Row: Email + Text */}
 
-                                {(status === "frozen" || status === "cancelled") && canRebooking && (
-                                    <button
-                                        onClick={() => setReactivateMembership(true)}
-                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
-                                    >
-                                        Reactivate Membership
-                                    </button>
-                                )}
+                                {(status === "frozen" || status === "cancelled") &&
+                                    classSchedule?.capacity > 0 &&
+                                    canRebooking && (
+                                        <button
+                                            onClick={() => setReactivateMembership(true)}
+                                            className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                        >
+                                            Reactivate Membership
+                                        </button>
+                                    )}
+
 
                                 {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel") && (
                                     <button

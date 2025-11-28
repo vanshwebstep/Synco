@@ -7,7 +7,6 @@ import PlanTabs from '../PlanTabs';
 // import Loader from '../../../../contexts/Loader';
 import { useVenue } from '../../../contexts/VenueContext';
 import { usePayments } from '../../../contexts/PaymentPlanContext';
-import { useTermContext } from '../../../contexts/termDatesSessionContext';
 import Swal from "sweetalert2"; // make sure it's installed
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
@@ -216,7 +215,6 @@ const List = () => {
 
 
     const { fetchPackages, packages } = usePayments()
-    const { fetchTermGroup, termGroup } = useTermContext()
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const { venues, formData, setFormData, isEditVenue, setIsEditVenue, deleteVenue, fetchVenues } = useVenue() || {};
@@ -883,7 +881,10 @@ const List = () => {
                 <h2 onClick={() => {
                     if (from_lead === "leadDatabase") {
                         navigate("/weekly-classes/central-leads");
-                    } else {
+                    }else if (from_lead === "yes") {
+                        navigate("/weekly-classes/central-leads");
+                    }
+                     else {
                         navigate("/weekly-classes/find-a-class");
                     }
                 }}

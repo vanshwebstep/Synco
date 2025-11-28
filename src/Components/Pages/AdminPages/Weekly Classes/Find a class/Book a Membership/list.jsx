@@ -15,7 +15,6 @@ import PlanTabs from "../PlanTabs";
 import Loader from "../../../contexts/Loader";
 import { useVenue } from "../../../contexts/VenueContext";
 import { usePayments } from "../../../contexts/PaymentPlanContext";
-import { useTermContext } from "../../../contexts/termDatesSessionContext";
 import { useClassSchedule } from "../../../contexts/ClassScheduleContent";
 import { useBookFreeTrial } from "../../../contexts/BookAFreeTrialContext";
 
@@ -620,7 +619,7 @@ const List = () => {
             ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
         };
         console.log('payload', payload)
-        return;
+       
         try {
             if (comesFrom === "trials") {
                 await createBookMembershipByfreeTrial(payload, TrialData.id);
@@ -929,7 +928,12 @@ const List = () => {
                 <h2 onClick={() => {
                     if (comesFrom && comesFrom.toLowerCase() === "trials") {
                         navigate("/weekly-classes/trial/list");
-                    } else {
+                    } else if (from_lead === "yes") {
+                        navigate("/weekly-classes/central-leads");
+                    } else if (from_lead === "leadDatabase") {
+                        navigate("/weekly-classes/central-leads");
+                    }
+                    else {
                         navigate("/weekly-classes/find-a-class");
                     }
                 }}

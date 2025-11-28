@@ -405,10 +405,19 @@ const WaitingList = () => {
             header: "Days Waiting",
             render: (item) => item.waitingDays || "N/A",
         },
-        {
-            header: "Interest level",
-            render: (item) => item.interest || "-",
-        },
+      {
+  header: "Interest level",
+  render: (item) => {
+    const map = {
+      low: "1 (Low)",
+      medium: "2 (Medium)",
+      high: "3 (High)",
+    };
+
+    return map[item.interest] || "-";
+  },
+}
+,
         {
             header: "Status",
             render: (item) => (

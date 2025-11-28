@@ -683,6 +683,9 @@ const BirthdayLeadsDashboard = () => {
                 fetchLeads();
                 setFromDate('');
                 setToDate('');
+                setCheckedStatuses(
+                  filterOptions.reduce((acc, opt) => ({ ...acc, [opt.key]: false }), {})
+                );
               }}
                 className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
 

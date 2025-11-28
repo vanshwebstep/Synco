@@ -21,7 +21,7 @@ const StudentProfile = (fetchedData) => {
     useBookFreeTrial();
 
   const [students, setStudents] = useState([]);
-const [studentLoading, setStudentLoading] = useState(false);
+  const [studentLoading, setStudentLoading] = useState(false);
 
   const genderOptions = [
     { value: "male", label: "Male" },
@@ -32,42 +32,42 @@ const [studentLoading, setStudentLoading] = useState(false);
   /** -------------------------------
    *       UPDATE STUDENT API
    --------------------------------*/
- const handleUpdate = async (key, dataArray) => {
-  try {
-    setStudentLoading(true); // <-- START LOADING
+  const handleUpdate = async (key, dataArray) => {
+    try {
+      setStudentLoading(true); // <-- START LOADING
 
-    const filtered = dataArray
-      .filter((s) => s.bookingTrialId === currentEditId)
-      .map((s) => ({
-        id: s.id,
-        studentFirstName: s.studentFirstName,
-        studentLastName: s.studentLastName,
-        dateOfBirth: s.dateOfBirth,
-        age: s.age,
-        gender: s.gender,
-        medicalInformation: s.medicalInformation,
-      }));
+      const filtered = dataArray
+        .filter((s) => s.bookingTrialId === currentEditId)
+        .map((s) => ({
+          id: s.id,
+          studentFirstName: s.studentFirstName,
+          studentLastName: s.studentLastName,
+          dateOfBirth: s.dateOfBirth,
+          age: s.age,
+          gender: s.gender,
+          medicalInformation: s.medicalInformation,
+        }));
 
-    if (bookingType === "free") {
-      await updateBookFreeTrialsFamily(currentEditId, filtered);
-    } else if (bookingType === "waiting list") {
-      await updateWaitingListFamily(currentEditId, filtered);
-    } else if (bookingType === "membership") {
-      await updateBookMembershipFamily(currentEditId, filtered);
-    } else {
-      await updateBookFreeTrialsFamily(currentEditId, filtered);
+      if (bookingType === "free") {
+        await updateBookFreeTrialsFamily(currentEditId, filtered ,'leadsbooking');
+      } else if (bookingType === "waiting list") {
+        await updateWaitingListFamily(currentEditId, filtered,'leadsbooking');
+      } else if (bookingType === "membership") {
+        await updateBookMembershipFamily(currentEditId, filtered ,'leadsbooking');
+      } else {
+        await updateBookFreeTrialsFamily(currentEditId, filtered,'leadsbooking');
+      }
+
+      // Optional: close edit mode
+      setEditStudent({});
+      setCurrentEditId(null);
+
+    } catch (error) {
+      console.error("Update error:", error);
+    } finally {
+      setStudentLoading(false); // <-- END LOADING
     }
-
-    // Optional: close edit mode
-    setEditStudent({});
-    setCurrentEditId(null);
-
-  } catch (error) {
-    console.error("Update error:", error);
-  } finally {
-    setStudentLoading(false); // <-- END LOADING
-  }
-};
+  };
 
 
   /** -------------------------------
@@ -167,13 +167,13 @@ const [studentLoading, setStudentLoading] = useState(false);
   console.log('bookings', fetchedData)
 
 
-    if (studentLoading) {
-      return (
-        <>
-          <Loader/>
-        </>
-      )
-    }
+  if (studentLoading) {
+    return (
+      <>
+        <Loader />
+      </>
+    )
+  }
   return (
     <div className="space-y-10 p-6">
       {/* Add Student */}

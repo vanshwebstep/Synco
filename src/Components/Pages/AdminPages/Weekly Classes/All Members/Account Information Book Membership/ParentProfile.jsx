@@ -349,8 +349,19 @@ const ParentProfile = ({ profile }) => {
     const toggleEditParent = (index) => {
         if (editingIndex === index) {
             // 🔹 Save Mode
+            const p = parents[index];
+            if (
+                !p.parentFirstName?.trim() ||
+                !p.parentLastName?.trim() ||
+                !p.parentEmail?.trim() ||
+                !p.parentPhoneNumber?.trim() ||
+                !p.relationToChild?.trim() ||
+                !p.howDidYouHear?.trim()
+            ) {
+                Swal.fire("Missing fields", "Please fill all fields before saving.", "warning");
+                return; // ❌ stop saving
+            }
             setEditingIndex(null);
-
             const payload = studentsList.map((student, sIndex) => ({
                 id: student.id ?? sIndex + 1,
                 studentFirstName: student.studentFirstName,
@@ -898,7 +909,7 @@ const ParentProfile = ({ profile }) => {
                                         </button>
                                     </div>
                                 )}
-                                {!profile?.paymentPlan && profile?.classSchedule?.capacity !== 0 && status !== 'active' &&  status !== "request_to_cancel" && (
+                                {!profile?.paymentPlan && profile?.classSchedule?.capacity !== 0 && status !== 'active' && status !== "request_to_cancel" && (
 
                                     <button
                                         onClick={handleBookMembership}
@@ -929,14 +940,17 @@ const ParentProfile = ({ profile }) => {
                                 </div>
 
 
-                                  {(status === "frozen" || status === "cancelled") && canRebooking && (
-                                    <button
-                                        onClick={() => setReactivateMembership(true)}
-                                        className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
-                                    >
-                                        Reactivate Membership
-                                    </button>
-                                )}
+                              {(status === "frozen" || status === "cancelled") &&
+                                    classSchedule?.capacity > 0 &&
+                                    canRebooking && (
+                                        <button
+                                            onClick={() => setReactivateMembership(true)}
+                                            className="w-full bg-[#237FEA] text-white rounded-xl py-3 text-[18px] font-medium hover:bg-blue-700 hover:shadow-md transition-shadow duration-300"
+                                        >
+                                            Reactivate Membership
+                                        </button>
+                                    )}
+
 
                                 {(status === "active" || status === "frozen" || status === "cancelled" || status === "request_to_cancel") && (
                                     <button

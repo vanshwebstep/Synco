@@ -159,10 +159,10 @@ const formatPrettyDate = (dateString) => {
               {renderField("Membership Plan", booking?.paymentPlan?.title)}
               {renderField("Students", booking?.totalStudents)}
               {renderField("Venue", booking?.venue.name)}
-              {renderField("KGo/Cardless ID", booking?.payments?.merchantRef)}
+              {renderField("KGo/Cardless ID", booking?.payments?.merchantRef || booking?.payments[0]?.merchantRef)}
               {renderField("Monthly Price", booking?.paymentPlan.price)}
               {renderField("Date Of Booking", booking?.startDate)}
-              {/* {renderField("Progress", booking?.paymentPlanId)} */}
+              {renderField("Progress", "-")}
               {renderField("Booking Source", booking?.paymentPlanId)}
             </>
           )}

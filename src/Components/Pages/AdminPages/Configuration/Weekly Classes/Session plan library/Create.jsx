@@ -1250,37 +1250,37 @@ const Create = () => {
                                                                 <img
                                                                     src="/demo/synco/icons/edit2.png"
                                                                     alt="Edit"
-                                                                   onClick={async (e) => {
-    e.stopPropagation();
+                                                                    onClick={async (e) => {
+                                                                        e.stopPropagation();
 
-    setEditIndex(idx);
-    setRemovedImages([]);
+                                                                        setEditIndex(idx);
+                                                                        setRemovedImages([]);
 
-    // 🔥 get fresh fetched data directly
-    const exerciseData = await fetchExerciseById(plan.id);
+                                                                        // 🔥 get fresh fetched data directly
+                                                                        const exerciseData = await fetchExerciseById(plan.id);
 
-    if (!exerciseData) return;
+                                                                        if (!exerciseData) return;
 
-    console.log("exerciseData", exerciseData);
+                                                                        console.log("exerciseData", exerciseData);
 
-    const existingImages =
-        typeof exerciseData.imageUrl === "string"
-            ? JSON.parse(exerciseData.imageUrl || "[]")
-            : Array.isArray(exerciseData.imageUrl)
-                ? exerciseData.imageUrl
-                : [];
+                                                                        const existingImages =
+                                                                            typeof exerciseData.imageUrl === "string"
+                                                                                ? JSON.parse(exerciseData.imageUrl || "[]")
+                                                                                : Array.isArray(exerciseData.imageUrl)
+                                                                                    ? exerciseData.imageUrl
+                                                                                    : [];
 
-    setFormData({
-        title: exerciseData.title || "",
-        duration: exerciseData.duration || "",
-        description: exerciseData.description || "",
-        images: [],
-        imageUrl: existingImages
-    });
+                                                                        setFormData({
+                                                                            title: exerciseData.title || "",
+                                                                            duration: exerciseData.duration || "",
+                                                                            description: exerciseData.description || "",
+                                                                            images: [],
+                                                                            imageUrl: existingImages
+                                                                        });
 
-    setPhotoPreview(existingImages);
-    setOpenForm(true);
-}}
+                                                                        setPhotoPreview(existingImages);
+                                                                        setOpenForm(true);
+                                                                    }}
                                                                     className="w-5 h-5 hover:scale-110 cursor-pointer"
                                                                 />
                                                                 <button
@@ -1601,7 +1601,19 @@ const Create = () => {
                         <div className="flex items-center mt-16 gap-4 justify-end">
                             <button
                                 type="button"
-                                onClick={() => navigate(`/configuration/weekly-classes/session-plan-preview${isEditMode && id ? `?id=${id}` : ''}`)}
+                                onClick={() => {
+                                    navigate(
+                                        `/configuration/weekly-classes/session-plan-preview${isEditMode && id ? `?id=${id}&comesFrom=innerplan` : `?comesFrom=innerplan`
+                                        }`,
+                                        {
+                                            state: {
+                                                comesFrom: "innerplan",
+                                                activeTab: activeTab,   // <-- your current active tab variable
+                                            },
+                                        }
+                                    );
+                                }}
+
                                 className={`flex items-center justify-center gap-1 border border-blue-500 text-[#237FEA] px-4 py-2 rounded-lg font-semibold w-full md:w-auto 
             ${!isEditMode ? 'cursor-not-allowed opacity-50' : 'hover:bg-blue-50'}`}
                                 disabled={!isEditMode}

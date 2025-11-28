@@ -689,6 +689,9 @@ const AllDashboard = () => {
                                 fetchLeads();
                                 setFromDate('');
                                 setToDate('');
+                                setCheckedStatuses(
+                                    filterOptions.reduce((acc, opt) => ({ ...acc, [opt.key]: false }), {})
+                                );
                             }}
                                 className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
 
@@ -754,7 +757,13 @@ const AllDashboard = () => {
 
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.age || "-"}</td>
                                                         <td className="py-3 px-4 min-w-100 ">{lead.booking?.address || "-"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.date || "-"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.date
+                                                            ? new Date(lead.booking?.date).toLocaleDateString("en-GB", {
+                                                                day: "numeric",
+                                                                month: "short",
+                                                                year: "numeric",
+                                                            }).replace(/ /g, "-") // to get "10-Oct-2025"
+                                                            : "-"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.packageInterest || "-"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.booking?.payment?.amount || "-"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">{lead.source || "-"}</td>

@@ -83,6 +83,9 @@ const AdminLayout = ({ children }) => {
     '/configuration/holiday-camp/subscription-plan-group': { title: 'Payment Plan Manager', icon: '/demo/synco/icons/subscriptionplanIcon.png' },
     '/configuration/holiday-camp/discount': { title: 'Discounts', icon: '/demo/synco/icons/subscriptionplanIcon.png' },
     '/holiday-camp/find-a-camp': { title: 'Find a Holiday Camp', icon: '/demo/synco/icons/subscriptionplanIcon.png' },
+    '/templates/create': { title: 'Communication Templates', icon: "/demo/synco/members/Notification.png" },
+    '/templates/list': { title: 'Text/Email Communications', icon: "/demo/synco/members/Notification.png" },
+    '/templates/settingList': { title: 'Communication Templates', icon: "/demo/synco/members/Notification.png" },
 
   };
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

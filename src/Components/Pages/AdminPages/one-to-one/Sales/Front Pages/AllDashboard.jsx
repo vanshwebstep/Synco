@@ -696,6 +696,9 @@ const AllDashboard = () => {
                                 fetchLeads();
                                 setFromDate('');
                                 setToDate('');
+                                                setCheckedStatuses(
+                  filterOptions.reduce((acc, opt) => ({ ...acc, [opt.key]: false }), {})
+                );
                             }}
                                 className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
 
@@ -767,21 +770,23 @@ const AllDashboard = () => {
                                                             ? `${lead.booking.coach.firstName} ${lead.booking.coach.lastName}`
                                                             : "-"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">
-                                                            <button
-                                                                className={`capitalize w-[90px] py-2 rounded-xl text-xs font-medium
-    ${lead.status === "active"
-                                                                        ? "bg-green-50 text-green-500"
-                                                                        : lead.status === "pending"
-                                                                            ? "bg-yellow-50 text-yellow-600"
-                                                                            : lead.status === "cancelled"
-                                                                                ? "bg-red-50 text-red-500"
-                                                                                : lead.status === "completed"
-                                                                                    ? "bg-blue-50 text-blue-500"
-                                                                                    : "bg-gray-100 text-gray-500"
-                                                                    }`}
-                                                            >
-                                                                {lead.status || "-"}
-                                                            </button>
+                                                        <button
+  className={`capitalize w-[90px] py-2 rounded-xl text-xs font-medium
+    ${
+      lead.status?.trim() === "active"
+        ? "bg-green-50 text-green-500"
+        : lead.status?.trim() === "pending"
+        ? "bg-yellow-50 text-yellow-600"
+        : lead.status?.trim() === "cancelled"
+        ? "bg-red-50 text-red-500"
+        : lead.status?.trim() === "completed"
+        ? "bg-blue-50 text-blue-500"
+        : "bg-gray-100 text-gray-500"
+    }`}
+>
+  {lead.status?.trim() || "-"}
+</button>
+
 
                                                         </td>
                                                     </tr>

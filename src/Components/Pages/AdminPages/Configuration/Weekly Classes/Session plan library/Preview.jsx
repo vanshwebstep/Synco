@@ -26,7 +26,7 @@ const Preview = ({ item, sessionData }) => {
   const navigate = useNavigate();
 
   const id = searchParams.get("id");
-
+  const { state } = useLocation();
   // Fetch group on load
   useEffect(() => {
     if (id) {
@@ -89,7 +89,7 @@ const Preview = ({ item, sessionData }) => {
   }, [currentContent]);
   useEffect(() => {
     if (selectedGroup && activeTab) {
-        console.log('activeTab',selectedGroup)
+      console.log('activeTab', selectedGroup)
 
       const tabKey = activeTab.toLowerCase().replace(/s$/, "");
       const fieldName = `${tabKey}_upload`;
@@ -109,7 +109,7 @@ const Preview = ({ item, sessionData }) => {
       } else {
         setVideoUrl(null); // no match found
       }
-       if (selectedGroup[videoDuration]) {
+      if (selectedGroup[videoDuration]) {
         setVideoDuration(selectedGroup[videoDuration]);
       } else {
         setVideoDuration(null); // no match found
@@ -139,8 +139,8 @@ const Preview = ({ item, sessionData }) => {
       </>
     )
   }
-  
-console.log(selectedExercise?.description);
+
+  console.log(selectedExercise?.description);
 
   console.log('currentContent', currentContent)
   return (
@@ -149,8 +149,15 @@ console.log(selectedExercise?.description);
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3 w-full md:w-1/2">
         <h2
           onClick={() => {
-            navigate('/configuration/weekly-classes/session-plan-list');
+            if (state?.comesFrom === "innerplan") {
+              navigate(
+                `/configuration/weekly-classes/session-plan-create?id=${id}&level=${state?.activeTab}`
+              );
+            } else {
+              navigate("/configuration/weekly-classes/session-plan-list");
+            }
           }}
+
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
             src="/demo/synco/icons/arrow-left.png"
@@ -361,7 +368,7 @@ console.log(selectedExercise?.description);
                     <div>
 
                       <div
-                      className="prose prose-sm space-y-6 max-w-none text-gray-700
+                        className="prose prose-sm space-y-6 max-w-none text-gray-700
     prose-p:mb-3 prose-li:mb-2
     prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
     prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5
