@@ -1,160 +1,91 @@
 // List.js
 import React, { useEffect, useState } from 'react';
 import Loader from '../../../contexts/Loader';
-import TermCard from './TermCard';
 import { useNavigate } from 'react-router-dom';
 import { usePermission } from '../../../Common/permission';
 import { useHolidayTerm } from '../../../contexts/HolidayTermsContext';
-
-const formatDate = (iso) => {
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-GB', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-};
-
-const formatShortDate = (iso) => {
-  const d = new Date(iso);
-  return `${d.toLocaleDateString('en-GB', {
-    weekday: 'short',
-  })} ${d.getDate()}/${String(d.getFullYear()).slice(2)}`;
-};
+import Swal from 'sweetalert2';
 
 const HolidayTermList = () => {
   const navigate = useNavigate();
-  const { fetchTermGroup, fetchTerm, termGroup, termData, loading } = useHolidayTerm();
-  const [sessionDataList, setSessionDataList] = useState([]);
-  const [classList, setClassList] = useState([]);
+  const { fetchHolidayCampDate, termData, loading, deleteCampDate } = useHolidayTerm();
 
   useEffect(() => {
-    fetchTerm();
-    fetchTermGroup();
-  }, [fetchTerm, fetchTermGroup]);
+    fetchHolidayCampDate();
+  }, [fetchHolidayCampDate]);
 
-  useEffect(() => {
+  // INDIVIDUAL SESSION TOGGLE STATE
+  const [openSessions, setOpenSessions] = useState({});
 
-    if (!termGroup.length || !termData.length) {
-      return;
-    }
+  const toggleSession = (id) => {
+    setOpenSessions((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
-    // Helper to detect season
-    const detectSeason = (termName) => {
-      const name = termName?.toLowerCase();
-      if (name?.includes('autumn')) return 'autumn';
-      if (name?.includes('spring')) return 'spring';
-      return 'summer';
-    };
-
-    const grouped = termGroup.map((group) => {
-
-      // FIX: match by holidayTermGroupId
-      const terms = termData.filter((t) => t.holidayCampId === group.id);
-
-      if (!terms.length) return null;
-      console.log('termData',termData)
-
-      const sessionData = terms.map((term) => {
-
-        const start = formatDate(term.startDate);
-        const end = formatDate(term.endDate);
-        const dateRange = `${start} - ${end}`;
-
-        // FIX: Normalize exclusionDates field
-        let exclusionArr = [];
-        if (Array.isArray(term.exclusionDates)) {
-          exclusionArr = term.exclusionDates;
-        } else if (typeof term.exclusionDates === 'string') {
-          try {
-            exclusionArr = JSON.parse(term.exclusionDates);
-          } catch (e) {
-            exclusionArr = [];
-          }
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This action will delete the Term Group.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteCampDate(id);
+          Swal.fire('Deleted!', 'Term Group has been deleted.', 'success');
+        } catch (error) {
+          Swal.fire('Error!', 'Failed to delete Term Group.', 'error');
         }
-
-        const exclusion = exclusionArr.length
-          ? exclusionArr.map((ex) => formatDate(ex)).join(', ')
-          : 'None';
-
-        const sessions = term.sessionsMap.map((session) => ({
-          groupName: session?.sessionPlan?.groupName,
-          date: formatDate(session.sessionDate),
-        }));
-
-        const season = detectSeason(term.termName);
-
-        return {
-          term: term.termName,
-          endDate: term.endDate,
-          startDate: term.startDate,
-          totalDays: term.totalDays,
-          icon: `/demo/synco/icons/${season}.png`,
-          date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
-          exclusion,
-          sessions,
-        };
-      });
-
-      // Create class card object
-      const classCard = {
-        id: group.id,
-        name: group.name,
-        Date: formatShortDate(group.createdAt),
-        endTime: '3:00 pm',
-        freeTrial: 'Yes',
-        facility: 'Indoor',
-      };
-
-      sessionData.forEach((termObj) => {
-        const key = detectSeason(termObj.term);
-        classCard[key] = termObj.date;
-      });
-
-      return { sessionData, classCard };
+      }
     });
+  };
 
-
-    const filtered = grouped.filter(Boolean);
-    const allSessions = filtered.map((g) => g.sessionData);
-    const allClasses = filtered.map((g) => g.classCard);
-
-
-    setSessionDataList(allSessions);
-    setClassList(allClasses);
-  }, [termGroup, termData]);
-
-
+  const handleEdit = (id) => {
+    navigate(`/configuration/holiday-camp/terms/create?id=${id}`);
+  };
 
   const { checkPermission } = usePermission();
+
+  const canEdit =
+    checkPermission({ module: 'term-group', action: 'update' }) &&
+    checkPermission({ module: 'term', action: 'update' }) &&
+    checkPermission({ module: 'session-plan-group', action: 'view-listing' });
+
+  const canDelete =
+    checkPermission({ module: 'term-group', action: 'delete' }) &&
+    checkPermission({ module: 'term', action: 'delete' });
+
   const canCreate =
     checkPermission({ module: 'term-group', action: 'create' }) &&
     checkPermission({ module: 'term', action: 'create' }) &&
     checkPermission({ module: 'session-plan-group', action: 'view-listing' });
 
-  if (loading) {
-    return <Loader />;
-  }
-  // Then check for missing data
-  if (!termGroup.length && !termData.length) {
+  if (loading) return <Loader />;
+
+  if (!termData.length && !termData.length) {
     return (
-      <>  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
-        <h2 className="text-[22px] md:text-[28px] font-semibold">
-          Holiday Camp Dates & Session Plan Mapping
-        </h2>
+      <>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
+          <h2 className="text-[22px] md:text-[28px] font-semibold">
+            Holiday Camp Dates & Session Plan Mapping
+          </h2>
 
+          {canCreate && (
+            <button
+              onClick={() => navigate('/configuration/holiday-camp/terms/create')}
+              className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
+            >
+              <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+              Add Holiday Camp Dates
+            </button>
+          )}
+        </div>
 
-        {canCreate &&
-          <button
-            onClick={() => navigate('/configuration/holiday-camp/terms/create')}
-            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
-          >
-            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-           Add Holiday Camp Dates
-          </button>
-        }
-      </div>
         <div className="text-center p-4 border-dotted text-red-500 rounded-md text-sm md:text-base">
           No Term Groups or Term Data Available
         </div>
@@ -162,24 +93,25 @@ const HolidayTermList = () => {
     );
   }
 
-  if (!loading && !termGroup.length) {
+  if (!loading && !termData.length) {
     return (
-      <>  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
-        <h2 className="text-[22px] md:text-[28px] font-semibold">
-          Holiday Camp Dates & Session Plan Mapping
-        </h2>
+      <>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
+          <h2 className="text-[22px] md:text-[28px] font-semibold">
+            Holiday Camp Dates & Session Plan Mapping
+          </h2>
 
+          {canCreate && (
+            <button
+              onClick={() => navigate('/configuration/holiday-camp/terms/create')}
+              className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
+            >
+              <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+              Add Holiday Camp Dates
+            </button>
+          )}
+        </div>
 
-        {canCreate &&
-          <button
-            onClick={() => navigate('/configuration/holiday-camp/terms/create')}
-            className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
-          >
-            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-           Add Holiday Camp Dates
-          </button>
-        }
-      </div>
         <div className="text-center p-4 border-dotted text-red-500 rounded-md text-sm md:text-base">
           No Term Groups Available
         </div>
@@ -187,46 +119,124 @@ const HolidayTermList = () => {
     );
   }
 
-
   return (
     <div className="pt-1 bg-gray-50 min-h-screen md:px-4 md:px-6">
+
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 w-full">
         <h2 className="text-[22px] md:text-[28px] font-semibold">
           Holiday Camp Dates & Session Plan Mapping
         </h2>
 
-
-        {canCreate &&
+        {canCreate && (
           <button
             onClick={() => navigate('/configuration/holiday-camp/terms/create')}
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
           >
             <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
-           Add Holiday Camp Dates
+            Add Holiday Camp Dates
           </button>
-        }
+        )}
       </div>
 
       {/* Term Cards */}
       <div className="transition-all duration-300 h-full w-full">
-        {classList.length > 0 ? (
-          <div className="rounded-3xl shadow bg-white p-5  flex flex-col gap-6">
-            {classList.map((item, index) => (
-              <TermCard
-                key={index}
-                item={item}
-                sessionData={sessionDataList[index]}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center h-40 text-[#717073] font-medium">
-            No data available
-          </div>
-        )}
-      </div>
+        {termData.map((item, indx) => (
+          <div key={item.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow hover:shadow-md transition mb-4">
 
+            <div className="flex flex-col md:flex-row justify-between p-4 gap-4 text-sm">
+
+              {/* Camp Name */}
+              <div className="flex-shrink-0 w-full md:w-1/12">
+                <h5 className="font-bold text-[18px]">Camp Name</h5>
+                <p className="font-semibold line-clamp-2 text-[16px]">{item?.holidayCamp?.name}</p>
+              </div>
+
+              {/* Term Summary */}
+              <div className="grid md:w-7/12 md:grid-cols-3">
+
+                <div className="flex items-center gap-3">
+                  <img src="/demo/synco/icons/spring.png" className="w-8 mt-1" alt="" />
+                  <div>
+                    <p className="text-[#717073] font-semibold text-[16px] mb-1">Start Date</p>
+                    <p className="text-[16px] text-gray-600">{item.startDate}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <img src="/demo/synco/icons/autumn.png" className="w-8 mt-1" alt="" />
+                  <div>
+                    <p className="text-[#717073] font-semibold text-[16px] mb-1">End Date</p>
+                    <p className="text-[16px] text-gray-600">{item.endDate}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <img src="/demo/synco/icons/summer.png" className="w-8 mt-1" alt="" />
+                  <div>
+                    <p className="text-[#717073] font-semibold text-[16px] mb-1">No. of Days</p>
+                    <p className="text-[16px] text-gray-600">{item.totalDays}</p>
+                  </div>
+                </div>
+
+                {/* Sessions */}
+                <div className="mt-3 col-span-2 overflow-x-auto scrollbar-hide">
+                  {item.sessionsMap.map((session, i) => (
+                    <div key={i} className="flex flex-col gap-2">
+                      <div
+                        className={`transition-all duration-500 overflow-hidden ${
+                          openSessions[item.id] ? 'max-h-[1000px]' : 'max-h-0'
+                        }`}
+                      >
+                        <ul className="space-y-1 text-xs mt-1">
+                          <li>
+                            <div className="grid grid-cols-2 items-start">
+                              <span className="font-semibold text-[16px]">
+                                {`Session ${i + 1}: ${session?.sessionPlan?.groupName || 'No Session Found'}`}
+                              </span>
+                              <span className="text-[#717073] text-[16px]">{session.sessionDate}</span>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 md:w-1/12 ml-auto">
+                {canEdit && (
+                  <button onClick={() => handleEdit(item.id)} className="text-gray-500 hover:text-blue-500">
+                    <img className="w-5 h-5" src="/demo/synco/icons/edit.png" alt="Edit" />
+                  </button>
+                )}
+
+                {canDelete && (
+                  <button onClick={() => handleDelete(item.id)} className="text-gray-500 hover:text-red-500">
+                    <img className="w-5 h-5" src="/demo/synco/icons/deleteIcon.png" alt="Delete" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Toggle Sessions */}
+            <div
+              className="bg-gray-100 px-4 py-2 cursor-pointer"
+              onClick={() => toggleSession(item.id)}
+            >
+              <div className="text-center text-[#237FEA] flex justify-center items-center gap-2">
+                {openSessions[item.id] ? 'Hide all session dates' : 'Show all session dates'}
+                <img
+                  className={`w-4 transition-transform ${openSessions[item.id] ? 'rotate-180' : ''}`}
+                  src="/demo/synco/icons/bluearrowup.png"
+                  alt="Toggle"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

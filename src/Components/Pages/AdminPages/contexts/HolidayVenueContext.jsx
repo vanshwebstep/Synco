@@ -152,7 +152,12 @@ export const HolidayVenueProvider = ({ children }) => {
             });
 
             await fetchVenues();
-            setOpenForm(null)
+            setOpenForm(null);
+            setFormData({
+                area: "", name: "", address: "", facility: "",
+                hasParking: false, isCongested: false, parkingNote: "",
+                howToEnterFacility: "", holidayCampId: [], paymentGroupId: ""
+            });
             return result;
         } catch (error) {
             console.error("Error updating venue:", error);

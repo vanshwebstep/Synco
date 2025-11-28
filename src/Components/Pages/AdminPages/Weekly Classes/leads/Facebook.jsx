@@ -415,7 +415,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-2">
-                        <span className="bg-[#FBEECE] text-[#EDA600] px-5 py-1.5 rounded-xl text-xs font-semibold">
+                        <span className="bg-[#FBEECE] text-[#EDA600] min-w-25 text-center  px-5 py-1.5 rounded-xl text-xs font-semibold">
                           {lead.status}
                         </span>
                         <button onClick={(e) => toggleExpand(lead.id, e)}>

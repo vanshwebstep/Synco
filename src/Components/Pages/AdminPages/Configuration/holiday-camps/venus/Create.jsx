@@ -28,7 +28,7 @@ const Create = ({ groups, termGroup }) => {
     if (!formData.facility) return 'Please select Facility (Indoor/Outdoor)';
     if (formData.hasParking && !formData.parkingNote?.trim()) return 'Please add a Parking Note';
     if (formData.isCongested && !formData.howToEnterFacility?.trim()) return 'Please add a Congestion Note';
-    if (selectedTermIds.length === 0) return 'Please select at least one Term Date Linkage';
+    if (selectedTermIds.length === 0) return 'Please select at least one Camp Date Linkage';
     return null; // ✅ valid
   };
 
@@ -55,7 +55,7 @@ const Create = ({ groups, termGroup }) => {
     setFormData({
       area: "", name: "", address: "", facility: "",
       hasParking: false, isCongested: false, parkingNote: "",
-      howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
+      howToEnterFacility: "", holidayCampId: [], paymentGroupId: ""
     });
     setIsEditVenue(false);
     setOpenForm(null);
@@ -76,36 +76,30 @@ const Create = ({ groups, termGroup }) => {
       return; // stop here, don't close
     }
 
-    // Normalize termGroupId
-    let termGroupId = formData.termGroupId;
+    // Normalize holidayCampId
+    let holidayCampId = formData.holidayCampId;
 
-    if (!Array.isArray(termGroupId)) {
+    if (!Array.isArray(holidayCampId)) {
       try {
-        termGroupId = JSON.parse(termGroupId);
+        holidayCampId = JSON.parse(holidayCampId);
       } catch (e) {
-        console.warn("termGroupId is not JSON, converting to array:", termGroupId);
-        termGroupId = termGroupId ? [Number(termGroupId)] : [];
+        console.warn("holidayCampId is not JSON, converting to array:", holidayCampId);
+        holidayCampId = holidayCampId ? [Number(holidayCampId)] : [];
       }
     }
 
     // ensure all elements are numbers
-    termGroupId = termGroupId.map(x => Number(x));
+    holidayCampId = holidayCampId.map(x => Number(x));
 
 
     // Create updated data object
-    const updatedVenueData = { ...formData, termGroupId };
+    const updatedVenueData = { ...formData, holidayCampId };
 
     // Send normalized data to API
     updateVenues(id, updatedVenueData);
 
     // Reset form
-    setFormData({
-      area: "", name: "", address: "", facility: "",
-      hasParking: false, isCongested: false, parkingNote: "",
-      howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
-    });
-
-    onClose();
+  
   };
 
 
@@ -116,7 +110,7 @@ const Create = ({ groups, termGroup }) => {
   const handleSaveTerm = () => {
     setFormData((prev) => ({
       ...prev,
-      termGroupId: selectedTermIds, // now just an array
+      holidayCampId: selectedTermIds, // now just an array
     }));
     setShowTermDropdown(false);
   };
@@ -128,21 +122,55 @@ const Create = ({ groups, termGroup }) => {
     }));
     setShowSubDropdown(false);
   };
+  console.log('termGroup', termGroup)
 
 
+  // Helper: Get day suffix (st, nd, rd, th)
+  function getDaySuffix(day) {
+    if (day > 3 && day < 21) return "th";
+    switch (day % 10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  }
 
+  // Helper: Format date to "Sat 31st" OR "Tue 2nd June 2025"
+  function formatHolidayDate(dateString, includeMonthYear = false) {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const suffix = getDaySuffix(day);
+
+    const weekday = date.toLocaleString("en-US", { weekday: "short" });
+    const month = date.toLocaleString("en-US", { month: "long" });
+    const year = date.getFullYear();
+
+    if (includeMonthYear) {
+      return `${weekday} ${day}${suffix} ${month} ${year}`;
+    }
+    return `${weekday} ${day}${suffix}`;
+  }
+
+  // Main options
   const termOptions = Array.isArray(termGroup)
-    ? termGroup.map((group) => {
-      if (!group?.id || !group?.name) return null;
+    ? termGroup
+      .map((group) => {
+        if (!group?.id || !group?.startDate || !group?.endDate) return null;
 
-      const label = `${group.name.replace(/^(Saturday|Sunday|Tuesday)\s?/i, "")}`.trim();
+        const start = formatHolidayDate(group.startDate, false);  // Sat 31st
+        const end = formatHolidayDate(group.endDate, true);       // Tue 2nd June 2025
 
-      return {
-        id: group.id,
-        label,
-      };
-    }).filter(Boolean)
+        const label = `${start} - ${end}`;
+
+        return {
+          id: group.holidayCampId,
+          label,
+        };
+      })
+      .filter(Boolean)
     : [];
+
 
 
   const toggleTermId = (id) => {
@@ -185,11 +213,11 @@ const Create = ({ groups, termGroup }) => {
 
 
     // Handle term group ID
-    if (formData?.termGroupId != null) {
+    if (formData?.holidayCampId != null) {
       try {
-        const parsedTermGroup = Array.isArray(formData.termGroupId)
-          ? formData.termGroupId
-          : JSON.parse(formData.termGroupId);
+        const parsedTermGroup = Array.isArray(formData.holidayCampId)
+          ? formData.holidayCampId
+          : JSON.parse(formData.holidayCampId);
         setSelectedTermIds(parsedTermGroup);
       } catch {
         setSelectedTermIds([]);
@@ -346,10 +374,10 @@ const Create = ({ groups, termGroup }) => {
 
         <div className="space-y-6 max-w-md">
 
-          {/* TERM DATE */}
+          {/* Camp Date */}
           <div className="w-full max-w-xl">
             <label className="block font-semibold text-[16px] pb-2">
-              Term Date Linkage
+              Holiday Camp Date Linkage
             </label>
             <div
               onClick={() => setShowTermDropdown(!showTermDropdown)}
@@ -359,7 +387,7 @@ const Create = ({ groups, termGroup }) => {
             >
               {labels.length > 0
                 ? labels.join(", ")
-                : "Select Term Date Group"}
+                : "Select Camp Date Group"}
             </div>
 
             <AnimatePresence>
@@ -372,7 +400,7 @@ const Create = ({ groups, termGroup }) => {
                   variants={dropdownVariants}
                   transition={{ duration: 0.2 }}
                 >
-                  <p className="font-semibold text-[17px]">Select Term Date Group</p>
+                  <p className="font-semibold text-[17px]">Select Camp Date Group</p>
                   {termOptions.map((group) => (
                     <label key={group.id} className="flex items-center gap-2 text-[15px]">
                       <input
@@ -397,10 +425,10 @@ const Create = ({ groups, termGroup }) => {
             </AnimatePresence>
           </div>
 
-          {/* SUBSCRIPTION PLAN */}
+          {/* Payment Plan */}
           <div className="w-full">
             <label className="block font-semibold text-[16px] pb-2">
-              Subscription Plan Linkage
+              Payment Plan Linkage
             </label>
             <div
               onClick={() => setShowSubDropdown(!showSubDropdown)}
@@ -424,7 +452,7 @@ const Create = ({ groups, termGroup }) => {
                   variants={dropdownVariants}
                   transition={{ duration: 0.2 }}
                 >
-                  <p className="font-semibold text-[17px]">Select Available Subscription Plan</p>
+                  <p className="font-semibold text-[17px]">Select Available Payment Plan</p>
                   {subOptions?.map((plan) => (
                     <label key={plan.id} className="flex items-center gap-2 text-[15px] cursor-pointer">
                       <input

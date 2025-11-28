@@ -21,129 +21,120 @@ export const HolidayTermsProvider = ({ children }) => {
 
 
   // Fetch all termGroup
-  const fetchTermGroup = useCallback(async () => {
+  const fetchHolidayCampMain = useCallback(async () => {
     if (!token) return;
+
     setLoading(true);
+
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/camp/list`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/holiday/camp/list`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
       const result = await response.json();
+
+      if (!response.ok || result.status === false) {
+        await Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: result.message || "Failed to load camp list.",
+          confirmButtonColor: "#237FEA",
+        });
+        return;
+      }
+
       setTermGroup(result.data || []);
     } catch (err) {
       console.error("Failed to fetch termGroup:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
-
-  const fetchTerm = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/campDate/list`, {
-        headers: { Authorization: `Bearer ${token}` },
+      await Swal.fire({
+        icon: "error",
+        title: "Network Error",
+        text: err.message || "Something went wrong. Please try again.",
+        confirmButtonColor: "#237FEA",
       });
-      const result = await response.json();
-      setTermData(result.data || []);
-    } catch (err) {
-      console.error("Failed to fetch termGroup:", err);
     } finally {
       setLoading(false);
     }
   }, [token]);
 
-  const createTermGroup = useCallback(
-    async (formdata, shouldRedirect = false) => {
-      if (!token) return;
+  const fetchHolidayCampDate = useCallback(async () => {
+    if (!token) return;
 
-      const myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-      myHeaders.append("Authorization", `Bearer ${token}`);
+    setLoading(true);
 
-      const raw = JSON.stringify(formdata);
-
-      const requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow"
-      };
-
-      try {
-
-        const response = await fetch(`${API_BASE_URL}/api/admin/holiday/camp/create`, requestOptions);
-        const data = await response.json();
-        setMyGroupData(data.data);
-
-        console.log("data", data.data);
-
-        if (response.ok && data.status === true) {
-          // await Swal.fire({
-          //   icon: 'success',
-          //   title: 'Success',
-          //   text: data.message || 'Group created successfully.',
-          //   confirmButtonColor: '#237FEA'
-          // });
-
-
-        } else {
-          console.error("API Error:", data.message || "Unknown error");
-        }
-      } catch (err) {
-        console.error("Failed to create session group:", err);
-      } finally {
-      }
-    },
-    [token, navigate]
-  );
-
-
-
-  const createTerms = useCallback(
-    async (formdata, shouldRedirect = false) => {
-      if (!token) return;
-
-      try {
-        setLoading(true);
-
-        const fd = new FormData();
-
-        for (const key in formdata) {
-          if (key === "levels") continue;
-          if (formdata[key] instanceof File || typeof formdata[key] === "string") {
-            fd.append(key, formdata[key]);
-          }
-        }
-
-        fd.append("levels", JSON.stringify(formdata.levels));
-
-        const response = await fetch(`${API_BASE_URL}/api/admin/holiday/session-plan-group/list`, {
-          method: "POST",
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/holiday/campDate/list`,
+        {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          body: fd,
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.status === true) {
-          // ✅ Only redirect on final submission
-          if (shouldRedirect) {
-            navigate('/configuration/weekly-classes/campDate-dates/list');
-          }
-        } else {
-          console.error("API Error:", data.message || "Unknown error");
         }
+      );
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result?.message || "Failed to load holiday camp dates");
+      }
+
+      setTermData(result?.data || []);
+    } catch (err) {
+      console.error("Failed to fetch holiday camp date:", err);
+
+      Swal.fire({
+        icon: "error",
+        title: "Failed to Load Data",
+        text: err?.message || "Something went wrong while fetching camp dates.",
+        confirmButtonColor: "#d33",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
+
+  const createHolidayCamp = useCallback(
+    async (formdata) => {
+      if (!token) throw new Error("Unauthorized");
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/admin/holiday/camp/create`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(formdata),
+          }
+        );
+
+        // Safe JSON parsing
+        const result = await response.json().catch(() => ({}));
+
+        // API error handling
+        if (!response.ok || !result?.status) {
+          throw new Error(result?.message || "Failed to create holiday camp");
+        }
+
+        // Save into state
+        setMyGroupData(result?.data || null);
+
+        return result; // ⬅ important for Swal in parent
       } catch (err) {
-        console.error("Failed to create session group:", err);
-      } finally {
-        setLoading(false);
+        console.error("Failed to create holiday camp:", err);
+        throw err; // rethrow so parent can show Swal
       }
     },
-    [token, navigate]
+    [token]
   );
+
+
 
 
   const fetchExercises = useCallback(async () => {
@@ -161,6 +152,8 @@ export const HolidayTermsProvider = ({ children }) => {
       setLoading(false);
     }
   }, [token]);
+
+
   const createSessionExercise = useCallback(async (data, file) => {
     if (!token) return;
 
@@ -203,124 +196,184 @@ export const HolidayTermsProvider = ({ children }) => {
   // Fetch single discount
 
 
-  const fetchTermGroupById = useCallback(async (id) => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/camp/listBy/${id}`, {
+const fetchCampGroupId = useCallback(async (id) => {
+  if (!token) return;
+
+  setLoading(true);
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/holiday/camp/listBy/${id}`,
+      {
         headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok || result.status === false) {
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: result.message || "Failed to load camp group details.",
+        confirmButtonColor: "#237FEA",
       });
-      const result = await response.json();
-      setSelectedTermGroup(result.data || null);
-    } catch (err) {
-      console.error("Failed to fetch discount:", err);
-    } finally {
-      setLoading(false);
+      return;
     }
-  }, [token]);
-  const fetchTermById = useCallback(async (id) => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/campDate/listBy/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await response.json();
-      setSelectedTerm(result.data || null);
-    } catch (err) {
-      console.error("Failed to fetch discount:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [token]);
+
+    setSelectedTermGroup(result.data || null);
+  } catch (err) {
+    console.error("Failed to fetch camp group:", err);
+    await Swal.fire({
+      icon: "error",
+      title: "Network Error",
+      text: err.message || "Something went wrong. Please try again.",
+      confirmButtonColor: "#237FEA",
+    });
+  } finally {
+    setLoading(false);
+  }
+}, [token]);
+
 
   // Create discount
-  const createDiscount = useCallback(async (data) => {
-    if (!token) return;
+const fetchCampDateId = useCallback(async (id) => {
+  if (!token) return;
 
-    setLoading(true); // Start loading
+  setLoading(true);
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/discount`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.status) {
-        throw new Error(result.message || "Something went wrong");
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/holiday/campDate/listBy/${id}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
       }
+    );
 
-      await fetchTermGroup();
+    const result = await response.json();
 
+    if (!response.ok || result.status === false) {
       await Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: result.message || 'Discount created successfully.',
-        confirmButtonColor: '#237FEA'
+        icon: "error",
+        title: "Error",
+        text: result.message || "Failed to load camp date details.",
+        confirmButtonColor: "#237FEA",
       });
-
-      navigate('/holiday-camps/termGroup/list');
-    } catch (err) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Failed to Create Discount',
-        text: err.message || 'An unexpected error occurred.',
-        confirmButtonColor: '#d33'
-      });
-
-      console.error("Failed to create discount:", err);
-    } finally {
-      setLoading(false); // Stop loading regardless of success or error
+      return;
     }
-  }, [token, fetchTermGroup, navigate]);
+
+    setSelectedTerm(result.data || null);
+  } catch (err) {
+    console.error("Failed to fetch camp date:", err);
+    await Swal.fire({
+      icon: "error",
+      title: "Network Error",
+      text: err.message || "Something went wrong. Please try again.",
+      confirmButtonColor: "#237FEA",
+    });
+  } finally {
+    setLoading(false);
+  }
+}, [token]);
 
 
-  const updateTermGroup = useCallback(
+  const updateHolidayCampDate = useCallback(
     async (id, data) => {
-      if (!token) return;
+      if (!token) throw new Error("Unauthorized");
 
       try {
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-        myHeaders.append("Authorization", `Bearer ${token}`);
+        const response = await fetch(
+          `${API_BASE_URL}/api/admin/holiday/camp/update/${id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(data),
+          }
+        );
 
-        const response = await fetch(`${API_BASE_URL}/api/admin/holiday/camp/update/${id}`, {
-          method: "PUT",
-          headers: myHeaders,
-          body: JSON.stringify(data),
-        });
+        // Parse server response safely
+        const result = await response.json().catch(() => ({}));
 
-        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result?.message || "Failed to update holiday camp date");
+        }
 
-        await fetchTermGroup();
+        // Refresh UI data
+        await fetchHolidayCampMain();
+
+        return result; // important for Swal success msg in parent
       } catch (err) {
-        console.error("Failed to update campDate group:", err);
+        console.error("Failed to update holiday camp date:", err);
+        throw err; // so the calling function can show Swal error
       }
     },
-    [token, fetchTermGroup, navigate]
+    [token, fetchHolidayCampMain]
   );
 
 
+
   // Delete discount
-  const deleteTermGroup = useCallback(async (id) => {
-    if (!token) return;
-    try {
-      await fetch(`${API_BASE_URL}/api/admin/holiday/camp/delete/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
+  const deleteCampDate = useCallback(
+    async (id) => {
+      if (!token) return;
+
+      // Loading popup
+      Swal.fire({
+        title: "Deleting Holiday Camp Date...",
+        text: "Please wait",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
       });
-      await fetchTermGroup();
-      await fetchTerm();
-    } catch (err) {
-      console.error("Failed to delete discount:", err);
-    }
-  }, [token, fetchTermGroup]);
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/admin/holiday/campDate/delete/${id}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const result = await response.json().catch(() => ({})); // safe parse
+
+        if (!response.ok) {
+          const errorMessage =
+            result?.message ||
+            "Something went wrong while deleting. Please try again.";
+
+          throw new Error(errorMessage);
+        }
+
+        // Success message
+        Swal.fire({
+          icon: "success",
+          title: "Holiday Camp Date Deleted!",
+          text: result?.message || "Holiday camp date removed successfully.",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+
+        await fetchHolidayCampDate();
+      } catch (err) {
+        console.error("Delete failed:", err);
+
+        Swal.fire({
+          icon: "error",
+          title: "Failed to Delete Holiday Camp Date",
+          text: err.message || "Something went wrong. Please try again.",
+        });
+      }
+    },
+    [token, fetchHolidayCampDate]
+  );
+
 
 
   const deleteSessionlevel = useCallback(async (id, level) => {
@@ -331,11 +384,11 @@ export const HolidayTermsProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
 
       });
-      await fetchTermGroup();
+      await fetchHolidayCampMain();
     } catch (err) {
       console.error("Failed to delete discount:", err);
     }
-  }, [token, fetchTermGroup]);
+  }, [token, fetchHolidayCampMain]);
 
 
   return (
@@ -345,25 +398,24 @@ export const HolidayTermsProvider = ({ children }) => {
         termGroup,
         setTermGroup,
         loading,
-        createTermGroup,
+        createHolidayCamp,
         createSessionExercise,
         selectedTermGroup,
         selectedTerm,
-        fetchTermGroup,
-        fetchTermGroupById,
-        fetchTermById,
-        createDiscount,
-        updateTermGroup,
+        fetchHolidayCampMain,
+        fetchCampGroupId,
+        fetchCampDateId,
+        updateHolidayCampDate,
         setSelectedTermGroup,
         setSelectedTerm,
-        deleteTermGroup,
+        deleteCampDate,
 
         selectedExercise,
         setSelectedExercise,
         exercises,
         myGroupData,
         setMyGroupData,
-        fetchTerm,
+        fetchHolidayCampDate,
         termData,
         setExercises,
         fetchExerciseById,

@@ -753,45 +753,34 @@ const CampList = () => {
 
                           <div className=' overflow-x-auto'><div className="p-5 md:flex flex-col lg:flex-row gap-8 min-w-[900px]  bg-[#FCF9F6]  "> {/* ✅ responsive layout */}
                             {/* Meta Info */}
-                            <div className="w-full lg:w-3/12 space-y-1 ">
-                              <div className='flex gap-5 items-center'>
-                                <div>
-                                  <div className="font-semibold text-[20px] text-black max-w-30 min-w-30  truncate ">{venue.venueName}</div>
-                                  <div className="whitespace-nowrap font-semibold text-[14px]">
-                                    {(venue.distanceMiles / 1609.34).toFixed(2)} miles
-                                  </div>
-                                </div>
-
-                                <div className="">
-                                  {/* <div className="text-[16px] capitalize font-semibold text-[#384455]">
-                                  {Object.keys(venue.classes)
-                                    .filter(day => venue.classes[day]?.length)
-                                    .join(", ")}
-                                </div> */}
-
-                                </div>
-                              </div>
+                            <div className="w-full lg:w-1/12 space-y-1 ">
                               <div>
-
+                                <div className="font-semibold text-[20px] text-black max-w-30 min-w-30  truncate ">{venue.venueName}</div>
+                                <div className="whitespace-nowrap font-semibold text-[14px]">
+                                  {(venue.distanceMiles / 1609.34).toFixed(2)} miles
+                                </div>
                               </div>
+
                             </div>
 
-                            <div className="w-full parent relative lg:w-9/12 pl-4 border-l border-[#ccc]  space-y-4">
+                            <div className=" parent relative lg:w-11/12 pl-4  space-y-4">
                               {venue.classes && Object.keys(venue.classes).length > 0 ? (
                                 Object.entries(venue.classes).map(([day, classList]) => (
-                                  <div key={day} className="">
-                                    <div className="w-full dayssss  text-[16px] capitalize font-semibold text-[#384455]">
-                                      {day}
+                                  <div key={day} className="flex justify-between items-center">
+                                    <div className='border-r pe-7 text-center border-[#ccc] '>
+                                      <div className="text-[16px] capitalize font-semibold text-[#384455]">
+                                        1st Nov - 4th Nov 2023
+                                      </div>
+                                      <div className="whitespace-nowrap font-semibold text-[14px]">4 Days</div>
                                     </div>
-                                    <div className="whitespace-nowrap facility mt-5 font-semibold text-[14px]">{venue.facility || "N/A"}</div>
                                     {classList.map((s, i) => (
                                       <div
                                         key={s.classId}
-                                        className=" w-full md:flex space-x-2 items-center mb-2 justify-between space-y-4"
+                                        className=" md:flex space-x-2 items-center mb-2 justify-between space-y-4"
                                       >
 
                                         <div className='md:flex space-x-3 md:space-y-0 space-y-4 items-center justify-between'>
-                                          <div className="font-bold text-[16px] text-black whitespace-nowrap">Class {i + 1}</div>
+                                          <div className="font-bold text-[16px] text-black whitespace-nowrap">Group {i + 1}</div>
 
                                           {/* Class Name */}
                                           <div className="font-semibold text-[16px] min-w-25 max-w-25 ">{s.className}</div>
@@ -1035,44 +1024,44 @@ const CampList = () => {
 
 
                           </div>
-                          
+
                         </div>
-<div>{openMapId === venue.venueId && (
-                            <div ref={iconContainerRef}>
-                              <div
-                                ref={(el) => (modalRefs.current[venue.venueId] = el)}
-                                className="mt-2 mb-4 h-[450px] w-full rounded-lg overflow-hidden"
-                              >
-                                {venue.latitude && venue.longitude ? (
-                                  <MapContainer
-                                    center={[venue.latitude, venue.longitude]}
-                                    zoom={13}
-                                    scrollWheelZoom={false}
-                                    zoomControl={false}
-                                    style={{ height: "100%", width: "100%" }}
-                                  >
-                                    <TileLayer
-                                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                      attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                                    />
-                                    <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
-                                      <Popup>
-                                        <strong>{venue.venueName}</strong>
-                                        <br />
-                                        {venue.address}
-                                      </Popup>
-                                    </Marker>
-                                    <ZoomControl position="bottomright" />
-                                    <ResizeMap />
-                                  </MapContainer>
-                                ) : (
-                                  <div className="flex items-center justify-center h-full bg-gray-100 text-gray-500 text-lg font-medium">
-                                    No map location found
-                                  </div>
-                                )}
-                              </div>
+                        <div>{openMapId === venue.venueId && (
+                          <div ref={iconContainerRef}>
+                            <div
+                              ref={(el) => (modalRefs.current[venue.venueId] = el)}
+                              className="mt-2 mb-4 h-[450px] w-full rounded-lg overflow-hidden"
+                            >
+                              {venue.latitude && venue.longitude ? (
+                                <MapContainer
+                                  center={[venue.latitude, venue.longitude]}
+                                  zoom={13}
+                                  scrollWheelZoom={false}
+                                  zoomControl={false}
+                                  style={{ height: "100%", width: "100%" }}
+                                >
+                                  <TileLayer
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                                  />
+                                  <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
+                                    <Popup>
+                                      <strong>{venue.venueName}</strong>
+                                      <br />
+                                      {venue.address}
+                                    </Popup>
+                                  </Marker>
+                                  <ZoomControl position="bottomright" />
+                                  <ResizeMap />
+                                </MapContainer>
+                              ) : (
+                                <div className="flex items-center justify-center h-full bg-gray-100 text-gray-500 text-lg font-medium">
+                                  No map location found
+                                </div>
+                              )}
                             </div>
-                          )}</div>
+                          </div>
+                        )}</div>
                       </>
                     ))
                   )}

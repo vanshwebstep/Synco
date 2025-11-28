@@ -22,7 +22,7 @@ const HolidayVenueList = () => {
 
   const handleIconClick = (icon, plan = null) => {
 
-    console.log('plan',plan)
+    console.log('plan', plan)
 
     if (Array.isArray(plan)) {
       console.table(plan);
@@ -72,7 +72,7 @@ const HolidayVenueList = () => {
   };
 
   const { fetchGroups, groups } = useHolidayPayments()
-  const { fetchTermGroup, termGroup, fetchTerm, termData } = useHolidayTerm()
+  const { fetchHolidayCampDate, termGroup, termData } = useHolidayTerm()
 
   const { venues, setFormData, setIsEditVenue, deleteVenue, fetchVenues, loading, openForm, setOpenForm } = useHolidayVenue()
   const [selectedUserIds, setSelectedUserIds] = useState([]);
@@ -121,9 +121,8 @@ const HolidayVenueList = () => {
   useEffect(() => {
     fetchVenues();
     fetchGroups();
-    fetchTermGroup();
-    fetchTerm();
-  }, [fetchVenues, fetchGroups, fetchTermGroup, fetchTerm]);
+    fetchHolidayCampDate();
+  }, [fetchVenues, fetchGroups, fetchHolidayCampDate]);
 
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -293,18 +292,6 @@ const HolidayVenueList = () => {
     });
   };
 
-
-
-
-
-
-
-  const formatShortDate = (iso) => {
-    const d = new Date(iso);
-    return `${d.toLocaleDateString('en-GB', {
-      weekday: 'short',
-    })} ${d.getDate()}/${String(d.getFullYear()).slice(2)}`;
-  };
   const detectSeason = (termName) => {
     const name = termName?.toLowerCase();
     if (name?.includes('autumn')) return 'autumn';
@@ -312,86 +299,9 @@ const HolidayVenueList = () => {
     return 'summer';
   };
 
-  const grouped = termGroup.map((group, groupIdx) => {
-
-    // Use termGroup?.id to match correctly
-    const terms = termData.filter((t) => t.holidayTermGroup?.id === group.id);
-    if (!terms.length) {
-      return null;
-    }
-
-
-    // Step 2: Map each term to sessionData
-    const sessionData = terms.map((term, termIdx) => {
-      const start = formatDate(term.startDate);
-      const end = formatDate(term.endDate);
-      const dateRange = `${start} - ${end}`;
-      // Parse exclusionDates
-      let exclusionArr = [];
-      try {
-
-        if (Array.isArray(term.exclusionDates)) {
-          exclusionArr = term.exclusionDates;
-        } else if (typeof term.exclusionDates === 'string') {
-          try {
-            exclusionArr = JSON.parse(term.exclusionDates || '[]');
-          } catch (e) {
-            exclusionArr = [];
-          }
-        }
-      } catch (err) {
-        console.error(`❌ Failed to parse exclusions for term ${term.id}:`, err);
-      }
-
-      const exclusion = exclusionArr.length
-        ? exclusionArr.map((ex) => formatDate(ex)).join(', ')
-        : 'None';
-      const sessions = term.sessionsMap.map((session, idx) => ({
-        groupName: session?.sessionPlan?.groupName,
-        date: formatDate(session.sessionDate), // assuming you have a formatDate function
-      }));
 
 
 
-
-      const season = detectSeason(term.termName);
-
-      const sessionObj = {
-
-        term: term.termName,
-        icon: `/demo/synco/icons/${season}.png`,
-        date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
-        exclusion,
-        sessions,
-
-      };
-
-      return sessionObj;
-    });
-
-
-    // Step 3: Build the class card
-    const classCard = {
-      id: group.id,
-      name: group.name,
-      createdAt: group.createdAt,
-      endTime: '3:00 pm',
-      freeTrial: 'Yes',
-      facility: 'Indoor',
-    };
-
-    sessionData.forEach((termData) => {
-      const key = detectSeason(termData.term);
-      classCard[key] = `${termData.date}`;
-    });
-
-
-    return { sessionData, classCard };
-  });
-
-  const classCards = grouped
-    .filter(item => item && item.classCard)
-    .map(item => item.classCard);
 
   const { checkPermission } = usePermission();
 
@@ -489,7 +399,8 @@ const HolidayVenueList = () => {
                                 onClick={() =>
                                   handleIconClick(
                                     "calendar",
-                                    user.termGroups?.flatMap(group => group.holidayTerms) || []
+                                    user.holidayCamp
+                                      ?.flatMap(group => group.holidayCampDates) || []
                                   )
                                 } className="cursor-pointer"
                               >
@@ -613,7 +524,7 @@ const HolidayVenueList = () => {
             </button>
             <Create
               groups={groups}
-              termGroup={classCards}
+              termGroup={termData}
               onClose={() => setOpenForm(false)}
             />
 

@@ -17,7 +17,6 @@ const HolidayTermsCreate = () => {
     const [searchParams] = useSearchParams();
     const mapSectionRef = useRef(null);
     const id = searchParams.get("id");
-    const [selectedDay, setSelectedDay] = useState(null);
     const [holidayTerms, setHolidayTerms] = useState({
         startDate: null,
         endDate: null,
@@ -30,6 +29,7 @@ const HolidayTermsCreate = () => {
     const [sessionMappings, setSessionMappings] = useState([]);
     const [groupName, setGroupName] = useState('');
     const [isEditMode, setIsEditMode] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
     const [isGroupSaved, setIsGroupSaved] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [sessionsMap, setSessionsMap] = useState([]);
@@ -37,24 +37,22 @@ const HolidayTermsCreate = () => {
     const [isMapping, setIsMapping] = useState(false);
     const navigate = useNavigate();
 
-    const { createTermGroup, updateTermGroup, myGroupData, setMyGroupData, setSelectedTermGroup, selectedTermGroup, fetchTerm, termData, fetchTermGroupById, loading } = useHolidayTerm();
+    const { createHolidayCamp, updateHolidayCampDate, selectedTerm, myGroupData, setMyGroupData, setSelectedTermGroup, selectedTermGroup, fetchHolidayCampDate, termData, fetchCampDateId, loading } = useHolidayTerm();
 
 
     useEffect(() => {
         if (id) {
             const fetchData = async () => {
                 setMyGroupData(null);
-                await fetchTerm();
+                await fetchCampDateId(id);
 
-                await fetchTermGroupById(id);
-                setIsEditMode(true);
             };
 
             fetchData();
         } else {
             setSelectedTermGroup(null);
         }
-    }, [id, fetchTermGroupById]); // include fetchTermGroupById if it's stable (e.g., useCallback)
+    }, [id]); // include fetchCampGroupId if it's stable (e.g., useCallback)
     function formatDateLocal(date) {
         const year = date.getFullYear();
         const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -95,17 +93,27 @@ const HolidayTermsCreate = () => {
                 const diffTime = end.getTime() - start.getTime();
                 const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-                const sessions = [];
+                // 🎯 STEP 1: Create new sessions
+                const newSessions = [];
                 for (let i = 0; i < diffDays; i++) {
                     const d = new Date(start);
                     d.setDate(start.getDate() + i);
-                    sessions.push({
-                        sessionDate: formatDateLocal(d),
-                        sessionPlanId: null,
+
+                    const formattedDate = formatDateLocal(d);
+
+                    // 🎯 STEP 2: Try to find old session for the same date
+                    const oldSession = sessionMappings?.find(
+                        (s) => s.sessionDate === formattedDate
+                    );
+
+                    newSessions.push({
+                        sessionDate: formattedDate,
+                        sessionPlanId: oldSession ? oldSession.sessionPlanId : null, // 🔥 PRESERVE OLD ID
                     });
                 }
 
-                setSessionMappings(sessions);
+                // 🎯 STEP 3: Update session mappings WITHOUT losing sessionPlanId
+                setSessionMappings(newSessions);
 
                 return {
                     ...newTerm,
@@ -117,108 +125,127 @@ const HolidayTermsCreate = () => {
         });
     }
 
+
     // Second: Wait for isEditMode + termData + selectedTermGroup
     useEffect(() => {
 
-
-        if (isEditMode && termData.length && selectedTermGroup?.id) {
+        if (id && selectedTerm?.id) {
 
             setMyGroupData(null);
-            setGroupName(selectedTermGroup.name);
+            setGroupName(selectedTerm?.holidayCamp?.name);
             setIsGroupSaved(true);
 
-            const matchedTerms = termData.filter(
-                (term) => term.holidayCampId === selectedTermGroup.id
-            );
+
 
             setHolidayTerms({
-                startDate: matchedTerms[0].startDate,
-                endDate: matchedTerms[0].endDate,
-                numberOfDays: matchedTerms[0].totalDays,
+                startDate: selectedTerm.startDate,
+                endDate: selectedTerm.endDate,
+                numberOfDays: selectedTerm.totalDays,
             })
+            if (selectedTerm?.sessionsMap?.length) {
+                const mappedTerms = {
+                    id: selectedTerm.id,
+                    startDate: selectedTerm.startDate,
+                    endDate: selectedTerm.endDate,
+                    sessions: selectedTerm.sessionsMap?.length || 0,
+                    isOpen: false,
+                    sessionsMap: selectedTerm.sessionsMap || [],
+                };
 
-            if (matchedTerms?.length) {
-                const mappedTerms = matchedTerms.map((term) => {
-                    // Set selected day for the current term (optional — depends on your logic)
-                    setSelectedDay(term.day);
+                console.log("mappedTerms", mappedTerms);
 
-                    return {
-                        id: term.id,
-                        startDate: term.startDate,
-                        endDate: term.endDate,
-                        sessions: term.sessionsMap?.length || 0,
-                        isOpen: false,
-                        sessionsMap: term.sessionsMap || [],
-                    };
-                });
-
-
-
-                const extractedData = mappedTerms.flatMap((term) =>
-                    term.sessionsMap.map((session) => ({
-                        sessionDate: session.sessionDate,
-                        sessionPlanId: session.sessionPlanId,
-                        termId: term.id,
-                    }))
-                );
+                const extractedData = selectedTerm.sessionsMap.map((session) => ({
+                    sessionDate: session.sessionDate,
+                    sessionPlanId: session.sessionPlanId,
+                    termId: id,
+                }));
 
                 setSavedTermIds((prev) => {
                     const updated = new Set(prev);
-                    matchedTerms.forEach((term) => updated.add(term.id));
+                    updated.add(mappedTerms.id); // <-- Correct
                     return updated;
                 });
 
+                console.log('extractedData', extractedData)
+
                 setSessionMappings(extractedData);
             }
-        }
-    }, [isEditMode, termData, selectedTermGroup]);
 
+        }
+    }, [id, selectedTerm]);
 
     const handleGroupNameSave = async () => {
         if (!groupName.trim()) {
             Swal.fire({
                 icon: 'error',
                 title: 'Group Name Required',
-                text: 'Please enter a name for the term group',
+                text: 'Please enter a name for the term camp',
                 confirmButtonColor: '#d33'
             });
             return;
         }
 
-        setMyGroupData(null)
-        // setIsLoading(true);
+        setMyGroupData(null);
+
         try {
             const payload = { name: groupName };
 
-            const groupId = myGroupData?.id || selectedTermGroup?.id;
-            if (groupId) {
-                // Update existing group
-                await updateTermGroup(groupId, payload);
-                // Swal.fire({
-                //     icon: 'success',
-                //     title: 'Group Updated',
-                //     text: 'Term group updated successfully',
-                //     confirmButtonColor: '#3085d6'
-                // });
-            } else {
-                // Create new group
-                const createdGroup = await createTermGroup(payload);
+            let apiResponse;
 
+            if (id) {
+                // Update existing camp
+                apiResponse = await updateHolidayCampDate(id, payload);
+            } else {
+                // Create new camp
+                apiResponse = await createHolidayCamp(payload);
+            }
+
+            // Try to extract message (if API returns text or json)
+            let message = "";
+
+            if (typeof apiResponse === "string") {
+                message = apiResponse;
+            } else if (apiResponse?.message) {
+                message = apiResponse.message;
+            } else {
+                message = id
+                    ? "Camp updated successfully"
+                    : "Camp created successfully";
+            }
+
+            Swal.fire({
+                icon: "success",
+                title: id ? "Camp Updated" : "Camp Created",
+                text: message,
+                confirmButtonColor: "#3085d6",
+                timer: 1800,
+                showConfirmButton: false,
+            });
+            if (id) {
+                setIsEditMode(false)
             }
 
             setIsGroupSaved(true);
         } catch (error) {
             Swal.fire({
-                icon: 'error',
-                title: 'Save Failed',
-                text: error?.message || 'Failed to save group name',
-                confirmButtonColor: '#d33'
+                icon: "error",
+                title: "Save Failed",
+                text: error?.message || "Failed to save Camp name",
+                confirmButtonColor: "#d33",
             });
-        } finally {
-            // setIsLoading(false);
         }
     };
 
+
+
+    const deleteCampDate = () => {
+        setHolidayTerms({
+            startDate: null,
+            endDate: null,
+            numberOfDays: 0,
+        });
+        setSessionMappings([]);
+    }
 
 
 
@@ -237,120 +264,6 @@ const HolidayTermsCreate = () => {
             setSessionMappings([]);
         }
     }, [terms]);
-
-
-    // Term management functions
-    const toggleTerm = (id) => {
-        if (!isGroupSaved) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Save Group First',
-                text: 'Please save the group name before adding terms',
-                confirmButtonColor: '#d33'
-            });
-            return;
-        }
-
-        // Save current term's unsaved mappings before switching
-        setTerms(prev => prev.map(term => {
-            if (term.isOpen) {
-                return {
-                    ...term,
-                    unsavedSessionMappings: [...sessionMappings] // Save current mappings
-                };
-            }
-            return term;
-        }));
-
-        // Then toggle the terms
-        setTerms(prev => prev.map(term => ({
-            ...term,
-            isOpen: term.id === id ? !term.isOpen : false
-        })));
-
-        // Load the new term's mappings
-        const newActiveTerm = terms.find(t => t.id === id);
-        if (newActiveTerm) {
-            setSessionMappings(newActiveTerm.unsavedSessionMappings || []);
-        }
-    };
-
-
-
-
-
-
-    const deleteTerm = useCallback(async (id) => {
-        if (!token) return;
-
-        const willDelete = await Swal.fire({
-            title: "Are you sure?",
-            text: "This action will permanently delete the term.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, delete it!",
-            cancelButtonText: "Cancel",
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-        });
-
-        if (!willDelete.isConfirmed) return;
-
-        // Check if term is saved (has real backend ID)
-        const isSaved = savedTermIds.has(id);
-
-        if (!isSaved) {
-            // Just remove it locally
-            setTerms(prev => prev.filter(term => term.id !== id));
-            setSessionMappings([]);
-            Swal.fire("Deleted!", "The unsaved term was removed.", "success");
-            return;
-        }
-
-        // Otherwise delete from backend
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/term/delete/${id}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
-            });
-
-            if (response.ok) {
-                Swal.fire("Deleted!", "The term was deleted successfully.", "success");
-
-                // 🔹 Update terms locally
-                setTerms(prev => prev.filter(term => term.id !== id));
-
-                // 🔹 Update session mappings (remove sessions of that term)
-                setSessionMappings(prev =>
-                    prev.filter(mapping => mapping.termId !== id)
-                );
-
-                // 🔹 Update saved term IDs set
-                setSavedTermIds(prev => {
-                    const updated = new Set(prev);
-                    updated.delete(id);
-                    return updated;
-                });
-
-                // 🔹 If you still want to refresh backend data
-                if (myGroupData) {
-                    fetchTermGroupById(myGroupData.id);
-                } else {
-                    navigate('/configuration/holiday-camp/terms/list');
-                }
-
-                fetchTerm();
-            } else {
-                const errorData = await response.json();
-                Swal.fire("Failed", errorData.message || "Failed to delete the term.", "error");
-            }
-        } catch (err) {
-            console.error("Failed to delete term:", err);
-            Swal.fire("Error", "Something went wrong. Please try again.", "error");
-        }
-    }, [token, savedTermIds, fetchTerm, myGroupData, fetchTermGroupById, navigate]);
-
-
 
 
 
@@ -382,43 +295,48 @@ const HolidayTermsCreate = () => {
     };
 
 
-
     const handleSaveMappings = () => {
+        // If empty
         if (!sessionMappings.length) {
             Swal.fire({
-                icon: 'warning',
-                title: 'No Session Mappings',
-                text: 'Please add at least one session mapping',
-                confirmButtonColor: '#e03a10',
+                icon: "warning",
+                title: "No Session Mappings",
+                text: "Please add at least one session mapping.",
+                confirmButtonColor: "#237FEA",
             });
             return;
         }
 
-        const isValid = sessionMappings.every(mapping => mapping.sessionDate && mapping.sessionPlanId);
+        // Validate fields
+        const isValid = sessionMappings.every(
+            (mapping) => mapping.sessionDate && mapping.sessionPlanId
+        );
 
         if (!isValid) {
             Swal.fire({
-                icon: 'error',
-                title: 'Incomplete Mappings',
-                text: 'Please fill all session mappings completely',
-                confirmButtonColor: '#e03a10',
+                icon: "error",
+                title: "Incomplete Mappings",
+                text: "Please fill all session mappings completely.",
+                confirmButtonColor: "#237FEA",
             });
             return;
         }
 
-        // Save mappings exactly as added
+        // Save
         setSessionsMap(sessionMappings);
-
-
         setIsMapping(false);
 
+        // Success
         Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: 'Session mappings saved successfully',
-            confirmButtonColor: '#3085d6',
+            icon: "success",
+            title: "Saved",
+            text: "Session mappings saved successfully.",
+            confirmButtonColor: "#237FEA",
         });
     };
+
+    // Determine if it's an existing term (edit)
+
     const toDateOnly = (date) => {
         if (!date) return null;
         const d = new Date(date);
@@ -431,18 +349,13 @@ const HolidayTermsCreate = () => {
         return `${year}-${month}-${day}`;
     };
 
+    const handleSaveCamp = async () => {
 
-    const handleSaveTerm = async (term) => {
-
-        if (!myGroupData?.id && !selectedTermGroup) {
+        if (id && !selectedTerm) {
             console.error("Missing termGroupId");
             return;
         }
 
-        console.log('term', term)
-
-
-        // Validate required fields
         if (!holidayTerms.startDate || !holidayTerms.endDate) {
             Swal.fire({
                 icon: 'error',
@@ -468,7 +381,7 @@ const HolidayTermsCreate = () => {
         }
 
         const payload = {
-            holidayCampId: myGroupData?.id || selectedTermGroup?.id,
+            holidayCampId: id || myGroupData?.id || selectedTerm?.id,
             sessionPlanGroupId: 1, // static value
             startDate: toDateOnly(holidayTerms.startDate),
             endDate: toDateOnly(holidayTerms.endDate),
@@ -477,15 +390,15 @@ const HolidayTermsCreate = () => {
                 sessionDate: session.sessionDate,
                 sessionPlanId: session.sessionPlanId,
             })),
-            unsavedSessionMappings: []
         };
 
-        // Determine if it's an existing term (edit)
-        const isExistingTerm = termData.some((t) => t.id === term.id);
-        const requestUrl = isExistingTerm
-            ? `${API_BASE_URL}/api/admin/holiday/campDate/update/${term.id}`
+
+
+
+        const requestUrl = id
+            ? `${API_BASE_URL}/api/admin/holiday/campDate/update/${id}`
             : `${API_BASE_URL}/api/admin/holiday/campDate/create`;
-        const method = isExistingTerm ? "PUT" : "POST";
+        const method = id ? "PUT" : "POST";
 
         setIsLoading(true);
         try {
@@ -504,25 +417,8 @@ const HolidayTermsCreate = () => {
                 throw new Error(data.message || 'Failed to save term.');
             }
 
-            // Update the terms list
-            setTerms(prev => prev.map(t => {
-                if (t.id === term.id) {
-                    return {
-                        ...t,
-                        id: data.data.id || t.id,
-                        name: data.data.termName || t.name,
-                        startDate: data.data.startDate || t.startDate,
-                        endDate: data.data.endDate || t.endDate,
-                        sessions: data.data.totalNumberOfSessions?.toString() || t.sessions,
-                        exclusions: data.data.exclusionDates || t.exclusions,
-                        sessionsMap: data.data.sessionsMap || sessionMappings,
-                    };
-                }
-                return t;
-            }));
 
-            await fetchTerm();
-            setSavedTermIds(prev => new Set(prev).add(data.data.id || term.id));
+            await fetchHolidayCampDate();
 
             Swal.fire({
                 icon: 'success',
@@ -530,7 +426,7 @@ const HolidayTermsCreate = () => {
                 confirmButtonColor: '#3085d6'
             });
 
-            toggleTerm(term.id);
+
 
             navigate('/configuration/holiday-camp/terms/list');
 
@@ -549,41 +445,7 @@ const HolidayTermsCreate = () => {
 
 
 
-    const handleSaveAll = async () => {
-        if (!terms.length) {
-            Swal.fire({
-                icon: 'error',
-                title: 'No Terms',
-                text: 'Please add at least one term',
-                confirmButtonColor: '#d33'
-            });
-            return;
-        }
 
-        // Check if all terms are saved
-        const unsavedTerms = terms.filter(t => !savedTermIds.has(t.id));
-        if (unsavedTerms.length > 0) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Unsaved Terms',
-                text: `Please save all terms (${unsavedTerms.length} unsaved) before final submission`,
-                confirmButtonColor: '#d33'
-            });
-            return;
-        }
-        setIsEditMode(false);
-        setSavedTermIds(null);
-        setMyGroupData(null)
-        // Success - navigate away or show success message
-        Swal.fire({
-            icon: 'success',
-            title: 'All Terms Saved',
-            text: 'Your term group has been saved successfully',
-            confirmButtonColor: '#3085d6'
-        }).then(() => {
-            navigate('/configuration/holiday-camp/terms/list');
-        });
-    };
 
     if (loading) return <Loader />;
     return (
@@ -604,7 +466,7 @@ const HolidayTermsCreate = () => {
                         alt="Back"
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
-                    <span className="truncate">Add Holiday Camp Dates</span>
+                    <span className="truncate">{id ? 'Update Holiday Camp Dates' : 'Add Holiday Camp Dates'}</span>
                 </h2>
             </div>
             <div className="flex flex-col gap-8 md:flex-row rounded-3xl w-full">
@@ -616,24 +478,26 @@ const HolidayTermsCreate = () => {
                                 <label className="block text-base font-semibold text-gray-700 mb-2">
                                     Name of Holiday Camp Dates
                                 </label>
-                                {isGroupSaved && (
+                                {id && (
                                     <img
                                         src="/demo/synco/icons/edit.png"
                                         className="w-[18px] cursor-pointer"
-                                        onClick={() => setIsGroupSaved(false)} // Allow editing
-                                        alt="Edit group name"
+                                        onClick={() => setIsEditMode(true)} // Allow editing
+                                        alt="Edit camp name"
                                     />
                                 )}
                             </div>
                             <input
                                 type="text"
-                                placeholder="Enter Term Group Name"
+                                placeholder="Enter Holiday Camp Name"
                                 value={groupName}
                                 onChange={(e) => setGroupName(e.target.value)}
-                                className="md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                disabled={isGroupSaved && !isEditMode}
+                                className={`md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${id && !isEditMode ? 'cursor-not-allowed' : ''}`}
+                                disabled={id && !isEditMode}
                             />
-                            {!isGroupSaved && (
+
+
+                            {id && isEditMode && (
                                 <button
                                     onClick={handleGroupNameSave}
                                     disabled={isLoading}
@@ -641,42 +505,58 @@ const HolidayTermsCreate = () => {
                                 >
                                     {isLoading
                                         ? 'Saving...'
-                                        : myGroupData?.id
-                                            ? 'Update Group Name'
-                                            : 'Save Group Name'}
+                                        : 'Update'}
                                 </button>
+
                             )}
+                            {!id && (
+                                <button
+                                    onClick={handleGroupNameSave}
+                                    disabled={isLoading}
+                                    className="mt-2 ml-6 bg-[#237FEA] text-white text-[14px] font-semibold px-4 py-2 rounded-lg hover:bg-blue-700"
+                                >
+                                    {isLoading
+                                        ? 'Saving...'
+                                        : 'Save'}
+                                </button>
+
+                            )}
+
 
                         </div>
                     </div>
 
-                    {groupName && (
+                    {isGroupSaved && (
                         <div className="rounded-2xl mb-5 bg-white md:p-6">
                             <div
 
                                 className="border mb-5 border-gray-200 rounded-3xl px-4 py-3"
                             >
                                 <div className="flex items-center justify-end py-3">
+                                    {id && (
 
-                                    <div className="flex gap-2">
-                                        <img
-                                            src="/demo/synco/icons/edit.png"
-                                            className="w-[18px] cursor-pointer"
-                                        // onClick={() => toggleTerm(term.id)}
-                                        />
-                                        <img
-                                            src="/demo/synco/icons/deleteIcon.png"
-                                            className="w-[18px] cursor-pointer"
-                                        // onClick={() => deleteTerm(term.id)}
-                                        />
+                                        <div className="flex gap-2">
+                                            <img
+                                                src="/demo/synco/icons/edit.png"
+                                                className="w-[18px] cursor-pointer"
+                                                onClick={() => setIsEdit(true)}
 
-                                        <img
-                                            src="/demo/synco/icons/crossGray.png"
-                                            className="w-[18px] cursor-pointer"
-                                        // onClick={() => toggleTerm(term.id)}
-                                        />
+                                            />
+                                            <img
+                                                src="/demo/synco/icons/deleteIcon.png"
+                                                className="w-[18px] cursor-pointer"
+                                                onClick={deleteCampDate}
+                                            />
 
-                                    </div>
+                                            <img
+                                                src="/demo/synco/icons/crossGray.png"
+                                                className="w-[18px] cursor-pointer"
+
+                                            />
+
+                                        </div>
+                                    )}
+
                                 </div>
 
                                 <AnimatePresence>
@@ -697,13 +577,14 @@ const HolidayTermsCreate = () => {
                                                 <DatePicker
                                                     selected={holidayTerms.startDate}
                                                     onChange={(date) => handleDateChange('startDate', date)}
-                                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                    className={`w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base ${id && !isEdit ? 'cursor-not-allowed' : ''}`}
                                                     showYearDropdown
                                                     scrollableYearDropdown
                                                     yearDropdownItemNumber={100}
                                                     dateFormat="dd/MM/yyyy"
                                                     placeholderText="Select start date"
                                                     withPortal
+                                                    disabled={id && !isEdit}
                                                     minDate={new Date()}  // disable past dates before today
                                                 />
                                             </div>
@@ -715,9 +596,11 @@ const HolidayTermsCreate = () => {
                                                 <DatePicker
                                                     selected={holidayTerms.endDate}
                                                     onChange={(date) => handleDateChange('endDate', date)}
-                                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                    className={`w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base ${id && !isEdit ? 'cursor-not-allowed' : ''}`}
                                                     showYearDropdown
                                                     scrollableYearDropdown
+
+                                                    disabled={id && !isEdit}
                                                     yearDropdownItemNumber={100}
                                                     dateFormat="dd/MM/yyyy"
                                                     placeholderText="Select end date"
@@ -766,7 +649,7 @@ const HolidayTermsCreate = () => {
 
                                                 <button
                                                     className="bg-[#237FEA] whitespace-nowrap text-white text-[14px] md:w-7/12 w-full font-semibold px-6 py-3 rounded-lg hover:bg-blue-700"
-                                                    onClick={handleSaveTerm}
+                                                    onClick={handleSaveCamp}
                                                     disabled={isLoading}
                                                 >
                                                     {isLoading
@@ -791,10 +674,9 @@ const HolidayTermsCreate = () => {
                                 <button
                                     className={`min-w-40 font-semibold px-6 py-3 rounded-lg text-[14px] w-full md:w-auto 
         ${!isGroupSaved ? 'bg-gray-400 cursor-not-allowed text-white' : 'bg-[#237FEA] hover:bg-blue-700 text-white'}`}
-                                    onClick={handleSaveAll}
-                                    disabled={!isGroupSaved || isLoading}
+                                    onClick={handleSaveCamp}
                                 >
-                                    {'Save All'}
+                                    {'Save'}
                                 </button>
 
                             </div>
