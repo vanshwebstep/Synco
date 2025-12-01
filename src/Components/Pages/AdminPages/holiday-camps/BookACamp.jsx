@@ -20,6 +20,31 @@ const BookACamp = () => {
         general: {},
     });
     const [selectedKeyInfo, setSelectedKeyInfo] = useState(null);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+    const fetchCamp = useCallback(async () => {
+        const token = localStorage.getItem("adminToken");
+        if (!token) return;
+
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/find-class/${id}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const resultRaw = await response.json();
+            const result = resultRaw.data || [];
+            setSingleClassSchedulesOnly(result);
+        } catch (error) {
+            console.error("Failed to fetch classSchedules:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     const [isOpen, setIsOpen] = useState(false);
 
@@ -59,13 +84,11 @@ const BookACamp = () => {
         label: item,
     }));
 
-
     const selectedLabel =
         keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
         "Key Information";
     const token = localStorage.getItem("adminToken");
     const { adminInfo } = useNotification();
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [sameAsAbove, setSameAsAbove] = useState(false);
     const [showPayment, setShowPayment] = useState(false);
 
@@ -277,6 +300,11 @@ const BookACamp = () => {
     };
 
 
+
+    useEffect(() => {
+        fetchCamp();
+    }, []);
+
     const generalInputs = [
         { name: "Venue", placeholder: "Select Venue", type: "text", label: "Venue" },
         { name: "numberOfStudents", placeholder: "Choose number of students", type: "number", label: "Number of students" },
@@ -452,10 +480,8 @@ const BookACamp = () => {
         <div className="md:p-6 min-h-screen">
             <div className="flex justify-between mb-5">
                 <h2
-                className="flex gap-2 items-center text-2xl font-bold"
-                    onClick={() => {
-                        navigate(`/`)
-                    }}>
+                    className="flex gap-2 items-center text-2xl font-bold"
+                >
                     <img
                         src="/demo/synco/icons/arrow-left.png"
                         alt="Back"

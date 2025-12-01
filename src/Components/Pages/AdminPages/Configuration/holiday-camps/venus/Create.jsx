@@ -61,7 +61,7 @@ const Create = ({ groups, termGroup }) => {
     setOpenForm(null);
 
   };
-
+console.log('formData',formData)
 
 
   const handleUpdate = (id) => {
@@ -89,17 +89,17 @@ const Create = ({ groups, termGroup }) => {
     }
 
     // ensure all elements are numbers
-    holidayCampId = holidayCampId.map(x => Number(x));
+    holidayCampId = holidayCampId;
 
 
     // Create updated data object
-    const updatedVenueData = { ...formData, holidayCampId };
+    const updatedVenueData = { ...formData,  holidayCampId: [holidayCampId], };
 
     // Send normalized data to API
     updateVenues(id, updatedVenueData);
 
     // Reset form
-  
+
   };
 
 
@@ -110,7 +110,7 @@ const Create = ({ groups, termGroup }) => {
   const handleSaveTerm = () => {
     setFormData((prev) => ({
       ...prev,
-      holidayCampId: selectedTermIds, // now just an array
+      holidayCampId: isEditVenue? selectedTermIds:[selectedTermIds], // now just an array
     }));
     setShowTermDropdown(false);
   };
@@ -122,8 +122,6 @@ const Create = ({ groups, termGroup }) => {
     }));
     setShowSubDropdown(false);
   };
-  console.log('termGroup', termGroup)
-
 
   // Helper: Get day suffix (st, nd, rd, th)
   function getDaySuffix(day) {
@@ -171,16 +169,12 @@ const Create = ({ groups, termGroup }) => {
       .filter(Boolean)
     : [];
 
-
-
   const toggleTermId = (id) => {
-    setSelectedTermIds((prev) => {
-      const current = Array.isArray(prev) ? prev : [];
-      return current.includes(id)
-        ? current.filter(i => i !== id)
-        : [...current, id];
-    });
+    setSelectedTermIds(id);
   };
+
+
+
 
 
   const dropdownVariants = {
@@ -213,25 +207,30 @@ const Create = ({ groups, termGroup }) => {
 
 
     // Handle term group ID
-    if (formData?.holidayCampId != null) {
-      try {
-        const parsedTermGroup = Array.isArray(formData.holidayCampId)
-          ? formData.holidayCampId
-          : JSON.parse(formData.holidayCampId);
-        setSelectedTermIds(parsedTermGroup);
-      } catch {
-        setSelectedTermIds([]);
-      }
+  if (formData?.holidayCampId) {
+  try {
+    const parsed = JSON.parse(formData.holidayCampId); // gives array like [46]
+    if (Array.isArray(parsed)) {
+      setSelectedTermIds(parsed[0]); // set the first element as number
+    } else {
+      setSelectedTermIds(parsed);
     }
+  } catch (e) {
+    // fallback if parsing fails
+    setSelectedTermIds(Number(formData.holidayCampId));
+  }
+}
+
   }, [formData]);
 
   // ✅ First one (line ~140):
-  const labels = Array.isArray(termOptions) && Array.isArray(selectedTermIds)
-    ? termOptions
-      .filter(opt => opt && selectedTermIds.includes(opt.id))
+ const labels = Array.isArray(termOptions) && selectedTermIds != null
+  ? termOptions
+      .filter(opt => opt && opt.id === selectedTermIds)
       .map(opt => opt.label)
       .filter(Boolean)
-    : [];
+  : [];
+
   const facilityOptions = [
     // { value: "", label: "Facility" },  
     { value: "Indoor", label: "Indoor" },
@@ -402,10 +401,11 @@ const Create = ({ groups, termGroup }) => {
                 >
                   <p className="font-semibold text-[17px]">Select Camp Date Group</p>
                   {termOptions.map((group) => (
-                    <label key={group.id} className="flex items-center gap-2 text-[15px]">
+                    <label key={group.id} className="flex items-center gap-2 text-[15px] cursor-pointer">
                       <input
-                        type="checkbox"
-                        checked={Array.isArray(selectedTermIds) && selectedTermIds.includes(group.id)}
+                        type="radio"
+                        name="termOption" // all radios share this name
+                        checked={selectedTermIds === group.id}  // use singular selectedTermId
                         onChange={() => toggleTermId(group.id)}
                         className="accent-blue-600"
                       />
@@ -423,6 +423,7 @@ const Create = ({ groups, termGroup }) => {
                 </motion.div>
               )}
             </AnimatePresence>
+
           </div>
 
           {/* Payment Plan */}

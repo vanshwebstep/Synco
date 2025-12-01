@@ -10,8 +10,7 @@ import { usePermission } from "../Common/permission";
 const List = () => {
       const { checkPermission } = usePermission();
   
-  const MyRole = localStorage.getItem("role");
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const { members, fetchMembers, loading } = useMembers();
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const toggleCheckbox = (userId) => {

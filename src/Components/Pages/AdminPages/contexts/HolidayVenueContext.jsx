@@ -45,75 +45,83 @@ export const HolidayVenueProvider = ({ children }) => {
             setLoading(false);
         }
     }, []);
-    const createVenues = async (venueData) => {
-        setLoading(true);
+  const createVenues = async (venueData) => {
+  setLoading(true);
 
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-        if (token) {
-            myHeaders.append("Authorization", `Bearer ${token}`);
-        }
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  if (token) {
+    myHeaders.append("Authorization", `Bearer ${token}`);
+  }
 
-        const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: JSON.stringify(venueData),
-            redirect: "follow",
-        };
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/venue/create`, requestOptions);
+  const dataToSend = {
+    ...venueData,
+    // holidayCampId: venueData.holidayCampId, // uncomment if needed
+    // or if you want to force a specific value, e.g. holidayCampId: [8],
+  };
 
-            if (!response.ok) {
-                const errorData = await response.json();
+  const requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: JSON.stringify(dataToSend),  // stringify the whole data object
+    redirect: "follow",
+  };
 
-                let errorMessage = '';
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/holiday/venue/create`, requestOptions);
 
-                if (errorData.error) {
-                    // Wrap each error in a <div> so each appears on a separate line
-                    const fieldErrors = Object.values(errorData.error)
-                        .map((msg, index) => `<div>${index + 1}. ${msg}</div>`)
-                        .join('');
-                    errorMessage = fieldErrors;
-                } else if (errorData.message) {
-                    errorMessage = `<div>${errorData.message}</div>`;
-                }
+    if (!response.ok) {
+      const errorData = await response.json();
 
-                throw new Error(errorMessage);
-            }
+      let errorMessage = '';
 
-            const result = await response.json();
+      if (errorData.error) {
+        // Wrap each error in a <div> so each appears on a separate line
+        const fieldErrors = Object.values(errorData.error)
+          .map((msg, index) => `<div>${index + 1}. ${msg}</div>`)
+          .join('');
+        errorMessage = fieldErrors;
+      } else if (errorData.message) {
+        errorMessage = `<div>${errorData.message}</div>`;
+      }
 
-            await Swal.fire({
-                title: "Success!",
-                text: result.message || "Venue has been created successfully.",
-                icon: "success",
-                confirmButtonText: "OK",
-            });
+      throw new Error(errorMessage);
+    }
 
-            await fetchVenues();
-            setOpenForm(null)
-            setFormData({
-                area: "", name: "", address: "", facility: "",
-                hasParking: false, isCongested: false, parkingNote: "",
-                howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
-            });
-            return result;
-        } catch (error) {
-            console.error("Error creating venue:", error);
+    const result = await response.json();
 
-            await Swal.fire({
-                title: "Error",
-                html: error.message, // use html to render <div> properly
-                icon: "error",
-                confirmButtonText: "OK",
-            });
+    await Swal.fire({
+      title: "Success!",
+      text: result.message || "Venue has been created successfully.",
+      icon: "success",
+      confirmButtonText: "OK",
+    });
 
-            throw error;
-        } finally {
-            setLoading(false);
-        }
-    };
+    await fetchVenues();
+    setOpenForm(null);
+    setFormData({
+      area: "", name: "", address: "", facility: "",
+      hasParking: false, isCongested: false, parkingNote: "",
+      howToEnterFacility: "", termGroupId: [], paymentGroupId: ""
+    });
+    return result;
+  } catch (error) {
+    console.error("Error creating venue:", error);
+
+    await Swal.fire({
+      title: "Error",
+      html: error.message, // use html to render <div> properly
+      icon: "error",
+      confirmButtonText: "OK",
+    });
+
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+};
+
 
 
     // UPDATE VENUE

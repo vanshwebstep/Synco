@@ -83,7 +83,7 @@ const ClassSheduleList = () => {
         )
     );
 
-
+    console.log('filteredSchedules', filteredSchedules)
     const formatDateToTimeString = (date) => {
         if (!date) return "";
         return format(date, "h:mm aa");
@@ -121,15 +121,15 @@ const ClassSheduleList = () => {
             return newIndex;
         });
     };
-    
 
-   
+
+
     // Reset for new form
     const handleAddNew = () => {
         setFormData({
             className: '',
             capacity: '',
-           
+
             startTime: null,
             endTime: null,
         })
@@ -178,7 +178,7 @@ const ClassSheduleList = () => {
             return;
         }
 
-        
+
 
         if (!formData.startTime || !formData.endTime) {
             Swal.fire("Validation Error", "Please select both start and end times", "error");
@@ -231,9 +231,6 @@ const ClassSheduleList = () => {
 
 
     const [openForm, setOpenForm] = useState(false);
-    useEffect(() => {
-        fetchVenues();
-    }, [fetchVenues]);
 
     const handleDeleteClick = (item) => {
         Swal.fire({
@@ -366,7 +363,13 @@ const ClassSheduleList = () => {
                                                     <p className="text-[#717073] font-semibold text-[16px]">Capacity</p>
                                                     <p className="font-semibold text-[#717073]  text-[16px]">{item.capacity}</p>
                                                 </div>
-                                               
+                                                <div>
+                                                    <p className="text-[#717073] font-semibold text-[16px]">Days</p>
+                                                    <p className="font-semibold text-[#717073] text-[16px]">
+                                                        {singleClassSchedules?.holidayCamp?.[0]?.holidayCampDates?.[0]?.totalDays ?? 'null'}
+                                                    </p>
+                                                </div>
+
                                                 <div className='text-[#717073] font-semibold text-[16px]'>
                                                     <p className="text-[#717073]">Start time</p>
                                                     <p className="font-semibold">{item.startTime}</p>
@@ -375,7 +378,7 @@ const ClassSheduleList = () => {
                                                     <p className="text-[#717073]">End time</p>
                                                     <p className="font-semibold">{item.endTime}</p>
                                                 </div>
-                                               
+
                                                 <div className='text-[#717073] font-semibold  text-[16px]'>
                                                     <p className="text-[#717073]">Facility</p>
                                                     <p className="font-semibold">{singleClassSchedules.facility || 'null'}</p>
@@ -417,32 +420,29 @@ const ClassSheduleList = () => {
                                                     className="overflow-hidden mt-4  rounded-xl"
                                                 >
                                                     <div className="space-y-4">
-                                                        {item?.venue?.termGroups?.map((group) => (
-                                                            <div key={group.id} className="rounded-xl w-full">
-                                                                {group?.terms?.map((term) => (
+                                                        {item?.venue?.holidayCamps && item.venue.holidayCamps.length > 0 && (
+                                                            item.venue.holidayCamps[0]?.holidayCampDates?.length > 0 ? (
+                                                                item.venue.holidayCamps[0].holidayCampDates.map((term) => (
                                                                     <div key={term.id}>
                                                                         <div
                                                                             onClick={() => toggleTerm(term.id)}
                                                                             className="mb-4 mt-2 border-b border-gray-300 flex justify-between items-center cursor-pointer"
                                                                         >
-
-                                                                            <div className='flex mb-4 items-center gap-8 justify-start'>
-                                                                                <div><img src="/demo/synco/icons/blackarrowup.png" className={`${openTerms[term.id] ? "" : "rotate-180"} transition-transform`} alt="" /></div>
-                                                                                <div> <p className="font-semibold text-[16px] ">{term.termName}</p>
-                                                                                    <p className="text-[14px]">
-                                                                                        {term.startDate
-                                                                                            ? new Date(term.startDate).toLocaleDateString("en-US", {
-                                                                                                weekday: "short", // Sat, Sun, etc.
-                                                                                                month: "2-digit", // 09
-                                                                                                day: "2-digit",   // 07
-                                                                                            })
-                                                                                            : ""}
+                                                                            <div className="flex mb-4 items-center gap-8 justify-start">
+                                                                                <div>
+                                                                                    <img
+                                                                                        src="/demo/synco/icons/blackarrowup.png"
+                                                                                        className={`${openTerms[term.id] ? "" : "rotate-180"} transition-transform`}
+                                                                                        alt=""
+                                                                                    />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="font-semibold text-[16px]">
+                                                                                        {item?.venue?.holidayCamps[0]?.name || "N/A"}
                                                                                     </p>
-
+                                                                                    <p className="text-[14px]">{term.createdAt || "N/A"}</p>
                                                                                 </div>
                                                                             </div>
-
-
                                                                         </div>
 
                                                                         <div
@@ -452,24 +452,25 @@ const ClassSheduleList = () => {
                                                                             {(() => {
                                                                                 let sessions = [];
 
-                                                                                // Step 1: parse only if it's a string
-                                                                                if (typeof term.sessionsMap === "string") {
-                                                                                    try {
-                                                                                        sessions = JSON.parse(term.sessionsMap);
-                                                                                    } catch (err) {
-                                                                                        console.error("Invalid sessionsMap JSON:", err);
-                                                                                        sessions = [];
+                                                                                if (term.sessionsMap) {
+                                                                                    if (typeof term.sessionsMap === "string") {
+                                                                                        try {
+                                                                                            sessions = JSON.parse(term.sessionsMap);
+                                                                                        } catch (err) {
+                                                                                            console.error("Invalid sessionsMap JSON:", err);
+                                                                                            sessions = [];
+                                                                                        }
+                                                                                    } else if (Array.isArray(term.sessionsMap)) {
+                                                                                        sessions = term.sessionsMap;
                                                                                     }
                                                                                 }
-                                                                                // Step 2: or directly use it if it's already an array
-                                                                                else if (Array.isArray(term.sessionsMap)) {
-                                                                                    sessions = term.sessionsMap;
+
+                                                                                if (sessions.length === 0) {
+                                                                                    return <p className="px-4 py-3 text-gray-500">No sessions available</p>;
                                                                                 }
 
-                                                                                // Step 3: safely render
                                                                                 return sessions.map((session) => {
-                                                                                    const sessionMaps = session.sessionPlan || [];
-                                                                                    const sessionState = sessionStates[session.sessionPlanId] || {};
+                                                                                    const sessionMaps = session.sessionPlan || {};
 
                                                                                     return (
                                                                                         <div
@@ -479,31 +480,42 @@ const ClassSheduleList = () => {
                                                                                             {/* Title and Date */}
                                                                                             <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-2 text-sm">
                                                                                                 <span className="text-[15px] font-semibold truncate md:min-w-[250px]">
-                                                                                                    {session?.sessionPlan?.groupName || 'N/A'}
+                                                                                                    {sessionMaps.groupName || "N/A"}
                                                                                                 </span>
                                                                                                 <span className="text-[15px] text-gray-600 truncate md:min-w-[200px]">
-                                                                                                    {new Date(session.sessionDate).toLocaleDateString("en-US", {
-                                                                                                        weekday: "long",
-                                                                                                        day: "2-digit",
-                                                                                                        month: "2-digit",
-                                                                                                        year: "numeric",
-                                                                                                    })}
+                                                                                                    {session.sessionDate
+                                                                                                        ? new Date(session.sessionDate).toLocaleDateString("en-US", {
+                                                                                                            weekday: "long",
+                                                                                                            day: "2-digit",
+                                                                                                            month: "2-digit",
+                                                                                                            year: "numeric",
+                                                                                                        })
+                                                                                                        : "N/A"}
                                                                                                 </span>
                                                                                             </div>
 
                                                                                             {/* Status */}
                                                                                             <div className="flex items-center gap-2 text-sm">
                                                                                                 <span className="rounded-full flex items-center gap-2 font-medium capitalize text-[15px] md:min-w-[120px]">
-                                                                                                    {session?.sessionPlan?.status === "pending" && (
-                                                                                                        <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" />
+                                                                                                    {sessionMaps.status === "pending" && (
+                                                                                                        <>
+                                                                                                            <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" /> {sessionMaps.status}
+                                                                                                        </>
                                                                                                     )}
-                                                                                                    {session?.sessionPlan?.status === "completed" && (
-                                                                                                        <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="Complete" />
+                                                                                                    {sessionMaps.status === "completed" && (
+                                                                                                        <>
+                                                                                                            <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="Complete" />
+
+                                                                                                            {sessionMaps.status}
+                                                                                                        </>
                                                                                                     )}
-                                                                                                    {session?.sessionPlan?.status === "cancelled" && (
-                                                                                                        <img src="/demo/synco/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
+                                                                                                    {sessionMaps.status === "cancelled" && (
+                                                                                                        <>
+                                                                                                            <img src="/demo/synco/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
+                                                                                                            {sessionMaps.status}
+                                                                                                        </>
                                                                                                     )}
-                                                                                                    {session?.sessionPlan?.status || (
+                                                                                                    {!sessionMaps.status && (
                                                                                                         <>
                                                                                                             <img src="/demo/synco/icons/pending.png" className="w-4 h-4 inline" alt="Pending" /> Pending
                                                                                                         </>
@@ -519,12 +531,12 @@ const ClassSheduleList = () => {
                                                                                                             navigate('/configuration/holiday-camp/venues/class-schedule/Sessions/viewSessions', {
                                                                                                                 state: {
                                                                                                                     singleClassSchedules,
-                                                                                                                    sessionMap: session.sessionPlan,
+                                                                                                                    sessionMap: sessionMaps,
                                                                                                                     sessionId: session.sessionPlanId,
                                                                                                                     venueId,
                                                                                                                     sessionDate: session.sessionDate,
                                                                                                                     classname: item,
-                                                                                                                    statusIs: session?.sessionPlan?.status,
+                                                                                                                    statusIs: sessionMaps.status,
                                                                                                                 },
                                                                                                             })
                                                                                                         }
@@ -539,13 +551,12 @@ const ClassSheduleList = () => {
                                                                                                         navigate(`/configuration/holiday-camp/venues/class-schedule/Sessions/completed?id=${item.id}`, {
                                                                                                             state: {
                                                                                                                 singleClassSchedules,
-                                                                                                                sessionMap: session.sessionPlan,
+                                                                                                                sessionMap: sessionMaps,
                                                                                                                 sessionId: session.sessionPlanId,
                                                                                                                 venueId,
                                                                                                                 sessionDate: session.sessionDate,
                                                                                                                 classname: item,
-                                                                                                                statusIs: session?.sessionPlan?.status,
-
+                                                                                                                statusIs: sessionMaps.status,
                                                                                                             },
                                                                                                         })
                                                                                                     }
@@ -557,28 +568,23 @@ const ClassSheduleList = () => {
                                                                                                 {cancelSession && (
                                                                                                     <button
                                                                                                         onClick={() => {
-
                                                                                                             navigate("/configuration/holiday-camp/venues/class-schedule/Sessions/cancel", {
                                                                                                                 state: {
-                                                                                                                    statusIs: session?.sessionPlan?.status,
-                                                                                                                    classScheduleId: session?.sessionPlan?.classScheduleId,
-                                                                                                                    cancelSession: session?.sessionPlan?.cancelSession,
-                                                                                                                    sessionId: session?.sessionPlan?.mapId || session?.sessionPlanId,
+                                                                                                                    statusIs: sessionMaps.status,
+                                                                                                                    classScheduleId: sessionMaps.classScheduleId,
+                                                                                                                    cancelSession: sessionMaps.cancelSession,
+                                                                                                                    sessionId: sessionMaps.mapId || session.sessionPlanId,
                                                                                                                     schedule: item,
-                                                                                                                    cancelled: session?.sessionPlan?.status === "cancelled",
+                                                                                                                    cancelled: sessionMaps.status === "cancelled",
                                                                                                                 },
                                                                                                             });
                                                                                                         }}
-
-                                                                                                        className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition
-          ${session?.sessionPlan?.status === "cancelled"
-                                                                                                                ? "bg-white w-fit text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
-                                                                                                                : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
+                                                                                                        className={`font-semibold text-[15px] px-3 py-2 rounded-xl transition ${sessionMaps.status === "cancelled"
+                                                                                                            ? "bg-white w-fit text-[#FE7058] border-2 border-[#FE7058] hover:bg-[#FE7058] hover:text-white"
+                                                                                                            : "bg-[#FE7058] text-white border-2 border-transparent hover:bg-white hover:text-[#FE7058] hover:border-[#FE7058]"
                                                                                                             }`}
                                                                                                     >
-                                                                                                        {session?.sessionPlan?.status === "cancelled"
-                                                                                                            ? "See details"
-                                                                                                            : "Cancel Session"}
+                                                                                                        {sessionMaps.status === "cancelled" ? "See details" : "Cancel Session"}
                                                                                                     </button>
                                                                                                 )}
                                                                                             </div>
@@ -588,9 +594,12 @@ const ClassSheduleList = () => {
                                                                             })()}
                                                                         </div>
                                                                     </div>
-                                                                ))}
-                                                            </div>
-                                                        ))}
+                                                                ))
+                                                            ) : (
+                                                                <p className="p-4 text-gray-500">No camp dates available</p>
+                                                            )
+                                                        )}
+
                                                     </div>
                                                 </motion.div>
                                             )}
@@ -656,7 +665,7 @@ const ClassSheduleList = () => {
                                         </div>
                                     </div>
                                     <div className="flex gap-4">
-                                     
+
                                         <div className='flex md:w-1/2 gap-4'>
                                             <div className="flex gap-4">
                                                 <div className="w-1/2">

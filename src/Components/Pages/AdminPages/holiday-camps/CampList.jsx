@@ -17,6 +17,7 @@ import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from 'react-leafl
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { usePermission } from '../Common/permission';
+import { useHolidayFindClass } from '../contexts/HolidayFindClassContext';
 const customIcon = new L.Icon({
   iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
   iconSize: [25, 41],
@@ -24,7 +25,7 @@ const customIcon = new L.Icon({
 });
 
 const CampList = () => {
-  const { fetchFindClasses, findClasses, loading } = useFindClass();
+  const { fetchFindClasses, findClasses, loading } = useHolidayFindClass();
   const [openMapId, setOpenMapId] = useState(null);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
@@ -45,44 +46,37 @@ const CampList = () => {
     setShowteamModal(null);
     setShowModal(null);
   };
-  // Parking
-  const handleParkingClick = (venueId) => {
-    if (activeParkingVenueId === venueId) {
-      setActiveParkingVenueId(null);
-    } else {
-      resetModals();
-      setActiveParkingVenueId(venueId);
-    }
-  };
+  const formatCampDateRange = (start, end) => {
+    if (!start || !end) return "";
 
-  // Congestion
-  const handleCongestionClick = (venueId) => {
-    if (activeCongestionVenueId === venueId) {
-      setActiveCongestionVenueId(null);
-    } else {
-      resetModals();
-      setActiveCongestionVenueId(venueId);
-    }
-  };
+    const startDate = new Date(start);
+    const endDate = new Date(end);
 
-  // Team
-  const handleTeamClick = (venueId) => {
-    if (showteamModal === venueId) {
-      setShowteamModal(null);
-    } else {
-      resetModals();
-      setShowteamModal(venueId);
-    }
-  };
+    const getOrdinal = (day) => {
+      if (day > 3 && day < 21) return day + "th";
+      switch (day % 10) {
+        case 1: return day + "st";
+        case 2: return day + "nd";
+        case 3: return day + "rd";
+        default: return day + "th";
+      }
+    };
 
-  // Location
-  const handleLocationClick = (venueId) => {
-    if (showModal === venueId) {
-      setShowModal(null);
-    } else {
-      resetModals();
-      setShowModal(venueId);
+    const day1 = getOrdinal(startDate.getDate());
+    const day2 = getOrdinal(endDate.getDate());
+
+    const month1 = startDate.toLocaleString("en-US", { month: "short" });
+    const month2 = endDate.toLocaleString("en-US", { month: "short" });
+
+    const year = endDate.getFullYear();
+
+    // Same month
+    if (month1 === month2) {
+      return `${day1} ${month1} - ${day2} ${month2} ${year}`;
     }
+
+    // Different month
+    return `${day1} ${month1} - ${day2} ${month2} ${year}`;
   };
 
 
@@ -90,34 +84,22 @@ const CampList = () => {
 
   const [expression, setExpression] = useState('');
   const [result, setResult] = useState('');
-  const [clickedIcon, setClickedIcon] = useState(null);
 
   const venues = ["All venues", ...new Set(findClasses.map(v => v.venueName).filter(Boolean))];
+  const camps = [
+    ...new Map(
+      findClasses
+        .flatMap(v => v.holidayCamps || [])
+        .map(camp => [camp.id, camp])
+    ).values()
+  ];
   const [showAll, setShowAll] = useState(false);
 
   const visibleVenues = showAll ? venues : venues.slice(0, 5);
 
   const [selectedUserIds, setSelectedUserIds] = useState([]);
-  const toggleCheckbox = (userId) => {
-    setSelectedUserIds((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
-    );
-  };
+
   const isAllSelected = venues.length > 0 && selectedUserIds.length === venues.length;
-
-  const toggleSelectAll = () => {
-    if (isAllSelected) {
-      setSelectedUserIds([]);
-    } else {
-      const allIds = venues.map((user) => user.id);
-      setSelectedUserIds(allIds);
-    }
-  };
-
-
-
 
 
 
@@ -267,13 +249,6 @@ const CampList = () => {
     }
   };
 
-  const buttons = [
-    ['(', ')', '⌫', 'C'],
-    ['7', '8', '9', '/'],
-    ['4', '5', '6', '*'],
-    ['1', '2', '3', '-'],
-    ['0', '.', '=', '+'],
-  ];
   const filteredClasses = Array.isArray(findClasses)
     ? findClasses.filter((venue) => {
       const nameMatch =
@@ -300,14 +275,8 @@ const CampList = () => {
       // Case-insensitive day match
       const dayMatch =
         selectedDays.length === 0 ||
-        selectedDays.some((selectedDay) => {
-          const lowerDay = selectedDay.toLowerCase();
-          // Find a matching key ignoring case
-          const matchedKey = Object.keys(venue.classes || {}).find(
-            (key) => key.toLowerCase() === lowerDay
-          );
-          return matchedKey && (venue.classes[matchedKey] || []).length > 0;
-        });
+        venue.holidayCamps?.some((camp) => selectedDays.includes(camp.id));
+
 
       const availableMatch =
         !showAvailableOnly ||
@@ -453,25 +422,15 @@ const CampList = () => {
 
 
 
-  const handleBookFreeTrial = (classId) => {
-    navigate('/weekly-classes/find-a-class/book-a-free-trial', {
-      state: { classId },
-    });
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }, 50);
-  };
   const handleAddToWaitingList = (classId) => {
     navigate('/weekly-classes/find-a-class/add-to-waiting-list', {
       state: { classId },
     });
   };
-  const handleBookMembership = (classId) => {
-    navigate('/weekly-classes/find-a-class/book-a-membership', {
-      state: { classId },
-    });
-  };
-  // console.log('calendarData', calendarData)
+const handleBookCamp = (classId) => {
+  navigate(`/holiday-camp/find-a-camp/book-camp?id=${classId}`);
+};
+
 
   const getActiveTerm = () =>
     calendarData.find((term) => {
@@ -645,17 +604,18 @@ const CampList = () => {
                     Camps
                   </h3>
                   <div className="space-y-2 pt-2">
-                    {["Feb Half Term", "Oct Half Term"].map((day) => (
-                      <label key={day} className="flex text-[16px] items-center gap-2">
+                    {camps.map((camp) => (
+                      <label key={camp.id} className="flex text-[16px] items-center gap-2">
                         <input
                           type="checkbox"
-                          checked={selectedDays.includes(day)}
-                          onChange={() => toggleDay(day)}
+                          checked={selectedDays.includes(camp.id)}
+                          onChange={() => toggleDay(camp.id)}
                           className="accent-blue-600"
                         />
-                        {day}
+                        {camp.name}
                       </label>
                     ))}
+
                   </div>
                 </div>
 
@@ -692,378 +652,391 @@ const CampList = () => {
                   {filteredClasses.length === 0 ? (
                     <div className="text-center p-4 text-gray-500">Data not found</div>
                   ) : (
-                    filteredClasses.map((venue, idx) => (
-                      <>
+                    filteredClasses.map((venue, idx) => {
+                      // Defensive checks
+                      const hasPaymentPlans = venue?.paymentGroups?.[0]?.paymentPlans && venue.paymentGroups[0].paymentPlans.length > 0;
+                      const hasClasses = venue?.classes && Object.keys(venue.classes).length > 0;
+                      const hasLatitudeLongitude = venue?.latitude && venue?.longitude;
+                      const congestionNotes = venue?.congestionNote || null;
+                      const parkingNotes = venue?.parkingNote || null;
+
+                      return (
                         <div
-                          key={idx}
-                          className="w-full bg-white rounded-3xl relative p-2 border border-[#D9D9D9] shadow-sm" // ✅ min height
+                          key={venue.venueId || idx} // Use unique venueId if available
+                          className="w-full bg-white rounded-3xl relative p-2 border border-[#D9D9D9] shadow-sm"
                         >
                           <div className="bg-[#2E2F3E] text-white p-4 rounded-2xl mb-2 flex flex-wrap justify-between md:items-center text-sm gap-4">
                             <div className="flex items-center gap-2 min-w-[250px]">
-                              <img src="/demo/synco/icons/Location.png" alt="" />
+                              <img src="/demo/synco/icons/Location.png" alt="Location" />
                               <div className="flex">
                                 <span className="font-medium text-[16px] xl:text-[15px] 2xl:text-[16px]">
-                                  {venue.address}
-                                  {venue.postal_code && !venue.address.includes(venue.postal_code) && (
+                                  {venue.address || "N/A"}
+                                  {venue.postal_code && !venue.address?.includes(venue.postal_code) && (
                                     <span> PostCode - {venue.postal_code}</span>
                                   )}
                                 </span>
-
                               </div>
                             </div>
-                            <div ref={iconContainerRef} className=" md:mt-0 mt-5 flex relative items-center gap-4">
+                            <div ref={iconContainerRef} className="md:mt-0 mt-5 flex relative items-center gap-4">
                               <img
                                 src="/demo/synco/icons/fcDollar.png"
-                                onClick={() => handleIconClick('payment', venue.venueId, venue?.paymentGroups[0]?.paymentPlans)} alt=""
+                                onClick={() => handleIconClick('payment', venue.venueId, venue.paymentGroups?.[0]?.holidayPaymentPlans)}
+                                alt="Payment Plans"
                                 className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                               />
-
                               <img
                                 src="/demo/synco/icons/fcCalendar.png"
-                                onClick={() => handleIconClick('team', venue.venueId, venue.terms)}
-                                alt=""
+                                onClick={() => handleIconClick('team', venue.venueId, venue.holidayCampDates)}
+                                alt="Team Dates"
                                 className={`cursor-pointer w-6 h-6 rounded-full ${showteamModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                               />
-
                               <img
                                 src="/demo/synco/icons/fcLocation.png"
                                 onClick={() => handleIconClick('location', venue.venueId)}
-                                alt=""
+                                alt="Location"
                                 className={`cursor-pointer w-6 h-6 rounded-full ${openMapId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                               />
-
                               <img
                                 src="/demo/synco/icons/fcCicon.png"
-                                onClick={() => handleIconClick('congestion', venue?.venueId, venue?.congestionNote)}
-                                alt=""
+                                onClick={() => handleIconClick('congestion', venue.venueId, congestionNotes)}
+                                alt="Congestion"
                                 className={`cursor-pointer w-6 h-6 rounded-full ${activeCongestionVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                               />
-
                               <img
                                 src="/demo/synco/icons/fcPIcon.png"
-                                onClick={() => handleIconClick('parking', venue?.venueId, venue?.parkingNote)}
-                                alt=""
+                                onClick={() => handleIconClick('parking', venue.venueId, parkingNotes)}
+                                alt="Parking"
                                 className={`cursor-pointer w-6 h-6 rounded-full ${activeParkingVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                               />
                             </div>
-
-
-
                           </div>
 
-                          <div className=' overflow-x-auto'><div className="p-5 md:flex flex-col lg:flex-row gap-8 min-w-[900px]  bg-[#FCF9F6]  "> {/* ✅ responsive layout */}
-                            {/* Meta Info */}
-                            <div className="w-full lg:w-1/12 space-y-1 ">
-                              <div>
-                                <div className="font-semibold text-[20px] text-black max-w-30 min-w-30  truncate ">{venue.venueName}</div>
-                                <div className="whitespace-nowrap font-semibold text-[14px]">
-                                  {(venue.distanceMiles / 1609.34).toFixed(2)} miles
+                          <div className="overflow-x-auto">
+                            <div className="p-5 md:flex flex-col lg:flex-row gap-8 min-w-[900px] bg-[#FCF9F6]">
+                              {/* Meta Info */}
+                              <div className="w-full lg:w-[33%] border-r border-[#ccc]  space-y-1">
+                                <div className="flex items-center gap-2 justify-between">
+                                  <div >
+                                    <div className="font-semibold text-[20px] text-black max-w-30 min-w-30 truncate">
+                                      {venue.venueName || "Unnamed Venue"}
+                                    </div>
+                                    <div className="whitespace-nowrap font-semibold text-[14px]">
+                                      {venue.distanceMiles ? (venue.distanceMiles / 1609.34).toFixed(2) + " miles" : "Distance N/A"}
+                                    </div>
+                                  </div>
+
+                                  <div className="pe-7 text-center ">
+                                    <div className="text-[16px] capitalize font-semibold text-[#384455]">
+                                      {formatCampDateRange(
+                                        venue?.holidayCampDates?.[0]?.startDate,
+                                        venue?.holidayCampDates?.[0]?.endDate
+                                      )}
+                                    </div>
+
+                                    <div className="whitespace-nowrap font-semibold text-[14px]">{venue?.holidayCampDates[0]?.totalDays}</div>
+                                  </div>
                                 </div>
                               </div>
 
-                            </div>
 
-                            <div className=" parent relative lg:w-11/12 pl-4  space-y-4">
-                              {venue.classes && Object.keys(venue.classes).length > 0 ? (
-                                Object.entries(venue.classes).map(([day, classList]) => (
-                                  <div key={day} className="flex justify-between items-center">
-                                    <div className='border-r pe-7 text-center border-[#ccc] '>
-                                      <div className="text-[16px] capitalize font-semibold text-[#384455]">
-                                        1st Nov - 4th Nov 2023
-                                      </div>
-                                      <div className="whitespace-nowrap font-semibold text-[14px]">4 Days</div>
-                                    </div>
-                                    {classList.map((s, i) => (
-                                      <div
-                                        key={s.classId}
-                                        className=" md:flex space-x-2 items-center mb-2 justify-between space-y-4"
-                                      >
 
-                                        <div className='md:flex space-x-3 md:space-y-0 space-y-4 items-center justify-between'>
-                                          <div className="font-bold text-[16px] text-black whitespace-nowrap">Group {i + 1}</div>
+                              <div className="parent relative lg:w-[67%] pl-4 space-y-4">
+                                {hasClasses ? (
+                                  <>
+                                    {Array.isArray(venue.classes) && venue.classes.length > 0 ? (
+                                      venue.classes.map((s, i) => (
+                                        <div
+                                          key={s.classId}
+                                          className="md:flex space-x-2 items-center mb-2 justify-between space-y-4"
+                                        >
+                                          <div className="md:flex space-x-3 md:space-y-0 space-y-4 items-center justify-between">
 
-                                          {/* Class Name */}
-                                          <div className="font-semibold text-[16px] min-w-25 max-w-25 ">{s.className}</div>
+                                            <div className="font-bold text-[16px] text-black whitespace-nowrap">
+                                              Group {i + 1}
+                                            </div>
 
-                                          {/* Time */}
-                                          <div className="font-semibold text-[16px] whitespace-nowrap flex  gap-2 items-center min-w-50">
-                                            <img src="/demo/synco/icons/fcTImeIcon.png" className='min-w-5 min-h-5 max-w-5 max-h-5' alt="" />
-                                            {s.time}
+                                            <div className="font-semibold text-[16px] min-w-25 max-w-25">
+                                              {s.className}
+                                            </div>
+
+                                            <div className="font-semibold text-[16px] whitespace-nowrap flex gap-2 items-center min-w-50">
+                                              <img src="/demo/synco/icons/fcTImeIcon.png" className='w-5 h-5' alt="" />
+                                              {s.time}
+                                            </div>
+
+                                            <div className="text-sm">
+                                              {s.capacity === 0 ? (
+                                                <span className="text-[#FF5C40] bg-[#fcede9] p-2 rounded-md text-[14px] font-semibold">
+                                                  Fully booked
+                                                </span>
+                                              ) : (
+                                                <span className="text-[#34AE56] bg-[#eef3eb] p-2 rounded-md text-[14px] font-semibold">
+                                                  +{s.capacity} spaces
+                                                </span>
+                                              )}
+                                            </div>
                                           </div>
 
-                                          {/* Capacity */}
-                                          <div className="text-sm">
-                                            {s.capacity === 0 ? (
-                                              <span className="text-[#FF5C40] whitespace-nowrap bg-[#fcede9] p-2 rounded-md text-[14px] font-semibold">
-                                                Fully booked
-                                              </span>
+                                          {/* Buttons */}
+                                          <div className="flex gap-2 flex-wrap md:justify-end">
+                                            {s.capacity === 0 && canAddToWaitingList ? (
+                                              <button
+                                                onClick={() => handleAddToWaitingList(s.classId)}
+                                                className="bg-[#237FEA] text-white px-3 py-2 rounded-xl text-sm font-medium"
+                                              >
+                                                Add to Waiting List
+                                              </button>
                                             ) : (
-                                              <span className="text-[#34AE56] whitespace-nowrap bg-[#eef3eb] p-2 rounded-md text-[14px] font-semibold">
-                                                +{s.capacity} spaces
-                                              </span>
+                                              <>
+                                                {s.allowFreeTrial && canBookFreeTrial && (
+                                                  <button
+                                                    onClick={() => handleBookFreeTrial(s.classId)}
+                                                    className="border border-[#BEBEBE] px-3 py-2 rounded-xl text-[14px] font-medium"
+                                                  >
+                                                    Book a FREE Trial
+                                                  </button>
+                                                )}
+                                                {canBookMembership && (
+                                                  <button
+                                                    onClick={() => handleBookCamp(s.classId)}
+                                                    className="border border-[#BEBEBE] px-3 py-2 rounded-xl text-[14px] font-semibold"
+                                                  >
+                                                    Book Holiday Camp
+                                                  </button>
+                                                )}
+                                              </>
                                             )}
                                           </div>
                                         </div>
-                                        {/* Action Buttons */}
-                                        <div className="flex gap-2 flex-wrap  md:justify-end">
-                                          {s.capacity === 0 && canAddToWaitingList ? (
-                                            <button
-                                              onClick={() => handleAddToWaitingList(s.classId)}
-                                              className=" z-10 bg-[#237FEA] text-white border border-[#237FEA] px-3 py-2 rounded-xl text-sm font-medium"
-                                            >
-                                              Add to Waiting List
-                                            </button>
-                                          ) : (
-                                            <>
-                                              {s.allowFreeTrial && canBookFreeTrial && (
-                                                <button
-                                                  onClick={() => handleBookFreeTrial(s.classId)}
-                                                  className="z-10 font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[14px] font-medium"
-                                                >
-                                                  Book a FREE Trial
-                                                </button>
-                                              )}
-                                              {canBookMembership && (
-                                                <button
-                                                  onClick={() => handleBookMembership(s.classId)}
-                                                  className="z-10 font-semibold whitespace-nowrap border border-[#BEBEBE] px-3 py-2 rounded-xl text-[14px] font-medium"
-                                                >
-                                                  Book a Membership
-                                                </button>
-                                              )}
-                                            </>
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))}
-
-
-                                  </div>
-                                ))
-                              ) : (
-                                <div className="text-center text-gray-500 font-medium py-8">No classes available for this venue</div>
-                              )}
-                            </div>
-
-                            {activeCongestionVenueId === venue.venueId && (
-                              <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
-                                <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
-                                  <div className="flex items-start justify-between">
-                                    <h2 className="text-red-500 font-semibold text-[18px]">Congestion Information</h2>
-                                    <img src="/demo/synco/icons/infoIcon.png" alt="" />
-                                  </div>
-                                  <div className="mt-2 text-[16px] text-gray-700 leading-snug">
-
-                                    {notes ? (
-                                      <p>This venue is inside of the congestion zone.</p>
+                                      ))
                                     ) : (
-                                      <>
+                                      <div className="text-center text-gray-500 font-medium py-8">
+                                        No classes available for this venue
+                                      </div>
+                                    )}
+
+                                  </>
+                                ) : (
+                                  <div className="text-center text-gray-500 font-medium py-8">
+                                    No classes available for this venue
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Congestion info */}
+                              {activeCongestionVenueId === venue.venueId && (
+                                <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
+                                  <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
+                                    <div className="flex items-start justify-between">
+                                      <h2 className="text-red-500 font-semibold text-[18px]">Congestion Information</h2>
+                                      <img src="/demo/synco/icons/infoIcon.png" alt="info" />
+                                    </div>
+                                    <div className="mt-2 text-[16px] text-gray-700 leading-snug">
+                                      {congestionNotes ? (
+                                        <p>This venue is inside of the congestion zone.</p>
+                                      ) : (
                                         <p>There is no congestion charges at this venue.</p>
-                                      </>
-                                    )}
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
 
-                            {activeParkingVenueId === venue.venueId && (
-                              <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
-                                <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
-                                  <div className="flex items-start justify-between">
-                                    <h2 className="text-red-500 font-semibold text-[18px]">Parking Information</h2>
-                                    <img src="/demo/synco/icons/infoIcon.png" alt="" />
-                                  </div>
-                                  <div className="mt-2 text-[16px] text-gray-700 leading-snug">
-
-                                    {notes ? (
-                                      notes
-                                    ) : (
-                                      <>
-                                        <p>This venue has no parking facilities available.</p>
-                                        <p>Paid road parking is available.</p>
-                                      </>
-                                    )}
+                              {/* Parking info */}
+                              {activeParkingVenueId === venue.venueId && (
+                                <div ref={iconContainerRef} className="absolute right-2 z-10 mt-2">
+                                  <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
+                                    <div className="flex items-start justify-between">
+                                      <h2 className="text-red-500 font-semibold text-[18px]">Parking Information</h2>
+                                      <img src="/demo/synco/icons/infoIcon.png" alt="info" />
+                                    </div>
+                                    <div className="mt-2 text-[16px] text-gray-700 leading-snug">
+                                      {parkingNotes ? (
+                                        <p>{parkingNotes}</p>
+                                      ) : (
+                                        <>
+                                          <p>This venue has no parking facilities available.</p>
+                                          <p>Paid road parking is available.</p>
+                                        </>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            )}
-                            {showteamModal === venue.venueId && (
-                              <div
-                                ref={iconContainerRef}
-                                // ref={iconContainerRef}
-                                className="
-                                      absolute bg-opacity-30 top-15 flex items-center justify-center z-50
-                                      min-w-[200px] sm:min-w-[489px]
-                                      left-2 sm:left-auto right-2
-                                      px-2 sm:px-0
-                                    "
-                              >
-                                <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
-                                  {/* Header */}
-                                  <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
-                                    <h2 className="text-[24px]  font-semibold">Team Dates</h2>
-                                    <button onClick={() => setShowteamModal(null)}>
-                                      <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
-                                    </button>
-                                  </div>
+                              )}
 
-                                  {/* Term List */}
-                                  <div className="space-y-6 max-h-80 overflow-y-scroll text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
-                                    {calendarData.map((term) => (
-                                      <div key={term.id}>
-                                        <h3 className="md:text-[20px] font-semibold mb-1">{term.name} Term {new Date(term.startDate).getFullYear()}</h3>
-                                        <p className="md:text-[18px]">
-                                          {formatDate(term.startDate)} - {formatDate(term.endDate)}
-                                        </p>
-                                        <p className="md:text-[18px]">
-                                          Half term Exclusion:{" "}
-                                          {term.exclusionDates.map((ex, idx) => (
-                                            <span key={idx}>
-                                              {formatDate(ex)}{idx < term.exclusionDates.length - 1 ? ", " : ""}
-                                            </span>
-                                          ))}
-                                        </p>
-                                      </div>
-                                    ))}
-                                  </div>
-
-                                  {/* Calendar Section */}
-                                  <div className="rounded p-4 mt-6 text-center md:text-sm w-full max-w-md mx-auto">
-                                    {/* Header */}
-                                    <div className="flex justify-around items-center mb-3">
-                                      <button
-                                        onClick={goToPreviousMonth}
-                                        className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                                      >
-                                        <ChevronLeft className="w-5 h-5" />
-                                      </button>
-                                      <p className="font-semibold md:text-[20px]">
-                                        {currentDate.toLocaleString("default", { month: "long" })} {year}
-                                      </p>
-                                      <button
-                                        onClick={goToNextMonth}
-                                        className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                                      >
-                                        <ChevronRight className="w-5 h-5" />
+                              {/* Team Dates modal */}
+                              {showteamModal === venue.venueId && (
+                                <div
+                                  ref={iconContainerRef}
+                                  className="absolute bg-opacity-30 top-15 flex items-center justify-center z-50 min-w-[200px] sm:min-w-[489px] left-2 sm:left-auto right-2 px-2 sm:px-0"
+                                >
+                                  <div className="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl">
+                                    <div
+                                      ref={(el) => (modalRefs.current[venue.venueId] = el)}
+                                      className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4"
+                                    >
+                                      <h2 className="text-[24px] font-semibold">Team Dates</h2>
+                                      <button onClick={() => setShowteamModal(null)}>
+                                        <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
                                       </button>
                                     </div>
+                                    <div className="space-y-6 max-h-80 overflow-y-scroll text-center text-[14px] text-[#2E2F3E] font-medium">
+                                      {calendarData.map((term) => (
+                                        <div key={term.id}>
+                                          <h3 className="md:text-[20px] font-semibold mb-1">
+                                            {term.name} Term {new Date(term.startDate).getFullYear()}
+                                          </h3>
+                                          <p className="md:text-[18px]">
+                                            {formatDate(term.startDate)} - {formatDate(term.endDate)}
+                                          </p>
 
-                                    {/* Day Labels */}
-                                    <div className="grid grid-cols-7 text-xs gap-1 md:text-[18px] text-gray-500 mb-1">
-                                      {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
-                                        <div key={day} className="font-medium text-center">
-                                          {day}
                                         </div>
                                       ))}
                                     </div>
+                                    <div className="rounded p-4 mt-6 text-center md:text-sm w-full max-w-md mx-auto">
+                                      {/* Header */}
+                                      <div className="flex justify-around items-center mb-3">
+                                        <button
+                                          onClick={goToPreviousMonth}
+                                          className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                                        >
+                                          <ChevronLeft className="w-5 h-5" />
+                                        </button>
+                                        <p className="font-semibold md:text-[20px]">
+                                          {currentDate.toLocaleString("default", { month: "long" })} {year}
+                                        </p>
+                                        <button
+                                          onClick={goToNextMonth}
+                                          className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
+                                        >
+                                          <ChevronRight className="w-5 h-5" />
+                                        </button>
+                                      </div>
 
-                                    {/* Calendar Weeks */}
-                                    <div className="grid grid-cols-7 gap-0 text-[16px]">
-                                      {calendarDays.map((date, i) => {
-                                        const { isStartOrEnd, isInBetween, isExcluded, isSessionDate } = getDateStatus(date);
+                                      {/* Day Labels */}
+                                      <div className="grid grid-cols-7 text-xs gap-1 md:text-[18px] text-gray-500 mb-1">
+                                        {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
+                                          <div key={day} className="font-medium text-center">
+                                            {day}
+                                          </div>
+                                        ))}
+                                      </div>
 
-                                        let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
-                                        let innerDiv = null;
+                                      {/* Calendar Weeks */}
+                                      <div className="grid grid-cols-7 gap-0 text-[16px]">
+                                        {calendarDays.map((date, i) => {
+                                          const { isStartOrEnd, isInBetween, isExcluded, isSessionDate } = getDateStatus(date);
 
-                                        if (!date) {
-                                          className += "";
-                                        } else if (isExcluded) {
-                                          className += "bg-gray-400 text-white opacity-60 rounded-full cursor-not-allowed";
-                                        } else if (isSessionDate) {
-                                          className += "bg-blue-600 text-white font-bold rounded-full"; // DARK BLUE
-                                        } else if (isStartOrEnd) {
-                                          className += ""; // Outer background
-                                          innerDiv = (
-                                            <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
-                                              {date.getDate()}
+                                          let className = "aspect-square flex items-center justify-center transition-all duration-200 ";
+                                          let innerDiv = null;
+
+                                          if (!date) {
+                                            className += "";
+                                          } else if (isExcluded) {
+                                            className += "bg-gray-400 text-white opacity-60 rounded-full cursor-not-allowed";
+                                          } else if (isSessionDate) {
+                                            className += "bg-blue-600 text-white font-bold rounded-full"; // DARK BLUE
+                                          } else if (isStartOrEnd) {
+                                            className += ""; // Outer background
+                                            innerDiv = (
+                                              <div className="bg-blue-600 text-white rounded-full w-full h-full flex items-center justify-center font-bold">
+                                                {date.getDate()}
+                                              </div>
+                                            );
+                                          } else if (isInBetween) {
+                                            className += " text-gray-800";
+                                          } else {
+                                            className += "hover:bg-gray-100 text-gray-800";
+                                          }
+
+                                          return (
+                                            <div
+                                              key={i}
+                                              onClick={() => date && !isExcluded && handleDateClick(date)}
+                                              className={className}
+                                            >
+                                              {innerDiv || (date ? date.getDate() : "")}
                                             </div>
                                           );
-                                        } else if (isInBetween) {
-                                          className += " text-gray-800";
-                                        } else {
-                                          className += "hover:bg-gray-100 text-gray-800";
-                                        }
+                                        })}
+                                      </div>
 
-                                        return (
-                                          <div
-                                            key={i}
-                                            onClick={() => date && !isExcluded && handleDateClick(date)}
-                                            className={className}
-                                          >
-                                            {innerDiv || (date ? date.getDate() : "")}
-                                          </div>
-                                        );
-                                      })}
                                     </div>
-
                                   </div>
                                 </div>
-                              </div>
+                              )}
 
-                            )}
-
-                          </div>
-                            {showModal === venue.venueId && (
-                              <div className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
-                                <div ref={iconContainerRef} className="flex z-[999999999] items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
-                                  <div ref={(el) => (modalRefs.current[venue.venueId] = el)} className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
-                                    {/* Header */}
-                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
-                                      <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
-                                      <button className="text-gray-400 hover:text-black text-xl font-bold">
-                                        <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
-                                      </button>
+                              {/* Payment Plan Preview modal */}
+                              {showModal === venue.venueId && (
+                                <div className="absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
+                                  <div
+                                    ref={iconContainerRef}
+                                    className="flex z-[999999999] items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2"
+                                  >
+                                    <div
+                                      ref={(el) => (modalRefs.current[venue.venueId] = el)}
+                                      className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl"
+                                    >
+                                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
+                                        <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
+                                        <button className="text-gray-400 hover:text-black text-xl font-bold">
+                                          <img
+                                            src="/demo/synco/icons/cross.png"
+                                            onClick={() => setShowModal(null)}
+                                            alt="close"
+                                            className="w-5 h-5"
+                                          />
+                                        </button>
+                                      </div>
+                                      <PlanTabs selectedPlans={selectedPlans} />
                                     </div>
-                                    <PlanTabs selectedPlans={selectedPlans} />
                                   </div>
-                                </div>
-                              </div>
-                            )}
-
-
-
-
-                          </div>
-
-                        </div>
-                        <div>{openMapId === venue.venueId && (
-                          <div ref={iconContainerRef}>
-                            <div
-                              ref={(el) => (modalRefs.current[venue.venueId] = el)}
-                              className="mt-2 mb-4 h-[450px] w-full rounded-lg overflow-hidden"
-                            >
-                              {venue.latitude && venue.longitude ? (
-                                <MapContainer
-                                  center={[venue.latitude, venue.longitude]}
-                                  zoom={13}
-                                  scrollWheelZoom={false}
-                                  zoomControl={false}
-                                  style={{ height: "100%", width: "100%" }}
-                                >
-                                  <TileLayer
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                                  />
-                                  <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
-                                    <Popup>
-                                      <strong>{venue.venueName}</strong>
-                                      <br />
-                                      {venue.address}
-                                    </Popup>
-                                  </Marker>
-                                  <ZoomControl position="bottomright" />
-                                  <ResizeMap />
-                                </MapContainer>
-                              ) : (
-                                <div className="flex items-center justify-center h-full bg-gray-100 text-gray-500 text-lg font-medium">
-                                  No map location found
                                 </div>
                               )}
                             </div>
                           </div>
-                        )}</div>
-                      </>
-                    ))
+
+                          {/* Map section */}
+                          {openMapId === venue.venueId && (
+                            <div ref={iconContainerRef}>
+                              <div
+                                ref={(el) => (modalRefs.current[venue.venueId] = el)}
+                                className="mt-2 mb-4 h-[450px] w-full rounded-lg overflow-hidden"
+                              >
+                                {hasLatitudeLongitude ? (
+                                  <MapContainer
+                                    center={[venue.latitude, venue.longitude]}
+                                    zoom={13}
+                                    scrollWheelZoom={false}
+                                    zoomControl={false}
+                                    style={{ height: "100%", width: "100%" }}
+                                  >
+                                    <TileLayer
+                                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                      attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                                    />
+                                    <Marker position={[venue.latitude, venue.longitude]} icon={customIcon}>
+                                      <Popup>
+                                        <strong>{venue.venueName}</strong>
+                                        <br />
+                                        {venue.address}
+                                      </Popup>
+                                    </Marker>
+                                    <ZoomControl position="bottomright" />
+                                    <ResizeMap />
+                                  </MapContainer>
+                                ) : (
+                                  <div className="flex items-center justify-center h-full bg-gray-100 text-gray-500 text-lg font-medium">
+                                    No map location found
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+
                   )}
 
                 </div>
