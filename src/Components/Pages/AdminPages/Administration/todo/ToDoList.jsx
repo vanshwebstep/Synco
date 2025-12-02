@@ -3,21 +3,22 @@ import { useState, useCallback, useEffect } from "react";
 import { ChevronDown, Send } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import Select from "react-select";
+import { useToDoListTemplate } from "../../contexts/ToDoListContext";
 
 const columns = [
-    { id: "todo", label: "To Do (My Tasks)", color: "bg-[#237FEA]", bgColor: "bg-[#237FEA]" },
-    { id: "inprogress", label: "In Progress", color: "bg-[#EDA600]", bgColor: "bg-[#EDA600]" },
-    { id: "inreview", label: "In Review", color: "bg-[#E58D25]", bgColor: "bg-[#E58D25]" },
+    { id: "to_do", label: "To Do (My Tasks)", color: "bg-[#237FEA]", bgColor: "bg-[#237FEA]" },
+    { id: "in_progress", label: "In Progress", color: "bg-[#EDA600]", bgColor: "bg-[#EDA600]" },
+    { id: "in_review", label: "In Review", color: "bg-[#E58D25]", bgColor: "bg-[#E58D25]" },
     { id: "completed", label: "Completed", color: "bg-[#1CB72B]", bgColor: "bg-[#1CB72B]" },
 ];
 
 const tasks = [
     {
         id: 1,
-        status: "todo",  // <-- all set to "todo"
+        status: "to_do",  // <-- all set to "todo"
         title: "Web Dashboard",
-        priority: "Medium",
-        users: [
+        priority: "medium",
+        assignedAdmins: [
             { name: "Jessica", avatar: "/demo/synco/reportsIcons/Avatar.png" },
             { name: "Matt", avatar: "/demo/synco/reportsIcons/Avatar1.png" },
         ],
@@ -26,10 +27,10 @@ const tasks = [
     },
     {
         id: 2,
-        status: "todo",  // changed from "inprogress"
+        status: "to_do",  // changed from "inprogress"
         title: "Web Dashboard",
-        priority: "Medium",
-        users: [
+        priority: "medium",
+        assignedAdmins: [
             { name: "Jessica", avatar: "/demo/synco/reportsIcons/Avatar.png" },
             { name: "Matt", avatar: "/demo/synco/reportsIcons/Avatar1.png" },
         ],
@@ -38,10 +39,10 @@ const tasks = [
     },
     {
         id: 3,
-        status: "todo",  // changed from "inreview"
+        status: "to_do",  // changed from "inreview"
         title: "Web Dashboard",
-        priority: "Medium",
-        users: [
+        priority: "medium",
+        assignedAdmins: [
             { name: "Jessica", avatar: "/demo/synco/reportsIcons/Avatar.png" },
             { name: "Matt", avatar: "/demo/synco/reportsIcons/Avatar1.png" },
         ],
@@ -50,10 +51,10 @@ const tasks = [
     },
     {
         id: 4,
-        status: "todo",  // changed from "completed"
+        status: "to_do",  // changed from "completed"
         title: "Web Dashboard",
-        priority: "Medium",
-        users: [
+        priority: "medium",
+        assignedAdmins: [
             { name: "Jessica", avatar: "/demo/synco/reportsIcons/Avatar.png" },
             { name: "Matt", avatar: "/demo/synco/reportsIcons/Avatar1.png" },
         ],
@@ -66,6 +67,10 @@ const tasks = [
 
 export default function TodoList() {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+   const { fetchToDoList, toDoList } = useToDoListTemplate();
+    useEffect(() => {
+        fetchToDoList();
+    }, [fetchToDoList]);
     const [openNewTask, setOpenNewTask] = useState(false);
     const [openViewTask, setOpenViewTask] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
@@ -75,6 +80,7 @@ export default function TodoList() {
     const [Members, setMembers] = useState([]);
     const handleOpenNewTask = () => setOpenNewTask(true);
     const handleCloseNewTask = () => setOpenNewTask(false);
+
     const task = {
         title: "Task 1 title",
         description: "Lorem ipsum...",
@@ -88,7 +94,7 @@ export default function TodoList() {
             avatar: "/demo/synco/reportsIcons/Avatar1.png"
         },
         status: "Next",
-        priority: "High",
+        priority: "high",
         createdAt: "Feb 2, 2023 – 4:30 PM",
         updatedAt: "Feb 3, 2023 – 2:15 PM"
     }
@@ -260,7 +266,7 @@ function TaskCard({ task, onClick }) {
                 <h2 className="mt-3 font-semibold text-[18px]">{task.title}</h2>
 
                 <div className="flex items-center gap-2 mt-3">
-                    {task.users.map((u, index) => (
+                    {task.assignedAdmins.map((u, index) => (
                         <div className="flex gap-1 items-center">
                             <img
                                 key={index}
@@ -286,19 +292,22 @@ function TaskCard({ task, onClick }) {
 
 
 function CreateTaskModal({ members, onClose }) {
-
+    const { fetchToDoList, toDoList, createToDoList } = useToDoListTemplate();
+    useEffect(() => {
+        fetchToDoList();
+    }, [fetchToDoList]);
     const memberOptions = members.map(m => ({
         value: m.id,
         label: `${m.firstName} ${m.lastName || ""}`.trim(),
         profile: m.profile,
         fullData: m
     }));
-    const [priority, setPriority] = useState("Low");
+    const [priority, setPriority] = useState("low");
 
     const [createdAt] = useState(new Date());
     const [updatedAt, setUpdatedAt] = useState(new Date());
 
-    const priorityOptions = ["Low", "Medium", "High"];
+    const priorityOptions = ["low", "medium", "high"];
 
     const [selectedMembers, setSelectedMembers] = useState([]);
 
@@ -348,19 +357,40 @@ function CreateTaskModal({ members, onClose }) {
         setFormData((p) => ({ ...p, comment: e.target.value }));
     };
 
-    const handleSubmit = () => {
-        const finalData = {
-            ...formData,
-            assignedMembers: selectedMembers.map(m => m.fullData),
-            priority,
-            createdAt,
-            updatedAt: new Date(), // update on submit
-        };
-
-        console.log("FINAL TASK DATA:", finalData);
-
-        onClose();
+   const handleSubmit = async () => {
+    // Helper function to convert a file to base64
+    const fileToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
     };
+
+    // Convert all uploaded files to base64
+    const attachmentsBase64 = await Promise.all(
+        uploadedFiles.map(async (fileObj) => {
+            const base64Data = await fileToBase64(fileObj.file);
+            return {
+                ...fileObj,
+                file: base64Data,  // replace file object with base64
+                url: undefined     // optional: remove blob url
+            };
+        })
+    );
+
+    const finalData = {
+        ...formData,
+        assignedAdmins: selectedMembers.map(m => m.fullData.id),
+        attachments: attachmentsBase64
+    };
+
+    createToDoList(finalData);
+    console.log("FINAL TASK DATA:", finalData);
+
+    onClose();
+};
 
 
     return (

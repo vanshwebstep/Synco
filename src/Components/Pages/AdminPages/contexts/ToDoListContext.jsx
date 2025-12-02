@@ -2,12 +2,12 @@ import { createContext, useContext, useState, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2"; // make sure it's installed
 
-const CommunicationContext = createContext();
+const ToDoListContext = createContext();
 
-export const CommunicationTemplateProvider = ({ children }) => {
+export const ToDoListProvider = ({ children }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-    const [templateCategories, setTemplateCategories] = useState([]);
+    const [toDoList, setToDoList] = useState([]);
 
     const [apiTemplates, setApiTemplates] = useState({ email: [], text: [] });
 
@@ -57,7 +57,7 @@ export const CommunicationTemplateProvider = ({ children }) => {
     });
 
     // Book a Free Trial
-    const fetchTemplateCategories = useCallback(
+    const fetchToDoList = useCallback(
         async (
             studentName = "",
             venueName = "",
@@ -126,7 +126,7 @@ export const CommunicationTemplateProvider = ({ children }) => {
                 //   .filter(Boolean)
                 //   .forEach(d => queryParams.append("trialDate", d));
 
-                const url = `${API_BASE_URL}/api/admin/holiday/template-category/list${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+                const url = `${API_BASE_URL}/api/admin//holiday/to-do-list/list${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
                 const response = await fetch(url, {
                     method: "GET",
                     headers: {
@@ -141,7 +141,7 @@ export const CommunicationTemplateProvider = ({ children }) => {
                 setBookedByAdmin(bookedByAdmin);
                 setMyVenues(Array.isArray(venues) ? venues : []);
                 setStatsFreeTrial(resultRaw.data)
-                setTemplateCategories(result);
+                setToDoList(result);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
             } finally {
@@ -268,9 +268,9 @@ export const CommunicationTemplateProvider = ({ children }) => {
         }
     }, []);
 
-    const createTemplateCategories = async (templateCategoriesData) => {
+    const createToDoList = async (toDoListData) => {
         setLoading(true);
-        console.log('templateCategoriesData', templateCategoriesData)
+        console.log('toDoListData', toDoListData)
 
         const headers = {
             "Content-Type": "application/json",
@@ -279,14 +279,14 @@ export const CommunicationTemplateProvider = ({ children }) => {
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
         }
-        let url = `${API_BASE_URL}/api/admin/holiday/template-category/create`;
+        let url = `${API_BASE_URL}/api/admin/holiday/to-do-list/create`;
 
 
         try {
             const response = await fetch(url, {
                 method: "POST",
                 headers,
-                body: JSON.stringify(templateCategoriesData),
+                body: JSON.stringify(toDoListData),
             });
 
             const result = await response.json();
@@ -313,7 +313,7 @@ export const CommunicationTemplateProvider = ({ children }) => {
             });
             throw error;
         } finally {
-            await fetchTemplateCategories();
+            await fetchToDoList();
             setLoading(false);
         }
     };
@@ -362,7 +362,7 @@ export const CommunicationTemplateProvider = ({ children }) => {
             });
             throw error;
         } finally {
-            await fetchTemplateCategories();
+            await fetchToDoList();
             setLoading(false);
         }
     };
@@ -3141,7 +3141,7 @@ export const CommunicationTemplateProvider = ({ children }) => {
         }
     }, []);
     return (
-        <CommunicationContext.Provider
+        <ToDoListContext.Provider
             value={{// Free Trials
                 bookFreeTrials,
                 createBookFreeTrials,
@@ -3242,12 +3242,12 @@ export const CommunicationTemplateProvider = ({ children }) => {
                 fetchMembershipSalesLoading, createBookLeads, createBookBirthday, addToWaitingList, setaddToWaitingList, showCancelTrial, setshowCancelTrial
 
 
-                , fetchTemplateCategories, templateCategories,
-                fetchCommunicationTemplate, fetchCommunicationTemplateById, apiTemplates, setApiTemplates, createTemplateCategories, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
+                , fetchToDoList, toDoList,
+                fetchCommunicationTemplate, fetchCommunicationTemplateById, apiTemplates, setApiTemplates, createToDoList, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
             }}>
             {children}
-        </CommunicationContext.Provider>
+        </ToDoListContext.Provider>
     );
 };
 
-export const useCommunicationTemplate = () => useContext(CommunicationContext);
+export const useToDoListTemplate = () => useContext(ToDoListContext);

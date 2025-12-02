@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";  // ✅ to read URL params
 
 import Select from "react-select";
 import { motion } from "framer-motion";
@@ -9,8 +10,15 @@ import { FiSearch } from "react-icons/fi";
 import { useCommunicationTemplate } from "../contexts/CommunicationContext";
 
 export default function CreateTemplateSteps() {
-    const { fetchTemplateCategories, createTemplateCategories, templateCategories, createCommunicationTemplate } = useCommunicationTemplate();
-    const [categoryData, setCategoryData] = useState([templateCategories]);
+    const { fetchTemplateCategories, createTemplateCategories, templateCategories, fetchCommunicationTemplateById, createCommunicationTemplate, apiTemplates } = useCommunicationTemplate();
+    const [categoryData, setCategoryData] = useState([]);
+    useEffect(() => {
+        setCategoryData(templateCategories);
+    }, [templateCategories]);
+    const [searchParams] = useSearchParams();
+    const templateId = searchParams.get("id");   // ✅ Get ID from URL
+    const level = searchParams.get("level");     // email | text
+    const isEditMode = Boolean(templateId);
 
 
     const [isPreview, setIsPreview] = useState(false);
@@ -30,6 +38,70 @@ export default function CreateTemplateSteps() {
     const categoryList = Array.from(
         new Set(templateCategories.map((c) => c.category))
     );
+    useEffect(() => {
+        const loadTemplate = async () => {
+            if (!isEditMode) return;
+
+            const res = await fetchCommunicationTemplateById(templateId);
+            if (apiTemplates) {
+                const t = apiTemplates;
+
+                // ✅ Parse content properly
+                let parsedContent = {};
+                if (apiTemplates.content) {
+                    try {
+                        parsedContent = JSON.parse(JSON.parse(apiTemplates.content)); // ✅ double parse fix
+                    } catch (err) {
+                        console.error("❌ Content parse error:", err);
+                    }
+                }
+
+                // ✅ Set communication mode
+                setCommunicationMode({
+                    value: apiTemplates.mode_of_communication,
+                    label: apiTemplates.mode_of_communication === "email" ? "Email" : "Text",
+                });
+
+                // ✅ Fix category ID (convert string "[1]" → real array [1])
+                let categoryIds = [];
+                if (apiTemplates.template_category_id) {
+                    try {
+                        categoryIds = JSON.parse(apiTemplates.template_category_id); // parsed as string originally
+                    } catch {
+                        console.warn("⚠ category parse failed");
+                    }
+                }
+
+                // ✅ Prefill main form
+                setForm(prev => ({
+                    ...prev,
+                    title: apiTemplates.title,
+                    category: categoryIds,                // ✅ now stores [1]
+                    categoryNames: [apiTemplates.mode_of_communication],
+                    tags: apiTemplates.tags || ""
+                }));
+
+                // ✅ If EMAIL template → fill builder
+                if (apiTemplates.mode_of_communication === "email") {
+                    setBuilderSubject(parsedContent.subject || "");
+                    setBuilderBlocks(parsedContent.blocks || []);
+                    setStep(2); // open builder
+                }
+
+                // ✅ If TEXT template → fill text form
+                if (apiTemplates.mode_of_communication === "text") {
+                    setTextForm({
+                        sender: apiTemplates.sender_name || "",
+                        message: apiTemplates.content || ""
+                    });
+                    setStep(3);
+                }
+            }
+        };
+
+        loadTemplate();
+    }, [templateId, isEditMode]);
+
 
     const communicationOptions = [
         { value: "email", label: "Email" },
@@ -52,11 +124,9 @@ export default function CreateTemplateSteps() {
 
         console.log('categorySearch', categorySearch);
 
-        // Use correct field from categoryData (fallback safe)
         const exists = categoryData.find(
-            (c) => (c.categoryName || "").toLowerCase() === categorySearch.toLowerCase()
+            (c) => (c.category || "").toLowerCase() === categorySearch.toLowerCase()
         );
-
         let newCat = exists;
 
         if (!exists) {
@@ -331,7 +401,10 @@ export default function CreateTemplateSteps() {
                                                     </button>
                                                     <button
                                                         className="px-5 py-2 bg-blue-600 text-white rounded-lg"
-                                                        onClick={handleSaveCategory}
+                                                        onClick={() => {
+                                                            handleSaveCategory();
+                                                            setCategoryOpen(false);  // ✅ closes dropdown
+                                                        }}
                                                     >
                                                         Save
                                                     </button>

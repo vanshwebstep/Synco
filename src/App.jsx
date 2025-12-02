@@ -153,6 +153,7 @@ import SettingList from './Components/Pages/AdminPages/Templates/Settings/Settin
 import { HolidayFindClassProvider } from './Components/Pages/AdminPages/contexts/HolidayFindClassContext.jsx';
 import HolidayReports from './Components/Pages/AdminPages/holiday-camps/reports/HolidayReports.jsx';
 import { CommunicationTemplateProvider } from './Components/Pages/AdminPages/contexts/CommunicationContext.jsx';
+import { ToDoListProvider } from './Components/Pages/AdminPages/contexts/ToDoListContext.jsx';
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
 // Role-based route component
@@ -992,7 +993,9 @@ function App() {
                                           <BookFreeTrialLoaderProvider>
                                             <PermissionProvider>
                                               <CommunicationTemplateProvider>
-                                                <AppRoutes />
+                                                <ToDoListProvider>
+                                                  <AppRoutes />
+                                                </ToDoListProvider>
                                               </CommunicationTemplateProvider>
                                             </PermissionProvider>
                                           </BookFreeTrialLoaderProvider>
