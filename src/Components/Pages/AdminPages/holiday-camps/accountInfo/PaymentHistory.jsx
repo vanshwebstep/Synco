@@ -50,14 +50,14 @@ const PaymentHistory = () => {
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Address</span>
               <span className="text-gray-800 font-semibold text-right max-w-[250px] md:max-w-[400px] break-words">
-                {data?.booking?.address || "N/A"}
+                {data?.holidayVenue?.name || "N/A"}
               </span>
             </div>
 
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Email</span>
               <span className="text-gray-800 font-semibold">
-                {data?.booking?.parents?.[0]?.parentEmail || "N/A"}
+                {data?.parents?.[0]?.parentEmail || "N/A"}
               </span>
             </div>
           </div>
@@ -84,16 +84,16 @@ const PaymentHistory = () => {
                 <tr className="relative after:content-[''] after:block after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-[97%] after:h-px after:bg-[#F2F1F5] hover:bg-gray-50 transition">
                   <td className="py-3 px-6 flex md:w-5/12 items-center gap-2">
                     <span
-                      className={`w-2 h-2 rounded-full ${data?.booking?.payment?.paymentStatus === "paid"
+                      className={`w-2 h-2 rounded-full ${data?.payment?.payment_status === "paid"
                         ? "bg-green-500"
                         : "bg-red-500"
                         }`}
                     ></span>
-                    {data?.booking?.payment?.paymentStatus || "N/A"}
+                    {data?.payment?.payment_status || "N/A"}
                   </td>
 
                   <td className="py-3 px-4">
-                    {data?.source || data?.booking?.parents?.[0]?.howDidHear || "N/A"}
+                    {data?.marketingChannel || data?.parents?.[0]?.howDidYouHear || "N/A"}
                   </td>
 
                   <td className="py-3 px-4">
@@ -107,13 +107,13 @@ const PaymentHistory = () => {
                   </td>
 
                   <td className="py-3 px-4">
-                    -
+                   {data?.payment?.amount}
                   </td>
 
                   <td className="py-3 px-4 font-medium">
                     £
-                    {data?.booking?.payment?.amount
-                      ? parseFloat(data.booking.payment.amount).toFixed(2)
+                    {data?.payment?.base_amount
+                      ? parseFloat(data?.payment?.base_amount).toFixed(2)
                       : "0.00"} GBP
                   </td>
                 </tr>

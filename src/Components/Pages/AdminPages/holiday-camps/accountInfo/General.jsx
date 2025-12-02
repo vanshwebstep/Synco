@@ -8,39 +8,63 @@ import { Search } from "lucide-react";
 import { useNotification } from "../../contexts/NotificationContext";
 import { Mail, MessageSquare } from "lucide-react";
 import { useAccountsInfo } from "../../contexts/AccountsInfoContext";
-
+import Swal from "sweetalert2";
+import { useLocation } from "react-router-dom";
 const General = () => {
     const { data } = useAccountsInfo();
-    const { sendHolidayMaill } = useAccountsInfo();
     const [bookingId, setBookingId] = useState([]);
 
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const id = queryParams.get("id"); // 
+    const [loading, setLoading] = useState([]);
     useEffect(() => {
         if (data?.id) {
             setBookingId(prev => [...prev, data?.id]);
         }
     }, [data]);
-    
+
     const [formData, setFormData] = useState({
-        student: {
-            firstName: data?.booking?.students?.[0]?.studentFirstName || "",
-            lastName: data?.booking?.students?.[0]?.studentLastName || "",
-            dob: data?.booking?.students?.[0]?.dateOfBirth
-                ? new Date(data.booking.students[0].dateOfBirth)
-                : null,
-            age: data?.booking?.students?.[0]?.age || "",
-            medical: data?.booking?.students?.[0]?.medicalInfo || "",
-            ability: data?.booking?.students?.[0]?.ability || "",
-        },
-        parent: data?.booking?.parents?.map((p) => ({
-            firstName: p?.parentFirstName || "",
-            lastName: p?.parentLastName || "",
-            email: p?.parentEmail || "",
-            phone: p?.phoneNumber || "",
-            referral: p?.howDidHear || "",
-        })) || [{}],
+        student:
+            data?.students?.length > 0
+                ? data.students.map((student) => ({
+                    firstName: student?.studentFirstName || "",
+                    lastName: student?.studentLastName || "",
+                    dob: student?.dateOfBirth ? new Date(student.dateOfBirth) : null,
+                    age: student?.age || "",
+                    medical: student?.medicalInformation || "",
+                    ability: student?.ability || "",
+                }))
+                : [
+                    {
+                        firstName: "",
+                        lastName: "",
+                        dob: null,
+                        age: "",
+                        medical: "",
+                        ability: "",
+                    },
+                ],
+
+        parent:
+            data?.parents?.length > 0
+                ? data.parents.map((p) => ({
+                    firstName: p?.parentFirstName || "",
+                    lastName: p?.parentLastName || "",
+                    email: p?.parentEmail || "",
+                    phone: p?.parentPhoneNumber || "",
+                    referral: p?.howDidYouHear || "",
+                }))
+                : [
+                    {
+                        firstName: "",
+                        lastName: "",
+                        email: "",
+                        phone: "",
+                        referral: "",
+                    },
+                ],
     });
-
-
 
     const token = localStorage.getItem("adminToken");
     const { adminInfo } = useNotification();
@@ -95,32 +119,12 @@ const General = () => {
         });
     };
 
-    const [paymentData, setPaymentData] = useState({
-        firstName: "",
-        lastName: "",
-        email: "",
-        billingAddress: "",
-        cardNumber: "",
-        expiryDate: "",
-        securityCode: "",
-    });
-
-    const handlePaymentChange = (e) => {
-        setPaymentData({ ...paymentData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log("Payment Data:", paymentData);
-        // Add payment processing logic here
-    };
-
     const fetchComments = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
         if (!token) return;
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/list`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/list`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -170,7 +174,7 @@ const General = () => {
             });
 
 
-            const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/create`, requestOptions);
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/create`, requestOptions);
 
             const result = await response.json();
 
@@ -205,32 +209,67 @@ const General = () => {
         }
     }
 
+
+    const sendEmail = async () => {
+        setLoading(true);
+        const token = localStorage.getItem("adminToken");
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+        // console.log('bookingIds', bookingIds)
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/send-email`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                    bookingIds: [id], // make sure bookingIds is an array like [96, 97]
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to send Email");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Mail has been Sent successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+
+            return result;
+
+        } catch (error) {
+            console.error("Error sending Mail:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while sending Mail.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            // await fetchOneToOneMembers(data.id);
+            setLoading(false);
+        }
+    }
     useEffect(() => {
         fetchComments();
     }, [])
 
-
-
-
-
-    const calculateAge = (dob) => {
-        if (!dob) return "";
-        const birthDate = new Date(dob);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        return age;
-    };
     const studentInputs = [
         { name: "firstName", placeholder: "Enter First Name", type: "text", label: "First Name" },
         { name: "lastName", placeholder: "Enter Last Name", type: "text", label: "Last Name" },
         { name: "dob", placeholder: "Date of Birth", type: "date", label: "Date Of Birth" },
         { name: "age", placeholder: "Automatic Entry", type: "text", label: "Age" },
         { name: "medical", placeholder: "Enter Medical Information", type: "text", label: "Medical Information" },
-        { name: "ability", placeholder: "", type: "select", options: ["Select Ability Level"], label: "Ability Levels" },
+        // { name: "ability", placeholder: "", type: "select", options: ["Select Ability Level"], label: "Ability Levels" },
     ];
 
     const parentInputs = [
@@ -241,152 +280,176 @@ const General = () => {
         { name: "referral", placeholder: "How did you hear about us?", type: "select", options: ["Friend", "Website", "Other"], label: "How Did You Hear About Us" },
     ];
 
-    const renderInputs = (inputs, section, index = null) => (
-        <div className={`grid ${section === "general" ? "md:grid-cols-1" : "md:grid-cols-2"} gap-4`}>
-            {inputs.map((input, idx) => (
-                <div key={idx}>
-                    <label className="block text-[16px] font-semibold">{input.label}</label>
+    const renderInputs = (inputs, section, index = null) => {
+        const getValue = (inputName) => {
+            if (section === "parent") {
+                return formData.parent?.[index]?.[inputName] || "";
+            }
+            if (section === "student") {
+                return formData.student?.[index]?.[inputName] || "";
+            }
+            return formData[section]?.[inputName] || "";
+        };
 
-                    {/* TEXT / EMAIL / NUMBER / TEXTAREA */}
-                    {["text", "email", "number", "textarea"].includes(input.type) &&
-                        (input.type === "textarea" ? (
+        const setValue = (inputName, value) => {
+            handleChange(section, inputName, value, index);
+        };
+
+        return (
+            <div
+                className={`grid ${section === "general" ? "md:grid-cols-1" : "md:grid-cols-2"
+                    } gap-4`}
+            >
+                {inputs.map((input, idx) => (
+                    <div key={idx}>
+                        <label className="block text-[16px] font-semibold">
+                            {input.label}
+                        </label>
+
+                        {/* TEXTAREA */}
+                        {input.type === "textarea" && (
                             <textarea
+                                readOnly
                                 placeholder={input.placeholder}
-
-                                value={
-                                    section === "parent"
-                                        ? formData.parent[index]?.[input.name] || ""
-                                        : formData[section]?.[input.name] || ""
-                                }
-                                onChange={(e) => handleChange(section, input.name, e.target.value, index)}
+                                value={getValue(input.name)}
+                                onChange={(e) => setValue(input.name, e.target.value)}
                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                             />
-                        ) : (
+                        )}
+
+                        {/* TEXT / EMAIL / NUMBER */}
+                        {["text", "email", "number"].includes(input.type) && (
                             <div
-                                className={`flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2 ${input.name === "location" || input.name === "address" ? "gap-2" : ""
+                                className={`flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2 ${input.name === "location" || input.name === "address"
+                                    ? "gap-2"
+                                    : ""
                                     }`}
                             >
                                 {(input.name === "location" || input.name === "address") && (
                                     <Search className="w-5 h-5 text-gray-500 flex-shrink-0" />
                                 )}
+
                                 <input
+                                    readOnly
                                     type={input.type}
                                     placeholder={input.placeholder}
-                                    disabled={input.name == "age"}
-                                    value={
-                                        section === "parent"
-                                            ? formData.parent[index]?.[input.name] || ""
-                                            : formData[section]?.[input.name] || ""
-                                    }
-                                    onChange={(e) => handleChange(section, input.name, e.target.value, index)}
+                                    disabled={input.name === "age"}
+                                    value={getValue(input.name)}
+                                    onChange={(e) => setValue(input.name, e.target.value)}
                                     className="w-full text-base border-none focus:outline-none bg-transparent"
                                 />
                             </div>
-                        ))}
+                        )}
 
-                    {/* SELECT */}
-                    {input.type === "select" && (
-                        <Select
-                            options={input.options.map((opt) => ({ value: opt, label: opt }))}
-                            value={
-                                section === "parent"
-                                    ? formData.parent[index]?.[input.name]
-                                        ? { value: formData.parent[index][input.name], label: formData.parent[index][input.name] }
-                                        : null
-                                    : formData[section]?.[input.name]
-                                        ? { value: formData[section][input.name], label: formData[section][input.name] }
-                                        : null
-                            }
-                            onChange={(selected) =>
-                                handleChange(section, input.name, selected?.value || "", index)
-                            }
-                            className="mt-2"
-                            styles={{
-                                control: (base) => ({
-                                    ...base,
-                                    borderRadius: "12px",
-                                    padding: "5px",
-                                    borderColor: "#d1d5db",
-                                }),
-                            }}
-                        />
-                    )}
-
-                    {/* DATE */}
-                    {input.type === "date" && (
-                        <div className="mt-2">
-                            <DatePicker
-                                withPortal
-                                selected={
-
-                                    section === "parent"
-                                        ? formData.parent[index]?.[input.name]
-                                            ? new Date(formData.parent[index][input.name])
-                                            : null
-                                        : formData[section]?.[input.name]
-                                            ? new Date(formData[section][input.name])
-                                            : null
-                                }
-                                onChange={(date) => handleChange(section, input.name, date, index)}
-                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                showYearDropdown
-                                scrollableYearDropdown
-                                yearDropdownItemNumber={100}
-                                dateFormat="dd/MM/yyyy"
-                                maxDate={new Date(new Date().setFullYear(new Date().getFullYear() - 3))} // Minimum age: 3 years
-                                minDate={new Date(new Date().setFullYear(new Date().getFullYear() - 100))} // Max age: 100 years
-                                placeholderText="Select date of birth"
-                            />
-                        </div>
-                    )}
-
-                    {/* PHONE */}
-                    {input.type === "phone" && (
-                        <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
-                            <PhoneInput
-                                country={"us"}
+                        {/* SELECT */}
+                        {input.type === "select" && (
+                            <Select
+                                isDisabled
+                                options={input.options.map((opt) => ({
+                                    value: opt,
+                                    label: opt,
+                                }))}
                                 value={
-                                    section === "parent"
-                                        ? formData.parent[index]?.dialCode || ""
-                                        : formData[section]?.dialCode || ""
+                                    getValue(input.name)
+                                        ? { value: getValue(input.name), label: getValue(input.name) }
+                                        : null
                                 }
-                                onChange={(val, data) => {
-                                    handleChange(section, "dialCode", val, index);
-                                    handleChange(section, "country", data?.countryCode, index);
+                                onChange={(selected) =>
+                                    setValue(input.name, selected?.value || "")
+                                }
+                                className="mt-2"
+                                styles={{
+                                    control: (base) => ({
+                                        ...base,
+                                        borderRadius: "12px",
+                                        padding: "5px",
+                                        borderColor: "#d1d5db",
+                                    }),
                                 }}
-                                disableDropdown={true}
-                                disableCountryCode={true}
-                                countryCodeEditable={false}
-                                inputStyle={{ display: "none" }}
-                                buttonClass="!bg-white !border-none !p-0"
                             />
-                            <input
-                                type="tel"
-                                placeholder="Enter phone number"
-                                value={
-                                    section === "parent"
-                                        ? formData.parent[index]?.[input.name] || ""
-                                        : formData[section]?.[input.name] || ""
-                                }
-                                onChange={(e) => handleChange(section, input.name, e.target.value, index)}
-                                className="border-none focus:outline-none flex-1"
-                            />
-                        </div>
-                    )}
-                </div>
-            ))}
-        </div>
-    );
+                        )}
+
+                        {/* DATE */}
+                        {input.type === "date" && (
+                            <div className="">
+                                <DatePicker
+                                    withPortal
+                                    selected={
+                                        getValue(input.name)
+                                            ? new Date(getValue(input.name))
+                                            : null
+                                    }
+                                    onChange={(date) => setValue(input.name, date)}
+                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                    showYearDropdown
+                                    disabled
+                                    scrollableYearDropdown
+                                    yearDropdownItemNumber={100}
+                                    dateFormat="dd/MM/yyyy"
+                                    maxDate={
+                                        new Date(
+                                            new Date().setFullYear(
+                                                new Date().getFullYear() - 3
+                                            )
+                                        )
+                                    }
+                                    minDate={
+                                        new Date(
+                                            new Date().setFullYear(
+                                                new Date().getFullYear() - 100
+                                            )
+                                        )
+                                    }
+                                    placeholderText="Select date of birth"
+                                />
+                            </div>
+                        )}
+
+                        {/* PHONE */}
+                        {input.type === "phone" && (
+                            <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
+                                <PhoneInput
+                                    country={"us"}
+                                    value={getValue("dialCode")}
+                                    onChange={(val, data) => {
+                                        setValue("dialCode", val);
+                                        setValue("country", data?.countryCode);
+                                    }}
+                                    disabled
+                                    disableDropdown
+                                    disableCountryCode
+                                    countryCodeEditable={false}
+                                    inputStyle={{ display: "none" }}
+                                    buttonClass="!bg-white !border-none !p-0"
+                                />
+
+                                <input
+                                    readOnly
+                                    type="tel"
+                                    placeholder="Enter phone number"
+                                    value={getValue(input.name)}
+                                    onChange={(e) => setValue(input.name, e.target.value)}
+                                    className="border-none focus:outline-none flex-1"
+                                />
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
 
     return (
         <>
             <div className="flex">
                 <div className="md:w-[66%] pe-4">
-                    <section className="bg-white rounded-2xl p-4">
-                        <h3 className="text-xl font-bold text-[#282829] pb-4">Student Information</h3>
-                        {renderInputs(studentInputs, "student")}
-                    </section>
-
+                    {formData.student.map((_, index) => (
+                        <section className="bg-white rounded-2xl p-4 mt-2">
+                            <h3 className="text-xl font-bold text-[#282829] pb-4">Student Information</h3>
+                            {renderInputs(studentInputs, "student", index)}
+                        </section>
+                    ))}
                     {formData.parent.map((_, index) => (
                         <section className="bg-white rounded-2xl p-4 mt-5">
                             <div className="flex justify-between items-center pb-4">
@@ -519,8 +582,8 @@ const General = () => {
                                 <div>
                                     <h3 className="text-lg font-semibold">Booked In By</h3>
                                     <p className="text-gray-300 text-sm">
-                                        {data?.booking?.coach
-                                            ? `${data.booking.coach.firstName} ${data.booking.coach.lastName}`
+                                        {data?.bookedByAdmin
+                                            ? `${data.bookedByAdmin?.firstName} ${data.bookedByAdmin?.lastName}`
                                             : "N/A"}
                                     </p>
                                 </div>
@@ -530,7 +593,7 @@ const General = () => {
                             <div className="border-b border-[#495362] pb-3">
                                 <p className="text-white text-[18px] font-semibold">Venue</p>
                                 <span className="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded-md mt-1">
-                                    {data?.booking?.address || "N/A"}
+                                    {data?.holidayVenue?.name || "N/A"}
                                 </span>
                             </div>
 
@@ -538,7 +601,7 @@ const General = () => {
                             <div className="border-b border-[#495362] pb-3">
                                 <p className="text-white text-[18px] font-semibold">No. Of Students</p>
                                 <p className="text-[16px] mt-1 text-[#BDC0C3]">
-                                    {data?.age || "N/A"}
+                                    {data?.totalStudents || "N/A"}
                                 </p>
                             </div>
 
@@ -546,13 +609,7 @@ const General = () => {
                             <div className="border-b border-[#495362] pb-3">
                                 <p className="text-white text-[18px] font-semibold">Days</p>
                                 <p className="text-[16px] mt-1 text-[#BDC0C3]">
-                                    {data?.booking?.date
-                                        ? new Date(data.booking.date).toLocaleDateString("en-GB", {
-                                            day: "2-digit",
-                                            month: "short",
-                                            year: "numeric",
-                                        })
-                                        : "N/A"}
+                                    {data?.holidayCamp?.holidayCampDates[0]?.totalDays}
                                 </p>
                             </div>
 
@@ -560,7 +617,7 @@ const General = () => {
                             <div className="border-b border-[#495362] pb-3">
                                 <p className="text-white text-[18px] font-semibold">Discounts</p>
                                 <p className="text-[16px] mt-1 text-[#BDC0C3]">
-                                    {data?.booking?.paymentPlan?.title || data?.packageInterest || "N/A"}
+                                    {data?.payment?.discount_amount || "N/A"}
                                 </p>
                             </div>
                             {/* Price */}
@@ -568,9 +625,7 @@ const General = () => {
                                 <p className="text-white text-[18px] font-semibold">Price</p>
                                 <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">
                                     £
-                                    {data?.booking?.payment?.amount
-                                        ? parseFloat(data.booking.payment.amount).toFixed(2)
-                                        : "0.00"}
+                                    {data?.payment?.amount || "0.00"}
                                 </p>
                             </div>
 
@@ -578,7 +633,7 @@ const General = () => {
                             <div className=" ">
                                 <p className="text-white text-[18px] font-semibold">Source</p>
                                 <p className="text-[16px] mt-1 text-[#BDC0C3]">
-                                    {data?.source || data?.booking?.parents?.[0]?.howDidHear || "N/A"}
+                                    {data?.marketingChannel || "N/A"}
                                 </p>
                             </div>
 
@@ -591,7 +646,7 @@ const General = () => {
                             <div className="flex w-full justify-between gap-2">
                                 <button onClick={() => {
                                     if (bookingId) {
-                                        sendHolidayMaill(bookingId);
+                                        sendEmail();
                                     } else {
                                         Swal.fire({
                                             icon: "warning",

@@ -276,7 +276,7 @@ export const AccountsInfoProvider = ({ children }) => {
       });
 
     }
-    if (title == "emergency") {
+    if (title == "emergencyContacts") {
       raw = JSON.stringify({
         'emergencyContacts': mainData,
       });

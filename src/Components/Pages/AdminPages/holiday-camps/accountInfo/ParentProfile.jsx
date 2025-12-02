@@ -148,7 +148,7 @@ const ParentProfile = () => {
     if (!token) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/list`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/list`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -200,7 +200,7 @@ const ParentProfile = () => {
       });
 
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/create`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/create`, requestOptions);
 
       const result = await response.json();
 
@@ -463,6 +463,8 @@ const ParentProfile = () => {
                   options={relationOptions}
                   placeholder="Select Relation"
                   className="mt-2"
+                  isDisabled={!editParent?.[index]}
+
                   name="relationToChild"
                   classNamePrefix="react-select"
                   value={relationOptions.find(
@@ -481,6 +483,8 @@ const ParentProfile = () => {
                 </label>
                 <Select
                   options={hearOptions}
+                  isDisabled={!editParent?.[index]}
+
                   placeholder="Select from drop down"
                   className="mt-2"
                   name="howDidYouHear"

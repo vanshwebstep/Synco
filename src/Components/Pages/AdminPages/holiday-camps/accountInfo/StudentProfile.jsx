@@ -100,7 +100,7 @@ const StudentProfile = () => {
     if (!token) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/list`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/list`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -157,7 +157,7 @@ const StudentProfile = () => {
       });
 
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/create`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/create`, requestOptions);
 
       const result = await response.json();
 

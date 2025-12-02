@@ -547,7 +547,7 @@ const BookACamp = () => {
         const tokenLocal = localStorage.getItem("adminToken");
         if (!tokenLocal) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/list`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/list`, {
                 method: "GET",
                 headers: { Authorization: `Bearer ${tokenLocal}` },
             });
@@ -566,7 +566,7 @@ const BookACamp = () => {
         if (!tokenLocal) return;
         try {
             Swal.fire({ title: "Creating ", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            const response = await fetch(`${API_BASE_URL}/api/admin/book-membership/comment/create`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/create`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${tokenLocal}` },
                 body: JSON.stringify({ comment }),
