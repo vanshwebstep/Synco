@@ -226,25 +226,6 @@ const List = () => {
   //// console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
 
 
-  const handleNumberChange = (e) => {
-    const val = e.target.value === "" ? "" : Number(e.target.value);
-    if (val === "" || [1, 2, 3].includes(val)) {
-      setNumberOfStudents(val);
-
-      // If currently selected plan doesn't match new number, reset it
-      if (membershipPlan && membershipPlan.all.students !== val) {
-        setMembershipPlan(null);
-      }
-    }
-  };
-
-  // console.log('payment', payment)
-  const handlePlanChange = (plan) => {
-    setMembershipPlan(plan);
-    if (plan) {
-      setNumberOfStudents(plan.all.students); // Update numberOfStudents to match plan
-    }
-  };
   useEffect(() => {
     setStudents((prevStudents) => {
       const n = Number(numberOfStudents) || 0; // safety for null/undefined
@@ -299,6 +280,7 @@ const List = () => {
       }
     }
   }, [TrialData]);
+
   //// console.log('TrialData', students)
 
   // useEffect(() => {
@@ -428,32 +410,7 @@ const List = () => {
 
     return days;
   };
-  const calendarDays = getDaysArray();
 
-  const goToPreviousMonth = () => {
-    setCurrentDate(new Date(year, month - 1, 1));
-    setFromDate(null);
-    setToDate(null);
-  };
-
-  const goToNextMonth = () => {
-    setCurrentDate(new Date(year, month + 1, 1));
-    setFromDate(null);
-    setToDate(null);
-  };
-
-  const isSameDate = (d1, d2) => {
-    const date1 = typeof d1 === "string" ? new Date(d1) : d1;
-    const date2 = typeof d2 === "string" ? new Date(d2) : d2;
-
-    return (
-      date1 &&
-      date2 &&
-      date1.getDate() === date2.getDate() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getFullYear() === date2.getFullYear()
-    );
-  };
   const handleCancel = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -511,18 +468,6 @@ const List = () => {
     : [];
   // or `null`, `undefined`, or any fallback value
 
-  // Usage inside calendar cell:
-  const isInRange = (date) => {
-    return allTermRanges.some(({ start, end }) =>
-      date >= start && date <= end
-    );
-  };
-
-  const isExcluded = (date) => {
-    return allTermRanges.some(({ exclusions }) =>
-      exclusions.some(ex => ex.toDateString() === date?.toDateString())
-    );
-  };
 
 
   const [dob, setDob] = useState('');
@@ -584,50 +529,15 @@ const List = () => {
     setParents((prev) => prev.filter((p) => p.id !== id));
   };
 
-  const handleStudentChange = (index, field, value) => {
-    const updated = [...students];
-    updated[index][field] = value;
-
-    // Calculate age if dateOfBirth
-    if (field === "dateOfBirth") {
-      const birth = new Date(value);
-      const today = new Date();
-      updated[index].age = today.getFullYear() - birth.getFullYear();
-    }
-
-    setStudents(updated);
-  };
+ 
   const handleParentChange = (index, field, value) => {
     const updated = [...parents];
     updated[index][field] = value;
     setParents(updated);
   };
 
-  const handleEmergencyChange = (studentIndex, field, value) => {
-    const updated = [...students];
-    updated[studentIndex].emergency[field] = value;
-    setStudents(updated);
-  };
+ 
 
-  const handleSameAsAbove = (studentIndex) => {
-    const updated = [...students];
-    const primaryParent = updated[studentIndex].parents[0];
-    if (primaryParent) {
-      updated[studentIndex].emergency = {
-        parentFirstName: primaryParent.parentFirstName,
-        parentLastName: primaryParent.parentLastName,
-        phoneNumber: primaryParent.phoneNumber,
-        relationChild: primaryParent.relationChild?.label || "",
-        sameAsAbove: true
-      };
-    }
-    setStudents(updated);
-  };
-  const handlePhoneChange = (index, value) => {
-    const updated = [...parents];
-    updated[index].phone = value;
-    setParents(updated);
-  };
 
 
   useEffect(() => {
@@ -816,6 +726,7 @@ const List = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [activePopup]);
+  
   useEffect(() => {
     if (singleClassSchedulesOnly?.venue?.paymentGroups?.length > 0) {
       const cleanedPlans = singleClassSchedulesOnly.venue.paymentGroups[0].paymentPlans.map(plan => ({
@@ -1087,8 +998,6 @@ const List = () => {
   );
   const selectedPackages = packageOptions.find(pkg => pkg.id === selectedPackage);
 
-  console.log('paymentGroups', paymentGroups)
-  console.log('packageOptions', packageOptions)
   // selectedPackage = ID (ex: 94)
   // packageOptions = array of all plans (your full array)
   const finalPaymentPreview = (paymentGroups || []).find(group =>
@@ -1096,9 +1005,6 @@ const List = () => {
     group.paymentPlans.some(plan => plan.id === selectedPackage)
   );
 
-  console.log('selectedPackages', selectedPackages)
-
-  console.log('finalPaymentPreview', finalPaymentPreview)
   const filteredPackages = packageOptions.filter(
     (pkg) => Number(numberOfStudents) === pkg.students
   );

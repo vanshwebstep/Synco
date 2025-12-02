@@ -733,7 +733,7 @@ const handleBookCamp = (classId) => {
                                       )}
                                     </div>
 
-                                    <div className="whitespace-nowrap font-semibold text-[14px]">{venue?.holidayCampDates[0]?.totalDays}</div>
+                                    <div className="whitespace-nowrap font-semibold text-[14px]">{venue?.holidayCampDates[0]?.totalDays} Days</div>
                                   </div>
                                 </div>
                               </div>

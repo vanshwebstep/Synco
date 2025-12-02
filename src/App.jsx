@@ -151,6 +151,8 @@ import TemplateBuilder from './Components/Pages/AdminPages/Templates/TemplateBui
 import CommunicationsList from './Components/Pages/AdminPages/Templates/ListofTemplates/list.jsx';
 import SettingList from './Components/Pages/AdminPages/Templates/Settings/SettingList.jsx';
 import { HolidayFindClassProvider } from './Components/Pages/AdminPages/contexts/HolidayFindClassContext.jsx';
+import HolidayReports from './Components/Pages/AdminPages/holiday-camps/reports/HolidayReports.jsx';
+import { CommunicationTemplateProvider } from './Components/Pages/AdminPages/contexts/CommunicationContext.jsx';
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
 // Role-based route component
@@ -694,7 +696,7 @@ const AppRoutes = () => {
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <MembersList />
+              <StudentCamp />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -749,6 +751,15 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <SeeDetailsAccountHoliday />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/holiday-camp/reports" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <HolidayReports />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -980,7 +991,9 @@ function App() {
                                         <BookFreeTrialProvider>
                                           <BookFreeTrialLoaderProvider>
                                             <PermissionProvider>
-                                              <AppRoutes />
+                                              <CommunicationTemplateProvider>
+                                                <AppRoutes />
+                                              </CommunicationTemplateProvider>
                                             </PermissionProvider>
                                           </BookFreeTrialLoaderProvider>
                                         </BookFreeTrialProvider>

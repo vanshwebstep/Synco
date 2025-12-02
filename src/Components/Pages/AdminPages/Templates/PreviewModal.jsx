@@ -1,10 +1,93 @@
-export default function PreviewModal({ blocks, onClose, subject }) {
+import React, { useState, useCallback, useEffect } from "react";
+import { useCommunicationTemplate } from "../contexts/CommunicationContext";
+
+export default function PreviewModal({ mode_of_communication, title, category, tags, sender, message, blocks, onClose, subject }) {
+  const { createCommunicationTemplate } = useCommunicationTemplate();
+
+  const [previewData, setPreviewData] = useState({
+    subject: subject || "",
+    blocks: blocks.map(b => ({ ...b })) // clone to avoid mutating props
+  });
+  const convertBlobToBase64 = async (blobUrl) => {
+    const response = await fetch(blobUrl);
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => resolve(reader.result);
+    });
+  };
+const convertNestedImages = async (blocks) => {
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+
+    // Top-level image
+    if (block.type === "image" && block.url?.startsWith("blob")) {
+      block.url = await convertBlobToBase64(block.url);
+    }
+
+    // SectionGrid children
+    if (block.type === "sectionGrid" && Array.isArray(block.columns)) {
+      for (let ci = 0; ci < block.columns.length; ci++) {
+        for (let c = 0; c < block.columns[ci].length; c++) {
+          const child = block.columns[ci][c];
+          if (child.type === "image" && child.url?.startsWith("blob")) {
+            child.url = await convertBlobToBase64(child.url);
+          }
+        }
+      }
+    }
+  }
+  return blocks;
+};
+
+  // ✅ Save final preview data
+  const handleSavePreview = async () => {
+
+const finalBlocks = await convertNestedImages([...previewData.blocks]);
+
+    // Loop and convert images
+    for (let i = 0; i < finalBlocks.length; i++) {
+  if (finalBlocks[i].type === "image" && finalBlocks[i].url?.startsWith("blob")) {
+    finalBlocks[i].url = await convertBlobToBase64(finalBlocks[i].url);
+  }
+}
+    const Payload = {
+      mode_of_communication: mode_of_communication.value,
+      title,
+      template_category_id:category,
+      tags,
+    };
+    const finalJSON = {
+      subject: previewData.subject,
+      blocks: finalBlocks
+    };
+    const mergedPayload = {
+  ...Payload,
+     content : finalJSON   
+};
+
+    createCommunicationTemplate(mergedPayload)
+    console.log("✅ Final JSON to Send API:", finalJSON);
+
+    // sending whole preview as one JSON
+    onSave?.(finalJSON);  // ✅ parent receives full JSON
+  };
   return (
+
     <div className="pt-10">
+      <div className="flex justify-end ">
+        <button
+          className="mt-5 bg-blue-600 w-full max-w-fit text-right flex justify-right text-white px-4 py-2 rounded-lg"
+          onClick={handleSavePreview}
+        >
+          Save Template
+        </button>
+      </div>
       <div className="bg-white w-full max-w-full overflow-auto ">
 
         {/* Header */}
-      
+
         {/* ✅ Subject (render only once) */}
         {subject && (
           <h1 className="text-2xl font-semibold mb-6">{subject}</h1>
@@ -31,8 +114,15 @@ export default function PreviewModal({ blocks, onClose, subject }) {
               <input
                 className="border px-3 py-2 rounded w-full"
                 placeholder={block.placeholder}
+                value={previewData.blocks[i].content || ""}
+                onChange={(e) => {
+                  const newState = { ...previewData };
+                  newState.blocks[i].content = e.target.value;
+                  setPreviewData(newState);
+                }}
               />
             )}
+
 
             {/* IMAGE BLOCK */}
             {block.type === "image" && (
@@ -91,6 +181,19 @@ export default function PreviewModal({ blocks, onClose, subject }) {
                           <input
                             className="border px-2 py-1 rounded"
                             placeholder={child.placeholder}
+                            value={
+                              previewData.blocks[i].columns[ci][ci]?.find(
+                                (c) => c.id === child.id
+                              )?.content || ""
+                            }
+                            onChange={(e) => {
+                              const newState = { ...previewData };
+                              const target = newState.blocks[i].columns[ci]
+                                .find((c) => c.id === child.id);
+
+                              if (target) target.content = e.target.value;
+                              setPreviewData(newState);
+                            }}
                           />
                         )}
 
@@ -116,6 +219,7 @@ export default function PreviewModal({ blocks, onClose, subject }) {
           </div>
         ))}
       </div>
+
     </div>
   );
 }

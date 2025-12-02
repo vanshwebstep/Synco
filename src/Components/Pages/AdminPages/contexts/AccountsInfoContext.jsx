@@ -265,20 +265,20 @@ export const AccountsInfoProvider = ({ children }) => {
     let raw;
     if (title == "students") {
       raw = JSON.stringify({
-        'student': mainData,
+        'students': mainData,
       });
 
     }
     if (title == "parents") {
       raw = JSON.stringify({
 
-        'parentDetails': mainData,
+        'parents': mainData,
       });
 
     }
     if (title == "emergency") {
       raw = JSON.stringify({
-        'emergencyDetails': mainData,
+        'emergencyContacts': mainData,
       });
 
     }
@@ -302,7 +302,7 @@ export const AccountsInfoProvider = ({ children }) => {
         },
       });
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday-booking/booking/update/${data.id}`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/update/${data.id}`, requestOptions);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -477,7 +477,7 @@ export const AccountsInfoProvider = ({ children }) => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday-camps/list/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/listBy/${id}`, {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -485,7 +485,7 @@ export const AccountsInfoProvider = ({ children }) => {
       const resultRaw = await response.json();
 
       // Check API response status
-      if (!resultRaw.status) {
+      if (!resultRaw?.success) {
         Swal.fire({
           icon: "error",
           title: "Fetch Failed",
@@ -497,9 +497,9 @@ export const AccountsInfoProvider = ({ children }) => {
 
       const result = resultRaw.data || [];
       setData(result || []);
-      setStudents(result?.booking?.students || []);
-      setFormData(result?.booking?.parents || []);
-      setEmergency(result?.booking?.emergency || []);
+      setStudents(result?.students || []);
+      setFormData(result?.parents || []);
+      setEmergency(result?.emergencyContacts[0] || []);
 
     } catch (error) {
       console.error("Failed to fetch members:", error);

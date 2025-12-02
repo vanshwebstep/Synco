@@ -41,9 +41,9 @@ const ParentProfile = () => {
     parentFirstName: "",
     parentLastName: "",
     parentEmail: "",
-    phoneNumber: "",
-    relationChild: "",
-    howDidHear: "",
+    parentPhoneNumber: "",
+    relationToChild: "",
+    howDidYouHear: "",
   });
 
   const [dialCodes, setDialCodes] = useState(["", ""]);
@@ -53,12 +53,11 @@ const ParentProfile = () => {
   const [dialCodeEmergency, setDialCodeEmergency] = useState("");
   const [dialCode, setDialCode] = useState("");
   const [country, setCountry] = useState("us");
-  const [countryEmergency, setCountryEmergency] = useState("us");
 
   const hearOptions = [
-    { value: "Social Media", label: "Social Media" },
     { value: "Friend", label: "Friend" },
-    { value: "Flyer", label: "Flyer" },
+    { value: "Website", label: "Website" },
+    { value: "Other", label: "Other" }
   ];
 
   // Handle text input
@@ -99,7 +98,7 @@ const ParentProfile = () => {
     const value = e.target.value;
     setFormData((prev) =>
       prev.map((parent, i) =>
-        i === index ? { ...parent, phoneNumber: value } : parent
+        i === index ? { ...parent, parentPhoneNumber: value } : parent
       )
     );
 
@@ -110,7 +109,7 @@ const ParentProfile = () => {
 
     setNewParent((prev) => ({
       ...prev,
-      phoneNumber: value,
+      parentPhoneNumber: value,
     }));
   };
 
@@ -248,9 +247,9 @@ const ParentProfile = () => {
       parentFirstName: "",
       parentLastName: "",
       parentEmail: "",
-      phoneNumber: "",
-      relationChild: "",
-      howDidHear: "",
+      parentPhoneNumber: "",
+      relationToChild: "",
+      howDidYouHear: "",
     });
     setDialCode("");
     setCountry("us");
@@ -297,8 +296,8 @@ const ParentProfile = () => {
         ...prev,
         emergencyFirstName: firstParent.parentFirstName || "",
         emergencyLastName: firstParent.parentLastName || "",
-        emergencyPhoneNumber: firstParent.phoneNumber || "",
-        emergencyRelation: firstParent.relationChild || "",
+        emergencyPhoneNumber: firstParent.parentPhoneNumber || "",
+        emergencyRelation: firstParent.relationToChild || "",
       }));
     }
   }, [emergency.sameAsAbove, formData]);
@@ -309,7 +308,7 @@ const ParentProfile = () => {
 
   const handleSaveEmergency = () => {
 
-    handleUpdateHoliday("emergency", emergency)
+    handleUpdateHoliday("emergencyContacts", emergency)
   }
 
   useEffect(() => {
@@ -443,8 +442,8 @@ const ParentProfile = () => {
                   />
                   <input
                     type="tel"
-                    name="phoneNumber"
-                    value={parent.phoneNumber || ""}
+                    name="parentPhoneNumber"
+                    value={parent.parentPhoneNumber || ""}
                     onChange={(e) => handlePhoneChange(index, e)}
                     readOnly={!editParent?.[index]}
                     placeholder="Enter phone number"
@@ -464,10 +463,10 @@ const ParentProfile = () => {
                   options={relationOptions}
                   placeholder="Select Relation"
                   className="mt-2"
-                  name="relationChild"
+                  name="relationToChild"
                   classNamePrefix="react-select"
                   value={relationOptions.find(
-                    (o) => o.value === parent.relationChild
+                    (o) => o.value === parent.relationToChild
                   )}
                   onChange={(selected, actionMeta) =>
                     handleSelectChange(index, selected, actionMeta)
@@ -484,10 +483,10 @@ const ParentProfile = () => {
                   options={hearOptions}
                   placeholder="Select from drop down"
                   className="mt-2"
-                  name="howDidHear"
+                  name="howDidYouHear"
                   classNamePrefix="react-select"
                   value={hearOptions.find(
-                    (o) => o.value === parent.howDidHear
+                    (o) => o.value === parent.howDidYouHear
                   )}
                   onChange={(selected, actionMeta) =>
                     handleSelectChange(index, selected, actionMeta)
@@ -563,8 +562,8 @@ const ParentProfile = () => {
                     <span className="text-gray-600 mr-2">{dialCode}</span>
                     <input
                       type="tel"
-                      name="phoneNumber"
-                      value={newParent.phoneNumber || ""}
+                      name="parentPhoneNumber"
+                      value={newParent.parentPhoneNumber || ""}
                       onChange={handlePhoneChangeNew}
                       placeholder="Enter number"
                       className="border-none focus:outline-none flex-1"
@@ -579,12 +578,12 @@ const ParentProfile = () => {
                   <label className="block text-sm font-semibold">Relation to child</label>
                   <Select
                     options={relationOptions}
-                    name="relationChild"
+                    name="relationToChild"
                     className="mt-1"
                     classNamePrefix="react-select"
                     placeholder="Select"
                     value={relationOptions.find(
-                      (o) => o.value === newParent.relationChild
+                      (o) => o.value === newParent.relationToChild
                     )}
                     onChange={handleSelectChangeNew}
                   />
@@ -593,12 +592,12 @@ const ParentProfile = () => {
                   <label className="block text-sm font-semibold">How did you hear?</label>
                   <Select
                     options={hearOptions}
-                    name="howDidHear"
+                    name="howDidYouHear"
                     className="mt-1"
                     classNamePrefix="react-select"
                     placeholder="Select"
                     value={hearOptions.find(
-                      (o) => o.value === newParent.howDidHear
+                      (o) => o.value === newParent.howDidYouHear
                     )}
                     onChange={handleSelectChangeNew}
                   />

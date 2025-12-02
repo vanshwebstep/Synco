@@ -75,6 +75,7 @@ const AdminLayout = ({ children }) => {
     '/one-to-one/sales/account-information': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
     '/birthday-party/leads/booking-form': { title: 'Book a Birthday Party ', icon: '/demo/synco/members/BirthdayIcon.png' },
     '/birthday-party/sales/account-information': { title: 'Account Information', icon: '/demo/synco/members/Profile.png' },
+    '/holiday-camp/reports': { title: 'Holiday Camps Report', icon: '/demo/synco/members/Profile.png' },
     
     '/configuration/holiday-camp/venues': { title: 'Holiday Camp Venues ', icon: '/demo/synco/members/Location.png' },
     '/configuration/holiday-camp/venues/class-schedule': { title: 'Class Schedule', icon: '/demo/synco/members/ClassSchedule.png' },
@@ -83,6 +84,7 @@ const AdminLayout = ({ children }) => {
     '/configuration/holiday-camp/subscription-plan-group': { title: 'Payment Plan Manager', icon: '/demo/synco/icons/subscriptionplanIcon.png' },
     '/configuration/holiday-camp/discount': { title: 'Discounts', icon: '/demo/synco/icons/subscriptionplanIcon.png' },
     '/holiday-camp/find-a-camp': { title: 'Find a Holiday Camp', icon: '/demo/synco/icons/subscriptionplanIcon.png' },
+    '/holiday-camp/find-a-camp/book-camp': { title: 'Book a Holiday Camp', icon: '/demo/synco/members/bookMembership.png' },
     '/templates/create': { title: 'Communication Templates', icon: "/demo/synco/members/Notification.png" },
     '/templates/list': { title: 'Text/Email Communications', icon: "/demo/synco/members/Notification.png" },
     '/templates/settingList': { title: 'Communication Templates', icon: "/demo/synco/members/Notification.png" },

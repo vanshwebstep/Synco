@@ -72,7 +72,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
             )
           )
         }
-        className="w-full border p-2 rounded"
+        className="w-full border border-gray-200 p-2 rounded-md"
         style={{
           color: block.style.textColor,
           fontSize: block.style.fontSize,
@@ -87,7 +87,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
           <label className="text-sm">Text Color</label>
           <input
             type="color"
-            className="w-10 rounded-full h-10 cursor-pointer"
+            className="w-10 rounded-md-full h-10 cursor-pointer"
             value={block.style.textColor}
             onChange={(e) => updateStyle("textColor", e.target.value)}
           />
@@ -119,7 +119,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
     if (block.type === "input")
         return (
             <input
-                className="w-full border p-3 rounded"
+                className="w-full border p-3 border-gray-200 rounded-md"
                 placeholder={block.placeholder}
             />
         );
@@ -131,7 +131,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
                 {block.url && (
                     <img
                         src={block.url}
-                        className="w-full h-48 object-cover rounded mb-3"
+                        className="w-full h-48 object-cover rounded-md mb-3"
                     />
                 )}
                 <input
@@ -159,7 +159,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
 
       {/* Editable Button */}
       <button
-        className="px-4 py-2 rounded-lg"
+        className="px-4 py-2 rounded-md-lg"
         style={{
           backgroundColor: block.style.backgroundColor,
           color: block.style.textColor,
@@ -176,7 +176,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
   <div className="col-span-2">
     <label className="text-xs font-medium">Button Text</label>
     <input
-      className="w-full border rounded px-2 py-1 text-sm"
+      className="w-full border border-gray-200 rounded-md p-3 mt-1 text-sm"
       value={block.content}
       onChange={(e) =>
         setBlocks(
@@ -193,7 +193,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
     <label className="text-xs font-medium">BG</label>
     <input
       type="color"
-      className="w-10 h-10 rounded-full border cursor-pointer"
+      className="w-10 h-10 rounded-md-full border cursor-pointer"
       value={block.style.backgroundColor}
       onChange={(e) => updateStyle("backgroundColor", e.target.value)}
     />
@@ -204,7 +204,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
     <label className="text-xs font-medium">Text</label>
     <input
       type="color"
-      className="w-10 h-10 rounded-full border cursor-pointer"
+      className="w-10 h-10 rounded-md-full border cursor-pointer"
       value={block.style.textColor}
       onChange={(e) => updateStyle("textColor", e.target.value)}
     />
@@ -239,33 +239,33 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
         return (
             <div className={`grid gap-4 grid-cols-${block.columns.length}`}>
                 {block.columns.map((col, i) => (
-                    <div key={i} className="border rounded-lg p-3 bg-gray-50">
+                    <div key={i} className="border rounded-lg p-3 bg-gray-50 border-gray-200 ">
 
                         {/* Add buttons */}
                         <div className="flex gap-2 mb-3">
                             <button
-                                className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded"
+                                className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-md"
                                 onClick={() => addChild(i, "text")}
                             >
                                 + Text
                             </button>
 
                             <button
-                                className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded"
+                                className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-md"
                                 onClick={() => addChild(i, "image")}
                             >
                                 + Image
                             </button>
 
                             <button
-                                className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded"
+                                className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded-md"
                                 onClick={() => addChild(i, "input")}
                             >
                                 + Input
                             </button>
 
                             <button
-                                className="px-2 py-1 text-xs bg-gray-800 text-white rounded"
+                                className="px-2 py-1 text-xs bg-gray-800 text-white rounded-md"
                                 onClick={() => addChild(i, "btn")}
                             >
                                 + Button
@@ -274,11 +274,11 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
 
                         {/* Render inside blocks */}
                         {col.map((child) => (
-                            <div key={child.id} className="mb-3 p-2 bg-white border rounded relative">
+                            <div key={child.id} className="mb-3 p-2 bg-white border rounded-md relative">
 
                                 {/* Delete child button */}
                                 <button
-                                    className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs"
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-md-full text-xs"
                                     onClick={() => removeChild(i, child.id)}
                                 >
                                     ✕
@@ -286,7 +286,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
 
                                 {child.type === "text" && (
                                     <textarea
-                                        className="border p-2 rounded w-full"
+                                        className="border p-2 rounded-md w-full"
                                         value={child.content}
                                         onChange={(e) => updateChild(i, child.id, "content", e.target.value)}
                                     />
@@ -297,7 +297,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
                                         {child.url && (
                                             <img
                                                 src={child.url}
-                                                className="w-full h-40 mb-2 rounded object-cover"
+                                                className="w-full h-40 mb-2 rounded-md object-cover"
                                             />
                                         )}
                                         <input
@@ -311,13 +311,13 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
 
                                 {child.type === "input" && (
                                     <input
-                                        className="border p-2 rounded w-full"
+                                        className="border p-2 rounded-md w-full"
                                         placeholder={child.placeholder}
                                     />
                                 )}
 
                                 {child.type === "btn" && (
-                                    <button className="bg-black text-white px-3 py-1 rounded">
+                                    <button className="bg-black text-white px-3 py-1 rounded-md">
                                         {child.content}
                                     </button>
                                 )}

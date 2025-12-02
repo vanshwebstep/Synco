@@ -13,9 +13,9 @@ const StudentProfile = () => {
   const [editStudent, setEditStudent] = useState({});
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const { students, setStudents, handleUpdateBirthday, mainId } = useAccountsInfo();
-  console.log('students', students)
-  const { adminInfo, setAdminInfo } = useNotification();
+  const { students, setStudents, handleUpdateHoliday, mainId } = useAccountsInfo();
+
+  const { adminInfo } = useNotification();
 
   const [showModal, setShowModal] = useState(false);
   const [commentsList, setCommentsList] = useState([]);
@@ -46,7 +46,7 @@ const StudentProfile = () => {
     dateOfBirth: null,
     age: "",
     gender: "",
-    medicalInfo: "",
+    medicalInformation: "",
   });
 
   const formatTimeAgo = (timestamp) => {
@@ -216,7 +216,7 @@ const formatLocalDate = (date) => {
     setStudents(updatedStudents);
 
     // Call API update
-    handleUpdateBirthday('students', updatedStudents);
+    handleUpdateHoliday('students', updatedStudents);
 
     // Reset modal
     setShowModal(false);
@@ -226,7 +226,7 @@ const formatLocalDate = (date) => {
       dateOfBirth: null,
       age: "",
       gender: "",
-      medicalInfo: "",
+      medicalInformation: "",
     });
   };
 
@@ -238,7 +238,7 @@ const formatLocalDate = (date) => {
   };
 
   const handleEditStudents = () => {
-    handleUpdateBirthday('students', students)
+    handleUpdateHoliday('students', students)
   }
 
   return (
@@ -384,7 +384,7 @@ const formatLocalDate = (date) => {
                 className="w-full mt-2 text-base"
                 classNamePrefix="react-select"
                 placeholder="Select gender"
-                value={genderOptions.find((option) => option.value === student.gender) || null}
+                value={genderOptions.find((option) => option.value === student.gender.toLowerCase()) || null}
                 onChange={(selectedOption) =>
                   handleInputChange(index, "gender", selectedOption ? selectedOption.value : "")
                 }
@@ -398,9 +398,9 @@ const formatLocalDate = (date) => {
               <input
                 type="text"
                 placeholder="Enter medical info"
-                value={student.medicalInfo || ""}
+                value={student.medicalInformation || ""}
                 onChange={(e) =>
-                  handleInputChange(index, "medicalInfo", e.target.value)
+                  handleInputChange(index, "medicalInformation", e.target.value)
                 }
                 readOnly={!editStudent?.[index]}
                 className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-xl text-base"
@@ -494,8 +494,8 @@ const formatLocalDate = (date) => {
                 <input
                   type="text"
                   className="w-full mt-1 border border-gray-300 rounded-xl px-3 py-3 text-base"
-                  value={newStudent.medicalInfo}
-                  onChange={(e) => handleModalChange("medicalInfo", e.target.value)}
+                  value={newStudent.medicalInformation}
+                  onChange={(e) => handleModalChange("medicalInformation", e.target.value)}
                 />
               </div>
             </div>

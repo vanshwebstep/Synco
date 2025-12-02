@@ -150,6 +150,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { title: 'Find a Camp', link: '/holiday-camp/find-a-camp', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
         { title: 'Members', link: '/holiday-camp/members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
         { title: 'Waiting List', link: '/holiday-camp/waiting-list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+        { title: 'Reports', link: '/holiday-camp/reports', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
 
       ]
     },

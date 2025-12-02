@@ -17,7 +17,7 @@ export default function TemplateBuilder({
   setIsPreview
 }) {
 
- 
+
   const sidebarBlocks = [
     { id: "text", label: "Text field" },
     { id: "input", label: "Input" },
@@ -87,7 +87,7 @@ export default function TemplateBuilder({
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Canvas */}
-      <div className="flex-1 p-6 border-r">
+      <div className="flex-1 p-6 border-r border-gray-200">
         <div className="flex justify-between items-center mb-5">
 
 
@@ -96,7 +96,7 @@ export default function TemplateBuilder({
         <div className="mb-6">
           <label className="font-medium text-gray-700">Subject line</label>
           <input
-            className="w-full border px-4 py-2 rounded-lg mt-1"
+            className="w-full border border-gray-200 px-4 py-2 rounded-lg mt-1"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             placeholder="Enter subject..."
@@ -114,7 +114,7 @@ export default function TemplateBuilder({
                   >
                     {(provided) => (
                       <div
-                        className="bg-white p-4 rounded-lg border mb-4 shadow-sm"
+                        className="bg-white p-4 rounded-lg border border-gray-200 mb-4 shadow-sm"
                         {...provided.draggableProps}
                         ref={provided.innerRef}
                       >
@@ -127,14 +127,14 @@ export default function TemplateBuilder({
                           <div className="flex gap-2">
                             <button
                               onClick={() => duplicateBlock(block.id)}
-                              className="px-2 py-1 bg-blue-100 text-blue-700 rounded"
+                              className="px-2 py-1 text-white  bg-[#237FEA] rounded-xl"
                             >
                               Duplicate
                             </button>
 
                             <button
                               onClick={() => deleteBlock(block.id)}
-                              className="px-2 py-1 bg-red-100 text-red-700 rounded"
+                              className="px-2 py-1 text-white   bg-red-500 rounded-xl"
                             >
                               Delete
                             </button>

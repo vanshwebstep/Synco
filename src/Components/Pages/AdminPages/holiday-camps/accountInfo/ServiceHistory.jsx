@@ -13,7 +13,7 @@ const renderImage = (type) => {
     "Weekly Classes Membership": "/demo/synco/icons/crown.png",
     "birthday party": "/demo/synco/icons/birthday.png",
     "One to One Booking": "/demo/synco/icons/one-to-one.png",
-    "Holiday Camp": "/demo/synco/icons/crown.png",
+    "holiday camp": "/demo/synco/icons/crown.png",
     "Merchandise": "/demo/synco/icons/crown.png",
   };
   return images[type] || "/demo/synco/icons/crown.png";
@@ -31,7 +31,7 @@ const renderField = (label, value) => {
 
 const BookingCard = ({ bookingInfo, booking }) => {
   const { data } = useAccountsInfo();
-
+console.log('data',data ,bookingInfo, booking )
 
   const navigate = useNavigate();
   const statusColors = {
@@ -73,8 +73,8 @@ const BookingCard = ({ bookingInfo, booking }) => {
 
       {/* Details */}
       <div className="bg-[#FCF9F6] rounded-2xl p-4 mt-4">
-        <div className={`grid grid-cols-1 relative sm:grid-cols-2 lg:grid-cols-7 gap-8 mb-4`}>
-          {booking?.serviceType === "membership plan" && (
+        <div className={`grid grid-cols-1 relative sm:grid-cols-2 lg:grid-cols-8 gap-8 mb-4`}>
+          {/* {booking?.serviceType === "membership plan" && (
             <>
               {renderField("Membership Plan", booking?.paymentPlan?.title)}
               {renderField("Students", booking?.paymentPlan?.students)}
@@ -173,15 +173,15 @@ const BookingCard = ({ bookingInfo, booking }) => {
               {renderField("Coach", `${data.booking?.coach.firstName} ${data.booking?.coach.lastName}`)}
               {renderField("Booking Source", data.source)}
             </>
-          )}
+          )} */}
 
-          {booking?.serviceType === "Holiday Camp" && (
+          {data?.serviceType === "holiday camp" && (
             <>
-              {renderField("Camp", booking?.camp)}
-              {renderField("Students", booking?.students)}
-              {renderField("Price Paid", `${'£' + booking?.pricePaid + '.00'}`)}
-              {renderField("Stripe Transaction ID", booking?.stripeID)}
-              {renderField("Date of Booking", new Date(booking?.bookingDate).toLocaleString("en-IN", {
+              {renderField("Camp", data?.holidayCamp?.name)}
+              {renderField("Students", data?.totalStudents)}
+              {renderField("Price Paid", `${'£' + data?.payment?.amount + '.00'}`)}
+              {renderField("Stripe Transaction ID", data?.payment?.stripe_payment_intent_id)}
+              {renderField("Date of Booking", new Date(data?.createdAt).toLocaleString("en-IN", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
@@ -189,24 +189,14 @@ const BookingCard = ({ bookingInfo, booking }) => {
                 minute: "2-digit",
                 hour12: false,   // 24-hour format; set true for AM/PM format
               }))}
-              {renderField("Date Of Party",
-                new Date(booking?.createdAt).toLocaleString("en-IN", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: false,   // 24-hour format; set true for AM/PM format
-                })
-              )}
-              {renderField("Venue", booking?.venue)}
-              {renderField("Discount", booking?.discount)}
-              {renderField("Coach", `${booking.coach.firstName} ${booking.coach.lastName}`)}
-              {renderField("Booking Source", booking?.source)}
+            
+              {renderField("Venue", data?.holidayVenue?.name)}
+              {renderField("Discount", data?.payment?.discount_amount)}
+              {renderField("Booking Source", data?.bookedByAdmin?.firstName + " " +data?.bookedByAdmin?.lastName)}
             </>
           )}
 
-          {booking?.serviceType === "Merchandise" && (
+          {/* {booking?.serviceType === "Merchandise" && (
             <>
               {renderField("Item", booking?.item)}
               {renderField("Quantity", booking?.quantity)}
@@ -224,7 +214,7 @@ const BookingCard = ({ bookingInfo, booking }) => {
               {renderField("Fulfillment Status", booking?.fulfillment)}
               {renderField("Booking Source", booking?.source)}
             </>
-          )}
+          )} */}
           <button className="ml-auto absolute right-0 top-3 text-gray-500 hover:text-gray-800">
             <FaEllipsisV />
           </button>
