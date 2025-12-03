@@ -87,7 +87,7 @@ const Preview = () => {
 
                 <p className="text-[20px] flex items-center gap-2 font-semibold">
                   {current.player || 'Player Name'}
-                  <img src="/demo/synco/icons/Volumeblue.png" alt="" />
+                  <img src="/images/icons/Volumeblue.png" alt="" />
                 </p>
 
                 <p className="text-sm text-gray-500 border-b border-gray-300 pb-3">
@@ -102,11 +102,11 @@ const Preview = () => {
 
                 <div className="flex items-center mb-0 justify-between">
                   <h2 className="font-semibold text-[24px] mb-0">Session Plan</h2>
-                  <img src="/demo/synco/icons/downloadicon.png" alt="" />
+                  <img src="/images/icons/downloadicon.png" alt="" />
                 </div>
 
                 <p className="text-sm flex items-center gap-2 text-gray-500 border-b border-gray-300 pb-3">
-                  <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                  <img src="/members/Time-Circle.png" className="w-4 h-4" alt="" />
                   4 hours ago
                 </p>
 

@@ -52,7 +52,7 @@ const Update = () => {
   const [editPersonal, setEditPersonal] = useState(false);
   // console.log('formData', formData)
   const [isImageValid, setIsImageValid] = useState(false);
-  const FALLBACK = "/demo/synco/members/dummyuser.png";
+  const FALLBACK = "/members/dummyuser.png";
   const {
     roleOptions,
     fetchRoles,
@@ -510,7 +510,7 @@ const Update = () => {
         onClick={() => navigate('/members/List')}
         className="text-2xl font-semibold flex items-center gap-2 cursor-pointer hover:opacity-80 mb-6"
       >
-        <img src="/demo/synco/icons/arrow-left2.png" alt="Back" />
+        <img src="/images/icons/arrow-left2.png" alt="Back" />
         Go Back
       </h2>
 
@@ -542,7 +542,7 @@ const Update = () => {
                 <>
                   {(photoPreview || formData.profile) && isImageValid && (
                     <img
-                      src="/demo/synco/icons/cancel.png"
+                      src="/images/icons/cancel.png"
                       alt="Cross"
                       className="absolute top-[-15px] right-[-15px] rounded-full object-cover border cursor-pointer"
                       onClick={() => {
@@ -607,7 +607,7 @@ const Update = () => {
           <button type="button" className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
             onClick={handleTogglePersonal}
           >
-            {editPersonal ? "Cancel" : "Edit Profile"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
+            {editPersonal ? "Cancel" : "Edit Profile"} <img src="/members/editPencil.png" className="w-5" alt="" />
           </button>
         </div>
 
@@ -617,7 +617,7 @@ const Update = () => {
             <button type="button" className="text-sm text-[#717073] border flex gap-3 py-2 items-center border-[#E2E1E5] p-3 rounded-full  hover:bg-blue-50"
               onClick={handleTogglePersonal}
             >
-              {editPersonal ? "Cancel" : "Edit"} <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
+              {editPersonal ? "Cancel" : "Edit"} <img src="/members/editPencil.png" className="w-5" alt="" />
             </button>
           </div>
           <div className="md:grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -733,7 +733,7 @@ const Update = () => {
             >
               {editAddress ? "Cancel" : "Edit"}
 
-              <img src="/demo/synco/members/editPencil.png" className="w-5" alt="" />
+              <img src="/members/editPencil.png" className="w-5" alt="" />
             </button>
           </div>
 

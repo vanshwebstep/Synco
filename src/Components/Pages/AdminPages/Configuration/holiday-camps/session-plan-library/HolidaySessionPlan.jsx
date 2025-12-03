@@ -372,7 +372,7 @@ const HolidaySessionPlan = () => {
                                   className="text-gray-500 hover:text-blue-600"
                                 >
                                   <img
-                                    src="/demo/synco/icons/edit2.png"
+                                    src="/images/icons/edit2.png"
                                     alt="Edit"
                                     className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                   />
@@ -423,7 +423,7 @@ const HolidaySessionPlan = () => {
                                 className="text-gray-500 hover:text-blue-600"
                               >
                                 <img
-                                  src="/demo/synco/icons/edit.png"
+                                  src="/images/icons/edit.png"
                                   alt="Edit"
                                   className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                 />
@@ -441,7 +441,7 @@ const HolidaySessionPlan = () => {
                                 className="text-gray-500 hover:text-red-500"
                               >
                                 <img
-                                  src="/demo/synco/icons/deleteIcon.png"
+                                  src="/images/icons/deleteIcon.png"
                                   alt="Delete"
                                   className="w-6 h-6  transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                 />
@@ -461,7 +461,7 @@ const HolidaySessionPlan = () => {
                   className="border border-dashed border-gray-300 rounded-2xl min-w-[168px] max-w-xs items-center justify-center max-h-[100px] cursor-pointer text-gray-500 hover:text-black p-6 text-center text-[14px] font-semibold"
                 >
                   <img
-                    src="/demo/synco/members/addblack.png"
+                    src="/members/addblack.png"
                     alt=""
                     className="w-6 h-6 m-auto mb-2"
                   />

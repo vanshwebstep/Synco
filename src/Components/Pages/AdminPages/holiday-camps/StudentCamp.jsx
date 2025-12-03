@@ -371,7 +371,7 @@ const StudentCamp = () => {
                         <div className="flex justify-between items-center px-4">
                             <h2 className="text-xl font-semibold mb-4">Search now</h2>
                             <img
-                                src="/demo/synco/DashboardIcons/filtericon.png"
+                                src="/DashboardIcons/filtericon.png"
                                 onClick={() => setOpenDateFilter(true)}
                                 className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer"
                                 style={{ filter: "brightness(0.5)" }}
@@ -549,7 +549,7 @@ const StudentCamp = () => {
                             </div>
                         </div>
                         <img
-                            src="/demo/synco/DashboardIcons/filtericon.png"
+                            src="/DashboardIcons/filtericon.png"
                             className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer"
                             onClick={() => setOpenAgeFilter(true)}
                             style={{ filter: "brightness(0.5)" }}
@@ -703,18 +703,18 @@ const StudentCamp = () => {
                         >
 
                             <img
-                                src="/demo/synco/icons/mail.png"
+                                src="/images/icons/mail.png"
                                 className="w-4 h-4 sm:w-5 sm:h-5"
                                 alt=""
                             />
                             Send Email
                         </button>
                         <button style={{ width: "max-content" }} className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl  text-[16px]">
-                            <img src='/demo/synco/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                            <img src='/images/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
                         <button style={{ width: "max-content" }} onClick={exportToExcel} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl  text-[16px]">
-                            <img src='/demo/synco/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                            <img src='/images/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Export Data
                         </button>
                     </div>

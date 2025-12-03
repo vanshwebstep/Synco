@@ -325,13 +325,13 @@ const ClassSheduleList = () => {
                     localStorage.removeItem("openClassIndex"); // clear all stored states
                     localStorage.removeItem("openTerms"); // clear all stored states
 
-                }} className="md:text-[28px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center  p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" /> Edit Class Schedule</h2>
+                }} className="md:text-[28px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center  p-5"><img src="/members/Arrow - Left.png" className="w-6" alt="" /> Edit Class Schedule</h2>
                 {canCreate &&
                     <button
                         onClick={() => handleAddNew()}
                         className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
                     >
-                        <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add a Class
+                        <img src="/members/add.png" className='w-5' alt="" /> Add a Class
                     </button>
                 }
             </div>
@@ -389,7 +389,7 @@ const ClassSheduleList = () => {
                                             <div className="flex items-center mt-4 md:mt-0 gap-4">
                                                 {canUpdate &&
                                                     <img
-                                                        src="/demo/synco/icons/edit.png"
+                                                        src="/images/icons/edit.png"
                                                         alt="Edit"
                                                         className="w-6 h-6 cursor-pointer"
                                                         onClick={() => handleEditClick(item)}
@@ -400,12 +400,12 @@ const ClassSheduleList = () => {
                                                     <img
                                                         className=" w-6 h-6 cursor-pointer"
                                                         onClick={() => handleDeleteClick(item.id)}
-                                                        src="/demo/synco/icons/deleteIcon.png"
+                                                        src="/images/icons/deleteIcon.png"
                                                         alt="Delete"
                                                     />
                                                 }
                                                 <button onClick={() => toggleSessions(index)} className="ml-4 flex font-semibold items-center gap-2 whitespace-nowrap px-4 pr-6 py-2 border rounded-xl text-[16px] font-medium text-[#237FEA] border-blue-500 hover:bg-blue-50">
-                                                    {openClassIndex === index ? 'Hide sessions' : 'View sessions'}  <img src="/demo/synco/icons/bluearrowup.png" className={`${openClassIndex === index ? '' : 'rotate-180'} transition-transform`} alt="" />
+                                                    {openClassIndex === index ? 'Hide sessions' : 'View sessions'}  <img src="/images/icons/bluearrowup.png" className={`${openClassIndex === index ? '' : 'rotate-180'} transition-transform`} alt="" />
                                                 </button>
                                             </div>
 
@@ -431,7 +431,7 @@ const ClassSheduleList = () => {
                                                                             <div className="flex mb-4 items-center gap-8 justify-start">
                                                                                 <div>
                                                                                     <img
-                                                                                        src="/demo/synco/icons/blackarrowup.png"
+                                                                                        src="/images/icons/blackarrowup.png"
                                                                                         className={`${openTerms[term.id] ? "" : "rotate-180"} transition-transform`}
                                                                                         alt=""
                                                                                     />
@@ -499,25 +499,25 @@ const ClassSheduleList = () => {
                                                                                                 <span className="rounded-full flex items-center gap-2 font-medium capitalize text-[15px] md:min-w-[120px]">
                                                                                                     {sessionMaps.status === "pending" && (
                                                                                                         <>
-                                                                                                            <img src="/demo/synco/icons/pending.png" className="w-4 h-4" alt="Pending" /> {sessionMaps.status}
+                                                                                                            <img src="/images/icons/pending.png" className="w-4 h-4" alt="Pending" /> {sessionMaps.status}
                                                                                                         </>
                                                                                                     )}
                                                                                                     {sessionMaps.status === "completed" && (
                                                                                                         <>
-                                                                                                            <img src="/demo/synco/icons/complete.png" className="w-4 h-4" alt="Complete" />
+                                                                                                            <img src="/images/icons/complete.png" className="w-4 h-4" alt="Complete" />
 
                                                                                                             {sessionMaps.status}
                                                                                                         </>
                                                                                                     )}
                                                                                                     {sessionMaps.status === "cancelled" && (
                                                                                                         <>
-                                                                                                            <img src="/demo/synco/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
+                                                                                                            <img src="/images/icons/cancel.png" className="w-4 h-4" alt="Cancelled" />
                                                                                                             {sessionMaps.status}
                                                                                                         </>
                                                                                                     )}
                                                                                                     {!sessionMaps.status && (
                                                                                                         <>
-                                                                                                            <img src="/demo/synco/icons/pending.png" className="w-4 h-4 inline" alt="Pending" /> Pending
+                                                                                                            <img src="/images/icons/pending.png" className="w-4 h-4 inline" alt="Pending" /> Pending
                                                                                                         </>
                                                                                                     )}
                                                                                                 </span>
@@ -637,7 +637,7 @@ const ClassSheduleList = () => {
                                         onClick={() => setOpenForm(false)}
                                         className="text-gray-500 hover:text-gray-800 text-xl"
                                     >
-                                        <img src="/demo/synco/icons/cross.png" alt="" />
+                                        <img src="/images/icons/cross.png" alt="" />
                                     </button>
                                 </div>
 

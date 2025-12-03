@@ -454,34 +454,34 @@ console.log('selectedBookingIds',selectedBookingIds)
 
                                 <div className=" md:mt-0 mt-5 flex relative items-center gap-4">
                                   <img
-                                    src="/demo/synco/icons/fcDollar.png"
+                                    src="/images/icons/fcDollar.png"
                                     onClick={() => handleIconClick('payment', venue.id, venue?.paymentPlans)} alt=""
                                     className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.id ? 'bg-[#0DD180]' : 'bg-white'}`}
                                   />
 
                                   <img
-                                    src="/demo/synco/icons/fcCalendar.png"
+                                    src="/images/icons/fcCalendar.png"
                                     onClick={() => handleIconClick('team', venue.id, venue.terms)}
                                     alt=""
                                     className={`cursor-pointer w-6 h-6 rounded-full ${showteamModal === venue.id ? 'bg-[#0DD180]' : 'bg-white'}`}
                                   />
 
                                   <img
-                                    src="/demo/synco/icons/fcLocation.png"
+                                    src="/images/icons/fcLocation.png"
                                     onClick={() => handleIconClick('location', venue.id)}
                                     alt=""
                                     className={`cursor-pointer w-6 h-6 rounded-full ${openMapId === venue.id ? 'bg-[#0DD180]' : 'bg-white'}`}
                                   />
 
                                   <img
-                                    src="/demo/synco/icons/fcCicon.png"
+                                    src="/images/icons/fcCicon.png"
                                     onClick={() => handleIconClick('congestion', venue?.id, venue?.congestionNote)}
                                     alt=""
                                     className={`cursor-pointer w-6 h-6 rounded-full ${activeCongestionVenueId === venue.id ? 'bg-[#0DD180]' : 'bg-white'}`}
                                   />
 
                                   <img
-                                    src="/demo/synco/icons/fcPIcon.png"
+                                    src="/images/icons/fcPIcon.png"
                                     onClick={() => handleIconClick('parking', venue?.id, venue?.parkingNote)}
                                     alt=""
                                     className={`cursor-pointer w-6 h-6 rounded-full ${activeParkingVenueId === venue.id ? 'bg-[#0DD180]' : 'bg-white'}`}
@@ -593,7 +593,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                                   <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
                                     <div className="flex items-start justify-between">
                                       <h2 className="text-red-500 font-semibold text-[18px]">Congestion Information</h2>
-                                      <img src="/demo/synco/icons/infoIcon.png" alt="" />
+                                      <img src="/images/icons/infoIcon.png" alt="" />
                                     </div>
                                     <div className="mt-2 text-[16px] text-gray-700 leading-snug">
 
@@ -615,7 +615,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                                   <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
                                     <div className="flex items-start justify-between">
                                       <h2 className="text-red-500 font-semibold text-[18px]">Parking Information</h2>
-                                      <img src="/demo/synco/icons/infoIcon.png" alt="" />
+                                      <img src="/images/icons/infoIcon.png" alt="" />
                                     </div>
                                     <div className="mt-2 text-[16px] text-gray-700 leading-snug">
 
@@ -647,7 +647,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                                     <div  className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
                                       <h2 className="text-[24px]  font-semibold">Team Dates</h2>
                                       <button onClick={() => setShowteamModal(null)}>
-                                        <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
+                                        <img src="/images/icons/cross.png" alt="close" className="w-4 h-4" />
                                       </button>
                                     </div>
 
@@ -778,7 +778,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
                                         <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
                                         <button className="text-gray-400 hover:text-black text-xl font-bold">
-                                          <img src="/demo/synco/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
+                                          <img src="/images/icons/cross.png" onClick={() => setShowModal(null)} alt="close" className="w-5 h-5" />
                                         </button>
                                       </div>
                                       <PlanTabs selectedPlans={selectedPlans} />

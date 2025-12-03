@@ -12,65 +12,75 @@ const columns = [
     { id: "completed", label: "Completed", color: "bg-[#1CB72B]", bgColor: "bg-[#1CB72B]" },
 ];
 
-const tasks = [
-    {
-        id: 1,
-        status: "to_do",  // <-- all set to "todo"
-        title: "Web Dashboard",
-        priority: "medium",
-        assignedAdmins: [
-            { name: "Jessica", avatar: "/demo/synco/reportsIcons/Avatar.png" },
-            { name: "Matt", avatar: "/demo/synco/reportsIcons/Avatar1.png" },
-        ],
-        comments: 2,
-        daysLeft: 3,
-    },
-    {
-        id: 2,
-        status: "to_do",  // changed from "inprogress"
-        title: "Web Dashboard",
-        priority: "medium",
-        assignedAdmins: [
-            { name: "Jessica", avatar: "/demo/synco/reportsIcons/Avatar.png" },
-            { name: "Matt", avatar: "/demo/synco/reportsIcons/Avatar1.png" },
-        ],
-        comments: 2,
-        daysLeft: 3,
-    },
-    {
-        id: 3,
-        status: "to_do",  // changed from "inreview"
-        title: "Web Dashboard",
-        priority: "medium",
-        assignedAdmins: [
-            { name: "Jessica", avatar: "/demo/synco/reportsIcons/Avatar.png" },
-            { name: "Matt", avatar: "/demo/synco/reportsIcons/Avatar1.png" },
-        ],
-        comments: 2,
-        daysLeft: 3,
-    },
-    {
-        id: 4,
-        status: "to_do",  // changed from "completed"
-        title: "Web Dashboard",
-        priority: "medium",
-        assignedAdmins: [
-            { name: "Jessica", avatar: "/demo/synco/reportsIcons/Avatar.png" },
-            { name: "Matt", avatar: "/demo/synco/reportsIcons/Avatar1.png" },
-        ],
-        comments: 2,
-        daysLeft: 3,
-    },
-];
+const apiTasks = {
+    "to_do": [
+        {
+            id: 8,
+            title: "fd",
+            description: "hfj",
+            attachments: "[{\"file\":\"data:image/webp;base64,\"}]",
+            createdBy: 335,
+            assignedAdmins: [
+                { id: 12, name: "Jessica", avatar: "/reportsIcons/Avatar.png" },
+                { id: 14, name: "Matt", avatar: "/reportsIcons/Avatar1.png" }
+            ],
+            status: "to_do",
+            priority: "medium",
+            isActive: true,
+            created_at: "2025-12-03T04:50:06.000Z",
+            updated_at: "2025-12-03T04:50:06.000Z"
+        },
+        {
+            id: 9,
+            title: "fd",
+            description: "hfj",
+            attachments: "[{\"file\":\"data:image/webp;base64,\"}]",
+            createdBy: 335,
+            assignedAdmins: [
+                { id: 12, name: "Jessica", avatar: "/reportsIcons/Avatar.png" },
+                { id: 14, name: "Matt", avatar: "/reportsIcons/Avatar1.png" }
+            ],
+            status: "to_do",
+            priority: "medium",
+            isActive: true,
+            created_at: "2025-12-03T04:50:06.000Z",
+            updated_at: "2025-12-03T04:50:06.000Z"
+        }
+    ],
+    "in_progress": [
+        {
+            id: 10,
+            title: "fd",
+            description: "hfj",
+            attachments: "[{\"file\":\"data:image/webp;base64,\"}]",
+            createdBy: 335,
+            assignedAdmins: [
+                { id: 14, name: "Matt", avatar: "/reportsIcons/Avatar1.png" }
+            ],
+            status: "in_progress", // ✅ FIXED (was incorrect in your API sample)
+            priority: "medium",
+            isActive: true,
+            created_at: "2025-12-03T04:50:06.000Z",
+            updated_at: "2025-12-03T04:50:06.000Z"
+        }
+    ]
+};
+
+// Convert to flat array for your board
+const tasks = Object.values(apiTasks).flat();
+
 
 
 
 export default function TodoList() {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-   const { fetchToDoList, toDoList } = useToDoListTemplate();
+    const { fetchToDoList, toDoList } = useToDoListTemplate();
     useEffect(() => {
         fetchToDoList();
     }, [fetchToDoList]);
+    const [selectedAdmins, setSelectedAdmins] = useState([]);
+    const [selectedPriority, setSelectedPriority] = useState([]);
+
     const [openNewTask, setOpenNewTask] = useState(false);
     const [openViewTask, setOpenViewTask] = useState(false);
     const [selectedTask, setSelectedTask] = useState(null);
@@ -80,18 +90,51 @@ export default function TodoList() {
     const [Members, setMembers] = useState([]);
     const handleOpenNewTask = () => setOpenNewTask(true);
     const handleCloseNewTask = () => setOpenNewTask(false);
+    const [showFilter, setShowFilter] = useState(false);
+    // Collect all unique admins
+    const allAdmins = Object.values(apiTasks)
+        .flat()
+        .flatMap(t => t.assignedAdmins)
+        .reduce((acc, admin) => {
+            if (!acc.find(a => a.id === admin.id)) {
+                acc.push(admin);
+            }
+            return acc;
+        }, []);
+    const [admins] = useState(allAdmins);
 
+
+    const handleOpenFilter = () => {
+        setShowFilter(true);
+    };
+    const handleApplyFilter = ({ selectedAdmins, selectedPriority }) => {
+        setSelectedAdmins(selectedAdmins);        // ✅ STORE SELECTED ADMINS
+        setSelectedPriority(selectedPriority);
+        const filtered = tasks.filter(t => {
+            const adminMatch =
+                selectedAdmins.length === 0 ||
+                t.assignedAdmins.some(ad => selectedAdmins.includes(ad.id));
+
+            const priorityMatch =
+                selectedPriority.length === 0 ||
+                selectedPriority.includes(t.priority);
+
+            return adminMatch && priorityMatch;
+        });
+
+        setTaskData(filtered);
+    };
     const task = {
         title: "Task 1 title",
         description: "Lorem ipsum...",
         attachments: [],   // or existing files
         assigned: [
-            { avatar: "/demo/synco/reportsIcons/Avatar1.png", id: 1 },
-            { avatar: "/demo/synco/reportsIcons/Avatar.png", id: 2 }
+            { avatar: "/reportsIcons/Avatar1.png", id: 1 },
+            { avatar: "/reportsIcons/Avatar.png", id: 2 }
         ],
         createdBy: {
             name: "Nilio Bagga",
-            avatar: "/demo/synco/reportsIcons/Avatar1.png"
+            avatar: "/reportsIcons/Avatar1.png"
         },
         status: "Next",
         priority: "high",
@@ -106,23 +149,25 @@ export default function TodoList() {
     };
     const handleCloseViewTask = () => setOpenViewTask(false);
 
-
-    const handleDragEnd = (result, taskData, setTaskData) => {
+    const handleDragEnd = (result) => {
         if (!result.destination) return;
 
         const { draggableId, destination, source } = result;
 
-        // find dragged task
-        const updated = taskData.map((task) =>
-            task.id === parseInt(draggableId)
-                ? { ...task, status: destination.droppableId }
-                : task
-        );
+        const updated = [...taskData];
+
+        // find task index
+        const index = updated.findIndex(t => t.id === parseInt(draggableId));
+
+        // ✅ update status (column move)
+        updated[index] = { ...updated[index], status: destination.droppableId };
+
+        // ✅ reorder in array so UI reflects correct order
+        const [movedItem] = updated.splice(source.index, 1);
+        updated.splice(destination.index, 0, movedItem);
 
         setTaskData(updated);
     };
-
-
     const fetchMembers = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
         if (!token) return;
@@ -149,7 +194,9 @@ export default function TodoList() {
     useEffect(() => {
         fetchMembers();
     }, [])
-
+    const handleResetFilter = () => {
+        setTaskData(tasks); // ✅ reset to original tasks
+    };
 
 
     return (
@@ -158,15 +205,33 @@ export default function TodoList() {
 
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-xl font-semibold">To Do List</h1>
-                <button className="flex items-center gap-2 px-4 py-2 bg-[#237FEA] text-white rounded-lg text-sm">
-                    <Filter size={16} />
-                    Filter
-                </button>
+                <div className="relative">
+                    <button
+                        onClick={handleOpenFilter}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#237FEA] text-white rounded-lg text-sm"
+                    >
+                        <Filter size={16} />
+                        Filter
+                    </button>
+
+                    {showFilter && (
+                        <FilterModal
+                            admins={admins}
+                            onApply={handleApplyFilter}
+                            onClose={() => setShowFilter(false)}
+                            onReset={handleResetFilter}
+                            selectedAdmins={selectedAdmins}       // ✅ pass selections
+                            selectedPriority={selectedPriority}
+                            setSelectedAdmins={setSelectedAdmins} // ✅ allow modal to update parent
+                            setSelectedPriority={setSelectedPriority}   // ✅ PASS RESET
+
+                        />
+                    )}
+                </div>
             </div>
 
-            <DragDropContext
-                onDragEnd={(result) => handleDragEnd(result, taskData, setTaskData)}
-            >
+            <DragDropContext onDragEnd={handleDragEnd}>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                     {columns.map((col) => (
                         <TaskColumn
@@ -189,6 +254,79 @@ export default function TodoList() {
         </div>
     );
 }
+function FilterModal({
+    admins,
+    onApply,
+    onClose,
+    onReset,
+    selectedAdmins,
+    selectedPriority,
+    setSelectedAdmins,
+    setSelectedPriority
+}) {
+    const priorities = ["low", "medium", "high", "urgent"];
+
+    const toggleAdmin = (id) => {
+        setSelectedAdmins(prev =>
+            prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+        );
+    };
+
+    const togglePriority = (p) => {
+        setSelectedPriority(prev =>
+            prev.includes(p) ? prev.filter(pr => pr !== p) : [...prev, p]
+        );
+    };
+
+    const handleApply = () => {
+        onApply({ selectedAdmins, selectedPriority }); // ✅ use stored values
+        setSelectedAdmins(selectedAdmins);
+        setSelectedPriority(selectedPriority);
+        onClose();
+    };
+
+    return (
+        <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-xl p-3 border">
+            <button className="px-4 py-2 bg-gray-200 rounded-lg text-sm" onClick={onReset}>
+                Refresh Filter
+            </button>
+
+            <h3 className="font-medium mb-2 text-sm">Admins</h3>
+            <div className="max-h-32 overflow-auto space-y-1 mb-3">
+                {admins.map(a => (
+                    <label key={a.id} className="flex items-center gap-2 text-sm">
+                        <input
+                            type="checkbox"
+                            onChange={() => toggleAdmin(a.id)}
+                            checked={selectedAdmins.includes(a.id)} // ✅ now works
+                        />
+                        {a.name}
+                    </label>
+                ))}
+            </div>
+
+            <h3 className="font-medium mb-2 text-sm">Priority</h3>
+            <div className="space-y-1 mb-3">
+                {priorities.map(p => (
+                    <label key={p} className="flex items-center gap-2 text-sm">
+                        <input
+                            type="checkbox"
+                            onChange={() => togglePriority(p)}
+                            checked={selectedPriority.includes(p)} // ✅ now stays checked
+                        />
+                        {p}
+                    </label>
+                ))}
+            </div>
+
+            <div className="flex justify-end gap-2">
+                <button onClick={onClose} className="text-xs px-3 py-1 border rounded">Cancel</button>
+                <button onClick={handleApply} className="text-xs px-3 py-1 bg-blue-600 text-white rounded">Apply</button>
+            </div>
+        </div>
+    );
+}
+
 
 
 
@@ -281,7 +419,7 @@ function TaskCard({ task, onClick }) {
 
             <div className="flex justify-between items-center border-t border-[#E2E1E5] text-[16px] p-4 font-semibold text-gray-500 mt-4">
                 <div className="flex items-center gap-1">
-                    <img src="/demo/synco/reportsIcons/share.png" className="w-4" />
+                    <img src="/reportsIcons/share.png" className="w-4" />
                     {task.comments}
                 </div>
                 <div>{task.daysLeft} days left</div>
@@ -292,6 +430,7 @@ function TaskCard({ task, onClick }) {
 
 
 function CreateTaskModal({ members, onClose }) {
+
     const { fetchToDoList, toDoList, createToDoList } = useToDoListTemplate();
     useEffect(() => {
         fetchToDoList();
@@ -357,40 +496,40 @@ function CreateTaskModal({ members, onClose }) {
         setFormData((p) => ({ ...p, comment: e.target.value }));
     };
 
-   const handleSubmit = async () => {
-    // Helper function to convert a file to base64
-    const fileToBase64 = (file) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = (error) => reject(error);
-        });
+    const handleSubmit = async () => {
+        // Helper function to convert a file to base64
+        const fileToBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = (error) => reject(error);
+            });
+        };
+
+        // Convert all uploaded files to base64
+        const attachmentsBase64 = await Promise.all(
+            uploadedFiles.map(async (fileObj) => {
+                const base64Data = await fileToBase64(fileObj.file);
+                return {
+                    ...fileObj,
+                    file: base64Data,  // replace file object with base64
+                    url: undefined     // optional: remove blob url
+                };
+            })
+        );
+
+        const finalData = {
+            ...formData,
+            assignedAdmins: selectedMembers.map(m => m.fullData.id),
+            attachments: attachmentsBase64
+        };
+
+        createToDoList(finalData);
+        console.log("FINAL TASK DATA:", finalData);
+
+        onClose();
     };
-
-    // Convert all uploaded files to base64
-    const attachmentsBase64 = await Promise.all(
-        uploadedFiles.map(async (fileObj) => {
-            const base64Data = await fileToBase64(fileObj.file);
-            return {
-                ...fileObj,
-                file: base64Data,  // replace file object with base64
-                url: undefined     // optional: remove blob url
-            };
-        })
-    );
-
-    const finalData = {
-        ...formData,
-        assignedAdmins: selectedMembers.map(m => m.fullData.id),
-        attachments: attachmentsBase64
-    };
-
-    createToDoList(finalData);
-    console.log("FINAL TASK DATA:", finalData);
-
-    onClose();
-};
 
 
     return (
@@ -443,7 +582,7 @@ function CreateTaskModal({ members, onClose }) {
                                     onDragOver={handleDragOver}
                                 >
                                     <div className="text-center pointer-events-none">
-                                        <img src="/demo/synco/reportsIcons/folder.png" className="w-10 m-auto" alt="" />
+                                        <img src="/reportsIcons/folder.png" className="w-10 m-auto" alt="" />
                                         <p className="text-sm mt-2">Click to upload or drag and drop</p>
                                     </div>
 
@@ -474,7 +613,7 @@ function CreateTaskModal({ members, onClose }) {
                                                     <img src={item.url} className="w-full h-24 object-cover rounded" alt="" />
                                                 ) : (
                                                     <div className="flex flex-col items-center justify-center h-24">
-                                                        <img src="/demo/synco/reportsIcons/pdf.png" className="w-10 mb-2" />
+                                                        <img src="/reportsIcons/pdf.png" className="w-10 mb-2" />
                                                         <p className="text-xs text-gray-600 truncate">{item.file.name}</p>
                                                     </div>
                                                 )}
@@ -494,7 +633,7 @@ function CreateTaskModal({ members, onClose }) {
                         <div className="mt-3 space-y-4 p-4">
                             <div className="flex items-center gap-3">
                                 <img
-                                    src="/demo/synco/reportsIcons/Avatar.png"
+                                    src="/reportsIcons/Avatar.png"
                                     className="w-10 h-10 rounded-full object-cover"
                                 />
                                 <div className="flex-1 relative">
@@ -521,7 +660,7 @@ function CreateTaskModal({ members, onClose }) {
                         <div className="border-b border-[#E2E1E5] pb-6 px-6">
                             <p className="text-[17px] font-semibold">Created by</p>
                             <div className="flex items-center gap-3 mt-4">
-                                <img src="/demo/synco/reportsIcons/Avatar1.png" className="w-10 h-10 rounded-full" />
+                                <img src="/reportsIcons/Avatar1.png" className="w-10 h-10 rounded-full" />
                                 <p className="font-medium">Nilio Bagga</p>
                             </div>
                         </div>
@@ -749,7 +888,7 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                                         onDrop={handleDrop}
                                         onDragOver={handleDragOver}
                                     >
-                                        <img src="/demo/synco/reportsIcons/folder.png" className="w-10 mb-2" />
+                                        <img src="/reportsIcons/folder.png" className="w-10 mb-2" />
                                         <p className="text-sm">Click to upload or drag & drop</p>
 
                                         <input type="file" multiple className="hidden" onChange={handleFileUpload} />
@@ -771,7 +910,7 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                                                         <img src={item.url} className="w-full h-24 object-cover rounded" />
                                                     ) : (
                                                         <div className="flex flex-col items-center justify-center h-24">
-                                                            <img src="/demo/synco/reportsIcons/pdf.png" className="w-10 mb-2" />
+                                                            <img src="/reportsIcons/pdf.png" className="w-10 mb-2" />
                                                             <p className="text-xs text-gray-600 truncate">{item.file.name}</p>
                                                         </div>
                                                     )}
@@ -796,7 +935,7 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                             {open === "comment" && (
                                 <div className="mt-3 space-y-4 p-4">
                                     <div className="flex items-center gap-3">
-                                        <img src="/demo/synco/reportsIcons/Avatar.png" className="w-10 h-10 rounded-full" />
+                                        <img src="/reportsIcons/Avatar.png" className="w-10 h-10 rounded-full" />
                                         <div className="flex-1 relative">
                                             <input
                                                 placeholder="Add a comment"

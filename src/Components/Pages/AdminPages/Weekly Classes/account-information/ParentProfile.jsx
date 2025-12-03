@@ -809,7 +809,7 @@ const validateParent = (parent) => {
         {/* Input section */}
         <div className="flex items-center gap-2">
           <img
-            src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'}
+            src={adminInfo?.profile ? `${adminInfo.profile}` : '/members/dummyuser.png'}
             alt="User"
             className="w-14 h-14 rounded-full object-cover"
           />
@@ -825,7 +825,7 @@ const validateParent = (parent) => {
             className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
             onClick={handleSubmitComment}
           >
-            <img src="/demo/synco/icons/sent.png" alt="" />
+            <img src="/images/icons/sent.png" alt="" />
           </button>
         </div>
 
@@ -841,11 +841,11 @@ const validateParent = (parent) => {
                       src={
                         c?.bookedByAdmin?.profile
                           ? `${c?.bookedByAdmin?.profile}`
-                          : '/demo/synco/members/dummyuser.png'
+                          : '/members/dummyuser.png'
                       }
                       onError={(e) => {
                         e.currentTarget.onerror = null; // prevent infinite loop
-                        e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                        e.currentTarget.src = '/members/dummyuser.png';
                       }}
                       alt={c?.bookedByAdmin?.firstName}
                       className="w-10 h-10 rounded-full object-cover mt-1"

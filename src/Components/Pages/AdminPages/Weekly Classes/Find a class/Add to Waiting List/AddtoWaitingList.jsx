@@ -866,7 +866,7 @@ const AddtoWaitingList = () => {
           className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
         >
           <img
-            src="/demo/synco/icons/arrow-left.png"
+            src="/images/icons/arrow-left.png"
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
@@ -876,7 +876,7 @@ const AddtoWaitingList = () => {
         </h2>
         <div className="flex gap-3 relative items-center">
           <img
-            src="/demo/synco/members/booktrial1.png"
+            src="/members/booktrial1.png"
             className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 1 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
             onClick={() => togglePopup(1)}
           />
@@ -888,7 +888,7 @@ const AddtoWaitingList = () => {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
                     <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
                     <button className="text-gray-400 hover:text-black text-xl font-bold">
-                      <img src="/demo/synco/icons/cross.png" onClick={() => togglePopup(null)} alt="close" className="w-5 h-5" />
+                      <img src="/images/icons/cross.png" onClick={() => togglePopup(null)} alt="close" className="w-5 h-5" />
                     </button>
                   </div>
                   <PlanTabs selectedPlans={selectedPlans} />
@@ -898,7 +898,7 @@ const AddtoWaitingList = () => {
           )}
           <img
             onClick={() => togglePopup(2)}
-            src="/demo/synco/members/booktrial2.png"
+            src="/members/booktrial2.png"
             className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 2 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
             alt=""
           />
@@ -921,14 +921,14 @@ const AddtoWaitingList = () => {
                   {buttons.flat().map((btn, i) => {
                     const isOperator = ['÷', '±', '×', '−', '+', '%', '=', 'AC'].includes(btn);
                     const iconMap = {
-                      '÷': '/demo/synco/calcIcons/divide.png',
-                      '%': '/demo/synco/calcIcons/percentage.png',
-                      '⌫': '/demo/synco/calcIcons/np.png',
-                      '×': '/demo/synco/calcIcons/multiply.png',
-                      '−': '/demo/synco/calcIcons/sub.png',
-                      '+': '/demo/synco/calcIcons/add.png',
-                      '=': '/demo/synco/calcIcons/equal.png',
-                      '±': '/demo/synco/calcIcons/NP.png',
+                      '÷': '/calcIcons/divide.png',
+                      '%': '/calcIcons/percentage.png',
+                      '⌫': '/calcIcons/np.png',
+                      '×': '/calcIcons/multiply.png',
+                      '−': '/calcIcons/sub.png',
+                      '+': '/calcIcons/add.png',
+                      '=': '/calcIcons/equal.png',
+                      '±': '/calcIcons/NP.png',
                     };
 
                     const showRed = ['+', '−', '×', '÷', '%'].includes(btn) && expression.includes(btn);
@@ -964,7 +964,7 @@ const AddtoWaitingList = () => {
 
 
           <img
-            src="/demo/synco/members/booktrial3.png"
+            src="/members/booktrial3.png"
             alt=""
             onClick={() => togglePopup(3)}
             className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 3 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
@@ -1606,7 +1606,7 @@ const AddtoWaitingList = () => {
               {/* Input section */}
               <div className="flex items-center gap-2">
                 <img
-                  src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'}
+                  src={adminInfo?.profile ? `${adminInfo.profile}` : '/members/dummyuser.png'}
                   alt="User"
                   className="w-14 h-14 rounded-full object-cover"
                 />
@@ -1622,7 +1622,7 @@ const AddtoWaitingList = () => {
                   className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
                   onClick={handleSubmitComment}
                 >
-                  <img src="/demo/synco/icons/sent.png" alt="" />
+                  <img src="/images/icons/sent.png" alt="" />
                 </button>
               </div>
 
@@ -1638,11 +1638,11 @@ const AddtoWaitingList = () => {
                             src={
                               c?.bookedByAdmin?.profile
                                 ? `${c?.bookedByAdmin?.profile}`
-                                : '/demo/synco/members/dummyuser.png'
+                                : '/members/dummyuser.png'
                             }
                             onError={(e) => {
                               e.currentTarget.onerror = null; // prevent infinite loop
-                              e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                              e.currentTarget.src = '/members/dummyuser.png';
                             }}
                             alt={c?.bookedByAdmin?.firstName}
                             className="w-10 h-10 rounded-full object-cover mt-1"

@@ -246,7 +246,7 @@ export const CommunicationTemplateProvider = ({ children }) => {
     );
     const fetchCommunicationTemplateById = useCallback(async (ID) => {
         const token = localStorage.getItem("adminToken");
-        if (!token) return;
+        if (!token) return null;  // ✅ return null if missing token
 
         setLoading(true);
         try {
@@ -259,14 +259,22 @@ export const CommunicationTemplateProvider = ({ children }) => {
             });
 
             const resultRaw = await response.json();
-            const result = resultRaw.data || [];
-            setApiTemplates(result);
+            const template = resultRaw?.data || null;
+
+            if (template) {
+                setApiTemplates(template); // ✅ still store in state
+                return template;          // ✅ RETURN instantly for first prefill
+            }
+
+            return null;
         } catch (error) {
-            console.error("Failed to fetch bookFreeTrials:", error);
+            console.error("Failed to fetchCommunicationTemplateById:", error);
+            return null;
         } finally {
             setLoading(false);
         }
     }, []);
+
 
     const createTemplateCategories = async (templateCategoriesData) => {
         setLoading(true);
@@ -418,7 +426,7 @@ export const CommunicationTemplateProvider = ({ children }) => {
         };
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule/${communicationTemplateId}`, requestOptions);
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/custom-template/update/${communicationTemplateId}`, requestOptions);
 
             if (!response.ok) {
                 const errorData = await response.json();

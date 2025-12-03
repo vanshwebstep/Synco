@@ -298,7 +298,7 @@ const Create = () => {
                     }}
                     className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
                     <img
-                        src="/demo/synco/icons/arrow-left.png"
+                        src="/images/icons/arrow-left.png"
                         alt="Back"
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
@@ -318,7 +318,7 @@ const Create = () => {
                                 <label className="rounded-3xl block text-base font-semibold text-gray-700 mb-2">
                                     Name of Term Group
                                 </label>
-                                <img src="/demo/synco/icons/edit.png" className="w-[18px]" alt="" />
+                                <img src="/images/icons/edit.png" className="w-[18px]" alt="" />
                             </div>
                             <input
                                 type="text"
@@ -342,18 +342,18 @@ const Create = () => {
                                     </label>
                                     <div className="flex gap-2">
                                         <img
-                                            src="/demo/synco/icons/edit.png"
+                                            src="/images/icons/edit.png"
                                             className="w-[18px] cursor-pointer"
                                             onClick={() => toggleTerm(term.id)}
                                         />
                                         <img
-                                            src="/demo/synco/icons/deleteIcon.png"
+                                            src="/images/icons/deleteIcon.png"
                                             className="w-[18px] cursor-pointer"
                                             onClick={() => deleteTerm(term.id)}
                                         />
                                         {term.isOpen && (
                                             <img
-                                                src="/demo/synco/icons/crossGray.png"
+                                                src="/images/icons/crossGray.png"
                                                 className="w-[18px] cursor-pointer"
                                                 onClick={() => toggleTerm(term.id)}
                                             />

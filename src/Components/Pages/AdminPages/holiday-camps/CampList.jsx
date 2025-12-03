@@ -667,7 +667,7 @@ const handleBookCamp = (classId) => {
                         >
                           <div className="bg-[#2E2F3E] text-white p-4 rounded-2xl mb-2 flex flex-wrap justify-between md:items-center text-sm gap-4">
                             <div className="flex items-center gap-2 min-w-[250px]">
-                              <img src="/demo/synco/icons/Location.png" alt="Location" />
+                              <img src="/images/icons/Location.png" alt="Location" />
                               <div className="flex">
                                 <span className="font-medium text-[16px] xl:text-[15px] 2xl:text-[16px]">
                                   {venue.address || "N/A"}
@@ -679,31 +679,31 @@ const handleBookCamp = (classId) => {
                             </div>
                             <div ref={iconContainerRef} className="md:mt-0 mt-5 flex relative items-center gap-4">
                               <img
-                                src="/demo/synco/icons/fcDollar.png"
+                                src="/images/icons/fcDollar.png"
                                 onClick={() => handleIconClick('payment', venue.venueId, venue.paymentGroups?.[0]?.holidayPaymentPlans)}
                                 alt="Payment Plans"
                                 className={`cursor-pointer w-6 h-6 rounded-full ${showModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                               />
                               <img
-                                src="/demo/synco/icons/fcCalendar.png"
+                                src="/images/icons/fcCalendar.png"
                                 onClick={() => handleIconClick('team', venue.venueId, venue.holidayCampDates)}
                                 alt="Team Dates"
                                 className={`cursor-pointer w-6 h-6 rounded-full ${showteamModal === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                               />
                               <img
-                                src="/demo/synco/icons/fcLocation.png"
+                                src="/images/icons/fcLocation.png"
                                 onClick={() => handleIconClick('location', venue.venueId)}
                                 alt="Location"
                                 className={`cursor-pointer w-6 h-6 rounded-full ${openMapId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                               />
                               <img
-                                src="/demo/synco/icons/fcCicon.png"
+                                src="/images/icons/fcCicon.png"
                                 onClick={() => handleIconClick('congestion', venue.venueId, congestionNotes)}
                                 alt="Congestion"
                                 className={`cursor-pointer w-6 h-6 rounded-full ${activeCongestionVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
                               />
                               <img
-                                src="/demo/synco/icons/fcPIcon.png"
+                                src="/images/icons/fcPIcon.png"
                                 onClick={() => handleIconClick('parking', venue.venueId, parkingNotes)}
                                 alt="Parking"
                                 className={`cursor-pointer w-6 h-6 rounded-full ${activeParkingVenueId === venue.venueId ? 'bg-[#0DD180]' : 'bg-white'}`}
@@ -760,7 +760,7 @@ const handleBookCamp = (classId) => {
                                             </div>
 
                                             <div className="font-semibold text-[16px] whitespace-nowrap flex gap-2 items-center min-w-50">
-                                              <img src="/demo/synco/icons/fcTImeIcon.png" className='w-5 h-5' alt="" />
+                                              <img src="/images/icons/fcTImeIcon.png" className='w-5 h-5' alt="" />
                                               {s.time}
                                             </div>
 
@@ -829,7 +829,7 @@ const handleBookCamp = (classId) => {
                                   <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
                                     <div className="flex items-start justify-between">
                                       <h2 className="text-red-500 font-semibold text-[18px]">Congestion Information</h2>
-                                      <img src="/demo/synco/icons/infoIcon.png" alt="info" />
+                                      <img src="/images/icons/infoIcon.png" alt="info" />
                                     </div>
                                     <div className="mt-2 text-[16px] text-gray-700 leading-snug">
                                       {congestionNotes ? (
@@ -848,7 +848,7 @@ const handleBookCamp = (classId) => {
                                   <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
                                     <div className="flex items-start justify-between">
                                       <h2 className="text-red-500 font-semibold text-[18px]">Parking Information</h2>
-                                      <img src="/demo/synco/icons/infoIcon.png" alt="info" />
+                                      <img src="/images/icons/infoIcon.png" alt="info" />
                                     </div>
                                     <div className="mt-2 text-[16px] text-gray-700 leading-snug">
                                       {parkingNotes ? (
@@ -877,7 +877,7 @@ const handleBookCamp = (classId) => {
                                     >
                                       <h2 className="text-[24px] font-semibold">Team Dates</h2>
                                       <button onClick={() => setShowteamModal(null)}>
-                                        <img src="/demo/synco/icons/cross.png" alt="close" className="w-4 h-4" />
+                                        <img src="/images/icons/cross.png" alt="close" className="w-4 h-4" />
                                       </button>
                                     </div>
                                     <div className="space-y-6 max-h-80 overflow-y-scroll text-center text-[14px] text-[#2E2F3E] font-medium">
@@ -981,7 +981,7 @@ const handleBookCamp = (classId) => {
                                         <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
                                         <button className="text-gray-400 hover:text-black text-xl font-bold">
                                           <img
-                                            src="/demo/synco/icons/cross.png"
+                                            src="/images/icons/cross.png"
                                             onClick={() => setShowModal(null)}
                                             alt="close"
                                             className="w-5 h-5"

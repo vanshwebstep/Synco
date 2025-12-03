@@ -297,15 +297,15 @@ const status =
 const getBg = () => {
   switch (status?.toLowerCase()) {
     case "pending":
-      return "/demo/synco/frames/Pending.png";
+      return "/frames/Pending.png";
     case "active":
-      return "/demo/synco/frames/Active.png";
+      return "/frames/Active.png";
     case "completed":
-      return "/demo/synco/frames/Completed.png";
+      return "/frames/Completed.png";
     case "cancelled":
-      return "/demo/synco/frames/Cancelled.png";
+      return "/frames/Cancelled.png";
     default:
-      return "/demo/synco/frames/Default.png"; // fallback if needed
+      return "/frames/Default.png"; // fallback if needed
   }
 };
 
@@ -473,7 +473,7 @@ const getBg = () => {
                         {/* Input section */}
                         <div className="flex items-center gap-2">
                             <img
-                                src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'}
+                                src={adminInfo?.profile ? `${adminInfo.profile}` : '/members/dummyuser.png'}
                                 alt="User"
                                 className="w-14 h-14 rounded-full object-cover"
                             />
@@ -489,7 +489,7 @@ const getBg = () => {
                                 className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
                                 onClick={handleSubmitComment}
                             >
-                                <img src="/demo/synco/icons/sent.png" alt="" />
+                                <img src="/images/icons/sent.png" alt="" />
                             </button>
                         </div>
 
@@ -505,11 +505,11 @@ const getBg = () => {
                                                     src={
                                                         c?.bookedByAdmin?.profile
                                                             ? `${c?.bookedByAdmin?.profile}`
-                                                            : '/demo/synco/members/dummyuser.png'
+                                                            : '/members/dummyuser.png'
                                                     }
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null; // prevent infinite loop
-                                                        e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                        e.currentTarget.src = '/members/dummyuser.png';
                                                     }}
                                                     alt={c?.bookedByAdmin?.firstName}
                                                     className="w-10 h-10 rounded-full object-cover mt-1"
@@ -585,7 +585,7 @@ const getBg = () => {
                             {/* Coach */}
                             <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
                                 <div>
-                                    <img src="/demo/synco/members/user2.png" alt="Coach" className="w-10 h-10 rounded-full object-cover" />
+                                    <img src="/members/user2.png" alt="Coach" className="w-10 h-10 rounded-full object-cover" />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-semibold">Coach</h3>

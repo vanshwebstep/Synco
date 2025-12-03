@@ -178,7 +178,7 @@ const TrialsDashboard = () => {
 
     const stats = [
         {
-            icon: "/demo/synco/reportsIcons/user-group.png",
+            icon: "/reportsIcons/user-group.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Free Trials Booked",
             value: ` ${membersData?.overallTrends?.freeTrialsCount}`,
@@ -187,7 +187,7 @@ const TrialsDashboard = () => {
             subvalue: `${membersData?.overallTrends?.freeTrialsCount}`,
         },
         {
-            icon: "/demo/synco/reportsIcons/attendent.png",
+            icon: "/reportsIcons/attendent.png",
             iconStyle: "text-[#E769BD] bg-[#F3FAFD]",
             title: "How many attended",
             value: ` ${membersData?.overallTrends?.attendedCount}`,
@@ -196,7 +196,7 @@ const TrialsDashboard = () => {
             subvalue: '£57,000'
         },
         {
-            icon: "/demo/synco/reportsIcons/Percent.png",
+            icon: "/reportsIcons/Percent.png",
             iconStyle: "text-[#F38B4D] bg-[#F3FAFD]",
             title: "Attendance Rate",
             value: ` ${membersData?.overallTrends?.attendanceRate}`,
@@ -205,7 +205,7 @@ const TrialsDashboard = () => {
             subvalue: '£57,000'
         },
         {
-            icon: "/demo/synco/reportsIcons/user-group2.png",
+            icon: "/reportsIcons/user-group2.png",
             iconStyle: "text-[#6F65F1] bg-[#F3FAFD]",
             title: "Trials to Members",
             value: ` ${membersData?.overallTrends?.trialToMemberCount}`,
@@ -214,7 +214,7 @@ const TrialsDashboard = () => {
             subvalue: '16.8 months'
         },
         {
-            icon: "/demo/synco/reportsIcons/Chart.png",
+            icon: "/reportsIcons/Chart.png",
             iconStyle: "text-[#FF5353] bg-[#FEF8F4]",
             title: "Conversion Rate",
             value: ` ${membersData?.overallTrends?.conversionRate}`,
@@ -223,7 +223,7 @@ const TrialsDashboard = () => {
             subvalue: '16.8 months'
         },
         {
-            icon: "/demo/synco/reportsIcons/calender.png",
+            icon: "/reportsIcons/calender.png",
             iconStyle: "text-[#FF5353] bg-[#FEF8F4]",
             title: "No. of Rebooks",
             value: ` ${membersData?.overallTrends?.rebookCount}`,
@@ -822,12 +822,12 @@ const TrialsDashboard = () => {
                                                 className="object-cover w-full h-full"
                                                 onError={(e) => {
                                                     e.currentTarget.onerror = null; // prevent infinite loop
-                                                    e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                                                    e.currentTarget.src = '/members/dummyuser.png';
                                                 }}
                                                 src={
                                                     item?.profile
                                                         ? `${item.profile}`
-                                                        : '/demo/synco/members/dummyuser.png'
+                                                        : '/members/dummyuser.png'
                                                 } alt="" />
                                         </div>
 
@@ -866,7 +866,7 @@ const TrialsDashboard = () => {
 
 
                             <h2 className="text-gray-800 font-semibold mb-3 gap-3 text-[20px] flex justify-between items-center">
-                                <img src="/demo/synco/reportsIcons/Revenue.png" className="h-7 w-7" alt="" />  Revenue
+                                <img src="/reportsIcons/Revenue.png" className="h-7 w-7" alt="" />  Revenue
                             </h2>
                             <EllipsisVertical />
                         </div>
@@ -879,7 +879,7 @@ const TrialsDashboard = () => {
 
 
                             <h2 className="text-gray-800 font-semibold mb-3 gap-3 text-[20px] flex justify-between items-center">
-                                <img src="/demo/synco/reportsIcons/Growth.png" className="h-7 w-7" alt="" /> Insights
+                                <img src="/reportsIcons/Growth.png" className="h-7 w-7" alt="" /> Insights
                             </h2>
                             <EllipsisVertical />
 

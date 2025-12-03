@@ -80,7 +80,7 @@ const Feedback = () => {
               onClick={() => setOpenForm(true)}
               className="bg-[#237FEA] md:absolute right-0 -top-0 flex items-center gap-2 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-blue-700 text-sm md:text-base font-semibold"
             >
-              <img src="/demo/synco/members/add.png" className="w-5" alt="" />
+              <img src="/members/add.png" className="w-5" alt="" />
               Add Feedback
             </button>
           )}
@@ -266,7 +266,7 @@ const Feedback = () => {
                 setResolveData('');
               }}>
               <img
-                src="/demo/synco/icons/arrow-left.png"
+                src="/images/icons/arrow-left.png"
                 alt="Back"
                 className="w-5 h-5 md:w-6 md:h-6"
               />

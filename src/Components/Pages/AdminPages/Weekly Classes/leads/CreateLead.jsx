@@ -213,7 +213,7 @@ const CreateLead = () => {
         <>
             <h2 onClick={() => navigate('/weekly-classes/central-leads/')} className="flex gap-2 items-center font-bold text-[24px] mt-3">
                 <img
-                    src="/demo/synco/icons/arrow-left.png"
+                    src="/images/icons/arrow-left.png"
                     alt="Back"
                     className="w-5 h-5 md:w-6 md:h-6"
                 />
@@ -336,7 +336,7 @@ const CreateLead = () => {
 
                 <div className="flex items-center gap-2">
                     <img
-                        src={adminInfo?.profile || "/demo/synco/members/dummyuser.png"}
+                        src={adminInfo?.profile || "/members/dummyuser.png"}
                         alt="User"
                         className="w-14 h-14 rounded-full object-cover"
                     />
@@ -351,7 +351,7 @@ const CreateLead = () => {
                         className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
                         onClick={handleSubmitComment}
                     >
-                        <img src="/demo/synco/icons/sent.png" alt="Send" />
+                        <img src="/images/icons/sent.png" alt="Send" />
                     </button>
                 </div>
 
@@ -366,7 +366,7 @@ const CreateLead = () => {
                                         <img
                                             src={
                                                 c?.bookedByAdmin?.profile ||
-                                                "/demo/synco/members/dummyuser.png"
+                                                "/members/dummyuser.png"
                                             }
                                             alt={c?.bookedByAdmin?.firstName || "User"}
                                             className="w-10 h-10 rounded-full object-cover"

@@ -104,7 +104,7 @@ const List = () => {
         const sessionObj = {
 
           term: term.termName,
-          icon: `/demo/synco/icons/${season}.png`,
+          icon: `/images/icons/${season}.png`,
           date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
           exclusion,
           sessions,
@@ -174,7 +174,7 @@ const List = () => {
             onClick={() => navigate('/weekly-classes/term-dates/create')}
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
           >
-            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+            <img src="/members/add.png" className="w-4 md:w-5" alt="Add" />
             Add New Term Group
           </button>
         }
@@ -199,7 +199,7 @@ const List = () => {
             onClick={() => navigate('/weekly-classes/term-dates/create')}
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
           >
-            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+            <img src="/members/add.png" className="w-4 md:w-5" alt="Add" />
             Add New Term Group
           </button>
         }
@@ -226,7 +226,7 @@ const List = () => {
             onClick={() => navigate('/weekly-classes/term-dates/create')}
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
           >
-            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+            <img src="/members/add.png" className="w-4 md:w-5" alt="Add" />
             Add New Term Group
           </button>
         }

@@ -57,21 +57,21 @@ const TermCard = ({ item, sessionData }) => {
         <div className='grid md:w-7/12 md:grid-cols-3'>
 
           <div className="flex items-center gap-3">
-            <img src='/demo/synco/icons/spring.png' alt='' className="w-8 mt-1 flex-shrink-0" />
+            <img src='/images/icons/spring.png' alt='' className="w-8 mt-1 flex-shrink-0" />
             <div>
               <p className="text-[#717073] font-semibold text-[16px] mb-1">Start Date</p>
               <p className="whitespace-pre-line text-[16px] text-gray-600">{sessionData[0]?.startDate}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <img src='/demo/synco/icons/autumn.png' alt='' className="w-8 mt-1 flex-shrink-0" />
+            <img src='/images/icons/autumn.png' alt='' className="w-8 mt-1 flex-shrink-0" />
             <div>
               <p className="text-[#717073] font-semibold text-[16px] mb-1">End Date</p>
               <p className="whitespace-pre-line text-[16px] text-gray-600">{sessionData[0]?.endDate}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <img src='/demo/synco/icons/summer.png' alt='' className="w-8 mt-1 flex-shrink-0" />
+            <img src='/images/icons/summer.png' alt='' className="w-8 mt-1 flex-shrink-0" />
             <div>
               <p className="text-[#717073] font-semibold text-[16px] mb-1">No. of Days</p>
               <p className="whitespace-pre-line text-[16px] text-gray-600">{sessionData[0]?.totalDays}</p>
@@ -110,12 +110,12 @@ const TermCard = ({ item, sessionData }) => {
         <div className={`flex gap-3 md:w-1/12 mt-2 md:mt-0 ${showSessions ? 'items-start' : 'items-center'} ml-auto`}>
           {canEdit && (
             <button onClick={() => handleEdit(item.id)} className="text-gray-500 hover:text-blue-500">
-              <img className="w-5 h-5" src="/demo/synco/icons/edit.png" alt="Edit" />
+              <img className="w-5 h-5" src="/images/icons/edit.png" alt="Edit" />
             </button>
           )}
           {canDelete && (
             <button onClick={() => handleDelete(item.id)} className="text-gray-500 hover:text-red-500">
-              <img className="w-5 h-5" src="/demo/synco/icons/deleteIcon.png" alt="Delete" />
+              <img className="w-5 h-5" src="/images/icons/deleteIcon.png" alt="Delete" />
             </button>
           )}
         </div>
@@ -125,7 +125,7 @@ const TermCard = ({ item, sessionData }) => {
       <div className="bg-gray-100 px-4 py-2 cursor-pointer" onClick={() => setShowSessions(!showSessions)}>
         <div className="text-center text-[#237FEA] flex justify-center items-center gap-2">
           {showSessions ? 'Hide all session dates' : 'Show all session dates'}
-          <img className={`w-4 transition-transform ${showSessions ? 'rotate-180' : ''}`} src="/demo/synco/icons/bluearrowup.png" alt="Toggle" />
+          <img className={`w-4 transition-transform ${showSessions ? 'rotate-180' : ''}`} src="/images/icons/bluearrowup.png" alt="Toggle" />
         </div>
       </div>
     </div>

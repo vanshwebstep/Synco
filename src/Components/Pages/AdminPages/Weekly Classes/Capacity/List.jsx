@@ -254,7 +254,7 @@ const Capacity = () => {
 
                     </div>
                     <button onClick={handleTogglePopup} className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-3 rounded-lg text-sm text-[16px]">
-                        <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                        <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                         Filters
                     </button>
                     {popupOpen && (
@@ -271,7 +271,7 @@ const Capacity = () => {
                                 <div className="flex mb-10 justify-between ">
                                     <div className="text-[24px]">Filter</div>
                                     <button onClick={applyFilter} className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-3 rounded-2xl text-sm text-[16px]">
-                                        <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                                        <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                                         Apply Filter
                                     </button>
                                 </div>
@@ -435,7 +435,7 @@ const Capacity = () => {
                                         {/* Header */}
                                         <div className="bg-[#2E2F3E] text-white p-4 rounded-2xl flex items-center justify-between text-sm">
                                             <div className="flex items-center gap-2">
-                                                <img src="/demo/synco/icons/Location.png" alt="" />
+                                                <img src="/images/icons/Location.png" alt="" />
                                                 <span className="font-medium text-[20px]">
                                                     {venue.address || "Unnamed Address"}
                                                 </span>

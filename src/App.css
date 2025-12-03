@@ -103,7 +103,7 @@ body,
   position: relative;
   justify-content: center;
   align-items: center;
-  background: url(/demo/synco/images/adminlogoimg.png?t=1751629104288);
+  background: url(/images/adminlogoimg.png?t=1751629104288);
   background-repeat: no-repeat;
   background-size: contain;
 }
@@ -114,7 +114,7 @@ body,
   position: relative;
   justify-content: center;
   align-items: center;
-  background: url(/demo/synco/images/forgetpassBanner.png) !important;
+  background: url(/images/forgetpassBanner.png) !important;
   background-repeat: no-repeat !important;
   background-size: contain !important;
 }
@@ -587,7 +587,7 @@ ul.innersub li a .subitems {
 }
 
 .reward {
-  background: url(/demo/synco/images/reward-card.png);
+  background: url(/images/reward-card.png);
   background-repeat: no-repeat;
   background-size: cover;
 }

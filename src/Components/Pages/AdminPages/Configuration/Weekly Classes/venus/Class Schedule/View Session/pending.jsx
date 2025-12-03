@@ -161,7 +161,7 @@ console.log('items',items)
 
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
-            src="/demo/synco/icons/arrow-left.png"
+            src="/images/icons/arrow-left.png"
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
@@ -182,11 +182,11 @@ console.log('items',items)
   `}
 >          <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
             {statusIs === "cancelled" ? (
-              <img src="/demo/synco/icons/cancelBig.png" alt="Cancelled" />
+              <img src="/images/icons/cancelBig.png" alt="Cancelled" />
             ) : statusIs === "complete" ? (
-              <img src="/demo/synco/icons/completeBig.png" alt="Complete" />
+              <img src="/images/icons/completeBig.png" alt="Complete" />
             ) : (
-              <img src="/demo/synco/icons/pendingBig.png" alt="Pending" />
+              <img src="/images/icons/pendingBig.png" alt="Pending" />
             )}
           </div>
 
@@ -244,7 +244,7 @@ console.log('items',items)
                 <p className="text-[20px] flex items-center gap-2 font-semibold my-3">
                   {/* {currentContent?.player} */}
                   {currentContent.heading} <img
-                    src="/demo/synco/icons/Volumeblue.png"
+                    src="/images/icons/Volumeblue.png"
                     alt="Play Recording"
                     className={`w-6 h-6 cursor-pointer ${currentRecording === recording ? "opacity-100" : "opacity-40"
                       }`}
@@ -268,7 +268,7 @@ console.log('items',items)
                   </h2>
 
                   <img
-                    src="/demo/synco/icons/downloadicon.png"
+                    src="/images/icons/downloadicon.png"
                     alt="Download"
                     className="cursor-pointer"
                     onClick={async () => {
@@ -325,7 +325,7 @@ console.log('items',items)
                 {videoDuration && (
                   <div>
                     <p className="text-sm flex items-center gap-2 text-gray-500 pb-3">
-                      <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                      <img src="/members/Time-Circle.png" className="w-4 h-4" alt="" />
                       {videoDuration || 'N/A'}
                     </p>
                   </div>

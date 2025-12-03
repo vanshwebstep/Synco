@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";  // ✅ to read URL params
+import { useNavigate, useSearchParams } from "react-router-dom";  // ✅ to read URL params
 
 import Select from "react-select";
 import { motion } from "framer-motion";
@@ -10,11 +10,13 @@ import { FiSearch } from "react-icons/fi";
 import { useCommunicationTemplate } from "../contexts/CommunicationContext";
 
 export default function CreateTemplateSteps() {
-    const { fetchTemplateCategories, createTemplateCategories, templateCategories, fetchCommunicationTemplateById, createCommunicationTemplate, apiTemplates } = useCommunicationTemplate();
+    const { fetchTemplateCategories, createTemplateCategories, templateCategories, fetchCommunicationTemplateById, createCommunicationTemplate, apiTemplates, updateCommunicationTemplate } = useCommunicationTemplate();
     const [categoryData, setCategoryData] = useState([]);
     useEffect(() => {
         setCategoryData(templateCategories);
     }, [templateCategories]);
+    const navigate = useNavigate();
+
     const [searchParams] = useSearchParams();
     const templateId = searchParams.get("id");   // ✅ Get ID from URL
     const level = searchParams.get("level");     // email | text
@@ -42,65 +44,57 @@ export default function CreateTemplateSteps() {
         const loadTemplate = async () => {
             if (!isEditMode) return;
 
-            const res = await fetchCommunicationTemplateById(templateId);
-            if (apiTemplates) {
-                const t = apiTemplates;
+            const t = await fetchCommunicationTemplateById(templateId);
+            if (!t) return;
 
-                // ✅ Parse content properly
-                let parsedContent = {};
-                if (apiTemplates.content) {
-                    try {
-                        parsedContent = JSON.parse(JSON.parse(apiTemplates.content)); // ✅ double parse fix
-                    } catch (err) {
-                        console.error("❌ Content parse error:", err);
-                    }
-                }
+            // ✅ 1. Parse category IDs safely (for both email & text)
+            let categoryIds = [];
+            if (t.template_category_id) {
+                try { categoryIds = JSON.parse(t.template_category_id); } catch { }
+            }
 
-                // ✅ Set communication mode
-                setCommunicationMode({
-                    value: apiTemplates.mode_of_communication,
-                    label: apiTemplates.mode_of_communication === "email" ? "Email" : "Text",
+            // ✅ 2. Parse content correctly
+            // 📧 Email: content is escaped JSON → must parse
+            let emailContent = {};
+            if (t.mode_of_communication === "email" && t.content) {
+                try { emailContent = JSON.parse(t.content); } catch { }
+            }
+
+            // ✉️ Text: content is a plain string → no parsing
+            const textMessage = t.mode_of_communication === "text" ? t.content.replace(/^"+|"+$/g, "") : "";
+
+            // ✅ 3. Prefill main form
+            setForm({
+                communication: t.mode_of_communication,
+                title: t.title || "",
+                category: categoryIds,
+                categoryNames: categoryIds.map(id => {
+                    const found = templateCategories.find(c => c.id === id);
+                    return found?.category || "";
+                }),
+                tags: t.tags || "",
+            });
+
+            // ✅ 4. Prefill Email Builder
+            if (t.mode_of_communication === "email") {
+                setBuilderSubject(emailContent.subject || "");
+                setBuilderBlocks(emailContent.blocks || []);
+                setStep(2);
+            }
+            setCommunicationMode(
+                communicationOptions.find(opt => opt.value === t.mode_of_communication) || null
+            );            // ✅ 5. Prefill Text Form
+            if (t.mode_of_communication === "text") {
+                setTextForm({
+                    sender: t.sender_name || "",
+                    message: textMessage || "",
                 });
-
-                // ✅ Fix category ID (convert string "[1]" → real array [1])
-                let categoryIds = [];
-                if (apiTemplates.template_category_id) {
-                    try {
-                        categoryIds = JSON.parse(apiTemplates.template_category_id); // parsed as string originally
-                    } catch {
-                        console.warn("⚠ category parse failed");
-                    }
-                }
-
-                // ✅ Prefill main form
-                setForm(prev => ({
-                    ...prev,
-                    title: apiTemplates.title,
-                    category: categoryIds,                // ✅ now stores [1]
-                    categoryNames: [apiTemplates.mode_of_communication],
-                    tags: apiTemplates.tags || ""
-                }));
-
-                // ✅ If EMAIL template → fill builder
-                if (apiTemplates.mode_of_communication === "email") {
-                    setBuilderSubject(parsedContent.subject || "");
-                    setBuilderBlocks(parsedContent.blocks || []);
-                    setStep(2); // open builder
-                }
-
-                // ✅ If TEXT template → fill text form
-                if (apiTemplates.mode_of_communication === "text") {
-                    setTextForm({
-                        sender: apiTemplates.sender_name || "",
-                        message: apiTemplates.content || ""
-                    });
-                    setStep(3);
-                }
+                setStep(3);
             }
         };
 
         loadTemplate();
-    }, [templateId, isEditMode]);
+    }, [templateId, isEditMode, templateCategories]);
 
 
     const communicationOptions = [
@@ -182,12 +176,26 @@ export default function CreateTemplateSteps() {
             content: textform.message,
         };
 
-        createCommunicationTemplate(Payload)
+        await createCommunicationTemplate(Payload)
         console.log("✅ Final JSON to Send API:", Payload);
-
+        navigate('/templates/settingList');
         // sending whole preview as one JSON
 
     };
+    const handleUpdateTemplate = async () => {
+        const Payload = {
+            mode_of_communication: communicationMode.value,
+            template_category_id: form.category,
+            title: form.title,
+            tags: form.tags,
+            sender_name: textform.sender,
+            content: textform.message,
+        };
+        await updateCommunicationTemplate(templateId, Payload);
+        console.log("Template Updated ✅", Payload);
+        navigate('/templates/settingList');
+    };
+
     return (
         <>
 
@@ -204,7 +212,7 @@ export default function CreateTemplateSteps() {
                                     <HiArrowUturnLeft className="text-2xl font-bold text-gray-500 hover:text-black cursor-pointer transition-colors duration-200"
                                     />
 
-                                    {/* <img src="/demo/synco/icons/flipLeft.png" alt="" /> */}
+                                    {/* <img src="/images/icons/flipLeft.png" alt="" /> */}
                                 </button>
                                 <button
                                     className="px-3 py-0"
@@ -213,7 +221,7 @@ export default function CreateTemplateSteps() {
                                     <HiArrowUturnRight className="text-2xl font-bold text-gray-500 hover:text-black cursor-pointer transition-colors duration-200"
                                     />
 
-                                    {/* <img src="/demo/synco/icons/flipRight.png" alt="" /> */}
+                                    {/* <img src="/images/icons/flipRight.png" alt="" /> */}
 
                                 </button>
                             </div>
@@ -230,7 +238,7 @@ export default function CreateTemplateSteps() {
                                     <HiArrowUturnLeft className="text-2xl font-bold text-gray-500 hover:text-black cursor-pointer transition-colors duration-200"
                                     />
 
-                                    {/* <img src="/demo/synco/icons/flipLeft.png" alt="" /> */}
+                                    {/* <img src="/images/icons/flipLeft.png" alt="" /> */}
                                 </button>
 
                             </div>
@@ -529,7 +537,12 @@ export default function CreateTemplateSteps() {
                                             blocks={builderBlocks}
                                             subject={builderSubject}
                                             onClose={() => setBuilderPreview(false)}
+
+                                            // ✅ only send when edit mode exists
+                                            editMode={isEditMode}
+                                            templateId={isEditMode ? templateId : null}
                                         />
+
                                     </div>
                                 )}
 
@@ -537,22 +550,23 @@ export default function CreateTemplateSteps() {
                                     <div className="max-w-md mx-auto mt-10 space-y-6">
                                         <div className="flex justify-end ">
                                             <button
-                                                className="mt-5 bg-blue-600 w-full max-w-fit text-right flex justify-right text-white px-4 py-2 rounded-lg"
-                                                onClick={handleSaveTextTemplate}
+                                                className="mt-5 bg-blue-600 w-full max-w-fit text-white px-4 py-2 rounded-lg flex justify-end"
+                                                onClick={isEditMode ? handleUpdateTemplate : handleSaveTextTemplate}
                                             >
-                                                Save Template
+                                                {isEditMode ? "Update Template" : "Save Template"}
                                             </button>
+
                                         </div>
                                         <h3 className="text-[20px] font-semibold">Preview</h3>
 
                                         <div className="rounded-xl space-y-4">
-                                            <img className="w-full" src="/demo/synco/icons/TopNavigation.png" alt="" />
+                                            <img className="w-full" src="/images/icons/TopNavigation.png" alt="" />
                                             <div className="min-h-80 p-4 ">
                                                 <div className="bg-gray-100 p-4 rounded-xl min-h-20 text-sm text-gray-800">
                                                     {textform.message}
                                                 </div>
                                             </div>
-                                            <img className="w-full" src="/demo/synco/icons/mobileKeyboard.png" alt="" />
+                                            <img className="w-full" src="/images/icons/mobileKeyboard.png" alt="" />
 
                                         </div>
 

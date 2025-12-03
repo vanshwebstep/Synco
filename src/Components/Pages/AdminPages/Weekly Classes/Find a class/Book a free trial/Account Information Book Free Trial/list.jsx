@@ -59,7 +59,7 @@ const list = () => {
             className="text-xl md:text-2xl font-semibold cursor-pointer hover:opacity-80 transition-opacity duration-200"
           >
             <img
-              src="/demo/synco/icons/arrow-left.png"
+              src="/images/icons/arrow-left.png"
               alt="Back"
               className="w-5 h-5 md:w-6 md:h-6"
             />
@@ -85,7 +85,7 @@ const list = () => {
           <div className=" flex items-start  gap-2 md:gap-3">
             {/* <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
-              src="/demo/synco/images/points.png"
+              src="/images/points.png"
               alt="Back"
               className="md:w-11 md:h-11 w-6 h-6"
             />
@@ -96,7 +96,7 @@ const list = () => {
           </div> */}
             <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
               <img
-                src="/demo/synco/images/totalPoints.png"
+                src="/images/totalPoints.png"
                 alt="Back"
                 className="md:w-11 md:h-11 w-6 h-6"
               />
@@ -108,7 +108,7 @@ const list = () => {
 
             <div className="flex gap-4  items-center    p-2 rounded-xl flex-wrap bg-white">
               <img
-                src="/demo/synco/images/filterGray.png"
+                src="/images/filterGray.png"
                 alt="Back"
                 className=""
               />
@@ -122,7 +122,7 @@ const list = () => {
               }}
               className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
             >
-              <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+              <img src="/members/add.png" className="w-4 md:w-5" alt="Add" />
               Add booking
             </button>
           </div>

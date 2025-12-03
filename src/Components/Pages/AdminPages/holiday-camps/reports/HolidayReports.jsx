@@ -107,10 +107,10 @@ const dashboardData = {
     },
 
     qualifications: [
-        { label: "FA Qualification(s)", value: 3, img: '/demo/synco/reportsIcons/fa.png' },
-        { label: "DBS Certificate", value: 2, img: '/demo/synco/reportsIcons/dbs.png' },
-        { label: "4-5 years of coaching experience", value: 4, img: '/demo/synco/reportsIcons/coaching.png' },
-        { label: "Management Experience", value: 3, img: '/demo/synco/reportsIcons/manage.png' },
+        { label: "FA Qualification(s)", value: 3, img: '/reportsIcons/fa.png' },
+        { label: "DBS Certificate", value: 2, img: '/reportsIcons/dbs.png' },
+        { label: "4-5 years of coaching experience", value: 4, img: '/reportsIcons/coaching.png' },
+        { label: "Management Experience", value: 3, img: '/reportsIcons/manage.png' },
     ],
 
     onboardingResults: [
@@ -176,7 +176,7 @@ const customSelectStyles = {
 
 const stats = [
     {
-        icon: "/demo/synco/reportsIcons/pound.png",
+        icon: "/reportsIcons/pound.png",
         iconStyle: "text-[#3DAFDB] bg-[#FEF6FB]",
         title: "Total Revenue",
         value: ` 150`,
@@ -184,7 +184,7 @@ const stats = [
         subvalue: '275'
     },
     {
-        icon: "/demo/synco/reportsIcons/pound2.png",
+        icon: "/reportsIcons/pound2.png",
         iconStyle: "text-[#E769BD] bg-[#FEF8F4]",
         title: "Average Revenue Per Camp",
         value: `87`,
@@ -193,7 +193,7 @@ const stats = [
         subvalue: '275'
     },
     {
-        icon: "/demo/synco/reportsIcons/chart2.png",
+        icon: "/reportsIcons/chart2.png",
         iconStyle: "text-[#F38B4D] bg-[#F6F6FE]",
         title: "Revenue Growth",
         value: `42`,
@@ -203,7 +203,7 @@ const stats = [
     },
 
     {
-        icon: "/demo/synco/reportsIcons/content.png",
+        icon: "/reportsIcons/content.png",
         iconStyle: "text-[#FF5353] bg-[#F6F6FE]",
         title: "Conversion Rate (Leads to recruitment)",
         value: `65%`,
@@ -467,7 +467,7 @@ export default function HolidayReports() {
                                     <div className="flex gap-5 justify-between">
 
                                         <div className="w-10 h-10">
-                                            <img src="/demo/synco/reportsIcons/agent.png" alt="" />
+                                            <img src="/reportsIcons/agent.png" alt="" />
                                         </div>
                                         <div className="w-full">  <div className="flex justify-between items-center mb-1">
                                             <p className="text-sm text-[#344054] font-semibold">{item.label}</p>
@@ -508,7 +508,7 @@ export default function HolidayReports() {
                         <div className="space-y-4 px-4">
                             <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
 
-                                <img src="/demo/synco/reportsIcons/Icon-with-shape.png" className="w-12" alt="" />
+                                <img src="/reportsIcons/Icon-with-shape.png" className="w-12" alt="" />
                                 <div>
                                     <p className="text-[16px] text-[#717073] font-semibold ">Percentage of camp capacity filled</p>
                                     <div className="">
@@ -519,7 +519,7 @@ export default function HolidayReports() {
                             </div>
 
                             <div className="flex gap-4 items-center  pb-4">
-                                <img src="/demo/synco/reportsIcons/capacity1.png" className="w-12" alt="" />
+                                <img src="/reportsIcons/capacity1.png" className="w-12" alt="" />
 
                                 <div>
                                     <p className="text-[16px] text-[#717073] font-semibold ">Untapped business</p>
@@ -541,7 +541,7 @@ export default function HolidayReports() {
                         <div className="space-y-4 px-4">
                             <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
 
-                                <img src="/demo/synco/reportsIcons/logout.png" className="w-12" alt="" />
+                                <img src="/reportsIcons/logout.png" className="w-12" alt="" />
                                 <div>
                                     <p className="text-[16px] text-[#717073] font-semibold ">Number of registration</p>
                                     <div className="">
@@ -551,7 +551,7 @@ export default function HolidayReports() {
                             </div>
 
                             <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
-                                <img src="/demo/synco/reportsIcons/percentage.png" className="w-12" alt="" />
+                                <img src="/reportsIcons/percentage.png" className="w-12" alt="" />
                                 <div>
                                     <p className="text-[16px] text-[#717073] font-semibold ">Percentage</p>
                                     <div className="">
@@ -560,7 +560,7 @@ export default function HolidayReports() {
                                 </div>
                             </div>
                             <div className="flex gap-4 items-center pb-4">
-                                <img src="/demo/synco/reportsIcons/poundIcon.png" className="w-12" alt="" />
+                                <img src="/reportsIcons/poundIcon.png" className="w-12" alt="" />
 
                                 <div>
                                     <p className="text-[16px] text-[#717073] font-semibold ">Revenue Impact</p>
