@@ -182,75 +182,76 @@ export default function PreviewModal({ mode_of_communication, title, category, t
             )}
 
             {/* SECTION GRID */}
-            {block.type === "sectionGrid" && (
-              <div
-                className={`grid gap-4 grid-cols-${block.columns.length}`}
+           {block.type === "sectionGrid" && (
+  <div className={`grid gap-4 grid-cols-${block.columns.length}`}>
+    {block.columns.map((col, ci) => (
+      <div key={ci}>
+        {col.map((child) => (
+          <div key={child.id} className="mb-3">
+
+            {/* TEXT */}
+            {child.type === "text" && (
+              <p
+                style={{
+                  color: child.style?.textColor,
+                  fontSize: child.style?.fontSize,
+                }}
               >
-                {block.columns.map((col, ci) => (
-                  <div key={ci}>
-                    {col.map((child) => (
-                      <div key={child.id} className="mb-3">
-
-                        {/* CHILD TEXT */}
-                        {child.type === "text" && (
-                          <p
-                            style={{
-                              color: child.style?.textColor,
-                              fontSize: child.style?.fontSize,
-                            }}
-                          >
-                            {child.content}
-                          </p>
-                        )}
-
-                        {/* CHILD IMAGE */}
-                        {child.type === "image" && (
-                          <img
-                            src={child.url}
-                            className="rounded object-cover"
-                          />
-                        )}
-
-                        {/* CHILD INPUT */}
-                        {child.type === "input" && (
-                          <input
-                            className="border px-2 py-1 rounded"
-                            placeholder={child.placeholder}
-                            value={
-                              previewData.blocks[i].columns[ci][ci]?.find(
-                                (c) => c.id === child.id
-                              )?.content || ""
-                            }
-                            onChange={(e) => {
-                              const newState = { ...previewData };
-                              const target = newState.blocks[i].columns[ci]
-                                .find((c) => c.id === child.id);
-
-                              if (target) target.content = e.target.value;
-                              setPreviewData(newState);
-                            }}
-                          />
-                        )}
-
-                        {/* CHILD BUTTON */}
-                        {child.type === "btn" && (
-                          <button
-                            style={{
-                              backgroundColor: child.style?.backgroundColor,
-                              color: child.style?.textColor,
-                              fontSize: child.style?.fontSize,
-                            }}
-                            className="px-3 py-1 rounded"
-                          >
-                            {child.content}
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
+                {child.content}
+              </p>
             )}
+
+            {/* IMAGE */}
+            {child.type === "image" && (
+              <img
+                src={child.url}
+                className="rounded object-cover"
+              />
+            )}
+
+            {/* INPUT */}
+            {child.type === "input" && (
+              <input
+                className="border px-2 py-1 rounded"
+                placeholder={child.placeholder}
+                value={
+                  previewData.blocks[i].columns[ci]
+                    ?.find((c) => c.id === child.id)?.content || ""
+                }
+                onChange={(e) => {
+                  setPreviewData((prev) => {
+                    const updated = structuredClone(prev);
+                    const target = updated.blocks[i].columns[ci]
+                      .find((c) => c.id === child.id);
+
+                    if (target) target.content = e.target.value;
+                    return updated;
+                  });
+                }}
+              />
+            )}
+
+            {/* BUTTON */}
+            {child.type === "btn" && (
+              <button
+                style={{
+                  backgroundColor: child.style?.backgroundColor,
+                  color: child.style?.textColor,
+                  fontSize: child.style?.fontSize,
+                }}
+                className="px-3 py-1 rounded"
+              >
+                {child.content}
+              </button>
+            )}
+
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+)}
+
           </div>
         ))}
       </div>

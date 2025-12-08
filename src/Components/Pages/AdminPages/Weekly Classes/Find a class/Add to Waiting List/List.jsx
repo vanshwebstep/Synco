@@ -227,7 +227,7 @@ const WaitingList = () => {
         {
             title: "Top Referrer",
             value: statsFreeTrial?.totalFreeTrials?.value || "0",
-            icon: "/DashboardIcons/🏆.png", // Replace with actual SVG if needed
+            icon: "/demo/synco/DashboardIcons/🏆.png", // Replace with actual SVG if needed
             change: statsFreeTrial?.totalFreeTrials?.change != null
                 ? `${statsFreeTrial.totalFreeTrials.change}%`
                 : "0%",
@@ -237,7 +237,7 @@ const WaitingList = () => {
         {
             title: "Total on Waiting List",
             value: statsFreeTrial?.freeTrialAttendanceRate?.value || "0",
-            icon: "/DashboardIcons/📋.png",
+            icon: "/demo/synco/DashboardIcons/📋.png",
             change: statsFreeTrial?.freeTrialAttendanceRate?.change != null
                 ? `${statsFreeTrial.freeTrialAttendanceRate.change}%`
                 : "0%",
@@ -248,7 +248,7 @@ const WaitingList = () => {
             title: "Avg. Interest Level",
             value: statsFreeTrial?.avgInterest,
             subValue: "(456)",
-            icon: "/DashboardIcons/📈.png",
+            icon: "/demo/synco/DashboardIcons/📈.png",
             color: "text-green-500",
             bg: "bg-[#F3FAFD]"
         },
@@ -256,7 +256,7 @@ const WaitingList = () => {
         {
             title: "Avg. Days Waiting",
             value: statsFreeTrial?.avgDaysWaiting?.value || "0",
-            icon: "/DashboardIcons/⏱️.png",
+            icon: "/demo/synco/DashboardIcons/⏱️.png",
             change: statsFreeTrial?.trialsToMembers?.change != null
                 ? `${statsFreeTrial.trialsToMembers.change}%`
                 : "0%",
@@ -266,7 +266,7 @@ const WaitingList = () => {
         {
             title: "Most Requested Venue",
             value: statsFreeTrial?.freeTrialAttendanceRate?.value || "0",
-            icon: "/DashboardIcons/📍.png",
+            icon: "/demo/synco/DashboardIcons/📍.png",
             change: statsFreeTrial?.freeTrialAttendanceRate?.change != null
                 ? `${statsFreeTrial.freeTrialAttendanceRate.change}%`
                 : "0%",
@@ -450,7 +450,7 @@ const WaitingList = () => {
                     <div className="flex justify-end ">
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
                             <img onClick={() => navigate("/weekly-classes/find-a-class")}
-                                src="/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
+                                src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
                         </div>
                     </div>
 
@@ -531,7 +531,7 @@ const WaitingList = () => {
                             <div className="flex justify-between items-center mb-5 ">
                                 <h2 className="text-[24px] font-semibold">Filter by Date </h2>
                                 <button onClick={applyFilter} className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-2 rounded-lg text-sm text-[16px]">
-                                    <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                                     Apply filter
                                 </button>
                             </div>
@@ -649,7 +649,7 @@ const WaitingList = () => {
                                                                 className="w-8 h-8 rounded-full object-cover"
                                                                 onError={(e) => {
                                                                     e.target.onerror = null;
-                                                                    e.target.src = "/members/dummyuser.png";
+                                                                    e.target.src = "/demo/synco/members/dummyuser.png";
                                                                 }}
                                                             />
                                                         <span>
@@ -785,7 +785,7 @@ const WaitingList = () => {
                             className="flex gap-2 items-center justify-center bg-none border border-[#717073] text-[#717073] px-2 py-2 rounded-xl  text-[16px]"
                         >
                             <img
-                                src="/images/icons/mail.png"
+                                src="/demo/synco/images/icons/mail.png"
                                 className="w-4 h-4 sm:w-5 sm:h-5"
                                 alt="mail"
                             />
@@ -794,11 +794,11 @@ const WaitingList = () => {
 
 
                         <button className="flex gap-2 items-center justify-center bg-none border border-[#717073] text-[#717073] px-2 py-2 rounded-xl  text-[16px]">
-                            <img src='/images/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                            <img src='/demo/synco/images/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
                         <button onClick={exportWaitingList} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-2 py-2 rounded-xl  text-[16px]">
-                            <img src='/images/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                            <img src='/demo/synco/images/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Export Data
                         </button>
                     </div>

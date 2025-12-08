@@ -959,7 +959,7 @@ const HolidaySessionCreate = () => {
                     className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
                 >
                     <img
-                        src="/images/icons/arrow-left.png"
+                        src="/demo/synco/images/icons/arrow-left.png"
                         alt="Back"
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
@@ -1208,7 +1208,7 @@ const HolidaySessionCreate = () => {
 
                                                             <div className="flex gap-2 i">
                                                                 <img
-                                                                    src="/images/icons/edit2.png"
+                                                                    src="/demo/synco/images/icons/edit2.png"
                                                                     alt="Edit"
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
@@ -1389,7 +1389,7 @@ const HolidaySessionCreate = () => {
                                         className="absolute top-3 right-3 hover:text-gray-700 text-5xl"
                                         title="Close"
                                     >
-                                        <img src="/images/icons/crossGray.png" alt="" />
+                                        <img src="/demo/synco/images/icons/crossGray.png" alt="" />
                                     </button>
                                     {/* Add your form content here */}
                                     <div className="text-[24px] font-semibold mb-4">Exercise </div>
@@ -1445,7 +1445,7 @@ const HolidaySessionCreate = () => {
                                                         // 🔹 Custom capitalize icon
                                                         editor.ui.registry.addIcon(
                                                             "capitalize-icon",
-                                                            '<img src="/images/icons/smallcaps.png" style="width:16px;height:16px;" />'
+                                                            '<img src="/demo/synco/images/icons/smallcaps.png" style="width:16px;height:16px;" />'
                                                         );
 
                                                         // 🔹 Custom capitalize button

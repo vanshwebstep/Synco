@@ -200,7 +200,7 @@ const ViewSessions = ({ item, sessionData }) => {
                     className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200"
                 >
                     <img
-                        src="/images/icons/arrow-left.png"
+                        src="/demo/synco/images/icons/arrow-left.png"
                         alt="Back"
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
@@ -223,11 +223,11 @@ const ViewSessions = ({ item, sessionData }) => {
                         >
                             <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
                                 {statusIs === "cancelled" ? (
-                                    <img src="/images/icons/cancelBig.png" alt="Cancelled" />
+                                    <img src="/demo/synco/images/icons/cancelBig.png" alt="Cancelled" />
                                 ) : statusIs === "complete" ? (
-                                    <img src="/images/icons/completeBig.png" alt="Complete" />
+                                    <img src="/demo/synco/images/icons/completeBig.png" alt="Complete" />
                                 ) : (
-                                    <img src="/images/icons/pendingBig.png" alt="Pending" />
+                                    <img src="/demo/synco/images/icons/pendingBig.png" alt="Pending" />
                                 )}
                             </div>
                             <p className="text-base border-b border-gray-300 pb-5 font-semibold mb-4 capitalize">{statusIs}</p>

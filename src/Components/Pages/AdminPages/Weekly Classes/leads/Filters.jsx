@@ -324,7 +324,7 @@ const Filters = () => {
                         className="px-5 mt-4 bg-[#237FEA] hover:bg-blue-700 text-white flex gap-2 items-center text-sm py-2 rounded-lg transition"
                     >
                         <img
-                            src="/DashboardIcons/filtericon.png"
+                            src="/demo/synco/DashboardIcons/filtericon.png"
                             className="w-2 h-2 sm:w-3 sm:h-3"
                             alt=""
                         />

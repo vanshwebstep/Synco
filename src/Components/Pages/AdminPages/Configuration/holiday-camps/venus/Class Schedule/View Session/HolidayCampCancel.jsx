@@ -155,7 +155,7 @@ const HolidayCampCancel = () => {
           onClick={() => navigate(`/configuration/holiday-camp/venues/class-schedule?id=${schedule.venueId}`)}
           className="text-xl md:text-[28px] font-semibold flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
         >
-          <img src="/images/icons/arrow-left.png" alt="Back" className="w-6 h-6" />
+          <img src="/demo/synco/images/icons/arrow-left.png" alt="Back" className="w-6 h-6" />
           <span>Cancel Class</span>
         </h2>
       </div>
@@ -172,11 +172,11 @@ const HolidayCampCancel = () => {
         >
           <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center text-white mx-auto mb-4">
             {statusIs === "cancelled" ? (
-              <img src="/images/icons/cancelBig.png" alt="Cancelled" />
+              <img src="/demo/synco/images/icons/cancelBig.png" alt="Cancelled" />
             ) : statusIs === "complete" ? (
-              <img src="/images/icons/completeBig.png" alt="Complete" />
+              <img src="/demo/synco/images/icons/completeBig.png" alt="Complete" />
             ) : (
-              <img src="/images/icons/pendingBig.png" alt="Pending" />
+              <img src="/demo/synco/images/icons/pendingBig.png" alt="Pending" />
             )}
           </div>
           <p className="text-base font-semibold mb-4 border-b border-gray-300 pb-4 capitalize">{statusIs}</p>

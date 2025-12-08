@@ -11,6 +11,7 @@ import { PiUsersThreeBold } from "react-icons/pi";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
 import Loader from "../contexts/Loader";
+import React from "react";
 
 
 
@@ -371,7 +372,7 @@ const StudentCamp = () => {
                         <div className="flex justify-between items-center px-4">
                             <h2 className="text-xl font-semibold mb-4">Search now</h2>
                             <img
-                                src="/DashboardIcons/filtericon.png"
+                                src="/demo/synco/DashboardIcons/filtericon.png"
                                 onClick={() => setOpenDateFilter(true)}
                                 className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer"
                                 style={{ filter: "brightness(0.5)" }}
@@ -549,7 +550,7 @@ const StudentCamp = () => {
                             </div>
                         </div>
                         <img
-                            src="/DashboardIcons/filtericon.png"
+                            src="/demo/synco/DashboardIcons/filtericon.png"
                             className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer"
                             onClick={() => setOpenAgeFilter(true)}
                             style={{ filter: "brightness(0.5)" }}
@@ -557,131 +558,145 @@ const StudentCamp = () => {
                         />
                     </div>
                     {
-                        filteredData.length > 0 ? (
-                            <div className="overflow-auto rounded-2xl bg-white shadow-sm">
-                                <table className="min-w-full text-sm">
-                                    <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
-                                        <tr className="font-semibold text-[#717073]">
-                                            <th className="py-3 px-4 whitespace-nowrap">Name</th>
-                                            <th className="py-3 px-4 whitespace-nowrap">Age</th>
-                                            <th className="py-3 px-4 whitespace-nowrap">Medical Information</th>
-                                            <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
-                                            <th className="py-3 px-4 whitespace-nowrap">Source</th>
-                                            <th className="py-3 px-4 whitespace-nowrap">Status</th>
-                                        </tr>
-                                    </thead>
+    filteredData.length > 0 ? (
+        <div className="overflow-auto rounded-2xl bg-white shadow-sm">
+            <table className="min-w-full text-sm">
+                <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
+                    <tr className="font-semibold text-[#717073]">
+                        <th className="py-3 px-4 whitespace-nowrap">Name</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Age</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Medical Information</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Source</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Status</th>
+                    </tr>
+                </thead>
 
-                                    <tbody>
-                                        {filteredData.map((camp, i) => {
-                                            const student = camp?.students[0];
-                                            const otherStudents = camp.students.slice(1);
+                <tbody>
+                    {filteredData.map((camp, i) => {
+                        const student = camp?.students[0];
+                        const otherStudents = camp.students.slice(1);
 
-                                            return (
-                                                <>
-                                                    {/* MAIN ROW */}
-                                                    <tr
-                                                        key={i}
-                                                        onClick={() =>
-                                                            navigate(`/holiday-camp/members/account-information?id=${camp.id}`)
-                                                        }
-                                                        className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
-                                                    >
-                                                        <td className="py-3 px-4 whitespace-nowrap font-semibold">
-                                                            <div className="flex items-center gap-3">
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        toggleUser(camp.id);
-                                                                    }}
-                                                                    className={`mt-1 w-5 h-5 flex items-center justify-center rounded-md border-2 
-        ${selectedUserIds.includes(camp.id) ? "border-none bg-blue-500" : "border-gray-300"}`}
-                                                                >
-                                                                    {selectedUserIds.includes(camp.id) && (
-                                                                        <Check size={14} strokeWidth={3} className="text-white" />
-                                                                    )}
-                                                                </button>
+                        return (
+                            <React.Fragment key={i}>
 
+                                {/* MAIN ROW */}
+                                <tr
+                                    onClick={() =>
+                                        navigate(`/holiday-camp/members/account-information?id=${camp.id}`)
+                                    }
+                                    className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
+                                >
+                                    <td className="py-3 px-4 whitespace-nowrap font-semibold">
+                                        <div className="flex items-center gap-3">
 
-                                                                {student.studentFirstName + " " + student.studentLastName}
-                                                            </div>
-                                                        </td>
+                                            {/* Checkbox */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    toggleUser(camp.id);
+                                                }}
+                                                className={`mt-1 w-5 h-5 flex items-center justify-center rounded-md border-2 
+                                                    ${
+                                                        selectedUserIds.includes(camp.id)
+                                                            ? "border-none bg-blue-500"
+                                                            : "border-gray-300"
+                                                    }`}
+                                            >
+                                                {selectedUserIds.includes(camp.id) && (
+                                                    <Check size={14} strokeWidth={3} className="text-white" />
+                                                )}
+                                            </button>
 
-                                                        <td className="py-3 px-4 whitespace-nowrap">{student.age}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{student.medicalInformation || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">{camp.payment?.amount || "N/A"}</td>
-                                                        <td className="py-3 px-4 whitespace-nowrap">
-                                                            {camp?.bookedByAdmin
-                                                                ? camp.bookedByAdmin.firstName + " " + camp.bookedByAdmin.lastName
-                                                                : "N/A"}
-                                                        </td>
+                                            {student.studentFirstName + " " + student.studentLastName}
+                                        </div>
+                                    </td>
 
-                                                        <td className="py-3 px-4 whitespace-nowrap">
-                                                            <span className="bg-green-50 text-[#34AE56] capitalize px-7 py-2 rounded-xl text-xs font-medium">
-                                                                {camp.status}
-                                                            </span>
+                                    <td className="py-3 px-4 whitespace-nowrap">{student.age}</td>
+                                    <td className="py-3 px-4 whitespace-nowrap">{student.medicalInformation || "N/A"}</td>
+                                    <td className="py-3 px-4 whitespace-nowrap">{camp.payment?.amount || "N/A"}</td>
 
-                                                            {camp.students.length > 1 && (
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        setExpandedRow(expandedRow === i ? null : i);
-                                                                    }}
-                                                                    className="ms-2 bg-blue-500 text-white text-xs rounded-2xl px-3 py-1"
-                                                                >
-                                                                    Other Students
-                                                                </button>
-                                                            )}
-                                                        </td>
+                                    <td className="py-3 px-4 whitespace-nowrap">
+                                        {camp?.bookedByAdmin
+                                            ? camp.bookedByAdmin.firstName + " " + camp.bookedByAdmin.lastName
+                                            : "N/A"}
+                                    </td>
+
+                                    <td className="py-3 px-4 whitespace-nowrap">
+                                        <span className="bg-green-50 text-[#34AE56] capitalize px-7 py-2 rounded-xl text-xs font-medium">
+                                            {camp.status}
+                                        </span>
+
+                                        {camp.students.length > 1 && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setExpandedRow(expandedRow === i ? null : i);
+                                                }}
+                                                className="ms-2 bg-blue-500 text-white text-xs rounded-2xl px-3 py-1"
+                                            >
+                                                Other Students
+                                            </button>
+                                        )}
+                                    </td>
+                                </tr>
+
+                                {/* EXPANDED ROW */}
+                                {expandedRow === i && otherStudents.length > 0 && (
+                                    <tr className="bg-gray-50 border-b border-[#EFEEF2]">
+                                        <td colSpan="6" className="py-4 px-6">
+                                            <table className="min-w-full text-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th className="py-3 px-4 text-start whitespace-nowrap">Name</th>
+                                                        <th className="py-3 px-4 whitespace-nowrap text-start">Age</th>
+                                                        <th className="py-3 px-4 whitespace-nowrap text-start">Medical Information</th>
+                                                        <th className="py-3 px-4 whitespace-nowrap text-start">Price Paid</th>
+                                                        <th className="py-3 px-4 whitespace-nowrap  text-start">Source</th>
                                                     </tr>
+                                                </thead>
 
-                                                    {/* EXPANDED ROW ↓ */}
-                                                    {expandedRow === i && otherStudents.length > 0 && (
-                                                        <tr className="bg-gray-50 border-b border-[#EFEEF2]">
-                                                            <td colSpan="6" className="py-4 px-6">
-                                                                <tr>
-                                                                    <th className="py-3 px-4 text-start whitespace-nowrap">Name</th>
-                                                                    <th className="py-3 px-4 whitespace-nowrap">Age</th>
-                                                                    <th className="py-3 px-4 whitespace-nowrap">Medical Information</th>
-                                                                    <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
-                                                                    <th className="py-3 px-4 whitespace-nowrap">Source</th>
+                                                <tbody>
+                                                    {otherStudents.map((student2, idx) => (
+                                                        <tr key={idx}>
+                                                            <td className="py-3 px-4 whitespace-nowrap font-semibold">
+                                                                {student2.studentFirstName + " " + student2.studentLastName}
+                                                            </td>
 
-                                                                </tr>
-                                                                {otherStudents.map((student2, idx) => (
-                                                                    <>
+                                                            <td className="py-3 px-4 whitespace-nowrap">{student2.age}</td>
 
-                                                                        <td className="py-3 px-4 whitespace-nowrap font-semibold">
+                                                            <td className="py-3 px-4 whitespace-nowrap">
+                                                                {student2.medicalInformation || "N/A"}
+                                                            </td>
 
+                                                            <td className="py-3 px-4 whitespace-nowrap">
+                                                                {camp.payment?.amount || "N/A"}
+                                                            </td>
 
-                                                                            {student2.studentFirstName + " " + student2.studentLastName}
-
-                                                                        </td>
-
-                                                                        <td className="py-3 px-4 whitespace-nowrap">{student2.age}</td>
-                                                                        <td className="py-3 px-4 whitespace-nowrap">{student2.medicalInformation || "N/A"}</td>
-                                                                        <td className="py-3 px-4 whitespace-nowrap">{camp.payment?.amount || "N/A"}</td>
-                                                                        <td className="py-3 px-4 whitespace-nowrap">
-                                                                            {camp?.bookedByAdmin
-                                                                                ? camp.bookedByAdmin.firstName + " " + camp.bookedByAdmin.lastName
-                                                                                : "N/A"}
-                                                                        </td>
-                                                                    </>
-
-
-                                                                ))}
-
+                                                            <td className="py-3 px-4 whitespace-nowrap">
+                                                                {camp?.bookedByAdmin
+                                                                    ? camp.bookedByAdmin.firstName + " " + camp.bookedByAdmin.lastName
+                                                                    : "N/A"}
                                                             </td>
                                                         </tr>
-                                                    )}
-                                                </>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ) : (
-                            <p className="text-center py-3">No Data Found</p>
-                        )
-                    }
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                )}
+
+                            </React.Fragment>
+                        );
+                    })}
+                </tbody>
+            </table>
+        </div>
+    ) : (
+        <p className="text-center py-3">No Data Found</p>
+    )
+}
+
 
 
                     <div className="flex gap-2 mt-5 justify-end">
@@ -703,7 +718,7 @@ const StudentCamp = () => {
                         >
 
                             <img
-                                src="/images/icons/mail.png"
+                                src="/demo/synco/images/icons/mail.png"
                                 className="w-4 h-4 sm:w-5 sm:h-5"
                                 alt=""
                             />

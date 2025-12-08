@@ -66,7 +66,7 @@ const SaleDashboard = () => {
 
     const stats = [
         {
-            icon: "/reportsIcons/user-group.png",
+            icon: "/demo/synco/reportsIcons/user-group.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Total New Students",
             value: overall.newStudents ?? 0,
@@ -75,7 +75,7 @@ const SaleDashboard = () => {
             subvalue: "—"
         },
         {
-            icon: "/reportsIcons/pound.png",
+            icon: "/demo/synco/reportsIcons/pound.png",
             iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
             title: "Monthly Revenue",
             value: `£${(overall.totalRevenue || 0).toLocaleString()}`,
@@ -84,7 +84,7 @@ const SaleDashboard = () => {
             subvalue: "—"
         },
         {
-            icon: "/reportsIcons/pound2.png",
+            icon: "/demo/synco/reportsIcons/pound2.png",
             iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
             title: "Average Monthly Fee",
             value: `£${(overall.averageMonthlyFee || 0).toFixed(2)}`,
@@ -93,7 +93,7 @@ const SaleDashboard = () => {
             subvalue: "—"
         },
         {
-            icon: "/reportsIcons/chart2.png",
+            icon: "/demo/synco/reportsIcons/chart2.png",
             iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
             title: "Growth Comparison",
             value: "18 months", // no API value provided
@@ -102,7 +102,7 @@ const SaleDashboard = () => {
             subvalue: "16.8 months"
         },
         {
-            icon: "/reportsIcons/cancelled.png",
+            icon: "/demo/synco/reportsIcons/cancelled.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
             title: "Total Cancellations",
             value: overall.totalCancellation ?? 0,
@@ -111,7 +111,7 @@ const SaleDashboard = () => {
             subvalue: "—"
         },
         {
-            icon: "/reportsIcons/Userremove.png",
+            icon: "/demo/synco/reportsIcons/Userremove.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
             title: "Variance",
             value: overall.variance ?? 0, // if you add it later
@@ -684,12 +684,12 @@ const handleFilterChange = async (key, value) => {
                                                 className="object-cover w-full h-full"
                                                 onError={(e) => {
                                                     e.currentTarget.onerror = null; // prevent infinite loop
-                                                    e.currentTarget.src = '/members/dummyuser.png';
+                                                    e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                                                 }}
                                                 src={
                                                     item?.profile
                                                         ? `${item.profile}`
-                                                        : '/members/dummyuser.png'
+                                                        : '/demo/synco/members/dummyuser.png'
                                                 } alt="" />
                                     </div>
 

@@ -202,10 +202,10 @@ const AllDashboard = () => {
 
     // then your summaryCards
     const summaryCards = [
-        { icon: "/reportsIcons/money-receive-circle.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: "0" },
-        { icon: "/reportsIcons/pound.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: "0" },
-        { icon: "/reportsIcons/orange-user-group.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: "0" },
-        { icon: "/reportsIcons/purple-user-multiple.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
+        { icon: "/demo/synco/reportsIcons/money-receive-circle.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: "0" },
+        { icon: "/demo/synco/reportsIcons/pound.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: "0" },
+        { icon: "/demo/synco/reportsIcons/orange-user-group.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: "0" },
+        { icon: "/demo/synco/reportsIcons/purple-user-multiple.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
     ]
     const [formData, setFormData] = useState({
         parentName: "",
@@ -869,7 +869,7 @@ const AllDashboard = () => {
                             <div className="flex justify-between items-center mb-5 ">
                                 <h2 className="text-[24px] font-semibold">Filter by Date </h2>
                                 <button onClick={applyFilter} className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-2 rounded-lg text-sm text-[16px]">
-                                    <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                                     Apply filter
                                 </button>
                             </div>
@@ -1106,18 +1106,18 @@ const AllDashboard = () => {
                             className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-2 py-2 rounded-xl  text-[16px]"
                         >
                             <img
-                                src="/images/icons/mail.png"
+                                src="/demo/synco/images/icons/mail.png"
                                 className="w-4 h-4 sm:w-5 sm:h-5"
                                 alt=""
                             />
                             Send Email
                         </button>
                         <button className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-2 py-2 rounded-xl  text-[16px]">
-                            <img src='/images/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                            <img src='/demo/synco/images/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
                         <button onClick={exportToExcel} className="flex gap-2 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl  text-[16px]">
-                            <img src='/images/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                            <img src='/demo/synco/images/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Export Data
                         </button>
                     </div>

@@ -20,6 +20,7 @@ import ProtectedRoute from './Components/ProtectedRoute.jsx';
 import Unauthorized from './Components/Unauthorized.jsx';
 import Test from './Test.jsx';
 import { renderProtectedRoute } from "./RenderProtectedRoute";
+import HolidayAddtoWaitingList from './Components/Pages/AdminPages/holiday-camps/Add to Waiting List/AddtoWaitingList.jsx';
 
 // Import all your pages
 import Dashboard from './Components/Pages/Dashboard.jsx';
@@ -959,7 +960,15 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/" />} />
-
+ <Route path="/holiday-camp/find-a-camp/add-to-waiting-list" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <HolidayAddtoWaitingList  />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
     </Routes>
   );
 };
@@ -968,7 +977,7 @@ const AppRoutes = () => {
 function App() {
 
   return (
-    <Router basename="/">
+    <Router basename="/demo/synco/">
 
       <NotificationProvider>
         <AccountsInfoProvider>

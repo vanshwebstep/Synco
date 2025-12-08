@@ -72,10 +72,10 @@ const dashboardData = {
     },
 
     qualifications: [
-        { label: "FA Qualification(s)", value: 3, img: '/reportsIcons/fa.png' },
-        { label: "DBS Certificate", value: 2, img: '/reportsIcons/dbs.png' },
-        { label: "4-5 years of coaching experience", value: 4, img: '/reportsIcons/coaching.png' },
-        { label: "Management Experience", value: 3, img: '/reportsIcons/manage.png' },
+        { label: "FA Qualification(s)", value: 3, img: '/demo/synco/reportsIcons/fa.png' },
+        { label: "DBS Certificate", value: 2, img: '/demo/synco/reportsIcons/dbs.png' },
+        { label: "4-5 years of coaching experience", value: 4, img: '/demo/synco/reportsIcons/coaching.png' },
+        { label: "Management Experience", value: 3, img: '/demo/synco/reportsIcons/manage.png' },
     ],
 
     onboardingResults: [
@@ -141,7 +141,7 @@ const customSelectStyles = {
 
 const stats = [
     {
-        icon: "/reportsIcons/user-group.png",
+        icon: "/demo/synco/reportsIcons/user-group.png",
         iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
         title: "Total Leads",
         value: ` 150`,
@@ -149,7 +149,7 @@ const stats = [
         subvalue: '275'
     },
     {
-        icon: "/reportsIcons/Calling.png",
+        icon: "/demo/synco/reportsIcons/Calling.png",
         iconStyle: "text-[#E769BD] bg-[#F3FAFD]",
         title: "No. of video interviews",
         value: `87`,
@@ -158,7 +158,7 @@ const stats = [
         subvalue: '275'
     },
     {
-        icon: "/reportsIcons/Note.png",
+        icon: "/demo/synco/reportsIcons/Note.png",
         iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
         title: "No. of practical assessments",
         value: `42`,
@@ -167,7 +167,7 @@ const stats = [
         subvalue: '150'
     },
     {
-        icon: "/reportsIcons/Recruitment.png",
+        icon: "/demo/synco/reportsIcons/Recruitment.png",
         iconStyle: "text-[#6F65F1] bg-[#F3FAFD]",
         title: "No. of hires",
         value: `32`,
@@ -176,7 +176,7 @@ const stats = [
         subvalue: '75%'
     },
     {
-        icon: "/reportsIcons/Percent.png",
+        icon: "/demo/synco/reportsIcons/Percent.png",
         iconStyle: "text-[#FF5353] bg-[#F0F9F9]",
         title: "Conversion Rate (Leads to recruitment)",
         value: `65%`,
@@ -416,7 +416,7 @@ export default function VenueManagerReports() {
                                     <div className="flex gap-5 justify-between">
 
                                         <div className="w-10 h-10">
-                                            <img src="/reportsIcons/agent.png" alt="" />
+                                            <img src="/demo/synco/reportsIcons/agent.png" alt="" />
                                         </div>
                                         <div className="w-full">  <div className="flex justify-between items-center mb-1">
                                             <p className="text-sm text-[#344054] font-semibold">{item.label}</p>
@@ -457,7 +457,7 @@ export default function VenueManagerReports() {
                         <div className="space-y-4 px-4">
                             <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
 
-                                <img src="/reportsIcons/Icon-with-shape.png" className="w-12" alt="" />
+                                <img src="/demo/synco/reportsIcons/Icon-with-shape.png" className="w-12" alt="" />
                                 <div>
                                     <p className="text-[16px] ">No. of calls made</p>
                                     <div className="">
@@ -468,7 +468,7 @@ export default function VenueManagerReports() {
                             </div>
 
                             <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
-                                <img src="/reportsIcons/greenphone.png" className="w-12" alt="" />
+                                <img src="/demo/synco/reportsIcons/greenphone.png" className="w-12" alt="" />
 
                                 <div>
                                     <p className="text-[16px] ">Avg. duration of calls</p>
@@ -480,7 +480,7 @@ export default function VenueManagerReports() {
                             </div>
 
                             <div className="flex gap-4 items-center">
-                                <img src="/reportsIcons/purplephn.png" className="w-12" alt="" />
+                                <img src="/demo/synco/reportsIcons/purplephn.png" className="w-12" alt="" />
 
                                 <div>
                                     <p className="text-[16px] ">Avg. time duration of first contact</p>

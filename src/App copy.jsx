@@ -528,7 +528,7 @@ const AppRoutes = () => {
 function App() {
 
   return (
-    <Router basename="/">
+    <Router basename="/demo/synco/">
 
       <NotificationProvider>
         <VenueProvider>

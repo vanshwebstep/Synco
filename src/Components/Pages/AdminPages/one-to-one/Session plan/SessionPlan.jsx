@@ -329,8 +329,8 @@ const SessionPlan = () => {
                                                     <img
                                                         src={
                                                             group.pinned
-                                                                ? "/images/icons/PinIcon.png"
-                                                                : "/images/icons/PinIcon.png"
+                                                                ? "/demo/synco/images/icons/PinIcon.png"
+                                                                : "/demo/synco/images/icons/PinIcon.png"
                                                         }
                                                         alt="Pin"
                                                         className={`w-5 h-5 transition-transform duration-200 transform hover:scale-110 hover:opacity-100  cursor-pointer  ${group.pinned ? " opacity-90 " : "opacity-20"
@@ -360,7 +360,7 @@ const SessionPlan = () => {
                                                                 onClick={() => navigate(`/one-to-one/session-plan-update?id=${group.id}&groupName=${encodeURIComponent(groups.title)}`)}
                                                                 alt="Edit"
                                                                 className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
-                                                                src="/images/icons/edit.png"
+                                                                src="/demo/synco/images/icons/edit.png"
                                                             />
                                                         </button>
                                                     }
@@ -380,7 +380,7 @@ const SessionPlan = () => {
                                                         >
                                                             <img
                                                                 alt="Delete"
-                                                                src="/images/icons/deleteIcon.png"
+                                                                src="/demo/synco/images/icons/deleteIcon.png"
                                                                 className="w-6 h-6 opacity-90 transform transition-all duration-200 
                  group-hover:scale-110 group-hover:opacity-100 cursor-pointer"
                                                             />

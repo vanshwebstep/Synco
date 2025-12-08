@@ -61,7 +61,7 @@ const List = () => {
               onClick={() => setOpenForm(true)}
               className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-blue-700 text-sm md:text-base font-semibold"
             >
-              <img src="/members/add.png" className="w-5" alt=""  />
+              <img src="/demo/synco/members/add.png" className="w-5" alt=""  />
               Add Member
             </button>
           )}
@@ -111,13 +111,13 @@ const List = () => {
                               </button>
 
                               <img
-                                src={user.profile ? `${user.profile}` : '/members/dummyuser.png'}
+                                src={user.profile ? `${user.profile}` : '/demo/synco/members/dummyuser.png'}
                                 alt={user.firstName || 'Profile Image'}
                                 onClick={() => navigate(`/members/update?id=${user.id}`)}
                                 className="w-10 h-10 rounded-full object-contain"
                                  onError={(e) => {
                       e.currentTarget.onerror = null; // prevent infinite loop
-                      e.currentTarget.src = '/members/dummyuser.png';
+                      e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                     }}
                               />
                               <span onClick={() => navigate(`/members/update?id=${user.id}`)}>{user.firstName || '-'} {user.lastName || ''}</span>

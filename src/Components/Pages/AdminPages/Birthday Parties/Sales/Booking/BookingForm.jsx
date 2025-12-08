@@ -1131,7 +1131,7 @@ const BirthdayBookingForm = () => {
           className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
         >
           <img
-            src="/images/icons/arrow-left.png"
+            src="/demo/synco/images/icons/arrow-left.png"
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
@@ -1142,7 +1142,7 @@ const BirthdayBookingForm = () => {
         <div className="flex gap-3 relative items-center">
           <img
             ref={img1Ref}
-            src="/members/booktrial1.png"
+            src="/demo/synco/members/booktrial1.png"
             className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 1 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
             onClick={() => togglePopup(1)}
           />
@@ -1154,7 +1154,7 @@ const BirthdayBookingForm = () => {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
                     <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
                     <button className="text-gray-400 hover:text-black text-xl font-bold">
-                      <img src="/images/icons/cross.png" onClick={() => togglePopup(null)} alt="close" className="w-5 h-5" />
+                      <img src="/demo/synco/images/icons/cross.png" onClick={() => togglePopup(null)} alt="close" className="w-5 h-5" />
                     </button>
                   </div>
                   <PlanTabs selectedPlans={finalPaymentPreview?.paymentPlans} />
@@ -1165,7 +1165,7 @@ const BirthdayBookingForm = () => {
           <img
             ref={img2Ref}
             onClick={() => togglePopup(2)}
-            src="/members/booktrial2.png"
+            src="/demo/synco/members/booktrial2.png"
             className={` rounded-full  hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 2 ? 'bg-[#0DD180]' : 'bg-gray-700'} `}
             alt=""
           />
@@ -1188,14 +1188,14 @@ const BirthdayBookingForm = () => {
                   {buttons.flat().map((btn, i) => {
                     const isOperator = ['÷', '±', '×', '−', '+', '%', '=', 'AC'].includes(btn);
                     const iconMap = {
-                      '÷': '/calcIcons/divide.png',
-                      '%': '/calcIcons/percentage.png',
-                      '⌫': '/calcIcons/np.png',
-                      '×': '/calcIcons/multiply.png',
-                      '−': '/calcIcons/sub.png',
-                      '+': '/calcIcons/add.png',
-                      '=': '/calcIcons/equal.png',
-                      '±': '/calcIcons/NP.png',
+                      '÷': '/demo/synco/calcIcons/divide.png',
+                      '%': '/demo/synco/calcIcons/percentage.png',
+                      '⌫': '/demo/synco/calcIcons/np.png',
+                      '×': '/demo/synco/calcIcons/multiply.png',
+                      '−': '/demo/synco/calcIcons/sub.png',
+                      '+': '/demo/synco/calcIcons/add.png',
+                      '=': '/demo/synco/calcIcons/equal.png',
+                      '±': '/demo/synco/calcIcons/NP.png',
                     };
 
                     const showRed = ['+', '−', '×', '÷', '%'].includes(btn) && expression.includes(btn);
@@ -1232,7 +1232,7 @@ const BirthdayBookingForm = () => {
 
           <img ref={img3Ref}
 
-            src="/members/booktrial3.png"
+            src="/demo/synco/members/booktrial3.png"
             alt=""
             onClick={() => togglePopup(3)}
             className={`rounded-full hover:bg-[#0DD180] transition cursor-pointer ${activePopup === 3 ? 'bg-[#0DD180]' : 'bg-gray-700'}`}
@@ -1424,7 +1424,7 @@ const BirthdayBookingForm = () => {
               Price Breakdown
 
               <img
-                src={isOpenMembership ? "/members/dash.png" : "/members/add.png"}
+                src={isOpenMembership ? "/demo/synco/members/dash.png" : "/demo/synco/members/add.png"}
                 alt={isOpenMembership ? "Collapse" : "Expand"}
                 className="ml-2 w-5 h-5 inline-block"
               />
@@ -1910,7 +1910,7 @@ const BirthdayBookingForm = () => {
               {/* Input section */}
               <div className="flex items-center gap-2">
                 <img
-                  src={adminInfo?.profile ? `${adminInfo.profile}` : '/members/dummyuser.png'}
+                  src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'}
                   alt="User"
                   className="w-14 h-14 rounded-full object-cover"
                 />
@@ -1926,7 +1926,7 @@ const BirthdayBookingForm = () => {
                   className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
                   onClick={handleSubmitComment}
                 >
-                  <img src="/images/icons/sent.png" alt="" />
+                  <img src="/demo/synco/images/icons/sent.png" alt="" />
                 </button>
               </div>
 
@@ -1942,11 +1942,11 @@ const BirthdayBookingForm = () => {
                             src={
                               c?.bookedByAdmin?.profile
                                 ? `${c?.bookedByAdmin?.profile}`
-                                : '/members/dummyuser.png'
+                                : '/demo/synco/members/dummyuser.png'
                             }
                             onError={(e) => {
                               e.currentTarget.onerror = null; // prevent infinite loop
-                              e.currentTarget.src = '/members/dummyuser.png';
+                              e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                             }}
                             alt={c?.bookedByAdmin?.firstName}
                             className="w-10 h-10 rounded-full object-cover mt-1"
@@ -2045,7 +2045,7 @@ const BirthdayBookingForm = () => {
                     className="absolute top-3 p-6 left-4 text-xl font-bold"
                     onClick={() => setShowPopup(false)}
                   >
-                    <img src="/images/icons/cross.png" alt="Close" />
+                    <img src="/demo/synco/images/icons/cross.png" alt="Close" />
                   </button>
 
                   <div className="text-center">

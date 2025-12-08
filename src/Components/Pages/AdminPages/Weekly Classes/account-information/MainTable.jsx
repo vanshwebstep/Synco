@@ -171,7 +171,7 @@ const MainTable = () => {
                                                             src={
                                                                 user?.profile && user.profile.trim() !== ""
                                                                     ? user.profile
-                                                                    : "/members/dummyuser.png"
+                                                                    : "/demo/synco/members/dummyuser.png"
                                                             }
                                                             alt={user?.firstName || "User"}
                                                             onClick={() =>
@@ -180,7 +180,7 @@ const MainTable = () => {
                                                             className="w-10 h-10 rounded-full object-contain"
                                                             onError={(e) => {
                                                                 e.currentTarget.onerror = null;
-                                                                e.currentTarget.src = "/members/dummyuser.png";
+                                                                e.currentTarget.src = "/demo/synco/members/dummyuser.png";
                                                             }}
                                                         />
 

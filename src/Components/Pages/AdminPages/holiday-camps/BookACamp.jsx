@@ -1031,7 +1031,7 @@ const BookACamp = () => {
         <div className="md:p-6 min-h-screen">
             <div className="flex justify-between mb-5">
                 <h2 onClick={()=> navigate('/holiday-camp/find-a-camp')} className="flex gap-2 cursor-pointer items-center text-2xl font-bold">
-                    <img src="/images/icons/arrow-left.png" alt="Back" className="w-5 h-5 md:w-6 md:h-6" />
+                    <img src="/demo/synco/images/icons/arrow-left.png" alt="Back" className="w-5 h-5 md:w-6 md:h-6" />
                     Book a Holiday Camp
                 </h2>
                 <div className="flex gap-3 relative items-center">
@@ -1049,7 +1049,7 @@ const BookACamp = () => {
                                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
                                         <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
                                         <button className="text-gray-400 hover:text-black text-xl font-bold">
-                                            <img src="/images/icons/cross.png" onClick={() => togglePopup(null)} alt="close" className="w-5 h-5" />
+                                            <img src="/demo/synco/images/icons/cross.png" onClick={() => togglePopup(null)} alt="close" className="w-5 h-5" />
                                         </button>
                                     </div>
                                     <PlanTabs selectedPlans={holidayCampsData?.venue?.paymentGroups[0]?.holidayPaymentPlans} />
@@ -1226,10 +1226,10 @@ const BookACamp = () => {
                     <div className="bg-white my-10 rounded-3xl p-6 space-y-4">
                         <h2 className="text-[24px] font-semibold">Comment</h2>
                         <div className="flex items-center gap-2">
-                            <img src={adminInfo?.profile ? `${adminInfo.profile}` : '/members/dummyuser.png'} alt="User" className="w-14 h-14 rounded-full object-cover" />
+                            <img src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'} alt="User" className="w-14 h-14 rounded-full object-cover" />
                             <input type="text" name="comment" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Add a comment" className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-[16px] font-semibold outline-none md:w-full w-5/12" />
                             <button className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600" onClick={handleSubmitComment}>
-                                <img src="/images/icons/sent.png" alt="" />
+                                <img src="/demo/synco/images/icons/sent.png" alt="" />
                             </button>
                         </div>
 
@@ -1240,7 +1240,7 @@ const BookACamp = () => {
                                         <p className="text-gray-700 text-[16px] font-semibold mb-1">{c.comment}</p>
                                         <div className="flex justify-between items-center">
                                             <div className="flex items-center gap-3">
-                                                <img src={c?.bookedByAdmin?.profile ? `${c?.bookedByAdmin?.profile}` : '/members/dummyuser.png'} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/members/dummyuser.png'; }} alt={c?.bookedByAdmin?.firstName} className="w-10 h-10 rounded-full object-cover mt-1" />
+                                                <img src={c?.bookedByAdmin?.profile ? `${c?.bookedByAdmin?.profile}` : '/demo/synco/members/dummyuser.png'} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/demo/synco/members/dummyuser.png'; }} alt={c?.bookedByAdmin?.firstName} className="w-10 h-10 rounded-full object-cover mt-1" />
                                                 <div>
                                                     <p className="font-semibold text-[#237FEA] text-[16px]">{c?.bookedByAdmin?.firstName}</p>
                                                 </div>
@@ -1273,7 +1273,7 @@ const BookACamp = () => {
                         <button onClick={() => setShowPayment(null)} className="absolute top-7 left-6 text-gray-400 hover:text-gray-600"><X /></button>
                         <h2 className="text-center text-lg font-semibold mb-4 border-b border-[#E2E1E5] pb-4">Payment</h2>
 
-                        <div className="bg-blue-500 text-white rounded-xl p-4 mb-6 text-left font-medium" style={{ backgroundImage: "url('/frames/holidayCamp.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                        <div className="bg-blue-500 text-white rounded-xl p-4 mb-6 text-left font-medium" style={{ backgroundImage: "url('/demo/synco/frames/holidayCamp.png')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
                             <p>{holidayCampsData?.venue?.paymentGroups[0]?.holidayPaymentPlans[0]?.title} ({formData.general.numberOfStudents || 1} Student)</p>
                             <p className="text-2xl font-bold">£ {holidayCampsData?.venue?.paymentGroups[0]?.holidayPaymentPlans[0]?.price}</p>
                         </div>

@@ -4,6 +4,7 @@ import { ChevronDown, Send } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import Select from "react-select";
 import { useToDoListTemplate } from "../../contexts/ToDoListContext";
+import { useNotification } from "../../contexts/NotificationContext";
 
 const columns = [
     { id: "to_do", label: "To Do (My Tasks)", color: "bg-[#237FEA]", bgColor: "bg-[#237FEA]" },
@@ -21,7 +22,7 @@ const apiTasks = {
             attachments: "[{\"file\":\"data:image/webp;base64,\"}]",
             createdBy: 335,
             assignedAdmins: [
-                { id: 12, name: "Jessica", avatar: "/reportsIcons/Avatar.png" },
+                { id: 12, name: "Jessica", avatar: "/demo/synco/reportsIcons/Avatar.png" },
                 { id: 14, name: "Matt", avatar: "/reportsIcons/Avatar1.png" }
             ],
             status: "to_do",
@@ -67,17 +68,24 @@ const apiTasks = {
 };
 
 // Convert to flat array for your board
-const tasks = Object.values(apiTasks).flat();
 
 
 
 
 export default function TodoList() {
+
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const { fetchToDoList, toDoList } = useToDoListTemplate();
     useEffect(() => {
         fetchToDoList();
     }, [fetchToDoList]);
+    useEffect(() => {
+        const newTasks = Object.values(toDoList).flat();
+        setTaskData(newTasks);
+    }, [toDoList]);
+    const tasks = Object.values(toDoList).flat();
+    console.log("TASKS FROM CONTEXT:", tasks);
+    console.log("TODOLIST FROM CONTEXT:", toDoList);
     const [selectedAdmins, setSelectedAdmins] = useState([]);
     const [selectedPriority, setSelectedPriority] = useState([]);
 
@@ -91,29 +99,42 @@ export default function TodoList() {
     const handleOpenNewTask = () => setOpenNewTask(true);
     const handleCloseNewTask = () => setOpenNewTask(false);
     const [showFilter, setShowFilter] = useState(false);
-    // Collect all unique admins
-    const allAdmins = Object.values(apiTasks)
-        .flat()
-        .flatMap(t => t.assignedAdmins)
+    // Collect all unique toDoList
+    const allAdmins = Object.values(toDoList)
+        .flat() // flatten columns
+        .flatMap(task => {
+            // Handle assignedAdmins (sometimes string)
+            if (typeof task.assignedAdmins === "string") {
+                try {
+                    return JSON.parse(task.assignedAdmins);
+                } catch (e) {
+                    return []; // fallback for invalid JSON
+                }
+            }
+            return task.assignedAdmins || [];
+        })
         .reduce((acc, admin) => {
-            if (!acc.find(a => a.id === admin.id)) {
+            if (!acc.some(a => a.id === admin.id)) {
                 acc.push(admin);
             }
             return acc;
         }, []);
-    const [admins] = useState(allAdmins);
 
 
+
+    const [admins, setAdmins] = useState(allAdmins);
+
+
+    console.log("ALL ADMINS:", allAdmins);
     const handleOpenFilter = () => {
         setShowFilter(true);
     };
     const handleApplyFilter = ({ selectedAdmins, selectedPriority }) => {
-        setSelectedAdmins(selectedAdmins);        // ✅ STORE SELECTED ADMINS
-        setSelectedPriority(selectedPriority);
+
         const filtered = tasks.filter(t => {
             const adminMatch =
                 selectedAdmins.length === 0 ||
-                t.assignedAdmins.some(ad => selectedAdmins.includes(ad.id));
+                t.assignedAdmins?.some(ad => selectedAdmins.includes(ad.id));
 
             const priorityMatch =
                 selectedPriority.length === 0 ||
@@ -124,6 +145,8 @@ export default function TodoList() {
 
         setTaskData(filtered);
     };
+
+
     const task = {
         title: "Task 1 title",
         description: "Lorem ipsum...",
@@ -141,33 +164,111 @@ export default function TodoList() {
         createdAt: "Feb 2, 2023 – 4:30 PM",
         updatedAt: "Feb 3, 2023 – 2:15 PM"
     }
+    const updateTaskStatus = async (id, status) => {
+        const token = localStorage.getItem("adminToken");
+        try {
+            await fetch(`${API_BASE_URL}/api/admin/holiday/to-do-list/update-status`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ id, status }),
+            });
+        } catch (err) {
+            console.error("Failed to update status:", err);
+        }
+    };
 
+    const updateSortOrder = async (sortOrder) => {
+        const token = localStorage.getItem("adminToken");
+        try {
+            await fetch(`${API_BASE_URL}/api/admin/holiday/to-do-list/update-sort-order`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ sortOrder }),
+            });
+        } catch (err) {
+            console.error("Failed to update sort order:", err);
+        }
+    };
+    const mapTaskForModal = (task) => {
+        if (!task) return null;
 
-    const handleOpenViewTask = () => {
-        setSelectedTask(task);
+        return {
+            title: task.title,
+            description: task.description,
+            attachments: task.attachments || [],
+            comment: task.comment || [],
+            assigned: (task.assignedAdmins || []).map(a => ({
+                id: a.id,
+                avatar: a.profile || "/defaultAvatar.png",
+                name: a.name
+            })),
+
+            createdBy: {
+                name: task.createdByDetails?.name || "Unknown",
+                avatar: task.createdByDetails?.profile || "/demo/synco/defaultAvatar.png"
+            },
+
+            status: task.status,
+            priority: task.priority,
+
+            createdAt: new Date(task.created_at).toLocaleString(),
+            updatedAt: new Date(task.updated_at).toLocaleString()
+        };
+    };
+    const handleOpenViewTask = (rawTask) => {
+        console.log("Raw task clicked:", rawTask);
+        const formattedTask = mapTaskForModal(rawTask);
+        setSelectedTask(formattedTask);
         setOpenViewTask(true);
     };
     const handleCloseViewTask = () => setOpenViewTask(false);
 
-    const handleDragEnd = (result) => {
+    const handleDragEnd = async (result) => {
         if (!result.destination) return;
 
         const { draggableId, destination, source } = result;
-
         const updated = [...taskData];
+        const taskId = parseInt(draggableId);
 
-        // find task index
-        const index = updated.findIndex(t => t.id === parseInt(draggableId));
+        // Find index of dragged task
+        const index = updated.findIndex(t => t.id === taskId);
 
-        // ✅ update status (column move)
-        updated[index] = { ...updated[index], status: destination.droppableId };
+        // Detect if column changed → STATUS UPDATE
+        if (source.droppableId !== destination.droppableId) {
+            const newStatus = destination.droppableId;
 
-        // ✅ reorder in array so UI reflects correct order
+            // Update UI instantly
+            updated[index] = { ...updated[index], status: newStatus };
+            setTaskData(updated);
+
+            // 🔥 CALL STATUS API
+            await updateTaskStatus(taskId, newStatus);
+        }
+
+        // Reordering inside same column or across columns
+        const filtered = updated.filter(t => t.status === destination.droppableId);
+
+        // Reorder list
         const [movedItem] = updated.splice(source.index, 1);
         updated.splice(destination.index, 0, movedItem);
-
         setTaskData(updated);
+
+        // 🔥 CALL SORT ORDER API — send IDs in new order
+        const sortOrder = updated
+            .filter(t => t.status === destination.droppableId)
+            .map(t => t.id);
+
+        if (sortOrder.length > 0) {
+            await updateSortOrder(sortOrder);
+        }
     };
+
     const fetchMembers = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
         if (!token) return;
@@ -190,13 +291,17 @@ export default function TodoList() {
             setLoading(false);
         }
     }, []);
+    console.log("selectedTask:", selectedTask);
 
     useEffect(() => {
         fetchMembers();
     }, [])
     const handleResetFilter = () => {
-        setTaskData(tasks); // ✅ reset to original tasks
+        setSelectedAdmins([]);
+        setSelectedPriority([]);
+        setTaskData(tasks);
     };
+
 
 
     return (
@@ -216,7 +321,7 @@ export default function TodoList() {
 
                     {showFilter && (
                         <FilterModal
-                            admins={admins}
+                            admins={allAdmins}
                             onApply={handleApplyFilter}
                             onClose={() => setShowFilter(false)}
                             onReset={handleResetFilter}
@@ -264,7 +369,7 @@ function FilterModal({
     setSelectedAdmins,
     setSelectedPriority
 }) {
-    const priorities = ["low", "medium", "high", "urgent"];
+    const priorities = ["low", "medium", "high"];
 
     const toggleAdmin = (id) => {
         setSelectedAdmins(prev =>
@@ -286,7 +391,7 @@ function FilterModal({
     };
 
     return (
-        <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-xl p-3 border">
+        <div className="absolute z-999 right-0 mt-2 w-64 bg-white shadow-lg rounded-xl p-3 border">
             <button className="px-4 py-2 bg-gray-200 rounded-lg text-sm" onClick={onReset}>
                 Refresh Filter
             </button>
@@ -333,11 +438,14 @@ function FilterModal({
 function TaskColumn({ column, tasks, onAddTask, onTaskClick }) {
     return (
         <Droppable droppableId={column.id}>
-            {(provided) => (
-                <div className="w-full"
-                    {...provided.droppableProps}
+            {(provided, snapshot) => (
+                <div
                     ref={provided.innerRef}
-                >
+                    {...provided.droppableProps}
+                    className={`w-full min-h-[200px] flex flex-col 
+        transition-all duration-200 
+        ${snapshot.isDraggingOver ? "bg-blue-50 border-2 border-blue-300" : ""}
+      `}>
                     {/* HEADER SAME */}
                     <div className="flex justify-between items-center mb-3">
                         <div className="flex items-center gap-2">
@@ -362,22 +470,28 @@ function TaskColumn({ column, tasks, onAddTask, onTaskClick }) {
                     </button>
 
                     {/* TASKS WITH DRAGGABLE */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 relative">
                         {tasks.map((t, index) => (
                             <Draggable key={t.id} draggableId={t.id.toString()} index={index}>
-                                {(provided) => (
+                                {(provided, snapshot) => (
                                     <div
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
+                                        className={`transition-all duration-200 ${snapshot.isDragging ? "shadow-xl scale-[1.02]" : ""
+                                            }`}
                                     >
                                         <TaskCard task={t} onClick={() => onTaskClick(t)} />
                                     </div>
                                 )}
                             </Draggable>
                         ))}
+                        {snapshot.isDraggingOver && (
+                            <div className="h-16 bg-gray-200 rounded-xl border-2 border-dashed border-gray-400"></div>
+                        )}
                         {provided.placeholder}
                     </div>
+
                 </div>
             )}
         </Droppable>
@@ -388,6 +502,12 @@ function TaskColumn({ column, tasks, onAddTask, onTaskClick }) {
 
 
 function TaskCard({ task, onClick }) {
+    const priorityStyles = {
+  low: "bg-green-100 text-green-700",
+  medium: "bg-yellow-100 text-yellow-700",
+  high: "bg-red-100 text-red-700",
+};
+
     return (
         <div
             onClick={onClick}
@@ -395,7 +515,9 @@ function TaskCard({ task, onClick }) {
         >
             <div className="p-4 pb-0">
                 <div className="flex justify-between items-start">
-                    <span className="text-xs bg-[#FDF6E5] text-[#EDA600] px-2 py-0.5 rounded-md">
+                    <span  className={`text-xs px-2 py-0.5 rounded-md ${
+    priorityStyles[task.priority] || ""
+  }`}>
                         {task.priority}
                     </span>
                     <MoreVertical size={18} />
@@ -408,8 +530,8 @@ function TaskCard({ task, onClick }) {
                         <div className="flex gap-1 items-center">
                             <img
                                 key={index}
-                                src={u.avatar}
-                                className="w-9 rounded-full border-2 border-white"
+                                src={u.profile}
+                                className="min-w-9 max-w-9 min-h-9 max-h-9 rounded-full border-2 border-white"
                             />
                             {u.name}
                         </div>
@@ -419,10 +541,10 @@ function TaskCard({ task, onClick }) {
 
             <div className="flex justify-between items-center border-t border-[#E2E1E5] text-[16px] p-4 font-semibold text-gray-500 mt-4">
                 <div className="flex items-center gap-1">
-                    <img src="/reportsIcons/share.png" className="w-4" />
-                    {task.comments}
+                    <img src="/demo/synco/reportsIcons/share.png" className="w-4" />
+                    {task.attachments.length}
                 </div>
-                <div>{task.daysLeft} days left</div>
+                <div>{task.daysLeft} 3 days left</div>
             </div>
         </div>
     );
@@ -430,11 +552,10 @@ function TaskCard({ task, onClick }) {
 
 
 function CreateTaskModal({ members, onClose }) {
+    const { adminInfo, setAdminInfo } = useNotification();
 
     const { fetchToDoList, toDoList, createToDoList } = useToDoListTemplate();
-    useEffect(() => {
-        fetchToDoList();
-    }, [fetchToDoList]);
+
     const memberOptions = members.map(m => ({
         value: m.id,
         label: `${m.firstName} ${m.lastName || ""}`.trim(),
@@ -442,6 +563,7 @@ function CreateTaskModal({ members, onClose }) {
         fullData: m
     }));
     const [priority, setPriority] = useState("low");
+const [showComment, setShowComment] = useState(false);
 
     const [createdAt] = useState(new Date());
     const [updatedAt, setUpdatedAt] = useState(new Date());
@@ -496,6 +618,9 @@ function CreateTaskModal({ members, onClose }) {
         setFormData((p) => ({ ...p, comment: e.target.value }));
     };
 
+    console.log('priority',priority)
+    console.log('prioritydd',formData.priority)
+
     const handleSubmit = async () => {
         // Helper function to convert a file to base64
         const fileToBase64 = (file) => {
@@ -520,6 +645,7 @@ function CreateTaskModal({ members, onClose }) {
         );
 
         const finalData = {
+            priority,
             ...formData,
             assignedAdmins: selectedMembers.map(m => m.fullData.id),
             attachments: attachmentsBase64
@@ -530,6 +656,11 @@ function CreateTaskModal({ members, onClose }) {
 
         onClose();
     };
+    const today = new Date().toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+    });
 
 
     return (
@@ -582,7 +713,7 @@ function CreateTaskModal({ members, onClose }) {
                                     onDragOver={handleDragOver}
                                 >
                                     <div className="text-center pointer-events-none">
-                                        <img src="/reportsIcons/folder.png" className="w-10 m-auto" alt="" />
+                                        <img src="/demo/synco/reportsIcons/folder.png" className="w-10 m-auto" alt="" />
                                         <p className="text-sm mt-2">Click to upload or drag and drop</p>
                                     </div>
 
@@ -599,9 +730,11 @@ function CreateTaskModal({ members, onClose }) {
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
                                         {uploadedFiles.map((item, index) => (
                                             <div key={index} className="relative border border-gray-200 rounded-md p-2 bg-white shadow-sm">
+
+                                                {/* Delete Button */}
                                                 <button
                                                     className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6
-                    flex items-center justify-center text-xs"
+                flex items-center justify-center text-xs"
                                                     onClick={() =>
                                                         setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
                                                     }
@@ -609,16 +742,28 @@ function CreateTaskModal({ members, onClose }) {
                                                     ✕
                                                 </button>
 
-                                                {item.type.startsWith("image/") ? (
-                                                    <img src={item.url} className="w-full h-24 object-cover rounded" alt="" />
+                                                {/* IMAGE OR PDF */}
+                                                {(item.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i) ||
+                                                    item.type?.startsWith("image/") ||
+                                                    item.url?.startsWith("data:image")) ? (
+
+                                                    /* IMAGE PREVIEW */
+                                                    <img
+                                                        src={item.url}
+                                                        className="w-full h-24 object-cover rounded"
+                                                        alt="preview"
+                                                    />
+
                                                 ) : (
+                                                    /* PDF PREVIEW */
                                                     <div className="flex flex-col items-center justify-center h-24">
                                                         <img src="/reportsIcons/pdf.png" className="w-10 mb-2" />
-                                                        <p className="text-xs text-gray-600 truncate">{item.file.name}</p>
+
                                                     </div>
                                                 )}
                                             </div>
                                         ))}
+
                                     </div>
                                 )}
 
@@ -633,7 +778,11 @@ function CreateTaskModal({ members, onClose }) {
                         <div className="mt-3 space-y-4 p-4">
                             <div className="flex items-center gap-3">
                                 <img
-                                    src="/reportsIcons/Avatar.png"
+                                    src={
+                                        adminInfo?.profile
+                                            ? `${adminInfo.profile}`
+                                            : '/demo/synco/members/dummyuser.png'
+                                    }
                                     className="w-10 h-10 rounded-full object-cover"
                                 />
                                 <div className="flex-1 relative">
@@ -643,11 +792,15 @@ function CreateTaskModal({ members, onClose }) {
                                         value={formData.comment}
                                         onChange={handleCommentChange}
                                     />
-                                    <button className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-[#237FEA] text-white rounded-lg hover:bg-blue-600">
+                                    <button onClick={() => setShowComment(true)} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-[#237FEA] text-white rounded-lg hover:bg-blue-600">
                                         <Send size={16} />
                                     </button>
                                 </div>
+           
                             </div>
+                                                 {showComment && (
+    <p className="text-sm text-gray-500 mt-2">{formData.comment}</p>
+)}
                         </div>
 
 
@@ -660,8 +813,14 @@ function CreateTaskModal({ members, onClose }) {
                         <div className="border-b border-[#E2E1E5] pb-6 px-6">
                             <p className="text-[17px] font-semibold">Created by</p>
                             <div className="flex items-center gap-3 mt-4">
-                                <img src="/reportsIcons/Avatar1.png" className="w-10 h-10 rounded-full" />
-                                <p className="font-medium">Nilio Bagga</p>
+                                <img src={
+                                    adminInfo?.profile
+                                        ? `${adminInfo.profile}`
+                                        : '/demo/synco/members/dummyuser.png'
+                                } className="w-10 h-10 rounded-full" />
+                                <p className="font-medium">
+                                    {`${adminInfo.firstName} ${adminInfo.lastName}`}
+                                </p>
                             </div>
                         </div>
 
@@ -738,17 +897,17 @@ function CreateTaskModal({ members, onClose }) {
                         <div className="border-b border-[#E2E1E5] pb-6 px-6">
                             <p className="text-[17px] font-semibold">Created</p>
                             <p className="text-sm mt-1">
-                                {createdAt.toLocaleDateString()} – {createdAt.toLocaleTimeString()}
+                                {today}
                             </p>
                         </div>
 
-                        {/* Last Update */}
                         <div className="pb-6 px-6">
                             <p className="text-[17px] font-semibold">Last Update</p>
                             <p className="text-sm mt-1">
-                                {updatedAt.toLocaleDateString()} – {updatedAt.toLocaleTimeString()}
+                                {today}
                             </p>
                         </div>
+
 
                     </div>
 
@@ -805,21 +964,60 @@ const AssignModal = ({ close, selectedMembers, setSelectedMembers, memberOptions
 
 function ViewTaskModal({ task, open, setOpen, onClose }) {
     if (!task) return null;
+    const { adminInfo, setAdminInfo } = useNotification();
 
     const toggle = (section) => setOpen(open === section ? null : section);
 
     // ===========================
     // ATTACHMENTS HANDLING
     // ===========================
-    const [uploadedFiles, setUploadedFiles] = useState(
-        task.attachments
-            ? task.attachments.map((file) => ({
-                file,
-                url: file.url || "",
-                type: file.type || "file"
-            }))
-            : []
-    );
+    console.log("task in ViewTaskModal:", task);
+    const [uploadedFiles, setUploadedFiles] = useState(() => {
+        let raw = task?.attachments;
+
+        // If attachments is a string → try parsing
+        if (typeof raw === "string") {
+            try {
+                raw = JSON.parse(raw);
+            } catch {
+                raw = [];
+            }
+        }
+
+        if (!Array.isArray(raw)) raw = [];
+
+        // Normalize all formats
+        return raw.map(item => {
+            // CASE 1: URL-based server file
+            if (item.url) {
+                return {
+                    name: item.name || "",
+                    url: item.url,
+                    type: item.type || "image",
+                    file: null
+                };
+            }
+
+            // CASE 2: Base64 file
+            if (item.file?.startsWith("data:")) {
+                return {
+                    name: item.name || "base64-image",
+                    url: item.file,   // base64 already usable
+                    type: item.type || "image",
+                    file: null
+                };
+            }
+
+            // Default fallback
+            return {
+                name: item.name || "",
+                url: item.url || "",
+                type: item.type || "file",
+                file: null
+            };
+        });
+    });
+
 
     const handleFiles = (files) => {
         const mapped = Array.from(files).map((file) => ({
@@ -888,7 +1086,7 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                                         onDrop={handleDrop}
                                         onDragOver={handleDragOver}
                                     >
-                                        <img src="/reportsIcons/folder.png" className="w-10 mb-2" />
+                                        <img src="/demo/synco/reportsIcons/folder.png" className="w-10 mb-2" />
                                         <p className="text-sm">Click to upload or drag & drop</p>
 
                                         <input type="file" multiple className="hidden" onChange={handleFileUpload} />
@@ -901,23 +1099,25 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                                                 <div key={index} className="relative border rounded-md p-2 bg-white shadow-sm">
                                                     <button
                                                         className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-                                                        onClick={() => setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))}
+                                                        onClick={() =>
+                                                            setUploadedFiles(uploadedFiles.filter((_, i) => i !== index))
+                                                        }
                                                     >
                                                         ✕
                                                     </button>
 
-                                                    {item.type.startsWith("image/") ? (
+                                                    {/\.(jpg|jpeg|png|gif|webp)$/i.test(item.url) ? (
                                                         <img src={item.url} className="w-full h-24 object-cover rounded" />
                                                     ) : (
                                                         <div className="flex flex-col items-center justify-center h-24">
-                                                            <img src="/reportsIcons/pdf.png" className="w-10 mb-2" />
-                                                            <p className="text-xs text-gray-600 truncate">{item.file.name}</p>
+                                                            <img src={item.url} className="w-10 mb-2" />
                                                         </div>
                                                     )}
                                                 </div>
                                             ))}
                                         </div>
                                     )}
+
                                 </div>
                             )}
                         </div>
@@ -933,24 +1133,10 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                             </button>
 
                             {open === "comment" && (
+                                
                                 <div className="mt-3 space-y-4 p-4">
-                                    <div className="flex items-center gap-3">
-                                        <img src="/reportsIcons/Avatar.png" className="w-10 h-10 rounded-full" />
-                                        <div className="flex-1 relative">
-                                            <input
-                                                placeholder="Add a comment"
-                                                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm"
-                                                value={comment}
-                                                onChange={(e) => setComment(e.target.value)}
-                                            />
-                                            <button
-                                                onClick={addComment}
-                                                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-[#237FEA] text-white rounded-lg"
-                                            >
-                                                <Send size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
+                                      <p className="text-[16px] text-[#717073]">{task.comment}</p>
+                               
                                 </div>
                             )}
                         </div>
@@ -962,7 +1148,7 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                         <div className="border-b border-[#E2E1E5] pb-6 px-6">
                             <p className="text-[17px] font-semibold">Created by</p>
                             <div className="flex items-center gap-3 mt-4">
-                                <img src={task.createdBy?.avatar} className="w-10 h-10 rounded-full" />
+                                <img src={task.createdBy?.profile || "/demo/synco/members/dummyuser.png"} className="w-10 h-10 rounded-full" />
                                 <p className="font-medium">{task.createdBy?.name}</p>
                             </div>
                         </div>
@@ -972,23 +1158,30 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                             <p className="text-[17px] font-semibold">Assign</p>
                             <div className="flex gap-2 mt-2 items-center flex-wrap">
                                 {task.assigned?.map((m, i) => (
-                                    <img key={i} src={m.avatar} className="w-8 h-8 rounded-full" />
+                                <>    <img key={i} src={m.avatar} className="w-8 h-8 rounded-full" />
+                                <p> {m.name}</p>
+                                </>
                                 ))}
+                                
                             </div>
                         </div>
 
                         {/* Status */}
                         <div className="border-b border-[#E2E1E5] pb-6 px-6">
                             <p className="text-[17px] font-semibold mb-2">Status</p>
-                            <span className="mt-1 inline-block bg-blue-100 text-[#237FEA] text-xs px-2 py-1 rounded-md">
-                                {task.status}
-                            </span>
+                          <span className="mt-1 inline-block bg-blue-100 text-[#237FEA] text-xs px-2 py-1 rounded-md">
+  {task.status
+    .split('_')                 // split by underscore
+    .map(word => word[0].toUpperCase() + word.slice(1)) // capitalize each word
+    .join(' ')}                 
+</span>
+
                         </div>
 
                         {/* Priority */}
                         <div className="border-b border-[#E2E1E5] pb-6 px-6">
                             <p className="text-[17px] font-semibold mb-2">Priority</p>
-                            <span className="mt-1 inline-block bg-red-100 text-[#FF5C40] text-xs px-2 py-1 rounded-md">
+                            <span className="mt-1 capitalize inline-block bg-red-100 text-[#FF5C40] text-xs px-2 py-1 rounded-md">
                                 {task.priority}
                             </span>
                         </div>
@@ -1010,5 +1203,4 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
         </div>
     );
 }
-
 

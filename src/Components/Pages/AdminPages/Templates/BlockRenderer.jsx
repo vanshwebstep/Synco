@@ -256,20 +256,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
                             >
                                 + Image
                             </button>
-
-                            <button
-                                className="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded-md"
-                                onClick={() => addChild(i, "input")}
-                            >
-                                + Input
-                            </button>
-
-                            <button
-                                className="px-2 py-1 text-xs bg-gray-800 text-white rounded-md"
-                                onClick={() => addChild(i, "btn")}
-                            >
-                                + Button
-                            </button>
+                           
                         </div>
 
                         {/* Render inside blocks */}

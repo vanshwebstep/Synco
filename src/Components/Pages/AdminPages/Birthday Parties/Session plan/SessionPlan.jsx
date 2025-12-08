@@ -426,7 +426,7 @@ const handleDeleteGroup = async (groupId) => {
                                                                                 }
                                                                             >
                                                                                 <img
-                                                                                    src="/images/icons/edit.png"
+                                                                                    src="/demo/synco/images/icons/edit.png"
                                                                                     alt="Edit"
                                                                                     className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                                                                 />
@@ -443,7 +443,7 @@ const handleDeleteGroup = async (groupId) => {
         }}
     >
         <img
-            src="/images/icons/deleteIcon.png"
+            src="/demo/synco/images/icons/deleteIcon.png"
             alt="Delete"
             className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
         />

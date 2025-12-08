@@ -14,10 +14,10 @@ import { useNavigate } from "react-router-dom";
 const FranchiseLeads = () => {
 
     const summaryCards = [
-        { icon: "/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total franchise leads", value: 945, change: "(+28.14%)" },
-        { icon: "/reportsIcons/greenuser.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New leads", value: 945, change: "(+28.14%)" },
-        { icon: "/reportsIcons/login-icon-orange.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Quality Leads", value: 945, change: "(+28.14%)" },
-        { icon: "/reportsIcons/handshake.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Leads To Sales", value: 343 },
+        { icon: "/demo/synco/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total franchise leads", value: 945, change: "(+28.14%)" },
+        { icon: "/demo/synco/reportsIcons/greenuser.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New leads", value: 945, change: "(+28.14%)" },
+        { icon: "/demo/synco/reportsIcons/login-icon-orange.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Quality Leads", value: 945, change: "(+28.14%)" },
+        { icon: "/demo/synco/reportsIcons/handshake.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Leads To Sales", value: 343 },
     ];
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
@@ -297,7 +297,7 @@ const FranchiseLeads = () => {
                             className="px-5 mt-4 bg-[#237FEA] hover:bg-blue-700 text-white flex gap-2 items-center text-[16px] py-3 rounded-2xl transition"
                         >
                             <img
-                                src="/reportsIcons/filter.png"
+                                src="/demo/synco/reportsIcons/filter.png"
                                 className="w-4"
                                 alt=""
                             />

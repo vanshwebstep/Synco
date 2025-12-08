@@ -73,7 +73,7 @@ const CapacityDashboard = () => {
 
     const stats = [
         {
-            icon: "/reportsIcons/capacity.png",
+            icon: "/demo/synco/reportsIcons/capacity.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Total Capacity",
             value: membersData?.summary?.totalCapacity?.count ?? "—",
@@ -82,7 +82,7 @@ const CapacityDashboard = () => {
             subvalue: membersData?.summary?.totalCapacity?.vsPrev ?? "—",
         },
         {
-            icon: "/reportsIcons/Briefcase.png",
+            icon: "/demo/synco/reportsIcons/Briefcase.png",
             iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
             title: "Occupancy",
             value: membersData?.summary?.occupancy?.count ?? "—",
@@ -91,7 +91,7 @@ const CapacityDashboard = () => {
             subvalue: membersData?.summary?.occupancy?.vsPrev ?? "—",
         },
         {
-            icon: "/reportsIcons/Chart1.png",
+            icon: "/demo/synco/reportsIcons/Chart1.png",
             iconStyle: "text-[#F38B4D] bg-[#F0F9F9]",
             title: "Occupancy Rate",
             value: membersData?.summary?.occupancyRate?.count ?? "—",
@@ -100,7 +100,7 @@ const CapacityDashboard = () => {
             subvalue: membersData?.summary?.occupancyRate?.vsPrev ?? "—",
         },
         {
-            icon: "/reportsIcons/unfilled.png",
+            icon: "/demo/synco/reportsIcons/unfilled.png",
             iconStyle: "text-[#6F65F1] bg-[#FFF5F5]",
             title: "Unfulfilled Spaces",
             value: membersData?.summary?.unfulfilledSpaces?.count ?? "—",
@@ -109,7 +109,7 @@ const CapacityDashboard = () => {
             subvalue: membersData?.summary?.unfulfilledSpaces?.vsPrev ?? "—",
         },
         {
-            icon: "/reportsIcons/Pound-main.png",
+            icon: "/demo/synco/reportsIcons/Pound-main.png",
             iconStyle: "text-[#FF5353] bg-[#FEF6FB]",
             title: "Untapped Revenue",
             value: membersData?.summary?.untappedRevenue?.count ?? "—",

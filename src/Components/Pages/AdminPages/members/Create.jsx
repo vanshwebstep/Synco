@@ -357,11 +357,11 @@ const Create = () => {
               {photoPreview ? (
                 <img src={photoPreview} alt="Uploaded" className="h-full object-cover" onError={(e) => {
                   e.currentTarget.onerror = null; // prevent infinite loop
-                  e.currentTarget.src = '/members/dummyuser.png';
+                  e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                 }} />
               ) : (
                 <>
-                  <img src="/members/addblack.png" className="w-4 block" alt="" />
+                  <img src="/demo/synco/members/addblack.png" className="w-4 block" alt="" />
                   <span className="text-sm ml-2 font-semibold block">Add Photo</span>
                 </>
               )}

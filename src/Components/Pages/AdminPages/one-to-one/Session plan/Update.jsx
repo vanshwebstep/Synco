@@ -642,7 +642,7 @@ export default function OnetoOneUpdate() {
         <>
             <div ref={exerciseRef} className="flex flex-wrap gap-1 ps-3 md:ps-0 items-center cursor-pointer justify-between md:justify-start mb-5" onClick={() => navigate('/one-to-one/session-plan')}>
                 <img
-                    src="/images/icons/arrow-left.png"
+                    src="/demo/synco/images/icons/arrow-left.png"
                     alt="Back"
                     className="w-5 h-5 md:w-6 md:h-6"
                 />
@@ -774,7 +774,7 @@ export default function OnetoOneUpdate() {
                                                         setShowExerciseModal(true);
                                                         if (ex?.value) fetchExcercisesById(ex.value);
                                                     }}
-                                                    src="/images/icons/edit2.png"
+                                                    src="/demo/synco/images/icons/edit2.png"
                                                     alt="Edit"
                                                     className="w-5 h-5 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                                 />
@@ -940,7 +940,7 @@ export default function OnetoOneUpdate() {
                                             setup: (editor) => {
                                                 editor.ui.registry.addIcon(
                                                     'capitalize-icon',
-                                                    '<img src="/images/icons/smallcaps.png" style="width:16px;height:16px;" />'
+                                                    '<img src="/demo/synco/images/icons/smallcaps.png" style="width:16px;height:16px;" />'
                                                 );
 
                                                 editor.ui.registry.addButton('capitalize', {

@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
 import PlanTabs from '../PlanTabs';
 
-import Loader from '../../../../../Pages/AdminPages/contexts/Loader';
-import { useVenue } from '../../../contexts/VenueContext';
-import { usePayments } from '../../../contexts/PaymentPlanContext';
-import { useTermContext } from '../../../contexts/TermDatesSessionContext';
+import Loader from '../../../../Pages/AdminPages/contexts/Loader';
+import { useVenue } from '../../contexts/VenueContext';
+import { usePayments } from '../../contexts/PaymentPlanContext';
+import { useTermContext } from '../../contexts/TermDatesSessionContext';
 import Swal from "sweetalert2"; // make sure it's installed
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
@@ -23,13 +23,13 @@ import 'react-phone-input-2/lib/style.css';
 import DatePicker from "react-datepicker";
 import Select from "react-select";
 import { useLocation } from 'react-router-dom';
-import { useClassSchedule } from '../../../contexts/ClassScheduleContent';
+import { useClassSchedule } from '../../contexts/ClassScheduleContent';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
-import { useBookFreeTrial } from '../../../contexts/BookAFreeTrialContext';
-import { useNotification } from '../../../contexts/NotificationContext';
-const AddtoWaitingList = () => {
+import { useBookFreeTrial } from '../../contexts/BookAFreeTrialContext';
+import { useNotification } from '../../contexts/NotificationContext';
+const HolidayAddtoWaitingList = () => {
   const [expression, setExpression] = useState('');
   const [result, setResult] = useState('');
   const navigate = useNavigate();
@@ -56,19 +56,20 @@ const AddtoWaitingList = () => {
     setCurrentPage(page);
   };
   // console.log('classId', classId)
-  const { fetchClassSchedulesByID, singleClassSchedulesOnly, loading } = useClassSchedule() || {};
-  const { createWaitinglist } = useBookFreeTrial()
+  const { fetchHolidayClassesbyId, singleClassSchedulesOnly, loading } = useClassSchedule() || {};
+  const { createHolidayWaitinglist } = useBookFreeTrial()
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       if (classId) {
-        await fetchClassSchedulesByID(classId);
+        await fetchHolidayClassesbyId(classId);
         await fetchComments();
       }
     };
     fetchData();
-  }, [classId, fetchClassSchedulesByID]);
+  }, [classId, fetchHolidayClassesbyId]);
+  console.log('singleClassSchedulesOnly', singleClassSchedulesOnly)
   const [activePopup, setActivePopup] = useState(null);
   const togglePopup = (id) => {
     setActivePopup((prev) => (prev === id ? null : id));
@@ -607,22 +608,16 @@ const AddtoWaitingList = () => {
     }
   }, [emergency.sameAsAbove, parents]);
   const handleSubmit = async () => {
-    if (!selectedDate) {
-      Swal.fire({
-        icon: "warning",
-        title: "Trial Date Required",
-        text: "Please select a trial date before submitting.",
-      });
-      return;
-    }
+  
     setIsSubmitting(true); // Start loading
 
     const payload = {
       interest: selectedLevelOfInterest,
-      keyInformation: selectedKeyInfo,
       venueId: singleClassSchedulesOnly?.venue?.id,
       classScheduleId: singleClassSchedulesOnly?.id,
-      startDate: selectedDate,
+      holidayCampId: singleClassSchedulesOnly?.venue?.holidayCamps[0].id
+        ? JSON.parse(singleClassSchedulesOnly.holidayCampDateIds)
+        : [],
       totalStudents: students.length,
       students,
       parents,
@@ -631,10 +626,10 @@ const AddtoWaitingList = () => {
 
     try {
       if (leadId) {
-        await createWaitinglist(payload, leadId);
+        await createHolidayWaitinglist(payload, leadId);
       }
       else {
-        await createWaitinglist(payload);
+        await createHolidayWaitinglist(payload);
       } // assume it's a promise
       // console.log("Final Payload:", JSON.stringify(payload, null, 2));
       // Optionally show success alert or reset form
@@ -724,39 +719,41 @@ const AddtoWaitingList = () => {
     };
   }, [activePopup]);
   useEffect(() => {
-    if (singleClassSchedulesOnly?.venue?.paymentPlans?.length > 0) {
-      const cleanedPlans = singleClassSchedulesOnly.venue.paymentPlans.map(plan => ({
-        id: plan.id,
-        title: plan.title,
-        price: plan.price,
-        interval: plan.interval,
-        students: plan.students,
-        duration: plan.duration,
-        joiningFee: plan.joiningFee,
-        holidayCampPackage: plan.HolidayCampPackage,
-        termsAndCondition: plan.termsAndCondition,
-      }));
-      // console.log('cleanedPlans', cleanedPlans);
+    if (singleClassSchedulesOnly?.venue?.paymentGroups?.length > 0) {
+      // flatten all holidayPaymentPlans from all paymentGroups
+      const cleanedPlans = singleClassSchedulesOnly.venue.paymentGroups
+        .flatMap(group => group.holidayPaymentPlans)
+        .map(plan => ({
+          id: plan.id,
+          title: plan.title,
+          price: plan.price,
+          interval: plan.interval,
+          students: plan.students,
+          duration: plan.duration,
+          joiningFee: plan.joiningFee,
+          holidayCampPackage: plan.holidayCampPackage ?? null,
+          termsAndCondition: plan.termsAndCondition ?? null,
+        }));
+
       setSelectedPlans(cleanedPlans);
     } else {
-      // console.log('cleanedPlans not found');
+      setSelectedPlans([]); // reset if no plans
     }
-  }, [singleClassSchedulesOnly]); // ✅ now it runs when data is fetched
-  // console.log('singleClassSchedulesOnly?.venue?', singleClassSchedulesOnly)
+  }, [singleClassSchedulesOnly]);
 
   const genderOptions = [
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },
     { value: "other", label: "Other" },
   ];
-  const sessionDates = singleClassSchedulesOnly?.venue?.termGroups?.flatMap(group =>
-    group.terms.flatMap(term =>
-      term.sessionsMap.map(s => s.sessionDate)
-    )
+  const sessionDates = singleClassSchedulesOnly?.venue?.holidayCampDates?.flatMap(camp =>
+    camp.sessionsMap.map(s => s.sessionDate)
   ) || [];
 
-  // Convert to YYYY-MM-DD set for quick lookup
   const sessionDatesSet = new Set(sessionDates);
+
+  console.log(sessionDates); // ["2025-11-29", "2025-11-30", "2025-12-01", "2025-12-02"]
+  console.log(sessionDatesSet); // Set(4) {"2025-11-29", "2025-11-30", "2025-12-01", "2025-12-02"}
 
   const selectedLabel =
     keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
@@ -795,7 +792,7 @@ const AddtoWaitingList = () => {
           className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
         >
           <img
-            src="/images/icons/arrow-left.png"
+            src="/demo/synco/images/icons/arrow-left.png"
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
@@ -951,81 +948,23 @@ const AddtoWaitingList = () => {
 
               </div>
             </div>
-          </div>
+             <div className="">
+              <label htmlFor="" className="text-base font-semibold">Select Camp(s)</label>
+              <div className="relative mt-2 ">
+                <input
+                  type="text"
+                  placeholder="Choose Holiday Camp(s)"
+                  value={singleClassSchedulesOnly?.venue?.holidayCamps[0].name}
+                  readOnly
+                  className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 pl-9 focus:outline-none"
 
-          <div className="space-y-3 bg-white p-6 rounded-3xl shadow-sm ">
-            <div className="">
-              <h2 className="text-[24px] font-semibold">Select Trial Date </h2>
-
-              <div className="rounded p-4 mt-6 text-center text-base w-full max-w-md mx-auto">
-                {/* Header */}
-                <div className="flex justify-around items-center mb-3">
-                  <button
-                    onClick={goToPreviousMonth}
-                    className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                  <p className="font-semibold text-[20px]">
-                    {currentDate.toLocaleString("default", { month: "long" })} {year}
-                  </p>
-                  <button
-                    onClick={goToNextMonth}
-                    className="w-8 h-8 rounded-full bg-white text-black hover:bg-black hover:text-white border border-black flex items-center justify-center"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {/* Day Labels */}
-                <div className="grid grid-cols-7 text-xs gap-1 text-[18px] text-gray-500 mb-1">
-                  {["M", "T", "W", "T", "F", "S", "S"].map((day) => (
-                    <div key={day} className="font-medium text-center">
-                      {day}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Calendar Weeks */}
-                <div className="flex flex-col gap-1">
-                  {Array.from({ length: Math.ceil(calendarDays.length / 7) }).map((_, weekIndex) => {
-                    const week = calendarDays.slice(weekIndex * 7, weekIndex * 7 + 7);
-
-                    return (
-                      <div
-                        key={weekIndex}
-                        className="grid grid-cols-7 text-[18px] gap-1 py-1 rounded"
-                      >
-                        {week.map((date, i) => {
-                          if (!date) {
-                            return <div key={i} />;
-                          }
-
-                          const formattedDate = formatLocalDate(date);
-                          const isAvailable = sessionDatesSet.has(formattedDate); // check if this date is valid session
-                          const isSelected = isSameDate(date, selectedDate);
-
-                          return (
-                            <div
-                              key={i}
-                              onClick={() => isAvailable && handleDateClick(date)}
-                              className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full
-    ${isAvailable ? "cursor-pointer bg-sky-200" : "cursor-not-allowed opacity-40 bg-white"}
-    ${isSelected ? "selectedDate text-white font-bold" : ""}
-  `}
-                            >
-                              {date.getDate()}
-                            </div>
-
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
-                </div>
+                />
+                <FiSearch className="absolute left-3 top-4 text-[20px]" />
               </div>
             </div>
           </div>
+
+         
 
         </div>
 
@@ -1425,27 +1364,7 @@ const AddtoWaitingList = () => {
                 </div>
               </div>
             </div>
-            <div className="w-full py-3 px-5 border border-[#ccc] rounded-2xl my-10 react-select-container text-[20px] bg-white flex items-center justify-between">
-              <label className=" font-medium flex-1">
-                Level of interest
-              </label>
-
-              <div className="flex space-x-6 ">
-                {['Low', 'Medium', 'High'].map((level) => (
-                  <label key={level} className="  inline-flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="levelOfInterest"
-                      value={level}
-                      checked={selectedLevelOfInterest === level}
-                      onChange={() => setSelectedLevelOfInterest(level)}
-                      className="  form-radio text-indigo-600 focus:ring-indigo-500"
-                    />
-                    <span className="ml-2  text-gray-800">{level}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+           
 
             <div className="w-full my-10">
               {/* Placeholder (acts like a select box) */}
@@ -1532,7 +1451,7 @@ const AddtoWaitingList = () => {
               {/* Input section */}
               <div className="flex items-center gap-2">
                 <img
-                  src={adminInfo?.profile ? `${adminInfo.profile}` : '/members/dummyuser.png'}
+                  src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'}
                   alt="User"
                   className="w-14 h-14 rounded-full object-cover"
                 />
@@ -1564,11 +1483,11 @@ const AddtoWaitingList = () => {
                             src={
                               c?.bookedByAdmin?.profile
                                 ? `${c?.bookedByAdmin?.profile}`
-                                : '/members/dummyuser.png'
+                                : '/demo/synco/members/dummyuser.png'
                             }
                             onError={(e) => {
                               e.currentTarget.onerror = null; // prevent infinite loop
-                              e.currentTarget.src = '/members/dummyuser.png';
+                              e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                             }}
                             alt={c?.bookedByAdmin?.firstName}
                             className="w-10 h-10 rounded-full object-cover mt-1"
@@ -1627,4 +1546,4 @@ const AddtoWaitingList = () => {
   );
 };
 
-export default AddtoWaitingList;
+export default HolidayAddtoWaitingList;

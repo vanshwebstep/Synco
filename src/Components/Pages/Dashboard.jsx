@@ -48,14 +48,14 @@ const Dashboard = () => {
     }
   }, [dashboardData]);
   const metricDefinitions = [
-    { key: "totalStudents", icon: <img src="/DashboardIcons/user-group.png" alt="Total Students" className="w-6 h-6" />, title: "Total Students", bg: "bg-gray-100" },
-    { key: "trialsBooked", icon: <img src="/DashboardIcons/calendar-03.png" alt="Trials Booked" className="w-6 h-6" />, title: "Trials Booked", bg: "bg-pink-100" },
-    { key: "cancellations", icon: <img src="/DashboardIcons/cancel-02.png" alt="Cancellations" className="w-6 h-6" />, title: "Cancellations", bg: "bg-red-100", showIcons: true },
-    { key: "Revenue", icon: <img src="/DashboardIcons/dollar-circle.png" alt="Revenue" className="w-6 h-6" />, title: "Revenue", bg: "bg-rose-100" },
-    { key: "classCapacity", icon: <img src="/DashboardIcons/chart.png" alt="Capacity" className="w-6 h-6" />, title: "Capacity", bg: "bg-yellow-100" },
-    { key: "Growth", icon: <img src="/DashboardIcons/user-add--01.png" alt="Growth" className="w-6 h-6" />, title: "Growth", bg: "bg-orange-100", showIcons: true },
-    { key: "customerSatisfaction", icon: <img src="/DashboardIcons/customer-support.png" alt="Customer Satisfaction" className="w-6 h-6" />, title: "Customer Satisfaction", bg: "bg-green-100" },
-    { key: "merchandiseSales", icon: <img src="/DashboardIcons/shopping-cart.png" alt="Merchandise Sales" className="w-6 h-6" />, title: "Merchandise Sales", bg: "bg-cyan-100" },
+    { key: "totalStudents", icon: <img src="/demo/synco/DashboardIcons/user-group.png" alt="Total Students" className="w-6 h-6" />, title: "Total Students", bg: "bg-gray-100" },
+    { key: "trialsBooked", icon: <img src="/demo/synco/DashboardIcons/calendar-03.png" alt="Trials Booked" className="w-6 h-6" />, title: "Trials Booked", bg: "bg-pink-100" },
+    { key: "cancellations", icon: <img src="/demo/synco/DashboardIcons/cancel-02.png" alt="Cancellations" className="w-6 h-6" />, title: "Cancellations", bg: "bg-red-100", showIcons: true },
+    { key: "Revenue", icon: <img src="/demo/synco/DashboardIcons/dollar-circle.png" alt="Revenue" className="w-6 h-6" />, title: "Revenue", bg: "bg-rose-100" },
+    { key: "classCapacity", icon: <img src="/demo/synco/DashboardIcons/chart.png" alt="Capacity" className="w-6 h-6" />, title: "Capacity", bg: "bg-yellow-100" },
+    { key: "Growth", icon: <img src="/demo/synco/DashboardIcons/user-add--01.png" alt="Growth" className="w-6 h-6" />, title: "Growth", bg: "bg-orange-100", showIcons: true },
+    { key: "customerSatisfaction", icon: <img src="/demo/synco/DashboardIcons/customer-support.png" alt="Customer Satisfaction" className="w-6 h-6" />, title: "Customer Satisfaction", bg: "bg-green-100" },
+    { key: "merchandiseSales", icon: <img src="/demo/synco/DashboardIcons/shopping-cart.png" alt="Merchandise Sales" className="w-6 h-6" />, title: "Merchandise Sales", bg: "bg-cyan-100" },
   ];
 
   const [metricsList, setMetricsList] = useState([]);
@@ -269,7 +269,7 @@ const Dashboard = () => {
               {/* Welcome Banner */}
               <div
                 className="bg-yellow-300 rounded-3xl p-6 md:py-12 pb-5 flex justify-between items-center text-white relative overflow-hidden 
-             md:bg-[url('/images/welcomeToDashboard.png')] bg-none 
+             md:bg-[url('/demo/synco/images/welcomeToDashboard.png')] bg-none 
              bg-no-repeat bg-left bg-contain"
               >
                 <div className="text-center sm:text-end w-full">
@@ -382,12 +382,12 @@ const Dashboard = () => {
                                     <div className="flex justify-end gap-2 items-start">
                                       <img
                                         className="w-6 h-6"
-                                        src="/DashboardIcons/Show.png"
+                                        src="/demo/synco/DashboardIcons/Show.png"
                                         alt=""
                                       />
                                       <img
                                         className="w-5 h-5"
-                                        src="/DashboardIcons/button.png"
+                                        src="/demo/synco/DashboardIcons/button.png"
                                         alt=""
                                       />
                                     </div>
@@ -399,7 +399,7 @@ const Dashboard = () => {
                                   <div className="text-xs text-gray-400 mt-2 block">
                                     <span className="font-semibold text-black flex items-center gap-2">
                                       <img
-                                        src="/DashboardIcons/orangedot.png"
+                                        src="/demo/synco/DashboardIcons/orangedot.png"
                                         alt=""
                                       />{" "}
                                       Last Month
@@ -418,8 +418,8 @@ const Dashboard = () => {
                                           parseFloat(
                                             dashboardData[metric.key]?.lastMonth?.conversion ?? 0
                                           ) < 0
-                                            ? "/images/ArrowFall.png"
-                                            : "/images/Arrowtop.png"
+                                            ? "/demo/synco/images/ArrowFall.png"
+                                            : "/demo/synco/images/Arrowtop.png"
                                         }
                                         alt=""
                                       />
@@ -429,7 +429,7 @@ const Dashboard = () => {
                                   <div className="text-xs text-gray-400 block">
                                     <span className="font-semibold text-black flex items-center gap-2">
                                       <img
-                                        src="/DashboardIcons/greendot.png"
+                                        src="/demo/synco/DashboardIcons/greendot.png"
                                         alt=""
                                       />{" "}
                                       This Week
@@ -448,8 +448,8 @@ const Dashboard = () => {
                                           parseFloat(
                                             dashboardData[metric.key]?.thisWeek?.conversion ?? 0
                                           ) < 0
-                                            ? "/images/ArrowFall.png"
-                                            : "/images/Arrowtop.png"
+                                            ? "/demo/synco/images/ArrowFall.png"
+                                            : "/demo/synco/images/Arrowtop.png"
                                         }
                                         alt=""
                                       />
@@ -479,7 +479,7 @@ const Dashboard = () => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter by date</h3>
                   <button onClick={applyFilter} className="flex gap-2 items-center bg-blue-500 text-white px-3 py-2 rounded-lg text-sm text-[16px]">
-                    <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                     Apply fiter
                   </button>
                 </div>
@@ -649,7 +649,7 @@ const Dashboard = () => {
             <div className="w-full lg:w-8/12">
               <div
                 className="bg-yellow-300 rounded-3xl p-6 md:py-12 pb-5 flex justify-between items-center text-white relative overflow-hidden 
-             md:bg-[url('/images/welcomeToDashboard.png')] bg-none 
+             md:bg-[url('/demo/synco/images/welcomeToDashboard.png')] bg-none 
              bg-no-repeat bg-left bg-contain"
               >
 
@@ -677,7 +677,7 @@ const Dashboard = () => {
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <h3 className="font-semibold text-[24px]">Filter by date</h3>
                   <button onClick={applyFilter} className="flex gap-2 items-center bg-blue-500 text-white p-2 rounded-lg text-[16px]">
-                    <img src='/DashboardIcons/filtericon.png' className='w-5 h-5' alt="" />  Apply filter
+                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-5 h-5' alt="" />  Apply filter
                   </button>
                 </div>
 

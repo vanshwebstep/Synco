@@ -91,12 +91,12 @@ const TermCard = ({ item, sessionData }) => {
         <div className={`flex gap-3 md:w-1/12 mt-2 md:mt-0 ${showSessions ? 'items-start' : 'items-center'} ml-auto`}>
           {canEdit && (
             <button onClick={() => handleEdit(item.id)} className="text-gray-500 hover:text-blue-500">
-              <img className="w-5 h-5" src="/images/icons/edit.png" alt="Edit" />
+              <img className="w-5 h-5" src="/demo/synco/images/icons/edit.png" alt="Edit" />
             </button>
           )}
           {canDelete && (
             <button onClick={() => handleDelete(item.id)} className="text-gray-500 hover:text-red-500">
-              <img className="w-5 h-5" src="/images/icons/deleteIcon.png" alt="Delete" />
+              <img className="w-5 h-5" src="/demo/synco/images/icons/deleteIcon.png" alt="Delete" />
             </button>
           )}
         </div>
@@ -106,7 +106,7 @@ const TermCard = ({ item, sessionData }) => {
       <div className="bg-gray-100 px-4 py-2 cursor-pointer" onClick={() => setShowSessions(!showSessions)}>
         <div className="text-center text-[#237FEA] flex justify-center items-center gap-2">
           {showSessions ? 'Hide all session dates' : 'Show all session dates'}
-          <img className={`w-4 transition-transform ${showSessions ? 'rotate-180' : ''}`} src="/images/icons/bluearrowup.png" alt="Toggle" />
+          <img className={`w-4 transition-transform ${showSessions ? 'rotate-180' : ''}`} src="/demo/synco/images/icons/bluearrowup.png" alt="Toggle" />
         </div>
       </div>
     </div>

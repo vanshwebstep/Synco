@@ -202,7 +202,7 @@ const trialLists = () => {
         {
             title: "Total Sales",
             value: statsMembership?.totalSales?.value || "0",
-            icon: "/members/allmemberTotalRevenue.png",
+            icon: "/demo/synco/members/allmemberTotalRevenue.png",
             change: `${(statsMembership?.totalSales?.change ?? 0).toFixed(2)}%`,
             color: "text-green-500",
             bg: "bg-[#F3FAF5]"
@@ -210,14 +210,14 @@ const trialLists = () => {
         {
             title: "Monthly revenue",
             value: statsMembership?.totalRevenue?.value || "0.00",
-            icon: "/members/allmemberMonthlyRevenue.png",
+            icon: "/demo/synco/members/allmemberMonthlyRevenue.png",
             color: "text-green-500",
             bg: "bg-[#F3FAFD]"
         },
         {
             title: "AV. Monthly Fee",
             value: statsMembership?.avgMonthlyFee?.value || "0.00",
-            icon: "/members/allmemberMonthlyFee.png",
+            icon: "/demo/synco/members/allmemberMonthlyFee.png",
             change: `${(statsMembership?.avgMonthlyFee?.change ?? 0).toFixed(2)}%`,
             color: "text-green-500",
             bg: "bg-[#FEF6FB]"
@@ -225,7 +225,7 @@ const trialLists = () => {
         {
             title: "Top Sales Agent",
             value: statsMembership?.topSaleAgent?.value || "0.00",
-            icon: "/members/allmemberLifeCycle.png",
+            icon: "/demo/synco/members/allmemberLifeCycle.png",
             change: `${(statsMembership?.topSaleAgent?.change ?? 0).toFixed(2)}%`,
             color: "text-green-500",
             bg: "bg-[#F0F9F9]"
@@ -266,7 +266,7 @@ const getStatusBadge = (status) => {
         name: `${admin.firstName} ${admin.lastName}`.trim(),
         avatar: admin.profile
             ? `${API_BASE_URL}${admin.profile}`
-            : "/members/dummyuser.png", // fallback image
+            : "/demo/synco/members/dummyuser.png", // fallback image
     }));
     // Close popup if clicked outside
     useEffect(() => {
@@ -379,7 +379,7 @@ const membershipColumns = [
                     <div className="flex justify-end ">
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
                             <img onClick={() => navigate("/weekly-classes/find-a-class")}
-                                src="/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
+                                src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
                         </div>
                     </div>
                     <DynamicTable
@@ -535,7 +535,7 @@ const membershipColumns = [
                             <div className="flex justify-between items-center mb-5 ">
                                 <h2 className="text-[24px] font-semibold">Filter by Date </h2>
                                 <button onClick={applyFilter} className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-2 rounded-lg text-sm text-[16px]">
-                                    <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                                     Apply filter
                                 </button>
                             </div>
@@ -639,7 +639,7 @@ const membershipColumns = [
                                                             )}
                                                         </span>
                                                         <img
-                                                            src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/members/dummyuser.png"}
+                                                            src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/demo/synco/members/dummyuser.png"}
                                                             alt={
                                                                 admin?.firstName || admin?.lastName
                                                                     ? `${admin?.firstName ?? ""} ${admin?.lastName ?? ""}`.trim()
@@ -783,18 +783,18 @@ const membershipColumns = [
                             className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl text-[16px]"
                         >
                             <img
-                                src="/images/icons/mail.png"
+                                src="/demo/synco/images/icons/mail.png"
                                 className="md:w-[13px] md:h-[12px] "
                                 alt=""
                             />
                             Send Email
                         </button>
                         <button className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl text-[16px]">
-                            <img src='/images/icons/sendText.png' className='md:w-[13px] md:h-[12px] ' alt="" />
+                            <img src='/demo/synco/images/icons/sendText.png' className='md:w-[13px] md:h-[12px] ' alt="" />
                             Send Text
                         </button>
                         <button onClick={exportMembershipData} className="flex gap-1 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl text-[16px]">
-                            <img src='/images/icons/download.png' className='md:w-[13px] md:h-[12px] ' alt="" />
+                            <img src='/demo/synco/images/icons/download.png' className='md:w-[13px] md:h-[12px] ' alt="" />
                             Export Data
                         </button>
                     </div>

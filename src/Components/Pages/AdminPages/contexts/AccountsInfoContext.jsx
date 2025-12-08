@@ -305,9 +305,15 @@ export const AccountsInfoProvider = ({ children }) => {
       const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/update/${data.id}`, requestOptions);
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Something went wrong");
+        let errorJson;
+        try {
+          errorJson = await response.json();
+        } catch {
+          throw new Error("Something went wrong");
+        }
+        throw new Error(errorJson.message || "Something went wrong");
       }
+
 
       const result = await response.json();
 
@@ -611,7 +617,7 @@ export const AccountsInfoProvider = ({ children }) => {
       setLoading(false);
     }
   };
-  
+
   const sendHolidayMail = async (bookingIds) => {
     setLoading(true);
 

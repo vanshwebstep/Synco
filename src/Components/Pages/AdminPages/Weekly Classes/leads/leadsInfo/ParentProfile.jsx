@@ -609,7 +609,7 @@ function EmailPopup({ loading, grouped, handleSendEmail, close }) {
 
             <div className="flex items-center gap-2">
               <img
-                src={adminInfo?.profile || "/members/dummyuser.png"}
+                src={adminInfo?.profile || "/demo/synco/members/dummyuser.png"}
                 alt="User"
                 className="w-14 h-14 rounded-full object-cover"
               />
@@ -625,7 +625,7 @@ function EmailPopup({ loading, grouped, handleSendEmail, close }) {
                 className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
                 onClick={handleSubmitComment}
               >
-                <img src="/images/icons/sent.png" alt="Send" />
+                <img src="/demo/synco/images/icons/sent.png" alt="Send" />
               </button>
             </div>
 
@@ -640,7 +640,7 @@ function EmailPopup({ loading, grouped, handleSendEmail, close }) {
                         <img
                           src={
                             c?.bookedByAdmin?.profile ||
-                            "/members/dummyuser.png"
+                            "/demo/synco/members/dummyuser.png"
                           }
                           alt={c?.bookedByAdmin?.firstName || "User"}
                           className="w-10 h-10 rounded-full object-cover"
@@ -706,16 +706,16 @@ function EmailPopup({ loading, grouped, handleSendEmail, close }) {
 
               <div className="text-white rounded-2xl p-4 relative overflow-hidden" style={{
                 backgroundImage: fetchedData?.leadData?.bookings?.[0]?.status === "cancelled"
-                  ? "url('/frames/Cancelled.png')"
+                  ? "url('/demo/synco/frames/Cancelled.png')"
                   : fetchedData?.leadData?.bookings?.[0]?.status === "frozen"
-                    ? "url('/frames/Frozen.png')"
+                    ? "url('/demo/synco/frames/Frozen.png')"
                     : fetchedData?.leadData?.bookings?.[0]?.status === "active"
-                      ? "url('/frames/Active.png')"
+                      ? "url('/demo/synco/frames/Active.png')"
                       : fetchedData?.leadData?.bookings?.[0]?.status === "request_to_cancel"
-                        ? "url('/frames/reqCancel.png')"
+                        ? "url('/demo/synco/frames/reqCancel.png')"
                         : fetchedData?.leadData?.bookings?.[0]?.status === "waiting list"
-                          ? "url('/frames/Waiting.png')"
-                          : "url('/frames/Pending.png')",
+                          ? "url('/demo/synco/frames/Waiting.png')"
+                          : "url('/demo/synco/frames/Pending.png')",
 
 
                 backgroundSize: "cover",
@@ -725,7 +725,7 @@ function EmailPopup({ loading, grouped, handleSendEmail, close }) {
                 <p className="text-sm text-black relative capitalize z-10"> {fetchedData?.leadData?.bookings?.[0]?.status || "N/A"}</p>
               </div>
               <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
-                <div><img src="/members/user2.png" alt="" /></div>
+                <div><img src="/demo/synco/members/user2.png" alt="" /></div>
                 <div>  <h3 className="text-lg font-semibold">Assigned Agent</h3>
                   <p className="text-gray-300 text-sm">{fetchedData?.leadData?.assignedAgent?.firstName} {fetchedData?.leadData?.assignedAgent?.lastName}</p></div>
               </div>

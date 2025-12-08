@@ -134,13 +134,13 @@ const MainTable = () => {
                                                         </button>
 
                                                         <img
-                                                            src={safe(user.profile) !== 'N/A' ? user.profile : '/members/dummyuser.png'}
+                                                            src={safe(user.profile) !== 'N/A' ? user.profile : '/demo/synco/members/dummyuser.png'}
                                                             alt={safe(user.firstName)}
                                                             onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}
                                                             className="w-10 h-10 rounded-full object-contain"
                                                             onError={(e) => {
                                                                 e.currentTarget.onerror = null;
-                                                                e.currentTarget.src = '/members/dummyuser.png';
+                                                                e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                                                             }}
                                                         />
 

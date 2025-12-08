@@ -185,7 +185,7 @@ const SessionPreview = ({ item, sessionData }) => {
           }}
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
-            src="/images/icons/arrow-left.png"
+            src="/demo/synco/images/icons/arrow-left.png"
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
@@ -237,7 +237,7 @@ const SessionPreview = ({ item, sessionData }) => {
                 <p className="text-[20px] flex items-center gap-2 font-semibold my-3">
                   {/* {currentContent?.player} */}
                   {currentContent.heading} <img
-                    src="/images/icons/Volumeblue.png"
+                    src="/demo/synco/images/icons/Volumeblue.png"
                     alt="Play Recording"
                     className={`w-6 h-6 cursor-pointer ${currentRecording === recording ? "opacity-100" : "opacity-40"
                       }`}
@@ -263,7 +263,7 @@ const SessionPreview = ({ item, sessionData }) => {
                   </h2>
 
                   <img
-                    src="/images/icons/downloadicon.png"
+                    src="/demo/synco/images/icons/downloadicon.png"
                     alt="Download"
                     className="cursor-pointer"
                     onClick={async () => {
@@ -320,7 +320,7 @@ const SessionPreview = ({ item, sessionData }) => {
                 {videoDuration && (
                   <div>
                     <p className="text-sm flex items-center gap-2 text-gray-500 pb-3">
-                      <img src="/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                      <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
                       {videoDuration || 'N/A'}
                     </p>
                   </div>

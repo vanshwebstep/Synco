@@ -521,7 +521,7 @@ const formatLocalDate = (date) => {
         {/* Input section */}
         <div className="flex items-center gap-2">
           <img
-            src={adminInfo?.profile ? `${adminInfo.profile}` : '/members/dummyuser.png'}
+            src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'}
             alt="User"
             className="w-14 h-14 rounded-full object-cover"
           />
@@ -537,7 +537,7 @@ const formatLocalDate = (date) => {
             className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
             onClick={handleSubmitComment}
           >
-            <img src="/images/icons/sent.png" alt="" />
+            <img src="/demo/synco/images/icons/sent.png" alt="" />
           </button>
         </div>
 
@@ -553,11 +553,11 @@ const formatLocalDate = (date) => {
                       src={
                         c?.bookedByAdmin?.profile
                           ? `${c?.bookedByAdmin?.profile}`
-                          : '/members/dummyuser.png'
+                          : '/demo/synco/members/dummyuser.png'
                       }
                       onError={(e) => {
                         e.currentTarget.onerror = null; // prevent infinite loop
-                        e.currentTarget.src = '/members/dummyuser.png';
+                        e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                       }}
                       alt={c?.bookedByAdmin?.firstName}
                       className="w-10 h-10 rounded-full object-cover mt-1"

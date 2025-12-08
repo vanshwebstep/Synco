@@ -154,7 +154,7 @@ const HolidayCampPending = ({ item, sessionData }) => {
 
           className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
           <img
-            src="/images/icons/arrow-left.png"
+            src="/demo/synco/images/icons/arrow-left.png"
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />
@@ -175,11 +175,11 @@ const HolidayCampPending = ({ item, sessionData }) => {
   `}
 >          <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
             {statusIs === "cancelled" ? (
-              <img src="/images/icons/cancelBig.png" alt="Cancelled" />
+              <img src="/demo/synco/images/icons/cancelBig.png" alt="Cancelled" />
             ) : statusIs === "complete" ? (
-              <img src="/images/icons/completeBig.png" alt="Complete" />
+              <img src="/demo/synco/images/icons/completeBig.png" alt="Complete" />
             ) : (
-              <img src="/images/icons/pendingBig.png" alt="Pending" />
+              <img src="/demo/synco/images/icons/pendingBig.png" alt="Pending" />
             )}
           </div>
 
@@ -237,7 +237,7 @@ const HolidayCampPending = ({ item, sessionData }) => {
                 <p className="text-[20px] flex items-center gap-2 font-semibold my-3">
                   {/* {currentContent?.player} */}
                   {currentContent.heading} <img
-                    src="/images/icons/Volumeblue.png"
+                    src="/demo/synco/images/icons/Volumeblue.png"
                     alt="Play Recording"
                     className={`w-6 h-6 cursor-pointer ${currentRecording === recording ? "opacity-100" : "opacity-40"
                       }`}
@@ -261,7 +261,7 @@ const HolidayCampPending = ({ item, sessionData }) => {
                   </h2>
 
                   <img
-                    src="/images/icons/downloadicon.png"
+                    src="/demo/synco/images/icons/downloadicon.png"
                     alt="Download"
                     className="cursor-pointer"
                     onClick={async () => {
@@ -318,7 +318,7 @@ const HolidayCampPending = ({ item, sessionData }) => {
                 {videoDuration && (
                   <div>
                     <p className="text-sm flex items-center gap-2 text-gray-500 pb-3">
-                      <img src="/members/Time-Circle.png" className="w-4 h-4" alt="" />
+                      <img src="/demo/synco/members/Time-Circle.png" className="w-4 h-4" alt="" />
                       {videoDuration || 'N/A'}
                     </p>
                   </div>

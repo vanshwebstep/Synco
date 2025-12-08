@@ -1347,6 +1347,57 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
+   const cancelHolidaySubmit = async (bookingIds, comesfrom) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+    // console.log('bookingIds', bookingIds)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/cancel/${bookingIds.id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(bookingIds, // make sure bookingIds is an array like [96, 97]
+        ),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Trialsssssss has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      if (comesfrom === "allMembers") {
+        navigate(`/weekly-classes/all-members/list`);
+      } else {
+        navigate(`/weekly-classes/all-members/membership-sales`);
+      }
+
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
   const transferMembershipSubmit = async (bookingIds, comesfrom) => {
     setLoading(true);
 
@@ -2157,6 +2208,59 @@ export const BookFreeTrialProvider = ({ children }) => {
       setLoading(false);
     }
   };
+    const createHolidayWaitinglist = async (waitingListData, islead) => {
+    setLoading(true);
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+    let url = `${API_BASE_URL}/api/admin/holiday/booking/waiting-list/create`;
+
+    if (islead) {
+      // if isLead exists (true / string / non-null)  
+      url += `${encodeURIComponent(islead)}`;
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(waitingListData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create Membership");
+      }
+
+      await Swal.fire({
+        title: "Success!",
+        text: result.message || "Membership has been created successfully.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+      navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`)
+      return result;
+
+    } catch (error) {
+      console.error("Error creating class schedule:", error);
+      await Swal.fire({
+        title: "Error",
+        text: error.message || "Something went wrong while creating class schedule.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+      throw error;
+    } finally {
+      await fetchAddtoWaitingList();
+      setLoading(false);
+    }
+  };
 
   // Cancellation 
   const fetchFullCancellations = useCallback(
@@ -2766,6 +2870,7 @@ export const BookFreeTrialProvider = ({ children }) => {
         createBookMembershipByWaitingList,
         fetchBookMemberships,
         cancelMembershipSubmit,
+        cancelHolidaySubmit,
         transferMembershipSubmit,
         freezerMembershipSubmit,
         reactivateDataSubmit,
@@ -2780,6 +2885,7 @@ export const BookFreeTrialProvider = ({ children }) => {
         sendWaitingListMail,
         serviceHistoryWaitingList,
         createWaitinglist,
+        createHolidayWaitinglist,
         // Service History
         serviceHistory,
         setServiceHistory,

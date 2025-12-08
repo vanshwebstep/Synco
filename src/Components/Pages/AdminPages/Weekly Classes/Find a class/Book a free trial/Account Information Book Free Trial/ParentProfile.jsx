@@ -555,7 +555,7 @@ const ParentProfile = ({ ParentProfile }) => {
                         {/* Input section */}
                         <div className="flex items-center gap-2">
                             <img
-                                src={adminInfo?.profile ? `${adminInfo.profile}` : '/members/dummyuser.png'}
+                                src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'}
                                 alt="User"
                                 className="w-14 h-14 rounded-full object-cover"
                             />
@@ -571,7 +571,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
                                 onClick={handleSubmitComment}
                             >
-                                <img src="/images/icons/sent.png" alt="" />
+                                <img src="/demo/synco/images/icons/sent.png" alt="" />
                             </button>
                         </div>
 
@@ -587,11 +587,11 @@ const ParentProfile = ({ ParentProfile }) => {
                                                     src={
                                                         c?.bookedByAdmin?.profile
                                                             ? `${c?.bookedByAdmin?.profile}`
-                                                            : '/members/dummyuser.png'
+                                                            : '/demo/synco/members/dummyuser.png'
                                                     }
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null; // prevent infinite loop
-                                                        e.currentTarget.src = '/members/dummyuser.png';
+                                                        e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                                                     }}
                                                     alt={c?.bookedByAdmin?.firstName}
                                                     className="w-10 h-10 rounded-full object-cover mt-1"
@@ -648,14 +648,14 @@ const ParentProfile = ({ ParentProfile }) => {
                         <div className="] m-2 px-6 rounded-3xl py-3 flex items-center justify-between bg-no-repeat bg-center"
                             style={{
                                 backgroundImage: status === "cancelled"
-                                    ? "url('/frames/Cancelled.png')"
+                                    ? "url('/demo/synco/frames/Cancelled.png')"
                                     : status === "frozen"
-                                        ? "url('/frames/Frozen.png')"
+                                        ? "url('/demo/synco/frames/Frozen.png')"
                                         : status === "active"
-                                            ? "url('/frames/Active.png')"
+                                            ? "url('/demo/synco/frames/Active.png')"
                                             : status === "waiting list"
-                                                ? "url('/frames/Waiting.png')"
-                                                : "url('/frames/Pending.png')",
+                                                ? "url('/demo/synco/frames/Waiting.png')"
+                                                : "url('/demo/synco/frames/Pending.png')",
 
 
                                 backgroundSize: "cover",
@@ -667,22 +667,22 @@ const ParentProfile = ({ ParentProfile }) => {
                             <div className="bg-[#343A40] flex items-center gap-2  text-white text-[14px] px-3 py-2 rounded-xl">
                                 <div className="flex items-center gap-2">
                                     {status === 'pending' && (
-                                        <img src="/images/icons/loadingWhite.png" alt="Pending" />
+                                        <img src="/demo/synco/images/icons/loadingWhite.png" alt="Pending" />
                                     )}
                                     {status === 'not attend' && (
-                                        <img src="/images/icons/x-circle-contained.png" alt="Not Attended" />
+                                        <img src="/demo/synco/images/icons/x-circle-contained.png" alt="Not Attended" />
                                     )}
                                     {status === 'attended' && (
-                                        <img src="/images/icons/attendedicon.png" alt="Attended" />
+                                        <img src="/demo/synco/images/icons/attendedicon.png" alt="Attended" />
                                     )}
                                     {status === 'cancelled' && (
-                                        <img src="/images/icons/x-circle-contained.png" alt="Cancelled" />
+                                        <img src="/demo/synco/images/icons/x-circle-contained.png" alt="Cancelled" />
                                     )}
 
                                     {/* Fallback for any other or undefined status */}
                                     {!status && (
                                         <>
-                                            <img src="/images/icons/x-circle-contained.png" alt="Not Attended" />
+                                            <img src="/demo/synco/images/icons/x-circle-contained.png" alt="Not Attended" />
                                             Not Attended
                                         </>
                                     )}
@@ -787,11 +787,11 @@ const ParentProfile = ({ ParentProfile }) => {
                                 <div className="flex gap-7">
 
                                     <button onClick={() => sendCancelFreeTrialmail([id])} className="flex-1 border border-[#717073] rounded-xl py-3 flex text-[18px] items-center justify-center hover:shadow-md transition-shadow duration-300 gap-2 text-[#717073] font-medium">
-                                        <img src="/images/icons/mail.png" alt="" /> Send Email
+                                        <img src="/demo/synco/images/icons/mail.png" alt="" /> Send Email
                                     </button>
 
                                     <button className="flex-1 border border-[#717073] rounded-xl py-3 flex  text-[18px] items-center justify-center gap-2 hover:shadow-md transition-shadow duration-300 text-[#717073] font-medium">
-                                        <img src="/images/icons/sendText.png" alt="" /> Send Text
+                                        <img src="/demo/synco/images/icons/sendText.png" alt="" /> Send Text
                                     </button>
                                 </div>
 
@@ -877,7 +877,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 className="absolute top-4 left-4 p-2"
                                 onClick={() => setshowRebookTrial(false)}
                             >
-                                <img src="/images/icons/cross.png" alt="Close" />
+                                <img src="/demo/synco/images/icons/cross.png" alt="Close" />
                             </button>
 
                             <div className="text-center py-6 border-b border-gray-300">
@@ -1035,7 +1035,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 className="absolute top-4 left-4 p-2"
                                 onClick={() => setshowCancelTrial(false)}
                             >
-                                <img src="/images/icons/cross.png" alt="Close" />
+                                <img src="/demo/synco/images/icons/cross.png" alt="Close" />
                             </button>
 
                             <div className="text-center py-6 border-b border-gray-300">
@@ -1108,7 +1108,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                 className="absolute top-4 left-4 p-2"
                                 onClick={() => setNoMembershipSelect(false)}
                             >
-                                <img src="/images/icons/cross.png" alt="Close" />
+                                <img src="/demo/synco/images/icons/cross.png" alt="Close" />
                             </button>
 
                             <div className="text-center py-6 border-b border-gray-300">

@@ -93,17 +93,17 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const menuItemsRaw = [
     {
       title: 'Dashboard',
-      icon: '/SidebarLogos/Dashboard.png',
+      icon: '/demo/synco/SidebarLogos/Dashboard.png',
       path: '/',
-      iconHover: '/SidebarLogos/DashboardH.png',
+      iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
       link: '/',
     },
 
     {
       title: 'Weekly Classes',
       path: '/weekly-classes',
-      icon: '/SidebarLogos/WeeklyClasses.png',
-      iconHover: '/SidebarLogos/WeeklyClassesH.png',
+      icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
+      iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
       needPermissions: [
         { module: 'book-membership', action: 'view-listing' },
         { module: 'book-free-trial', action: 'view-listing' },
@@ -136,8 +136,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     {
       title: 'Holiday Camps',
       path: '/holiday-camps',
-      icon: '/SidebarLogos/WeeklyClasses.png',
-      iconHover: '/SidebarLogos/WeeklyClassesH.png',
+      icon: '/demo/synco/SidebarLogos/WeeklyClasses.png',
+      iconHover: '/demo/synco/SidebarLogos/WeeklyClassesH.png',
       needPermissions: [
         { module: 'book-membership', action: 'view-listing' },
         { module: 'book-free-trial', action: 'view-listing' },
@@ -149,7 +149,6 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       subItems: [
         { title: 'Find a Camp', link: '/holiday-camp/find-a-camp', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
         { title: 'Members', link: '/holiday-camp/members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
-        { title: 'Waiting List', link: '/holiday-camp/waiting-list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
         { title: 'Reports', link: '/holiday-camp/reports', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
 
       ]
@@ -157,9 +156,9 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
     {
       title: "One To One",
-      icon: "/reportsIcons/user.png",
+      icon: "/demo/synco/reportsIcons/user.png",
       path: '/one-to-one',
-      iconHover: "/reportsIcons/userH.png",
+      iconHover: "/demo/synco/reportsIcons/userH.png",
       needPermissions: [{ module: 'session-exercise-one-to-one', action: 'view-listing' }],
       subItems: [
         {
@@ -191,9 +190,9 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
     {
       title: "Birthday parties",
-      icon: "/SidebarLogos/Birthday.png",
+      icon: "/demo/synco/SidebarLogos/Birthday.png",
       path: '/birthday-party',
-      iconHover: "/SidebarLogos/BirthdayH.png",
+      iconHover: "/demo/synco/SidebarLogos/BirthdayH.png",
       needPermissions: [{ module: 'session-exercise-one-to-one', action: 'view-listing' }],
       subItems: [
         {
@@ -224,10 +223,10 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     },
     {
       title: "Recruitment",
-      icon: "/SidebarLogos/Birthday.png",
+      icon: "/demo/synco/SidebarLogos/Birthday.png",
       path: '/recruitment',
 
-      iconHover: "/SidebarLogos/BirthdayH.png",
+      iconHover: "/demo/synco/SidebarLogos/BirthdayH.png",
       needPermissions: [
         { module: 'session-exercise-one-to-one', action: 'view-listing' },
 
@@ -271,9 +270,9 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     },
     {
       title: "Reports",
-      icon: "/reportsIcons/reports.png",
+      icon: "/demo/synco/reportsIcons/reports.png",
       path: '/reports',
-      iconHover: "/reportsIcons/camper.png",
+      iconHover: "/demo/synco/reportsIcons/camper.png",
       needPermissions: [{ module: 'configuration', action: 'view' }],
       subItems: [
         { title: "Members", link: "/reports/members" },
@@ -287,8 +286,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     },
     {
       title: 'Key Information',
-      icon: '/SidebarLogos/Management.png',
-      iconHover: '/SidebarLogos/ManagementH.png',
+      icon: '/demo/synco/SidebarLogos/Management.png',
+      iconHover: '/demo/synco/SidebarLogos/ManagementH.png',
       link: '/KeyInfomation',
       path: '/KeyInfomation',
       needPermissions: [
@@ -301,8 +300,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       ? [{
         title: 'Permission',
         path: '/permission',
-        icon: '/SidebarLogos/Dashboard.png',
-        iconHover: '/SidebarLogos/DashboardH.png',
+        icon: '/demo/synco/SidebarLogos/Dashboard.png',
+        iconHover: '/demo/synco/SidebarLogos/DashboardH.png',
         link: '/permission',
         needPermissions: [
           { module: 'admin-role', action: 'view-listing' },
@@ -313,12 +312,12 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
     {
       title: 'Administration',
-      path: '/members',
-      icon: '/SidebarLogos/Admistration.png',
-      iconHover: '/SidebarLogos/AdmistrationH.png',
+      path: '/demo/synco/members/s',
+      icon: '/demo/synco/SidebarLogos/Admistration.png',
+      iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
       needPermissions: [{ module: 'member', action: 'view-listing' }],
       subItems: [
-        { title: 'Admin Panel', link: '/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] },
+        { title: 'Admin Panel', link: '/demo/synco/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] },
         { title: 'To Do List', link: '/administration/to-do-list', needPermissions: [{ module: 'member', action: 'view-listing' }] },
         { title: 'Folders', link: '/administration/file-manager', needPermissions: [{ module: 'member', action: 'view-listing' }] }
 
@@ -327,20 +326,20 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     {
       title: 'Templates',
       path: '/templates',
-      icon: '/SidebarLogos/Template.png',
-      iconHover: '/SidebarLogos/TemplateH.png',
+      icon: '/demo/synco/SidebarLogos/Template.png',
+      iconHover: '/demo/synco/SidebarLogos/TemplateH.png',
       needPermissions: [{ module: 'member', action: 'view-listing' }],
       subItems: [
         { title: 'Create a Template', link: '/templates/create' },
-        { title: 'List of Teplates', link: '/templates/list' },
+        { title: 'List of Templates', link: '/templates/list' },
         { title: 'OutBound cons', link: '/templates/settingList' }
       ]
     },
     {
       title: "Configuration",
-      icon: "/SidebarLogos/config.png",
+      icon: "/demo/synco/SidebarLogos/config.png",
       path: '/configuration',
-      iconHover: "/SidebarLogos/configH.png",
+      iconHover: "/demo/synco/SidebarLogos/configH.png",
       needPermissions: [{ module: 'configuration', action: 'view' }],
       subItems: [
         // WEEKLY CLASSES
@@ -724,7 +723,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             >
               <div className="p-6 relative font-semibold text-2xl text-center flex items-center gap-1 justify-center">
                 <img
-                  src="/images/icons/cross.png"
+                  src="/demo/synco/images/icons/cross.png"
                   className="absolute left-[5%] w-3 h-3 cursor-pointer"
                   onClick={() => {
                     setIsMobileMenuOpen(false);
@@ -732,8 +731,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
                   alt=""
                 />
 
-                <img src="/images/synco-text.png" alt="Logo" className="h-10 w-auto object-contain" />
-                <img src='/images/synco-text-round.png' alt="Welcome" className="h-10 w-auto object-contain" />
+                <img src="/demo/synco/images/synco-text.png" alt="Logo" className="h-10 w-auto object-contain" />
+                <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className="h-10 w-auto object-contain" />
               </div>
               <nav className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 px-2 pb-6">
                 {renderMenuItems(menuItems)}
@@ -750,8 +749,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         `}
       >
         <div className="p-6 font-semibold text-2xl text-center flex items-center gap-0.5 justify-center">
-          <img src='/images/synco-text.png' alt="Logo" className={`h-15 w-auto object-contain ${isSidebarCollapsed ? 'hidden' : ''}`} />
-          <img src='/images/synco-text-round.png' alt="Welcome" className={`h-15 w-auto object-contain mb-0.5 animate-spin [animation-duration:4s] ${isSidebarCollapsed ? 'mx-auto hidden' : ''}`} />
+          <img src='/demo/synco/images/synco-text.png' alt="Logo" className={`h-15 w-auto object-contain ${isSidebarCollapsed ? 'hidden' : ''}`} />
+          <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className={`h-15 w-auto object-contain mb-0.5 animate-spin [animation-duration:4s] ${isSidebarCollapsed ? 'mx-auto hidden' : ''}`} />
         </div>
         <nav className="flex-1 overflow-y-auto scrollbar-hide scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500 px-2">
           {renderMenuItems(menuItems)}
@@ -768,8 +767,8 @@ export default Sidebar;
 //  {
 //       title: 'Holiday Camps',
 //       path: '/holiday-camps',
-//       icon: '/SidebarLogos/Holiday.png',
-//       iconHover: '/SidebarLogos/HolidayH.png',
+//       icon: '/demo/synco/SidebarLogos/Holiday.png',
+//       iconHover: '/demo/synco/SidebarLogos/HolidayH.png',
 //       needPermissions: [
 //         { module: 'discount', action: 'view-listing' },
 //         { module: 'discount', action: 'create' }

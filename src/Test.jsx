@@ -29,7 +29,7 @@ const Test = () => {
   {/* Header */}
   <div className="bg-[#2E2F3E] text-white p-4 rounded-xl flex justify-between md:items-center text-sm gap-4">
     <div className="flex items-center gap-2">
-      <img src="/images/icons/Location.png" alt="" />
+      <img src="/demo/synco/images/icons/Location.png" alt="" />
       <div className="flex">
         <span className="font-medium text-[16px]">
           123 Baker Street, London
@@ -38,11 +38,11 @@ const Test = () => {
       </div>
     </div>
     <div className="md:mt-0 mt-5 flex relative items-center gap-4">
-      <img src="/images/icons/fcDollar.png" alt="" className="cursor-pointer w-6 h-6 rounded-full bg-white" />
-      <img src="/images/icons/fcCalendar.png" alt="" className="cursor-pointer w-6 h-6 rounded-full bg-white" />
-      <img src="/images/icons/fcLocation.png" alt="" className="cursor-pointer w-6 h-6 rounded-full bg-white" />
-      <img src="/images/icons/fcCicon.png" alt="" className="cursor-pointer w-6 h-6 rounded-full bg-white" />
-      <img src="/images/icons/fcPIcon.png" alt="" className="cursor-pointer w-6 h-6 rounded-full bg-white" />
+      <img src="/demo/synco/images/icons/fcDollar.png" alt="" className="cursor-pointer w-6 h-6 rounded-full bg-white" />
+      <img src="/demo/synco/images/icons/fcCalendar.png" alt="" className="cursor-pointer w-6 h-6 rounded-full bg-white" />
+      <img src="/demo/synco/images/icons/fcLocation.png" alt="" className="cursor-pointer w-6 h-6 rounded-full bg-white" />
+      <img src="/demo/synco/images/icons/fcCicon.png" alt="" className="cursor-pointer w-6 h-6 rounded-full bg-white" />
+      <img src="/demo/synco/images/icons/fcPIcon.png" alt="" className="cursor-pointer w-6 h-6 rounded-full bg-white" />
     </div>
   </div>
 
@@ -72,7 +72,7 @@ const Test = () => {
             <div className="font-bold text-[16px] text-black whitespace-nowrap">Class 1</div>
             <div className="font-semibold text-[16px] min-w-25 max-w-25">Yoga Beginner</div>
             <div className="font-semibold text-[16px] whitespace-nowrap flex gap-2 items-center min-w-40">
-              <img src="/images/icons/fcTImeIcon.png" alt="" />
+              <img src="/demo/synco/images/icons/fcTImeIcon.png" alt="" />
               7:00 AM - 8:00 AM
             </div>
             <div className="text-sm">
@@ -101,7 +101,7 @@ const Test = () => {
             <div className="font-bold text-[16px] text-black whitespace-nowrap">Class 2</div>
             <div className="font-semibold text-[16px] min-w-25 max-w-25">Zumba</div>
             <div className="font-semibold text-[16px] whitespace-nowrap flex gap-2 items-center min-w-40">
-              <img src="/images/icons/fcTImeIcon.png" alt="" />
+              <img src="/demo/synco/images/icons/fcTImeIcon.png" alt="" />
               9:00 AM - 10:00 AM
             </div>
             <div className="text-sm">

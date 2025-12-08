@@ -34,7 +34,7 @@ const FailedPayment = () => {
                         className="text-xl md:text-2xl font-semibold cursor-pointer hover:opacity-80 transition-opacity duration-200"
                     >
                         <img
-                            src="/images/icons/arrow-left.png"
+                            src="/demo/synco/images/icons/arrow-left.png"
                             alt="Back"
                             className="w-5 h-5 md:w-6 md:h-6"
                         />

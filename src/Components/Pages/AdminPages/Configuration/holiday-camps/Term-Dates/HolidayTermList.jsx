@@ -80,7 +80,7 @@ const HolidayTermList = () => {
               onClick={() => navigate('/configuration/holiday-camp/terms/create')}
               className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
             >
-              <img src="/members/add.png" className="w-4 md:w-5" alt="Add" />
+              <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
               Add Holiday Camp Dates
             </button>
           )}
@@ -106,7 +106,7 @@ const HolidayTermList = () => {
               onClick={() => navigate('/configuration/holiday-camp/terms/create')}
               className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
             >
-              <img src="/members/add.png" className="w-4 md:w-5" alt="Add" />
+              <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
               Add Holiday Camp Dates
             </button>
           )}
@@ -133,7 +133,7 @@ const HolidayTermList = () => {
             onClick={() => navigate('/configuration/holiday-camp/terms/create')}
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px] font-semibold"
           >
-            <img src="/members/add.png" className="w-4 md:w-5" alt="Add" />
+            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
             Add Holiday Camp Dates
           </button>
         )}
@@ -156,7 +156,7 @@ const HolidayTermList = () => {
               <div className="grid md:w-7/12 md:grid-cols-3">
 
                 <div className="flex items-center gap-3">
-                  <img src="/images/icons/spring.png" className="w-8 mt-1" alt="" />
+                  <img src="/demo/synco/images/icons/spring.png" className="w-8 mt-1" alt="" />
                   <div>
                     <p className="text-[#717073] font-semibold text-[16px] mb-1">Start Date</p>
                     <p className="text-[16px] text-gray-600">{item.startDate}</p>
@@ -164,7 +164,7 @@ const HolidayTermList = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <img src="/images/icons/autumn.png" className="w-8 mt-1" alt="" />
+                  <img src="/demo/synco/images/icons/autumn.png" className="w-8 mt-1" alt="" />
                   <div>
                     <p className="text-[#717073] font-semibold text-[16px] mb-1">End Date</p>
                     <p className="text-[16px] text-gray-600">{item.endDate}</p>
@@ -172,7 +172,7 @@ const HolidayTermList = () => {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <img src="/images/icons/summer.png" className="w-8 mt-1" alt="" />
+                  <img src="/demo/synco/images/icons/summer.png" className="w-8 mt-1" alt="" />
                   <div>
                     <p className="text-[#717073] font-semibold text-[16px] mb-1">No. of Days</p>
                     <p className="text-[16px] text-gray-600">{item.totalDays}</p>
@@ -208,13 +208,13 @@ const HolidayTermList = () => {
               <div className="flex gap-3 md:w-1/12 ml-auto">
                 {canEdit && (
                   <button onClick={() => handleEdit(item.id)} className="text-gray-500 hover:text-blue-500">
-                    <img className="w-5 h-5" src="/images/icons/edit.png" alt="Edit" />
+                    <img className="w-5 h-5" src="/demo/synco/images/icons/edit.png" alt="Edit" />
                   </button>
                 )}
 
                 {canDelete && (
                   <button onClick={() => handleDelete(item.id)} className="text-gray-500 hover:text-red-500">
-                    <img className="w-5 h-5" src="/images/icons/deleteIcon.png" alt="Delete" />
+                    <img className="w-5 h-5" src="/demo/synco/images/icons/deleteIcon.png" alt="Delete" />
                   </button>
                 )}
               </div>
@@ -229,7 +229,7 @@ const HolidayTermList = () => {
                 {openSessions[item.id] ? 'Hide all session dates' : 'Show all session dates'}
                 <img
                   className={`w-4 transition-transform ${openSessions[item.id] ? 'rotate-180' : ''}`}
-                  src="/images/icons/bluearrowup.png"
+                  src="/demo/synco/images/icons/bluearrowup.png"
                   alt="Toggle"
                 />
               </div>

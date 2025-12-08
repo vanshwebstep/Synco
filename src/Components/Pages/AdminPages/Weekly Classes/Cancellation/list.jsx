@@ -209,7 +209,7 @@ const CancellationList = () => {
         {
             title: "Total Request",
             value: statsFreeTrial?.totalRequests?.value || "0",
-            icon: "/DashboardIcons/🔢.png", // Replace with actual SVG if needed
+            icon: "/demo/synco/DashboardIcons/🔢.png", // Replace with actual SVG if needed
             change: statsFreeTrial?.totalRequests?.change != null
                 ? `${statsFreeTrial.totalRequests.change}`
                 : "0%",
@@ -223,14 +223,14 @@ const CancellationList = () => {
                     ? `${statsFreeTrial?.avgTenure?.value ?? ""} `.trim()
                     : "0",
             subValue: `${statsFreeTrial?.avgTenure?.change ?? ""} `,
-            icon: "/DashboardIcons/📊.png",
+            icon: "/demo/synco/DashboardIcons/📊.png",
             color: "text-green-500",
             bg: "bg-[#F3FAFD]"
         },
         {
             title: "Most Request venue",
             value: statsFreeTrial?.mostRequestedVenue?.value || "0",
-            icon: "/DashboardIcons/📍.png",
+            icon: "/demo/synco/DashboardIcons/📍.png",
             change: statsFreeTrial?.mostRequestedVenue?.change != null
                 ? `${statsFreeTrial.mostRequestedVenue.change}`
                 : "0%",
@@ -239,7 +239,7 @@ const CancellationList = () => {
         }, {
             title: "Common Reason",
             value: statsFreeTrial?.commonReason?.value || "0",
-            icon: "/DashboardIcons/💬.png",
+            icon: "/demo/synco/DashboardIcons/💬.png",
             subValue: statsFreeTrial?.commonReason?.change != null
                 ? `${statsFreeTrial.commonReason.change}`
                 : "0%",
@@ -255,7 +255,7 @@ const CancellationList = () => {
             subValue: statsFreeTrial?.highestRiskAgeGroup?.change != null
                 ? `${statsFreeTrial.highestRiskAgeGroup.change}`
                 : "0%",
-            icon: "/DashboardIcons/🎯.png",
+            icon: "/demo/synco/DashboardIcons/🎯.png",
             color: "text-green-500",
             bg: "bg-[#F3FAFD]"
         },
@@ -621,7 +621,7 @@ const CancellationList = () => {
                                 <h2 className='text-2xl font-semibold'>{active == "request" ? "Request to cancel" : "Full to cancel"}</h2>
                                 <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
                                     <img onClick={() => navigate("/weekly-classes/find-a-class")}
-                                        src="/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
+                                        src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
                                 </div>
                             </div>
 
@@ -705,7 +705,7 @@ const CancellationList = () => {
                             <div className="flex justify-between items-center mb-5 ">
                                 <h2 className="text-[24px] font-semibold">Filter by Date </h2>
                                 <button onClick={applyFilter} className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-2 rounded-lg text-sm text-[16px]">
-                                    <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                                     Apply filter
                                 </button>
                             </div>
@@ -794,7 +794,7 @@ const CancellationList = () => {
                                                             )}
                                                         </span>
                                                         <img
-                                                            src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/members/dummyuser.png"}
+                                                            src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/demo/synco/members/dummyuser.png"}
                                                             alt={`${admin.firstName} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`}
                                                             className="w-8 h-8 rounded-full"
                                                         />
@@ -940,7 +940,7 @@ const CancellationList = () => {
                             className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-2 py-2 rounded-xl  text-[16px]"
                         >
                             <img
-                                src="/images/icons/mail.png"
+                                src="/demo/synco/images/icons/mail.png"
                                 className="w-4 h-4 sm:w-5 sm:h-5"
                                 alt="mail"
                             />
@@ -948,11 +948,11 @@ const CancellationList = () => {
                         </button>
 
                         <button className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-2 py-2 rounded-xl  text-[16px]">
-                            <img src='/images/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                            <img src='/demo/synco/images/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
                         <button onClick={exportFreeTrials} className="flex gap-1 items-center justify-center bg-[#237FEA] text-white px-2 py-2 rounded-xl  text-[16px]">
-                            <img src='/images/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                            <img src='/demo/synco/images/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Export Data
                         </button>
                     </div>

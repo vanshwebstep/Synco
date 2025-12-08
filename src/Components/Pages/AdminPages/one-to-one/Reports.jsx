@@ -229,42 +229,42 @@ export default function Reports() {
 
   const statCards = [
     {
-      icon: '/reportsIcons/user-group.png',
+      icon: '/demo/synco/reportsIcons/user-group.png',
       iconStyle: "bg-[#D9F1FB]",
       title: "Total Leads",
       value: summary?.totalLeads?.thisMonth ?? 0,
       sub: `Last month: ${summary?.totalLeads?.previousMonth ?? 0}`,
     },
     {
-      icon: '/reportsIcons/Coins.png',
+      icon: '/demo/synco/reportsIcons/Coins.png',
       iconStyle: "bg-[#E3E1FB]",
       title: "Number of Sales",
       value: summary?.numberOfSales?.thisMonth ?? 0,
       sub: `Last month: ${summary?.numberOfSales?.previousMonth ?? 0}`,
     },
     {
-      icon: '/reportsIcons/Percent.png',
+      icon: '/demo/synco/reportsIcons/Percent.png',
       iconStyle: "bg-[#DDF5E6]",
       title: "Conversion Rate",
       value: summary?.conversionRate?.thisMonth ?? "0%",
       sub: `Last month: ${summary?.conversionRate?.previousMonth ?? "0%"}`,
     },
     {
-      icon: '/reportsIcons/pound.png',
+      icon: '/demo/synco/reportsIcons/pound.png',
       iconStyle: "bg-[#FBE3F2]",
       title: "Revenue Generated",
       value: summary?.revenueGenerated?.thisMonth ?? "£0",
       sub: `Last month: ${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
     },
     {
-      icon: '/reportsIcons/Package.png',
+      icon: '/demo/synco/reportsIcons/Package.png',
       iconStyle: "bg-[#D4F3F3]",
       title: "Revenue Gold Package",
       value: `£${goldData?.currentRevenue?.toLocaleString() ?? 0}`,
       sub: `vs. previous £${goldData?.lastRevenue?.toLocaleString() ?? 0}`,
     },
     {
-      icon: '/reportsIcons/silver-package.png',
+      icon: '/demo/synco/reportsIcons/silver-package.png',
       iconStyle: "bg-[#FDE6D7]",
       title: "Revenue Silver Package",
       value: `£${silverData?.currentRevenue?.toLocaleString() ?? 0}`,
@@ -479,7 +479,7 @@ export default function Reports() {
                     <div key={idx} className="flex items-center space-x-3">
                       <div className="h-10 w-10 rounded-full overflow-hidden bg-indigo-100 flex items-center justify-center font-medium text-indigo-700">
 
-                        <img src={a.avatar || '/members/dummyuser.png'} alt="" />
+                        <img src={a.avatar || '/demo/synco/members/dummyuser.png'} alt="" />
                       </div>
                       <div className="flex-1">
                         <div className="flex justify-between">
@@ -608,7 +608,7 @@ export default function Reports() {
                       </div>
                       <div className="flex items-center gap-4">
                         <div className=" ">
-                          <img src="/images/icons/growth.png" alt="" className="w-[60px]" />
+                          <img src="/demo/synco/images/icons/growth.png" alt="" className="w-[60px]" />
                         </div>
                         <div className="">
                           <div className="text-[16px] font-semibold">Revenue Growth</div>

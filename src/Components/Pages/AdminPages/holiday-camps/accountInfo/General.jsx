@@ -10,10 +10,14 @@ import { Mail, MessageSquare } from "lucide-react";
 import { useAccountsInfo } from "../../contexts/AccountsInfoContext";
 import Swal from "sweetalert2";
 import { useLocation } from "react-router-dom";
+import { useBookFreeTrial } from "../../contexts/BookAFreeTrialContext";
 const General = () => {
     const { data } = useAccountsInfo();
     const [bookingId, setBookingId] = useState([]);
-
+    const {
+        showCancelTrial,
+      setshowCancelTrial,cancelHolidaySubmit
+    } = useBookFreeTrial() || {};
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
     const id = queryParams.get("id"); // 
@@ -23,7 +27,7 @@ const General = () => {
             setBookingId(prev => [...prev, data?.id]);
         }
     }, [data]);
-
+console.log('bookingId', id);
     const [formData, setFormData] = useState({
         student:
             data?.students?.length > 0
@@ -104,7 +108,11 @@ const General = () => {
         if (page > totalPages) page = totalPages;
         setCurrentPage(page);
     };
-
+const reasonOptions = [
+        { value: "Family emergency - cannot attend", label: "Family emergency - cannot attend" },
+        { value: "Health issue", label: "Health issue" },
+        { value: "Schedule conflict", label: "Schedule conflict" },
+    ];
     const handleChange = (section, name, value, index = null) => {
         setFormData((prev) => {
             if (section === "parent" && index !== null) {
@@ -209,7 +217,13 @@ const General = () => {
         }
     }
 
-
+    const handleSelectChange = (selected, field, stateSetter) => {
+        stateSetter((prev) => ({ ...prev, [field]: selected?.value || null }));
+    };
+     const handleInputChange = (e, stateSetter) => {
+        const { name, value } = e.target;
+        stateSetter((prev) => ({ ...prev, [name]: value }));
+    };
     const sendEmail = async () => {
         setLoading(true);
         const token = localStorage.getItem("adminToken");
@@ -439,7 +453,11 @@ const General = () => {
         );
     };
 
-
+    const [cancelData, setCancelData] = useState({ 
+        id : id,// corresponds to selected radio
+        cancelReason: "",         // corresponds to DatePicker
+        additionalNote: "",        // textarea
+    });
     return (
         <>
             <div className="flex">
@@ -468,7 +486,7 @@ const General = () => {
                         {/* Input section */}
                         <div className="flex items-center gap-2">
                             <img
-                                src={adminInfo?.profile ? `${adminInfo.profile}` : '/members/dummyuser.png'}
+                                src={adminInfo?.profile ? `${adminInfo.profile}` : '/demo/synco/members/dummyuser.png'}
                                 alt="User"
                                 className="w-14 h-14 rounded-full object-cover"
                             />
@@ -484,7 +502,7 @@ const General = () => {
                                 className="bg-[#237FEA] p-3 rounded-xl text-white hover:bg-blue-600"
                                 onClick={handleSubmitComment}
                             >
-                                <img src="/images/icons/sent.png" alt="" />
+                                <img src="/demo/synco/images/icons/sent.png" alt="" />
                             </button>
                         </div>
 
@@ -500,11 +518,11 @@ const General = () => {
                                                     src={
                                                         c?.bookedByAdmin?.profile
                                                             ? `${c?.bookedByAdmin?.profile}`
-                                                            : '/members/dummyuser.png'
+                                                            : '/demo/synco/members/dummyuser.png'
                                                     }
                                                     onError={(e) => {
                                                         e.currentTarget.onerror = null; // prevent infinite loop
-                                                        e.currentTarget.src = '/members/dummyuser.png';
+                                                        e.currentTarget.src = '/demo/synco/members/dummyuser.png';
                                                     }}
                                                     alt={c?.bookedByAdmin?.firstName}
                                                     className="w-10 h-10 rounded-full object-cover mt-1"
@@ -563,7 +581,7 @@ const General = () => {
                             <div
                                 className="text-white rounded-2xl p-4 relative overflow-hidden"
                                 style={{
-                                    backgroundImage: "url('/frames/Active.png')",
+                                    backgroundImage: "url('/demo/synco/frames/Active.png')",
                                     backgroundSize: "cover",
                                     backgroundPosition: "center",
                                 }}
@@ -577,7 +595,7 @@ const General = () => {
                             {/* Coach */}
                             <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
                                 <div>
-                                    <img src="/members/user2.png" alt="Coach" className="w-20 rounded-full object-cover" />
+                                    <img src="/demo/synco/members/user2.png" alt="Coach" className="w-20 rounded-full object-cover" />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-semibold">Booked In By</h3>
@@ -662,14 +680,107 @@ const General = () => {
                                     <MessageSquare className="w-4 h-4 mr-1" /> Send Text
                                 </button>
                             </div>
-
-                            <button className="w-full bg-[#FF6C6C] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-red-600 transition flex items-center justify-center">
-                                Cancel Camp
-                            </button>
+         <button
+                                        onClick={() => setshowCancelTrial(true)}
+                                        className={`w-full border text-[18px] rounded-xl py-3 font-medium transition-shadow duration-300
+    ${showCancelTrial
+                                                ? "bg-[#FF6C6C] text-white shadow-md border-transparent"
+                                                : "border-gray-300 text-[#717073] hover:bg-[#FF6C6C] hover:text-white hover:shadow-md"
+                                            }`}
+                                    >
+                                        Cancel Membership
+                                    </button>
+                           
 
 
                         </div>
                     </div>
+                    {showCancelTrial && (
+                        <div className="fixed inset-0 bg-[#00000066] flex justify-center items-center z-50">
+                            <div className="bg-white rounded-2xl w-[541px] max-h-[90%] overflow-y-auto relative scrollbar-hide">
+                                <button
+                                    className="absolute top-4 left-4 p-2"
+                                    onClick={() => setshowCancelTrial(false)}
+                                >
+                                    <img src="/demo/synco/images/icons/cross.png" alt="Close" />
+                                </button>
+
+                                <div className="text-center py-6 border-b border-gray-300">
+                                    <h2 className="font-semibold text-[24px]">Cancel Membership </h2>
+                                </div>
+
+                                <div className="space-y-4 px-6 pb-6 pt-4">
+                                   
+                                    <div>
+                                        <label className="block text-[16px] font-semibold">
+                                            Reason for Cancellation
+                                        </label>
+                                        <Select
+                                            value={reasonOptions.find((opt) => opt.value === cancelData.cancelReason)}
+                                            onChange={(selected) => handleSelectChange(selected, "cancelReason", setCancelData)}
+                                            options={reasonOptions}
+                                            placeholder=""
+                                            className="rounded-lg mt-2"
+                                            styles={{
+                                                control: (base) => ({
+                                                    ...base,
+                                                    borderRadius: "0.7rem",
+                                                    boxShadow: "none",
+                                                    padding: "6px 8px",
+                                                    minHeight: "48px",
+                                                }),
+                                                placeholder: (base) => ({ ...base, fontWeight: 600 }),
+                                                dropdownIndicator: (base) => ({ ...base, color: "#9CA3AF" }),
+                                                indicatorSeparator: () => ({ display: "none" }),
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* Notes */}
+                                    <div>
+                                        <label className="block text-[16px] font-semibold">
+                                            Additional Notes (Optional)
+                                        </label>
+                                        <textarea
+                                            className="w-full bg-gray-100  mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                            rows={3}
+                                            name="additionalNote"    // <-- MUST match state key
+                                            value={cancelData.additionalNote}
+                                            onChange={(e) => handleInputChange(e, setCancelData)}
+                                            placeholder=""
+                                        />
+                                    </div>
+
+                                    {/* Buttons */}
+                                    <div className="flex justify-end gap-4 pt-4">
+                                       <button
+                                onClick={() => {
+                                    // Validation: reason
+                                    if (!cancelData.cancelReason) {
+                                        Swal.fire({
+                                            icon: "warning",
+                                            title: "Missing Field",
+                                            text: "Please select a reason for cancellation.",
+                                        });
+                                        return;
+                                    }
+
+                                    // ✅ All validations passed → close modal immediately
+
+                                    setshowCancelTrial(false)
+                                    // 🔥 Then call API (don’t wait for response)
+                                    cancelHolidaySubmit(cancelData, "allMembers");
+                                }}
+                                className="w-full bg-[#FF6C6C] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-red-600 transition flex items-center justify-center">
+                                Cancel Camp
+                            </button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    )}
                 </div>
             </div>
 

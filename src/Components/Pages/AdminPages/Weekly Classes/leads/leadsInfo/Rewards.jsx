@@ -112,14 +112,14 @@ const Rewards = () => {
 
             <div
               className="grid-item bg-cover bg-center bg-no-repeat  p-8 rounded-3xl"
-              style={{ backgroundImage: "url('/images/loyality-point1.png')" }}
+              style={{ backgroundImage: "url('/demo/synco/images/loyality-point1.png')" }}
             >
               <h2 className="text-white font-bold md:text-[56px] ">5,000</h2>
               <h4 className="text-white font-semibold md:text-[24px]">Your Points</h4>
             </div>
             <div
               className="grid-item bg-cover bg-center bg-no-repeat  p-8 rounded-3xl"
-              style={{ backgroundImage: "url('/images/loyality-point2.png')" }}
+              style={{ backgroundImage: "url('/demo/synco/images/loyality-point2.png')" }}
             >
 
                 <h2 className="text-black font-bold md:text-[56px] ">39</h2>

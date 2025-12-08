@@ -272,7 +272,7 @@ const HolidayAddPaymentPlanGroup = () => {
                     className="text-xl md:text-2xl font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity duration-200"
                 >
                     <img
-                        src="/images/icons/arrow-left.png"
+                        src="/demo/synco/images/icons/arrow-left.png"
                         alt="Back"
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
@@ -296,7 +296,7 @@ const HolidayAddPaymentPlanGroup = () => {
                                     onClick={() => setPreviewShowModal(false)}
                                     className="text-gray-400 hover:text-black text-xl font-bold"
                                 >
-                                    <img src="/images/icons/cross.png" alt="close" className="w-5 h-5" />
+                                    <img src="/demo/synco/images/icons/cross.png" alt="close" className="w-5 h-5" />
                                 </button>
                             </div>
 
@@ -755,7 +755,7 @@ const HolidayAddPaymentPlanGroup = () => {
                                                         // Custom capitalize button
                                                         editor.ui.registry.addIcon(
                                                             'capitalize-icon',
-                                                            '<img src="/images/icons/smallcaps.png" style="width:16px;height:16px;" />'
+                                                            '<img src="/demo/synco/images/icons/smallcaps.png" style="width:16px;height:16px;" />'
                                                         );
                                                         editor.ui.registry.addButton('capitalize', {
                                                             icon: 'capitalize-icon',
@@ -820,7 +820,7 @@ const HolidayAddPaymentPlanGroup = () => {
                                                         // Register custom icon
                                                         editor.ui.registry.addIcon(
                                                             'capitalize-icon',
-                                                            '<img src="/images/icons/smallcaps.png" style="width:16px;height:16px;" />'
+                                                            '<img src="/demo/synco/images/icons/smallcaps.png" style="width:16px;height:16px;" />'
                                                         );
 
                                                         // Register and add button
