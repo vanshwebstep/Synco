@@ -155,6 +155,7 @@ import { HolidayFindClassProvider } from './Components/Pages/AdminPages/contexts
 import HolidayReports from './Components/Pages/AdminPages/holiday-camps/reports/HolidayReports.jsx';
 import { CommunicationTemplateProvider } from './Components/Pages/AdminPages/contexts/CommunicationContext.jsx';
 import { ToDoListProvider } from './Components/Pages/AdminPages/contexts/ToDoListContext.jsx';
+import { RecruitmentProvider } from './Components/Pages/AdminPages/contexts/RecruitmentContext.jsx';
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
 // Role-based route component
@@ -960,11 +961,11 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/" />} />
- <Route path="/holiday-camp/find-a-camp/add-to-waiting-list" element={
+      <Route path="/holiday-camp/find-a-camp/add-to-waiting-list" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
-              <HolidayAddtoWaitingList  />
+              <HolidayAddtoWaitingList />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
@@ -1003,7 +1004,9 @@ function App() {
                                             <PermissionProvider>
                                               <CommunicationTemplateProvider>
                                                 <ToDoListProvider>
-                                                  <AppRoutes />
+                                                  <RecruitmentProvider>
+                                                    <AppRoutes />
+                                                  </RecruitmentProvider>
                                                 </ToDoListProvider>
                                               </CommunicationTemplateProvider>
                                             </PermissionProvider>

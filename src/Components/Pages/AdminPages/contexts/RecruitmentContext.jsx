@@ -2,12 +2,12 @@ import { createContext, useContext, useState, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
 import Swal from "sweetalert2"; // make sure it's installed
 
-const ToDoListContext = createContext();
+const RecruitmentContext = createContext();
 
-export const ToDoListProvider = ({ children }) => {
+export const RecruitmentProvider = ({ children }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-    const [toDoList, setToDoList] = useState([]);
+    const [recruitment, setRecruitment] = useState([]);
 
     const [apiTemplates, setApiTemplates] = useState({ email: [], text: [] });
 
@@ -20,7 +20,7 @@ export const ToDoListProvider = ({ children }) => {
     const [selectedVenue, setSelectedVenue] = useState(null);
     const [status, setStatus] = useState(null);
     const [statsMembership, setStatsMembership] = useState([]);
-    const [statsFreeTrial, setStatsFreeTrial] = useState([]);
+    const [statsRecruitment, setStatsRecruitment] = useState([]);
     const [bookedByAdmin, setBookedByAdmin] = useState([]);
     const [addToWaitingList, setaddToWaitingList] = useState(null);
     const [showCancelTrial, setshowCancelTrial] = useState(false);
@@ -57,7 +57,7 @@ export const ToDoListProvider = ({ children }) => {
     });
 
     // Book a Free Trial
-    const fetchToDoList = useCallback(
+    const fetchRecruitment = useCallback(
         async (
             studentName = "",
             venueName = "",
@@ -126,7 +126,7 @@ export const ToDoListProvider = ({ children }) => {
                 //   .filter(Boolean)
                 //   .forEach(d => queryParams.append("trialDate", d));
 
-                const url = `${API_BASE_URL}/api/admin/holiday/to-do-list/list${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+                const url = `${API_BASE_URL}/api/admin/coach/recruitment/list${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
                 const response = await fetch(url, {
                     method: "GET",
                     headers: {
@@ -137,11 +137,12 @@ export const ToDoListProvider = ({ children }) => {
                 const resultRaw = await response.json();
                 const result = resultRaw.data || [];
                 const venues = resultRaw.data || [];
+                const totals = resultRaw.totals || [];
                 const bookedByAdmin = resultRaw || []
                 setBookedByAdmin(bookedByAdmin);
                 setMyVenues(Array.isArray(venues) ? venues : []);
-                setStatsFreeTrial(resultRaw.data)
-                setToDoList(result);
+                setStatsRecruitment(totals)
+                setRecruitment(result);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
             } finally {
@@ -234,7 +235,7 @@ export const ToDoListProvider = ({ children }) => {
                 const bookedByAdmin = resultRaw || []
                 setBookedByAdmin(bookedByAdmin);
                 setMyVenues(Array.isArray(venues) ? venues : []);
-                setStatsFreeTrial(resultRaw.data)
+                setStatsRecruitment(resultRaw.data)
                 setApiTemplates(result);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
@@ -268,9 +269,9 @@ export const ToDoListProvider = ({ children }) => {
         }
     }, []);
 
-    const createToDoList = async (toDoListData) => {
+    const createRecruitment = async (recruitmentData) => {
         setLoading(true);
-        console.log('toDoListData', toDoListData)
+        console.log('recruitmentData', recruitmentData)
 
         const headers = {
             "Content-Type": "application/json",
@@ -279,25 +280,25 @@ export const ToDoListProvider = ({ children }) => {
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
         }
-        let url = `${API_BASE_URL}/api/admin/holiday/to-do-list/create`;
+        let url = `${API_BASE_URL}/api/admin/coach/recruitment/create`;
 
 
         try {
             const response = await fetch(url, {
                 method: "POST",
                 headers,
-                body: JSON.stringify(toDoListData),
+                body: JSON.stringify(recruitmentData),
             });
 
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.message || result || "Failed to create Template category");
+                throw new Error(result.message || result || "Failed to create Coach Recruitment");
             }
 
             await Swal.fire({
                 title: "Success!",
-                text: result.message || "Template Category has been created successfully.",
+                text: result.message || "Coach Recruitment has been created successfully.",
                 icon: "success",
                 confirmButtonText: "OK",
             });
@@ -307,13 +308,13 @@ export const ToDoListProvider = ({ children }) => {
             console.error("Error creating class schedule:", error);
             await Swal.fire({
                 title: "Error",
-                text: error.message || "Something went wrong while creating class schedule.",
+                text: error.message || "Something went wrong while creating Coach Recruitment.",
                 icon: "error",
                 confirmButtonText: "OK",
             });
             throw error;
         } finally {
-            await fetchToDoList();
+            await fetchRecruitment();
             setLoading(false);
         }
     };
@@ -362,7 +363,7 @@ export const ToDoListProvider = ({ children }) => {
             });
             throw error;
         } finally {
-            await fetchToDoList();
+            await fetchRecruitment();
             setLoading(false);
         }
     };
@@ -536,7 +537,7 @@ export const ToDoListProvider = ({ children }) => {
                 const bookedByAdmin = resultRaw.data.bookedByAdmin || []
                 setBookedByAdmin(bookedByAdmin);
                 setMyVenues(Array.isArray(venues) ? venues : []);
-                setStatsFreeTrial(resultRaw.data.stats)
+                setStatsRecruitment(resultRaw.data.stats)
                 setBookFreeTrials(result);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
@@ -633,7 +634,7 @@ export const ToDoListProvider = ({ children }) => {
 
                 setBookedByAdmin(bookedByAdmin);
                 setMyVenues(Array.isArray(venues) ? venues : []);
-                setStatsFreeTrial(resultRaw.data.stats);
+                setStatsRecruitment(resultRaw.data.stats);
                 setBookFreeTrials(result);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
@@ -2307,7 +2308,7 @@ export const ToDoListProvider = ({ children }) => {
                 const bookedByAdmin = resultRaw.data.bookedByAdmins || []
                 setBookedByAdmin(bookedByAdmin);
                 setMyVenues(Array.isArray(venues) ? venues : []);
-                setStatsFreeTrial(resultRaw.data.stats)
+                setStatsRecruitment(resultRaw.data.stats)
                 setBookFreeTrials(result);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
@@ -2652,7 +2653,7 @@ export const ToDoListProvider = ({ children }) => {
                     setMyVenues(filteredVenues);
                 }
 
-                setStatsFreeTrial(resultRaw.data.stats)
+                setStatsRecruitment(resultRaw.data.stats)
                 setBookFreeTrials(result);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
@@ -2853,7 +2854,7 @@ export const ToDoListProvider = ({ children }) => {
                 if (filteredVenues.length > 0) {
                     setMyVenues(filteredVenues);
                 }
-                setStatsFreeTrial(resultRaw.data.stats)
+                setStatsRecruitment(resultRaw.data.stats)
                 setBookFreeTrials(result);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
@@ -3141,7 +3142,7 @@ export const ToDoListProvider = ({ children }) => {
         }
     }, []);
     return (
-        <ToDoListContext.Provider
+        <RecruitmentContext.Provider
             value={{// Free Trials
                 bookFreeTrials,
                 createBookFreeTrials,
@@ -3188,7 +3189,7 @@ export const ToDoListProvider = ({ children }) => {
                 serviceHistoryMembership,
 
                 // Stats
-                statsFreeTrial,
+                statsRecruitment,
                 statsMembership,
 
                 // Admin
@@ -3242,12 +3243,12 @@ export const ToDoListProvider = ({ children }) => {
                 fetchMembershipSalesLoading, createBookLeads, createBookBirthday, addToWaitingList, setaddToWaitingList, showCancelTrial, setshowCancelTrial
 
 
-                , fetchToDoList, toDoList,
-                fetchCommunicationTemplate, fetchCommunicationTemplateById, apiTemplates, setApiTemplates, createToDoList, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
+                , fetchRecruitment, recruitment,
+                fetchCommunicationTemplate, fetchCommunicationTemplateById, apiTemplates, setApiTemplates, createRecruitment, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
             }}>
             {children}
-        </ToDoListContext.Provider>
+        </RecruitmentContext.Provider>
     );
 };
 
-export const useToDoListTemplate = () => useContext(ToDoListContext);
+export const useRecruitmentTemplate = () => useContext(RecruitmentContext);

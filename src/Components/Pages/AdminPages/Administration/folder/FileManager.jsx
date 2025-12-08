@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import toast from "react-hot-toast";
 import {
     Folder,
     Search,
@@ -6,100 +8,394 @@ import {
     Upload,
     Download,
     Trash2,
+
 } from "lucide-react";
+import Loader from '../../../../Pages/AdminPages/contexts/Loader';
+import Swal from "sweetalert2";
 
 export default function FileManager() {
-    const folders = [
-        { name: "Social Media Designs", files: "5 Files", size: "45 MB" },
-        { name: "Flyer Templates", files: "7 Files", size: "100 MB" },
-    ];
+    const [folders, setFolders] = useState([]);
+    const [selectedFolder, setSelectedFolder] = useState(null);
+    const [files, setFiles] = useState([]);
+    const [showCreatePopup, setShowCreatePopup] = useState(false);
+    const [newFolderName, setNewFolderName] = useState("");
+    const token = localStorage.getItem("adminToken");
+    const [loadingFiles, setLoadingFiles] = useState(false);
+    const [loadingFolders, setLoadingFolders] = useState(false);
+    const [searchFolder, setSearchFolder] = useState("");
+    const [creatingFolder, setCreatingFolder] = useState(false);
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const [uploading, setUploading] = useState(false);
 
-    const files = Array(10).fill({
-        name: "DOC_Revision_12.doc",
-        date: "7/14/2022 – 1:50 AM",
-    });
+    const axiosConfig = {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    };
+    // -----------------------------
+    // FETCH FOLDERS
+    // -----------------------------
 
+    const fetchFolders = async () => {
+        setLoadingFolders(true);
+
+        try {
+            const res = await axios.get(
+                `${API_BASE_URL}/api/admin/folder/list/uploadFiles`,
+                axiosConfig
+            );
+
+            setFolders(res.data?.data || []);
+        } catch (err) {
+            toast.error("Failed to load folders");
+        } finally {
+            setLoadingFolders(false);
+        }
+    };
+
+
+    useEffect(() => {
+        fetchFolders();
+    }, []);
+
+    // -----------------------------
+    // -----------------------------
+    const createFolder = async () => {
+        if (!newFolderName.trim()) {
+            return toast.error("Folder name is required");
+        }
+
+        setCreatingFolder(true);
+
+        try {
+            await axios.post(
+                `${API_BASE_URL}/api/admin/folder/create`,
+                { name: newFolderName },
+                axiosConfig
+            );
+
+            setShowCreatePopup(false);
+            setNewFolderName("");
+            await fetchFolders();
+
+            Swal.fire({
+                icon: "success",
+                title: "Folder Created!",
+                text: "Your folder has been successfully created.",
+                confirmButtonColor: "#237FEA",
+            });
+
+        } catch (err) {
+            toast.error("Failed to create folder");
+        } finally {
+            setCreatingFolder(false);
+        }
+    };
+
+
+
+    // -----------------------------
+    // LOAD FILES FOR SELECTED FOLDER
+    const loadFiles = async (folder) => {
+        setSelectedFolder(folder);
+        setLoadingFiles(true);   // start loading
+
+        try {
+            const res = await axios.get(
+                `${API_BASE_URL}/api/admin/folder/list/uploadFiles/${folder.id}`,
+                {
+                    ...axiosConfig,
+                }
+            );
+
+            setFiles(res.data?.data.files || []);
+            console.log("res files", res || []);
+        } catch (err) {
+            toast.error("Failed to load files");
+        } finally {
+            setLoadingFiles(false);  // stop loading
+        }
+    };
+
+
+
+
+    // -----------------------------
+    // UPLOAD FILE
+    // -----------------------------
+    const uploadFiles = async (e) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        const formData = new FormData();
+
+        Array.from(files).forEach(file => {
+            formData.append("uploadFiles", file);
+        });
+
+        formData.append("folder_id", selectedFolder.id);
+
+        setUploading(true);
+
+        try {
+            await axios.post(
+                `${API_BASE_URL}/api/admin/folder/upload`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+
+            await loadFiles(selectedFolder);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Upload Successful',
+                text: 'Files have been uploaded successfully.',
+                confirmButtonColor: '#237FEA',
+            });
+
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload Failed',
+                text: 'There was an error uploading the files.',
+                confirmButtonColor: '#d33',
+            });
+        } finally {
+            setUploading(false);
+            e.target.value = "";
+        }
+    };
+
+
+
+
+    // -----------------------------
+    // DELETE FILE
+    // -----------------------------
+    const deleteFile = async (file_id, url) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This file will be permanently deleted.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it",
+        }).then(async (result) => {
+            if (!result.isConfirmed) return;
+
+            try {
+                await axios.delete(
+                    `${API_BASE_URL}/api/admin/folder/delete-file`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                        data: { file_id, url }, // delete body must be here
+                    }
+                );
+                Swal.fire({
+                    icon: "success",
+                    title: "Deleted!",
+                    text: "File removed successfully.",
+                    confirmButtonColor: "#237FEA",
+                });
+                loadFiles(selectedFolder);
+
+            } catch (err) {
+                toast.error("Failed to delete");
+            }
+        });
+    };
+
+
+    console.log('files', files);
     return (
-        <div className="w-full h-screen  md:p-6 lg:flex gap-6 text-gray-700">
+        <div className="w-full h-screen md:p-6 lg:flex gap-6 text-gray-700">
 
-            <div className="lg:w-1/2 bg-white rounded-3xl flex flex-col">
+            {loadingFolders ? (
+                <div className="py-10 w-full flex justify-center text-center"> <>
+                    <Loader />
+                </></div>
 
-                <div className="md:flex items-center justify-between gap-3 p-5  border-b border-[#E2E1E5]">
-                    <div className="flex items-center gap-2">      <img src="/demo/synco/reportsIcons/Folder2.png" className="w-7" alt="" />
-                        <h2 className="text-xl font-semibold ">Folders</h2></div>
-                    <div className="md:flex items-center gap-2 md:w-9/12">
-                        <div className="flex my-3 md:my-0 items-center bg-white border-[#E2E1E5] border rounded-lg px-3 py-2  flex-grow">
-                            <Search size={18} className="text-gray-400" />
-                            <input
-                                placeholder="Search folder "
-                                className="ml-2 outline-none flex-grow"
-                            />
+            ) : (
+                <>
+                    {/* ----------------------------------------------------- */}
+                    {/* LEFT: FOLDER LIST */}
+                    {/* ----------------------------------------------------- */}
+                    <div className="lg:w-1/2 bg-white rounded-3xl flex flex-col">
+
+                        <div className="md:flex items-center justify-between gap-3 p-5  border-b border-[#E2E1E5]">
+                            <div className="flex items-center gap-2">
+                                <img src="/demo/synco/reportsIcons/Folder2.png" className="w-7" alt="" />
+                                <h2 className="text-xl font-semibold">Folders</h2>
+                            </div>
+                            <div className="flex gap-3 items-center">
+                                <div className="px-5 ">
+                                    <div className="flex items-center gap-2  border border-gray-300 x-3 p-2 rounded-xl">
+                                        <Search size={18} className="text-gray-500" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search folder"
+                                            className="w-full bg-transparent outline-none"
+                                            value={searchFolder}
+                                            onChange={(e) => setSearchFolder(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <button
+                                    disabled={uploading}
+                                    onClick={() => setShowCreatePopup(true)}
+                                    className="flex items-center gap-2 bg-[#237FEA] text-sm hover:bg-blue-600 text-white px-4 py-3 rounded-xl"
+                                >
+                                    <Plus size={18} />
+                                    Create New
+                                </button>
+                            </div>
                         </div>
-                        <button className="flex items-center gap-2 bg-[#237FEA] text-sm hover:bg-blue-600 text-white px-4 py-2 rounded-xl">
-                            <Plus size={18} />
-                            Create New
-                        </button>
+
+                        <div className="grid lg:grid-cols-3 gap-4 p-5">
+                            {folders
+                                .filter(f => f.name.toLowerCase().includes(searchFolder.toLowerCase()))
+                                .map((f, i) => (
+                                    <div
+                                        key={i}
+                                        onClick={() => {
+                                            if (!uploading) loadFiles(f);
+                                        }}
+                                        className={`p-4 min-h-[170px] flex flex-col justify-between bg-[#fafafa] border border-[#E2E1E5] rounded-3xl transition
+                  ${!uploading ? 'hover:shadow-md cursor-pointer' : 'cursor-not-allowed opacity-50 pointer-events-none'}`}
+                                    >
+                                        <div>
+                                            <img src="/demo/synco/reportsIcons/folder-open.png" className="w-10" alt="" />
+                                            <h3 className="font-semibold text-[#414141] leading-[22px] mt-2">{f.name}</h3>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <p className="text-sm text-gray-500">{f.totalFiles} Files</p>
+                                            <p className="text-sm font-semibold">{f.totalSpaceUsed}</p>
+                                        </div>
+                                    </div>
+                                ))
+                            }
+
+                        </div>
                     </div>
-                </div>
 
-                <div className="grid lg:grid-cols-3 gap-4 p-5 ">
-                    {folders.map((f, i) => (
-                        <div
-                            key={i}
-                            className="p-4 min-h-[170px] flex flex-col justify-between bg-[#fafafa] border border-[#E2E1E5] rounded-3xl hover:shadow-md transition cursor-pointer"
-                        >
+                    {/* ----------------------------------------------------- */}
+                    {/* RIGHT: FILE LIST */}
+                    <div className="lg:w-1/2 mt-4 md:mt-0 bg-white rounded-3xl flex flex-col">
+                        {loadingFiles ? (
+                            <div className="py-10 w-full flex justify-center text-center"> <>
+                                <Loader />
+                            </></div>
 
-                            <div>
-                                <img src="/demo/synco/reportsIcons/folder-open.png" className="w-10" alt="" />
-                                <h3 className="font-semibold text-[#414141] leading-[22px] mt-2">{f.name}</h3>
-                            </div>
-                            <div className="flex justify-between">
-                                <p className="text-sm text-gray-500">{f.files}</p>
-                                <p className="text-sm font-semibold">{f.size}</p>
+                        ) : (
+
+                            <>
+                                <div className="flex justify-between items-center p-5 border-b border-[#E2E1E5]">
+                                    <div className="flex items-center gap-2">
+                                        <img src="/demo/synco/reportsIcons/folder-2.png" className="w-7" alt="" />
+                                        <h2 className="text-xl font-semibold">
+                                            {selectedFolder ? selectedFolder.name : "Files"}
+                                        </h2>
+                                    </div>
+
+                                    {selectedFolder && (
+                                        <label className="flex text-sm items-center gap-2 bg-[#237FEA] hover:bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer">
+                                            <Upload size={18} />
+                                            {uploading ? "Uploading..." : "Upload File"}
+                                            <input type="file" disabled={uploading} multiple className="hidden" onChange={uploadFiles} />
+                                        </label>
+                                    )}
+                                </div>
+                                <div className="flex flex-col gap-3 overflow-auto p-5">
+                                    {files.filter(file => file.uploadFiles && file.uploadFiles.length > 0).map((file, i) => {
+                                        const url = file.uploadFiles?.[0]?.url || null;
+                                        const fileId = file.id || null;
+                                        const fileName = url ? url.split("/").pop() : "No File";
+                                        const createdAt = new Date(file.createdAt).toLocaleString();
+
+                                        return (
+                                            <div key={i} className="flex items-center justify-between p-3 transition cursor-pointer">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="bg-[#E5F1FE] rounded-lg h-12 w-12 flex justify-center items-center">
+                                                        <img src="/demo/synco/reportsIcons/folder-open.png" className="w-6" alt="" />
+                                                    </div>
+
+                                                    <div>
+                                                        <p className="font-semibold mb-1">{fileName}</p>
+                                                        <p className="text-sm text-gray-500">{createdAt}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex items-center gap-2">
+                                                    {url && (
+                                                        <a href={url} target="_blank" rel="noreferrer">
+                                                            <Download className="cursor-pointer hover:text-[#237FEA]" size={18} />
+                                                        </a>
+                                                    )}
+
+                                                    <Trash2
+                                                        onClick={() => deleteFile(fileId, url)}
+                                                        className="cursor-pointer hover:text-red-500"
+                                                        size={18}
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+
+                                </div>
+                            </>
+                        )}
+                    </div>
+                    {/* ----------------------------------------------------- */}
+                    {/* POPUP: CREATE FOLDER */}
+                    {/* ----------------------------------------------------- */}
+                    {showCreatePopup && (
+                        <div className="fixed inset-0 bg-black/40 flex justify-center items-center">
+                            <div className="bg-white p-6 rounded-2xl w-96">
+                                <h2 className="text-lg font-semibold mb-3">Create Folder</h2>
+
+                                <input
+                                    type="text"
+                                    value={newFolderName}
+                                    onChange={(e) => setNewFolderName(e.target.value)}
+                                    className="w-full border p-2 rounded-lg mb-4"
+                                    placeholder="Folder Name"
+                                />
+
+                                <div className="flex justify-end gap-3">
+                                    <button
+                                        onClick={() => setShowCreatePopup(false)}
+                                        className="px-4 py-2 bg-gray-200 rounded-lg"
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        onClick={createFolder}
+                                        className="px-4 py-2 bg-[#237FEA] text-white rounded-lg flex items-center gap-2"
+                                        disabled={creatingFolder}
+                                    >
+                                        {creatingFolder ? (
+                                            "Creating..."
+                                        ) : (
+                                            "Create"
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="lg:w-1/2 mt-4 md:mt-0 bg-white rounded-3xl flex flex-col">
-                <div className="flex justify-between items-center p-5 border-b border-[#E2E1E5]">
-                        <div className="flex items-center gap-2">      <img src="/demo/synco/reportsIcons/folder-2.png" className="w-7" alt="" />
-                        <h2 className="text-xl font-semibold ">Files</h2></div>
-
-                    <button className="flex text-sm items-center gap-2 bg-[#237FEA] hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
-                         <Plus size={18} />
-                        Upload File
-                    </button>
-                </div>
-
-
-                <div className="flex flex-col gap-3 overflow-auto p-5 ">
-                    {files.map((file, i) => (
-                        <div
-                            key={i}
-                            className="flex items-center justify-between p-3 transition cursor-pointer"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="bg-[#E5F1FE] rounded-lg h-12 w-12 flex justify-center items-center">
-                                    <img src="/demo/synco/reportsIcons/folder-open.png" className="w-6 m-auto" alt="" />
-                                </div>
-
-                                <div>
-                                    <p className="font-semibold mb-1">{file.name}</p>
-                                    <p className="text-sm text-gray-500">{file.date}</p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 ">
-                                <Download className="cursor-pointer hover:text-[#237FEA]" size={18} />
-                                <Trash2 className="cursor-pointer hover:text-red-500" size={18} />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
+                    )}
+                </>
+            )}
         </div>
     );
 }

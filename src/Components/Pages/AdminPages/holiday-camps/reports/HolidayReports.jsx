@@ -14,75 +14,11 @@ import {
     YAxis,
     Tooltip,
 } from "recharts";
+import * as XLSX from "xlsx";
 
 
 const dashboardData = {
-    recruitmentChart: {
-        labels: [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-        ],
 
-        leads: [300, 320, 400, 420, 480, 300, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 900, 1000, 1200, 1400, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 300, 320, 400, 420, 480, 300, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 720, 760, 780, 820, 530, 480, 620, 650, 700, 720, 760, 780, 820, 300, 320, 400, 420, 480, 300, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 720, 760, 780, 820, 530, 480, 620, 650, 700, 720, 760, 780, 820, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 720, 760, 780, 820, 530, 480, 620, 650, 700, 720, 760, 780, 820],
-        hires: [180, 300, 350, 300, 320, 400, 420, 480, 300, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 900, 1000, 1200, 1400, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 720, 760, 780, 820, 530, 480, 620, 650, 700, 720, 760, 780, 820, 300, 320, 400, 420, 480, 300, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 720, 760, 780, 820, 530, 480, 620, 650, 700, 720, 760, 780, 820, 300, 320, 400, 420, 480, 300, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 720, 760, 780, 820, 530, 480, 620, 650, 700, 720, 760, 780, 820, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 300, 320, 400, 420, 480, 300, 530, 480, 620, 650, 700, 720, 760, 780, 820, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420, 180, 300, 350, 400, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420],
-    },
-
-    recruitmentCallStats: {
-        callsMade: {
-            value: 1920,
-            previous: 2004,
-        },
-        avgCallDuration: {
-            value: "23 min",
-            previous: "10 min",
-        },
-        timeToFirstContact: {
-            value: "3 hr 16 min",
-            previous: "1 hr 8 min",
-        },
-    },
-
-    enrolledStudents: {
-        total: [
-            { label: "18", value: 2348, percent: 10 },
-            { label: "23", value: 1800, percent: 10 },
-            { label: "28", value: 1650, percent: 10 },
-            { label: "33", value: 1500, percent: 10 },
-            { label: "38", value: 1300, percent: 10 },
-            { label: "43", value: 1200, percent: 10 },
-            { label: "48", value: 1100, percent: 10 },
-            { label: "53", value: 900, percent: 10 },
-            { label: "58", value: 700, percent: 10 },
-            { label: "63+", value: 400, percent: 10 },
-        ],
-        byAge: [
-            { label: "18", value: 2348, percent: 10 },
-            { label: "23", value: 1800, percent: 10 },
-            { label: "28", value: 1650, percent: 10 },
-            { label: "33", value: 1500, percent: 10 },
-            { label: "38", value: 1300, percent: 10 },
-            { label: "43", value: 1200, percent: 10 },
-            { label: "48", value: 1100, percent: 10 },
-            { label: "53", value: 900, percent: 10 },
-            { label: "58", value: 700, percent: 10 },
-            { label: "63+", value: 400, percent: 10 },
-        ],
-        byGender: [
-            { label: "Male", value: 2348, percent: 10 },
-            { label: "Female", value: 1800, percent: 10 },
-            { label: "Others", value: 1650, percent: 10 },
-        ],
-    },
     coachesDemographics: {
         revenue: [
             { label: "Acton", value: 2348, percent: 10 },
@@ -147,9 +83,10 @@ const dashboardData = {
 };
 
 const dateOptions = [
-    { value: "month", label: "This Month" },
-    { value: "quarter", label: "This Quarter" },
-    { value: "year", label: "This Year" },
+    { value: "thisMonth", label: "This Month" },
+    { value: "lastMonth", label: "This Month" },
+    { value: "last6Months", label: "last 6 Months" },
+    { value: "last3Months", label: "last 3 Months" },
 ];
 
 const customSelectStyles = {
@@ -174,189 +111,303 @@ const customSelectStyles = {
     }),
 };
 
-const stats = [
-    {
-        icon: "/demo/synco/reportsIcons/pound.png",
-        iconStyle: "text-[#3DAFDB] bg-[#FEF6FB]",
-        title: "Total Revenue",
-        value: ` 150`,
-        sub: "vs. prev period  ",
-        subvalue: '275'
-    },
-    {
-        icon: "/demo/synco/reportsIcons/pound2.png",
-        iconStyle: "text-[#E769BD] bg-[#FEF8F4]",
-        title: "Average Revenue Per Camp",
-        value: `87`,
-        diff: "+33%",
-        sub: "vs. prev period",
-        subvalue: '275'
-    },
-    {
-        icon: "/demo/synco/reportsIcons/chart2.png",
-        iconStyle: "text-[#F38B4D] bg-[#F6F6FE]",
-        title: "Revenue Growth",
-        value: `42`,
-        diff: "+33%",
-        sub: "vs. prev period ",
-        subvalue: '150'
-    },
-
-    {
-        icon: "/demo/synco/reportsIcons/content.png",
-        iconStyle: "text-[#FF5353] bg-[#F6F6FE]",
-        title: "Conversion Rate (Leads to recruitment)",
-        value: `65%`,
-        diff: "",
-        sub: "vs. prev period ",
-        subvalue: '15%'
-    },
-
-];
 
 
 
 export default function HolidayReports() {
-      const [activeTab, setActiveTab] = useState("revenue");
-        const [activeTabEnrolled, setActiveTabEnrolled] = useState("total");
-        const [summary, setSummary] = useState({});
-        const [monthlyStudents, setMonthlyStudents] = useState([]);
-        const [marketPerformance, setMarketPerformance] = useState([]);
-        const [topAgents, setTopAgents] = useState([]);
-        const [campsRegistration, setCampsRegistration] = useState({});
-        const [enrolledStudents, setEnrolledStudents] = useState({});
-        const [loading, setLoading] = useState(false);
-    
-        const token = localStorage.getItem("adminToken");
-        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-    
-        const fetchReports = useCallback(async () => {
-            if (!token) return;
-            setLoading(true);
-    
-            try {
-                const url = `${API_BASE_URL}/api/admin/holiday/booking/reports`;
-    
-                const response = await fetch(url, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-    
-                if (!response.ok) {
-                    const text = await response.text();
-                    throw new Error(`HTTP ${response.status}: ${text}`);
-                }
-    
-                const result = await response.json();
-                if (!response.status) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Fetch Failed",
-                        text: result.message || "Failed to fetch report data.",
-                    });
-                    return;
-                }
-    
-                setSummary(result.data.summary || {});
-                setMonthlyStudents(result.data.monthlyStudents || []);
-                setMarketPerformance(result.data.marketChannelPerformance || []);
-                setTopAgents(result.data.topAgents || []);
-                setCampsRegistration(result.data.campsRegistration || {});
-                setEnrolledStudents(result.data.enrolledStudents || {});
-            } catch (error) {
+    const [activeTab, setActiveTab] = useState("revenue");
+    const [activeTabEnrolled, setActiveTabEnrolled] = useState("total");
+    const [summary, setSummary] = useState({});
+    const [monthlyStudents, setMonthlyStudents] = useState([]);
+    const [marketPerformance, setMarketPerformance] = useState([]);
+    const [topAgents, setTopAgents] = useState([]);
+    const [campsRegistration, setCampsRegistration] = useState({});
+    const [registerationPerCamp, setRegisterationPerCamp] = useState([]);
+
+    const [enrolledStudents, setEnrolledStudents] = useState({});
+    const [loading, setLoading] = useState(false);
+    const [filterType, setFilterType] = useState("thisMonth"); // default "This Month"
+
+    const token = localStorage.getItem("adminToken");
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+    const fetchReports = useCallback(async () => {
+        if (!token) return;
+        setLoading(true);
+
+        try {
+            const url = `${API_BASE_URL}/api/admin/holiday/booking/reports`;
+
+            const response = await fetch(url, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`HTTP ${response.status}: ${text}`);
+            }
+
+            const result = await response.json();
+            if (!response.status) {
                 Swal.fire({
                     icon: "error",
                     title: "Fetch Failed",
-                    text: error.message,
+                    text: result.message || "Failed to fetch report data.",
                 });
-            } finally {
-                setLoading(false);
+                return;
             }
-        }, [API_BASE_URL, token]);
-    
-        useEffect(() => {
-            fetchReports();
-        }, [fetchReports]);
-    
-        // ============================
-        // 📌 Dynamic Stats
-        // ============================
-        const stats = useMemo(() => {
-            return [
-                {
-                    icon: "/demo/synco/reportsIcons/pound.png",
-                    iconStyle: "text-[#3DAFDB] bg-[#FEF6FB]",
-                    title: "Total Revenue",
-                    value: `£${summary?.totalRevenue?.total ?? 0}`,
-                    diff: `${summary?.totalRevenue?.percentage ?? 0}%`,
-                    sub: "vs. prev period",
-                    subvalue: `£${summary?.totalRevenue?.lastMonth ?? 0}`
-                },
-                {
-                    icon: "/demo/synco/reportsIcons/pound2.png",
-                    iconStyle: "text-[#E769BD] bg-[#FEF8F4]",
-                    title: "Average Revenue Per Camp",
-                    value: `£${summary?.averageRevenuePerCamp?.total ?? 0}`,
-                    diff: `${summary?.averageRevenuePerCamp?.percentage ?? 0}%`,
-                    sub: "vs. prev period",
-                    subvalue: `£${summary?.averageRevenuePerCamp?.lastMonth ?? 0}`
-                },
-                {
-                    icon: "/demo/synco/reportsIcons/chart2.png",
-                    iconStyle: "text-[#F38B4D] bg-[#F6F6FE]",
-                    title: "Revenue Growth",
-                    value: `${summary?.revenueGrowth?.percentage ?? 0}%`,
-                    diff: "",
-                    sub: "vs. prev period",
-                    subvalue: `${summary?.revenueGrowth?.lastMonth ?? 0}`
-                },
-                {
-                    icon: "/demo/synco/reportsIcons/content.png",
-                    iconStyle: "text-[#FF5353] bg-[#F6F6FE]",
-                    title: "Conversion Rate (Leads to recruitment)",
-                    value: `${summary?.averageAgeOfChild?.total ?? 0}`,
-                    diff: "",
-                    sub: "",
-                    subvalue: ""
-                },
-            ];
-        }, [summary]);
-    
-        // ============================
-        // 📌 Dynamic Chart Data
-        // ============================
-        const chartData = useMemo(() => {
-            return monthlyStudents?.map((m) => ({
-                month: m.month,
-                current: m.students,
-                previous: m.bookings,
-            }));
-        }, [monthlyStudents]);
-    
-        // ============================
-        // 📌 Dynamic Enrollment by Age
-        // ============================
-        const enrolledByAge = useMemo(() => {
-            if (!enrolledStudents.byAge) return [];
-            return Object.entries(enrolledStudents.byAge).map(([label, obj]) => ({
-                label,
-                value: obj.total,
-                percent: obj.percentage
-            }));
-        }, [enrolledStudents]);
-    
-        // ============================
-        // 📌 Dynamic Enrollment by Gender
-        // ============================
-        const enrolledByGender = useMemo(() => {
-            if (!enrolledStudents.byGender) return [];
-            return Object.entries(enrolledStudents.byGender).map(([label, obj]) => ({
-                label,
-                value: obj.total,
-                percent: obj.percentage
-            }));
-        }, [enrolledStudents]);
-    
 
+            setSummary(result.data.summary || {});
+            setMonthlyStudents(result.data.monthlyStudents || []);
+            setMarketPerformance(result.data.marketChannelPerformance || []);
+            setTopAgents(result.data.topAgents || []);
+            setRegisterationPerCamp(result.data.registeration_perCamp_growth_and_venue || {});
+            setCampsRegistration(result.data.campsRegistration || {});
+            setEnrolledStudents(result.data.enrolledStudents || {});
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Fetch Failed",
+                text: error.message,
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, [API_BASE_URL, token]);
+
+
+  
+    useEffect(() => {
+        fetchReports();
+    }, [fetchReports]);
+const handleFilterChange = (selected) => {
+  setFilterType(selected.value);
+  fetchReportsByFilter(selected.value);  // Pass selected value here
+};
+const fetchReportsByFilter = useCallback(async (filter = filterType) => {
+  if (!token) return;
+  setLoading(true);
+
+  try {
+    let url = `${API_BASE_URL}/api/admin/holiday/booking/reports`;
+    if (filter) {
+      url += `?dateRange=${encodeURIComponent(filter)}`;
+    }
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`HTTP ${response.status}: ${text}`);
+    }
+
+    const result = await response.json();
+
+    if (!result.status) {
+      Swal.fire({
+        icon: "error",
+        title: "Fetch Failed",
+        text: result.message || "Failed to fetch report data.",
+      });
+      return;
+    }
+
+    setSummary(result.data.summary || {});
+    setMonthlyStudents(result.data.monthlyStudents || []);
+    setMarketPerformance(result.data.marketChannelPerformance || []);
+    setTopAgents(result.data.topAgents || []);
+    setRegisterationPerCamp(result.data.registeration_perCamp_growth_and_venue || {});
+    setCampsRegistration(result.data.campsRegistration || {});
+    setEnrolledStudents(result.data.enrolledStudents || {});
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Fetch Failed",
+      text: error.message,
+    });
+  } finally {
+    setLoading(false);
+  }
+}, [API_BASE_URL, token]);
+    // ============================
+    // 📌 Dynamic Stats
+    // ============================
+    const stats = useMemo(() => {
+        return [
+            {
+                icon: "/demo/synco/reportsIcons/pound.png",
+                iconStyle: "text-[#3DAFDB] bg-[#FEF6FB]",
+                title: "Total Revenue",
+                value: `£${summary?.totalRevenue?.total ?? 0}`,
+                diff: `${summary?.totalRevenue?.percentage ?? 0}%`,
+                sub: "vs. prev period",
+                subvalue: `£${summary?.totalRevenue?.lastMonth ?? 0}`
+            },
+            {
+                icon: "/demo/synco/reportsIcons/pound2.png",
+                iconStyle: "text-[#E769BD] bg-[#FEF8F4]",
+                title: "Average Revenue Per Camp",
+                value: `£${summary?.averageRevenuePerCamp?.total ?? 0}`,
+                diff: `${summary?.averageRevenuePerCamp?.percentage ?? 0}%`,
+                sub: "vs. prev period",
+                subvalue: `£${summary?.averageRevenuePerCamp?.lastMonth ?? 0}`
+            },
+            {
+                icon: "/demo/synco/reportsIcons/chart2.png",
+                iconStyle: "text-[#F38B4D] bg-[#F6F6FE]",
+                title: "Revenue Growth",
+                value: `${summary?.revenueGrowth?.percentage ?? 0}%`,
+                diff: "",
+                sub: "vs. prev period",
+                subvalue: `${summary?.revenueGrowth?.lastMonth ?? 0}`
+            },
+            {
+                icon: "/demo/synco/reportsIcons/content.png",
+                iconStyle: "text-[#FF5353] bg-[#F6F6FE]",
+                title: "Average Age of Child",
+                value: `${summary?.averageAgeOfChild?.total ?? 0}`,
+                diff: "",
+                sub: "vs. prev period",
+                subvalue: `${summary?.averageAgeOfChild?.lastMonth ?? 0}`
+            },
+        ];
+    }, [summary]);
+
+    // ============================
+    // 📌 Dynamic Chart Data
+    // ============================
+    const chartData = useMemo(() => {
+        return monthlyStudents?.map((m) => ({
+            month: m.month,
+            current: m.students,
+            previous: m.bookings,
+        }));
+    }, [monthlyStudents]);
+
+    // ============================
+    // 📌 Dynamic Enrollment by Age
+    // ============================
+    const enrolledByAge = useMemo(() => {
+        if (!enrolledStudents.byAge) return [];
+        return Object.entries(enrolledStudents.byAge).map(([label, obj]) => ({
+            label,
+            value: obj.total,
+            percent: obj.percentage
+        }));
+    }, [enrolledStudents]);
+
+    // ============================
+    // 📌 Dynamic Enrollment by Gender
+    // ============================
+    const enrolledByGender = useMemo(() => {
+        if (!enrolledStudents.byGender) return [];
+        return Object.entries(enrolledStudents.byGender).map(([label, obj]) => ({
+            label,
+            value: obj.total,
+            percent: obj.percentage
+        }));
+    }, [enrolledStudents]);
+
+    const handleExportExcel = () => {
+        const exportData = {
+            stats: [
+                {
+                    title: "Total Revenue",
+                    total: summary?.totalRevenue?.total ?? 0,
+                    percentage: summary?.totalRevenue?.percentage ?? 0,
+                    lastMonth: summary?.totalRevenue?.lastMonth ?? 0,
+                },
+                {
+                    title: "Average Revenue Per Camp",
+                    total: summary?.averageRevenuePerCamp?.total ?? 0,
+                    percentage: summary?.averageRevenuePerCamp?.percentage ?? 0,
+                    lastMonth: summary?.averageRevenuePerCamp?.lastMonth ?? 0,
+                },
+                {
+                    title: "Revenue Growth",
+                    percentage: summary?.revenueGrowth?.percentage ?? 0,
+                    lastMonth: summary?.revenueGrowth?.lastMonth ?? 0,
+                },
+                {
+                    title: "Average Age of Child",
+                    total: summary?.averageAgeOfChild?.total ?? 0,
+                    lastMonth: summary?.averageAgeOfChild?.lastMonth ?? 0,
+                },
+            ],
+
+            chartData,
+
+            registrationPerCamp: registerationPerCamp ?? {},
+
+            enrolledStudents: {
+                total: enrolledStudents?.total ?? 0,
+                byAge: enrolledByAge ?? [],
+                byGender: enrolledByGender ?? [],
+            },
+
+            marketingPerformance: marketPerformance ?? [],
+
+            topAgents: topAgents ?? [],
+
+            campsRegistration: campsRegistration ?? {},
+
+            earlyBirdOffer: {
+                numberOfRegistration: "85%",
+                percentage: "12%",
+                revenueImpact: "£12,569",
+            },
+        };
+
+        // Create a new workbook
+        const wb = XLSX.utils.book_new();
+
+        // Sheet 1: Stats
+        const statsSheet = XLSX.utils.json_to_sheet(exportData.stats);
+        XLSX.utils.book_append_sheet(wb, statsSheet, "Stats");
+
+        // Sheet 2: Chart Data
+        const chartSheet = XLSX.utils.json_to_sheet(exportData.chartData);
+        XLSX.utils.book_append_sheet(wb, chartSheet, "Chart Data");
+
+        // Sheet 3: Registration Per Camp
+        const regSheet = XLSX.utils.json_to_sheet(exportData.registrationPerCamp.revenue || []);
+        XLSX.utils.book_append_sheet(wb, regSheet, "Reg Per Camp");
+
+        // Sheet 4: Enrolled Students
+        const enrolledSheet = XLSX.utils.json_to_sheet([
+            { total: exportData.enrolledStudents.total },
+            ...exportData.enrolledStudents.byAge.map(a => ({ type: "Age", ...a })),
+            ...exportData.enrolledStudents.byGender.map(g => ({ type: "Gender", ...g }))
+        ]);
+        XLSX.utils.book_append_sheet(wb, enrolledSheet, "Enrolled");
+
+        // Sheet 5: Marketing Performance
+        const marketSheet = XLSX.utils.json_to_sheet(exportData.marketingPerformance);
+        XLSX.utils.book_append_sheet(wb, marketSheet, "Marketing");
+
+        // Sheet 6: Top Agents
+        const agentsSheet = XLSX.utils.json_to_sheet(
+            exportData.topAgents.map(a => ({
+                firstName: a?.creator?.firstName,
+                lastName: a?.creator?.lastName,
+                leadCount: a?.leadCount
+            }))
+        );
+        XLSX.utils.book_append_sheet(wb, agentsSheet, "Top Agents");
+
+        // Sheet 7: Camps Registration
+        const campsSheet = XLSX.utils.json_to_sheet([exportData.campsRegistration]);
+        XLSX.utils.book_append_sheet(wb, campsSheet, "Camps Reg");
+
+        // Sheet 8: Early Bird
+        const earlySheet = XLSX.utils.json_to_sheet([exportData.earlyBirdOffer]);
+        XLSX.utils.book_append_sheet(wb, earlySheet, "Early Bird");
+
+        // Export the Excel file
+        XLSX.writeFile(wb, "holiday-camps-summary.xlsx");
+    };
     return (
         <div className="min-h-screen bg-gray-50 p-6 pt-0">
             {/* Header */}
@@ -366,13 +417,16 @@ export default function HolidayReports() {
 
                     <Select
                         components={{ IndicatorSeparator: () => null }}
-                        placeholder='Date Range'
+                        placeholder="Date Range"
                         options={dateOptions}
-                        defaultValue={dateOptions[0]}
+                        value={dateOptions.find(opt => opt.value === filterType)}
+                        onChange={handleFilterChange}
                         styles={customSelectStyles}
                         className="md:w-40"
                     />
-                    <button className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+
+                    <button onClick={handleExportExcel}
+                        className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         <Download size={16} /> Export data
                     </button>
                 </div>
@@ -461,7 +515,7 @@ export default function HolidayReports() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-white p-5 rounded-2xl">
                             <div className="flex justify-between items-center mb-3">
-                                <h3 className="text-[22px] font-semibold text-gray-800">Coaches Demographics</h3>
+                                <h3 className="text-[22px] font-semibold text-gray-800">Registration per camp</h3>
                                 <EllipsisVertical className="text-gray-400" />
                             </div>
 
@@ -482,27 +536,24 @@ export default function HolidayReports() {
                                     >
                                         Growth
                                     </button>
-
-
                                 </div>
 
-                                {dashboardData.coachesDemographics[activeTab]?.slice(0, 6).map((d, i) => (
-                                    <div key={i} className="mb-3 flex items-center gap-2">
-                                        <div className="flex justify-between  mb-1">
-                                            <p className="text-sm text-gray-700">{d.label}</p>
+                                {/* Map over new data */}
+                                {registerationPerCamp[activeTab]?.slice(0, 6).map((d, i) => (
+                                    <div key={d.holidayCampId || i} className="mb-3 flex items-center gap-2">
+                                        <div className="flex justify-between mb-1">
+                                            <p className="text-sm text-gray-700">{d.venueName}</p>
                                         </div>
 
                                         <div className="w-full bg-gray-100 h-2 rounded-full">
                                             <div
-                                                style={{ width: `${d.percent}%` }}   // percent bar accuracy fixed
+                                                style={{ width: `${d.growthPercent}%` }} // use growthPercent as width
                                                 className="h-2 rounded-full bg-[#237FEA]"
                                             ></div>
                                         </div>
-                                        <p className="text-sm text-gray-500">{d.percent}%</p>
-
+                                        <p className="text-sm text-gray-500">{d.growthPercent}%</p>
                                     </div>
                                 ))}
-
                             </div>
                         </div>
                         <div className="bg-white p-5 rounded-2xl">
@@ -511,7 +562,7 @@ export default function HolidayReports() {
                                 <EllipsisVertical className="text-gray-400" />
                             </div>
 
-                             <div className="mb-3">
+                            <div className="mb-3">
                                 <div className="grid md:grid-cols-3 items-center gap-3 mb-3 border border-[#E2E1E5] p-1 w-full rounded-2xl">
                                     <button onClick={() => setActiveTabEnrolled("total")} className={`px-3 py-2 rounded-xl text-sm ${activeTabEnrolled === "total" ? "bg-[#237FEA] text-white" : "text-gray-600"}`}>
                                         Total
@@ -567,7 +618,7 @@ export default function HolidayReports() {
                                 <h3 className="text-[22px] font-semibold text-gray-800">Marketing Channel Performance</h3>
                                 <EllipsisVertical className="text-gray-400" />
                             </div>
-<div className="space-y-3">
+                            <div className="space-y-3">
                                 {marketPerformance?.map((s, i) => (
                                     <div key={i}>
                                         <p className="text-sm text-gray-700">{s.name}</p>
@@ -621,28 +672,28 @@ export default function HolidayReports() {
                             <EllipsisVertical className="text-gray-400" />
                         </div>
 
-                          <div className="space-y-4">
-                                <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
-                                    <img src="/demo/synco/reportsIcons/Icon-with-shape.png" className="w-12" alt="" />
-                                    <div>
-                                        <p className="text-[16px] text-[#717073] font-semibold">Percentage of camp capacity filled</p>
-                                        <h4 className="text-[22px] font-semibold my-1">
-                                            {campsRegistration?.percentFilled ?? "0%"}
-                                        </h4>
-                                    </div>
+                        <div className="space-y-4">
+                            <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
+                                <img src="/demo/synco/reportsIcons/Icon-with-shape.png" className="w-12" alt="" />
+                                <div>
+                                    <p className="text-[16px] text-[#717073] font-semibold">Percentage of camp capacity filled</p>
+                                    <h4 className="text-[22px] font-semibold my-1">
+                                        {campsRegistration?.percentFilled ?? "0%"}
+                                    </h4>
                                 </div>
-
-                                <div className="flex gap-4 items-center pb-4">
-                                    <img src="/demo/synco/reportsIcons/capacity1.png" className="w-12" alt="" />
-                                    <div>
-                                        <p className="text-[16px] text-[#717073] font-semibold">Untapped business</p>
-                                        <h4 className="text-[22px] font-semibold my-1">
-                                            £{campsRegistration?.untappedBusiness ?? 0}
-                                        </h4>
-                                    </div>
-                                </div>
-
                             </div>
+
+                            <div className="flex gap-4 items-center pb-4">
+                                <img src="/demo/synco/reportsIcons/capacity1.png" className="w-12" alt="" />
+                                <div>
+                                    <p className="text-[16px] text-[#717073] font-semibold">Untapped business</p>
+                                    <h4 className="text-[22px] font-semibold my-1">
+                                        £{campsRegistration?.untappedBusiness ?? 0}
+                                    </h4>
+                                </div>
+                            </div>
+
+                        </div>
                     </div>
                     <div className="bg-white p-3 rounded-2xl">
                         <div className="flex justify-between items-center mb-3 px-4">

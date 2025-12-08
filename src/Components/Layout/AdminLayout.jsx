@@ -88,6 +88,8 @@ const AdminLayout = ({ children }) => {
     '/templates/create': { title: 'Communication Templates', icon: "/demo/synco/members/Notification.png" },
     '/templates/list': { title: 'Text/Email Communications', icon: "/demo/synco/members/Notification.png" },
     '/templates/settingList': { title: 'Communication Templates', icon: "/demo/synco/members/Notification.png" },
+    '/administration/file-manager': { title: 'Folders/Assets', icon: "/demo/synco/members/Category.png" },
+    '/recruitment/lead': { title: 'Recruitment', icon: "/demo/synco/members/recruitment.png" },
 
   };
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

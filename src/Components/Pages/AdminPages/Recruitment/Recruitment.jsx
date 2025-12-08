@@ -1,8 +1,9 @@
-import { useState } from "react";
-// import Loader from "../contexts/Loader";
+import { useEffect, useState } from "react";
+import Loader from "../contexts/Loader";
 import Coach from "./applications/Coach";
 import VenueManager from "./applications/VenueManager";
 import All from "./applications/All";
+import { useRecruitmentTemplate } from "../contexts/RecruitmentContext";
 
 const tabs = [
   { name: "Coach Applicatiion", component: <Coach /> },
@@ -11,11 +12,10 @@ const tabs = [
 ];
 
 const Recruitment = () => {
+ 
   const [activeTab, setActiveTab] = useState(tabs[0].name);
 
-
-
-  //   if (loading) return <Loader />;
+    // if (loading) return <Loader />;
 
   return (
     <div className="mt-8 relative">

@@ -144,6 +144,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'templates/create': { title: 'Communication Templates' },
     'templates/list': { title: 'Text/Email Communications' },
     'templates/settingList': { title: 'Communication Templates' },
+    'administration/file-manager': { title: 'Folders' },
 
   };
   // Extract the part after `/demo/synco/`
