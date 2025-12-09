@@ -317,7 +317,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       iconHover: '/demo/synco/SidebarLogos/AdmistrationH.png',
       needPermissions: [{ module: 'member', action: 'view-listing' }],
       subItems: [
-        { title: 'Admin Panel', link: '/demo/synco/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] },
+        { title: 'Admin Panel', link: '/members/List', needPermissions: [{ module: 'member', action: 'view-listing' }] },
         { title: 'To Do List', link: '/administration/to-do-list', needPermissions: [{ module: 'member', action: 'view-listing' }] },
         { title: 'Folders', link: '/administration/file-manager', needPermissions: [{ module: 'member', action: 'view-listing' }] }
 
@@ -411,6 +411,48 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               noPaddingx: true,
               title: "Discounts",
               link: "/configuration/holiday-camp/discount/list",
+            },
+          ],
+        },
+        {
+          title: "Coach pro",
+          link: "#",
+          needPermissions: [
+            { module: "venue", action: "view-listing" },
+            { module: "term-group", action: "view-listing" },
+            { module: "session-plan-group", action: "view-listing" },
+            { module: "payment-group", action: "view-listing" },
+          ],
+          subItems: [
+            {
+              noPaddingx: true,
+              title: "Coach profile",
+              link: '/configuration/coach-pro/profile',
+            },
+            {
+              noPaddingx: true,
+              title: "Contract",
+              link: '/configuration/coach-pro/contracts',
+            },
+            {
+              noPaddingx: true,
+              title: "Music",
+              link: "/configuration/coach-pro/music",
+            },
+            {
+              noPaddingx: true,
+              title: "Courses",
+              link: '/configuration/coach-pro/cources',
+            },
+            {
+              noPaddingx: true,
+              title: "Issues list",
+              link: "/configuration/coach-pro/issue-list",
+            },
+            {
+              noPaddingx: true,
+              title: "Referrals",
+              link: "/configuration/coach-pro/referrals",
             },
           ],
         },

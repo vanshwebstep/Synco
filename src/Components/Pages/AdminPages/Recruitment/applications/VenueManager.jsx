@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { TiUserAdd } from "react-icons/ti";
 import { Plus } from "lucide-react";
@@ -11,56 +11,149 @@ import {
     ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useRecruitmentTemplate } from "../../contexts/RecruitmentContext";
+import Loader from "../../contexts/Loader";
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import Select from "react-select";
+import Swal from "sweetalert2";
 const VenueManager = () => {
+    const [loading, setLoading] = useState(false);
+    const dbsOptions = [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+    ];
+
+    const levelOptions = [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+    ];
+    const { recruitment, fetchvenuemanagerRecruitment, statsRecruitment, createVenueRecruitment } = useRecruitmentTemplate() || {};
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+            await fetchvenuemanagerRecruitment();
+            setLoading(false);
+        };
+        loadData();
+    }, [fetchvenuemanagerRecruitment])
+    const handleSelectChange = (field, selected) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: selected.value,
+        }));
+    };
+
+    const [filteredRecruitment, setFilteredRecruitment] = useState([]);
 
     const summaryCards = [
-        { icon: "/demo/synco/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Applications", value: 945, change: "(+28.14%)" },
-        { icon: "/demo/synco/reportsIcons/greenuser.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Applications", value: 945, change: "(+28.14%)" },
-        { icon: "/demo/synco/reportsIcons/login-icon-orange.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Applications to assessments", value: 945, change: "(+28.14%)" },
-        { icon: "/demo/synco/reportsIcons/handshake.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Applications to recruitment", value: 343 },
+        {
+            icon: "/demo/synco/reportsIcons/user-group.png",
+            iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]",
+            title: "Total Applications",
+            key: "totalApplications"
+        },
+        {
+            icon: "/demo/synco/reportsIcons/greenuser.png",
+            iconStyle: "text-[#099699] bg-[#E0F7F7]",
+            title: "New Applications",
+            key: "totalNewApplications"
+        },
+        {
+            icon: "/demo/synco/reportsIcons/login-icon-orange.png",
+            iconStyle: "text-[#F38B4D] bg-[#FFF2E8]",
+            title: "Applications to assessments",
+            key: "totalToAssessments"
+        },
+        {
+            icon: "/demo/synco/reportsIcons/handshake.png",
+            iconStyle: "text-[#6F65F1] bg-[#E9E8FF]",
+            title: "Applications to recruitment",
+            key: "totalToRecruitment"
+        }
     ];
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     // Add ID to each coach
-    const coaches = [
-        {
-            id: 1,
-            name: "Tom Jones",
-            age: 25,
-            postcode: "W14 9EB",
-            telephone: "12344567",
-            email: "tom.john@gmail.com",
-            experience: "2 years",
-            faLevel1: true,
-            dbs: false,
-            status: "Pending",
-        },
-        {
-            id: 2,
-            name: "Tom Jones",
-            age: 25,
-            postcode: "W14 9EB",
-            telephone: "12344567",
-            email: "tom.john@gmail.com",
-            experience: "2 years",
-            faLevel1: false,
-            dbs: false,
-            status: "Rejected",
-        },
-        {
-            id: 3,
-            name: "Tom Jones",
-            age: 25,
-            postcode: "W14 9EB",
-            telephone: "12344567",
-            email: "tom.john@gmail.com",
-            experience: "2 years",
-            faLevel1: true,
-            dbs: true,
-            status: "Recruited",
-        },
-        // ... (rest unchanged)
-    ];
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        // Required fields validation
+        const requiredFields = [
+            { key: "firstName", label: "First Name" },
+            { key: "lastName", label: "Last Name" },
+            { key: "gender", label: "Gender" },
+            { key: "dob", label: "Date of Birth" },
+            { key: "phoneNumber", label: "Phone Number" },
+            { key: "email", label: "Email Address" },
+            { key: "postcode", label: "Postcode" },
+            { key: "managementExperience", label: "Management Experience" },
+        ];
+
+        for (let field of requiredFields) {
+            if (!formData[field.key] || formData[field.key].trim() === "") {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Missing Field",
+                    text: `${field.label} is required.`,
+                    confirmButtonColor: "#237FEA",
+                });
+                return; // stop submit
+            }
+        }
+
+        // Valid email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid Email",
+                text: "Please enter a valid email address.",
+                confirmButtonColor: "#237FEA",
+            });
+            return;
+        }
+
+        // Phone number validation (optional)
+        if (formData.phoneNumber.length < 8) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid Phone Number",
+                text: "Phone number must be at least 8 digits.",
+                confirmButtonColor: "#237FEA",
+            });
+            return;
+        }
+
+        // Success
+        Swal.fire({
+            icon: "success",
+            title: "Lead Saved",
+            text: "Lead has been successfully saved.",
+            confirmButtonColor: "#237FEA",
+        });
+
+        console.log("New Lead Data:", formData);
+        createVenueRecruitment(formData);
+        setFormData({
+            firstName: "",
+            lastName: "",
+            gender: "",
+            dob: "",
+            phoneNumber: "",
+            email: "",
+            postcode: "",
+            managementExperience: "",
+            dbs: "no",
+            level: "no",
+        });
+        setIsOpen(false);
+    };
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     // Checkbox state
     const [selectedIds, setSelectedIds] = useState([]);
@@ -75,7 +168,6 @@ const VenueManager = () => {
 
 
 
-    // for fiters 
     const [currentDate, setCurrentDate] = useState(new Date());
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
@@ -157,11 +249,117 @@ const VenueManager = () => {
         }
     };
 
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        gender: "",
+        dob: "",
+        phoneNumber: "",
+        email: "",
+        postcode: "",
+        managementExperience: "",
+        dbs: "no",
+        level: "no",
+    });
+
+    const getExpYears = (value = "") => {
+        const lower = value.toLowerCase().trim();
+
+        if (lower.includes("more")) return 6; // treat "More than 5 years" as 6+
+        const num = parseInt(lower);
+        return isNaN(num) ? null : num;
+    };
 
 
     const applyFilter = () => {
+        let temp = Array.isArray(recruitment) ? [...recruitment] : [];
 
+        // 1. Search by name
+        if (studentName?.trim()) {
+            const q = studentName.trim().toLowerCase();
+            temp = temp.filter((c) => {
+                const name = `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase();
+                return name.includes(q);
+            });
+        }
+
+        // 2. Venue
+        if (venueName) {
+            temp = temp.filter((c) => (c.venue ?? "").toString() === venueName);
+        }
+
+        // 3. Status + Exp + FA Level
+        const activeStatuses = Object.entries(checkedStatuses)
+            .filter(([k, v]) => v)
+            .map(([k]) => k.toLowerCase());
+        console.log('activeStatuses', activeStatuses);
+        if (activeStatuses.length > 0) {
+            temp = temp.filter((c) => {
+                const status = (c.status ?? "").toLowerCase().trim();
+                const expYears = getExpYears(c.managementExperience);
+                const faLevel1 = c.level === "yes";
+
+                return (
+                    activeStatuses.includes(status) ||
+
+                    // ✅ 0–3 years exp
+                    (
+                        activeStatuses.includes("0-3 years exp") &&
+                        expYears !== null &&
+                        expYears >= 0 &&
+                        expYears <= 3
+                    ) ||
+
+                    // ✅ 3+ years exp
+                    (
+                        activeStatuses.includes("3+ years exp") &&
+                        expYears !== null &&
+                        expYears >= 3
+                    ) ||
+
+                    // ✅ FA Level 1
+                    (
+                        activeStatuses.includes("fa level 1") &&
+                        faLevel1
+                    )
+                );
+            });
+        }
+
+
+        // 4. Date range
+        if (fromDate && toDate) {
+            const start = new Date(fromDate).setHours(0, 0, 0, 0);
+            const end = new Date(toDate).setHours(23, 59, 59, 999);
+
+            temp = temp.filter((c) => {
+                const created = c.createdAt ? new Date(c.createdAt).getTime() : null;
+                return created && created >= start && created <= end;
+            });
+        }
+
+        setFilteredRecruitment(temp);
     };
+
+
+
+    useEffect(() => {
+        setFilteredRecruitment(recruitment);
+    }, [recruitment]);
+
+    const finalSummaryCards = summaryCards.map(card => {
+        const matched = statsRecruitment.find(
+            item => item.name === card.key
+        );
+
+        return {
+            ...card,
+            value: matched?.count ?? 0,
+            change: matched?.percent ? `(${matched.percent})` : null
+        };
+    });
+
+    if (loading) return <Loader />;
     return (
         <div className="flex gap-5">
             <div>
@@ -201,16 +399,8 @@ const VenueManager = () => {
                             <Plus size={16} />
                             Add new lead
                         </button>
-                        {coaches.length == 0 && (
-                            <button onClick={() => {
 
-                            }}
-                                className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
 
-                                Reset Filters
-                            </button>
-
-                        )}
                     </div>
                 </div>
                 <div className="mt-3 overflow-auto rounded-3xl bg-white ">
@@ -230,11 +420,25 @@ const VenueManager = () => {
                         </thead>
 
                         <tbody>
-                            {coaches.map((coach) => {
+                            {filteredRecruitment.map((coach) => {
                                 const isChecked = selectedIds.includes(coach.id);
 
+                                const fullName = `${coach.firstName} ${coach.lastName}`;
+                                const experience = coach.managementExperience || "-";
+                                const faLevel1 = coach.level === "yes";
+                                const dbs = coach.dbs === "yes";
+                                const status = coach.status ? coach.status.toLowerCase() : "";
+
                                 return (
-                                    <tr onClick={() => navigate(`/recruitment/lead/venue-manager/profile?id=${coach?.id}`)} key={coach.id} className="border-b cursor-pointer border-gray-200">
+                                    <tr
+                                        key={coach.id}
+                                        onClick={() => {
+                                            if (status == "recruited" || status == "pending" || status == "rejected") {
+                                                navigate(`/recruitment/lead/coach/profile?id=${coach.id}`);
+                                            }
+                                        }}
+                                        className="border-b cursor-pointer border-gray-200"
+                                    >
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
                                                 <button
@@ -249,44 +453,42 @@ const VenueManager = () => {
                                                         <Check size={16} strokeWidth={3} className="text-gray-500" />
                                                     )}
                                                 </button>
-
-                                                {coach.name}
+                                                {fullName}
                                             </div>
                                         </td>
 
                                         <td className="p-4">{coach.age}</td>
                                         <td className="p-4">{coach.postcode}</td>
-                                        <td className="p-4">{coach.telephone}</td>
+                                        <td className="p-4">{coach.phoneNumber}</td>
                                         <td className="p-4">{coach.email}</td>
-                                        <td className="p-4">{coach.experience}</td>
+                                        <td className="p-4">{experience}</td>
 
                                         <td className="p-4">
-                                            {coach.faLevel1 ? (
-                                                <span className="text-green-600 font-bold"><img src="/demo/synco/reportsIcons/greenCheck.png" alt="" className="w-6" /></span>
+                                            {faLevel1 ? (
+                                                <img src="/demo/synco/reportsIcons/greenCheck.png" className="w-6" />
                                             ) : (
-                                                <span className="text-red-500 font-bold"><img src="/demo/synco/reportsIcons/cross.png" alt="" className="w-6" /></span>
+                                                <img src="/demo/synco/reportsIcons/cross.png" className="w-6" />
                                             )}
                                         </td>
 
                                         <td className="p-4">
-                                            {coach.dbs ? (
-                                                <span className="text-green-600 font-bold"><img src="/demo/synco/reportsIcons/greenCheck.png" className="w-6" alt="" /></span>
+                                            {dbs ? (
+                                                <img src="/demo/synco/reportsIcons/greenCheck.png" className="w-6" />
                                             ) : (
-                                                <span className="text-red-500 font-bold"><img src="/demo/synco/reportsIcons/cross.png" className="w-6" alt="" /></span>
+                                                <img src="/demo/synco/reportsIcons/cross.png" className="w-6" />
                                             )}
                                         </td>
 
                                         <td className="p-4">
                                             <span
-                                                className={`px-3 py-1 rounded-md text-xs font-medium
-                        ${coach.status === "Pending"
-                                                        ? "bg-yellow-100 text-yellow-700"
-                                                        : coach.status === "Recruited"
-                                                            ? "bg-green-100 text-green-700"
-                                                            : "bg-red-100 text-red-700"
+                                                className={`px-3 py-1 rounded-md text-xs font-medium ${status === "pending"
+                                                    ? "bg-yellow-100 text-yellow-700"
+                                                    : status === "recruited"
+                                                        ? "bg-green-100 text-green-700"
+                                                        : "bg-red-100 text-red-700"
                                                     }`}
                                             >
-                                                {coach.status}
+                                                {status.charAt(0).toUpperCase() + status.slice(1)}
                                             </span>
                                         </td>
                                     </tr>
@@ -487,6 +689,167 @@ const VenueManager = () => {
                         <Download size={16} /> Export Data
                     </button>
                 </div>
+                {isOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                        <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6">
+                            {/* Modal Header */}
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-lg font-semibold">Add New Lead</h2>
+                                <button
+                                    onClick={() => setIsOpen(false)}
+                                    className="text-gray-400 hover:text-gray-600"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            {/* Form */}
+                            <form onSubmit={handleSubmit} className="space-y-4">
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input
+                                        name="firstName"
+                                        value={formData.firstName}
+                                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                        placeholder="First Name"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+
+                                    <input
+                                        name="lastName"
+                                        value={formData.lastName}
+                                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                        placeholder="Last Name"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+                                </div>
+
+                                {/* DOB with DatePicker */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <DatePicker
+                                            selected={formData.dob ? new Date(formData.dob) : null}
+                                            onChange={(date) =>
+                                                setFormData({ ...formData, dob: date?.toISOString().slice(0, 10) })
+                                            }
+                                            placeholderText="Date of Birth"
+                                            className="w-full pl-3 pr-3 py-3 border border-[#E2E1E5] rounded-lg text-sm"
+                                            dateFormat="yyyy-MM-dd"
+
+                                        />
+                                    </div>
+
+                                    <input
+                                        name="phoneNumber"
+                                        value={formData.phoneNumber}
+                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                        placeholder="Phone Number"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input
+                                        name="email"
+                                        type="email"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        placeholder="Email Address"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+
+                                    <input
+                                        name="postcode"
+                                        value={formData.postcode}
+                                        onChange={(e) => setFormData({ ...formData, postcode: e.target.value })}
+                                        placeholder="Postcode"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <select
+                                        name="managementExperience"
+                                        value={formData.managementExperience}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, managementExperience: e.target.value })
+                                        }
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    >
+                                        <option value="">Select experience</option>
+                                        <option value="1 year">1 year</option>
+                                        <option value="2 years">2 years</option>
+                                        <option value="3 years">3 years</option>
+                                        <option value="4 years">4 years</option>
+                                        <option value="5 years">5 years</option>
+                                        <option value="More than 5 years">More than 5 years</option>
+                                    </select>
+                                    <select
+                                        name="gender"
+                                        value={formData.gender}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, gender: e.target.value })
+                                        }
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    >
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {/* DBS */}
+                                    <div>
+                                        <label className="text-sm text-gray-600">DBS</label>
+                                        <Select
+                                            options={dbsOptions}
+                                            value={dbsOptions.find(o => o.value === formData.dbs)}
+                                            onChange={(selected) => handleSelectChange("dbs", selected)}
+                                            className="mt-1 rounded-xl"
+                                        />
+                                    </div>
+
+                                    {/* FA Level 1 */}
+                                    <div>
+                                        <label className="text-sm text-gray-600">FA Level 1</label>
+                                        <Select
+                                            options={levelOptions}
+                                            value={levelOptions.find(o => o.value === formData.level)}
+                                            onChange={(selected) => handleSelectChange("level", selected)}
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Status */}
+
+
+                                <div className="flex justify-end gap-3 mt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsOpen(false)}
+                                        className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 rounded-lg bg-[#237FEA] text-white hover:bg-blue-700"
+                                    >
+                                        Save Lead
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
             </div>
 
         </div>

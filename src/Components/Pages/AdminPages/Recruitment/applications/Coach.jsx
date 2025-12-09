@@ -22,7 +22,7 @@ const Coach = () => {
 
     const [loading, setLoading] = useState(false);
 
-    const { recruitment, fetchRecruitment, statsRecruitment, createRecruitment } = useRecruitmentTemplate() || {};
+    const { recruitment, fetchRecruitment, statsRecruitment, createCoachRecruitment } = useRecruitmentTemplate() || {};
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -87,45 +87,7 @@ const Coach = () => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     // Add ID to each coach
-    const coaches = [
-        {
-            id: 1,
-            name: "Tom Jones",
-            age: 25,
-            postcode: "W14 9EB",
-            telephone: "12344567",
-            email: "tom.john@gmail.com",
-            experience: "2 years",
-            faLevel1: true,
-            dbs: false,
-            status: "Pending",
-        },
-        {
-            id: 2,
-            name: "Tom Jones",
-            age: 25,
-            postcode: "W14 9EB",
-            telephone: "12344567",
-            email: "tom.john@gmail.com",
-            experience: "2 years",
-            faLevel1: false,
-            dbs: false,
-            status: "Rejected",
-        },
-        {
-            id: 3,
-            name: "Tom Jones",
-            age: 25,
-            postcode: "W14 9EB",
-            telephone: "12344567",
-            email: "tom.john@gmail.com",
-            experience: "2 years",
-            faLevel1: true,
-            dbs: true,
-            status: "Recruited",
-        },
-        // ... (rest unchanged)
-    ];
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -133,6 +95,7 @@ const Coach = () => {
         const requiredFields = [
             { key: "firstName", label: "First Name" },
             { key: "lastName", label: "Last Name" },
+            { key: "gender", label: "Gender" },
             { key: "dob", label: "Date of Birth" },
             { key: "phoneNumber", label: "Phone Number" },
             { key: "email", label: "Email Address" },
@@ -184,10 +147,11 @@ const Coach = () => {
         });
 
         console.log("New Lead Data:", formData);
-        createRecruitment(formData);
+        createCoachRecruitment(formData);
         setFormData({
             firstName: "",
             lastName: "",
+            gender: "",
             dob: "",
             phoneNumber: "",
             email: "",
@@ -299,6 +263,7 @@ const Coach = () => {
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
+        gender: "",
         dob: "",
         phoneNumber: "",
         email: "",
@@ -445,16 +410,14 @@ const Coach = () => {
                             <Plus size={16} />
                             Add new lead
                         </button>
-                        {coaches.length == 0 && (
-                            <button onClick={() => {
 
-                            }}
-                                className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
+                        {/* <button onClick={() => {
 
-                                Reset Filters
-                            </button>
+                        }}
+                            className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
 
-                        )}
+                            Reset Filters
+                        </button> */}
                     </div>
                 </div>
                 <div className="mt-3 overflow-auto rounded-3xl bg-white ">
@@ -486,9 +449,11 @@ const Coach = () => {
                                 return (
                                     <tr
                                         key={coach.id}
-                                        onClick={() =>
-                                            navigate(`/recruitment/lead/coach/profile?id=${coach.id}`)
-                                        }
+                                        onClick={() => {
+                                            if (status == "recruited" || status == "pending" || status == "rejected") {
+                                                navigate(`/recruitment/lead/coach/profile?id=${coach.id}`);
+                                            }
+                                        }}
                                         className="border-b cursor-pointer border-gray-200"
                                     >
                                         <td className="p-4">
@@ -811,24 +776,38 @@ const Coach = () => {
 
                                     />
                                 </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <select
+                                        name="managementExperience"
+                                        value={formData.managementExperience}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, managementExperience: e.target.value })
+                                        }
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    >
+                                        <option value="">Select experience</option>
+                                        <option value="1 year">1 year</option>
+                                        <option value="2 years">2 years</option>
+                                        <option value="3 years">3 years</option>
+                                        <option value="4 years">4 years</option>
+                                        <option value="5 years">5 years</option>
+                                        <option value="More than 5 years">More than 5 years</option>
+                                    </select>
+                                    <select
+                                        name="gender"
+                                        value={formData.gender}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, gender: e.target.value })
+                                        }
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    >
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
 
-                                <select
-                                    name="managementExperience"
-                                    value={formData.managementExperience}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, managementExperience: e.target.value })
-                                    }
-                                    className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                                >
-                                    <option value="">Select experience</option>
-                                    <option value="1 year">1 year</option>
-                                    <option value="2 years">2 years</option>
-                                    <option value="3 years">3 years</option>
-                                    <option value="4 years">4 years</option>
-                                    <option value="5 years">5 years</option>
-                                    <option value="More than 5 years">More than 5 years</option>
-                                </select>
-
+                                </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     {/* DBS */}
                                     <div>

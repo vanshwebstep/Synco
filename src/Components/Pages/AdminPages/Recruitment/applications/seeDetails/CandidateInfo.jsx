@@ -1,11 +1,14 @@
 import { useState, useCallback, useEffect } from 'react'
 import Swal from "sweetalert2";
+import { useSearchParams } from "react-router-dom";
+
 import { useNotification } from '../../../contexts/NotificationContext';
 import { Check, Mail, MessageSquare, Search } from "lucide-react";
 import { IoIosArrowDown } from "react-icons/io";
 import { motion } from "framer-motion";
 import { IoMdCheckmarkCircle } from "react-icons/io";
 import Select from "react-select";
+import { useRecruitmentTemplate } from '../../../contexts/RecruitmentContext';
 const dateOptions = [
   { value: "2025-01-01", label: "Jan 01 2025" },
   { value: "2025-01-02", label: "Jan 02 2025" },
@@ -35,6 +38,12 @@ const CandidateInfo = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [rateOpen, setRateOpen] = useState(false);
   const [openCandidateStatusModal, setOpenCandidateStatusModal] = useState(false);
+  const { fetchCoachRecruitmentById, recuritmentDataById } = useRecruitmentTemplate() || {};
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");   // 👉 this gives "7"
+
+  console.log("Candidate ID:", id);
+
   const [openResultModal, setOpenResultModal] = useState(false);
   const [openOfferModal, setOpenOfferModal] = useState(false);
   const [commentsList, setCommentsList] = useState([]);
@@ -48,13 +57,51 @@ const CandidateInfo = () => {
   const [experience, setExperience] = useState("");
   const [venues, setVenues] = useState([]);
 
-  const handleVenueChange = (slot) => {
-    setVenues((prev) =>
-      prev.includes(slot)
-        ? prev.filter((item) => item !== slot)
-        : [...prev, slot]
-    );
+  console.log('recuritmentDataById', recuritmentDataById);
+  const [form, setForm] = useState({
+    firstName: recuritmentDataById?.firstName || "",
+    surname: recuritmentDataById?.lastName || "",
+    dob: recuritmentDataById?.dob || "",
+    age: recuritmentDataById?.age || "",
+    email: recuritmentDataById?.email || "",
+    phone: recuritmentDataById?.phoneNumber || "",
+    postcode: recuritmentDataById?.postcode || "",
+    heardFrom: recuritmentDataById?.candidateProfile?.howDidYouHear || "Indeed",
+
+    ageGroup: recuritmentDataById?.candidateProfile?.ageGroupExperience || "",
+    vehicle:
+      recuritmentDataById?.candidateProfile?.accessToOwnVehicle === true
+        ? "Yes"
+        : recuritmentDataById?.candidateProfile?.accessToOwnVehicle === false
+          ? "No"
+          : "",
+    qualification: recuritmentDataById?.candidateProfile?.whichQualificationYouHave || "",
+    experience: recuritmentDataById?.candidateProfile?.footballExperience || "",
+    venues: recuritmentDataById?.venues || [],
+    coverNote: recuritmentDataById?.coverNote || "",
+  });
+
+  const handleChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
+
+  const handleVenueChange = (slot) => {
+    setForm((prev) => ({
+      ...prev,
+      venues: prev.venues.includes(slot)
+        ? prev.venues.filter((x) => x !== slot)
+        : [...prev.venues, slot],
+    }));
+  };
+
+  const venueSlots = [
+    "London Bridge / SAT 9 AM - 10 AM",
+    "London Bridge / SAT 10 AM - 11 AM",
+    "London Bridge / SAT 11 AM - 12 PM",
+    "London Bridge / SAT 12 PM - 1 PM",
+    "London Bridge / SAT 2 PM - 3 PM",
+    "London Bridge / SAT 3 PM - 4 PM",
+  ];
   // Pagination calculations
   const indexOfLastComment = currentPage * commentsPerPage;
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
@@ -236,7 +283,8 @@ const CandidateInfo = () => {
 
   useEffect(() => {
     fetchComments();
-  }, []);
+    fetchCoachRecruitmentById(id);
+  }, [fetchCoachRecruitmentById, fetchComments]);
   return (
     <>
       <button className="p-3 text-[#34AE56] font-bold bg-[#E5F2EA] px-10 absolute right-0 top-0 rounded-2xl">
@@ -249,61 +297,116 @@ const CandidateInfo = () => {
         <div className="md:w-8/12">
 
           {/* Section: Candidate Information */}
-          <div className="bg-white  rounded-2xl p-6 space-y-6">
+          <div className="bg-white rounded-2xl p-6 space-y-6">
             <h2 className="font-semibold text-[24px]">Candidate Information</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
+              {/** FIRST NAME */}
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">First Name</label>
-                <input type="text" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="Tom" />
+                <input
+                  type="text"
+                  className="input border border-[#E2E1E5] rounded-xl w-full p-3"
+                  value={form.firstName}
+                  onChange={(e) => handleChange("firstName", e.target.value)}
+                  placeholder="Tom"
+                />
               </div>
 
+              {/** SURNAME */}
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Surname</label>
-                <input type="text" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="John" />
+                <input
+                  type="text"
+                  className="input border border-[#E2E1E5] rounded-xl w-full p-3"
+                  value={form.surname}
+                  onChange={(e) => handleChange("surname", e.target.value)}
+                  placeholder="John"
+                />
               </div>
 
+              {/** DOB */}
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Date of Birth</label>
-                <input type="date" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" />
+                <input
+                  type="date"
+                  className="input border border-[#E2E1E5] rounded-xl w-full p-3"
+                  value={form.dob}
+                  onChange={(e) => handleChange("dob", e.target.value)}
+                />
               </div>
 
+              {/** AGE */}
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Age</label>
-                <input type="number" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="25" />
+                <input
+                  type="number"
+                  className="input border border-[#E2E1E5] rounded-xl w-full p-3"
+                  value={form.age}
+                  onChange={(e) => handleChange("age", e.target.value)}
+                  placeholder="25"
+                />
               </div>
 
+              {/** EMAIL */}
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Email</label>
-                <input type="email" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="email@gmail.com" />
+                <input
+                  type="email"
+                  className="input border border-[#E2E1E5] rounded-xl w-full p-3"
+                  value={form.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  placeholder="email@gmail.com"
+                />
               </div>
 
+              {/** PHONE */}
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Phone number</label>
-                <input type="text" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="+91" />
+                <input
+                  type="text"
+                  className="input border border-[#E2E1E5] rounded-xl w-full p-3"
+                  value={form.phone}
+                  onChange={(e) => handleChange("phone", e.target.value)}
+                  placeholder="+91"
+                />
               </div>
 
+              {/** POSTCODE */}
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">London Postcode</label>
-                <input type="text" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="SW15 0AB" />
+                <input
+                  type="text"
+                  className="input border border-[#E2E1E5] rounded-xl w-full p-3"
+                  value={form.postcode}
+                  onChange={(e) => handleChange("postcode", e.target.value)}
+                  placeholder="SW15 0AB"
+                />
               </div>
 
+              {/** HEARD FROM */}
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">How did you hear about us?</label>
-                <select className="input border border-[#E2E1E5]  rounded-xl w-full p-3">
-                  <option>Indeed</option>
+                <select
+                  className="input border border-[#E2E1E5] rounded-xl w-full p-3"
+                  value={form.heardFrom}
+                  onChange={(e) => handleChange("heardFrom", e.target.value)}
+                >
+                  <option value="Indeed">Indeed</option>
+                  <option value="Facebook">Facebook</option>
+                  <option value="LinkedIn">Linked In</option>
+                  <option value="Instagram">Instagram</option>
+                  <option value="Referral">Referral</option>
                 </select>
               </div>
 
             </div>
           </div>
 
-          {/* Section: Job Specifications */}
-
-          <div className="bg-white my-5 rounded-2xl p-6 space-y-6">
-
-            <h2 className="font-semibold text-[24px]">Job specifications</h2>
+          {/* Job Specifications */}
+          <div className="bg-white rounded-2xl p-6 space-y-6">
+            <h2 className="font-semibold text-[24px]">Job Specifications</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -311,159 +414,125 @@ const CandidateInfo = () => {
               <div>
                 <p className="font-semibold text-[18px] mb-2">Age groups experience</p>
                 <div className="space-y-2">
-                  {["5-8", "9-12", "13-16"].map((age) => (
+                  {["5-7", "7-10", "9-12", "13-16"].map((age) => (
                     <label key={age} className="flex items-center gap-3 cursor-pointer select-none">
 
                       <input
                         type="radio"
                         name="ageGroup"
                         value={age}
-                        checked={ageGroup === age}
-                        onChange={(e) => setAgeGroup(e.target.value)}
+                        checked={form.ageGroup === age}
+                        onChange={(e) => handleChange("ageGroup", e.target.value)}
                         className="peer hidden"
                       />
 
-                      <span
-                        className="w-5 h-5 rounded-full border-2 border-gray-400 text-gray-400 flex items-center justify-center
-                 transition-all peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white"
-                      >
-
-                        <Check className='font-bold text-lg p-[2px]' />
+                      <span className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center peer-checked:bg-blue-600 peer-checked:border-blue-600 text-white">
+                        <Check className="p-[2px]" />
                       </span>
 
                       {age}
                     </label>
                   ))}
-
                 </div>
               </div>
 
-              {/* Vehicle */}
+              {/* VEHICLE */}
               <div>
                 <p className="font-semibold text-[18px] mb-2">Access to your own vehicle?</p>
                 <div className="space-y-2">
-                  {["Yes", "No"].map((val) => (
-                    <label key={val} className="flex items-center gap-3 cursor-pointer select-none">
+                  {["Yes", "No"].map((v) => (
+                    <label key={v} className="flex items-center gap-3 cursor-pointer select-none">
 
                       <input
                         type="radio"
-                        name="ageGroup"
-                        value={val}
-                        checked={vehicle === val}
-                        onChange={(e) => setVehicle(e.target.value)}
+                        value={v}
+                        checked={form.vehicle === v}
+                        onChange={(e) => handleChange("vehicle", e.target.value)}
                         className="peer hidden"
                       />
 
-                      <span
-                        className="w-5 h-5 rounded-full border-2 border-gray-400 text-gray-400 flex items-center justify-center
-                 transition-all peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white"
-                      >
-
-                        <Check className='font-bold text-lg p-[2px]' />
+                      <span className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center peer-checked:bg-blue-600 peer-checked:border-blue-600 text-white">
+                        <Check className="p-[2px]" />
                       </span>
 
-                      {val}
+                      {v}
                     </label>
-
-
                   ))}
                 </div>
               </div>
 
-              {/* Qualifications */}
+              {/* QUALIFICATIONS */}
               <div>
                 <p className="font-semibold text-[18px] mb-2">Which qualifications do you have?</p>
                 <div className="space-y-2">
-                  {["Level one in football", "Level two in football", "Higher level"].map((qual) => (
-                    <label key={qual} className="flex items-center gap-3 cursor-pointer select-none">
+                  {["Bachelor's Degree", "Level one in football", "Level two in football", "Higher level"].map((q) => (
+                    <label key={q} className="flex items-center gap-3 cursor-pointer select-none">
 
                       <input
                         type="radio"
-                        name="ageGroup"
-                        value={qual}
-                        checked={qualification === qual}
-                        onChange={(e) => setQualification(e.target.value)}
+                        value={q}
+                        checked={form.qualification === q}
+                        onChange={(e) => handleChange("qualification", e.target.value)}
                         className="peer hidden"
                       />
 
-                      <span
-                        className="w-5 h-5 rounded-full border-2 border-gray-400 text-gray-400 flex items-center justify-center
-                 transition-all peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white"
-                      >
-
-                        <Check className='font-bold text-lg p-[2px]' />
+                      <span className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center peer-checked:bg-blue-600 peer-checked:border-blue-600 text-white">
+                        <Check className="p-[2px]" />
                       </span>
 
-                      {qual}
+                      {q}
                     </label>
                   ))}
                 </div>
               </div>
 
-              {/* Coaching Experience */}
+              {/* EXPERIENCE */}
               <div>
-                <p className="font-semibold text-[18px] mb-2">
-                  How many years football coaching experience do you have?
-                </p>
+                <p className="font-semibold text-[18px] mb-2">How many years football coaching experience?</p>
                 <div className="space-y-2">
-                  {["0-1 year", "2 years", "3 years", "More"].map((yr) => (
-                    <label key={yr} className="flex items-center gap-3 cursor-pointer select-none">
+                  {["0-1 year", "2 years", "3 years", "More"].map((ex) => (
+                    <label key={ex} className="flex items-center gap-3 cursor-pointer select-none">
 
                       <input
                         type="radio"
-                        name="ageGroup"
-                        value={yr}
-                        checked={experience === yr}
-                        onChange={(e) => setExperience(e.target.value)}
+                        value={ex}
+                        checked={form.experience === ex}
+                        onChange={(e) => handleChange("experience", e.target.value)}
                         className="peer hidden"
                       />
 
-                      <span
-                        className="w-5 h-5 rounded-full border-2 border-gray-400 text-gray-400 flex items-center justify-center
-                 transition-all peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white"
-                      >
-
-                        <Check className='font-bold text-lg p-[2px]' />
+                      <span className="w-5 h-5 rounded-full border-2 border-gray-400 flex items-center justify-center peer-checked:bg-blue-600 peer-checked:border-blue-600 text-white">
+                        <Check className="p-[2px]" />
                       </span>
 
-                      {yr}
+                      {ex}
                     </label>
                   ))}
                 </div>
               </div>
 
-              {/* Venues */}
+              {/* VENUES */}
               <div className="md:col-span-2">
                 <p className="font-semibold text-[18px] mb-2">Which venues are you available for work?</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {[
-                    "London Bridge / SAT 9 AM - 10 AM",
-                    "London Bridge / SAT 10 AM - 11 AM",
-                    "London Bridge / SAT 11 AM - 12 PM",
-                    "London Bridge / SAT 12 PM - 1 PM",
-                    "London Bridge / SAT 2 PM - 3 PM",
-                    "London Bridge / SAT 3 PM - 4 PM",
-                  ].map((slot) => (
+                  {venueSlots.map((slot) => (
                     <label key={slot} className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={venues.includes(slot)}
+                        checked={form.venues.includes(slot)}
                         onChange={() => handleVenueChange(slot)}
-                        className="h-4.5 w-4.5"
                       />
                       <span>{slot}</span>
                     </label>
                   ))}
                 </div>
               </div>
-
             </div>
           </div>
 
-
-          {/* Section: Further Details */}
-          <div className="bg-white  rounded-2xl p-6 space-y-4">
+          {/* Further Details */}
+          <div className="bg-white rounded-2xl p-6 space-y-4">
             <h2 className="font-semibold text-[24px]">Further Details</h2>
 
             <button className="px-4 py-2.5 bg-[#237FEA] text-white rounded-lg text-sm">
@@ -471,10 +540,20 @@ const CandidateInfo = () => {
             </button>
 
             <textarea
-              className="input border border-[#E2E1E5]   bg-[#FAFAFA] rounded-xl w-full p-3 h-32 resize-none"
+              className="input border border-[#E2E1E5] bg-[#FAFAFA] rounded-xl w-full p-3 h-32 resize-none"
+              value={form.coverNote}
+              onChange={(e) => handleChange("coverNote", e.target.value)}
               placeholder="Cover Note"
             ></textarea>
           </div>
+
+          {/* SUBMIT BUTTON */}
+          <button
+            className="bg-blue-600 text-white px-5 py-3 rounded-xl"
+            onClick={() => console.log("Submit Payload:", form)}
+          >
+            Submit
+          </button>
 
 
           {/* comments */}

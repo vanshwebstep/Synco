@@ -156,6 +156,11 @@ import HolidayReports from './Components/Pages/AdminPages/holiday-camps/reports/
 import { CommunicationTemplateProvider } from './Components/Pages/AdminPages/contexts/CommunicationContext.jsx';
 import { ToDoListProvider } from './Components/Pages/AdminPages/contexts/ToDoListContext.jsx';
 import { RecruitmentProvider } from './Components/Pages/AdminPages/contexts/RecruitmentContext.jsx';
+import Music from './Components/Pages/AdminPages/Coach Pro/Music.jsx';
+import CourseList from './Components/Pages/AdminPages/Coach Pro/Course/CourseList.jsx';
+import CourseCreate from './Components/Pages/AdminPages/Coach Pro/Course/CourseCreate.jsx';
+import CoachProfile from './Components/Pages/AdminPages/Configuration/coach-pro/CoachProfile.jsx';
+
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
 // Role-based route component
@@ -969,6 +974,43 @@ const AppRoutes = () => {
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>
+      } />
+      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="/configuration/coach-pro/music" element={
+        // <ProtectedRoute>
+        <AdminLayout>
+          <RoleBasedRoute>
+            <Music />
+          </RoleBasedRoute>
+        </AdminLayout>
+        // </ProtectedRoute>
+      } />
+      <Route path="/configuration/coach-pro/profile" element={
+        // <ProtectedRoute>
+        <AdminLayout>
+          {/* <RoleBasedRoute> */}
+          <CoachProfile />
+          {/* </RoleBasedRoute> */}
+        </AdminLayout>
+        // </ProtectedRoute>
+      } />
+      <Route path="/configuration/coach-pro/course" element={
+        // <ProtectedRoute>
+        <AdminLayout>
+          <RoleBasedRoute>
+            <CourseList />
+          </RoleBasedRoute>
+        </AdminLayout>
+        // </ProtectedRoute>
+      } />
+      <Route path="/configuration/coach-pro/course/create" element={
+        // <ProtectedRoute>
+        <AdminLayout>
+          <RoleBasedRoute>
+            <CourseCreate />
+          </RoleBasedRoute>
+        </AdminLayout>
+        // </ProtectedRoute>
       } />
     </Routes>
   );
