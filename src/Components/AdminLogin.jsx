@@ -205,7 +205,7 @@ const AdminLogin = () => {
           <div>
             <div className="mb-6">
               <img
-                src='/demo/synco/images/mainlogo.png'
+                src='/images/mainlogo.png'
                 alt="Logo"
                 className=" mx-auto rounded-full"
               />

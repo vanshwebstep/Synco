@@ -372,7 +372,7 @@ const StudentCamp = () => {
                         <div className="flex justify-between items-center px-4">
                             <h2 className="text-xl font-semibold mb-4">Search now</h2>
                             <img
-                                src="/demo/synco/DashboardIcons/filtericon.png"
+                                src="/DashboardIcons/filtericon.png"
                                 onClick={() => setOpenDateFilter(true)}
                                 className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer"
                                 style={{ filter: "brightness(0.5)" }}
@@ -550,7 +550,7 @@ const StudentCamp = () => {
                             </div>
                         </div>
                         <img
-                            src="/demo/synco/DashboardIcons/filtericon.png"
+                            src="/DashboardIcons/filtericon.png"
                             className="w-4 h-4 sm:w-5 sm:h-5 cursor-pointer"
                             onClick={() => setOpenAgeFilter(true)}
                             style={{ filter: "brightness(0.5)" }}
@@ -718,7 +718,7 @@ const StudentCamp = () => {
                         >
 
                             <img
-                                src="/demo/synco/images/icons/mail.png"
+                                src="/images/icons/mail.png"
                                 className="w-4 h-4 sm:w-5 sm:h-5"
                                 alt=""
                             />

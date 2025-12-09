@@ -462,7 +462,7 @@ const HolidayTermsCreate = () => {
                     }}
                     className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
                     <img
-                        src="/demo/synco/images/icons/arrow-left.png"
+                        src="/images/icons/arrow-left.png"
                         alt="Back"
                         className="w-5 h-5 md:w-6 md:h-6"
                     />
@@ -480,7 +480,7 @@ const HolidayTermsCreate = () => {
                                 </label>
                                 {id && (
                                     <img
-                                        src="/demo/synco/images/icons/edit.png"
+                                        src="/images/icons/edit.png"
                                         className="w-[18px] cursor-pointer"
                                         onClick={() => setIsEditMode(true)} // Allow editing
                                         alt="Edit camp name"
@@ -537,19 +537,19 @@ const HolidayTermsCreate = () => {
 
                                         <div className="flex gap-2">
                                             <img
-                                                src="/demo/synco/images/icons/edit.png"
+                                                src="/images/icons/edit.png"
                                                 className="w-[18px] cursor-pointer"
                                                 onClick={() => setIsEdit(true)}
 
                                             />
                                             <img
-                                                src="/demo/synco/images/icons/deleteIcon.png"
+                                                src="/images/icons/deleteIcon.png"
                                                 className="w-[18px] cursor-pointer"
                                                 onClick={deleteCampDate}
                                             />
 
                                             <img
-                                                src="/demo/synco/images/icons/crossGray.png"
+                                                src="/images/icons/crossGray.png"
                                                 className="w-[18px] cursor-pointer"
 
                                             />

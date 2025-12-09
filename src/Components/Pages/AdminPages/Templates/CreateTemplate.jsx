@@ -212,7 +212,7 @@ export default function CreateTemplateSteps() {
                                     <HiArrowUturnLeft className="text-2xl font-bold text-gray-500 hover:text-black cursor-pointer transition-colors duration-200"
                                     />
 
-                                    {/* <img src="/demo/synco/images/icons/flipLeft.png" alt="" /> */}
+                                    {/* <img src="/images/icons/flipLeft.png" alt="" /> */}
                                 </button>
                                 <button
                                     className="px-3 py-0"
@@ -221,7 +221,7 @@ export default function CreateTemplateSteps() {
                                     <HiArrowUturnRight className="text-2xl font-bold text-gray-500 hover:text-black cursor-pointer transition-colors duration-200"
                                     />
 
-                                    {/* <img src="/demo/synco/images/icons/flipRight.png" alt="" /> */}
+                                    {/* <img src="/images/icons/flipRight.png" alt="" /> */}
 
                                 </button>
                             </div>
@@ -238,7 +238,7 @@ export default function CreateTemplateSteps() {
                                     <HiArrowUturnLeft className="text-2xl font-bold text-gray-500 hover:text-black cursor-pointer transition-colors duration-200"
                                     />
 
-                                    {/* <img src="/demo/synco/images/icons/flipLeft.png" alt="" /> */}
+                                    {/* <img src="/images/icons/flipLeft.png" alt="" /> */}
                                 </button>
 
                             </div>
@@ -560,13 +560,13 @@ export default function CreateTemplateSteps() {
                                         <h3 className="text-[20px] font-semibold">Preview</h3>
 
                                         <div className="rounded-xl space-y-4">
-                                            <img className="w-full" src="/demo/synco/images/icons/TopNavigation.png" alt="" />
+                                            <img className="w-full" src="/images/icons/TopNavigation.png" alt="" />
                                             <div className="min-h-80 p-4 ">
                                                 <div className="bg-gray-100 p-4 rounded-xl min-h-20 text-sm text-gray-800">
                                                     {textform.message}
                                                 </div>
                                             </div>
-                                            <img className="w-full" src="/demo/synco/images/icons/mobileKeyboard.png" alt="" />
+                                            <img className="w-full" src="/images/icons/mobileKeyboard.png" alt="" />
 
                                         </div>
 

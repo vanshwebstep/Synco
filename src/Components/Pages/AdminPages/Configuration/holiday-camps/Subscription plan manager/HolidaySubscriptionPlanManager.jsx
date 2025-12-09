@@ -108,7 +108,7 @@ const HolidaySubscriptionPlanManager = () => {
             onClick={() => setPreviewShowModal(false)}
             className="text-xl md:text-[28px] font-semibold flex items-center gap-2 md:gap-3 cursor-pointer hover:opacity-80 transition-opacity mb-4 duration-200">
             <img
-              src="/demo/synco/images/icons/arrow-left.png"
+              src="/images/icons/arrow-left.png"
               alt="Back"
               className="w-5 h-5 md:w-6 md:h-6"
             />
@@ -124,7 +124,7 @@ const HolidaySubscriptionPlanManager = () => {
                   onClick={() => setPreviewShowModal(false)}
                   className="text-gray-400 hover:text-black text-xl font-bold"
                 >
-                  <img src="/demo/synco/images/icons/cross.png" alt="close" className="w-5 h-5" />
+                  <img src="/images/icons/cross.png" alt="close" className="w-5 h-5" />
                 </button>
               </div>
 
@@ -178,7 +178,7 @@ const HolidaySubscriptionPlanManager = () => {
                               return text ? (
                                 <li key={index} className="flex items-center gap-2">
                                   <img
-                                    src="/demo/synco/images/icons/tick-circle.png"
+                                    src="/images/icons/tick-circle.png"
                                     alt=""
                                     className="w-5 h-5"
                                   />
@@ -211,7 +211,7 @@ const HolidaySubscriptionPlanManager = () => {
                 // onClick={() => setOpenForm(true)}
                 className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
               >
-                <img src="/demo/synco/members/add.png" className='w-5' alt="" /> Add Payment Plan Group
+                <img src="/members/add.png" className='w-5' alt="" /> Add Payment Plan Group
               </button>
             }
           </div>
@@ -286,7 +286,7 @@ const HolidaySubscriptionPlanManager = () => {
                                   }`}
                               >
                                 <img
-                                  src="/demo/synco/images/icons/Show.png"
+                                  src="/images/icons/Show.png"
                                   alt="Show"
                                   className="w-5 h-4 transition-transform duration-200 group-hover:scale-110"
                                 />
@@ -297,7 +297,7 @@ const HolidaySubscriptionPlanManager = () => {
                                   className="group"
                                 >
                                   <img
-                                    src="/demo/synco/images/icons/edit.png"
+                                    src="/images/icons/edit.png"
                                     alt="Edit"
                                     className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
                                   />
@@ -309,7 +309,7 @@ const HolidaySubscriptionPlanManager = () => {
                                   className="group flex items-center text-red-600 hover:underline"
                                 >
                                   <img
-                                    src="/demo/synco/images/icons/deleteIcon.png"
+                                    src="/images/icons/deleteIcon.png"
                                     alt="Delete"
                                     className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
                                   />
@@ -361,7 +361,7 @@ const HolidaySubscriptionPlanManager = () => {
                           className={`group ${!user.paymentPlans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
                           <img
-                            src="/demo/synco/images/icons/Show.png"
+                            src="/images/icons/Show.png"
                             alt="Show"
                             className="w-5 h-4 transition-transform duration-200 group-hover:scale-110"
                           />
@@ -369,7 +369,7 @@ const HolidaySubscriptionPlanManager = () => {
 
                         <button onClick={() => handleEdit(user.id)} className="group">
                           <img
-                            src="/demo/synco/images/icons/edit.png"
+                            src="/images/icons/edit.png"
                             alt="Edit"
                             className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
                           />
@@ -377,7 +377,7 @@ const HolidaySubscriptionPlanManager = () => {
 
                         <button onClick={() => handleDelete(user.id)} className="group flex items-center text-red-600 hover:underline">
                           <img
-                            src="/demo/synco/images/icons/deleteIcon.png"
+                            src="/images/icons/deleteIcon.png"
                             alt="Delete"
                             className="w-5 h-5 transition-transform duration-200 group-hover:scale-110"
                           />

@@ -233,7 +233,7 @@ export default function FileManager() {
 
                         <div className="md:flex items-center justify-between gap-3 p-5  border-b border-[#E2E1E5]">
                             <div className="flex items-center gap-2">
-                                <img src="/demo/synco/reportsIcons/Folder2.png" className="w-7" alt="" />
+                                <img src="/reportsIcons/Folder2.png" className="w-7" alt="" />
                                 <h2 className="text-xl font-semibold">Folders</h2>
                             </div>
                             <div className="flex gap-3 items-center">
@@ -273,7 +273,7 @@ export default function FileManager() {
                   ${!uploading ? 'hover:shadow-md cursor-pointer' : 'cursor-not-allowed opacity-50 pointer-events-none'}`}
                                     >
                                         <div>
-                                            <img src="/demo/synco/reportsIcons/folder-open.png" className="w-10" alt="" />
+                                            <img src="/reportsIcons/folder-open.png" className="w-10" alt="" />
                                             <h3 className="font-semibold text-[#414141] leading-[22px] mt-2">{f.name}</h3>
                                         </div>
                                         <div className="flex justify-between">
@@ -300,7 +300,7 @@ export default function FileManager() {
                             <>
                                 <div className="flex justify-between items-center p-5 border-b border-[#E2E1E5]">
                                     <div className="flex items-center gap-2">
-                                        <img src="/demo/synco/reportsIcons/folder-2.png" className="w-7" alt="" />
+                                        <img src="/reportsIcons/folder-2.png" className="w-7" alt="" />
                                         <h2 className="text-xl font-semibold">
                                             {selectedFolder ? selectedFolder.name : "Files"}
                                         </h2>
@@ -325,7 +325,7 @@ export default function FileManager() {
                                             <div key={i} className="flex items-center justify-between p-3 transition cursor-pointer">
                                                 <div className="flex items-center gap-3">
                                                     <div className="bg-[#E5F1FE] rounded-lg h-12 w-12 flex justify-center items-center">
-                                                        <img src="/demo/synco/reportsIcons/folder-open.png" className="w-6" alt="" />
+                                                        <img src="/reportsIcons/folder-open.png" className="w-6" alt="" />
                                                     </div>
 
                                                     <div>

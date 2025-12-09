@@ -22,7 +22,7 @@ const apiTasks = {
             attachments: "[{\"file\":\"data:image/webp;base64,\"}]",
             createdBy: 335,
             assignedAdmins: [
-                { id: 12, name: "Jessica", avatar: "/demo/synco/reportsIcons/Avatar.png" },
+                { id: 12, name: "Jessica", avatar: "/reportsIcons/Avatar.png" },
                 { id: 14, name: "Matt", avatar: "/reportsIcons/Avatar1.png" }
             ],
             status: "to_do",
@@ -211,7 +211,7 @@ export default function TodoList() {
 
             createdBy: {
                 name: task.createdByDetails?.name || "Unknown",
-                avatar: task.createdByDetails?.profile || "/demo/synco/defaultAvatar.png"
+                avatar: task.createdByDetails?.profile || "/defaultAvatar.png"
             },
 
             status: task.status,
@@ -541,7 +541,7 @@ function TaskCard({ task, onClick }) {
 
             <div className="flex justify-between items-center border-t border-[#E2E1E5] text-[16px] p-4 font-semibold text-gray-500 mt-4">
                 <div className="flex items-center gap-1">
-                    <img src="/demo/synco/reportsIcons/share.png" className="w-4" />
+                    <img src="/reportsIcons/share.png" className="w-4" />
                     {task.attachments.length}
                 </div>
                 <div>{task.daysLeft} 3 days left</div>
@@ -713,7 +713,7 @@ const [showComment, setShowComment] = useState(false);
                                     onDragOver={handleDragOver}
                                 >
                                     <div className="text-center pointer-events-none">
-                                        <img src="/demo/synco/reportsIcons/folder.png" className="w-10 m-auto" alt="" />
+                                        <img src="/reportsIcons/folder.png" className="w-10 m-auto" alt="" />
                                         <p className="text-sm mt-2">Click to upload or drag and drop</p>
                                     </div>
 
@@ -781,7 +781,7 @@ const [showComment, setShowComment] = useState(false);
                                     src={
                                         adminInfo?.profile
                                             ? `${adminInfo.profile}`
-                                            : '/demo/synco/members/dummyuser.png'
+                                            : '/members/dummyuser.png'
                                     }
                                     className="w-10 h-10 rounded-full object-cover"
                                 />
@@ -816,7 +816,7 @@ const [showComment, setShowComment] = useState(false);
                                 <img src={
                                     adminInfo?.profile
                                         ? `${adminInfo.profile}`
-                                        : '/demo/synco/members/dummyuser.png'
+                                        : '/members/dummyuser.png'
                                 } className="w-10 h-10 rounded-full" />
                                 <p className="font-medium">
                                     {`${adminInfo.firstName} ${adminInfo.lastName}`}
@@ -1086,7 +1086,7 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                                         onDrop={handleDrop}
                                         onDragOver={handleDragOver}
                                     >
-                                        <img src="/demo/synco/reportsIcons/folder.png" className="w-10 mb-2" />
+                                        <img src="/reportsIcons/folder.png" className="w-10 mb-2" />
                                         <p className="text-sm">Click to upload or drag & drop</p>
 
                                         <input type="file" multiple className="hidden" onChange={handleFileUpload} />
@@ -1148,7 +1148,7 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                         <div className="border-b border-[#E2E1E5] pb-6 px-6">
                             <p className="text-[17px] font-semibold">Created by</p>
                             <div className="flex items-center gap-3 mt-4">
-                                <img src={task.createdBy?.profile || "/demo/synco/members/dummyuser.png"} className="w-10 h-10 rounded-full" />
+                                <img src={task.createdBy?.profile || "/members/dummyuser.png"} className="w-10 h-10 rounded-full" />
                                 <p className="font-medium">{task.createdBy?.name}</p>
                             </div>
                         </div>

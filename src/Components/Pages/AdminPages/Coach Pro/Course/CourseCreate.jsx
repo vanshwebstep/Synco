@@ -1,85 +1,719 @@
-import { Pencil, Trash2, Plus } from "lucide-react";
+import React, { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
+import { GripVertical, MoreVertical, Plus } from "lucide-react";
+import {
+    DragDropContext,
+    Droppable,
+    Draggable,
+} from "@hello-pangea/dnd";
+const steps = [
+    "Title",
+    "Modules",
+    "Assessment",
+    "Settings",
+    "Certificate",
+    "Complete",
+];
+const uid = () => String(Date.now()) + "-" + Math.floor(Math.random() * 10000);
+export default function CourseCreateForm() {
+    const [activeStep, setActiveStep] = useState(0);
 
-export default function CourseCreate() {
-    const courses = [
-        { id: 1, title: "Welcome to Samba Soccer Schools", status: "Published" },
-        { id: 2, title: "Health and Safety", status: "Draft" },
-        { id: 3, title: "Safeguarding", status: "Published" },
-        { id: 4, title: "Invoicing us", status: "Published" },
-        { id: 5, title: "Social Media Policy", status: "Published" },
-    ];
+    const [formData, setFormData] = useState({
+        title: "",
+        description: "",
+        modules: [],
+        assessment: [
+            // initial example (optional)
+            {
+                id: uid(),
+                question: "What are the roles we have at SSS?",
+                options: [
+                    { id: uid(), text: "Rules are not given", correct: false },
+                    { id: uid(), text: "There are 4 rules", correct: true },
+                    { id: uid(), text: "Only 10 rules are available", correct: false },
+                ],
+            },
+        ],
+        settings: {},
+        certificate: "",
+    });
+
+    // Validation per step
+    const validateStep = () => {
+        if (activeStep === 0) {
+            if (!formData.title.trim()) return "Course title is required";
+            if (!formData.description.trim()) return "Course description is required";
+        }
+        // You can add validations for other steps here...
+        return null;
+    };
+    const inputClass =
+        " px-4 py-3 border border-[#E2E1E5] rounded-xl focus:outline-none ";
+    const handleNext = () => {
+        const error = validateStep();
+        if (error) {
+            alert(error);
+            return;
+        }
+        setActiveStep((p) => p + 1);
+    };
+
+    const handleBack = () => setActiveStep((p) => p - 1);
+    const [collapsedMap, setCollapsedMap] = useState({});
+
+    const addQuestion = () => {
+        const q = {
+            id: uid(),
+            question: "",
+            options: [
+                { id: uid(), text: "", correct: false },
+                { id: uid(), text: "", correct: false },
+            ],
+        };
+        setFormData((p) => ({ ...p, assessment: [...p.assessment, q] }));
+        setCollapsedMap((p) => ({ ...p, [q.id]: false }));
+    };
+
+    const addOption = (qIndex) => {
+        const updated = [...formData.assessment];
+        updated[qIndex].options.push({ id: uid(), text: "", correct: false });
+        setFormData({ ...formData, assessment: updated });
+    };
+
+    const setCorrectOption = (qIndex, optId) => {
+        const updated = [...formData.assessment];
+        updated[qIndex].options = updated[qIndex].options.map((o) => ({
+            ...o,
+            correct: o.id === optId,
+        }));
+        setFormData({ ...formData, assessment: updated });
+    };
+
+    const onDragEnd = (result) => {
+        const { source, destination, draggableId } = result;
+        if (!destination) return;
+
+        // Reorder questions
+        if (source.droppableId === "questions" && destination.droppableId === "questions") {
+            const items = Array.from(formData.assessment);
+            const [moved] = items.splice(source.index, 1);
+            items.splice(destination.index, 0, moved);
+            setFormData({ ...formData, assessment: items });
+            return;
+        }
+
+        // Reorder options within same question or move between questions (we'll allow only within same q for now)
+        // droppableId format: options-{questionId}
+        if (source.droppableId.startsWith("options-") && destination.droppableId.startsWith("options-")) {
+            const sourceQId = source.droppableId.replace("options-", "");
+            const destQId = destination.droppableId.replace("options-", "");
+            const updated = [...formData.assessment];
+
+            const sourceIndex = updated.findIndex((q) => q.id === sourceQId);
+            const destIndex = updated.findIndex((q) => q.id === destQId);
+            if (sourceIndex === -1 || destIndex === -1) return;
+
+            // allow only reorder within same question to keep UI simple (matches screenshot)
+            if (sourceQId === destQId) {
+                const opts = Array.from(updated[sourceIndex].options);
+                const [moved] = opts.splice(source.index, 1);
+                opts.splice(destination.index, 0, moved);
+                updated[sourceIndex].options = opts;
+                setFormData({ ...formData, assessment: updated });
+            }
+            return;
+        }
+    };
 
     return (
         <div className="p-8 bg-[#F7F8FA] min-h-screen">
-            {/* Top Bar */}
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold">Courses List</h2>
-            </div>
-            {/* Table Card */}
-            <div className="bg-white rounded-2xl overflow-hidden shadow-sm">
-                <table className="w-full text-sm">
-                    {/* Header */}
-                    <thead className="bg-white-50 text-gray-500 border-b border-gray-300 ">
-                        <tr>
-                            <th className="text-left py-3 px-6 text-2xl text-black font-semibold "> <div>Courses  </div> </th>
-                            <th className="text-left py-3 px-2 w-32"></th>
-                            <th className="text-left py-5 px-2 w-50"><button className="bg-[#237FEA] hover:bg-blue-600  text-white px-4 py-2 rounded-lg flex items-center gap-2 text-base font-semibold">
-                                <Plus size={16} />
-                                Create a course
-                            </button></th>
-                        </tr>
-                    </thead>
+            {/* Back Button */}
+            <button className="flex items-center gap-2 text-gray-700 mb-4">
+                <ArrowLeft size={18} />
+                <span>Create a Course</span>
+            </button>
 
-                    {/* Body */}
-                    <tbody>
-                        {courses.map((item) => (
-                            <tr
-                                key={item.id}
-                                className="border-b border-gray-300 last:border-none hover:bg-gray-50 transition"
+            {/* White Card Container */}
+            <div className="bg-white rounded-2xl p-8">
+                {/* Steps Header */}
+                <div className="flex justify-center items-center gap-5 text-[13px] font-medium text-[#8A8A8A]">
+                    {steps.map((label, index) => (
+                        <div key={index} className="flex flex-col w-full">
+                            <span
+                                className={`text-sm font-medium ${activeStep === index
+                                    ? "text-black"
+                                    : activeStep > index
+                                        ? "text-[#237FEA]"
+                                        : "text-gray-400"
+                                    }`}
                             >
-                                {/* Title */}
-                                <td className="py-4 px-6 text-[14px] text-gray-700">
-                                    {item.title}
-                                </td>
+                                {label}
+                            </span>
 
-                                {/* Status Badge */}
-                                <td className="py-4 px-2">
-                                    {item.status === "Published" ? (
-                                        <span className="bg-green-100 text-green-600 text-xs px-3 py-1 rounded-full">
-                                            Published
-                                        </span>
-                                    ) : (
-                                        <span className="bg-yellow-100 text-yellow-600 text-xs px-3 py-1 rounded-full">
-                                            Draft
-                                        </span>
-                                    )}
-                                </td>
+                            <div
+                                className={`h-[8px] w-[189px]  transition-all rounded-full mt-2 
+                ${activeStep === index
+                                        ? "bg-[#237FEA]"
+                                        : activeStep > index
+                                            ? "bg-[#A5C9FF]"
+                                            : "bg-gray-200"
+                                    }`}
+                            ></div>
+                        </div>
+                    ))}
+                </div>
 
-                                {/* Actions */}
-                                <td className="py-4 px-6 flex items-center gap-3">
-                                    <button className="text-gray-500 hover:text-gray-700">
-                                        <img src="/demo/synco/images/icons/edit.png" className="w-6" alt="" />
+                {/* STEP CONTENT */}
+                <motion.div
+                    key={activeStep}
+                    initial={{ opacity: 0, x: 25 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="mt-8"
+                >
+                    {activeStep === 0 && (
+
+                        <div className="space-y-6  w-1/2 mx-auto">
+                            {/* Course Title */}
+                            <div>
+                                <label className="text-sm font-medium">Enter Course Title</label>
+                                <input
+                                    type="text"
+                                    value={formData.title}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, title: e.target.value })
+                                    }
+                                    className={`${inputClass} w-full`}
+                                />
+                            </div>
+
+                            {/* Course Description */}
+                            <div>
+                                <label className="text-sm font-medium">
+                                    Enter Course Description
+                                </label>
+                                <textarea
+                                    rows="5"
+                                    value={formData.description}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            description: e.target.value,
+                                        })
+                                    }
+                                    className={`${inputClass} bg-gray-50 w-full`}
+                                ></textarea>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Placeholder for Other Steps */}
+                    {activeStep === 1 && (
+                        <div className=" w-1/2 mx-auto space-y-6">
+
+                            {/* Module Header */}
+                            <div className="flex justify-between items-center">
+                                <h3 className="font-medium text-lg">Module {formData.modules.length + 1}</h3>
+
+
+                            </div>
+
+                            {/* Module Title Input */}
+                            <div className=" space-y-4  ">
+                                <label className="text-sm font-medium">Enter Module Title</label>
+                                <div className="relative   ">
+
+                                    <input
+                                        type="text"
+                                        value={formData.modules[0]?.title || ""}
+                                        onChange={(e) => {
+                                            const updated = [...formData.modules];
+                                            if (updated.length === 0) return;
+
+                                            updated[0].title = e.target.value;
+                                            setFormData({ ...formData, modules: updated });
+                                        }}
+                                        className={`${inputClass} w-full`}
+                                    /><button
+                                        onClick={() =>
+                                            setFormData({
+                                                ...formData,
+                                                modules: [
+                                                    ...formData.modules,
+                                                    {
+                                                        id: Date.now(),
+                                                        title: "",
+                                                        media: [],
+                                                    },
+                                                ],
+                                            })
+                                        }
+                                        className="px-4 absolute bottom-0 top-0 right-2 my-2 bg-[#237FEA] text-white rounded-lg text-sm font-semibold"
+                                    >
+                                        + Add Module
                                     </button>
+                                </div>
+                            </div>
 
-                                    <button className="text-gray-500 hover:text-red-500">
-                                        <img src="/demo/synco/images/icons/deleteIcon.png" className="w-6" alt="" />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                            {/* Add Media Box */}
+                            <div className="w-full h-40 border-2 border-dashed border-gray-300 rounded-xl flex justify-center items-center cursor-pointer text-gray-500 text-sm bg-gray-50">
+                                + Add Media
+                            </div>
+                        </div>
+                    )}
 
-                        {courses.length === 0 && (
-                            <tr>
-                                <td
-                                    colSpan={3}
-                                    className="text-center py-8 text-gray-400 text-sm"
+                    {activeStep === 2 && (
+                        <div className="space-y-6">
+                            {/* Header */}
+                            <div className="flex justify-between items-center">
+                                <h3 className="font-semibold text-xl">Questions</h3>
+                                <button
+                                    onClick={addQuestion}
+                                    className="px-4 py-2 bg-[#237FEA] text-white rounded-lg text-sm font-semibold flex items-center gap-2"
                                 >
-                                    No courses found
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                                    <Plus size={14} /> Add new question
+                                </button>
+                            </div>
+
+                            <DragDropContext onDragEnd={onDragEnd}>
+                                <Droppable droppableId="questions" type="QUESTION">
+                                    {(provided) => (
+                                        <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-4">
+                                            {formData.assessment.map((q, qIndex) => (
+                                                <Draggable key={q.id} draggableId={q.id} index={qIndex}>
+                                                    {(provided) => (
+                                                        <div
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            className="bg-white rounded-2xl border border-gray-300 shadow-sm overflow-hidden"
+                                                        >
+                                                            {/* Compact header (always visible) */}
+                                                            <div className="flex items-center justify-between p-4 pb-0  rounded-t-2xl">
+                                                                <div className="block items-center gap-3 w-full mx-auto">
+                                                                    <span {...provided.dragHandleProps} className="text-gray-400 flex justify-center w-full mx-auto cursor-grab">
+                                                                        <GripVertical size={18} className="rotate-90" />
+                                                                    </span>
+                                                                    {collapsedMap[q.id] && (<div className="flex flex-col min-w-0">
+                                                                        <div className="text-base font-medium pb-5  truncate">
+                                                                            {q.question?.trim() ? q.question : "Untitled question"}
+                                                                        </div>
+
+                                                                    </div>)}
+                                                                </div>
+
+                                                                <div className="flex items-center gap-3">
+                                                                    <button
+                                                                        onClick={() =>
+                                                                            setCollapsedMap((p) => ({ ...p, [q.id]: !p[q.id] }))
+                                                                        }
+                                                                        className="text-sm text-[#237FEA] font-semibold"
+                                                                    >
+                                                                        {collapsedMap[q.id] ? "Edit" : "Collapse"}
+                                                                    </button>
+
+                                                                    <MoreVertical size={18} className="text-gray-400" />
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Expanded editor */}
+                                                            {!collapsedMap[q.id] && (
+                                                                <>
+                                                                    <div className="p-5 pt-0 space-y-4">
+                                                                        <input
+                                                                            type="text"
+                                                                            placeholder="What are the roles we have at SSS?"
+                                                                            value={q.question}
+                                                                            onChange={(e) => {
+                                                                                const updated = [...formData.assessment];
+                                                                                updated[qIndex].question = e.target.value;
+                                                                                setFormData({ ...formData, assessment: updated });
+                                                                            }}
+                                                                            className="w-full rounded-lg px-0 pb-3 mb-0 text-base outline-none focus:ring-2 focus:ring-blue-200"
+                                                                        />
+
+                                                                        <div>
+                                                                            <div className="text-sm text-gray-600 mb-2">
+                                                                                Answers ({q.options.length})
+                                                                            </div>
+
+                                                                            <Droppable droppableId={`options-${q.id}`} type={`OPTION`}>
+                                                                                {(provided) => (
+                                                                                    <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
+                                                                                        {q.options.map((opt, optIndex) => (
+                                                                                            <Draggable key={opt.id} draggableId={opt.id} index={optIndex}>
+                                                                                                {(prov) => (
+                                                                                                    <div
+                                                                                                        ref={prov.innerRef}
+                                                                                                        {...prov.draggableProps}
+                                                                                                        className="flex items-center gap-3  "
+                                                                                                    >
+                                                                                                        <span {...prov.dragHandleProps} className="text-gray-400 cursor-grab">
+                                                                                                            <GripVertical size={16} />
+                                                                                                        </span>
+
+                                                                                                        <input
+                                                                                                            type="radio"
+                                                                                                            checked={opt.correct}
+                                                                                                            onChange={() => setCorrectOption(qIndex, opt.id)}
+                                                                                                        />
+
+                                                                                                        <input
+                                                                                                            type="text"
+                                                                                                            value={opt.text}
+                                                                                                            placeholder="Enter option"
+                                                                                                            onChange={(e) => {
+                                                                                                                const updated = [...formData.assessment];
+                                                                                                                updated[qIndex].options[optIndex].text = e.target.value;
+                                                                                                                setFormData({ ...formData, assessment: updated });
+                                                                                                            }}
+                                                                                                            className="w-1/2 border rounded-lg px-4 py-3 bg-gray-50 border-gray-100 text-sm outline-none"
+                                                                                                        />
+                                                                                                    </div>
+                                                                                                )}
+                                                                                            </Draggable>
+                                                                                        ))}
+                                                                                        {provided.placeholder}
+                                                                                    </div>
+                                                                                )}
+                                                                            </Droppable>
+
+                                                                            <button
+                                                                                onClick={() => addOption(qIndex)}
+                                                                                className="px-4 ml-14 mt-5 py-2 bg-[#237FEA] text-white rounded-lg text-sm font-semibold flex items-center gap-2"
+                                                                            >
+                                                                                <Plus size={14} /> Add Option
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Footer actions */}
+                                                                    <div className="flex justify-end p-4 border-t border-gray-300">
+                                                                        <button
+                                                                            onClick={() => setCollapsedMap((p) => ({ ...p, [q.id]: true }))}
+                                                                            className="px-4 py-2 bg-[#237FEA] text-white rounded-lg text-sm"
+                                                                        >
+                                                                            Save
+                                                                        </button>
+                                                                    </div>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+
+                                            {provided.placeholder}
+                                        </div>
+                                    )}
+                                </Droppable>
+                            </DragDropContext>
+                        </div>
+                    )}
+
+                    {activeStep === 3 && (
+                        <div className="space-y-6 px-4 py-2">
+
+                            <h2 className="text-xl font-semibold mb-4">General Settings</h2>
+
+                            {/* Duration */}
+                            <div className="border-b  pb-6">
+                                <div className="flex gap-10 w-1/2">
+                                    <div className="min-w-[320px] max-w-[320px]">
+                                        <label className="font-semibold text-base ">Duration</label>
+                                    </div>
+                                    <div>
+                                        <div className="flex gap-4 mt-2 items-center">
+                                            <input
+                                                type="number"
+                                                value={formData.settings.duration || ""}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        settings: { ...formData.settings, duration: e.target.value },
+                                                    })
+                                                }
+                                                className={inputClass}
+                                            />
+
+                                            <select
+                                                value={formData.settings.durationType || "Minutes"}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        settings: { ...formData.settings, durationType: e.target.value },
+                                                    })
+                                                }
+                                                className={`${inputClass} `}
+                                            >
+                                                <option>Minutes</option>
+                                                <option>Hours</option>
+                                                <option>Days</option>
+                                            </select>
+                                        </div>
+                                        <p className="text-gray-500 text-sm mt-2">
+                                            The duration of the course.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Re-take Course */}
+                            <div className="border-b pb-6">
+                                <div className="flex  gap-10 w-1/2">
+                                    <div className="min-w-[320px] max-w-[320px]">
+                                        <label className="font-semibold text-base ">Re-take Course</label>
+                                    </div>
+                                    <div>
+                                        <input
+                                            type="number"
+                                            value={formData.settings.retake || ""}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    settings: { ...formData.settings, retake: e.target.value },
+                                                })
+                                            }
+                                            className={inputClass}
+                                        />
+
+                                        <p className="text-gray-500 text-sm mt-2">
+                                            How many times a user can re-take this course. Set to 0 to disable.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Passing Condition */}
+                            <div className="border-b pb-6">
+                                <div className="flex  gap-10 w-1/2">
+                                    <div className="min-w-[320px] max-w-[320px]">
+                                        <label className="font-semibold text-base ">Passing Condition Value</label>
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-3 mt-2">
+                                            <input
+                                                type="number"
+                                                value={formData.settings.passValue || ""}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        settings: { ...formData.settings, passValue: e.target.value },
+                                                    })
+                                                }
+                                                className={inputClass}
+                                            />
+
+                                            <span className="text-gray-600 text-lg">%</span>
+                                        </div>
+
+                                        <p className="text-gray-500 text-sm mt-2">
+                                            The passing percentage required.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Compulsory Course */}
+                            <div className="border-b pb-6">
+                                <div className="flex  gap-10 w-1/2">
+                                    <div className="min-w-[320px] max-w-[320px]">
+                                        <label className="font-semibold text-base  block mb-3">
+                                            Is this course compulsory?
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <div className="space-y-2 text-sm">
+                                            <label className="flex gap-3 items-center">
+                                                <input
+                                                    type="radio"
+                                                    checked={formData.settings.compulsory === true}
+                                                    onChange={() =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            settings: { ...formData.settings, compulsory: true },
+                                                        })
+                                                    }
+                                                />
+                                                Yes
+                                            </label>
+
+                                            <label className="flex gap-3 items-center">
+                                                <input
+                                                    type="radio"
+                                                    checked={formData.settings.compulsory === false}
+                                                    onChange={() =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            settings: { ...formData.settings, compulsory: false },
+                                                        })
+                                                    }
+                                                />
+                                                No
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Reminder Setting */}
+                            <div className="pb-6">
+                                <div className="flex  gap-10 w-1/2">
+                                    <div className="min-w-[320px] max-w-[320px]">
+                                        <label className="font-semibold text-base ">Set reminder Every</label>
+                                    </div>
+                                    <div>
+                                        <div className="flex gap-4 mt-2 items-center">
+                                            <input
+                                                type="number"
+                                                value={formData.settings.reminderValue || ""}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        settings: { ...formData.settings, reminderValue: e.target.value },
+                                                    })
+                                                }
+                                                className={inputClass}
+                                            />
+
+                                            <select
+                                                value={formData.settings.reminderType || "Minutes"}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        settings: { ...formData.settings, reminderType: e.target.value },
+                                                    })
+                                                }
+                                                className={inputClass}
+                                            >
+                                                <option>Minutes</option>
+                                                <option>Hours</option>
+                                                <option>Days</option>
+                                            </select>
+                                        </div>
+
+                                        <p className="text-gray-500 text-sm mt-2">
+                                            Reminder will start once user has completed course.
+                                        </p>
+                                    </div></div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeStep === 4 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+                            {/* LEFT SIDE FORM */}
+                            <div className="space-y-6">
+
+                                {/* Certificate Title */}
+                                <div>
+                                    <label className="font-semibold text-base ">Certificate Title</label>
+                                    <input
+                                        type="text"
+                                        value={formData.certificate.title || ""}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                certificate: {
+                                                    ...formData.certificate,
+                                                    title: e.target.value,
+                                                },
+                                            })
+                                        }
+                                        className={`${inputClass} w-full mt-2`}
+                                    />
+                                </div>
+
+                                {/* Upload Certificate */}
+                                <div>
+                                    <label className="font-semibold text-xl ">Upload Certificate</label>
+                                    <br />
+                                    <button
+                                        className="mt-4 px-4 py-2 bg-[#237FEA] text-white rounded-lg text-sm font-semibold"
+                                    >
+                                        + Upload PDF
+                                    </button>
+                                </div>
+
+                                {/* Disable Certificate */}
+                                <div>
+                                    <label className="flex gap-3 items-center text-xl cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            className="xl"
+                                            checked={formData.certificate.disabled || false}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    certificate: {
+                                                        ...formData.certificate,
+                                                        disabled: e.target.checked,
+                                                    },
+                                                })
+                                            }
+                                        />
+                                        Disable Certificate
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* RIGHT SIDE PREVIEW */}
+                            <div>
+                                <h3 className="font-semibold text-base  mb-3">Certificate Preview</h3>
+
+                                <div className="border rounded-xl overflow-hidden shadow-md bg-white p-4">
+                                    <img
+                                        src="/images/certificate-sample.png"
+                                        className="w-full rounded-lg"
+                                        alt="certificate preview"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeStep === 5 && (
+                        <div className="py-20  w-1/2 font-bold">
+                            <div>
+                                <label className="font-semibold text-xl text-base ">Select Who is notified abouth this course</label>
+                                
+                                <input
+                                    type="text"
+                                    placeholder="search"
+                                    className={`${inputClass} font-normal w-full mt-2`}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </motion.div>
+
+                {/* Action Buttons */}
+                <div className="flex w-1/2 mx-auto justify-between mt-10">
+                    <button
+                        onClick={handleBack}
+                        disabled={activeStep === 0}
+                        className={`px-6 py-3 border border-gray-300 rounded-lg ${activeStep === 0
+                            ? "opacity-     cursor-not-allowed"
+                            : "hover:bg-gray-100 hover:border-gray-600"
+                            }`}
+                    >
+                        Cancel
+                    </button>
+
+                    {activeStep < steps.length - 1 ? (
+                        <button
+                            onClick={handleNext}
+                            className="px-6 py-3 bg-[#237FEA] min-w-32 text-white rounded-lg hover:bg-blue-600"
+                        >
+                            Next
+                        </button>
+                    ) : (
+                        <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            Finish
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

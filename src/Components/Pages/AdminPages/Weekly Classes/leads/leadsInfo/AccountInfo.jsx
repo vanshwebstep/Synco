@@ -128,7 +128,7 @@ useEffect(() => {
           className="cursor-pointer"
         >
           <img
-            src="/demo/synco/images/icons/arrow-left.png"
+            src="/images/icons/arrow-left.png"
             alt="Back"
             className="w-5 h-5 md:w-6 md:h-6"
           />

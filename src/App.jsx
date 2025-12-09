@@ -930,31 +930,31 @@ const AppRoutes = () => {
       } />
 
       <Route path="/templates/create" element={
-        <ProtectedRoute>
+        // <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
               <Createtemplate />
             </RoleBasedRoute>
           </AdminLayout>
-        </ProtectedRoute>
+        // </ProtectedRoute>
       } />
       <Route path="/templates/builder" element={
-        <ProtectedRoute>
+        // <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
               <TemplateBuilder />
             </RoleBasedRoute>
           </AdminLayout>
-        </ProtectedRoute>
+        // </ProtectedRoute>
       } />
       <Route path="/templates/list" element={
-        <ProtectedRoute>
+        // <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
               <CommunicationsList />
             </RoleBasedRoute>
           </AdminLayout>
-        </ProtectedRoute>
+        // </ProtectedRoute>
       } />
       <Route path="/templates/settingList" element={
         <ProtectedRoute>
@@ -1020,7 +1020,7 @@ const AppRoutes = () => {
 function App() {
 
   return (
-    <Router basename="/demo/synco/">
+    <Router basename="/">
 
       <NotificationProvider>
         <AccountsInfoProvider>

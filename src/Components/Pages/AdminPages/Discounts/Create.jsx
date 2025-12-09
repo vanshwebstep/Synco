@@ -194,7 +194,7 @@ const Create = () => {
                 onClick={() => navigate('/holiday-camps/discounts/list')}
                 className="text-2xl font-semibold flex items-center gap-2 cursor-pointer hover:opacity-80 mb-6"
             >
-                <img src="/demo/synco/images/icons/arrow-left2.png" alt="Back" />
+                <img src="/images/icons/arrow-left2.png" alt="Back" />
                 Create Discount
             </h2>
 
@@ -289,7 +289,7 @@ const Create = () => {
                                 />
                                 <img
                                     className="absolute top-3 right-3 w-4 h-4"
-                                    src="/demo/synco/images/icons/percentIcon.png"
+                                    src="/images/icons/percentIcon.png"
                                     alt="%"
                                 />
                             </div>

@@ -58,11 +58,11 @@ export default function CourseList() {
                                 {/* Actions */}
                                 <td className="py-4 px-6 flex items-center gap-3">
                                     <button className="text-gray-500 hover:text-gray-700">
-                                        <img src="/demo/synco/images/icons/edit.png" className="w-6" alt="" />
+                                        <img src="/images/icons/edit.png" className="w-6" alt="" />
                                     </button>
 
                                     <button className="text-gray-500 hover:text-red-500">
-                                        <img src="/demo/synco/images/icons/deleteIcon.png" className="w-6" alt="" />
+                                        <img src="/images/icons/deleteIcon.png" className="w-6" alt="" />
                                     </button>
                                 </td>
                             </tr>

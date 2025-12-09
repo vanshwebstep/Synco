@@ -273,7 +273,7 @@ const MembersList = () => {
         name: `${admin.firstName} ${admin.lastName}`.trim(),
         avatar: admin.profile
             ? `${API_BASE_URL}${admin.profile}`
-            : "/demo/synco/members/dummyuser.png", // fallback image
+            : "/members/dummyuser.png", // fallback image
     }));
     // Close popup if clicked outside
     useEffect(() => {
@@ -388,7 +388,7 @@ const onSearchChange = (e) => {
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
                             <img
                                 onClick={() => navigate("/holiday-camp/find-a-camp")}
-                                src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
+                                src="/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
                         </div>
                     </div>
 
@@ -578,7 +578,7 @@ const onSearchChange = (e) => {
                                                                 className="w-8 h-8 rounded-full object-cover"
                                                                 onError={(e) => {
                                                                     e.target.onerror = null;
-                                                                    e.target.src = "/demo/synco/members/dummyuser.png";
+                                                                    e.target.src = "/members/dummyuser.png";
                                                                 }}
                                                             />
                                                         ) : (
@@ -587,7 +587,7 @@ const onSearchChange = (e) => {
                                                             // </div>
 
                                                             <img
-                                                                src="/demo/synco/members/dummyuser.png"
+                                                                src="/members/dummyuser.png"
                                                                 alt="name"
                                                                 className="w-8 h-8 rounded-full object-cover"
                                                                 
@@ -730,7 +730,7 @@ const onSearchChange = (e) => {
                             className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-2 py-2 rounded-xl  text-[16px]"
                         >
                             <img
-                                src="/demo/synco/images/icons/mail.png"
+                                src="/images/icons/mail.png"
                                 className="w-4 h-4 sm:w-5 sm:h-5"
                                 alt=""
                             />

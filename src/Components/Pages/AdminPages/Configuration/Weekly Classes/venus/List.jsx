@@ -379,7 +379,7 @@ const List = () => {
       const sessionObj = {
 
         term: term.termName,
-        icon: `/demo/synco/images/icons/${season}.png`,
+        icon: `/images/icons/${season}.png`,
         date: `${dateRange}\nHalf-Term Exclusion: ${exclusion}`,
         exclusion,
         sessions,
@@ -450,7 +450,7 @@ const List = () => {
             className="bg-[#237FEA] flex items-center gap-2 cursor-pointer text-white px-4 py-[10px] rounded-xl hover:bg-blue-700 text-[16px] font-semibold"
           >
             <div className="flex items-center gap-2">
-              <img src="/demo/synco/members/add.png" className="w-5" alt="" />
+              <img src="/members/add.png" className="w-5" alt="" />
               <span>Add a New Venue</span>
             </div>
           </button>
@@ -520,7 +520,7 @@ const List = () => {
                                 } className="cursor-pointer"
                               >
                                 <img
-                                  src="/demo/synco/members/calendar-circle.png"
+                                  src="/members/calendar-circle.png"
                                   className="min-w-6 min-h-6 max-w-6 max-h-6"
                                   alt="calendar"
                                 />
@@ -530,7 +530,7 @@ const List = () => {
                                 className="cursor-pointer"
                               >
                                 <img
-                                  src="/demo/synco/members/Currency Icon.png"
+                                  src="/members/Currency Icon.png"
                                   className="min-w-6 min-h-6 max-w-6 max-h-6"
                                   alt="currency"
                                 />
@@ -541,7 +541,7 @@ const List = () => {
                                   className="cursor-pointer"
                                 >
                                   <img
-                                    src="/demo/synco/members/Group-c.png"
+                                    src="/members/Group-c.png"
                                     className="min-w-6 min-h-6 max-w-6 max-h-6"
                                     alt="group"
                                   />
@@ -557,7 +557,7 @@ const List = () => {
                                 className="cursor-pointer"
                               >
                                 <img
-                                  src="/demo/synco/members/p.png"
+                                  src="/members/p.png"
                                   className="min-w-6 min-h-6 max-w-6 max-h-6"
                                   alt="p icon"
                                 />
@@ -571,7 +571,7 @@ const List = () => {
                             <div className="flex gap-2">
                               {canViewClassSchedule &&
                                 <div>  <img
-                                  src="/demo/synco/members/Time-Circle.png"
+                                  src="/members/Time-Circle.png"
                                   className="min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
                                   alt="Navigate"
                                   onClick={() => navigate(`/configuration/weekly-classes/venues/class-schedule?id=${user.id}`)}
@@ -582,14 +582,14 @@ const List = () => {
                                   setIsEditVenue(true);
                                   setFormData(user);
                                   setOpenForm(true)
-                                }} src="/demo/synco/members/edit.png" className='min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90' alt="" />
+                                }} src="/members/edit.png" className='min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90' alt="" />
                                 </div>
                               }
                               {canDelete &&
                                 <div>
                                   <img
                                     onClick={() => handleDelete(user.id)}
-                                    src="/demo/synco/members/delete-02.png"
+                                    src="/members/delete-02.png"
                                     className="min-w-6 min-h-6 max-w-6 max-h-6 cursor-pointer transition-transform duration-200 hover:scale-110 active:scale-90"
                                     alt=""
                                   />
@@ -658,7 +658,7 @@ const List = () => {
                   <h2 className="font-semibold text-[20px] sm:text-[24px]">Subscription Plan Preview</h2>
                   <button className="text-gray-400 hover:text-black text-xl font-bold">
                     <img
-                      src="/demo/synco/images/icons/cross.png"
+                      src="/images/icons/cross.png"
                       onClick={() => setShowModal(false)}
                       alt="close"
                       className="w-5 h-5"
@@ -679,7 +679,7 @@ const List = () => {
               <h2 className="text-[24px] font-semibold">Term Dates</h2>
               <button onClick={() => setShowModal(false)}>
                 <img
-                  src="/demo/synco/images/icons/cross.png"
+                  src="/images/icons/cross.png"
                   alt="close"
                   className="w-4 h-4 cursor-pointer transform transition-transform duration-200 hover:scale-110"
                 />
@@ -791,7 +791,7 @@ const List = () => {
               <h2 className="text-red-500 font-semibold text-[18px] leading-tight">
                 Congestion Information
               </h2>
-              <img src="/demo/synco/images/icons/infoIcon.png" alt="" />
+              <img src="/images/icons/infoIcon.png" alt="" />
             </div>
 
             <div className="mt-2 text-[16px] text-gray-700 leading-snug">
@@ -816,7 +816,7 @@ const List = () => {
               <h2 className="text-red-500 font-semibold text-[18px] leading-tight">
                 Parking Information
               </h2>
-              <img src="/demo/synco/images/icons/infoIcon.png" alt="" />
+              <img src="/images/icons/infoIcon.png" alt="" />
             </div>
 
             <div className="mt-2 text-[16px] text-gray-700 leading-snug">

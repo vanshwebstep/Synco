@@ -72,12 +72,12 @@ export default function List() {
                     ? `${item.admin.profile}`
                     : item?.createdBy?.profile
                       ? `${item.createdBy.profile}`
-                      : '/demo/synco/members/dummyuser.png'
+                      : '/members/dummyuser.png'
                 }
                 alt={item.name || "avatar"}
                 onError={(e) => {
                   e.currentTarget.onerror = null; // prevent infinite loop
-                  e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                  e.currentTarget.src = '/members/dummyuser.png';
                 }}
                 className="w-12 h-12 rounded-full object-cover"
               />

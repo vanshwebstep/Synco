@@ -81,15 +81,15 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const { historyActiveTab } = useAccountsInfo();
 
   const routeTitleMap = {
-    '': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-    'admin-forgotpassword': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-    'merchandise': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-    'email-management': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-    'recruitment-reports': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
-    'templates': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    '': { title: 'Welcome Back', icon: '/images/Welcomeback.png' },
+    'admin-forgotpassword': { title: 'Welcome Back', icon: '/images/Welcomeback.png' },
+    'merchandise': { title: 'Welcome Back', icon: '/images/Welcomeback.png' },
+    'email-management': { title: 'Welcome Back', icon: '/images/Welcomeback.png' },
+    'recruitment-reports': { title: 'Welcome Back', icon: '/images/Welcomeback.png' },
+    'templates': { title: 'Welcome Back', icon: '/images/Welcomeback.png' },
     'weekly-classes': { title: 'Configuration', },
     'configuration/weekly-classes/find-a-class/': { title: 'Weekly Classes', },
-    'synco-chat': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'synco-chat': { title: 'Welcome Back', icon: '/images/Welcomeback.png' },
     'members': { title: 'Admin Panel' },
     'configuration/weekly-classes/session-plan-list': { title: 'Configuration' },
     'configuration/weekly-classes/term-dates': { title: 'Configuration' },
@@ -105,7 +105,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'holiday-camps/payment-planManager': { title: 'Configuration' },
     'weekly-classes/trial/list': { title: 'Trials Information' },
 
-    'holiday-camps/add-subscription-plan-group': { title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'holiday-camps/add-subscription-plan-group': { title: 'Welcome Back', icon: '/images/Welcomeback.png' },
     'holiday-camps/discounts': { title: 'Discounts' },
     'holiday-camps/session-plan': { title: 'Configuration', },
     'notification': { title: 'Notification' },
@@ -132,7 +132,7 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'birthday-party/session-plan': { title: 'Configuration ' },
 
     'reports': { title: 'Weekly Classes Reports ' },
-    'one-to-one/reports': {  title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png' },
+    'one-to-one/reports': {  title: 'Welcome Back', icon: '/images/Welcomeback.png' },
 
     'weekly-classes/central-leads': { title: 'Weekly Classes Lead Database ' },
     'weekly-classes/central-leads/create': { title: 'Weekly Classes ' },
@@ -147,18 +147,18 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'administration/file-manager': { title: 'Folders' },
 
   };
-  // Extract the part after `/demo/synco/`
-  const subPath = location.pathname.split('/demo/synco/')[1] || '';
+  // Extract the part after `/`
+  const subPath = location.pathname.split('/')[1] || '';
 
   // Match the longest route
   let routeInfo =
     Object.entries(routeTitleMap)
       .sort((a, b) => b[0].length - a[0].length)
       .find(([route]) => subPath.startsWith(route))?.[1]
-    || { title: 'Configuration', icon: '/demo/synco/images/Welcomeback.png' };
+    || { title: 'Configuration', icon: '/images/Welcomeback.png' };
   // if (historyActiveTab === "History Of Payments") {
   //   routeInfo = {
-  //     title: 'Welcome Back', icon: '/demo/synco/images/Welcomeback.png'
+  //     title: 'Welcome Back', icon: '/images/Welcomeback.png'
   //   };
   // }
   const { title, icon: Icon } = routeInfo;
@@ -275,8 +275,8 @@ const profileRef = useRef(null);
           </button>
 
           <div className="flex items-center justify-center gap-0.5">
-            <img src='/demo/synco/images/synco-text.png' alt="Welcome" className="  h-10" />
-            <img src='/demo/synco/images/synco-text-round.png' alt="Welcome" className=" h-10 mb-0.5 animate-spin [animation-duration:5s]" />
+            <img src='/images/synco-text.png' alt="Welcome" className="  h-10" />
+            <img src='/images/synco-text-round.png' alt="Welcome" className=" h-10 mb-0.5 animate-spin [animation-duration:5s]" />
           </div>
 
           {/* Profile Image */}
@@ -291,7 +291,7 @@ const profileRef = useRef(null);
                   src={
                     adminInfo?.profile
                       ? `${adminInfo.profile}`
-                      : '/demo/synco/members/dummyuser.png'
+                      : '/members/dummyuser.png'
                   }
                   className="w-full h-full object-cover" />
               </div>
@@ -322,7 +322,7 @@ const profileRef = useRef(null);
               className="w-full px-4 py-3 pl-10 border border-[#E2E1E5] rounded-lg bg-white text-[16px] focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Search"
             />
-            <img src="/demo/synco/images/icons/search.png" className="absolute right-3 top-1/2 left-2 max-w-[10px] transform -translate-y-1/2 text-black" alt="" />
+            <img src="/images/icons/search.png" className="absolute right-3 top-1/2 left-2 max-w-[10px] transform -translate-y-1/2 text-black" alt="" />
 
           </div>
           {hasPermission && (
@@ -333,7 +333,7 @@ const profileRef = useRef(null);
       ${notificationCount > 0 ? "bg-[#FF5A3C] text-white" : "bg-white border border-[#E2E1E5]"}`}
             >
 
-              <img src="/demo/synco/DashboardIcons/notificationIcon.png" alt="" />
+              <img src="/DashboardIcons/notificationIcon.png" alt="" />
 
               {notificationCount > 0 && (
                 <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white text-black text-sm font-semibold flex items-center justify-center shadow-md">
@@ -391,13 +391,13 @@ const profileRef = useRef(null);
                     src={
                       adminInfo?.profile
                         ? `${adminInfo.profile}`
-                        : '/demo/synco/members/dummyuser.png'
+                        : '/members/dummyuser.png'
                     }
                     alt="profile"
                     className="object-cover w-full h-full"
                     onError={(e) => {
                       e.currentTarget.onerror = null; // prevent infinite loop
-                      e.currentTarget.src = '/demo/synco/members/dummyuser.png';
+                      e.currentTarget.src = '/members/dummyuser.png';
                     }}
                   />
                 </div>

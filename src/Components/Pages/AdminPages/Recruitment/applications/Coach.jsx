@@ -59,25 +59,25 @@ const Coach = () => {
 
     const summaryCards = [
         {
-            icon: "/demo/synco/reportsIcons/user-group.png",
+            icon: "/reportsIcons/user-group.png",
             iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]",
             title: "Total Applications",
             key: "totalApplications"
         },
         {
-            icon: "/demo/synco/reportsIcons/greenuser.png",
+            icon: "/reportsIcons/greenuser.png",
             iconStyle: "text-[#099699] bg-[#E0F7F7]",
             title: "New Applications",
             key: "totalNewApplications"
         },
         {
-            icon: "/demo/synco/reportsIcons/login-icon-orange.png",
+            icon: "/reportsIcons/login-icon-orange.png",
             iconStyle: "text-[#F38B4D] bg-[#FFF2E8]",
             title: "Applications to assessments",
             key: "totalToAssessments"
         },
         {
-            icon: "/demo/synco/reportsIcons/handshake.png",
+            icon: "/reportsIcons/handshake.png",
             iconStyle: "text-[#6F65F1] bg-[#E9E8FF]",
             title: "Applications to recruitment",
             key: "totalToRecruitment"
@@ -482,17 +482,17 @@ const Coach = () => {
 
                                         <td className="p-4">
                                             {faLevel1 ? (
-                                                <img src="/demo/synco/reportsIcons/greenCheck.png" className="w-6" />
+                                                <img src="/reportsIcons/greenCheck.png" className="w-6" />
                                             ) : (
-                                                <img src="/demo/synco/reportsIcons/cross.png" className="w-6" />
+                                                <img src="/reportsIcons/cross.png" className="w-6" />
                                             )}
                                         </td>
 
                                         <td className="p-4">
                                             {dbs ? (
-                                                <img src="/demo/synco/reportsIcons/greenCheck.png" className="w-6" />
+                                                <img src="/reportsIcons/greenCheck.png" className="w-6" />
                                             ) : (
-                                                <img src="/demo/synco/reportsIcons/cross.png" className="w-6" />
+                                                <img src="/reportsIcons/cross.png" className="w-6" />
                                             )}
                                         </td>
 
@@ -562,7 +562,7 @@ const Coach = () => {
                             className="px-5 mt-4 bg-[#237FEA] hover:bg-blue-700 text-white flex gap-2 items-center text-[16px] py-3 rounded-2xl transition"
                         >
                             <img
-                                src="/demo/synco/reportsIcons/filter.png"
+                                src="/reportsIcons/filter.png"
                                 className="w-4"
                                 alt=""
                             />

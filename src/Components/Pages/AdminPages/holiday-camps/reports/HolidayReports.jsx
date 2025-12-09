@@ -237,7 +237,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
     const stats = useMemo(() => {
         return [
             {
-                icon: "/demo/synco/reportsIcons/pound.png",
+                icon: "/reportsIcons/pound.png",
                 iconStyle: "text-[#3DAFDB] bg-[#FEF6FB]",
                 title: "Total Revenue",
                 value: `£${summary?.totalRevenue?.total ?? 0}`,
@@ -246,7 +246,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                 subvalue: `£${summary?.totalRevenue?.lastMonth ?? 0}`
             },
             {
-                icon: "/demo/synco/reportsIcons/pound2.png",
+                icon: "/reportsIcons/pound2.png",
                 iconStyle: "text-[#E769BD] bg-[#FEF8F4]",
                 title: "Average Revenue Per Camp",
                 value: `£${summary?.averageRevenuePerCamp?.total ?? 0}`,
@@ -255,7 +255,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                 subvalue: `£${summary?.averageRevenuePerCamp?.lastMonth ?? 0}`
             },
             {
-                icon: "/demo/synco/reportsIcons/chart2.png",
+                icon: "/reportsIcons/chart2.png",
                 iconStyle: "text-[#F38B4D] bg-[#F6F6FE]",
                 title: "Revenue Growth",
                 value: `${summary?.revenueGrowth?.percentage ?? 0}%`,
@@ -264,7 +264,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                 subvalue: `${summary?.revenueGrowth?.lastMonth ?? 0}`
             },
             {
-                icon: "/demo/synco/reportsIcons/content.png",
+                icon: "/reportsIcons/content.png",
                 iconStyle: "text-[#FF5353] bg-[#F6F6FE]",
                 title: "Average Age of Child",
                 value: `${summary?.averageAgeOfChild?.total ?? 0}`,
@@ -639,7 +639,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                                     <div key={i} className="mb-4">
                                         <div className="flex gap-5 justify-between">
                                             <div className="w-10 h-10">
-                                                <img src={item.creator?.profile || "/demo/synco/members/dummyuser.png"} alt="" />
+                                                <img src={item.creator?.profile || "/members/dummyuser.png"} alt="" />
                                             </div>
                                             <div className="w-full">
                                                 <p className="text-sm text-[#344054] font-semibold">
@@ -674,7 +674,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
 
                         <div className="space-y-4">
                             <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
-                                <img src="/demo/synco/reportsIcons/Icon-with-shape.png" className="w-12" alt="" />
+                                <img src="/reportsIcons/Icon-with-shape.png" className="w-12" alt="" />
                                 <div>
                                     <p className="text-[16px] text-[#717073] font-semibold">Percentage of camp capacity filled</p>
                                     <h4 className="text-[22px] font-semibold my-1">
@@ -684,7 +684,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                             </div>
 
                             <div className="flex gap-4 items-center pb-4">
-                                <img src="/demo/synco/reportsIcons/capacity1.png" className="w-12" alt="" />
+                                <img src="/reportsIcons/capacity1.png" className="w-12" alt="" />
                                 <div>
                                     <p className="text-[16px] text-[#717073] font-semibold">Untapped business</p>
                                     <h4 className="text-[22px] font-semibold my-1">
@@ -704,7 +704,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                         <div className="space-y-4 px-4">
                             <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
 
-                                <img src="/demo/synco/reportsIcons/logout.png" className="w-12" alt="" />
+                                <img src="/reportsIcons/logout.png" className="w-12" alt="" />
                                 <div>
                                     <p className="text-[16px] text-[#717073] font-semibold ">Number of registration</p>
                                     <div className="">
@@ -714,7 +714,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                             </div>
 
                             <div className="flex gap-4 items-center border-b border-[#E2E1E5] pb-4">
-                                <img src="/demo/synco/reportsIcons/percentage.png" className="w-12" alt="" />
+                                <img src="/reportsIcons/percentage.png" className="w-12" alt="" />
                                 <div>
                                     <p className="text-[16px] text-[#717073] font-semibold ">Percentage</p>
                                     <div className="">
@@ -723,7 +723,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                                 </div>
                             </div>
                             <div className="flex gap-4 items-center pb-4">
-                                <img src="/demo/synco/reportsIcons/poundIcon.png" className="w-12" alt="" />
+                                <img src="/reportsIcons/poundIcon.png" className="w-12" alt="" />
 
                                 <div>
                                     <p className="text-[16px] text-[#717073] font-semibold ">Revenue Impact</p>

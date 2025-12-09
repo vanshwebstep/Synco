@@ -200,7 +200,7 @@ const trialLists = () => {
         {
             title: "Total Free Trials",
             value: statsFreeTrial?.totalFreeTrials?.value || "0",
-            icon: "/demo/synco/DashboardIcons/totalFreeTrials.png", // Replace with actual SVG if needed
+            icon: "/DashboardIcons/totalFreeTrials.png", // Replace with actual SVG if needed
             change: statsFreeTrial?.totalFreeTrials?.change != null
                 ? `${statsFreeTrial.totalFreeTrials.change}%`
                 : "0%",
@@ -214,14 +214,14 @@ const trialLists = () => {
                     ? `${statsFreeTrial?.topPerformer?.firstName ?? ""} ${statsFreeTrial?.topPerformer?.lastName ?? ""}`.trim()
                     : "0",
             subValue: "(456)",
-            icon: "/demo/synco/DashboardIcons/topPerformer.png",
+            icon: "/DashboardIcons/topPerformer.png",
             color: "text-green-500",
             bg: "bg-[#F3FAFD]"
         },
         {
             title: "Free Trial Attendance Rate",
             value: statsFreeTrial?.freeTrialAttendanceRate?.value || "0",
-            icon: "/demo/synco/DashboardIcons/freeTrialAttendanceRate.png",
+            icon: "/DashboardIcons/freeTrialAttendanceRate.png",
             change: statsFreeTrial?.freeTrialAttendanceRate?.change != null
                 ? `${statsFreeTrial.freeTrialAttendanceRate.change}%`
                 : "0%",
@@ -231,7 +231,7 @@ const trialLists = () => {
         {
             title: "Trials to Members",
             value: statsFreeTrial?.trialsToMembers?.value || "0",
-            icon: "/demo/synco/DashboardIcons/trialsToMembers.png",
+            icon: "/DashboardIcons/trialsToMembers.png",
             change: statsFreeTrial?.trialsToMembers?.change != null
                 ? `${statsFreeTrial.trialsToMembers.change}%`
                 : "0%",
@@ -429,7 +429,7 @@ const trialLists = () => {
                     <div className="flex justify-end ">
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
                             <img onClick={() => navigate("/weekly-classes/find-a-class")}
-                                src="/demo/synco/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
+                                src="/DashboardIcons/user-add-02.png" alt="" className="cursor-pointer" />
                         </div>
                     </div>
 
@@ -510,7 +510,7 @@ const trialLists = () => {
                             <div className="flex justify-between items-center mb-5 ">
                                 <h2 className="text-[24px] font-semibold">Filter by Date </h2>
                                 <button onClick={applyFilter} className="flex gap-2 items-center bg-[#237FEA] text-white px-3 py-2 rounded-lg text-sm text-[16px]">
-                                    <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                                    <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                                     Apply filter
                                 </button>
                             </div>
@@ -619,7 +619,7 @@ const trialLists = () => {
                                                             )}
                                                         </span>
                                                         <img
-                                                            src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/demo/synco/members/dummyuser.png"}
+                                                            src={admin.profile ? `${API_BASE_URL}${admin.profile}` : "/members/dummyuser.png"}
                                                             alt={`${admin.firstName} ${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`}
                                                             className="w-8 h-8 rounded-full"
                                                         />
@@ -757,7 +757,7 @@ const trialLists = () => {
                             className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl  text-[16px]"
                         >
                             <img
-                                src="/demo/synco/images/icons/mail.png"
+                                src="/images/icons/mail.png"
                                 className="w-4 h-4 sm:w-5 sm:h-5"
                                 alt="mail"
                             />
@@ -765,11 +765,11 @@ const trialLists = () => {
                         </button>
 
                         <button className="flex gap-1 items-center justify-center bg-none border border-[#717073] text-[#717073] px-3 py-2 rounded-xl  text-[16px]">
-                            <img src='/demo/synco/images/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                            <img src='/images/icons/sendText.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Send Text
                         </button>
                         <button onClick={exportFreeTrials} className="flex gap-1 items-center justify-center bg-[#237FEA] text-white px-3 py-2 rounded-xl  text-[16px]">
-                            <img src='/demo/synco/images/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                            <img src='/images/icons/download.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                             Export Data
                         </button>
                     </div>

@@ -76,14 +76,14 @@ const bookings = [
 // Helper function for images
 const renderImage = (type) => {
   const images = {
-    "weekly class membership": "/demo/synco/images/icons/crown.png",
-    "weekly class trial": "/demo/synco/images/icons/crown.png",
-    "Birthday Party Booking": "/demo/synco/images/icons/crown.png",
-    "One to One Booking": "/demo/synco/images/icons/crown.png",
-    "Holiday Camp": "/demo/synco/images/icons/crown.png",
-    "Merchandise": "/demo/synco/images/icons/crown.png",
+    "weekly class membership": "/images/icons/crown.png",
+    "weekly class trial": "/images/icons/crown.png",
+    "Birthday Party Booking": "/images/icons/crown.png",
+    "One to One Booking": "/images/icons/crown.png",
+    "Holiday Camp": "/images/icons/crown.png",
+    "Merchandise": "/images/icons/crown.png",
   };
-  return images[type] || "/demo/synco/images/icons/crown.png";
+  return images[type] || "/images/icons/crown.png";
 };
 
 // Render field helper
@@ -137,7 +137,7 @@ const formatPrettyDate = (dateString) => {
         <div className="flex items-center gap-2">
           <button className="px-3 py-2 flex items-center gap-2 rounded-lg text-sm bg-white">
             <img
-              src="/demo/synco/images/points.png"
+              src="/images/points.png"
               alt=""
               className="w-5 h-5 rounded-full"
             />{" "}
@@ -426,7 +426,7 @@ console.log('bookings',bookings )
         <div className="flex items-center gap-3">
           <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
-              src="/demo/synco/images/points.png"
+              src="/images/points.png"
               alt="Back"
               className="md:w-10 md:h-10 w-6 h-6"
             />
@@ -438,7 +438,7 @@ console.log('bookings',bookings )
 
           <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
-              src="/demo/synco/images/totalPoints.png"
+              src="/images/totalPoints.png"
               alt="Back"
               className="md:w-11 md:h-11 w-6 h-6"
             />
@@ -450,7 +450,7 @@ console.log('bookings',bookings )
 
           <div onClick={() => setShowFilterModal(true)} className="flex gap-4  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
-              src="/demo/synco/images/filterGray.png"
+              src="/images/filterGray.png"
               alt="Back"
               className=""
             />
@@ -462,7 +462,7 @@ console.log('bookings',bookings )
             onClick={handleAddStudent}
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
           >
-            <img src="/demo/synco/members/add.png" className="w-4 md:w-5" alt="Add" />
+            <img src="/members/add.png" className="w-4 md:w-5" alt="Add" />
             Add booking
           </button>
         </div>
@@ -517,7 +517,7 @@ console.log('bookings',bookings )
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <h3 className="font-semibold text-[20px] sm:text-[24px]">Filter</h3>
                 <button onClick={applyFilter} className="flex gap-2 items-center bg-blue-500 text-white px-3 py-2 rounded-lg text-sm text-[16px]">
-                  <img src='/demo/synco/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
+                  <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                   Apply fiter
                 </button>
               </div>

@@ -269,42 +269,42 @@ console.log('setPackageData',charts)
 
   const statCards = [
     {
-      icon: '/demo/synco/reportsIcons/user-group.png',
+      icon: '/reportsIcons/user-group.png',
       iconStyle: "bg-[#E8F7FC] text-[#3DAFDB]",  // light cyan
       title: "Total Leads",
       value: summary?.totalLeads?.thisMonth ?? 0,
       sub: `Last month: ${summary?.totalLeads?.previousMonth ?? 0}`,
     },
     {
-      icon: '/demo/synco/reportsIcons/Coins.png',
+      icon: '/reportsIcons/Coins.png',
       iconStyle: "bg-[#EAE8FF] text-[#6F65F1]", // light violet
       title: "Number of Sales",
       value: summary?.numberOfSales?.thisMonth ?? 0,
       sub: `Last month: ${summary?.numberOfSales?.previousMonth ?? 0}`,
     },
     {
-      icon: '/demo/synco/reportsIcons/Percent.png',
+      icon: '/reportsIcons/Percent.png',
       iconStyle: "bg-[#E9F7EE] text-[#34AE56]", // light green
       title: "Conversion Rate",
       value: summary?.conversionRate?.thisMonth ?? "0%",
       sub: `Last month: ${summary?.conversionRate?.previousMonth ?? "0%"}`,
     },
     {
-      icon: '/demo/synco/reportsIcons/pound.png',
+      icon: '/reportsIcons/pound.png',
       iconStyle: "bg-[#FCE9F3] text-[#E769BD]", // light pink
       title: "Revenue Generated",
       value: summary?.revenueGenerated?.thisMonth ?? "£0",
       sub: `Last month: ${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
     },
     {
-      icon: '/demo/synco/reportsIcons/Package.png',
+      icon: '/reportsIcons/Package.png',
       iconStyle: "bg-[#E5F7F7] text-[#099699]", // light teal
       title: "Revenue Gold Package",
       value: `£${goldData?.currentRevenue?.toLocaleString() ?? 0}`,
       sub: `vs. previous £${goldData?.lastRevenue?.toLocaleString() ?? 0}`,
     },
     {
-      icon: '/demo/synco/reportsIcons/silver-package.png',
+      icon: '/reportsIcons/silver-package.png',
       iconStyle: "bg-[#FFF1E9] text-[#F38B4D]", // light orange
       title: "Revenue Silver Package",
       value: `£${silverData?.currentRevenue?.toLocaleString() ?? 0}`,
@@ -750,7 +750,7 @@ console.log('setPackageData',charts)
                       </div>
                       <div className="flex items-center gap-4">
                         <div className=" ">
-                          <img src="/demo/synco/images/icons/growth.png" alt="" className="w-[60px]" />
+                          <img src="/images/icons/growth.png" alt="" className="w-[60px]" />
                         </div>
                         <div className="">
                           <div className="text-[16px] font-semibold">Revenue Growth</div>
@@ -773,7 +773,7 @@ console.log('setPackageData',charts)
 
               <div className="flex items-center gap-4">
                 <div className=" ">
-                  <img src="/demo/synco/images/icons/bdy.png" alt="" className="w-[60px]" />
+                  <img src="/images/icons/bdy.png" alt="" className="w-[60px]" />
                 </div>
                 <div className="">
                   <div className="font-semibold text-[#717073] text-[14px]">Average of Birthday Child</div>

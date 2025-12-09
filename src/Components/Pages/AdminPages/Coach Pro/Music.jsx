@@ -303,7 +303,7 @@ export default function MusicPlayer() {
                                             }}
                                             className="p-2 rounded-full "
                                         >
-                                            {currentTrack?.id === track.id && isPlaying ? <img src="/demo/synco/images/pausegray.png"  className="w-8" alt="" /> :<img src="/demo/synco/images/playgray.png" className="w-8"  alt="" />}
+                                            {currentTrack?.id === track.id && isPlaying ? <img src="/images/pausegray.png"  className="w-8" alt="" /> :<img src="/images/playgray.png" className="w-8"  alt="" />}
                                         </button>
                                     </td>
                                     <td>

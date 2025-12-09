@@ -198,13 +198,13 @@ const navigate = useNavigate();   // ✅ declare navigate
 
                                     <div className="icons flex gap-4 items-center">
                                         <img
-                                            src="/demo/synco/images/icons/edit.png"
+                                            src="/images/icons/edit.png"
                                             alt="Edit"
                                             className="w-5 h-5 transition-transform duration-200 hover:scale-110 opacity-90 cursor-pointer"
                                             onClick={() => selectedTemplate && handleEdit(selectedTemplate.id , selectedTemplate.mode_of_communication)}
                                         />
                                         <img
-                                            src="/demo/synco/images/icons/deleteIcon.png"
+                                            src="/images/icons/deleteIcon.png"
                                             alt="Delete"
                                             className="w-5 h-5 transition-transform duration-200 hover:scale-110 opacity-90 cursor-pointer"
                                             onClick={() => selectedTemplate && handleDelete(selectedTemplate.id)}
@@ -323,13 +323,13 @@ const navigate = useNavigate();   // ✅ declare navigate
 
                                             <div className="icons flex gap-4 items-center">
                                                 <img
-                                                    src="/demo/synco/images/icons/edit.png"
+                                                    src="/images/icons/edit.png"
                                                     alt="Edit"
                                                     className="w-5 h-5 transition-transform duration-200 hover:scale-110 opacity-90 cursor-pointer"
                                                     onClick={() => selectedTemplate && handleEdit(selectedTemplate.id , selectedTemplate.mode_of_communication)}
                                                 />
                                                 <img
-                                                    src="/demo/synco/images/icons/deleteIcon.png"
+                                                    src="/images/icons/deleteIcon.png"
                                                     alt="Delete"
                                                     className="w-5 h-5 transition-transform duration-200 hover:scale-110 opacity-90 cursor-pointer"
                                                     onClick={() => selectedTemplate && handleDelete(selectedTemplate.id)}
@@ -339,13 +339,13 @@ const navigate = useNavigate();   // ✅ declare navigate
 
                                         {/* ✅ iMESSAGE MOCKUP */}
                                         <div className="bg-white border border-gray-200 rounded-xl max-w-[350px] w-full m-auto shadow-sm">
-                                            <img className="w-full" src="/demo/synco/images/icons/TopNavigation.png" alt="" />
+                                            <img className="w-full" src="/images/icons/TopNavigation.png" alt="" />
                                             <div className="min-h-80 p-4">
                                                 <div className="bg-gray-100 p-4 rounded-xl min-h-20 text-sm text-gray-800">
                                                     {block.content}
                                                 </div>
                                             </div>
-                                            <img className="w-full" src="/demo/synco/images/icons/mobileKeyboard.png" alt="" />
+                                            <img className="w-full" src="/images/icons/mobileKeyboard.png" alt="" />
                                         </div>
 
                                         {/* ✅ VIEW BUTTON */}

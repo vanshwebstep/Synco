@@ -209,7 +209,7 @@ export default function NotificationList() {
             <div className="md:p-6 bg-gray-50 ">
                 <div className="md:flex justify-between items-center mb-6">
                     <div className="flex items-center gap-3 cursor-pointer transition-transform duration-300 hover:scale-105" onClick={() => navigate('/notification')}>
-                        <img className="w-6" alt="" src="/demo/synco/members/Arrow - Left.png" />
+                        <img className="w-6" alt="" src="/members/Arrow - Left.png" />
                         <h1 className="text-[24px] font-semibold">Notification List</h1>
                     </div>
                     <div className="flex mt-3 md:mt-0 flex-wrap items-center gap-4">
@@ -217,7 +217,7 @@ export default function NotificationList() {
                             onClick={() => setShowTimePeriodPopup(true)}
                             className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-[#E2E1E5] text-[#717073] text-[16px] hover:bg-gray-100"
                         >
-                            <img src="/demo/synco/members/calendar.png" className="w-5" alt="calendar" />
+                            <img src="/members/calendar.png" className="w-5" alt="calendar" />
                             Time Period
                         </button>
 
@@ -225,7 +225,7 @@ export default function NotificationList() {
                             onClick={() => setShowCategoryPopup(true)}
                             className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white border border-[#E2E1E5] text-[#717073] text-[16px] hover:bg-gray-100"
                         >
-                            <img src="/demo/synco/members/filter-vertical.png" className="w-5" alt="filter" />
+                            <img src="/members/filter-vertical.png" className="w-5" alt="filter" />
                             Filter
                         </button>
 
@@ -260,7 +260,7 @@ export default function NotificationList() {
                                                     {item.recipients?.slice(0, 4).map((recipient, i) => (
                                                         <img
                                                             key={i}
-                                                            src={recipient?.profileImage || "/demo/synco/members/dummyuser.png"}
+                                                            src={recipient?.profileImage || "/members/dummyuser.png"}
                                                             alt={recipient?.recipientEmail}
                                                             title={recipient?.recipientEmail}
                                                             className="w-8 h-8 rounded-full border-2 border-white object-cover"

@@ -84,7 +84,7 @@ console.log('selectedPlans',selectedPlans)
                     return text ? (
                       <li key={index} className="flex items-center gap-2">
                         <img
-                          src="/demo/synco/images/icons/tick-circle.png"
+                          src="/images/icons/tick-circle.png"
                           alt=""
                           className="w-5 h-5"
                         />

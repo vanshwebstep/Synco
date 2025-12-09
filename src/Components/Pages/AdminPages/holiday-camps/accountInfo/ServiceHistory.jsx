@@ -10,13 +10,13 @@ import { useAccountsInfo } from "../../contexts/AccountsInfoContext";
 
 const renderImage = (type) => {
   const images = {
-    "Weekly Classes Membership": "/demo/synco/images/icons/crown.png",
-    "birthday party": "/demo/synco/images/icons/birthday.png",
-    "One to One Booking": "/demo/synco/images/icons/one-to-one.png",
-    "holiday camp": "/demo/synco/images/icons/crown.png",
-    "Merchandise": "/demo/synco/images/icons/crown.png",
+    "Weekly Classes Membership": "/images/icons/crown.png",
+    "birthday party": "/images/icons/birthday.png",
+    "One to One Booking": "/images/icons/one-to-one.png",
+    "holiday camp": "/images/icons/crown.png",
+    "Merchandise": "/images/icons/crown.png",
   };
-  return images[type] || "/demo/synco/images/icons/crown.png";
+  return images[type] || "/images/icons/crown.png";
 };
 
 // Render field helper
@@ -57,7 +57,7 @@ console.log('data',data ,bookingInfo, booking )
         <div className="flex items-center gap-2">
           <button className="px-3 py-2 flex items-center gap-2 rounded-lg text-sm bg-white">
             <img
-              src="/demo/synco/images/points.png"
+              src="/images/points.png"
               alt=""
               className="w-5 h-5 rounded-full"
             />{" "}
@@ -401,7 +401,7 @@ const ServiceHistory = () => {
         <div className="flex items-center gap-3">
           <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
-              src="/demo/synco/images/points.png"
+              src="/images/points.png"
               alt="Back"
               className="md:w-10 md:h-10 w-6 h-6"
             />
@@ -413,7 +413,7 @@ const ServiceHistory = () => {
 
           <div className="flex gap-2  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
-              src="/demo/synco/images/totalPoints.png"
+              src="/images/totalPoints.png"
               alt="Back"
               className="md:w-11 md:h-11 w-6 h-6"
             />
@@ -425,7 +425,7 @@ const ServiceHistory = () => {
 
           <div onClick={() => setShowFilterModal(true)} className="flex gap-4  items-center    p-2 rounded-xl flex-wrap bg-white">
             <img
-              src="/demo/synco/images/filterGray.png"
+              src="/images/filterGray.png"
               alt="Back"
               className=""
             />

@@ -65,7 +65,7 @@ const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
             <div className="bg-[#2E2F3E] text-white p-4 rounded-2xl flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
-                  <img src={icon || "/demo/synco/images/icons/crown.png"} alt="icon" />
+                  <img src={icon || "/images/icons/crown.png"} alt="icon" />
                 )}
 
                 <span className="font-medium capitalize text-[20px]">
@@ -78,7 +78,7 @@ const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
                 {/* {(comesFrom === "cancellation" || comesFrom === "freeTrial" || comesFrom === "membership") && (
                   <div className="flex gap-2 items-center text-black p-2 rounded-xl flex-wrap bg-white">
                     <img
-                      src="/demo/synco/images/accountInfoCount.png"
+                      src="/images/accountInfoCount.png"
                       alt="student count"
                     />
                     <div className="block pr-3">
@@ -263,7 +263,7 @@ const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
                       </div>
                       <div>
                         <img
-                          src="/demo/synco/images/icons/threeDot.png"
+                          src="/images/icons/threeDot.png"
                           alt="options"
                           className="pl-4"
                         />

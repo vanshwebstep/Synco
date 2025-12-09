@@ -222,7 +222,7 @@ const Create = ({ groups, termGroup }) => {
   ];
   return (
     <div className="max-w-md mx-auto">
-      <h2 onClick={handleCancel} className="md:text-[24px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center border-[#E2E1E5] border-b p-5"><img src="/demo/synco/members/Arrow - Left.png" className="w-6" alt="" />{isEditVenue ? 'Edit Venue' : 'Add New Venue'}</h2>
+      <h2 onClick={handleCancel} className="md:text-[24px] cursor-pointer hover:opacity-80 font-semibold mb-4 flex gap-2 items-center border-[#E2E1E5] border-b p-5"><img src="/members/Arrow - Left.png" className="w-6" alt="" />{isEditVenue ? 'Edit Venue' : 'Add New Venue'}</h2>
       <form className="space-y-2  p-5 pt-1">
 
         <div>

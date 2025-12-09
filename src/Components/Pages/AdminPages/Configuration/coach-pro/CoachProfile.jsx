@@ -86,7 +86,7 @@ export default function CoachProfile() {
                 ${activeIndex === index ? "bg-[#F7FBFF] border-l-4 border-[#237FEA]" : "border-b border-[#E2E1E5]"}`}
             >
               <div className="w-10 h-10 rounded-full">
-                <img src="/demo/synco/images/demoprofile.png" alt="" />
+                <img src="/images/demoprofile.png" alt="" />
               </div>
 
               <div>
@@ -103,7 +103,7 @@ export default function CoachProfile() {
         <div className="bg-[#FAFAFA] border border-[#E2E1E5] rounded-3xl py-6">
           <div className="flex flex-col items-center border-b border-[#E2E1E5] pb-5 px-6">
             <div className="w-24 h-24 rounded-full mb-3">
-              <img src="/demo/synco/images/demoprofile.png" className="w-full h-full" alt="" />
+              <img src="/images/demoprofile.png" className="w-full h-full" alt="" />
             </div>
             <h2 className="text-lg font-semibold">Ethan Bond-Vaughan</h2>
           </div>
@@ -212,13 +212,13 @@ export default function CoachProfile() {
                           </div>
                         ) : (
                           <div className="flex justify-end items-center gap-4">
-                            <img src="/demo/synco/reportsIcons/Pen.png" onClick={() => {
+                            <img src="/reportsIcons/Pen.png" onClick={() => {
                               setEditingRow(index);
                               setEditRate(v.rate);
                             }} alt="" className="w-5 h-5 cursor-pointer" />
                             <img onClick={() => {
                               setVenues(venues.filter((_, i) => i !== index));
-                            }} src="/demo/synco/reportsIcons/delete-02.png" className="w-5 h-5 cursor-pointer" alt="" />
+                            }} src="/reportsIcons/delete-02.png" className="w-5 h-5 cursor-pointer" alt="" />
 
 
 
@@ -249,7 +249,7 @@ export default function CoachProfile() {
                         <div className="flex justify-end">
                           {v.download ? (
 
-                            <img src="/demo/synco/reportsIcons/Icon.png" className="w-5 h-5 cursor-pointer" alt="" />
+                            <img src="/reportsIcons/Icon.png" className="w-5 h-5 cursor-pointer" alt="" />
                           ) : (
                             <span className="text-red-500">Not available</span>
                           )}
@@ -312,11 +312,11 @@ export default function CoachProfile() {
 
                               <p className="flex justify-between text-[#717073] ">1. What is the purpose of the skill demonstrated in the video?
                                 <div className="flex items-center gap-2 text-green-500 font-semibold">
-                                  <img src="/demo/synco/reportsIcons/tick-02.png" className="w-5 h-5 cursor-pointer" alt="" />
+                                  <img src="/reportsIcons/tick-02.png" className="w-5 h-5 cursor-pointer" alt="" />
                                   To help coaches</div></p>
                               <p className="flex justify-between text-[#717073] ">2. What is the purpose of the skill demonstrated in the video?
                                 <div className=" flex items-center gap-2  text-red-500 font-semibold">
-                                  <img src="/demo/synco/reportsIcons/cross1.png" className="w-5 h-5 cursor-pointer" alt="" />
+                                  <img src="/reportsIcons/cross1.png" className="w-5 h-5 cursor-pointer" alt="" />
                                   Control the ball</div></p>
 
                             </div>

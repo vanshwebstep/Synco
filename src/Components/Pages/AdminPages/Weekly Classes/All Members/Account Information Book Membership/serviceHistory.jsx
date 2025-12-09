@@ -52,13 +52,13 @@ const ServiceHistory = ({ serviceHistory }) => {
         {/* Header */}
         <div className="bg-[#2E2F3E] text-white p-4 rounded-2xl flex items-center justify-between text-sm">
           <div className="flex items-center gap-2">
-            <img src="/demo/synco/images/icons/crown.png" alt="" />
+            <img src="/images/icons/crown.png" alt="" />
             <span className="font-medium text-[20px]">Weekly Classes Membership</span>
           </div>
           <div className="flex relative items-center gap-4">
             {/* Student Count */}
             {/* <div className="flex gap-2 items-center text-black p-2 rounded-xl flex-wrap bg-white">
-              <img src="/demo/synco/images/accountInfoCount.png" alt="Back" />
+              <img src="/images/accountInfoCount.png" alt="Back" />
               <div className="block pr-3">
                 <div className="whitespace-nowrap font-semibold text-[#717073] text-[16px]">
                   {students?.length || 0}
@@ -163,7 +163,7 @@ const ServiceHistory = ({ serviceHistory }) => {
                 </div>
                 <div>
                   <img
-                    src="/demo/synco/images/icons/threeDot.png"
+                    src="/images/icons/threeDot.png"
                     alt=""
                     className="pl-4"
                   />
@@ -182,7 +182,7 @@ const ServiceHistory = ({ serviceHistory }) => {
                 </div>
                 <div>
                   <img
-                    src="/demo/synco/images/icons/threeDot.png"
+                    src="/images/icons/threeDot.png"
                     alt=""
                     className="pl-4"
                   />
