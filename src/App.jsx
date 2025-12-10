@@ -159,7 +159,10 @@ import { RecruitmentProvider } from './Components/Pages/AdminPages/contexts/Recr
 import Music from './Components/Pages/AdminPages/Coach Pro/Music.jsx';
 import CourseList from './Components/Pages/AdminPages/Coach Pro/Course/CourseList.jsx';
 import CourseCreate from './Components/Pages/AdminPages/Coach Pro/Course/CourseCreate.jsx';
-import CoachProfile from './Components/Pages/AdminPages/Configuration/coach-pro/CoachProfile.jsx';
+// import CoachProfile from './Components/Pages/AdminPages/Configuration/coach-pro/CoachProfile.jsx';
+import CoachProfile from './Components/Pages/AdminPages/Configuration/coach-pro/profile/CoachProfile.jsx';
+import AttendanceReport from './Components/Pages/AdminPages/Configuration/coach-pro/profile/AttendanceReport.jsx';
+import ContractList from './Components/Pages/AdminPages/Configuration/coach-pro/contracts/ContractList.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -1011,6 +1014,24 @@ const AppRoutes = () => {
           </RoleBasedRoute>
         </AdminLayout>
         // </ProtectedRoute>
+      } />
+       <Route path="/configuration/coach-pro/profile/report" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <AttendanceReport />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/coach-pro/contracts" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <ContractList />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
       } />
     </Routes>
   );

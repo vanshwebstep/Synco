@@ -45,6 +45,28 @@ export const VenueProvider = ({ children }) => {
       setLoading(false);
     }
   }, []);
+    const fetchVenueNames = useCallback(async () => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/coach/recruitment/listing/venue`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setVenues(result);
+    } catch (error) {
+      console.error("Failed to fetch venues:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 const createVenues = async (venueData) => {
   setLoading(true);
 
@@ -206,7 +228,7 @@ const deleteVenue = useCallback(async (id) => {
 
   return (
     <VenueContext.Provider
-      value={{ venues, createVenues, updateVenues, deleteVenue,openForm, setOpenForm, formData, setFormData, isEditVenue, setIsEditVenue, setVenues, fetchVenues, loading }}>
+      value={{ venues, createVenues, updateVenues, deleteVenue,openForm,fetchVenueNames, setOpenForm, formData, setFormData, isEditVenue, setIsEditVenue, setVenues, fetchVenues, loading }}>
       {children}
     </VenueContext.Provider>
   );

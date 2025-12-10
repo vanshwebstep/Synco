@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { TiUserAdd } from "react-icons/ti";
 import { Plus } from "lucide-react";
@@ -11,53 +11,156 @@ import {
     ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useRecruitmentTemplate } from "../../contexts/RecruitmentContext";
+import Loader from "../../contexts/Loader";
+
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import Select from "react-select";
+import Swal from "sweetalert2";
 const FranchiseLeads = () => {
 
-    const summaryCards = [
-        { icon: "/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total franchise leads", value: 945, change: "(+28.14%)" },
-        { icon: "/reportsIcons/greenuser.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New leads", value: 945, change: "(+28.14%)" },
-        { icon: "/reportsIcons/login-icon-orange.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Quality Leads", value: 945, change: "(+28.14%)" },
-        { icon: "/reportsIcons/handshake.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Leads To Sales", value: 343 },
+    const [loading, setLoading] = useState(false);
+
+    const { recruitment, fetchFranchiseRecruitment, statsRecruitment, createFranchiseRecruitment } = useRecruitmentTemplate() || {};
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+            await fetchFranchiseRecruitment();
+            setLoading(false);
+        };
+        loadData();
+    }, [fetchFranchiseRecruitment]);
+    const dbsOptions = [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
     ];
+
+    const levelOptions = [
+        { value: "yes", label: "Yes" },
+        { value: "no", label: "No" },
+    ];
+
+    const statusOptions = [
+        { value: "pending", label: "Pending" },
+        { value: "recruited", label: "Recruited" },
+        { value: "rejected", label: "Rejected" },
+    ];
+
+    console.log(' recruitment', recruitment);
+    const handleSelectChange = (field, selected) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: selected.value,
+        }));
+    };
+
+    const [filteredRecruitment, setFilteredRecruitment] = useState([]);
+
+    const summaryCards = [
+        {
+            icon: "/reportsIcons/user-group.png",
+            iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]",
+            title: "Total franchise leads",
+            key: "totalFranchiseLeads"
+        },
+        {
+            icon: "/reportsIcons/greenuser.png",
+            iconStyle: "text-[#099699] bg-[#E0F7F7]",
+            title: "New leads",
+            key: "totalNewFranchiseLeads"
+        },
+        {
+            icon: "/reportsIcons/login-icon-orange.png",
+            iconStyle: "text-[#F38B4D] bg-[#FFF2E8]",
+            title: "Quality Leads",
+            key: "totalToAssessments"
+        },
+        {
+            icon: "/reportsIcons/handshake.png",
+            iconStyle: "text-[#6F65F1] bg-[#E9E8FF]",
+            title: "Leads To Sales",
+            key: "totalLeadsToSales"
+        }
+    ];
+
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     // Add ID to each coach
-    const coaches = [
-        {
-            id: 1,
-            name: "Tom Jones",
-            age: 25,
-            location: "Chelsea",
-            telephone: "12344567",
-            email: "tom.john@gmail.com",
-            experience: "2 years",
-            capital: '£123,123',
-            status: "Pending",
-        },
-        {
-            id: 2,
-            name: "Tom Jones",
-            age: 25,
-            location: "Chelsea",
-            telephone: "12344567",
-            email: "tom.john@gmail.com",
-            experience: "2 years",
-            capital: '£123,123',
-            status: "Rejected",
-        },
-        {
-            id: 3,
-            name: "Tom Jones",
-            age: 25,
-            location: "Chelsea",
-            telephone: "12344567",
-            email: "tom.john@gmail.com",
-            experience: "2 years",
-            capital: '£123,123',
-            status: "Recruited",
-        },
-        // ... (rest unchanged)
-    ];
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        // Required fields validation
+        const requiredFields = [
+            { key: "firstName", label: "First Name" },
+            { key: "lastName", label: "Last Name" },
+            { key: "gender", label: "Gender" },
+            { key: "dob", label: "Date of Birth" },
+            { key: "phoneNumber", label: "Phone Number" },
+            { key: "email", label: "Email Address" },
+            { key: "age", label: "Age" },
+            { key: "postcode", label: "Postcode" },
+            { key: "managementExperience", label: "Management Experience" },
+        ];
+
+        for (let field of requiredFields) {
+            if (!formData[field.key] || formData[field.key].trim() === "") {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Missing Field",
+                    text: `${field.label} is required.`,
+                    confirmButtonColor: "#237FEA",
+                });
+                return; // stop submit
+            }
+        }
+
+        // Valid email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid Email",
+                text: "Please enter a valid email address.",
+                confirmButtonColor: "#237FEA",
+            });
+            return;
+        }
+
+        // Phone number validation (optional)
+        if (formData.phoneNumber.length < 8) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid Phone Number",
+                text: "Phone number must be at least 8 digits.",
+                confirmButtonColor: "#237FEA",
+            });
+            return;
+        }
+
+        // Success
+
+        console.log("New Lead Data:", formData);
+        createFranchiseRecruitment(formData);
+        setFormData({
+            firstName: "",
+            lastName: "",
+            gender: "",
+            dob: "",
+            phoneNumber: "",
+            email: "",
+            age: "",
+            postcode: "",
+            managementExperience: "",
+            dbs: "no",
+            level: "no",
+        });
+        setIsOpen(false);
+    };
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     // Checkbox state
     const [selectedIds, setSelectedIds] = useState([]);
@@ -69,7 +172,6 @@ const FranchiseLeads = () => {
                 : [...prev, id]
         );
     };
-
 
 
     // for fiters 
@@ -154,17 +256,174 @@ const FranchiseLeads = () => {
         }
     };
 
+    const calculateAge = (dob) => {
+        if (!dob) return "";
+        const birthDate = new Date(dob);
+        const today = new Date();
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        gender: "",
+        dob: "",
+        age: "",
+        phoneNumber: "",
+        email: "",
+        postcode: "",
+        managementExperience: "",
+        dbs: "no",
+        level: "no",
+    });
+    const getExpYears = (value = "") => {
+        const lower = value.toLowerCase().trim();
+
+        if (lower.includes("more")) return 6; // treat "More than 5 years" as 6+
+        const num = parseInt(lower);
+        return isNaN(num) ? null : num;
+    };
 
 
     const applyFilter = () => {
+        let temp = Array.isArray(recruitment) ? [...recruitment] : [];
 
+        // 1. Search by name
+        if (studentName?.trim()) {
+            const q = studentName.trim().toLowerCase();
+            temp = temp.filter((c) => {
+                const name = `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase();
+                return name.includes(q);
+            });
+        }
+
+        // 2. Venue
+        if (venueName) {
+            temp = temp.filter((c) => (c.venue ?? "").toString() === venueName);
+        }
+
+        // 3. Status + Exp + FA Level
+        const activeStatuses = Object.entries(checkedStatuses)
+            .filter(([k, v]) => v)
+            .map(([k]) => k.toLowerCase());
+        console.log('activeStatuses', activeStatuses);
+        if (activeStatuses.length > 0) {
+            temp = temp.filter((c) => {
+                const status = (c.status ?? "").toLowerCase().trim();
+                const expYears = getExpYears(c.managementExperience);
+                const faLevel1 = c.level === "yes";
+
+                return (
+                    activeStatuses.includes(status) ||
+
+                    // ✅ 0–3 years exp
+                    (
+                        activeStatuses.includes("0-3 years exp") &&
+                        expYears !== null &&
+                        expYears >= 0 &&
+                        expYears <= 3
+                    ) ||
+
+                    // ✅ 3+ years exp
+                    (
+                        activeStatuses.includes("3+ years exp") &&
+                        expYears !== null &&
+                        expYears >= 3
+                    ) ||
+
+                    // ✅ FA Level 1
+                    (
+                        activeStatuses.includes("fa level 1") &&
+                        faLevel1
+                    )
+                );
+            });
+        }
+
+
+        // 4. Date range
+        if (fromDate && toDate) {
+            const start = new Date(fromDate).setHours(0, 0, 0, 0);
+            const end = new Date(toDate).setHours(23, 59, 59, 999);
+
+            temp = temp.filter((c) => {
+                const created = c.createdAt ? new Date(c.createdAt).getTime() : null;
+                return created && created >= start && created <= end;
+            });
+        }
+
+        setFilteredRecruitment(temp);
     };
+
+
+
+    useEffect(() => {
+        setFilteredRecruitment(recruitment);
+    }, [recruitment]);
+
+    const finalSummaryCards = summaryCards.map(card => {
+        const matched = statsRecruitment.find(
+            item => item.name === card.key
+        );
+
+        return {
+            ...card,
+            value: matched?.count ?? 0,
+            change: matched?.percent ? `(${matched.percent})` : null
+        };
+    });
+    const experienceOptions = [
+        { value: "1 year", label: "1 year" },
+        { value: "2 years", label: "2 years" },
+        { value: "3 years", label: "3 years" },
+        { value: "4 years", label: "4 years" },
+        { value: "5 years", label: "5 years" },
+        { value: "More than 5 years", label: "More than 5 years" },
+    ];
+
+    const genderOptions = [
+        { value: "Male", label: "Male" },
+        { value: "Female", label: "Female" },
+        { value: "Other", label: "Other" },
+    ];
+
+    const selectStyles = {
+        control: (base) => ({
+            ...base,
+            borderRadius: "0.5rem",
+            minHeight: "44px",
+            borderColor: "#E2E1E5",
+            boxShadow: "none",
+            "&:hover": { borderColor: "#237FEA" },
+        }),
+        valueContainer: (base) => ({
+            ...base,
+            padding: "0 12px",
+        }),
+        input: (base) => ({
+            ...base,
+            margin: 0,
+            padding: 0,
+        }),
+        indicatorSeparator: () => ({ display: "none" }),
+    };
+
+    const inputClass =
+        " px-4 py-3 border border-[#E2E1E5] rounded-xl focus:outline-none ";
+
+    if (loading) return <Loader />;
     return (
         <div className="flex gap-5">
             <div className="md:w-[70%]">
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {summaryCards.map((card, i) => (
+                    {finalSummaryCards.map((card, i) => (
                         <div
                             key={i}
                             className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center gap-4 hover:shadow-md transition-all duration-200"
@@ -198,7 +457,7 @@ const FranchiseLeads = () => {
                             <Plus size={16} />
                             Add new Franchise
                         </button>
-                        {coaches.length == 0 && (
+                        {filteredRecruitment.length == 0 && (
                             <button onClick={() => {
 
                             }}
@@ -226,8 +485,10 @@ const FranchiseLeads = () => {
                         </thead>
 
                         <tbody>
-                            {coaches.map((coach) => {
+                            {filteredRecruitment.map((coach) => {
                                 const isChecked = selectedIds.includes(coach.id);
+                                const fullName = `${coach.firstName} ${coach.lastName}`;
+                                const status = coach.status ? coach.status.toLowerCase() : "";
 
                                 return (
                                     <tr onClick={() => navigate(`/recruitment/franchise-lead/see-details?id=${coach?.id}`)} key={coach.id} className="border-b cursor-pointer border-gray-200">
@@ -246,34 +507,34 @@ const FranchiseLeads = () => {
                                                     )}
                                                 </button>
 
-                                                {coach.name}
+                                                {fullName}
                                             </div>
                                         </td>
 
                                         <td className="p-4">{coach.age}</td>
-                                        <td className="p-4">{coach.location}</td>
-                                        <td className="p-4">{coach.telephone}</td>
+                                        <td className="p-4">{coach?.candidateProfile?.location}</td>
+                                        <td className="p-4">{coach.phoneNumber}</td>
                                         <td className="p-4">{coach.email}</td>
-                                        <td className="p-4">{coach.experience}</td>
+                                        <td className="p-4">{coach.managementExperience}</td>
 
                                         <td className="p-4">
-                                            {coach.capital}
+                                            {coach?.candidateProfile?.capitalAvailable}
                                         </td>
 
 
 
                                         <td className="p-4">
                                             <span
-                                                className={`px-3 py-1 rounded-md text-xs font-medium
-                        ${coach.status === "Pending"
-                                                        ? "bg-yellow-100 text-yellow-700"
-                                                        : coach.status === "Recruited"
-                                                            ? "bg-green-100 text-green-700"
-                                                            : "bg-red-100 text-red-700"
+                                                className={`px-3 py-1 rounded-md text-xs font-medium ${status === "pending"
+                                                    ? "bg-yellow-100 text-yellow-700"
+                                                    : status === "recruited"
+                                                        ? "bg-green-100 text-green-700"
+                                                        : "bg-red-100 text-red-700"
                                                     }`}
                                             >
-                                                {coach.status}
+                                                {status.charAt(0).toUpperCase() + status.slice(1)}
                                             </span>
+
                                         </td>
                                     </tr>
                                 );
@@ -285,7 +546,7 @@ const FranchiseLeads = () => {
             </div>
 
             <div className="md:w-[30%]  fullwidth20 flex-shrink-0 gap-5 md:ps-3">
-             
+
                 {/* Filter by Date */}
                 <div className="bg-white p-4 rounded-xl">
                     <div className="flex justify-between items-center mb-2">
@@ -442,6 +703,187 @@ const FranchiseLeads = () => {
                         <Download size={16} /> Export Data
                     </button>
                 </div>
+                {isOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                        <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6">
+                            {/* Modal Header */}
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-lg font-semibold">Add New Franchise </h2>
+                                <button
+                                    onClick={() => setIsOpen(false)}
+                                    className="text-gray-400 hover:text-gray-600"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            {/* Form */}
+                            <form onSubmit={handleSubmit} className="space-y-4">
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input
+                                        name="firstName"
+                                        value={formData.firstName}
+                                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                                        placeholder="First Name"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+
+                                    <input
+                                        name="lastName"
+                                        value={formData.lastName}
+                                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                                        placeholder="Last Name"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+                                </div>
+
+                                {/* DOB with DatePicker */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <DatePicker
+                                            selected={formData.dob ? new Date(formData.dob) : null}
+                                            onChange={(date) => {
+                                                const formattedDate = date?.toISOString().slice(0, 10);
+                                                const age = calculateAge(formattedDate);
+
+                                                setFormData({
+                                                    ...formData,
+                                                    dob: formattedDate,
+                                                    age: age,
+                                                });
+                                            }}
+                                            placeholderText="Date of Birth"
+                                            className="w-full pl-3 pr-3 py-3 border border-[#E2E1E5] rounded-lg text-sm"
+                                            dateFormat="yyyy-MM-dd"
+                                            showYearDropdown           // ✅
+                                            showMonthDropdown          // ✅
+                                            dropdownMode="select"      // ✅ easier year selection
+                                        />
+                                    </div>
+
+                                    <input
+                                        name="phoneNumber"
+                                        value={formData.phoneNumber}
+                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                        placeholder="Phone Number"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3">
+                                    <input
+                                        name="email"
+                                        type="email"
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        placeholder="Email Address"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+
+                                    <input
+                                        name="postcode"
+                                        value={formData.postcode}
+                                        onChange={(e) => setFormData({ ...formData, postcode: e.target.value })}
+                                        placeholder="Postcode"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <select
+                                        name="managementExperience"
+                                        value={formData.managementExperience}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, managementExperience: e.target.value })
+                                        }
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    >
+                                        <option value="">Select experience</option>
+                                        <option value="1 year">1 year</option>
+                                        <option value="2 years">2 years</option>
+                                        <option value="3 years">3 years</option>
+                                        <option value="4 years">4 years</option>
+                                        <option value="5 years">5 years</option>
+                                        <option value="More than 5 years">More than 5 years</option>
+                                    </select>
+                                    <select
+                                        name="gender"
+                                        value={formData.gender}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, gender: e.target.value })
+                                        }
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                    >
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {/* DBS */}
+                                    <div>
+                                        <label className="text-sm text-gray-600">DBS</label>
+                                        <Select
+                                            options={dbsOptions}
+                                            value={dbsOptions.find(o => o.value === formData.dbs)}
+                                            onChange={(selected) => handleSelectChange("dbs", selected)}
+                                            className="mt-1 rounded-xl"
+                                        />
+
+                                    </div>
+
+                                    {/* FA Level 1 */}
+                                    <div>
+                                        <label className="text-sm text-gray-600">FA Level 1</label>
+                                        <Select
+                                            options={levelOptions}
+                                            value={levelOptions.find(o => o.value === formData.level)}
+                                            onChange={(selected) => handleSelectChange("level", selected)}
+                                            className="mt-1"
+                                        />
+                                    </div>
+                                </div>
+                                <div><label className="text-sm text-gray-600">Age</label>
+                                    <input
+                                        name="age"
+                                        type="number"
+                                        value={formData.age}
+                                        onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                                        placeholder="Age"
+                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+
+                                    />
+                                </div>
+                                {/* Status */}
+
+
+                                <div className="flex justify-end gap-3 mt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsOpen(false)}
+                                        className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                    >
+                                        Cancel
+                                    </button>
+
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 rounded-lg bg-[#237FEA] text-white hover:bg-blue-700"
+                                    >
+                                        Save Lead
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
             </div>
 
         </div>

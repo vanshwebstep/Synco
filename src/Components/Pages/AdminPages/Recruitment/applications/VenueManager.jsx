@@ -76,11 +76,10 @@ const VenueManager = () => {
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     // Add ID to each coach
-
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Required fields validation
+        // ✅ Required fields
         const requiredFields = [
             { key: "firstName", label: "First Name" },
             { key: "lastName", label: "Last Name" },
@@ -93,18 +92,18 @@ const VenueManager = () => {
         ];
 
         for (let field of requiredFields) {
-            if (!formData[field.key] || formData[field.key].trim() === "") {
+            if (!formData[field.key] || formData[field.key].toString().trim() === "") {
                 Swal.fire({
                     icon: "warning",
                     title: "Missing Field",
                     text: `${field.label} is required.`,
                     confirmButtonColor: "#237FEA",
                 });
-                return; // stop submit
+                return;
             }
         }
 
-        // Valid email format
+        // ✅ Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             Swal.fire({
@@ -116,7 +115,7 @@ const VenueManager = () => {
             return;
         }
 
-        // Phone number validation (optional)
+        // ✅ Phone validation
         if (formData.phoneNumber.length < 8) {
             Swal.fire({
                 icon: "error",
@@ -127,21 +126,19 @@ const VenueManager = () => {
             return;
         }
 
-        // Success
-        Swal.fire({
-            icon: "success",
-            title: "Lead Saved",
-            text: "Lead has been successfully saved.",
-            confirmButtonColor: "#237FEA",
-        });
+        // ✅ Minimum age
+
 
         console.log("New Lead Data:", formData);
         createVenueRecruitment(formData);
+
+        // ✅ Reset form
         setFormData({
             firstName: "",
             lastName: "",
             gender: "",
             dob: "",
+            age: "",
             phoneNumber: "",
             email: "",
             postcode: "",
@@ -149,6 +146,7 @@ const VenueManager = () => {
             dbs: "no",
             level: "no",
         });
+
         setIsOpen(false);
     };
     const handleChange = (e) => {
@@ -248,12 +246,25 @@ const VenueManager = () => {
             }
         }
     };
+    const calculateAge = (dob) => {
+        if (!dob) return "";
+        const birthDate = new Date(dob);
+        const today = new Date();
 
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const m = today.getMonth() - birthDate.getMonth();
+
+        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+        return age;
+    };
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
         gender: "",
         dob: "",
+        age: "",
         phoneNumber: "",
         email: "",
         postcode: "",
@@ -359,13 +370,51 @@ const VenueManager = () => {
         };
     });
 
+    const experienceOptions = [
+        { value: "1 year", label: "1 year" },
+        { value: "2 years", label: "2 years" },
+        { value: "3 years", label: "3 years" },
+        { value: "4 years", label: "4 years" },
+        { value: "5 years", label: "5 years" },
+        { value: "More than 5 years", label: "More than 5 years" },
+    ];
+
+    const genderOptions = [
+        { value: "Male", label: "Male" },
+        { value: "Female", label: "Female" },
+        { value: "Other", label: "Other" },
+    ];
+
+    const selectStyles = {
+        control: (base) => ({
+            ...base,
+            borderRadius: "0.5rem",
+            minHeight: "44px",
+            borderColor: "#E2E1E5",
+            boxShadow: "none",
+            "&:hover": { borderColor: "#237FEA" },
+        }),
+        valueContainer: (base) => ({
+            ...base,
+            padding: "0 12px",
+        }),
+        input: (base) => ({
+            ...base,
+            margin: 0,
+            padding: 0,
+        }),
+        indicatorSeparator: () => ({ display: "none" }),
+    };
+
+    const inputClass =
+        " px-4 py-3 border border-[#E2E1E5] rounded-xl focus:outline-none ";
     if (loading) return <Loader />;
     return (
         <div className="flex gap-5">
             <div>
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {summaryCards.map((card, i) => (
+                    {finalSummaryCards.map((card, i) => (
                         <div
                             key={i}
                             className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center gap-4 hover:shadow-md transition-all duration-200"
@@ -702,146 +751,147 @@ const VenueManager = () => {
                                     ✕
                                 </button>
                             </div>
-
                             {/* Form */}
                             <form onSubmit={handleSubmit} className="space-y-4">
-
+                                {/* Name */}
                                 <div className="grid grid-cols-2 gap-3">
                                     <input
-                                        name="firstName"
+                                        placeholder="First Name"
                                         value={formData.firstName}
                                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                                        placeholder="First Name"
-                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-
+                                        className={inputClass}
                                     />
-
                                     <input
-                                        name="lastName"
+                                        placeholder="Last Name"
                                         value={formData.lastName}
                                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                                        placeholder="Last Name"
-                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-
+                                        className={inputClass}
                                     />
                                 </div>
 
-                                {/* DOB with DatePicker */}
+                                {/* DOB & Age */}
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div>
+                                    <div className="relative">
                                         <DatePicker
                                             selected={formData.dob ? new Date(formData.dob) : null}
-                                            onChange={(date) =>
-                                                setFormData({ ...formData, dob: date?.toISOString().slice(0, 10) })
-                                            }
+                                            onChange={(date) => {
+                                                const dob = date?.toISOString().slice(0, 10);
+                                                setFormData({
+                                                    ...formData,
+                                                    dob,
+                                                    age: calculateAge(dob),
+                                                });
+                                            }}
                                             placeholderText="Date of Birth"
-                                            className="w-full pl-3 pr-3 py-3 border border-[#E2E1E5] rounded-lg text-sm"
                                             dateFormat="yyyy-MM-dd"
-
+                                            showYearDropdown
+                                            showMonthDropdown
+                                            dropdownMode="select"
+                                            maxDate={new Date()}
+                                            className={inputClass}
                                         />
                                     </div>
 
                                     <input
-                                        name="phoneNumber"
-                                        value={formData.phoneNumber}
-                                        onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                        placeholder="Phone Number"
-                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-
+                                        placeholder="Age"
+                                        value={formData.age}
+                                        readOnly
+                                        className={`${inputClass} bg-gray-50 cursor-not-allowed`}
                                     />
                                 </div>
 
+                                {/* Phone & Email */}
                                 <div className="grid grid-cols-2 gap-3">
                                     <input
-                                        name="email"
+                                        placeholder="Phone Number"
+                                        value={formData.phoneNumber}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, phoneNumber: e.target.value })
+                                        }
+                                        className={inputClass}
+                                    />
+
+                                    <input
                                         type="email"
+                                        placeholder="Email Address"
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                        placeholder="Email Address"
-                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-
+                                        className={inputClass}
                                     />
+                                </div>
 
+                                {/* Postcode & Experience */}
+                                <div className="grid grid-cols-2 gap-3">
                                     <input
-                                        name="postcode"
+                                        placeholder="Postcode"
                                         value={formData.postcode}
                                         onChange={(e) => setFormData({ ...formData, postcode: e.target.value })}
-                                        placeholder="Postcode"
-                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                        className={inputClass}
+                                    />
 
+                                    <Select
+                                        options={experienceOptions}
+                                        styles={selectStyles}
+                                        placeholder="Select experience"
+                                        value={experienceOptions.find(
+                                            (o) => o.value === formData.managementExperience
+                                        )}
+                                        onChange={(selected) =>
+                                            setFormData({
+                                                ...formData,
+                                                managementExperience: selected?.value || "",
+                                            })
+                                        }
+                                    />
+
+                                </div>
+
+                                {/* Gender */}
+                                <Select
+                                    options={genderOptions}
+                                    styles={selectStyles}
+                                    placeholder="Select Gender"
+                                    value={genderOptions.find((o) => o.value === formData.gender)}
+                                    onChange={(selected) =>
+                                        setFormData({
+                                            ...formData,
+                                            gender: selected?.value || "",
+                                        })
+                                    }
+                                />
+
+
+                                {/* DBS & FA Level */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <label htmlFor="dbs">Select DBS</label>
+                                    <Select
+                                        options={dbsOptions}
+                                        styles={selectStyles}
+                                        value={dbsOptions.find((o) => o.value === formData.dbs)}
+                                        onChange={(selected) => handleSelectChange("dbs", selected)}
+                                    />
+                                    <label htmlFor="faLevel">FA Level 1</label>
+                                    <Select
+                                        styles={selectStyles}
+                                        options={levelOptions}
+                                        value={levelOptions.find((o) => o.value === formData.level)}
+                                        onChange={(selected) => handleSelectChange("level", selected)}
                                     />
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <select
-                                        name="managementExperience"
-                                        value={formData.managementExperience}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, managementExperience: e.target.value })
-                                        }
-                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                                    >
-                                        <option value="">Select experience</option>
-                                        <option value="1 year">1 year</option>
-                                        <option value="2 years">2 years</option>
-                                        <option value="3 years">3 years</option>
-                                        <option value="4 years">4 years</option>
-                                        <option value="5 years">5 years</option>
-                                        <option value="More than 5 years">More than 5 years</option>
-                                    </select>
-                                    <select
-                                        name="gender"
-                                        value={formData.gender}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, gender: e.target.value })
-                                        }
-                                        className="inputClass pl-3 pr-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                                    >
-                                        <option value="">Select Gender</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Other">Other</option>
-                                    </select>
 
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    {/* DBS */}
-                                    <div>
-                                        <label className="text-sm text-gray-600">DBS</label>
-                                        <Select
-                                            options={dbsOptions}
-                                            value={dbsOptions.find(o => o.value === formData.dbs)}
-                                            onChange={(selected) => handleSelectChange("dbs", selected)}
-                                            className="mt-1 rounded-xl"
-                                        />
-                                    </div>
-
-                                    {/* FA Level 1 */}
-                                    <div>
-                                        <label className="text-sm text-gray-600">FA Level 1</label>
-                                        <Select
-                                            options={levelOptions}
-                                            value={levelOptions.find(o => o.value === formData.level)}
-                                            onChange={(selected) => handleSelectChange("level", selected)}
-                                            className="mt-1"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Status */}
-
-
+                                {/* Actions */}
                                 <div className="flex justify-end gap-3 mt-4">
                                     <button
                                         type="button"
                                         onClick={() => setIsOpen(false)}
-                                        className="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                        className="px-4 py-2 rounded-lg bg-gray-200"
                                     >
                                         Cancel
                                     </button>
 
                                     <button
                                         type="submit"
-                                        className="px-4 py-2 rounded-lg bg-[#237FEA] text-white hover:bg-blue-700"
+                                        className="px-4 py-2 rounded-lg bg-[#237FEA] text-white"
                                     >
                                         Save Lead
                                     </button>

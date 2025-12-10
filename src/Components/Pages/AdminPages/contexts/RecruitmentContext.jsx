@@ -151,7 +151,101 @@ export const RecruitmentProvider = ({ children }) => {
         },
         []
     );
-      const fetchvenuemanagerRecruitment = useCallback(
+    const fetchFranchiseRecruitment = useCallback(
+        async (
+            studentName = "",
+            venueName = "",
+            status1 = false,
+            status2 = false,
+            otherDateRange = [],
+            dateoftrial = [],
+            forOtherDate = [],
+            BookedBy = []
+
+        ) => {
+            const token = localStorage.getItem("adminToken");
+            if (!token) return;
+            // console.log('status1', status1)
+            // console.log('satus2', status2)
+            // console.log('otherDateRange', otherDateRange)
+            // console.log('dateoftrial', dateoftrial)
+            // console.log('forOtherDate', forOtherDate)
+
+            const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
+            // if (shouldShowLoader) setLoading(true);
+
+            try {
+                const queryParams = new URLSearchParams();
+
+                // Student & Venue filters
+                if (studentName) queryParams.append("studentName", studentName);
+                if (venueName) queryParams.append("venueName", venueName);
+
+                // Status filters
+                if (status1) queryParams.append("status", "attended");
+                if (status2) queryParams.append("status", "not attend");
+                if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
+                    BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
+                }
+
+                if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
+                    const [from, to] = dateoftrial;
+                    if (from && to) {
+                        queryParams.append("dateTrialFrom", formatLocalDate(from));
+                        queryParams.append("dateTrialTo", formatLocalDate(to));
+                    }
+                }
+
+                // 🔹 Handle general (createdAt range)
+                if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+                    const [from, to] = otherDateRange;
+                    if (from && to) {
+                        queryParams.append("fromDate", formatLocalDate(from));
+                        queryParams.append("toDate", formatLocalDate(to));
+                    }
+                }
+
+                if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
+                    const [from, to] = forOtherDate;
+                    if (from && to) {
+                        queryParams.append("fromDate", formatLocalDate(from));
+                        queryParams.append("toDate", formatLocalDate(to));
+                    }
+                }
+                // Trial dates (support array or single value)
+                // const trialDates = Array.isArray(dateoftrial) ? dateoftrial : [dateoftrial];
+                // trialDates
+                //   .filter(Boolean)
+                //   .map(d => formatLocalDate(d))
+                //   .filter(Boolean)
+                //   .forEach(d => queryParams.append("trialDate", d));
+
+                const url = `${API_BASE_URL}/api/admin/franchise/recruitment/list${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                const resultRaw = await response.json();
+                const result = resultRaw.data || [];
+                const venues = resultRaw.data || [];
+                const totals = resultRaw.totals || [];
+                const bookedByAdmin = resultRaw || []
+                setBookedByAdmin(bookedByAdmin);
+                setMyVenues(Array.isArray(venues) ? venues : []);
+                setStatsRecruitment(totals)
+                setRecruitment(result);
+            } catch (error) {
+                console.error("Failed to fetch bookFreeTrials:", error);
+            } finally {
+                // if (shouldShowLoader) setLoading(false); // only stop loader if it was started
+            }
+        },
+        []
+    );
+    const fetchvenuemanagerRecruitment = useCallback(
         async (
             studentName = "",
             venueName = "",
@@ -245,7 +339,100 @@ export const RecruitmentProvider = ({ children }) => {
         },
         []
     );
+    const fetchAllRecruitment = useCallback(
+        async (
+            studentName = "",
+            venueName = "",
+            status1 = false,
+            status2 = false,
+            otherDateRange = [],
+            dateoftrial = [],
+            forOtherDate = [],
+            BookedBy = []
 
+        ) => {
+            const token = localStorage.getItem("adminToken");
+            if (!token) return;
+            // console.log('status1', status1)
+            // console.log('satus2', status2)
+            // console.log('otherDateRange', otherDateRange)
+            // console.log('dateoftrial', dateoftrial)
+            // console.log('forOtherDate', forOtherDate)
+
+            const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
+            // if (shouldShowLoader) setLoading(true);
+
+            try {
+                const queryParams = new URLSearchParams();
+
+                // Student & Venue filters
+                if (studentName) queryParams.append("studentName", studentName);
+                if (venueName) queryParams.append("venueName", venueName);
+
+                // Status filters
+                if (status1) queryParams.append("status", "attended");
+                if (status2) queryParams.append("status", "not attend");
+                if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
+                    BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
+                }
+
+                if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
+                    const [from, to] = dateoftrial;
+                    if (from && to) {
+                        queryParams.append("dateTrialFrom", formatLocalDate(from));
+                        queryParams.append("dateTrialTo", formatLocalDate(to));
+                    }
+                }
+
+                // 🔹 Handle general (createdAt range)
+                if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
+                    const [from, to] = otherDateRange;
+                    if (from && to) {
+                        queryParams.append("fromDate", formatLocalDate(from));
+                        queryParams.append("toDate", formatLocalDate(to));
+                    }
+                }
+
+                if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
+                    const [from, to] = forOtherDate;
+                    if (from && to) {
+                        queryParams.append("fromDate", formatLocalDate(from));
+                        queryParams.append("toDate", formatLocalDate(to));
+                    }
+                }
+                // Trial dates (support array or single value)
+                // const trialDates = Array.isArray(dateoftrial) ? dateoftrial : [dateoftrial];
+                // trialDates
+                //   .filter(Boolean)
+                //   .map(d => formatLocalDate(d))
+                //   .filter(Boolean)
+                //   .forEach(d => queryParams.append("trialDate", d));
+
+                const url = `${API_BASE_URL}/api/admin/coach/recruitment/list/all${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                const resultRaw = await response.json();
+                const result = resultRaw.data || [];
+                const venues = resultRaw.data || [];
+                const totals = resultRaw.totals || [];
+                const bookedByAdmin = resultRaw || []
+                setBookedByAdmin(bookedByAdmin);
+                setMyVenues(Array.isArray(venues) ? venues : []);
+                setStatsRecruitment(totals)
+                setRecruitment(result);
+            } catch (error) {
+                console.error("Failed to fetch bookFreeTrials:", error);
+            } finally {
+                // if (shouldShowLoader) setLoading(false); // only stop loader if it was started
+            }
+        },
+        []
+    );
     const fetchCommunicationTemplate = useCallback(
         async (
             studentName = "",
@@ -412,7 +599,56 @@ export const RecruitmentProvider = ({ children }) => {
             setLoading(false);
         }
     };
-     const createVenueRecruitment = async (recruitmentData) => {
+    const createFranchiseRecruitment = async (recruitmentData) => {
+        setLoading(true);
+        console.log('recruitmentData', recruitmentData)
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        let url = `${API_BASE_URL}/api/admin/franchise/recruitment/create`;
+
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers,
+                body: JSON.stringify(recruitmentData),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || result || "Failed to create Coach Recruitment");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Coach Recruitment has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating Coach Recruitment.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchFranchiseRecruitment();
+            setLoading(false);
+        }
+    };
+    const createVenueRecruitment = async (recruitmentData) => {
         setLoading(true);
         console.log('recruitmentData', recruitmentData)
 
@@ -424,6 +660,55 @@ export const RecruitmentProvider = ({ children }) => {
             headers["Authorization"] = `Bearer ${token}`;
         }
         let url = `${API_BASE_URL}/api/admin/venue-manager/recruitment/create`;
+
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers,
+                body: JSON.stringify(recruitmentData),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || result || "Failed to create Coach Recruitment");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Coach Recruitment has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating Coach Recruitment.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchvenuemanagerRecruitment();
+            setLoading(false);
+        }
+    };
+     const createAllRecruitment = async (recruitmentData) => {
+        setLoading(true);
+        console.log('recruitmentData', recruitmentData)
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        let url = `${API_BASE_URL}/api/admin/coach/recruitment/all/create`;
 
 
         try {
@@ -3387,7 +3672,7 @@ export const RecruitmentProvider = ({ children }) => {
 
 
                 , fetchRecruitment, recruitment,
-                fetchCommunicationTemplate, fetchCoachRecruitmentById,fetchvenuemanagerRecruitment, recuritmentDataById, setRecuritmentDataById, createCoachRecruitment,createVenueRecruitment, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
+                fetchCommunicationTemplate, fetchCoachRecruitmentById, fetchFranchiseRecruitment, fetchvenuemanagerRecruitment, fetchAllRecruitment, recuritmentDataById, setRecuritmentDataById, createCoachRecruitment, createFranchiseRecruitment, createVenueRecruitment, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
             }}>
             {children}
         </RecruitmentContext.Provider>

@@ -424,7 +424,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             { module: "payment-group", action: "view-listing" },
           ],
           subItems: [
-            {
+             {
               noPaddingx: true,
               title: "Coach profile",
               link: '/configuration/coach-pro/profile',
@@ -442,7 +442,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             {
               noPaddingx: true,
               title: "Courses",
-              link: '/configuration/coach-pro/cources',
+              link: '/configuration/coach-pro/courses',
             },
             {
               noPaddingx: true,

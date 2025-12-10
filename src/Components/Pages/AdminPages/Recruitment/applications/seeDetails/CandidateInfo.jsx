@@ -9,6 +9,8 @@ import { motion } from "framer-motion";
 import { IoMdCheckmarkCircle } from "react-icons/io";
 import Select from "react-select";
 import { useRecruitmentTemplate } from '../../../contexts/RecruitmentContext';
+import { useVenue } from '../../../contexts/VenueContext';
+import Loader from '../../../contexts/Loader';
 const dateOptions = [
   { value: "2025-01-01", label: "Jan 01 2025" },
   { value: "2025-01-02", label: "Jan 02 2025" },
@@ -36,9 +38,25 @@ const classOptions = [
 
 const CandidateInfo = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const [loading, setLoading] = useState(false);
+const [telephoneCall, setTelephoneCall] = useState({
+    date: "",
+    time: "",
+    reminder: "",
+    email: "",
+    scores: {
+      communication: null,
+      passion: null,
+      experience: null,
+      knowledge: null,
+    },
+  });
+
   const [rateOpen, setRateOpen] = useState(false);
   const [openCandidateStatusModal, setOpenCandidateStatusModal] = useState(false);
   const { fetchCoachRecruitmentById, recuritmentDataById } = useRecruitmentTemplate() || {};
+  const { fetchVenueNames, venues } = useVenue() || {};
+
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");   // 👉 this gives "7"
 
@@ -55,7 +73,7 @@ const CandidateInfo = () => {
   const [vehicle, setVehicle] = useState("");
   const [qualification, setQualification] = useState("");
   const [experience, setExperience] = useState("");
-  const [venues, setVenues] = useState([]);
+  // const [venues, setVenues] = useState([]);
 
   console.log('recuritmentDataById', recuritmentDataById);
   const [form, setForm] = useState({
@@ -84,15 +102,19 @@ const CandidateInfo = () => {
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
-
-  const handleVenueChange = (slot) => {
+  const selectedVenueNames = venues
+    .filter(v => form.venues.includes(v.id))
+    .map(v => v.name);
+  const handleVenueChange = (id) => {
     setForm((prev) => ({
       ...prev,
-      venues: prev.venues.includes(slot)
-        ? prev.venues.filter((x) => x !== slot)
-        : [...prev.venues, slot],
+      venues: prev.venues.includes(id)
+        ? prev.venues.filter((x) => x !== id)
+        : [...prev.venues, id],
     }));
   };
+
+
 
   const venueSlots = [
     "London Bridge / SAT 9 AM - 10 AM",
@@ -111,7 +133,8 @@ const CandidateInfo = () => {
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
     const past = new Date(timestamp);
-    const diff = Math.floor((now - past) / 1000); // in seconds
+    const diff = Math.max(0, Math.floor((now - past) / 1000));
+    // in seconds
 
     if (diff < 60) return `${diff} sec${diff !== 1 ? 's' : ''} ago`;
     if (diff < 3600) return `${Math.floor(diff / 60)} min${Math.floor(diff / 60) !== 1 ? 's' : ''} ago`;
@@ -265,26 +288,119 @@ const CandidateInfo = () => {
   ]);
 
   // Toggle completion on click
-  const toggleStep = (id, newStatus) => {
-    setSteps((prev) =>
-      prev.map((step) =>
-        step.id === id ? { ...step, status: newStatus } : step
-      )
+
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      await fetchComments();
+      await fetchCoachRecruitmentById(id);
+      await fetchVenueNames();
+      setLoading(false);
+    };
+
+    if (id) init();
+  }, [id, fetchCoachRecruitmentById, fetchComments, fetchVenueNames]);
+  useEffect(() => {
+    if (!recuritmentDataById) return;
+
+    const venueWorkRaw =
+      recuritmentDataById?.candidateProfile?.availableVenueWork;
+
+    let parsedVenues = [];
+
+    try {
+      parsedVenues = Array.isArray(venueWorkRaw)
+        ? venueWorkRaw
+        : venueWorkRaw
+          ? JSON.parse(venueWorkRaw)
+          : [];
+    } catch (e) {
+      parsedVenues = [];
+    }
+
+    setForm({
+      firstName: recuritmentDataById.firstName || "",
+      surname: recuritmentDataById.lastName || "",
+      dob: recuritmentDataById.dob || "",
+      age: recuritmentDataById.age || "",
+      email: recuritmentDataById.email || "",
+      phone: recuritmentDataById.phoneNumber || "",
+      postcode: recuritmentDataById.postcode || "",
+      heardFrom: recuritmentDataById?.candidateProfile?.howDidYouHear || "Indeed",
+      ageGroup: recuritmentDataById?.candidateProfile?.ageGroupExperience || "",
+      vehicle:
+        recuritmentDataById?.candidateProfile?.accessToOwnVehicle === true
+          ? "Yes"
+          : recuritmentDataById?.candidateProfile?.accessToOwnVehicle === false
+            ? "No"
+            : "",
+      qualification:
+        recuritmentDataById?.candidateProfile?.whichQualificationYouHave || "",
+      experience:
+        recuritmentDataById?.candidateProfile?.footballExperience || "",
+      venues: parsedVenues,   // ✅ FIX HERE
+      coverNote: recuritmentDataById?.coverNote || "",
+    });
+  }, [recuritmentDataById]);
+useEffect(() => {
+    if (!recuritmentDataById?.candidateProfile) return;
+
+    const p = recuritmentDataById.candidateProfile;
+
+    setTelephoneCall({
+      date: p.telephoneCallSetupDate || "",
+      time: p.telephoneCallSetupTime || "",
+      reminder: p.telephoneCallSetupReminder || "",
+      email: p.telephoneCallSetupEmail || "",
+      scores: {
+        communication: p.telePhoneCallDeliveryCommunicationSkill ?? null,
+        passion: p.telePhoneCallDeliveryPassionCoaching ?? null,
+        experience: p.telePhoneCallDeliveryExperience ?? null,
+        knowledge: p.telePhoneCallDeliveryKnowledgeOfSSS ?? null,
+      },
+    });
+
+    setSteps(prev =>
+      prev.map(step => {
+        if (step.id === 1) {
+          return { ...step, status: p.qualifyLead ? "completed" : "pending" };
+        }
+        if (step.id === 2 && p.telephoneCallSetupDate) {
+          return { ...step, status: "completed" };
+        }
+        if (step.id === 3 && p.telePhoneCallDeliveryCommunicationSkill) {
+          return { ...step, status: "completed" };
+        }
+        if (step.id === 5 && p.result) {
+          return {
+            ...step,
+            resultPercent: recuritmentDataById.telephoneCallScorePercentage + "%",
+            resultStatus: p.result === "passed" ? "Passed" : "Failed",
+            status: "completed",
+          };
+        }
+        return step;
+      })
     );
-  };
-  //steps
-  const toggleOpenStep = (id) => {
-    setSteps((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, isOpen: !s.isOpen } : s
+  }, [recuritmentDataById]);
+   const toggleStep = (id, status) => {
+    setSteps(prev =>
+      prev.map(step =>
+        step.id === id ? { ...step, status } : step
       )
     );
   };
 
-  useEffect(() => {
-    fetchComments();
-    fetchCoachRecruitmentById(id);
-  }, [fetchCoachRecruitmentById, fetchComments]);
+  const toggleOpenStep = (id) => {
+    setSteps(prev =>
+      prev.map(step =>
+        step.id === id ? { ...step, isOpen: !step.isOpen } : step
+      )
+    );
+  };
+  if (loading) return <Loader />;
+
   return (
     <>
       <button className="p-3 text-[#34AE56] font-bold bg-[#E5F2EA] px-10 absolute right-0 top-0 rounded-2xl">
@@ -516,16 +632,21 @@ const CandidateInfo = () => {
                 <p className="font-semibold text-[18px] mb-2">Which venues are you available for work?</p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {venueSlots.map((slot) => (
-                    <label key={slot} className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={form.venues.includes(slot)}
-                        onChange={() => handleVenueChange(slot)}
-                      />
-                      <span>{slot}</span>
-                    </label>
-                  ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {venues.map((venue) => (
+                      <label
+                        key={venue.id}
+                        className="flex items-center gap-3 cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={form.venues.includes(venue.id)}
+                          onChange={() => handleVenueChange(venue.id)}
+                        />
+                        <span>{venue.name}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -654,174 +775,173 @@ const CandidateInfo = () => {
         <div className="md:w-4/12  space-y-6">
 
           {/* MAIN CARD */}
-          <div className="bg-white p-6 rounded-2xl  space-y-6">
-            <h2 className="text-xl font-semibold">Recruitment status</h2>
+         <div className="bg-white p-6 rounded-2xl space-y-6">
+      <h2 className="text-xl font-semibold">Recruitment status</h2>
 
-            {/* TIMELINE */}
-            <div className="relative pl-6 space-y-10">
+      <div className="relative pl-6 space-y-10">
+        <div className="absolute left-[17px] top-1 bottom-6 border-l border-gray-300"></div>
 
-              {/* Vertical Line */}
-              <div className="absolute left-[17px] top-1 bottom-[41px] border-l border-gray-300"></div>
+        {steps.map(step => (
+          <div
+            key={step.id}
+            className={`relative ps-[20px] ${
+              step.status === "completed"
+                ? "opacity-100"
+                : step.status === "skipped"
+                ? "opacity-40"
+                : "opacity-70"
+            }`}
+          >
+            {/* DOT */}
+            <div className="absolute -left-3 top-1 w-3 h-3 rounded-full bg-black"></div>
 
-              {steps.map((step) => (
-                <div
-                  key={step.id}
-                  className={`
-      relative ps-[20px]
-      ${step.status === "completed"
-                      ? "opacity-100"
-                      : step.status === "skipped"
-                        ? "opacity-40"
-                        : "opacity-60"
-                    }
-    `}
+            {/* HEADER */}
+            <div className="flex justify-between items-center">
+              <p className="font-semibold">{step.title}</p>
+
+              {step.status !== "completed" && (
+                <button
+                  className="text-gray-400 text-sm"
+                  onClick={() => toggleStep(step.id, "skipped")}
                 >
-
-
-
-                  {/* DOT */}
-                  <div
-                    className={`absolute -left-3 top-1 w-3 h-3 rounded-full
-                  ${step.status === "completed"
-                        ? "bg-[#282829]"
-                        : "bg-[#282829]"
-                      }
-                `}
-                  ></div>
-
-                  {/* TITLE + Skip */}
-                  <div className="flex justify-between">
-                    <p className="font-semibold">{step.title}</p>
-                    {step.status !== "completed" && (
-                      <button
-                        className="text-gray-400 text-sm"
-                        onClick={() => toggleStep(step.id, "skipped")}
-                      >
-                        <div className="flex gap-2"> Skip
-                          {step.status === "skipped" ? (
-                            <>
-                              <img src="/reportsIcons/skipped.png" className='w-5' alt="" />
-                            </>
-                          ) : (
-                            <img src="/reportsIcons/skip.png" className='w-5' alt="" />
-
-                          )}
-                        </div>
-                      </button>
-                    )}
-                  </div>
-
-                  {/* SPECIAL CASE: FIRST STEP BUTTONS */}
-                  {step.actionType === "buttons" && (
-                    <div className="flex items-center gap-2 mt-3">
-                      <button
-                        className="w-8 h-8 border rounded-lg flex items-center justify-center"
-                        onClick={() => toggleStep(step.id, "skipped")}
-                      >
-                        ✕
-                      </button>
-
-                      <button
-                        className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#237FEA] text-white"
-                        onClick={() => toggleStep(step.id, "completed")}
-                      >
-                        ✓
-                      </button>
-                    </div>
-                  )}
-                  {/* BUTTON STEPS */}
-                  {step.buttonText && (
-                    <>
-                      {step.buttonText === "Schedule a call" ? (
-                        <button
-                          className="mt-3 flex items-center gap-2 bg-[#237FEA] text-white px-3 py-2 rounded-xl text-sm"
-                          onClick={() => toggleOpenStep(step.id)}
-                        >
-                          {step.buttonText}
-                          <IoIosArrowDown />
-                        </button>
-                      ) : step.buttonText === "Scorecard" ? (
-                        <button
-                          className="mt-3 flex items-center gap-2 bg-[#237FEA] text-white px-3 py-2 rounded-xl text-sm"
-                          onClick={() => setRateOpen(true)}
-                        >
-                          {step.buttonText}
-
-                        </button>
-                      ) : (
-                        <button
-                          className="mt-3 flex items-center gap-2 bg-[#237FEA] text-white px-3 py-2 rounded-xl text-sm"
-                          onClick={() => toggleStep(step.id, "completed")}
-                        >
-                          {step.buttonText}
-                        </button>
-                      )}
-                    </>
-                  )}
-
-
-                  {step.id === 2 && step.isOpen && (
-                    <div className="bg-white rounded-xl mt-3 space-y-3">
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="border border-[#E2E1E5]  rounded-xl px-3 py-2 flex items-center justify-between text-gray-500">
-                          <input type="date" className="outline-none w-full" />
-                        </div>
-
-                        <div className="border border-[#E2E1E5]  rounded-xl px-3 py-2 flex items-center justify-between text-gray-500">
-                          <input type="time" className="outline-none w-full" />
-                        </div>
-                      </div>
-
-                      <select className="border border-[#E2E1E5]  rounded-xl px-3 py-2.5 w-full text-gray-600">
-                        <option>When do you want to be reminded?</option>
-                        <option>10 minutes before</option>
-                        <option>30 minutes before</option>
-                        <option>1 hour before</option>
-                        <option>1 day before</option>
-                      </select>
-
-                      <input
-                        type="email"
-                        placeholder="Add candidate email..."
-                        className="border border-[#E2E1E5]  rounded-xl px-3 py-2 w-full text-gray-600"
-                      />
-
-                      <button
-                        className="w-full bg-[#237FEA] text-white py-3 rounded-xl"
-                        onClick={() => toggleStep(step.id, "completed")}
-                      >
-                        Confirm call
-                      </button>
-                    </div>
-                  )}
-
-
-                  {/* DATE STEP */}
-                  {step.date && (
-                    <p className="text-sm text-gray-400 mt-2">{step.date}</p>
-                  )}
-
-                  {/* RESULTS STEP */}
-                  {step.resultPercent && (
-                    <div className="mt-3 flex items-center gap-2">
-                      <span className="bg-[#237FEA] text-white px-3 py-2 rounded-xl text-sm">
-                        {step.resultPercent}
-                      </span>
-
-                      <button className="bg-[#237FEA] text-white px-3 py-2 rounded-xl text-sm">
-                        See Results
-                      </button>
-                    </div>
-                  )}
-
-                  {step.resultStatus && (
-                    <p className="text-green-600 text-sm mt-2">✓ {step.resultStatus}</p>
-                  )}
-                </div>
-              ))}
+                  Skip
+                </button>
+              )}
             </div>
+
+            {/* QUALIFY BUTTONS */}
+            {step.actionType === "buttons" && (
+              <div className="flex gap-2 mt-3">
+                <button
+                  className="w-8 h-8 border rounded-lg"
+                  onClick={() => toggleStep(step.id, "skipped")}
+                >
+                  ✕
+                </button>
+                <button
+                  className="w-8 h-8 bg-blue-600 text-white rounded-lg"
+                  onClick={() => toggleStep(step.id, "completed")}
+                >
+                  ✓
+                </button>
+              </div>
+            )}
+
+            {/* BUTTON */}
+            {step.buttonText && (
+              <button
+                className="mt-3 flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-xl"
+                onClick={() =>
+                  step.id === 2
+                    ? toggleOpenStep(step.id)
+                    : setRateOpen(true)
+                }
+              >
+                {step.buttonText}
+                {step.id === 2 && <IoIosArrowDown />}
+              </button>
+            )}
+
+            {/* TELEPHONE CALL FORM */}
+            {step.id === 2 && step.isOpen && (
+              <div className="bg-gray-50 rounded-xl p-4 mt-3 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <input
+                    type="date"
+                    value={telephoneCall.date}
+                    onChange={(e) =>
+                      setTelephoneCall({ ...telephoneCall, date: e.target.value })
+                    }
+                    className="border rounded-xl p-2"
+                  />
+                  <input
+                    type="time"
+                    value={telephoneCall.time}
+                    onChange={(e) =>
+                      setTelephoneCall({ ...telephoneCall, time: e.target.value })
+                    }
+                    className="border rounded-xl p-2"
+                  />
+                </div>
+
+                <input
+                  type="email"
+                  placeholder="Candidate email"
+                  value={telephoneCall.email}
+                  onChange={(e) =>
+                    setTelephoneCall({ ...telephoneCall, email: e.target.value })
+                  }
+                  className="border w-full rounded-xl p-2"
+                />
+
+                <button
+                  className="w-full bg-blue-600 text-white py-2 rounded-xl"
+                  onClick={() => toggleStep(2, "completed")}
+                >
+                  Confirm Call
+                </button>
+              </div>
+            )}
+
+            {/* RESULT */}
+            {step.resultPercent && (
+              <div className="mt-3 flex gap-3">
+                <span className="bg-blue-600 text-white px-3 py-2 rounded-xl">
+                  {step.resultPercent}
+                </span>
+                <span className="text-green-600 mt-2">
+                  ✓ {step.resultStatus}
+                </span>
+              </div>
+            )}
           </div>
+        ))}
+      </div>
+
+      {/* SCORECARD MODAL */}
+      {rateOpen && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-2xl w-full max-w-lg p-6"
+          >
+            <h3 className="text-lg font-semibold mb-4">Call Scorecard</h3>
+
+            {["communication", "passion", "experience", "knowledge"].map(key => (
+              <div key={key} className="mb-4">
+                <p className="capitalize font-semibold mb-2">{key}</p>
+                {[1,2,3,4,5].map(n => (
+                  <label key={n} className="mr-4">
+                    <input
+                      type="radio"
+                      checked={telephoneCall.scores[key] === n}
+                      onChange={() =>
+                        setTelephoneCall(prev => ({
+                          ...prev,
+                          scores: { ...prev.scores, [key]: n }
+                        }))
+                      }
+                    />{" "}
+                    {n}
+                  </label>
+                ))}
+              </div>
+            ))}
+
+            <button
+              className="w-full bg-blue-600 text-white py-2 rounded-xl"
+              onClick={() => {
+                toggleStep(3, "completed");
+                setRateOpen(false);
+              }}
+            >
+              Submit Scorecard
+            </button>
+          </motion.div>
+        </div>
+      )}
+    </div>
 
           {/* FOOTER ACTIONS */}
           <div className="bg-white p-6 rounded-2xl  space-y-4">

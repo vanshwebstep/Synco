@@ -1,5 +1,7 @@
-import { Edit, Trash2, Plus, Search } from "lucide-react";
-import { useState } from "react";
+import { Plus, X, Search, Download, CalendarDays } from "lucide-react";
+import React, { useState } from "react";
+import QcConfiguration from "./QcConfiguration";
+import InvoicePdf from "./InvoicePdf";
 
 const coaches = [
   { name: "Nilla Bagga", email: "andrew@gmail.com" },
@@ -29,12 +31,57 @@ const assessments = [
   { title: "Health and safety", status: 'Passed', grade: "0/15", percentage: '100%' },
   { title: "Safeguarding", status: 'Retake', grade: "0/15", percentage: '100%' },
 ];
-
+const qcResults = [
+  { date: "Sat 3rd April 2023", time: '10:30-11:30am', accesor: "John Fernandes", venue: 'Marylebone', result: '75%' },
+  { date: "Sat 3rd April 2023", time: '10:30-11:30am', accesor: "John Fernandes", venue: 'Marylebone', result: '75%' },
+  { date: "Sat 3rd April 2023", time: '10:30-11:30am', accesor: "John Fernandes", venue: 'Marylebone', result: '75%' },
+  { date: "Sat 3rd April 2023", time: '10:30-11:30am', accesor: "John Fernandes", venue: 'Marylebone', result: '75%' },
+];
+const attendanceData = [
+  { name: "Chelsea", date: "1st May, 2023 - 11:00 AM", invoiceNumber: '#123456789', sessionDays: 5, status: 'paid', account: '£120.00' },
+  { name: "Chelsea", date: "1st May, 2023 - 11:00 AM", invoiceNumber: '#123456789', sessionDays: 5, status: 'paid', account: '£120.00' },
+  { name: "Chelsea", date: "1st May, 2023 - 11:00 AM", invoiceNumber: '#123456789', sessionDays: 5, status: 'unpaid', account: '£120.00' },
+  { name: "Chelsea", date: "1st May, 2023 - 11:00 AM", invoiceNumber: '#123456789', sessionDays: 5, status: 'unpaid', account: '£120.00' },
+];
+const sessions = [
+  {
+    name: "Session 1",
+    address: "Address 1",
+    datetime: "1st May, 2023 – 11:00 AM",
+    price: "£120.00",
+  },
+  {
+    name: "Session 2",
+    address: "Address 2",
+    datetime: "3rd May, 2023 – 12:00 PM",
+    price: "£120.00",
+  },
+  {
+    name: "Session 3",
+    address: "Address 3",
+    datetime: "4th May, 2023 – 13:00 PM",
+    price: "£120.00",
+  },
+  {
+    name: "Session 4",
+    address: "Address 4",
+    datetime: "6th May, 2023 – 14:00 AM",
+    price: "£120.00",
+  },
+  {
+    name: "Session 5",
+    address: "Address 5",
+    datetime: "7th May, 2023 – 15:00 AM",
+    price: "£120.00",
+  },
+];
 export default function CoachProfile() {
   const [activeIndex, setActiveIndex] = useState(null);
 
   // Modal
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [openVenueFilter, setOpenVenueFilter] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [venues, setVenues] = useState(venuesList);
   const [formData, setFormData] = useState({ location: "", rate: "", address: "" });
@@ -42,7 +89,21 @@ export default function CoachProfile() {
   const [editingRow, setEditingRow] = useState(null);
   const [editRate, setEditRate] = useState("");
   const [openRow, setOpenRow] = useState(null);
+  const [openRowIndex, setOpenRowIndex] = useState(null);
+  const [openAttendanceDataRowIndex, setOpenAttendanceDataRowIndex] = useState(null);
 
+  const [checked, setChecked] = useState(venues.map(() => false));
+  const allChecked = checked.every(Boolean);
+
+  const toggleAll = () => {
+    setChecked(checked.map(() => !allChecked));
+  };
+
+  const toggleOne = (i) => {
+    const newChecked = [...checked];
+    newChecked[i] = !newChecked[i];
+    setChecked(newChecked);
+  };
   const getStatusClasses = (status) => {
     if (!status) return "";
 
@@ -65,6 +126,8 @@ export default function CoachProfile() {
   const [activeTab, setActiveTab] = useState(0);
 
   return (
+    <>
+    
     <div className="flex min-h-screen bg-gray-50 p-4 gap-4">
 
       <div className="md:w-[20%] bg-white rounded-2xl py-5">
@@ -354,7 +417,7 @@ export default function CoachProfile() {
                 <h5 className="font-semibold text-[16px]">Background</h5>
 
                 <ul className="list-[lower-alpha] ml-6 text-[#4B4B56] text-[14px] font-normal py-3">
-                 <li className="mt-1">
+                  <li className="mt-1">
                     The Company is of the opinion that the Contractor has the necessary
                     qualifications, experience, and abilities to provide services to the Company.
                   </li>
@@ -413,8 +476,218 @@ export default function CoachProfile() {
 
             </>
           )}
+
+          {activeTab === 4 && (
+            <>
+              <div className="flex justify-between items-center py-4 pb-5">
+                <h3 className="font-semibold ">Quality Control Results</h3>
+                <div className="px-6 flex gap-2 items-center">
+                  <div className="relative ">
+                    <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+                    <input
+                      type="text"
+                      placeholder="Search assessor"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg p-2 pl-10"
+                    />
+                  </div>
+                  <div className="relative ">
+                    <Search className="absolute left-3 top-3 text-gray-400" size={18} />
+                    <input
+                      type="text"
+                      placeholder="Search Venue"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      className="w-full border border-gray-300 rounded-lg p-2 pl-10"
+                    />
+                  </div>
+                  <img src="/reportsIcons/Chart_1.png" className="w-8 h-8 " alt="" />
+                </div>
+              </div>
+              <div className="border border-[#E2E1E5]  rounded-2xl overflow-auto">
+                <table className="w-full text-sm ">
+                  <thead>
+                    <tr className="bg-[#F5F5F5] border-b border-[#DBDBDB]">
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Date</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Time</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Assessor</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Venue</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Result</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {qcResults.map((v, index) => (
+                      <React.Fragment key={index}>
+                        {/* MAIN ROW */}
+                        <tr className="border-b border-[#EFEEF2]">
+                          <td className="p-3 px-4 text-[#717073]">{v.date}</td>
+                          <td className="p-3 px-4">{v.time}</td>
+                          <td className="p-3 px-4 text-[#717073]">{v.accesor}</td>
+                          <td className="p-3 px-4 text-[#717073]">{v.venue}</td>
+
+                          <td className="p-3 px-4 text-[#717073]">
+                            <span className="px-3 py-1 rounded-lg text-[#34AE56] text-sm font-semibold bg-[#EBF7EE]">
+                              {v.result}
+                            </span>
+                          </td>
+
+                          <td className="p-3 px-4 text-right">
+                            <button
+                              onClick={() => setOpenRowIndex(openRowIndex === index ? null : index)}
+                              className="bg-[#237FEA] p-1.5 px-3 rounded-xl text-center text-white"
+                            >
+                              {openRowIndex === index ? "Hide" : "See More"}
+                            </button>
+                          </td>
+                        </tr>
+
+                        {openRowIndex === index && (
+                          <tr className="bg-white border-b border-[#efefef]">
+                            <td colSpan={6} className="p-6">
+
+                              <div className="mb-6">
+                                <h4 className="font-semibold text-base mb-2">Results</h4>
+                                <div className="grid grid-cols-2 gap-2 text-sm text-[#555]">
+                                  <p>Punctuality — 5/5</p>
+                                  <p>Set Up — 3/5</p>
+                                  <p>Uniform — 2/5</p>
+                                  <p>Small Sided Games — 3/5</p>
+                                  <p>Technical — 5/5</p>
+                                  <p>Tactical — 3/5</p>
+                                  <p>Engagement — 2/5</p>
+                                </div>
+                              </div>
+
+                              <div className="mb-6">
+                                <h4 className="font-semibold text-base mb-2">Strengths</h4>
+                                <ul className="list-decimal ml-5 text-sm text-[#555]">
+                                  <li>Example 1</li>
+                                  <li>Example 2</li>
+                                  <li>Example 3</li>
+                                </ul>
+                              </div>
+
+                              <div className="mb-6">
+                                <h4 className="font-semibold text-base mb-2">Improvements</h4>
+                                <ul className="list-decimal ml-5 text-sm text-[#555]">
+                                  <li>Example 1</li>
+                                  <li>Example 2</li>
+                                  <li>Example 3</li>
+                                </ul>
+                              </div>
+
+                              <div>
+                                <h4 className="font-semibold text-base mb-2">Voice Note</h4>
+                                <div className="flex items-center gap-2 text-[#555]">
+                                  <span>Recording</span>
+                                  <img src="/reportsIcons/vup.png" className="w-6" alt="" />
+                                </div>
+                              </div>
+
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+
+                </table>
+              </div>
+            </>
+          )}
+          {activeTab === 5 && (
+            <>
+              <div className="flex justify-between items-center py-4 pb-5">
+                <h3 className="font-semibold">Attendance</h3>
+                <div className="px-6 flex gap-2 items-center">
+                  <InvoicePdf />
+                  <button onClick={() => setOpenVenueFilter(true)} className=" p-1.5 px-3 text-[#717073] rounded-xl text-center border border-[#E2E1E5]">
+                    Venues filter
+                  </button>
+                  <button className=" flex items-center gap-2 p-1.5 px-3 text-[#717073] rounded-xl text-center border border-[#E2E1E5]">
+                    <CalendarDays className="w-4" />  Time Period
+                  </button>
+
+
+                </div>
+              </div>
+              <div className="border border-[#E2E1E5]  rounded-2xl overflow-auto">
+                <table className="w-full text-sm ">
+                  <thead>
+                    <tr className="bg-[#F5F5F5] border-b border-[#DBDBDB]">
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Venue</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Invoice</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Sessions</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Date Range</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Status</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left">Account</th>
+                      <th className="text-[#717073] font-semibold p-3 px-4 text-left"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attendanceData.map((v, index) => (
+                      <React.Fragment key={index}>
+                        {/* MAIN ROW */}
+                        <tr className="border-b border-[#EFEEF2] ">
+                          <td className="p-3 px-4 ">{v.name}</td>
+                          <td className="p-3 px-4 ">{v.invoiceNumber}</td>
+                          <td className="p-3 px-4 ">{v.sessionDays}</td>
+                          <td className="p-3 px-4 ">{v.date}</td>
+
+                          <td className="p-3 px-4 ">
+                            <span className={`px-3 py-1 rounded-lg  text-sm font-semibold ${v.status == "paid" ? 'bg-[#EBF7EE] text-[#34AE56]' : 'bg-[#FDF6E5] text-[#EDA600] '}`}>
+                              {v.status}
+                            </span>
+                          </td>
+                          <td className="p-3 px-4 ">{v.account}</td>
+
+                          <td className="p-3 px-4 text-right">
+                            <button
+                              onClick={() => setOpenAttendanceDataRowIndex(openAttendanceDataRowIndex === index ? null : index)}
+                              className="bg-[#237FEA] p-1.5 px-3 rounded-xl text-center text-white"
+                            >
+                              {openRowIndex === index ? "Hide" : "See More"}
+                            </button>
+                          </td>
+                        </tr>
+
+                        {openAttendanceDataRowIndex === index && (
+                          <tr className="bg-white border-b border-[#efefef]">
+                            <td colSpan={7} className="p-6">
+
+                              <div className="w-full max-w-4xl">
+                                <h2 className="text-lg font-semibold mb-4">Details</h2>
+
+                                <div className="grid grid-cols-4 gap-3 text-gray-900">
+                                  {sessions.map((s, index) => (
+                                    <React.Fragment key={index}>
+                                      <div className="py-2">{s.name}</div>
+                                      <div className="py-2">{s.address}</div>
+                                      <div className="py-2">{s.datetime}</div>
+                                      <div className="py-2 font-medium">{s.price}</div>
+                                    </React.Fragment>
+                                  ))}
+                                </div>
+                              </div>
+
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+
+                </table>
+              </div>
+            </>
+          )}
         </div>
       </div>
+      {showModal && (
+        <QcConfiguration setShowModal={setShowModal} />
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[999]">
@@ -470,9 +743,67 @@ export default function CoachProfile() {
         </div>
       )}
 
+      {openVenueFilter && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white w-[330px] rounded-2xl p-5 shadow-xl relative">
 
+            <button
+              onClick={() => setOpenVenueFilter(null)}
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex items-center gap-2 mt-7 mb-2 border border-[#E2E1E5] px-3 py-2 rounded-xl mb-3">
+              <Search size={16} className="text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search"
+                className="w-full outline-none text-sm"
+              />
+            </div>
+
+            <div className="max-h-56 overflow-y-auto pr-1">
+
+              <label className="flex items-center gap-2 mb-2">
+                <input type="checkbox" checked={allChecked} onChange={toggleAll} />
+                <span className="text-sm">Select all</span>
+              </label>
+
+              {venues.map((v, i) => (
+                <label key={i} className="flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    checked={checked[i]}
+                    onChange={() => toggleOne(i)}
+                  />
+                  <span className="text-sm">{v.address}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 items-center justify-between mt-4">
+              <button
+                onClick={() => {
+                  setChecked(checked.map(() => false));
+                }}
+                className="border border-gray-300 text-gray-600 px-4 py-2 rounded-xl"
+              >
+                Clear
+              </button>
+
+              <button
+                className="bg-[#237FEA] text-white px-4 py-2 rounded-xl"
+              >
+                Apply Filter
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
+    </>
   );
 }
 const OnboardingProgress = () => {
