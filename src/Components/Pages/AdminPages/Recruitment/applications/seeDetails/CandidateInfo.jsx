@@ -39,7 +39,18 @@ const classOptions = [
 const CandidateInfo = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [loading, setLoading] = useState(false);
-const [telephoneCall, setTelephoneCall] = useState({
+  const [telephoneCallDelivery, setTelephoneCallDelivery] = useState({
+    telePhoneCallDeliveryCommunicationSkill: null,
+    telePhoneCallDeliveryPassionCoaching: null,
+    telePhoneCallDeliveryExperience: null,
+    telePhoneCallDeliveryKnowledgeOfSSS: null,
+  });
+  const [venueState, setVenueState] = useState("");
+
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [venueManager, setVenueManager] = useState(null);
+  const [telephoneCall, setTelephoneCall] = useState({
     date: "",
     time: "",
     reminder: "",
@@ -51,16 +62,36 @@ const [telephoneCall, setTelephoneCall] = useState({
       knowledge: null,
     },
   });
+  const [payload, setPayload] = useState({
+    qualifyLead: null,
 
+    telephoneCallSetupDate: null,
+    telephoneCallSetupTime: null,
+    telephoneCallSetupReminder: null,
+    telephoneCallSetupEmail: null,
+
+    telePhoneCallDeliveryCommunicationSkill: null,
+    telePhoneCallDeliveryPassionCoaching: null,
+    telePhoneCallDeliveryExperience: null,
+    telePhoneCallDeliveryKnowledgeOfSSS: null,
+  });
+  const scoreKeyMap = {
+    "Communication skill": "telePhoneCallDeliveryCommunicationSkill",
+    "Passion for coaching": "telePhoneCallDeliveryPassionCoaching",
+    "Experience": "telePhoneCallDeliveryExperience",
+    "Knowledge of SSS": "telePhoneCallDeliveryKnowledgeOfSSS",
+  };
+  console.log('telephoneCall', telephoneCall)
   const [rateOpen, setRateOpen] = useState(false);
   const [openCandidateStatusModal, setOpenCandidateStatusModal] = useState(false);
-  const { fetchCoachRecruitmentById, recuritmentDataById,rejectCoach} = useRecruitmentTemplate() || {};
+  const { fetchCoachRecruitmentById, recuritmentDataById, rejectCoach, sendCoachMail } = useRecruitmentTemplate() || {};
   const { fetchVenueNames, venues } = useVenue() || {};
 
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");   // 👉 this gives "7"
+  const comesfrom = searchParams.get("comesfrom");   // 👉 this gives "7"
 
-  console.log("Candidate ID:", id);
+  console.log("telephoneCallDelivery:", telephoneCallDelivery);
 
   const [openResultModal, setOpenResultModal] = useState(false);
   const [openOfferModal, setOpenOfferModal] = useState(false);
@@ -179,7 +210,13 @@ const [telephoneCall, setTelephoneCall] = useState({
     }
   }, []);
 
+  const submitScorecard = () => {
+    setPayload(prev => ({ ...prev, ...telephoneCallDelivery }));
 
+
+    toggleStep(3, "completed");
+    setRateOpen(false);
+  };
   const handleSubmitComment = async (e) => {
     const token = localStorage.getItem("adminToken");
     e.preventDefault();
@@ -251,7 +288,8 @@ const [telephoneCall, setTelephoneCall] = useState({
       id: 1,
       title: "Qualify Lead",
       actionType: "buttons", // show ✓ × buttons
-      status: "completed", // completed | pending | skipped
+      status: "pending",
+      isEnabled: true, // ONLY first step enabled // completed | pending | skipped
     },
 
     {
@@ -260,6 +298,7 @@ const [telephoneCall, setTelephoneCall] = useState({
       buttonText: "Schedule a call",
       isOpen: false,
       status: "pending",
+      isEnabled: false,
     },
 
 
@@ -267,20 +306,27 @@ const [telephoneCall, setTelephoneCall] = useState({
       id: 3,
       title: "Delivery Telephone Interview",
       buttonText: "Scorecard",
+      isOpen: false,
       status: "pending",
+      isEnabled: false,
     },
     {
       id: 4,
       title: "Practical assessment",
+      buttonText: "Scorecard2",
       date: "23 April, 2023",
+      isOpen: false,
       status: "pending",
+      isEnabled: false,
     },
     {
       id: 5,
       title: "Waiting results",
       resultPercent: "87%",
       resultStatus: "Passed",
+      isOpen: false,
       status: "pending",
+      isEnabled: false,
     },
   ]);
 
@@ -340,7 +386,7 @@ const [telephoneCall, setTelephoneCall] = useState({
       coverNote: recuritmentDataById?.coverNote || "",
     });
   }, [recuritmentDataById]);
-useEffect(() => {
+  useEffect(() => {
     if (!recuritmentDataById?.candidateProfile) return;
 
     const p = recuritmentDataById.candidateProfile;
@@ -381,12 +427,57 @@ useEffect(() => {
       })
     );
   }, [recuritmentDataById]);
-   const toggleStep = (id, status) => {
+
+  const enableNextStep = (id) => {
     setSteps(prev =>
       prev.map(step =>
-        step.id === id ? { ...step, status } : step
+        step.id === id + 1 ? { ...step, isEnabled: true } : step
       )
     );
+  };
+  const toggleStep = (id, status) => {
+    setSteps(prev =>
+      prev.map(step =>
+        step.id === id
+          ? { ...step, status }
+          : step
+      )
+    );
+
+    // ===== STEP-SPECIFIC DATA HANDLING =====
+
+    // ✅ Qualify Lead
+    if (id === 1) {
+      setPayload(prev => ({
+        ...prev,
+        qualifyLead: status === "completed" ? true : null,
+      }));
+    }
+
+    // ✅ Telephone Call Setup
+    if (id === 2 && status === "skipped") {
+      setPayload(prev => ({
+        ...prev,
+        telephoneCallSetupDate: null,
+        telephoneCallSetupTime: null,
+        telephoneCallSetupReminder: null,
+        telephoneCallSetupEmail: null,
+      }));
+    }
+    if (id === 3 && status === "skipped") {
+      setPayload(prev => ({
+        ...prev,
+        telePhoneCallDeliveryCommunicationSkill: null,
+        telePhoneCallDeliveryPassionCoaching: null,
+        telePhoneCallDeliveryExperience: null,
+        telePhoneCallDeliveryKnowledgeOfSSS: null,
+      }));
+    }
+
+    // ✅ Enable next step when completed OR skipped
+    if (status === "completed" || status === "skipped") {
+      enableNextStep(id);
+    }
   };
 
   const toggleOpenStep = (id) => {
@@ -396,7 +487,18 @@ useEffect(() => {
       )
     );
   };
- const handleRejectCandidate = async (id) => {
+  const confirmTelephoneCall = () => {
+    setPayload(prev => ({
+      ...prev,
+      telephoneCallSetupDate: telephoneCall.date,
+      telephoneCallSetupTime: telephoneCall.time,
+      telephoneCallSetupReminder: telephoneCall.reminder,
+      telephoneCallSetupEmail: telephoneCall.email,
+    }));
+
+    toggleStep(2, "completed");
+  };
+  const handleRejectCandidate = async (id) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
       text: 'Do you want to Reject this Candidate ?',
@@ -412,6 +514,86 @@ useEffect(() => {
     }
   };
 
+  const handleSubmitPracticalAssesment = (e) => {
+    e.preventDefault();
+
+    if (!venueState || !selectedClass || !selectedDate || !venueManager) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    const payloadd = {
+
+    };
+    setPayload(prev => ({
+      ...prev,
+      bookPracticalAssessment: [
+        {
+          venueId: parseInt(venueState), // assuming input is numeric ID
+          classId: selectedClass.value,
+          date: selectedDate.value, // assuming dateOptions have `value` as YYYY-MM-DD
+          assignToVenueManagerId: venueManager.value,
+        },
+      ],
+    }));
+    console.log("Payload:", payloadd);
+    // send payload to your API here
+  };
+  const handleSubmit = () => {
+    console.log("Submit Payload:", form);
+
+    if (comesfrom === "coach") {
+      const payload = {
+        recruitmentLeadId: id,
+        howDidYouHear: form.heardFrom,
+        ageGroupExperience: form.ageGroup,
+        accessToOwnVehicle: form.vehicle === "Yes",
+        whichQualificationYouHave: form.qualification,
+        footballExperience: form.experience,
+        availableVenueWork:
+          Array.isArray(form.venues) && form.venues.length > 0 ? "Yes" : "No",
+        coverNote: form.coverNote,
+        qualifyLead: payload.qualifyLead,
+        telephoneCallSetupDate: payload.telephoneCallSetupDate,
+        telephoneCallSetupTime: payload.telephoneCallSetupTime,
+        // "telephoneCallSetupReminder": 15,
+        telephoneCallSetupEmail: payload.telephoneCallSetupEmail,
+        telePhoneCallDeliveryCommunicationSkill: payload.telePhoneCallDeliveryCommunicationSkill,
+        telePhoneCallDeliveryPassionCoaching: payload.telePhoneCallDeliveryPassionCoaching,
+        telePhoneCallDeliveryExperience: payload.telePhoneCallDeliveryExperience,
+        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryExperience,
+
+        "bookPracticalAssessment": [
+          {
+            "venueId": 72,
+            "classId": 94,
+            "date": "2025-12-15",
+            "assignToVenueManagerId": 335
+          }
+        ]
+      };
+
+      console.log("Submit Payload (coach):", payload);
+    } else {
+      console.log("Submit Payload in else:", form);
+    }
+  };
+  console.log('payload', payload)
+  const handleCoachMail = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to send the mail?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, send it',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (result.isConfirmed) {
+      await sendCoachMail([id]);
+
+    }
+  };
   if (loading) return <Loader />;
 
   return (
@@ -684,7 +866,7 @@ useEffect(() => {
           {/* SUBMIT BUTTON */}
           <button
             className="bg-blue-600 text-white px-5 py-3 rounded-xl"
-            onClick={() => console.log("Submit Payload:", form)}
+            onClick={handleSubmit}
           >
             Submit
           </button>
@@ -788,178 +970,201 @@ useEffect(() => {
         <div className="md:w-4/12  space-y-6">
 
           {/* MAIN CARD */}
-         <div className="bg-white p-6 rounded-2xl space-y-6">
-      <h2 className="text-xl font-semibold">Recruitment status</h2>
+          <div className="bg-white p-6 rounded-2xl space-y-6">
+            <h2 className="text-xl font-semibold">Recruitment status</h2>
 
-      <div className="relative pl-6 space-y-10">
-        <div className="absolute left-[17px] top-1 bottom-6 border-l border-gray-300"></div>
+            <div className="relative pl-6 space-y-10">
+              <div className="absolute left-[17px] top-1 bottom-6 border-l border-gray-300"></div>
 
-        {steps.map(step => (
-          <div
-            key={step.id}
-            className={`relative ps-[20px] ${
-              step.status === "completed"
-                ? "opacity-100"
-                : step.status === "skipped"
-                ? "opacity-40"
-                : "opacity-70"
-            }`}
-          >
-            {/* DOT */}
-            <div className="absolute -left-3 top-1 w-3 h-3 rounded-full bg-black"></div>
-
-            {/* HEADER */}
-            <div className="flex justify-between items-center">
-              <p className="font-semibold">{step.title}</p>
-
-              {step.status !== "completed" && (
-                <button
-                  className="text-gray-400 text-sm"
-                  onClick={() => toggleStep(step.id, "skipped")}
+              {steps.map(step => (
+                <div
+                  key={step.id}
+                  className={`relative ps-[20px]   ${!step.isEnabled ? "opacity-40 cursor-not-allowed pointer-events-none" : ""}`}
                 >
-                  Skip
-                </button>
-              )}
+                  {/* DOT */}
+                  <div className="absolute -left-3 top-1 w-3 h-3 rounded-full bg-black"></div>
+
+                  {/* HEADER */}
+                  <div className="flex justify-between items-center">
+                    <p className="font-semibold">{step.title}</p>
+
+                    {step.status !== "completed" && (
+                      <button
+                        className="text-gray-400 text-sm"
+                        onClick={() => toggleStep(step.id, "skipped")}
+                      >
+                        Skip
+                      </button>
+                    )}
+                    {step.status === "skipped" && step.isEnabled && (
+                      <button
+                        className="text-blue-600 text-sm mt-2"
+                        onClick={() => toggleStep(step.id, "pending")}
+                      >
+                        Unskip
+                      </button>
+                    )}
+                  </div>
+
+                  {/* QUALIFY BUTTONS */}
+                  {step.actionType === "buttons" && (
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        className="w-8 h-8 border rounded-lg"
+                        onClick={() => toggleStep(step.id, "skipped")}
+                      >
+                        ✕
+                      </button>
+                      <button
+                        className="w-8 h-8 bg-blue-600 text-white rounded-lg"
+                        onClick={() => toggleStep(step.id, "completed")}
+                      >
+                        ✓
+                      </button>
+                    </div>
+                  )}
+
+                  {/* BUTTON */}
+                  {step.buttonText && step.status !== "skipped" && step.isEnabled && (
+                    <button
+                      className="mt-3 flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-xl"
+                      onClick={() => {
+                        if (step.id === 2) {
+                          toggleOpenStep(step.id);
+                        } else if (step.id === 3) {
+                          setRateOpen(true);
+                        } else if (step.id === 4) {
+                          setOpenCandidateStatusModal(true);
+                        }
+                      }}
+
+                    >
+                      {step.buttonText}
+                      {step.id === 2 && <IoIosArrowDown />}
+                    </button>
+                  )}
+
+
+                  {/* TELEPHONE CALL FORM */}
+                  {step.id === 2 && step.isOpen && step.isEnabled && (
+                    <div className="bg-gray-50 rounded-xl p-4 mt-3 space-y-3">
+                      <input
+                        type="date"
+                        value={telephoneCall.date}
+                        className="border rounded-xl p-2"
+                        onChange={(e) =>
+                          setTelephoneCall({ ...telephoneCall, date: e.target.value })
+                        }
+                      />
+
+                      <input
+                        type="time"
+                        value={telephoneCall.time}
+                        className="border rounded-xl p-2"
+
+                        onChange={(e) =>
+                          setTelephoneCall({ ...telephoneCall, time: e.target.value })
+                        }
+                      />
+
+                      <input
+                        type="email"
+                        value={telephoneCall.email}
+                        className="border rounded-xl p-2"
+                        placeholder="Candidate email"
+
+                        onChange={(e) =>
+                          setTelephoneCall({ ...telephoneCall, email: e.target.value })
+                        }
+                      />
+
+                      <button
+                        className="w-full bg-blue-600 text-white py-2 rounded-xl"
+                        onClick={confirmTelephoneCall}
+                      >
+                        Confirm Call
+                      </button>
+                    </div>
+                  )}
+
+                  {/* RESULT */}
+                  {step.resultPercent && (
+                    <div className="mt-3 flex gap-3">
+                      <span className="bg-blue-600 text-white px-3 py-2 rounded-xl">
+                        {step.resultPercent}
+                      </span>
+                      <span className="text-green-600 mt-2">
+                        ✓ {step.resultStatus}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
 
-            {/* QUALIFY BUTTONS */}
-            {step.actionType === "buttons" && (
-              <div className="flex gap-2 mt-3">
-                <button
-                  className="w-8 h-8 border rounded-lg"
-                  onClick={() => toggleStep(step.id, "skipped")}
+            {/* SCORECARD MODAL */}
+            {rateOpen && (
+              <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="bg-white rounded-2xl w-full max-w-lg p-6"
                 >
-                  ✕
-                </button>
-                <button
-                  className="w-8 h-8 bg-blue-600 text-white rounded-lg"
-                  onClick={() => toggleStep(step.id, "completed")}
-                >
-                  ✓
-                </button>
-              </div>
-            )}
+                  <h3 className="text-lg font-semibold mb-4">Caaaall Scorecard</h3>
 
-            {/* BUTTON */}
-            {step.buttonText && (
-              <button
-                className="mt-3 flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-xl"
-                onClick={() =>
-                  step.id === 2
-                    ? toggleOpenStep(step.id)
-                    : setRateOpen(true)
-                }
-              >
-                {step.buttonText}
-                {step.id === 2 && <IoIosArrowDown />}
-              </button>
-            )}
+                  {["communication", "passion", "experience", "knowledge"].map((key) => (
+                    <div key={key} className="mb-4">
+                      <p className="capitalize font-semibold mb-2">{key}</p>
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <label key={n} className="mr-4">
+                          <input
+                            type="radio"
+                            checked={telephoneCall.scores[key] === n}
+                            onChange={() => {
+                              // Update scores
+                              setTelephoneCall((prev) => ({
+                                ...prev,
+                                scores: { ...prev.scores, [key]: n },
+                              }));
 
-            {/* TELEPHONE CALL FORM */}
-            {step.id === 2 && step.isOpen && (
-              <div className="bg-gray-50 rounded-xl p-4 mt-3 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="date"
-                    value={telephoneCall.date}
-                    onChange={(e) =>
-                      setTelephoneCall({ ...telephoneCall, date: e.target.value })
-                    }
-                    className="border rounded-xl p-2"
-                  />
-                  <input
-                    type="time"
-                    value={telephoneCall.time}
-                    onChange={(e) =>
-                      setTelephoneCall({ ...telephoneCall, time: e.target.value })
-                    }
-                    className="border rounded-xl p-2"
-                  />
-                </div>
+                              // Map and save in delivery state
+                              const mapping = {
+                                communication: "telePhoneCallDeliveryCommunicationSkill",
+                                passion: "telePhoneCallDeliveryPassionCoaching",
+                                experience: "telePhoneCallDeliveryExperience",
+                                knowledge: "telePhoneCallDeliveryKnowledgeOfSSS",
+                              };
+                              setTelephoneCallDelivery((prev) => ({
+                                ...prev,
+                                [mapping[key]]: n,
+                              }));
+                            }}
+                          />{" "}
+                          {n}
+                        </label>
+                      ))}
+                    </div>
+                  ))}
 
-                <input
-                  type="email"
-                  placeholder="Candidate email"
-                  value={telephoneCall.email}
-                  onChange={(e) =>
-                    setTelephoneCall({ ...telephoneCall, email: e.target.value })
-                  }
-                  className="border w-full rounded-xl p-2"
-                />
-
-                <button
-                  className="w-full bg-blue-600 text-white py-2 rounded-xl"
-                  onClick={() => toggleStep(2, "completed")}
-                >
-                  Confirm Call
-                </button>
-              </div>
-            )}
-
-            {/* RESULT */}
-            {step.resultPercent && (
-              <div className="mt-3 flex gap-3">
-                <span className="bg-blue-600 text-white px-3 py-2 rounded-xl">
-                  {step.resultPercent}
-                </span>
-                <span className="text-green-600 mt-2">
-                  ✓ {step.resultStatus}
-                </span>
+                  <button
+                    className="w-full bg-blue-600 text-white py-2 rounded-xl"
+                    onClick={() => {
+                      toggleStep(3, "completed"); // mark step completed
+                      setRateOpen(false);
+                      console.log("Saved delivery values:", telephoneCallDelivery);
+                    }}
+                  >
+                    Submit Scorecard
+                  </button>
+                </motion.div>
               </div>
             )}
           </div>
-        ))}
-      </div>
-
-      {/* SCORECARD MODAL */}
-      {rateOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-white rounded-2xl w-full max-w-lg p-6"
-          >
-            <h3 className="text-lg font-semibold mb-4">Call Scorecard</h3>
-
-            {["communication", "passion", "experience", "knowledge"].map(key => (
-              <div key={key} className="mb-4">
-                <p className="capitalize font-semibold mb-2">{key}</p>
-                {[1,2,3,4,5].map(n => (
-                  <label key={n} className="mr-4">
-                    <input
-                      type="radio"
-                      checked={telephoneCall.scores[key] === n}
-                      onChange={() =>
-                        setTelephoneCall(prev => ({
-                          ...prev,
-                          scores: { ...prev.scores, [key]: n }
-                        }))
-                      }
-                    />{" "}
-                    {n}
-                  </label>
-                ))}
-              </div>
-            ))}
-
-            <button
-              className="w-full bg-blue-600 text-white py-2 rounded-xl"
-              onClick={() => {
-                toggleStep(3, "completed");
-                setRateOpen(false);
-              }}
-            >
-              Submit Scorecard
-            </button>
-          </motion.div>
-        </div>
-      )}
-    </div>
 
           {/* FOOTER ACTIONS */}
           <div className="bg-white p-6 rounded-2xl  space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <button className="flex items-center justify-center gap-2 border border-[#717073] rounded-xl py-3">
+              <button onClick={() => handleCoachMail(id)} className="flex items-center justify-center gap-2 border border-[#717073] rounded-xl py-3">
                 <Mail size={18} /> <span>Send Email</span>
               </button>
 
@@ -971,8 +1176,8 @@ useEffect(() => {
             <button className="w-full border border-[#E2E1E5]  rounded-xl py-3 text-[#494949]">
               Invite to CoachPro
             </button>
-{/* onClick={() => setOpenCandidateStatusModal(true)} */}
-            <button  onClick={() => handleRejectCandidate(id)}  className="w-full bg-[#237FEA] text-white py-3 rounded-xl">
+            {/* onClick={() => setOpenCandidateStatusModal(true)} */}
+            <button onClick={() => handleRejectCandidate(id)} className="w-full bg-[#237FEA] text-white py-3 rounded-xl">
               Reject Candidate
             </button>
             <button className="w-full border border-[#E2E1E5]  rounded-xl py-3 text-[#494949]">
@@ -1095,18 +1300,25 @@ useEffect(() => {
                   <div>
                     <h3 className="text-lg font-semibold mb-6">Call Scorecard</h3>
 
-                    {[
-                      "Communication skill",
-                      "Passion for coaching",
-                      "Experience",
-                      "Knowledge of SSS",
-                    ].map((label) => (
+                    {["Communication skill", "Passion for coaching", "Experience", "Knowledge of SSS"].map((label) => (
                       <div key={label} className="mb-6">
                         <p className="font-semibold mb-2 text-[#494949]">{label}</p>
                         <div className="flex gap-4 text-[#494949]">
                           {[1, 2, 3, 4, 5].map((num) => (
                             <label key={num} className="flex items-center gap-1 cursor-pointer">
-                              <input type="radio" name={label} value={num} /> {num}
+                              <input
+                                type="radio"
+                                name={label}
+                                value={num}
+                                checked={telephoneCallDelivery[scoreKeyMap[label]] === num}
+                                onChange={() =>
+                                  setTelephoneCallDelivery(prev => ({
+                                    ...prev,
+                                    [scoreKeyMap[label]]: num
+                                  }))
+                                }
+                              />{" "}
+                              {num}
                             </label>
                           ))}
                         </div>
@@ -1114,7 +1326,8 @@ useEffect(() => {
                     ))}
                   </div>
 
-                  <button className="bg-[#237FEA] text-white py-3 rounded-xl w-full font-semibold hover:bg-blue-700 transition-all">
+                  <button onClick={submitScorecard}
+                    className="bg-[#237FEA] text-white py-3 rounded-xl w-full font-semibold hover:bg-blue-700 transition-all">
                     Submit
                   </button>
                 </div>
@@ -1142,46 +1355,66 @@ useEffect(() => {
                   ✕
                 </button>
               </div>
-              <form action="" className='p-6'>
-                <div className='mb-3'>
-                  <label htmlFor="" className='text-black font-semibold text-[16px] mb-2 block'>Venue</label>
-                  <input type="text" className='border border-[#E2E1E5]  w-full rounded-2xl p-3' />
-                </div>
+              <form onSubmit={handleSubmitPracticalAssesment} className="p-6">
                 <div className="mb-3">
-                  <label className="text-black font-semibold text-[16px] mb-2 block">
-                    Class
-                  </label>
+                  <label className="text-black font-semibold text-[16px] mb-2 block">Venue</label>
+                  <input
+                    type="number"
+                    value={venueState}
+                    onChange={(e) => setVenueState(e.target.value)}
+                    className="border border-[#E2E1E5] w-full rounded-2xl p-3"
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="text-black font-semibold text-[16px] mb-2 block">Class</label>
                   <Select
                     options={classOptions}
                     placeholder="Select Class"
                     className="react-select-container"
                     classNamePrefix="react-select"
+                    value={selectedClass}
+                    onChange={setSelectedClass}
                   />
                 </div>
 
                 <div className="mb-3">
-                  <label className="text-black font-semibold text-[16px] mb-2 block">
-                    Date
-                  </label>
+                  <label className="text-black font-semibold text-[16px] mb-2 block">Date</label>
                   <Select
                     options={dateOptions}
                     placeholder="Select Date"
                     className="react-select-container"
                     classNamePrefix="react-select"
+                    value={selectedDate}
+                    onChange={setSelectedDate}
                   />
                 </div>
-                <div className='mb-3'>
-                  <label htmlFor="" className='text-black font-semibold text-[16px] mb-2 block'>Assign To Venue Manager</label>
+
+                <div className="mb-3">
+                  <label className="text-black font-semibold text-[16px] mb-2 block">Assign To Venue Manager</label>
                   <Select
                     options={venueOptions}
                     placeholder="Venue Manager"
                     className="react-select-container"
                     classNamePrefix="react-select"
+                    value={venueManager}
+                    onChange={setVenueManager}
                   />
                 </div>
+
                 <div className="grid grid-cols-2 gap-4 mt-12">
-                  <button type='button' className='w-full p-3 border border-[#E2E1E5]  text-[#717073] font-semibold rounded-2xl'>Cancel</button>
-                  <button type='submit' className='w-full p-3 border border-[#E2E1E5]  bg-[#237FEA] text-white font-semibold rounded-2xl'>Send Confirmation</button>
+                  <button
+                    type="button"
+                    className="w-full p-3 border border-[#E2E1E5] text-[#717073] font-semibold rounded-2xl"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="w-full p-3 border border-[#E2E1E5] bg-[#237FEA] text-white font-semibold rounded-2xl"
+                  >
+                    Send Confirmation
+                  </button>
                 </div>
               </form>
 

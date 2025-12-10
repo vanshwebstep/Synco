@@ -598,6 +598,55 @@ export const RecruitmentProvider = ({ children }) => {
             setLoading(false);
         }
     };
+    const createCoachRecruitmentById = async (recruitmentData) => {
+        setLoading(true);
+        console.log('recruitmentData', recruitmentData)
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        let url = `${API_BASE_URL}/api/admin/coach/candidate-profile/create`;
+
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers,
+                body: JSON.stringify(recruitmentData),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || result || "Failed to create Coach Recruitment");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Coach Recruitment has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating Coach Recruitment.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchRecruitment();
+            setLoading(false);
+        }
+    };
     const createFranchiseRecruitment = async (recruitmentData) => {
         setLoading(true);
         console.log('recruitmentData', recruitmentData)
@@ -885,7 +934,7 @@ export const RecruitmentProvider = ({ children }) => {
             setLoading(false);
         }
     };
- const rejectCoach = async (bookingIds) => {
+    const rejectCoach = async (bookingIds) => {
         setLoading(true);
 
         const headers = {
@@ -913,6 +962,102 @@ export const RecruitmentProvider = ({ children }) => {
                 icon: "success",
                 confirmButtonText: "OK",
             }); navigate(`lead`)
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating class schedule.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchBookFreeTrials();
+            setLoading(false);
+        }
+    };
+    const sendCoachMail = async (bookingIds) => {
+        setLoading(true);
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+        // console.log('bookingIds', bookingIds)
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/coach/recruitment/send-email`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                    recruitmentLeadId: bookingIds, // make sure bookingIds is an array like [96, 97]
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to create Membership");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Trialsssssss has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating class schedule.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchBookFreeTrials();
+            setLoading(false);
+        }
+    };
+    const sendvenuemanagerMail = async (bookingIds) => {
+        setLoading(true);
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+        // console.log('bookingIds', bookingIds)
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/venue-manager/recruitment/send-email`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                    recruitmentLeadId: bookingIds, // make sure bookingIds is an array like [96, 97]
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to create Membership");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Trialsssssss has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+
             return result;
 
         } catch (error) {
@@ -3855,7 +4000,7 @@ export const RecruitmentProvider = ({ children }) => {
 
 
                 , fetchRecruitment, recruitment,
-                fetchCommunicationTemplate, fetchCoachRecruitmentById, sendOfferMail, sendFranchiseMail, rejectFranchise, rejectCoach,fetchFranchiseRecruitment, fetchvenuemanagerRecruitment, fetchAllRecruitment, recuritmentDataById, setRecuritmentDataById, createCoachRecruitment, createFranchiseRecruitment, createVenueRecruitment, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
+                fetchCommunicationTemplate, fetchCoachRecruitmentById, sendOfferMail, sendFranchiseMail, rejectFranchise, rejectCoach, sendCoachMail, sendvenuemanagerMail, fetchFranchiseRecruitment, fetchvenuemanagerRecruitment, fetchAllRecruitment, recuritmentDataById, setRecuritmentDataById, createCoachRecruitment, createCoachRecruitmentById,createFranchiseRecruitment, createVenueRecruitment, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
             }}>
             {children}
         </RecruitmentContext.Provider>

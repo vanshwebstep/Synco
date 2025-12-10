@@ -29,7 +29,7 @@ const VenueManager = () => {
         { value: "yes", label: "Yes" },
         { value: "no", label: "No" },
     ];
-    const { recruitment, fetchvenuemanagerRecruitment, statsRecruitment, createVenueRecruitment } = useRecruitmentTemplate() || {};
+    const { recruitment, fetchvenuemanagerRecruitment, statsRecruitment, createVenueRecruitment, sendvenuemanagerMail } = useRecruitmentTemplate() || {};
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -358,17 +358,17 @@ const VenueManager = () => {
         setFilteredRecruitment(recruitment);
     }, [recruitment]);
 
-const finalSummaryCards = summaryCards.map(card => {
-  const matched = Array.isArray(statsRecruitment)
-    ? statsRecruitment.find(item => item.name === card.key)
-    : null;
+    const finalSummaryCards = summaryCards.map(card => {
+        const matched = Array.isArray(statsRecruitment)
+            ? statsRecruitment.find(item => item.name === card.key)
+            : null;
 
-  return {
-    ...card,
-    value: matched?.count ?? 0,
-    change: matched?.percent ? `(${matched.percent})` : null
-  };
-});
+        return {
+            ...card,
+            value: matched?.count ?? 0,
+            change: matched?.percent ? `(${matched.percent})` : null
+        };
+    });
 
 
 
@@ -386,7 +386,21 @@ const finalSummaryCards = summaryCards.map(card => {
         { value: "Female", label: "Female" },
         { value: "Other", label: "Other" },
     ];
+    const handleVenueMail = async (selectedIds) => {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to send the mail?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, send it',
+            cancelButtonText: 'Cancel',
+        });
 
+        if (result.isConfirmed) {
+            await sendvenuemanagerMail(selectedIds);
+
+        }
+    };
     const selectStyles = {
         control: (base) => ({
             ...base,
@@ -730,7 +744,7 @@ const finalSummaryCards = summaryCards.map(card => {
 
                 {/* Actions */}
                 <div className="grid blockButton md:grid-cols-3 gap-3 mt-4">
-                    <button className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
+                    <button onClick={() => handleVenueMail(selectedIds)}  className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
                         <Mail size={16} className="text-[#717073]" /> Send Email
                     </button>
                     <button className="flex-1 flex items-center justify-center gap-1 border text-[#717073] border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">

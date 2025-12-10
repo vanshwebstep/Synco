@@ -367,17 +367,17 @@ const FranchiseLeads = () => {
         setFilteredRecruitment(recruitment);
     }, [recruitment]);
 
-  const finalSummaryCards = summaryCards.map(card => {
-  const matched = Array.isArray(statsRecruitment)
-    ? statsRecruitment.find(item => item.name === card.key)
-    : null;
+    const finalSummaryCards = summaryCards.map(card => {
+        const matched = Array.isArray(statsRecruitment)
+            ? statsRecruitment.find(item => item.name === card.key)
+            : null;
 
-  return {
-    ...card,
-    value: matched?.count ?? 0,
-    change: matched?.percent ? `(${matched.percent})` : null
-  };
-});
+        return {
+            ...card,
+            value: matched?.count ?? 0,
+            change: matched?.percent ? `(${matched.percent})` : null
+        };
+    });
 
     const experienceOptions = [
         { value: "1 year", label: "1 year" },

@@ -22,7 +22,7 @@ const Coach = () => {
 
     const [loading, setLoading] = useState(false);
 
-    const { recruitment, fetchRecruitment, statsRecruitment, createCoachRecruitment } = useRecruitmentTemplate() || {};
+    const { recruitment, fetchRecruitment, statsRecruitment, createCoachRecruitment, sendCoachMail } = useRecruitmentTemplate() || {};
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -294,7 +294,21 @@ const Coach = () => {
         return isNaN(num) ? null : num;
     };
 
+    const handleCoachMail = async (selectedIds) => {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to send the mail?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, send it',
+            cancelButtonText: 'Cancel',
+        });
 
+        if (result.isConfirmed) {
+            await sendCoachMail(selectedIds);
+
+        }
+    };
     const applyFilter = () => {
         let temp = Array.isArray(recruitment) ? [...recruitment] : [];
 
@@ -370,17 +384,17 @@ const Coach = () => {
     useEffect(() => {
         setFilteredRecruitment(recruitment);
     }, [recruitment]);
-  const finalSummaryCards = summaryCards.map(card => {
-  const matched = Array.isArray(statsRecruitment)
-    ? statsRecruitment.find(item => item.name === card.key)
-    : null;
+    const finalSummaryCards = summaryCards.map(card => {
+        const matched = Array.isArray(statsRecruitment)
+            ? statsRecruitment.find(item => item.name === card.key)
+            : null;
 
-  return {
-    ...card,
-    value: matched?.count ?? 0,
-    change: matched?.percent ? `(${matched.percent})` : null
-  };
-});
+        return {
+            ...card,
+            value: matched?.count ?? 0,
+            change: matched?.percent ? `(${matched.percent})` : null
+        };
+    });
 
 
     const experienceOptions = [
@@ -502,7 +516,7 @@ const Coach = () => {
                                         key={coach.id}
                                         onClick={() => {
                                             if (status == "recruited" || status == "pending" || status == "rejected") {
-                                                navigate(`/recruitment/lead/coach/profile?id=${coach.id}`);
+                                               navigate(`/recruitment/lead/coach/profile?id=${coach.id}&comesfrom=coach`);
                                             }
                                         }}
                                         className="border-b cursor-pointer border-gray-200"
@@ -911,7 +925,7 @@ const Coach = () => {
 
                 {/* Actions */}
                 <div className="grid blockButton md:grid-cols-3 gap-3 mt-4">
-                    <button className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
+                    <button onClick={() => handleCoachMail(selectedIds)} className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
                         <Mail size={16} className="text-[#717073]" /> Send Email
                     </button>
                     <button className="flex-1 flex items-center justify-center gap-1 border text-[#717073] border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">

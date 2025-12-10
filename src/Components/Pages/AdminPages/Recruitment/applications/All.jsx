@@ -31,7 +31,7 @@ const All = () => {
         { value: "yes", label: "Yes" },
         { value: "no", label: "No" },
     ];
-    const { recruitment, fetchAllRecruitment, statsRecruitment, createVenueRecruitment } = useRecruitmentTemplate() || {};
+    const { recruitment, fetchAllRecruitment, statsRecruitment, createVenueRecruitment ,sendCoachMail} = useRecruitmentTemplate() || {};
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -415,7 +415,21 @@ const All = () => {
         }),
         indicatorSeparator: () => ({ display: "none" }),
     };
+ const handleCoachMail = async (selectedIds) => {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to send the mail?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, send it',
+            cancelButtonText: 'Cancel',
+        });
 
+        if (result.isConfirmed) {
+            await sendCoachMail(selectedIds);
+
+        }
+    };
     const inputClass =
         " px-4 py-3 border border-[#E2E1E5] rounded-xl focus:outline-none ";
 
@@ -747,7 +761,7 @@ const All = () => {
 
                 {/* Actions */}
                 <div className="grid blockButton md:grid-cols-3 gap-3 mt-4">
-                    <button className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
+                    <button  onClick={() => handleCoachMail(selectedIds)} className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
                         <Mail size={16} className="text-[#717073]" /> Send Email
                     </button>
                     <button className="flex-1 flex items-center justify-center gap-1 border text-[#717073] border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
