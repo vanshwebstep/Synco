@@ -549,7 +549,6 @@ export const RecruitmentProvider = ({ children }) => {
             setLoading(false);
         }
     }, []);
-
     const createCoachRecruitment = async (recruitmentData) => {
         setLoading(true);
         console.log('recruitmentData', recruitmentData)
@@ -697,7 +696,7 @@ export const RecruitmentProvider = ({ children }) => {
             setLoading(false);
         }
     };
-     const createAllRecruitment = async (recruitmentData) => {
+    const createAllRecruitment = async (recruitmentData) => {
         setLoading(true);
         console.log('recruitmentData', recruitmentData)
 
@@ -743,6 +742,190 @@ export const RecruitmentProvider = ({ children }) => {
             throw error;
         } finally {
             await fetchRecruitment();
+            setLoading(false);
+        }
+    };
+    const sendOfferMail = async (bookingIds) => {
+        setLoading(true);
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+        // console.log('bookingIds', bookingIds)
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/franchise/recruitment/send-email/offer`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                    recruitmentLeadId: [bookingIds], // make sure bookingIds is an array like [96, 97]
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to create Membership");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Trialsssssss has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating class schedule.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchBookFreeTrials();
+            setLoading(false);
+        }
+    };
+    const sendFranchiseMail = async (bookingIds) => {
+        setLoading(true);
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+        // console.log('bookingIds', bookingIds)
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/franchise/recruitment/send-email`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                    recruitmentLeadId: [bookingIds], // make sure bookingIds is an array like [96, 97]
+                }),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to create Membership");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Trialsssssss has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating class schedule.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchBookFreeTrials();
+            setLoading(false);
+        }
+    };
+    const rejectFranchise = async (bookingIds) => {
+        setLoading(true);
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+        // console.log('bookingIds', bookingIds)
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/franchise/recruitment/reject/${bookingIds}`, {
+                method: "PUT",
+                headers,
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to create Membership");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Trialsssssss has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            }); navigate(`recruitment/franchise-lead`)
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating class schedule.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchBookFreeTrials();
+            setLoading(false);
+        }
+    };
+ const rejectCoach = async (bookingIds) => {
+        setLoading(true);
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+        // console.log('bookingIds', bookingIds)
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/admin/coach/recruitment/reject/${bookingIds}`, {
+                method: "PUT",
+                headers,
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || "Failed to create Membership");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Trialsssssss has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            }); navigate(`lead`)
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating class schedule.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchBookFreeTrials();
             setLoading(false);
         }
     };
@@ -3672,7 +3855,7 @@ export const RecruitmentProvider = ({ children }) => {
 
 
                 , fetchRecruitment, recruitment,
-                fetchCommunicationTemplate, fetchCoachRecruitmentById, fetchFranchiseRecruitment, fetchvenuemanagerRecruitment, fetchAllRecruitment, recuritmentDataById, setRecuritmentDataById, createCoachRecruitment, createFranchiseRecruitment, createVenueRecruitment, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
+                fetchCommunicationTemplate, fetchCoachRecruitmentById, sendOfferMail, sendFranchiseMail, rejectFranchise, rejectCoach,fetchFranchiseRecruitment, fetchvenuemanagerRecruitment, fetchAllRecruitment, recuritmentDataById, setRecuritmentDataById, createCoachRecruitment, createFranchiseRecruitment, createVenueRecruitment, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
             }}>
             {children}
         </RecruitmentContext.Provider>

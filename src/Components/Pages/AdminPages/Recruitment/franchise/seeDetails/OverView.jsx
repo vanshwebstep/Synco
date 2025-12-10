@@ -6,6 +6,11 @@ import { IoIosArrowDown } from "react-icons/io";
 import { motion } from "framer-motion";
 import { IoMdCheckmarkCircle } from "react-icons/io";
 import Select from "react-select";
+import { useSearchParams } from "react-router-dom";
+
+import { useRecruitmentTemplate } from '../../../contexts/RecruitmentContext';
+import { useVenue } from '../../../contexts/VenueContext';
+import Loader from '../../../contexts/Loader';
 const dateOptions = [
   { value: "2025-01-01", label: "Jan 01 2025" },
   { value: "2025-01-02", label: "Jan 02 2025" },
@@ -25,6 +30,7 @@ const venueOptions = [
   { value: "venue2", label: "Venue 2" },
 ];
 
+
 const classOptions = [
   { value: "class1", label: "Class 1" },
   { value: "class2", label: "Class 2" },
@@ -40,7 +46,24 @@ const stats = [
 ];
 const OverView = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const [loading, setLoading] = useState(false);
   const [rateOpen, setRateOpen] = useState(false);
+  const [telephoneCall, setTelephoneCall] = useState({
+    date: "",
+    time: "",
+    reminder: "",
+    email: "",
+    scores: {
+      communication: null,
+      passion: null,
+      experience: null,
+      knowledge: null,
+    },
+  });
+  const { fetchCoachRecruitmentById, recuritmentDataById, sendOfferMail, sendFranchiseMail, rejectFranchise } = useRecruitmentTemplate() || {};
+  const { fetchVenueNames, venues } = useVenue() || {};
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
   const [openCandidateStatusModal, setOpenCandidateStatusModal] = useState(false);
   const [openResultModal, setOpenResultModal] = useState(false);
   const [openOfferModal, setOpenOfferModal] = useState(false);
@@ -50,6 +73,30 @@ const OverView = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const commentsPerPage = 5; // Number of comments per page
   const { adminInfo } = useNotification();
+  const [form, setForm] = useState({
+    firstName: recuritmentDataById?.firstName || "",
+    surname: recuritmentDataById?.lastName || "",
+    dob: recuritmentDataById?.dob || "",
+    age: recuritmentDataById?.age || "",
+    email: recuritmentDataById?.email || "",
+    phone: recuritmentDataById?.phoneNumber || "",
+    postcode: recuritmentDataById?.postcode || "",
+    howDidYouHear: recuritmentDataById?.candidateProfile?.howDidYouHear || "Indeed",
+
+    ageGroup: recuritmentDataById?.candidateProfile?.ageGroupExperience || "",
+    vehicle:
+      recuritmentDataById?.candidateProfile?.accessToOwnVehicle === true
+        ? "Yes"
+        : recuritmentDataById?.candidateProfile?.accessToOwnVehicle === false
+          ? "No"
+          : "",
+    qualification: recuritmentDataById?.candidateProfile?.whichQualificationYouHave || "",
+    location: recuritmentDataById?.candidateProfile?.location || "",
+    capitalAvailable: recuritmentDataById?.candidateProfile?.capitalAvailable || "",
+    experience: recuritmentDataById?.candidateProfile?.footballExperience || "",
+    venues: recuritmentDataById?.venues || [],
+    coverNote: recuritmentDataById?.coverNote || "",
+  });
 
 
 
@@ -174,7 +221,20 @@ const OverView = () => {
       });
     }
   }
-
+  const handleChange = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+  const selectedVenueNames = venues
+    .filter(v => form.venues.includes(v.id))
+    .map(v => v.name);
+  const handleVenueChange = (id) => {
+    setForm((prev) => ({
+      ...prev,
+      venues: prev.venues.includes(id)
+        ? prev.venues.filter((x) => x !== id)
+        : [...prev.venues, id],
+    }));
+  };
 
   // steps 
   const [steps, setSteps] = useState([
@@ -215,6 +275,136 @@ const OverView = () => {
     },
   ]);
 
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      await fetchComments();
+      await fetchCoachRecruitmentById(id);
+      await fetchVenueNames();
+      setLoading(false);
+    };
+
+    if (id) init();
+  }, [id, fetchCoachRecruitmentById, fetchComments, fetchVenueNames]);
+  useEffect(() => {
+    if (!recuritmentDataById) return;
+
+    const venueWorkRaw =
+      recuritmentDataById?.candidateProfile?.availableVenueWork;
+
+    let parsedVenues = [];
+
+    try {
+      parsedVenues = Array.isArray(venueWorkRaw)
+        ? venueWorkRaw
+        : venueWorkRaw
+          ? JSON.parse(venueWorkRaw)
+          : [];
+    } catch (e) {
+      parsedVenues = [];
+    }
+
+    setForm({
+      firstName: recuritmentDataById.firstName || "",
+      surname: recuritmentDataById.lastName || "",
+      dob: recuritmentDataById.dob || "",
+      age: recuritmentDataById.age || "",
+      email: recuritmentDataById.email || "",
+      phone: recuritmentDataById.phoneNumber || "",
+      postcode: recuritmentDataById.postcode || "",
+      howDidYouHear: recuritmentDataById?.candidateProfile?.howDidYouHear || "Indeed",
+      location: recuritmentDataById?.candidateProfile?.location || "",
+      capitalAvailable: recuritmentDataById?.candidateProfile?.capitalAvailable || "",
+      ageGroup: recuritmentDataById?.candidateProfile?.ageGroupExperience || "",
+      vehicle:
+        recuritmentDataById?.candidateProfile?.accessToOwnVehicle === true
+          ? "Yes"
+          : recuritmentDataById?.candidateProfile?.accessToOwnVehicle === false
+            ? "No"
+            : "",
+      qualification:
+        recuritmentDataById?.candidateProfile?.whichQualificationYouHave || "",
+      experience:
+        recuritmentDataById?.candidateProfile?.footballExperience || "",
+      venues: parsedVenues,   // ✅ FIX HERE
+      coverNote: recuritmentDataById?.coverNote || "",
+    });
+  }, [recuritmentDataById]);
+  useEffect(() => {
+    if (!recuritmentDataById?.candidateProfile) return;
+
+    const p = recuritmentDataById.candidateProfile;
+
+    setTelephoneCall({
+      date: p.telephoneCallSetupDate || "",
+      time: p.telephoneCallSetupTime || "",
+      reminder: p.telephoneCallSetupReminder || "",
+      email: p.telephoneCallSetupEmail || "",
+      scores: {
+        communication: p.telePhoneCallDeliveryCommunicationSkill ?? null,
+        passion: p.telePhoneCallDeliveryPassionCoaching ?? null,
+        experience: p.telePhoneCallDeliveryExperience ?? null,
+        knowledge: p.telePhoneCallDeliveryKnowledgeOfSSS ?? null,
+      },
+    });
+
+    setSteps(prev =>
+      prev.map(step => {
+        if (step.id === 1) {
+          return { ...step, status: p.qualifyLead ? "completed" : "pending" };
+        }
+        if (step.id === 2 && p.telephoneCallSetupDate) {
+          return { ...step, status: "completed" };
+        }
+        if (step.id === 3 && p.telePhoneCallDeliveryCommunicationSkill) {
+          return { ...step, status: "completed" };
+        }
+        if (step.id === 5 && p.result) {
+          return {
+            ...step,
+            resultPercent: recuritmentDataById.telephoneCallScorePercentage + "%",
+            resultStatus: p.result === "passed" ? "Passed" : "Failed",
+            status: "completed",
+          };
+        }
+        return step;
+      })
+    );
+  }, [recuritmentDataById]);
+  const handleSendOfferMail = async (id) => {
+    await sendOfferMail(id);
+    setOpenOfferModal(false);
+  };
+  const handleSendFranchiseMail = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to send the franchise mail?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, send it',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (result.isConfirmed) {
+      await sendFranchiseMail(id);
+
+    }
+  };
+  const handleRejectFranchise = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to Reject this Candidate ?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Reject it',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (result.isConfirmed) {
+      await rejectFranchise(id);
+
+    }
+  };
   // Toggle completion on click
   const toggleStep = (id, newStatus) => {
     setSteps((prev) =>
@@ -232,9 +422,8 @@ const OverView = () => {
     );
   };
 
-  useEffect(() => {
-    fetchComments();
-  }, []);
+  if (loading) return <Loader />;
+
   return (
     <>
       {/* <button className="p-3 text-[#34AE56] font-bold bg-[#E5F2EA] px-10 absolute right-0 top-0 rounded-2xl">
@@ -254,43 +443,78 @@ const OverView = () => {
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">First Name</label>
-                <input type="text" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="Tom" />
+                <input type="text"
+                  disabled={!!form.firstName}
+                  value={form.firstName}
+                  onChange={(e) => handleChange("firstName", e.target.value)}
+                  className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="Tom" />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Surname</label>
-                <input type="text" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="John" />
+                <input type="text"
+                  disabled={!!form.surname}
+                  value={form.surname}
+                  onChange={(e) => handleChange("surname", e.target.value)}
+                  className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="John" />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Date of Birth</label>
-                <input type="date" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" />
+                <input type="date"
+                  disabled={!!form.dob}
+                  value={form.dob}
+                  onChange={(e) => handleChange("dob", e.target.value)}
+                  className="input border border-[#E2E1E5]  rounded-xl w-full p-3" />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Age</label>
-                <input type="number" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="25" />
+                <input type="number"
+                  disabled={!!form.age}
+                  value={form.age}
+                  onChange={(e) => handleChange("age", e.target.value)}
+                  className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="25" />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Email</label>
-                <input type="email" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="email@gmail.com" />
+                <input type="email"
+                  disabled={!!form.email}
+                  value={form.email}
+                  onChange={(e) => handleChange("email", e.target.value)}
+                  className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="email@gmail.com" />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Phone number</label>
-                <input type="text" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="+91" />
+                <input type="text"
+                  disabled={!!form.phone}
+                  value={form.phone}
+                  onChange={(e) => handleChange("phone", e.target.value)}
+                  className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="+91" />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">London Postcode</label>
-                <input type="text" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="SW15 0AB" />
+                <input type="text"
+                  disabled={!!form.postcode}
+                  value={form.postcode}
+                  onChange={(e) => handleChange("postcode", e.target.value)}
+                  className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="SW15 0AB" />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">How did you hear about us?</label>
-                <select className="input border border-[#E2E1E5]  rounded-xl w-full p-3">
-                  <option>Indeed</option>
+                <select value={form.howDidYouHear}
+                  disabled={!!form.howDidYouHear}
+                  onChange={(e) => handleChange("howDidYouHear", e.target.value)}
+                  className="input border border-[#E2E1E5] rounded-xl w-full p-3">
+                  <option value="Indeed">Indeed</option>
+                  <option value="Facebook">Facebook</option>
+                  <option value="LinkedIn">Linked In</option>
+                  <option value="Instagram">Instagram</option>
+                  <option value="Referral">Referral</option>
                 </select>
               </div>
 
@@ -306,12 +530,19 @@ const OverView = () => {
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Location</label>
-                <input type="text" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="Chelesa" />
+                <input type="text"
+                  disabled={!!form.location}
+                  value={form.location}
+                  onChange={(e) => handleChange("location", e.target.value)}
+                  className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="Chelesa" />
               </div>
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Capital available</label>
-                <input type="text" className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="£123,123" />
+                <input type="text"
+                  disabled={!!form.capitalAvailable}
+                  value={form.capitalAvailable}
+                  onChange={(e) => handleChange("capitalAvailable", e.target.value)} className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="£123,123" />
               </div>
 
             </div>
@@ -625,7 +856,7 @@ const OverView = () => {
           </div>
           <div className="bg-white p-6 rounded-2xl  space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <button className="flex items-center justify-center gap-2 border border-[#717073] rounded-xl py-3">
+              <button onClick={() => handleSendFranchiseMail(id)} className="flex items-center justify-center gap-2 border border-[#717073] rounded-xl py-3">
                 <Mail size={18} /> <span>Send Email</span>
               </button>
 
@@ -637,8 +868,8 @@ const OverView = () => {
             {/* <button className="w-full border border-[#E2E1E5]  rounded-xl py-3 text-[#494949]">
               Invite to CoachPro
             </button> */}
-
-            <button onClick={() => setOpenCandidateStatusModal(true)} className="w-full bg-[#237FEA] text-white py-3 rounded-xl">
+            {/* onClick={() => setOpenCandidateStatusModal(true)} */}
+            <button onClick={() => handleRejectFranchise(id)} className="w-full bg-[#237FEA] text-white py-3 rounded-xl">
               Reject Candidate
             </button>
             {/* <button className="w-full border border-[#E2E1E5]  rounded-xl py-3 text-[#494949]">
@@ -964,11 +1195,12 @@ const OverView = () => {
                 </button>
               </div>
               <h5 className="text-center py-5 font-semibold">Send a provision offer to prospect lead.</h5>
-             
-             
-                  <button type='submit' className='w-full p-3 border border-[#E2E1E5]  bg-[#237FEA] text-white font-semibold rounded-2xl'>Send Email Offer</button>
-                
-           
+
+
+              <button type='submit' onClick={() => handleSendOfferMail(id)}
+                className='w-full p-3 border border-[#E2E1E5]  bg-[#237FEA] text-white font-semibold rounded-2xl'>Send Email Offer</button>
+
+
 
 
             </motion.div>

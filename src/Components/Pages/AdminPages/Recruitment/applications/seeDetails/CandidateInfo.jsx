@@ -54,7 +54,7 @@ const [telephoneCall, setTelephoneCall] = useState({
 
   const [rateOpen, setRateOpen] = useState(false);
   const [openCandidateStatusModal, setOpenCandidateStatusModal] = useState(false);
-  const { fetchCoachRecruitmentById, recuritmentDataById } = useRecruitmentTemplate() || {};
+  const { fetchCoachRecruitmentById, recuritmentDataById,rejectCoach} = useRecruitmentTemplate() || {};
   const { fetchVenueNames, venues } = useVenue() || {};
 
   const [searchParams] = useSearchParams();
@@ -69,10 +69,7 @@ const [telephoneCall, setTelephoneCall] = useState({
   const [currentPage, setCurrentPage] = useState(1);
   const commentsPerPage = 5; // Number of comments per page
   const { adminInfo } = useNotification();
-  const [ageGroup, setAgeGroup] = useState("");
-  const [vehicle, setVehicle] = useState("");
-  const [qualification, setQualification] = useState("");
-  const [experience, setExperience] = useState("");
+
   // const [venues, setVenues] = useState([]);
 
   console.log('recuritmentDataById', recuritmentDataById);
@@ -399,6 +396,22 @@ useEffect(() => {
       )
     );
   };
+ const handleRejectCandidate = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to Reject this Candidate ?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Reject it',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (result.isConfirmed) {
+      await rejectCoach(id);
+
+    }
+  };
+
   if (loading) return <Loader />;
 
   return (
@@ -958,8 +971,8 @@ useEffect(() => {
             <button className="w-full border border-[#E2E1E5]  rounded-xl py-3 text-[#494949]">
               Invite to CoachPro
             </button>
-
-            <button onClick={() => setOpenCandidateStatusModal(true)} className="w-full bg-[#237FEA] text-white py-3 rounded-xl">
+{/* onClick={() => setOpenCandidateStatusModal(true)} */}
+            <button  onClick={() => handleRejectCandidate(id)}  className="w-full bg-[#237FEA] text-white py-3 rounded-xl">
               Reject Candidate
             </button>
             <button className="w-full border border-[#E2E1E5]  rounded-xl py-3 text-[#494949]">
