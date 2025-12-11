@@ -233,7 +233,7 @@ const HolidayAddPaymentPlanGroup = () => {
         if (id && selectedGroup) {
             setGroupName(selectedGroup.name || "");
             setDescription(selectedGroup.description || "");
-            setSelectedPlans(selectedGroup.paymentPlans || []);
+            setSelectedPlans(selectedGroup.holidayPaymentPlans || []);
         }
     }, [selectedGroup]);
     const sortedOptions = planOptions.sort((a, b) => {

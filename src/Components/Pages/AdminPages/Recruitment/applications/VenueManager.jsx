@@ -29,7 +29,7 @@ const VenueManager = () => {
         { value: "yes", label: "Yes" },
         { value: "no", label: "No" },
     ];
-    const { recruitment, fetchvenuemanagerRecruitment, statsRecruitment, createVenueRecruitment, sendvenuemanagerMail } = useRecruitmentTemplate() || {};
+    const { venueRecruitment, fetchvenuemanagerRecruitment, statsRecruitment, createVenueRecruitment, sendvenuemanagerMail } = useRecruitmentTemplate() || {};
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -283,7 +283,7 @@ const VenueManager = () => {
 
 
     const applyFilter = () => {
-        let temp = Array.isArray(recruitment) ? [...recruitment] : [];
+        let temp = Array.isArray(venueRecruitment) ? [...venueRecruitment] : [];
 
         // 1. Search by name
         if (studentName?.trim()) {
@@ -355,8 +355,8 @@ const VenueManager = () => {
 
 
     useEffect(() => {
-        setFilteredRecruitment(recruitment);
-    }, [recruitment]);
+        setFilteredRecruitment(venueRecruitment);
+    }, [venueRecruitment]);
 
     const finalSummaryCards = summaryCards.map(card => {
         const matched = Array.isArray(statsRecruitment)
@@ -499,7 +499,7 @@ const VenueManager = () => {
                                         key={coach.id}
                                         onClick={() => {
                                             if (status == "recruited" || status == "pending" || status == "rejected") {
-                                                navigate(`/recruitment/lead/coach/profile?id=${coach.id}`);
+                                                navigate(`/recruitment/lead/coach/profile?id=${coach.id}&comesfrom=venueManager`);
                                             }
                                         }}
                                         className="border-b cursor-pointer border-gray-200"
@@ -744,7 +744,7 @@ const VenueManager = () => {
 
                 {/* Actions */}
                 <div className="grid blockButton md:grid-cols-3 gap-3 mt-4">
-                    <button onClick={() => handleVenueMail(selectedIds)}  className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
+                    <button onClick={() => handleVenueMail(selectedIds)} className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
                         <Mail size={16} className="text-[#717073]" /> Send Email
                     </button>
                     <button className="flex-1 flex items-center justify-center gap-1 border text-[#717073] border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">

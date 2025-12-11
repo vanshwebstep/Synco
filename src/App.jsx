@@ -163,6 +163,9 @@ import CourseCreate from './Components/Pages/AdminPages/Coach Pro/Course/CourseC
 import CoachProfile from './Components/Pages/AdminPages/Configuration/coach-pro/profile/CoachProfile.jsx';
 import AttendanceReport from './Components/Pages/AdminPages/Configuration/coach-pro/profile/AttendanceReport.jsx';
 import ContractList from './Components/Pages/AdminPages/Configuration/coach-pro/contracts/ContractList.jsx';
+import PdfEditor from './Components/Pages/AdminPages/Configuration/coach-pro/contracts/PdfEditor.jsx';
+import IssueList from './Components/Pages/AdminPages/Configuration/coach-pro/issues/IssueList.jsx';
+import ReferralsList from './Components/Pages/AdminPages/Configuration/coach-pro/referrals/ReferralsList.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -933,31 +936,31 @@ const AppRoutes = () => {
       } />
 
       <Route path="/templates/create" element={
-        // <ProtectedRoute>
+        <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
               <Createtemplate />
             </RoleBasedRoute>
           </AdminLayout>
-        // </ProtectedRoute>
+        </ProtectedRoute>
       } />
       <Route path="/templates/builder" element={
-        // <ProtectedRoute>
+        <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
               <TemplateBuilder />
             </RoleBasedRoute>
           </AdminLayout>
-        // </ProtectedRoute>
+        </ProtectedRoute>
       } />
       <Route path="/templates/list" element={
-        // <ProtectedRoute>
+        <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
               <CommunicationsList />
             </RoleBasedRoute>
           </AdminLayout>
-        // </ProtectedRoute>
+        </ProtectedRoute>
       } />
       <Route path="/templates/settingList" element={
         <ProtectedRoute>
@@ -980,40 +983,40 @@ const AppRoutes = () => {
       } />
       <Route path="*" element={<Navigate to="/" />} />
       <Route path="/configuration/coach-pro/music" element={
-        // <ProtectedRoute>
+        <ProtectedRoute>
         <AdminLayout>
           <RoleBasedRoute>
             <Music />
           </RoleBasedRoute>
         </AdminLayout>
-        // </ProtectedRoute>
+        </ProtectedRoute>
       } />
       <Route path="/configuration/coach-pro/profile" element={
-        // <ProtectedRoute>
+        <ProtectedRoute>
         <AdminLayout>
           {/* <RoleBasedRoute> */}
           <CoachProfile />
           {/* </RoleBasedRoute> */}
         </AdminLayout>
-        // </ProtectedRoute>
+        </ProtectedRoute>
       } />
-      <Route path="/configuration/coach-pro/course" element={
-        // <ProtectedRoute>
+      <Route path="/configuration/coach-pro/courses" element={
+        <ProtectedRoute>
         <AdminLayout>
           <RoleBasedRoute>
             <CourseList />
           </RoleBasedRoute>
         </AdminLayout>
-        // </ProtectedRoute>
+        </ProtectedRoute>
       } />
       <Route path="/configuration/coach-pro/course/create" element={
-        // <ProtectedRoute>
+        <ProtectedRoute>
         <AdminLayout>
           <RoleBasedRoute>
             <CourseCreate />
           </RoleBasedRoute>
         </AdminLayout>
-        // </ProtectedRoute>
+        </ProtectedRoute>
       } />
        <Route path="/configuration/coach-pro/profile/report" element={
         <ProtectedRoute>
@@ -1029,6 +1032,34 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <ContractList />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/coach-pro/contracts/update" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <PdfEditor />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+    
+      <Route path="/configuration/coach-pro/issue-list" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <IssueList />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/coach-pro/referrals" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <ReferralsList />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

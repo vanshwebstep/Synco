@@ -742,7 +742,7 @@ export default function CoachProfile() {
           </div>
         </div>
       )}
-
+   
       {openVenueFilter && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white w-[330px] rounded-2xl p-5 shadow-xl relative">

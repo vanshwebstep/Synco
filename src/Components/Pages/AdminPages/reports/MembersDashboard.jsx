@@ -761,7 +761,7 @@ const exportMemberStatsExcel = () => {
 
                     <div className="bg-white rounded-2xl p-4 ">
                         <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Duration of memberships ({latestYear}-{latestMonth})
+                            Duration of memberships 
                         </h2>
 
                         {Object.entries(durationData).map(([duration, values], i) => {

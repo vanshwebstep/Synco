@@ -425,7 +425,7 @@ const exportCapacityStatsExcel = () => {
                                 Capacity by venue <EllipsisVertical />
                             </h2>
 
-                            {membersData?.getCapacityByVenue?.map((item, i) => (
+                            {membersData?.capacityByVenue?.map((item, i) => (
                                 <div key={i} className="mb-4">
                                     <div className="flex gap-5 items-center justify-between">
 

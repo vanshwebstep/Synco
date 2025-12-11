@@ -325,55 +325,56 @@ export const CommunicationTemplateProvider = ({ children }) => {
             setLoading(false);
         }
     };
-    const createCommunicationTemplate = async (communicationTemplateData) => {
-        setLoading(true);
-        console.log('communicationTemplateData', communicationTemplateData)
+    const createCommunicationTemplate = async (formData) => {
+    setLoading(true);
 
-        const headers = {
-            "Content-Type": "application/json",
-        };
+    try {
+        const headers = {};
 
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
         }
+
         let url = `${API_BASE_URL}/api/admin/holiday/custom-template/create`;
 
+        const response = await fetch(url, {
+            method: "POST",
+            headers,            // ❌ Do NOT set Content-Type (browser will set multipart/form-data)
+            body: formData,     // ✔ FormData with binary images + JSON
+        });
 
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers,
-                body: JSON.stringify(communicationTemplateData),
-            });
+        const result = await response.json();
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || result || "Failed to create Communication Template");
-            }
-
-            await Swal.fire({
-                title: "Success!",
-                text: result.message || "Communication Template has been created successfully.",
-                icon: "success",
-                confirmButtonText: "OK",
-            });
-            return result;
-
-        } catch (error) {
-            console.error("Error creating class schedule:", error);
-            await Swal.fire({
-                title: "Error",
-                text: error.message || "Something went wrong while creating class schedule.",
-                icon: "error",
-                confirmButtonText: "OK",
-            });
-            throw error;
-        } finally {
-            await fetchTemplateCategories();
-            setLoading(false);
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to create Communication Template");
         }
-    };
+
+        await Swal.fire({
+            title: "Success!",
+            text: result.message || "Communication Template has been created successfully.",
+            icon: "success",
+            confirmButtonText: "OK",
+        });
+
+        return result;
+
+    } catch (error) {
+        console.error("Error creating communication template:", error);
+        await Swal.fire({
+            title: "Error",
+            text: error.message || "Something went wrong while creating template.",
+            icon: "error",
+            confirmButtonText: "OK",
+        });
+
+        throw error;
+
+    } finally {
+        await fetchTemplateCategories();
+        setLoading(false);
+    }
+};
+
 
     const deleteCommunicationTemplate = useCallback(async (id) => {
         if (!token) return;

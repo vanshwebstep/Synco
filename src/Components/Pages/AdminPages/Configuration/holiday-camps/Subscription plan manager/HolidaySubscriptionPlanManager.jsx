@@ -266,7 +266,7 @@ const HolidaySubscriptionPlanManager = () => {
                             </div>
                           </td>
                           <td className="p-4 text-center">
-                            {user.paymentPlans?.length || "0"}
+                            {user.holidayPaymentPlans?.length || "0"}
                           </td>
                           <td className="p-4">
                             {new Date(user.createdAt).toLocaleDateString("en-GB", {

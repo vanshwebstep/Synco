@@ -105,16 +105,19 @@ const FranchiseLeads = () => {
         ];
 
         for (let field of requiredFields) {
-            if (!formData[field.key] || formData[field.key].trim() === "") {
+            const value = formData[field.key];
+
+            if (!value || String(value).trim() === "") {
                 Swal.fire({
                     icon: "warning",
                     title: "Missing Field",
                     text: `${field.label} is required.`,
                     confirmButtonColor: "#237FEA",
                 });
-                return; // stop submit
+                return;
             }
         }
+
 
         // Valid email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -492,7 +495,7 @@ const FranchiseLeads = () => {
                                 const status = coach.status ? coach.status.toLowerCase() : "";
 
                                 return (
-                                    <tr onClick={() => navigate(`/recruitment/franchise-lead/see-details?id=${coach?.id}`)} key={coach.id} className="border-b cursor-pointer border-gray-200">
+                                    <tr onClick={() => navigate(`/recruitment/franchise-lead/see-details?id=${coach?.id}&comesfrom=franchise`)} key={coach.id} className="border-b cursor-pointer border-gray-200">
                                         <td className="p-4">
                                             <div className="flex items-center gap-3">
                                                 <button

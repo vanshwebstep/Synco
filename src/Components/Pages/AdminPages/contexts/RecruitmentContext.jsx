@@ -8,6 +8,7 @@ export const RecruitmentProvider = ({ children }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     const [recruitment, setRecruitment] = useState([]);
+    const [venueRecruitment, setVenueRecruitment] = useState([]);
 
     const [recuritmentDataById, setRecuritmentDataById] = useState([]);
 
@@ -31,6 +32,10 @@ export const RecruitmentProvider = ({ children }) => {
     const [isEditBookFreeTrial, setIsEditBookFreeTrial] = useState(false);
     const [singleBookFreeTrials, setSingleBookFreeTrials] = useState([]);
     const [capacityData, setCapacityData] = useState([]);
+    const [coachReport, setCoachReport] = useState([]);
+    const [venueManagerreport, setVenueManagerreport] = useState([]);
+    const [franchiseReport, setFranchiseReport] = useState([]);
+
     const [singleBookFreeTrialsOnly, setSingleBookFreeTrialsOnly] = useState([]);
     const [serviceHistory, setServiceHistory] = useState([]);
     const [myVenues, setMyVenues] = useState([]);
@@ -330,7 +335,7 @@ export const RecruitmentProvider = ({ children }) => {
                 setBookedByAdmin(bookedByAdmin);
                 setMyVenues(Array.isArray(venues) ? venues : []);
                 setStatsRecruitment(totals)
-                setRecruitment(result);
+                setVenueRecruitment(result);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
             } finally {
@@ -644,6 +649,104 @@ export const RecruitmentProvider = ({ children }) => {
             throw error;
         } finally {
             await fetchRecruitment();
+            setLoading(false);
+        }
+    };
+    const createVenuManagerRecruitmentById = async (recruitmentData) => {
+        setLoading(true);
+        console.log('recruitmentData', recruitmentData)
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        let url = `${API_BASE_URL}/api/admin/venue-manager/candidate-profile/create`;
+
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers,
+                body: JSON.stringify(recruitmentData),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || result || "Failed to create Coach Recruitment");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Coach Recruitment has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating Coach Recruitment.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchvenuemanagerRecruitment();
+            setLoading(false);
+        }
+    };
+    const createFranchiseRecruitmentById = async (recruitmentData) => {
+        setLoading(true);
+        console.log('recruitmentData', recruitmentData)
+
+        const headers = {
+            "Content-Type": "application/json",
+        };
+
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
+        let url = `${API_BASE_URL}/api/admin/franchise/candidate-profile/create`;
+
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers,
+                body: JSON.stringify(recruitmentData),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || result || "Failed to create Coach Recruitment");
+            }
+
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Coach Recruitment has been created successfully.",
+                icon: "success",
+                confirmButtonText: "OK",
+            });
+            return result;
+
+        } catch (error) {
+            console.error("Error creating class schedule:", error);
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong while creating Coach Recruitment.",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            throw error;
+        } finally {
+            await fetchFranchiseRecruitment();
             setLoading(false);
         }
     };
@@ -1123,6 +1226,98 @@ export const RecruitmentProvider = ({ children }) => {
             setLoading(false);
         }
     };
+    const fetchCoachReport = useCallback(
+        async (selectedRange = "") => {
+            const token = localStorage.getItem("adminToken");
+            if (!token) return;
+
+            setLoading(true);
+
+            // Build URL conditionally
+            let url = `${API_BASE_URL}/api/admin/coach/recruitment/report`;
+            if (selectedRange) {
+                url += `?dateRange=${selectedRange}`;
+            }
+
+            try {
+                const res = await fetch(url, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const result = await res.json();
+                setCoachReport(result?.data ?? []);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+
+    const fetchVenueManagerreport = useCallback(
+        async (selectedRange = "") => {
+            const token = localStorage.getItem("adminToken");
+            if (!token) return;
+
+            setLoading(true);
+
+            // Build URL conditionally
+            let url = `${API_BASE_URL}/api/admin/venue-manager/recruitment/report`;
+            if (selectedRange) {
+                url += `?dateRange=${selectedRange}`;
+            }
+
+            try {
+                const res = await fetch(url, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const result = await res.json();
+                setVenueManagerreport(result?.data ?? []);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+    const fetchFranchiseReport = useCallback(
+        async (selectedRange = "") => {
+            const token = localStorage.getItem("adminToken");
+            if (!token) return;
+
+            setLoading(true);
+
+            // Build URL conditionally
+            let url = `${API_BASE_URL}/api/admin/franchise/recruitment/report`;
+            if (selectedRange) {
+                url += `?dateRange=${selectedRange}`;
+            }
+
+            try {
+                const res = await fetch(url, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const result = await res.json();
+                setFranchiseReport(result?.data ?? []);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+
+
+
+
+
+
+
+
+
+
 
     const deleteCommunicationTemplate = useCallback(async (id) => {
         if (!token) return;
@@ -4000,7 +4195,8 @@ export const RecruitmentProvider = ({ children }) => {
 
 
                 , fetchRecruitment, recruitment,
-                fetchCommunicationTemplate, fetchCoachRecruitmentById, sendOfferMail, sendFranchiseMail, rejectFranchise, rejectCoach, sendCoachMail, sendvenuemanagerMail, fetchFranchiseRecruitment, fetchvenuemanagerRecruitment, fetchAllRecruitment, recuritmentDataById, setRecuritmentDataById, createCoachRecruitment, createCoachRecruitmentById,createFranchiseRecruitment, createVenueRecruitment, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
+                fetchCommunicationTemplate, fetchCoachRecruitmentById, venueRecruitment, sendOfferMail, sendFranchiseMail, rejectFranchise, rejectCoach, sendCoachMail, sendvenuemanagerMail, fetchFranchiseRecruitment, fetchvenuemanagerRecruitment, fetchAllRecruitment, recuritmentDataById, setRecuritmentDataById, createCoachRecruitment, createCoachRecruitmentById, createVenuManagerRecruitmentById, createFranchiseRecruitmentById, createFranchiseRecruitment, createVenueRecruitment, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
+                , fetchCoachReport, coachReport, fetchVenueManagerreport, venueManagerreport, fetchFranchiseReport, franchiseReport
             }}>
             {children}
         </RecruitmentContext.Provider>

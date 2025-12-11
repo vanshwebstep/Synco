@@ -1,10 +1,11 @@
 import { Download, Plus } from 'lucide-react'
-import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const ContractList = () => {
+  const navigate = useNavigate();
   return (
     <div>
-      <div className="bg-white border border-[#E2E1E5] rounded-2xl overflow-hidden border-b-0">
+      <div className="bg-white border border-[#E2E1E5] rounded-3xl overflow-hidden border-b-0">
         <div className="flex justify-between items-center border-b border-[#E2E1E5] p-5">
           <h3 className="font-semibold text-2xl">
             Contract List
@@ -18,14 +19,16 @@ const ContractList = () => {
               <span className="text-[#3E3E47] font-semibold">{item}</span>
             </div>
             <div className="flex justify-between gap-2 items-center">
-              <Download/>
-              <img src="/reportsIcons/Pen.png" alt="" className="w-5 h-5 cursor-pointer" />
+              <Download className='text-gray-500'/>
+              <img src="/reportsIcons/Pen.png" onClick={()=> navigate (`/configuration/coach-pro/contracts/update?id=${'1'}`)} alt="" className="w-5 h-5 cursor-pointer" />
               <img src="/reportsIcons/delete-02.png" className="w-5 h-5 cursor-pointer" alt="" />
             </div>
           </div>
         ))}
       </div>
+
     </div>
+
   )
 }
 

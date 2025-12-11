@@ -575,7 +575,6 @@ const [showComment, setShowComment] = useState(false);
     const [formData, setFormData] = useState({
         title: "",
         description: "",
-        attachments: [],
         comment: "",
     });
     const [showMembers, setShowMembers] = useState(null);
@@ -618,44 +617,34 @@ const [showComment, setShowComment] = useState(false);
         setFormData((p) => ({ ...p, comment: e.target.value }));
     };
 
-    console.log('priority',priority)
-    console.log('prioritydd',formData.priority)
 
-    const handleSubmit = async () => {
-        // Helper function to convert a file to base64
-        const fileToBase64 = (file) => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = (error) => reject(error);
-            });
-        };
 
-        // Convert all uploaded files to base64
-        const attachmentsBase64 = await Promise.all(
-            uploadedFiles.map(async (fileObj) => {
-                const base64Data = await fileToBase64(fileObj.file);
-                return {
-                    ...fileObj,
-                    file: base64Data,  // replace file object with base64
-                    url: undefined     // optional: remove blob url
-                };
-            })
-        );
+   const handleSubmit = async () => {
+    const data = new FormData();
 
-        const finalData = {
-            priority,
-            ...formData,
-            assignedAdmins: selectedMembers.map(m => m.fullData.id),
-            attachments: attachmentsBase64
-        };
+    (uploadedFiles || []).forEach((f) => {
+        // f.file is the real File object
+        data.append("attachments", f.file);   // ✅ THIS sends (binary)
+    });
 
-        createToDoList(finalData);
-        console.log("FINAL TASK DATA:", finalData);
+    // other fields
+    data.append("priority", priority);
+    data.append("assignedAdmins", JSON.stringify(
+        selectedMembers.map(m => m.fullData.id)
+    ));
 
-        onClose();
-    };
+    // add formData fields
+    Object.keys(formData).forEach(key => {
+        data.append(key, formData[key]);
+    });
+
+    // finally send
+    createToDoList(data);
+
+    console.log("FORMDATA SENT:", [...data.entries()]);
+    onClose();
+};
+
     const today = new Date().toLocaleDateString("en-GB", {
         day: "2-digit",
         month: "short",

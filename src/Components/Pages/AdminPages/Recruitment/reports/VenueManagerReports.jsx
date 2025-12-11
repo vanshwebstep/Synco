@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+
 import Select from "react-select";
 import {
     Download,
@@ -14,109 +15,14 @@ import {
     YAxis,
     Tooltip,
 } from "recharts";
-
-
-const dashboardData = {
-    recruitmentChart: {
-        labels: [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-        ],
-        leads: [420, 480, 500, 530, 580, 620, 650, 700, 720, 760, 780, 820],
-        hires: [180, 200, 220, 240, 260, 280, 320, 340, 360, 380, 400, 420],
-    },
-
-    recruitmentCallStats: {
-        callsMade: {
-            value: 1920,
-            previous: 2004,
-        },
-        avgCallDuration: {
-            value: "23 min",
-            previous: "10 min",
-        },
-        timeToFirstContact: {
-            value: "3 hr 16 min",
-            previous: "1 hr 8 min",
-        },
-    },
-
-    coachesDemographics: {
-        byAge: [
-            { label: "18", value: 2348, percent: 10 },
-            { label: "23", value: 1800, percent: 10 },
-            { label: "28", value: 1650, percent: 10 },
-            { label: "33", value: 1500, percent: 10 },
-            { label: "38", value: 1300, percent: 10 },
-            { label: "43", value: 1200, percent: 10 },
-            { label: "48", value: 1100, percent: 10 },
-            { label: "53", value: 900, percent: 10 },
-            { label: "58", value: 700, percent: 10 },
-            { label: "63+", value: 400, percent: 10 },
-        ],
-        byGender: [
-            { label: "Male", value: 2348, percent: 10 },
-            { label: "Female", value: 1800, percent: 10 },
-            { label: "Others", value: 1650, percent: 10 },
-        ],
-    },
-
-    qualifications: [
-        { label: "FA Qualification(s)", value: 3, img: '/reportsIcons/fa.png' },
-        { label: "DBS Certificate", value: 2, img: '/reportsIcons/dbs.png' },
-        { label: "4-5 years of coaching experience", value: 4, img: '/reportsIcons/coaching.png' },
-        { label: "Management Experience", value: 3, img: '/reportsIcons/manage.png' },
-    ],
-
-    onboardingResults: [
-        { label: "Average Interview Grade", value: "82%" },
-        { label: "Average Practical Assessment Grade", value: "67%" },
-        { label: "Average Coach Education Pass Mark", value: "79%" },
-    ],
-
-    topAgents: [
-        { label: "Jessica Smith", value: 50 },
-        { label: "Aiden Jones", value: 30 },
-        { label: "Priya Kumar", value: 20 },
-        { label: "Liam Brown", value: 10 },
-        { label: "Mia White", value: 5 },
-    ],
-
-    sourceOfLeads: [
-        { label: "Indeed", value: 45 },
-        { label: "Google", value: 30 },
-        { label: "Instagram", value: 20 },
-        { label: "Referral", value: 10 },
-        { label: "LinkedIn", value: 5 },
-        { label: "Other", value: 3 },
-    ],
-
-    highDemandVenues: [
-        { label: "Acton", value: 2346 },
-        { label: "Kings Cross", value: 2100 },
-        { label: "Chelsea", value: 1900 },
-        { label: "Greenwich", value: 1850 },
-        { label: "Hackney", value: 1800 },
-        { label: "Brixton", value: 1700 },
-    ],
-};
-
+import { useRecruitmentTemplate } from "../../contexts/RecruitmentContext";
 const dateOptions = [
-    { value: "month", label: "This Month" },
-    { value: "quarter", label: "This Quarter" },
-    { value: "year", label: "This Year" },
+  { value: "", label: "" },
+  { value: "thisMonth", label: "This Month" },
+  { value: "lastMonth ", label: "Last Month" },
+  { value: "last3Months ", label: "Last 3 Month" },
+  { value: "last6Months ", label: "Last 6 Month" },
 ];
-
 const customSelectStyles = {
     control: (provided, state) => ({
         ...provided,
@@ -139,68 +45,203 @@ const customSelectStyles = {
     }),
 };
 
-const stats = [
-    {
-        icon: "/reportsIcons/user-group.png",
-        iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
-        title: "Total Leads",
-        value: ` 150`,
-        sub: "vs. prev period  ",
-        subvalue: '275'
-    },
-    {
-        icon: "/reportsIcons/Calling.png",
-        iconStyle: "text-[#E769BD] bg-[#F3FAFD]",
-        title: "No. of video interviews",
-        value: `87`,
-        diff: "+33%",
-        sub: "vs. prev period",
-        subvalue: '275'
-    },
-    {
-        icon: "/reportsIcons/Note.png",
-        iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
-        title: "No. of practical assessments",
-        value: `42`,
-        diff: "+33%",
-        sub: "vs. prev period ",
-        subvalue: '150'
-    },
-    {
-        icon: "/reportsIcons/Recruitment.png",
-        iconStyle: "text-[#6F65F1] bg-[#F3FAFD]",
-        title: "No. of hires",
-        value: `32`,
-        diff: "",
-        sub: "vs. prev period ",
-        subvalue: '75%'
-    },
-    {
-        icon: "/reportsIcons/Percent.png",
-        iconStyle: "text-[#FF5353] bg-[#F0F9F9]",
-        title: "Conversion Rate (Leads to recruitment)",
-        value: `65%`,
-        diff: "",
-        sub: "vs. prev period ",
-        subvalue: '15%'
-    },
-
-];
-
-
+function parsePercent(value) {
+    // accepts "36%" or "36" or number; returns number from 0..100
+    if (value == null) return 0;
+    if (typeof value === "number") return value;
+    const str = String(value).trim();
+    if (!str) return 0;
+    return Number(str.replace("%", "")) || 0;
+}
 
 export default function VenueManagerReports() {
     const [activeTab, setActiveTab] = useState("byAge");
+    const [loading, setLoading] = useState(false);
+    const [selectedDateRange, setSelectedDateRange] = useState(dateOptions[0]);
 
-    // Build chart data for recharts: [{ month, current, previous }, ...]
+    const { fetchVenueManagerreport, venueManagerreport } = useRecruitmentTemplate() || {};
+
+    useEffect(() => {
+        const loadData = async () => {
+            if (!fetchVenueManagerreport) return;
+            setLoading(true);
+            try {
+                await fetchVenueManagerreport();
+            } catch (e) {
+                // swallow - UI will use available venueManagerreport if any
+                console.error("fetchVenueManagerreport failed", e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        loadData();
+    }, [fetchVenueManagerreport]);
+
+    const handleChange = (selectedOption) => {
+        const value = selectedOption?.value ?? "";
+        setSelectedDateRange(selectedOption);
+        fetchVenueManagerreport(value); // send only when value exists
+    };
+    // safe getters and fallbacks from venueManagerreport
+    console.log('venueManagerreport', venueManagerreport)
+    const api = venueManagerreport || {}; // entire response object expected to be what your hook exposes
+    const data = venueManagerreport || {};
+    const report = data?.report || {};
+    const chartDataFromApi = data?.chartData || {};
+    const demographics = data?.coaches_demographics || {};
+    const qualificationsApi = data?.qualificationsAndExperince || {};
+    const onboardingApi = data?.onboardingResults || {};
+    const sourceOfLeadsApi = data?.sourceOfLeads || [];
+    const highDemandVenuesApi = data?.highDemandVenues || [];
+    const topAgentsApi = data?.topAgentsMostHires || [];
+    const callStats = {
+        callsMade: data?.report?.telephoneInterviews?.current ?? null,
+        callsPrevious: data?.report?.telephoneInterviews?.previous ?? null,
+        avgCallDuration: data?.recruitmentCallStats?.avgCallDuration?.value || null,
+        timeToFirstContact: data?.recruitmentCallStats?.timeToFirstContact?.value || null,
+        callsMadeValue: data?.recruitmentCallStats?.callsMade?.value || null,
+        callsMadePrevious: data?.recruitmentCallStats?.callsMade?.previous || null,
+    };
+
+    // Build stats array to match original UI shape
+    const stats = [
+        {
+            icon: "/reportsIcons/user-group.png",
+            iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
+            title: "Total Leads",
+            value: `${report?.totalLeads?.current ?? 0}`,
+            diff: "", // no diff in API; keep blank
+            sub: "vs. prev period",
+            subvalue: `${report?.totalLeads?.previous ?? 0}`,
+        },
+        {
+            icon: "/reportsIcons/Calling.png",
+            iconStyle: "text-[#E769BD] bg-[#F3FAFD]",
+            title: "No. of telephone interviews",
+            value: `${report?.telephoneInterviews?.current ?? 0}`,
+            diff: "", // API has conversion rates separately
+            sub: "vs. prev period",
+            subvalue: `${report?.telephoneInterviews?.previous ?? 0}`,
+        },
+        {
+            icon: "/reportsIcons/Note.png",
+            iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
+            title: "No. of practical assessments",
+            value: `${report?.practicalAssessments?.current ?? 0}`,
+            diff: "",
+            sub: "vs. prev period",
+            subvalue: `${report?.practicalAssessments?.previous ?? 0}`,
+        },
+        {
+            icon: "/reportsIcons/Recruitment.png",
+            iconStyle: "text-[#6F65F1] bg-[#F3FAFD]",
+            title: "No. of hires",
+            value: `${report?.hires?.current ?? 0}`,
+            diff: "",
+            sub: "vs. prev period",
+            subvalue: `${report?.hires?.previous ?? 0}`,
+        },
+        {
+            icon: "/reportsIcons/Percent.png",
+            iconStyle: "text-[#FF5353] bg-[#F0F9F9]",
+            title: "Conversion Rate (Leads to recruitment)",
+            value: `${report?.conversionRate?.current ?? report?.conversionRate ?? "0%"}`,
+            diff: "",
+            sub: "vs. prev period",
+            subvalue: `${report?.conversionRate?.previous ?? "0%"}`,
+        },
+    ];
+
+    // Build chartData for recharts: [{ month, current, previous }, ...]
     const chartData = useMemo(() => {
-        const labels = dashboardData.recruitmentChart.labels;
-        return labels.map((m, idx) => ({
+        // months order
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        // API shape: chartData.leads.currentYear: { Jan: 0, ... }
+        const leadsCurrent = chartDataFromApi?.leads?.currentYear || {};
+        const hiresCurrent = chartDataFromApi?.hires?.currentYear || {};
+        // If your API uses different keys, these fallbacks keep chart empty
+        return months.map((m) => ({
             month: m,
-            current: dashboardData.recruitmentChart.leads[idx],
-            previous: dashboardData.recruitmentChart.hires[idx],
+            current: Number(leadsCurrent[m] ?? 0),
+            previous: Number(hiresCurrent[m] ?? 0),
         }));
-    }, []);
+    }, [chartDataFromApi]);
+
+    // coachesDemographics mapping: produce arrays matching earlier UI
+    const coachesDemographics = useMemo(() => {
+        // byAge: convert { age, count, percent } -> { label, value, percent: number }
+        const byAgeRaw = demographics?.byAge || [];
+        const byAge = byAgeRaw.map((a) => ({
+            label: String(a.age),
+            value: a.count ?? 0,
+            percent: parsePercent(a.percent),
+        }));
+
+        // byGender: { gender, count, percent }
+        const byGenderRaw = demographics?.byGender || [];
+        const byGender = byGenderRaw.map((g) => ({
+            label: g.gender,
+            value: g.count ?? 0,
+            percent: parsePercent(g.percent),
+        }));
+
+        // byVenue: { venueName, count, percent }
+        const byVenueRaw = demographics?.byVenue || [];
+        const venue = byVenueRaw.map((v) => ({
+            label: v.venueName,
+            value: v.count ?? 0,
+            percent: parsePercent(v.percent),
+        }));
+
+        return {
+            byAge,
+            byGender,
+            venue,
+        };
+    }, [demographics]);
+
+    // Qualifications array to match earlier UI structure (label, value, img)
+    const qualifications = useMemo(() => {
+        // API: { faQualification, dbsCertificate, coachingExperience, noExperience }
+        return [
+            { label: "FA Qualification(s)", value: qualificationsApi?.faQualification ?? 0, img: '/reportsIcons/fa.png' },
+            { label: "DBS Certificate", value: qualificationsApi?.dbsCertificate ?? 0, img: '/reportsIcons/dbs.png' },
+            { label: "2–3 years of coaching experience", value: qualificationsApi?.coachingExperience ?? 0, img: '/reportsIcons/coaching.png' },
+            { label: "No experience", value: qualificationsApi?.noExperience ?? 0, img: '/reportsIcons/experience.png' },
+        ];
+    }, [qualificationsApi]);
+
+    // Onboarding results list - convert api fields into array similar to original
+    const onboardingResults = useMemo(() => {
+        return [
+            { label: "Average Call Grade", value: onboardingApi?.averageCallGrade ?? "0%" },
+            { label: "Average Practical Assessment Grade", value: onboardingApi?.averagePracticalAssessmentGrade ?? "0%" },
+            { label: "Average Coach Education Pass Mark", value: onboardingApi?.averageCoachEducationPassMark ?? "0%" },
+        ];
+    }, [onboardingApi]);
+
+    // sourceOfLeads (map to label/value/percent)
+    const sourceOfLeads = (sourceOfLeadsApi || []).map((s) => ({
+        label: s.source ?? s.label ?? "Unknown",
+        value: s.count ?? 0,
+        percent: parsePercent(s.percent ?? s.percentage ?? `${s.count ?? 0}`),
+    }));
+
+    // highDemandVenues
+    const highDemandVenues = (highDemandVenuesApi || []).map((v) => ({
+        label: v.venueName ?? v.label ?? "Unknown",
+        value: v.count ?? 0,
+        percent: parsePercent(v.percent ?? v.percentage ?? 0),
+    }));
+
+    // topAgents
+    const topAgents = (topAgentsApi || []).map((a) => ({
+        label: `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim() || "Unknown",
+        value: a.totalHires ?? a.value ?? 0,
+    }));
+
+    // helper to parse number from percent-like strings for width calculations
+    const percentFromString = (s) => parsePercent(s);
 
     return (
         <div className="min-h-screen bg-gray-50 p-6 pt-0">
@@ -211,9 +252,10 @@ export default function VenueManagerReports() {
 
                     <Select
                         components={{ IndicatorSeparator: () => null }}
-                        placeholder='Date Range'
+                        placeholder="Date Range"
                         options={dateOptions}
-                        defaultValue={dateOptions[0]}
+                        value={selectedDateRange}
+                        onChange={handleChange}
                         styles={customSelectStyles}
                         className="md:w-40"
                     />
@@ -251,7 +293,7 @@ export default function VenueManagerReports() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
+
                 <div className="lg:col-span-2 space-y-6">
 
                     <div className="grid  gap-6">
@@ -298,7 +340,7 @@ export default function VenueManagerReports() {
                                 </div>
                             </div>
                         </div>
- 
+
 
                     </div>
 
@@ -311,7 +353,7 @@ export default function VenueManagerReports() {
                             </div>
 
                             <div className="mb-3">
-                                <div className="grid md:grid-cols-2 items-center gap-3 mb-3 border border-[#E2E1E5] p-1 w-full rounded-2xl">
+                                <div className="grid md:grid-cols-3 items-center gap-3 mb-3 border border-[#E2E1E5] p-1 w-full rounded-2xl">
                                     <button
                                         onClick={() => setActiveTab("byAge")}
                                         className={`px-3 py-2 rounded-xl text-sm ${activeTab === "byAge" ? "bg-[#237FEA] text-white" : "text-gray-600"
@@ -328,10 +370,16 @@ export default function VenueManagerReports() {
                                         By gender
                                     </button>
 
-                                 
+                                    <button
+                                        onClick={() => setActiveTab("venue")}
+                                        className={`px-3 py-2 rounded-xl text-sm ${activeTab === "venue" ? "bg-[#237FEA] text-white" : "text-gray-600"
+                                            }`}
+                                    >
+                                        By venue
+                                    </button>
                                 </div>
 
-                                {dashboardData.coachesDemographics[activeTab]?.slice(0, 6).map((d, i) => (
+                                {(coachesDemographics[activeTab] || []).slice(0, 6).map((d, i) => (
                                     <div key={i} className="mb-3 flex items-center gap-2">
                                         <div className="flex justify-between  mb-1">
                                             <p className="text-sm text-gray-700">{d.label}</p>
@@ -339,11 +387,11 @@ export default function VenueManagerReports() {
 
                                         <div className="w-full bg-gray-100 h-2 rounded-full">
                                             <div
-                                                style={{ width: `${d.percent}%` }}   // percent bar accuracy fixed
+                                                style={{ width: `${d.percent ?? 0}%` }}   // percent bar accuracy fixed
                                                 className="h-2 rounded-full bg-[#237FEA]"
                                             ></div>
                                         </div>
-                                        <p className="text-sm text-gray-500">{d.percent}%</p>
+                                        <p className="text-sm text-gray-500">{d.percent ?? 0}%</p>
 
                                     </div>
                                 ))}
@@ -357,7 +405,7 @@ export default function VenueManagerReports() {
                             </div>
 
                             <div className="space-y-4">
-                                {dashboardData.qualifications.map((q, i) => (
+                                {qualifications.map((q, i) => (
                                     <div key={i}>
                                         <div className="flex gap-3 items-center">
                                             <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center text-[#237FEA]">
@@ -372,7 +420,7 @@ export default function VenueManagerReports() {
                                                 </div>
 
                                                 <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                    <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${(q.value / 5) * 100}%` }}></div>
+                                                    <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${(q.value / (Math.max(1, Math.max(...qualifications.map(x => x.value))))) * 100}%` }}></div>
                                                 </div>
                                             </div>
                                         </div>
@@ -393,50 +441,55 @@ export default function VenueManagerReports() {
                             </div>
 
                             <div className="space-y-3">
-                                {dashboardData.sourceOfLeads.map((s, i) => (
+                                {sourceOfLeads.map((s, i) => (
                                     <div key={i}>
                                         <div className="flex justify-between items-center mb-1">
                                             <p className="text-sm text-gray-700">{s.label}</p>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${s.value}%` }}></div>
+                                                <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${s.percent ?? s.value ?? 0}%` }}></div>
                                             </div>
-                                            <p className="text-sm text-gray-500">{s.value}%</p>
+                                            <p className="text-sm text-gray-500">{s.percent ?? `${s.value}%`}</p>
 
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                         <div className="bg-white p-5 rounded-2xl">
-                            <h3 className="text-[22px] font-semibold text-gray-800 mb-3">Top agents with most hires</h3>
-                            <div className="space-y-3">
-                                {dashboardData.topAgents.map((item, i) => (<div key={i} className="mb-4">
-                                    <div className="flex gap-5 justify-between">
+                        <div className="">
 
-                                        <div className="w-10 h-10">
-                                            <img src="/reportsIcons/agent.png" alt="" />
+
+                            <div className="bg-white p-5 rounded-2xl">
+                                <h3 className="text-[22px] font-semibold text-gray-800 mb-3">Top agents with most hires</h3>
+                                <div className="space-y-3">
+                                    {topAgents.map((item, i) => (<div key={i} className="mb-4">
+                                        <div className="flex gap-5 justify-between">
+
+                                            <div className="w-10 h-10">
+                                                <img src="/reportsIcons/agent.png" alt="" />
+                                            </div>
+                                            <div className="w-full">  <div className="flex justify-between items-center mb-1">
+                                                <p className="text-sm text-[#344054] font-semibold">{item.label}</p>
+
+                                            </div >
+                                                <div className="flex items-center gap-2">
+
+                                                    <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                        <div
+                                                            className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
+                                                            style={{ width: `${item.value}%` }}
+                                                        ></div>
+                                                    </div>
+                                                    <span className="text-xs text-[#344054] font-semibold">{item.value}</span>
+
+                                                </div></div>
                                         </div>
-                                        <div className="w-full">  <div className="flex justify-between items-center mb-1">
-                                            <p className="text-sm text-[#344054] font-semibold">{item.label}</p>
 
-                                        </div >
-                                            <div className="flex items-center gap-2">
-
-                                                <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                    <div
-                                                        className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                                        style={{ width: `${item.value}%` }}
-                                                    ></div>
-                                                </div>
-                                                <span className="text-xs text-[#344054] font-semibold">{item.value}</span>
-
-                                            </div></div>
                                     </div>
-
+                                    ))}
+                                    {topAgents.length === 0 && <p className="text-sm text-gray-500">No agents data available</p>}
                                 </div>
-                                ))}
                             </div>
                         </div>
                     </div>
@@ -461,8 +514,8 @@ export default function VenueManagerReports() {
                                 <div>
                                     <p className="text-[16px] ">No. of calls made</p>
                                     <div className="">
-                                        <h4 className="text-[22px] font-semibold my-1">1920</h4>
-                                        <span className="text-xs text-gray-400 block">vs. previous period <span className="text-red-500 font-semibold">2004</span></span>
+                                        <h4 className="text-[22px] font-semibold my-1">{report?.telephoneInterviews?.current ?? 0}</h4>
+                                        <span className="text-xs text-gray-400 block">vs. previous period <span className="text-red-500 font-semibold">{report?.telephoneInterviews?.previous ?? 0}</span></span>
                                     </div>
                                 </div>
                             </div>
@@ -473,8 +526,8 @@ export default function VenueManagerReports() {
                                 <div>
                                     <p className="text-[16px] ">Avg. duration of calls</p>
                                     <div className="">
-                                        <h4 className="text-[22px] font-semibold my-1">23 min</h4>
-                                        <span className="text-xs text-gray-400 block">vs. previous period <span className="text-red-500 font-semibold">18 months</span></span>
+                                        <h4 className="text-[22px] font-semibold my-1">{data?.recruitmentCallStats?.avgCallDuration?.value ?? "—"}</h4>
+                                        <span className="text-xs text-gray-400 block">vs. previous period <span className="text-red-500 font-semibold">{data?.recruitmentCallStats?.avgCallDuration?.previous ?? "—"}</span></span>
                                     </div>
                                 </div>
                             </div>
@@ -485,8 +538,8 @@ export default function VenueManagerReports() {
                                 <div>
                                     <p className="text-[16px] ">Avg. time duration of first contact</p>
                                     <div className="">
-                                        <h4 className="text-[22px] font-semibold my-1">3 hr 16 min</h4>
-                                        <span className="text-xs text-gray-400 block">vs. previous period <span className="text-red-500 font-semibold">1 hr 8 minutes</span> </span>
+                                        <h4 className="text-[22px] font-semibold my-1">{data?.recruitmentCallStats?.timeToFirstContact?.value ?? "—"}</h4>
+                                        <span className="text-xs text-gray-400 block">vs. previous period <span className="text-red-500 font-semibold">{data?.recruitmentCallStats?.timeToFirstContact?.previous ?? "—"}</span> </span>
                                     </div>
                                 </div>
                             </div>
@@ -500,20 +553,20 @@ export default function VenueManagerReports() {
                         </div>
 
                         <div className="space-y-3">
-                            {dashboardData.onboardingResults.map((r, i) => (
+                            {onboardingResults.map((r, i) => (
                                 <div key={i}>
                                     <p className="text-sm text-gray-700 mb-3">{r.label}</p>
                                     <div className="flex items-center gap-3"><div className="w-full bg-gray-100 h-2 rounded-full">
-                                        <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${parseInt(r.value)}%` }}></div>
+                                        <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${parsePercent(r.value)}%` }}></div>
                                     </div>
-                                        {r.value}</div>
+                                        <div className="text-sm text-gray-700">{r.value}</div></div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
 
-                    
+
                 </div>
             </div>
         </div>

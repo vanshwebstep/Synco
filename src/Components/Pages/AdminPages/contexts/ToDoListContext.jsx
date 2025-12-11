@@ -268,55 +268,55 @@ export const ToDoListProvider = ({ children }) => {
         }
     }, []);
 
-    const createToDoList = async (toDoListData) => {
-        setLoading(true);
-        console.log('toDoListData', toDoListData)
+   const createToDoList = async (toDoListData) => {
+    setLoading(true);
 
-        const headers = {
-            "Content-Type": "application/json",
-        };
+    try {
+        const headers = {};
 
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
         }
+
         let url = `${API_BASE_URL}/api/admin/holiday/to-do-list/create`;
 
+        const response = await fetch(url, {
+            method: "POST",
+            headers,            // ❌ No Content-Type when using FormData
+            body: toDoListData, // ✔ Send FormData directly
+        });
 
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers,
-                body: JSON.stringify(toDoListData),
-            });
+        const result = await response.json();
 
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.message || result || "Failed to create Template category");
-            }
-
-            await Swal.fire({
-                title: "Success!",
-                text: result.message || "Template Category has been created successfully.",
-                icon: "success",
-                confirmButtonText: "OK",
-            });
-            return result;
-
-        } catch (error) {
-            console.error("Error creating class schedule:", error);
-            await Swal.fire({
-                title: "Error",
-                text: error.message || "Something went wrong while creating class schedule.",
-                icon: "error",
-                confirmButtonText: "OK",
-            });
-            throw error;
-        } finally {
-            await fetchToDoList();
-            setLoading(false);
+        if (!response.ok) {
+            throw new Error(result.message || "Failed to create To-do List");
         }
-    };
+
+        await Swal.fire({
+            title: "Success!",
+            text: result.message || "To-do List created successfully.",
+            icon: "success",
+            confirmButtonText: "OK",
+        });
+
+        return result;
+
+    } catch (error) {
+        console.error("Error creating To-do List:", error);
+        await Swal.fire({
+            title: "Error",
+            text: error.message || "Something went wrong.",
+            icon: "error",
+            confirmButtonText: "OK",
+        });
+        throw error;
+
+    } finally {
+        await fetchToDoList();
+        setLoading(false);
+    }
+};
+
     const createCommunicationTemplate = async (communicationTemplateData) => {
         setLoading(true);
         console.log('communicationTemplateData', communicationTemplateData)

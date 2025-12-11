@@ -619,29 +619,27 @@ const List = () => {
             ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
         };
         console.log('payload', payload)
-       
+
         try {
             if (comesFrom === "trials") {
                 await createBookMembershipByfreeTrial(payload, TrialData.id);
             }
-            if (comesFrom === "waitingList") {
+            else if (comesFrom === "waitingList") {
                 await createBookMembershipByWaitingList(payload, TrialData.bookingId);
             }
             else if (leadId) {
                 await createBookMembership(payload, leadId);
-
             }
             else {
                 await createBookMembership(payload);
             }
-            // console.log("Final Payload:", JSON.stringify(payload, null, 2));
-            // Optionally show success alert or reset form
+
         } catch (error) {
             console.error("Error while submitting:", error);
-            // Optionally show error alert
         } finally {
-            setIsSubmitting(false); // Stop loading
+            setIsSubmitting(false);
         }
+
         // console.log("Final Payload:", JSON.stringify(payload, null, 2));
         // send to API with fetch/axios
     };

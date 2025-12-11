@@ -346,7 +346,8 @@ const StudentProfile = ({ StudentProfile }) => {
             if (result.isConfirmed) {
                 // Navigate to your component/route
                 navigate("/weekly-classes/find-a-class/book-a-membership", {
-                    state: { TrialData: StudentProfile },
+
+                    state: { TrialData: StudentProfile, comesFrom: "trials" },
                 });
             }
         });
@@ -656,7 +657,7 @@ const StudentProfile = ({ StudentProfile }) => {
                                         e.currentTarget.src = "https://cdn-icons-png.flaticon.com/512/147/147144.png"; // fallback if image fails to load
                                     }}
                                 />
-                               <div>
+                                <div>
                                     <div className="text-[24px] font-semibold leading-tight">
                                         {status === 'pending' || status === 'attended'
                                             ? 'Booked By'
@@ -741,9 +742,9 @@ const StudentProfile = ({ StudentProfile }) => {
                                 </div>
 
 
-                                 {status?.trim().toLowerCase() == "pending" ||
-                                status?.trim().toLowerCase() == "not attend"||
-                                status?.trim().toLowerCase() == "not attended" &&
+                                {status?.trim().toLowerCase() == "pending" ||
+                                    status?.trim().toLowerCase() == "not attend" ||
+                                    status?.trim().toLowerCase() == "not attended" &&
                                     status?.trim().toLowerCase() !== "attended" &&
                                     status?.trim().toLowerCase() !== "no_membership" &&
                                     status?.trim().toLowerCase() !== "rebooked" &&

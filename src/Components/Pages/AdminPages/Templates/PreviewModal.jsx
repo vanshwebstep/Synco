@@ -46,38 +46,63 @@ export default function PreviewModal({ mode_of_communication, title, category, t
   console.log('templateId', templateId)
 
   // ✅ Save final preview data
-  const handleSavePreview = async () => {
+ const handleSavePreview = async () => {
+    const formData = new FormData();
 
-    const finalBlocks = await convertNestedImages([...previewData.blocks]);
+    const finalBlocks = [...previewData.blocks];
 
-    // Loop and convert images
-    for (let i = 0; i < finalBlocks.length; i++) {
-      if (finalBlocks[i].type === "image" && finalBlocks[i].url?.startsWith("blob")) {
-        finalBlocks[i].url = await convertBlobToBase64(finalBlocks[i].url);
-      }
+    let imageIndex = 0; // for naming file fields
+
+    const collectImages = async (block) => {
+        if (block.type === "image" && block.url?.startsWith("blob")) {
+            const response = await fetch(block.url);
+            const blob = await response.blob();
+            const file = new File([blob], `image_${imageIndex}.png`, { type: blob.type });
+
+            // Append file (binary)
+            formData.append("images", file);
+
+            // Replace URL in JSON with placeholder (backend will map index)
+            block.url = `__image_${imageIndex}__`;
+
+            imageIndex++;
+        }
+
+        // sectionGrid deep images
+        if (block.type === "sectionGrid" && Array.isArray(block.columns)) {
+            for (let col of block.columns) {
+                for (let child of col) {
+                    await collectImages(child);
+                }
+            }
+        }
+    };
+
+    // Extract all images
+    for (let block of finalBlocks) {
+        await collectImages(block);
     }
-    const Payload = {
-      mode_of_communication: mode_of_communication.value,
-      title,
-      template_category_id: category,
-      tags,
-    };
-    const finalJSON = {
-      subject: previewData.subject,
-      blocks: finalBlocks
-    };
-    const mergedPayload = {
-      ...Payload,
-      content: finalJSON
-    };
 
-   await createCommunicationTemplate(mergedPayload)
-    console.log("✅ Final JSON to Send API:", finalJSON);
-        navigate('/templates/settingList');
+    // Prepare JSON without images
+    const contentJSON = JSON.stringify({
+        subject: previewData.subject,
+        blocks: finalBlocks
+    });
 
-    // sending whole preview as one JSON
-    onSave?.(finalJSON);  // ✅ parent receives full JSON
-  };
+    formData.append("mode_of_communication", mode_of_communication.value);
+    formData.append("title", title);
+    formData.append("template_category_id", category);
+    formData.append("tags", JSON.stringify(tags));
+
+    // Append JSON content
+    formData.append("content", contentJSON);
+
+    // Now send FormData
+    await createCommunicationTemplate(formData);
+
+    navigate('/templates/settingList');
+};
+
   const handleUpdatePreview = async () => {
 
     const finalBlocks = await convertNestedImages([...previewData.blocks]);

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { GripVertical, MoreVertical, Plus } from "lucide-react";
 import {
@@ -18,6 +18,7 @@ const steps = [
 const uid = () => String(Date.now()) + "-" + Math.floor(Math.random() * 10000);
 export default function CourseCreateForm() {
     const [activeStep, setActiveStep] = useState(0);
+    const [searchValue, setSearchValue] = useState("");
 
     const [formData, setFormData] = useState({
         title: "",
@@ -38,7 +39,7 @@ export default function CourseCreateForm() {
         settings: {},
         certificate: "",
     });
-
+    console.log('activeStep', activeStep)
     // Validation per step
     const validateStep = () => {
         if (activeStep === 0) {
@@ -127,37 +128,44 @@ export default function CourseCreateForm() {
     };
 
     return (
-        <div className="p-8 bg-[#F7F8FA] min-h-screen">
+        <div className="p-8 bg-[#F7F8FA] ">
             {/* Back Button */}
             <button className="flex items-center gap-2 text-gray-700 mb-4">
                 <ArrowLeft size={18} />
-                <span>Create a Course</span>
+                <span className="font-semibold text-xl">Create a Course</span>
             </button>
 
             {/* White Card Container */}
-            <div className="bg-white rounded-2xl p-8">
+            <div className="bg-white min-h-screen pb-5  border overflow-auto border-[#E2E1E5] rounded-4xl overflow-hidden ">
                 {/* Steps Header */}
-                <div className="flex justify-center items-center gap-5 text-[13px] font-medium text-[#8A8A8A]">
+                <div className="flex p-8 border-b px-14 overflow-auto border-[#E2E1E5] justify-center items-center gap-5 text-[13px] font-medium bg-[#FAFAFA] text-[#8A8A8A]">
                     {steps.map((label, index) => (
                         <div key={index} className="flex flex-col w-full">
-                            <span
-                                className={`text-sm font-medium ${activeStep === index
-                                    ? "text-black"
-                                    : activeStep > index
-                                        ? "text-[#237FEA]"
-                                        : "text-gray-400"
-                                    }`}
-                            >
-                                {label}
-                            </span>
 
+                            <div className="flex gap-2 items-center ">
+                                {activeStep > index && (
+                                    <>
+                                        <img src="/reportsIcons/check.png" className="w-4" alt="" />
+                                    </>
+                                )}
+                                <span
+                                    className={`text-[18px] font-medium ${activeStep === index
+                                        ? "text-black"
+                                        : activeStep > index
+                                            ? "text-[#282829]"
+                                            : "text-[#717073]"
+                                        }`}
+                                >
+                                    {label}
+                                </span>
+                            </div>
                             <div
-                                className={`h-[8px] w-[189px]  transition-all rounded-full mt-2 
+                                className={`h-[8px]   transition-all  mt-2 
                 ${activeStep === index
                                         ? "bg-[#237FEA]"
                                         : activeStep > index
-                                            ? "bg-[#A5C9FF]"
-                                            : "bg-gray-200"
+                                            ? "bg-[#237FEA]"
+                                            : "bg-[#DEDEDE]"
                                     }`}
                             ></div>
                         </div>
@@ -210,63 +218,133 @@ export default function CourseCreateForm() {
 
                     {/* Placeholder for Other Steps */}
                     {activeStep === 1 && (
-                        <div className=" w-1/2 mx-auto space-y-6">
+                        <div className="w-1/2 mx-auto space-y-6">
 
                             {/* Module Header */}
-                            <div className="flex justify-between items-center">
-                                <h3 className="font-medium text-lg">Module {formData.modules.length + 1}</h3>
+                            <div className="flex bg-[#FAFAFA] justify-between border border-[#E2E1E5] rounded-2xl p-3 items-center">
+                                <h3 className="font-medium text-lg">
+                                    Modules ({formData.modules.length})
+                                </h3>
 
-
+                                <button
+                                    onClick={() =>
+                                        setFormData({
+                                            ...formData,
+                                            modules: [
+                                                ...formData.modules,
+                                                {
+                                                    id: Date.now(),
+                                                    title: "",
+                                                    media: [],
+                                                },
+                                            ],
+                                        })
+                                    }
+                                    className="px-4 py-2 my-2 bg-[#237FEA] text-white rounded-lg text-sm"
+                                >
+                                    + Add Module
+                                </button>
                             </div>
 
-                            {/* Module Title Input */}
-                            <div className=" space-y-4  ">
-                                <label className="text-sm font-medium">Enter Module Title</label>
-                                <div className="relative   ">
+                            {/* MODULE LIST */}
+                            {formData.modules.map((module, index) => (
+                                <div
+                                    key={module.id}
+                                    className="border border-gray-200 rounded-xl p-5 space-y-5 bg-white shadow-sm"
+                                >
+                                    {/* Module Title */}
+                                    <div>
+                                        <label className="text-sm font-medium">Module Title</label>
+                                        <input
+                                            type="text"
+                                            value={module.title}
+                                            onChange={(e) => {
+                                                const updated = [...formData.modules];
+                                                updated[index].title = e.target.value;
+                                                setFormData({ ...formData, modules: updated });
+                                            }}
+                                            className={`${inputClass} w-full mt-2`}
+                                        />
+                                    </div>
 
-                                    <input
-                                        type="text"
-                                        value={formData.modules[0]?.title || ""}
-                                        onChange={(e) => {
-                                            const updated = [...formData.modules];
-                                            if (updated.length === 0) return;
+                                    {/* Add Media Upload */}
+                                    <div>
+                                        <input
+                                            id={`mediaUpload_${module.id}`}
+                                            type="file"
+                                            multiple
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                const files = Array.from(e.target.files);
+                                                const updated = [...formData.modules];
 
-                                            updated[0].title = e.target.value;
-                                            setFormData({ ...formData, modules: updated });
-                                        }}
-                                        className={`${inputClass} w-full`}
-                                    /><button
-                                        onClick={() =>
-                                            setFormData({
-                                                ...formData,
-                                                modules: [
-                                                    ...formData.modules,
-                                                    {
-                                                        id: Date.now(),
-                                                        title: "",
-                                                        media: [],
-                                                    },
-                                                ],
-                                            })
-                                        }
-                                        className="px-4 absolute bottom-0 top-0 right-2 my-2 bg-[#237FEA] text-white rounded-lg text-sm font-semibold"
-                                    >
-                                        + Add Module
-                                    </button>
+                                                updated[index].media = [
+                                                    ...updated[index].media,
+                                                    ...files,
+                                                ];
+
+                                                setFormData({ ...formData, modules: updated });
+                                            }}
+                                        />
+
+                                        <div
+                                            onClick={() =>
+                                                document.getElementById(`mediaUpload_${module.id}`).click()
+                                            }
+                                            className="w-full h-40 border-2 border-dashed border-gray-300 rounded-xl flex justify-center items-center cursor-pointer text-gray-500 text-sm bg-gray-50"
+                                        >
+                                            + Add Media
+                                        </div>
+
+                                        {/* Media Preview */}
+                                        {module.media.length > 0 && (
+                                            <div className="mt-4 grid grid-cols-2 gap-4">
+                                                {module.media.map((file, mediaIndex) => (
+                                                    <div
+                                                        key={mediaIndex}
+                                                        className="relative border rounded-lg p-2 bg-white"
+                                                    >
+                                                        {/* REMOVE BUTTON */}
+                                                        <button
+                                                            onClick={() => {
+                                                                const updated = [...formData.modules];
+                                                                updated[index].media = updated[index].media.filter(
+                                                                    (_, i) => i !== mediaIndex
+                                                                );
+                                                                setFormData({ ...formData, modules: updated });
+                                                            }}
+                                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex justify-center items-center text-sm shadow"
+                                                        >
+                                                            ×
+                                                        </button>
+
+                                                        {file.type.startsWith("image/") ? (
+                                                            <img
+                                                                src={URL.createObjectURL(file)}
+                                                                className="w-full h-28 object-cover rounded-md"
+                                                                alt="preview"
+                                                            />
+                                                        ) : (
+                                                            <p className="text-sm text-gray-700 truncate">
+                                                                📄 {file.name}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-
-                            {/* Add Media Box */}
-                            <div className="w-full h-40 border-2 border-dashed border-gray-300 rounded-xl flex justify-center items-center cursor-pointer text-gray-500 text-sm bg-gray-50">
-                                + Add Media
-                            </div>
+                            ))}
                         </div>
                     )}
 
+
+
                     {activeStep === 2 && (
-                        <div className="space-y-6">
+                        <div className="space-y-6 ">
                             {/* Header */}
-                            <div className="flex justify-between items-center">
+                            <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-6 px-6">
                                 <h3 className="font-semibold text-xl">Questions</h3>
                                 <button
                                     onClick={addQuestion}
@@ -279,38 +357,32 @@ export default function CourseCreateForm() {
                             <DragDropContext onDragEnd={onDragEnd}>
                                 <Droppable droppableId="questions" type="QUESTION">
                                     {(provided) => (
-                                        <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-4">
+                                        <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-4 px-6">
                                             {formData.assessment.map((q, qIndex) => (
                                                 <Draggable key={q.id} draggableId={q.id} index={qIndex}>
                                                     {(provided) => (
                                                         <div
                                                             ref={provided.innerRef}
                                                             {...provided.draggableProps}
-                                                            className="bg-white rounded-2xl border border-gray-300 shadow-sm overflow-hidden"
+                                                            className="bg-white rounded-2xl border border-gray-300 overflow-hidden"
                                                         >
                                                             {/* Compact header (always visible) */}
                                                             <div className="flex items-center justify-between p-4 pb-0  rounded-t-2xl">
-                                                                <div className="block items-center gap-3 w-full mx-auto">
-                                                                    <span {...provided.dragHandleProps} className="text-gray-400 flex justify-center w-full mx-auto cursor-grab">
+                                                                <div className="block items-center gap-3 w-full mx-auto relative">
+                                                                    <span {...provided.dragHandleProps} className="absolute top-2  text-gray-400 flex justify-center w-full mx-auto cursor-grab">
                                                                         <GripVertical size={18} className="rotate-90" />
                                                                     </span>
                                                                     {collapsedMap[q.id] && (<div className="flex flex-col min-w-0">
-                                                                        <div className="text-base font-medium pb-5  truncate">
+                                                                        <div className="text-base font-semibold text-[#3E3E47] pb-5  truncate">
                                                                             {q.question?.trim() ? q.question : "Untitled question"}
                                                                         </div>
 
                                                                     </div>)}
                                                                 </div>
 
-                                                                <div className="flex items-center gap-3">
-                                                                    <button
-                                                                        onClick={() =>
-                                                                            setCollapsedMap((p) => ({ ...p, [q.id]: !p[q.id] }))
-                                                                        }
-                                                                        className="text-sm text-[#237FEA] font-semibold"
-                                                                    >
-                                                                        {collapsedMap[q.id] ? "Edit" : "Collapse"}
-                                                                    </button>
+                                                                <div onClick={() =>
+                                                                    setCollapsedMap((p) => ({ ...p, [q.id]: !p[q.id] }))
+                                                                } className="flex items-center gap-3">
 
                                                                     <MoreVertical size={18} className="text-gray-400" />
                                                                 </div>
@@ -329,7 +401,7 @@ export default function CourseCreateForm() {
                                                                                 updated[qIndex].question = e.target.value;
                                                                                 setFormData({ ...formData, assessment: updated });
                                                                             }}
-                                                                            className="w-full rounded-lg px-0 pb-3 mb-0 text-base outline-none focus:ring-2 focus:ring-blue-200"
+                                                                            className="w-full text-base font-semibold text-[#3E3E47] px-0 pb-3 mb-0 text-base outline-none"
                                                                         />
 
                                                                         <div>
@@ -367,7 +439,7 @@ export default function CourseCreateForm() {
                                                                                                                 updated[qIndex].options[optIndex].text = e.target.value;
                                                                                                                 setFormData({ ...formData, assessment: updated });
                                                                                                             }}
-                                                                                                            className="w-1/2 border rounded-lg px-4 py-3 bg-gray-50 border-gray-100 text-sm outline-none"
+                                                                                                            className="w-1/2 border rounded-xl px-4 py-3 bg-[#FAFAFA] border-[#E2E1E5] text-sm outline-none"
                                                                                                         />
                                                                                                     </div>
                                                                                                 )}
@@ -412,203 +484,207 @@ export default function CourseCreateForm() {
                     )}
 
                     {activeStep === 3 && (
-                        <div className="space-y-6 px-4 py-2">
+                        <div className="space-y-3 ">
 
-                            <h2 className="text-xl font-semibold mb-4">General Settings</h2>
+                            <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-3 px-6">
+                                <h2 className="text-xl font-semibold mb-4">General Settings</h2>
 
-                            {/* Duration */}
-                            <div className="border-b  pb-6">
-                                <div className="flex gap-10 w-1/2">
-                                    <div className="min-w-[320px] max-w-[320px]">
-                                        <label className="font-semibold text-base ">Duration</label>
-                                    </div>
-                                    <div>
-                                        <div className="flex gap-4 mt-2 items-center">
-                                            <input
-                                                type="number"
-                                                value={formData.settings.duration || ""}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        settings: { ...formData.settings, duration: e.target.value },
-                                                    })
-                                                }
-                                                className={inputClass}
-                                            />
-
-                                            <select
-                                                value={formData.settings.durationType || "Minutes"}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        settings: { ...formData.settings, durationType: e.target.value },
-                                                    })
-                                                }
-                                                className={`${inputClass} `}
-                                            >
-                                                <option>Minutes</option>
-                                                <option>Hours</option>
-                                                <option>Days</option>
-                                            </select>
+                            </div>
+                            <div className="p-6">
+                                {/* Duration */}
+                                <div className="border-b border-[#E2E1E5]  pb-5">
+                                    <div className="flex gap-10 w-1/2">
+                                        <div className="min-w-[320px] max-w-[320px]">
+                                            <label className="font-semibold text-base ">Duration</label>
                                         </div>
-                                        <p className="text-gray-500 text-sm mt-2">
-                                            The duration of the course.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Re-take Course */}
-                            <div className="border-b pb-6">
-                                <div className="flex  gap-10 w-1/2">
-                                    <div className="min-w-[320px] max-w-[320px]">
-                                        <label className="font-semibold text-base ">Re-take Course</label>
-                                    </div>
-                                    <div>
-                                        <input
-                                            type="number"
-                                            value={formData.settings.retake || ""}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    settings: { ...formData.settings, retake: e.target.value },
-                                                })
-                                            }
-                                            className={inputClass}
-                                        />
-
-                                        <p className="text-gray-500 text-sm mt-2">
-                                            How many times a user can re-take this course. Set to 0 to disable.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Passing Condition */}
-                            <div className="border-b pb-6">
-                                <div className="flex  gap-10 w-1/2">
-                                    <div className="min-w-[320px] max-w-[320px]">
-                                        <label className="font-semibold text-base ">Passing Condition Value</label>
-                                    </div>
-                                    <div>
-                                        <div className="flex items-center gap-3 mt-2">
-                                            <input
-                                                type="number"
-                                                value={formData.settings.passValue || ""}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        settings: { ...formData.settings, passValue: e.target.value },
-                                                    })
-                                                }
-                                                className={inputClass}
-                                            />
-
-                                            <span className="text-gray-600 text-lg">%</span>
-                                        </div>
-
-                                        <p className="text-gray-500 text-sm mt-2">
-                                            The passing percentage required.
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Compulsory Course */}
-                            <div className="border-b pb-6">
-                                <div className="flex  gap-10 w-1/2">
-                                    <div className="min-w-[320px] max-w-[320px]">
-                                        <label className="font-semibold text-base  block mb-3">
-                                            Is this course compulsory?
-                                        </label>
-                                    </div>
-                                    <div>
-                                        <div className="space-y-2 text-sm">
-                                            <label className="flex gap-3 items-center">
+                                        <div>
+                                            <div className="flex gap-4 mt-2 items-center">
                                                 <input
-                                                    type="radio"
-                                                    checked={formData.settings.compulsory === true}
-                                                    onChange={() =>
+                                                    type="number"
+                                                    value={formData.settings.duration || ""}
+                                                    onChange={(e) =>
                                                         setFormData({
                                                             ...formData,
-                                                            settings: { ...formData.settings, compulsory: true },
+                                                            settings: { ...formData.settings, duration: e.target.value },
                                                         })
                                                     }
+                                                    className={inputClass}
                                                 />
-                                                Yes
-                                            </label>
 
-                                            <label className="flex gap-3 items-center">
-                                                <input
-                                                    type="radio"
-                                                    checked={formData.settings.compulsory === false}
-                                                    onChange={() =>
+                                                <select
+                                                    value={formData.settings.durationType || "Minutes"}
+                                                    onChange={(e) =>
                                                         setFormData({
                                                             ...formData,
-                                                            settings: { ...formData.settings, compulsory: false },
+                                                            settings: { ...formData.settings, durationType: e.target.value },
                                                         })
                                                     }
-                                                />
-                                                No
-                                            </label>
+                                                    className={`${inputClass} `}
+                                                >
+                                                    <option>Minutes</option>
+                                                    <option>Hours</option>
+                                                    <option>Days</option>
+                                                </select>
+                                            </div>
+                                            <p className="text-gray-500 text-sm mt-2">
+                                                The duration of the course.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Reminder Setting */}
-                            <div className="pb-6">
-                                <div className="flex  gap-10 w-1/2">
-                                    <div className="min-w-[320px] max-w-[320px]">
-                                        <label className="font-semibold text-base ">Set reminder Every</label>
-                                    </div>
-                                    <div>
-                                        <div className="flex gap-4 mt-2 items-center">
+                                {/* Re-take Course */}
+                                <div className="border-b border-[#E2E1E5] py-5">
+                                    <div className="flex  gap-10 w-1/2">
+                                        <div className="min-w-[320px] max-w-[320px]">
+                                            <label className="font-semibold text-base ">Re-take Course</label>
+                                        </div>
+                                        <div>
                                             <input
                                                 type="number"
-                                                value={formData.settings.reminderValue || ""}
+                                                value={formData.settings.retake || ""}
                                                 onChange={(e) =>
                                                     setFormData({
                                                         ...formData,
-                                                        settings: { ...formData.settings, reminderValue: e.target.value },
+                                                        settings: { ...formData.settings, retake: e.target.value },
                                                     })
                                                 }
                                                 className={inputClass}
                                             />
 
-                                            <select
-                                                value={formData.settings.reminderType || "Minutes"}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        settings: { ...formData.settings, reminderType: e.target.value },
-                                                    })
-                                                }
-                                                className={inputClass}
-                                            >
-                                                <option>Minutes</option>
-                                                <option>Hours</option>
-                                                <option>Days</option>
-                                            </select>
+                                            <p className="text-gray-500 text-sm mt-2">
+                                                How many times a user can re-take this course. Set to 0 to disable.
+                                            </p>
                                         </div>
+                                    </div>
+                                </div>
 
-                                        <p className="text-gray-500 text-sm mt-2">
-                                            Reminder will start once user has completed course.
-                                        </p>
-                                    </div></div>
+                                {/* Passing Condition */}
+                                <div className="border-b border-[#E2E1E5] py-5">
+                                    <div className="flex  gap-10 w-1/2">
+                                        <div className="min-w-[320px] max-w-[320px]">
+                                            <label className="font-semibold text-base ">Passing Condition Value</label>
+                                        </div>
+                                        <div>
+                                            <div className="flex items-center gap-3 mt-2">
+                                                <input
+                                                    type="number"
+                                                    value={formData.settings.passValue || ""}
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            settings: { ...formData.settings, passValue: e.target.value },
+                                                        })
+                                                    }
+                                                    className={inputClass}
+                                                />
+
+                                                <span className="text-gray-600 text-lg">%</span>
+                                            </div>
+
+                                            <p className="text-gray-500 text-sm mt-2">
+                                                The passing percentage required.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Compulsory Course */}
+                                <div className="border-b border-[#E2E1E5] py-5">
+                                    <div className="flex  gap-10 w-1/2">
+                                        <div className="min-w-[320px] max-w-[320px]">
+                                            <label className="font-semibold text-base  block mb-3">
+                                                Is this course compulsory?
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <div className="space-y-2 text-sm">
+                                                <label className="flex gap-3 items-center">
+                                                    <input
+                                                        type="radio"
+                                                        checked={formData.settings.compulsory === true}
+                                                        onChange={() =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                settings: { ...formData.settings, compulsory: true },
+                                                            })
+                                                        }
+                                                    />
+                                                    Yes
+                                                </label>
+
+                                                <label className="flex gap-3 items-center">
+                                                    <input
+                                                        type="radio"
+                                                        checked={formData.settings.compulsory === false}
+                                                        onChange={() =>
+                                                            setFormData({
+                                                                ...formData,
+                                                                settings: { ...formData.settings, compulsory: false },
+                                                            })
+                                                        }
+                                                    />
+                                                    No
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Reminder Setting */}
+                                <div className="py-5">
+                                    <div className="flex  gap-10 w-1/2">
+                                        <div className="min-w-[320px] max-w-[320px]">
+                                            <label className="font-semibold text-base ">Set reminder Every</label>
+                                        </div>
+                                        <div>
+                                            <div className="flex gap-4 mt-2 items-center">
+                                                <input
+                                                    type="number"
+                                                    value={formData.settings.reminderValue || ""}
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            settings: { ...formData.settings, reminderValue: e.target.value },
+                                                        })
+                                                    }
+                                                    className={inputClass}
+                                                />
+
+                                                <select
+                                                    value={formData.settings.reminderType || "Minutes"}
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            settings: { ...formData.settings, reminderType: e.target.value },
+                                                        })
+                                                    }
+                                                    className={inputClass}
+                                                >
+                                                    <option>Minutes</option>
+                                                    <option>Hours</option>
+                                                    <option>Days</option>
+                                                </select>
+                                            </div>
+
+                                            <p className="text-gray-500 text-sm mt-2">
+                                                Reminder will start once user has completed course.
+                                            </p>
+                                        </div></div>
+                                </div>
                             </div>
                         </div>
                     )}
 
                     {activeStep === 4 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 p-6">
 
                             {/* LEFT SIDE FORM */}
                             <div className="space-y-6">
 
                                 {/* Certificate Title */}
                                 <div>
-                                    <label className="font-semibold text-base ">Certificate Title</label>
+                                    <label className="font-semibold text-base">Certificate Title</label>
                                     <input
                                         type="text"
                                         value={formData.certificate.title || ""}
@@ -621,27 +697,51 @@ export default function CourseCreateForm() {
                                                 },
                                             })
                                         }
-                                        className={`${inputClass} w-full mt-2`}
+                                        className={`${inputClass} w-10/12 block mt-2`}
                                     />
                                 </div>
 
-                                {/* Upload Certificate */}
+                                {/* Upload Document */}
                                 <div>
-                                    <label className="font-semibold text-xl ">Upload Certificate</label>
+                                    <label className="font-semibold text-xl">Upload Certificate</label>
                                     <br />
+
+                                    {/* Hidden file input */}
+                                    <input
+                                        type="file"
+                                        id="uploadDoc"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (!file) return;
+
+                                            setFormData({
+                                                ...formData,
+                                                certificate: {
+                                                    ...formData.certificate,
+                                                    file,
+                                                },
+                                            });
+                                        }}
+                                    />
+
+                                    {/* Button triggers file input */}
                                     <button
+                                        type="button"
+                                        onClick={() => document.getElementById("uploadDoc").click()}
                                         className="mt-4 px-4 py-2 bg-[#237FEA] text-white rounded-lg text-sm font-semibold"
                                     >
-                                        + Upload PDF
+                                        + Upload Document
                                     </button>
+
+
                                 </div>
 
                                 {/* Disable Certificate */}
-                                <div>
-                                    <label className="flex gap-3 items-center text-xl cursor-pointer">
+                                <div className="mt-8">
+                                    <label className="flex gap-3 items-center text-lg cursor-pointer">
                                         <input
                                             type="checkbox"
-                                            className="xl"
                                             checked={formData.certificate.disabled || false}
                                             onChange={(e) =>
                                                 setFormData({
@@ -660,45 +760,69 @@ export default function CourseCreateForm() {
 
                             {/* RIGHT SIDE PREVIEW */}
                             <div>
-                                <h3 className="font-semibold text-base  mb-3">Certificate Preview</h3>
+                                <h3 className="font-semibold text-base mb-3">Certificate Preview</h3>
 
-                                <div className="border rounded-xl overflow-hidden shadow-md bg-white p-4">
+                                <div className="border border-[#E2E1E5] bg-[#FAFAFA] overflow-hidden bg-white p-4">
                                     <img
-                                        src="/images/certificate-sample.png"
+                                        src={
+                                            formData?.certificate?.file &&
+                                                formData.certificate.file.type.startsWith("image/")
+                                                ? URL.createObjectURL(formData.certificate.file)
+                                                : "/reportsIcons/img-certificate.png"
+                                        }
+
                                         className="w-full rounded-lg"
                                         alt="certificate preview"
+                                    />
+                                </div>
+                            </div>
+
+                        </div>
+                    )}
+
+
+                    {activeStep === 5 && (
+                        <div className="py-6 px-6 w-full md:w-1/2 font-bold">
+                            <div>
+                                <label className="font-semibold text-xl text-[#3E3E47]">
+                                    Select who is notified about this course
+                                </label>
+
+                                <div className="flex relative">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
+
+                                    <input
+                                        type="text"
+                                        placeholder="Search"
+                                        className={`${inputClass} font-normal w-full mt-3 ps-14`}
+                                        value={searchValue}
+                                        onChange={(e) => setSearchValue(e.target.value)}
                                     />
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {activeStep === 5 && (
-                        <div className="py-20  w-1/2 font-bold">
-                            <div>
-                                <label className="font-semibold text-xl text-base ">Select Who is notified abouth this course</label>
-                                
-                                <input
-                                    type="text"
-                                    placeholder="search"
-                                    className={`${inputClass} font-normal w-full mt-2`}
-                                />
-                            </div>
-                        </div>
-                    )}
                 </motion.div>
 
                 {/* Action Buttons */}
-                <div className="flex w-1/2 mx-auto justify-between mt-10">
+                <div
+                    className={`flex gap-2 px-4 mx-auto mt-10 ${activeStep > 1
+                        ? "w-full justify-start"
+                        : activeStep === 3
+                            ? "justify-end w-full"
+                            : "w-1/2 justify-between"
+                        }`}
+                >
                     <button
                         onClick={handleBack}
                         disabled={activeStep === 0}
                         className={`px-6 py-3 border border-gray-300 rounded-lg ${activeStep === 0
-                            ? "opacity-     cursor-not-allowed"
+                            ? "opacity-    cursor-not-allowed"
                             : "hover:bg-gray-100 hover:border-gray-600"
                             }`}
                     >
-                        Cancel
+                        Back
                     </button>
 
                     {activeStep < steps.length - 1 ? (
@@ -709,7 +833,7 @@ export default function CourseCreateForm() {
                             Next
                         </button>
                     ) : (
-                        <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <button className="px-6 py-3 bg-[#237FEA] text-white rounded-lg ">
                             Finish
                         </button>
                     )}

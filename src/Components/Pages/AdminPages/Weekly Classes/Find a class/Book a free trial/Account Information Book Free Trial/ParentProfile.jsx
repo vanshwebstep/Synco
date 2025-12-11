@@ -364,7 +364,7 @@ const ParentProfile = ({ ParentProfile }) => {
         if (result.isConfirmed) {
             // Navigate to your component/route
             navigate("/weekly-classes/find-a-class/book-a-membership", {
-                state: { TrialData: ParentProfile, comesFrom: "Trials" },
+                state: { TrialData: ParentProfile, comesFrom: "trials" },
             });
         }
     });

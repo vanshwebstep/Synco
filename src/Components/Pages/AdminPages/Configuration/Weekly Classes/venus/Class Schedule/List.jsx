@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Create from '../Create';
 import { Check } from "lucide-react";
 import Loader from '../../../../contexts/Loader';
 import { useVenue } from '../../../../contexts/VenueContext';
@@ -39,24 +38,26 @@ const List = () => {
     };
 
     // Scroll to the start time dynamically (instant)
-    const scrollToStartTime = () => {
-        if (!formData?.startTime) return;
+   const scrollToStartTime = () => {
+    if (!formData?.startTime) return;
 
-        requestAnimationFrame(() => {
-            const list = document.querySelector(".react-datepicker__time-list");
-            if (!list) return;
+    requestAnimationFrame(() => {
+        const list = document.querySelector(".react-datepicker__time-list");
+        if (!list) return;
 
-            const normalizedTime = formData.startTime
-                .replace(/^0+/, "")
-                .replace(/\s?(AM|PM)$/i, "");
+        // Keep AM/PM!
+        const normalizedTime = formData.startTime.trim(); // e.g. "1:00 PM"
 
-            const target = Array.from(list.children).find((el) =>
-                el.textContent?.trim().includes(normalizedTime)
-            );
+        const target = Array.from(list.children).find((el) =>
+            el.textContent?.trim() === normalizedTime
+        );
 
-            if (target) target.scrollIntoView({ block: "center" }); // instant jump
-        });
-    };
+        if (target) {
+            target.scrollIntoView({ block: "center" });
+        }
+    });
+};
+
 
 
     // console.log('openDropdownSessionId', openDropdownSessionId)
@@ -358,8 +359,10 @@ const List = () => {
             hours = 0;
         }
 
-        const date = new Date();
+        // IMPORTANT FIX: avoid timezone shifts from today's date
+        const date = new Date("1970-01-01T00:00:00");
         date.setHours(hours, minutes, 0, 0);
+
         return date;
     };
 
@@ -514,29 +517,29 @@ const List = () => {
                                                                             className={`transition-all duration-300 overflow-hidden ${openTerms[term.id] ? "max-h-[1000px]" : "max-h-0"
                                                                                 }`}
                                                                         >
-                                                                          {(() => {
-  let sessions = [];
+                                                                            {(() => {
+                                                                                let sessions = [];
 
-  // Step 1: parse only if it's a string
-  if (typeof term.sessionsMap === "string") {
-    try {
-      sessions = JSON.parse(term.sessionsMap);
-    } catch (err) {
-      console.error("Invalid sessionsMap JSON:", err);
-      sessions = [];
-    }
-  } 
-  // Step 2: or directly use it if it's already an array
-  else if (Array.isArray(term.sessionsMap)) {
-    sessions = term.sessionsMap;
-  }
+                                                                                // Step 1: parse only if it's a string
+                                                                                if (typeof term.sessionsMap === "string") {
+                                                                                    try {
+                                                                                        sessions = JSON.parse(term.sessionsMap);
+                                                                                    } catch (err) {
+                                                                                        console.error("Invalid sessionsMap JSON:", err);
+                                                                                        sessions = [];
+                                                                                    }
+                                                                                }
+                                                                                // Step 2: or directly use it if it's already an array
+                                                                                else if (Array.isArray(term.sessionsMap)) {
+                                                                                    sessions = term.sessionsMap;
+                                                                                }
 
-  // Step 3: safely render
-  return sessions.map((session) => {
-    const sessionMaps = session.sessionPlan || [];
-    const sessionState = sessionStates[session.sessionPlanId] || {};
+                                                                                // Step 3: safely render
+                                                                                return sessions.map((session) => {
+                                                                                    const sessionMaps = session.sessionPlan || [];
+                                                                                    const sessionState = sessionStates[session.sessionPlanId] || {};
 
-    return (
+                                                                                    return (
                                                                                         <div
                                                                                             key={session.id}
                                                                                             className="flex justify gap-4 items-start md:items-center border-b border-gray-300 mb-3 px-4 md:px-8 py-3"
@@ -610,7 +613,7 @@ const List = () => {
                                                                                                                 sessionDate: session.sessionDate,
                                                                                                                 classname: item,
                                                                                                                 statusIs: session?.sessionPlan?.status,
-                                                                                                                
+
                                                                                                             },
                                                                                                         })
                                                                                                     }
@@ -651,9 +654,9 @@ const List = () => {
                                                                                                 )}
                                                                                             </div>
                                                                                         </div>
-    );
-  });
-})()}
+                                                                                    );
+                                                                                });
+                                                                            })()}
                                                                         </div>
                                                                     </div>
                                                                 ))}

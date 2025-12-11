@@ -8,6 +8,8 @@ import { IoIosArrowDown } from "react-icons/io";
 import { motion } from "framer-motion";
 import { IoMdCheckmarkCircle } from "react-icons/io";
 import Select from "react-select";
+import DatePicker from "react-datepicker";
+
 import { useRecruitmentTemplate } from '../../../contexts/RecruitmentContext';
 import { useVenue } from '../../../contexts/VenueContext';
 import Loader from '../../../contexts/Loader';
@@ -84,7 +86,7 @@ const CandidateInfo = () => {
   console.log('telephoneCall', telephoneCall)
   const [rateOpen, setRateOpen] = useState(false);
   const [openCandidateStatusModal, setOpenCandidateStatusModal] = useState(false);
-  const { fetchCoachRecruitmentById, recuritmentDataById, rejectCoach, sendCoachMail } = useRecruitmentTemplate() || {};
+  const { fetchCoachRecruitmentById, recuritmentDataById, rejectCoach, sendCoachMail, createCoachRecruitmentById, createVenuManagerRecruitmentById } = useRecruitmentTemplate() || {};
   const { fetchVenueNames, venues } = useVenue() || {};
 
   const [searchParams] = useSearchParams();
@@ -105,6 +107,7 @@ const CandidateInfo = () => {
 
   console.log('recuritmentDataById', recuritmentDataById);
   const [form, setForm] = useState({
+    status: recuritmentDataById?.status || "",
     firstName: recuritmentDataById?.firstName || "",
     surname: recuritmentDataById?.lastName || "",
     dob: recuritmentDataById?.dob || "",
@@ -132,7 +135,7 @@ const CandidateInfo = () => {
   };
   const selectedVenueNames = venues
     .filter(v => form.venues.includes(v.id))
-    .map(v => v.name);
+    .map(v => v.id);
   const handleVenueChange = (id) => {
     setForm((prev) => ({
       ...prev,
@@ -280,6 +283,7 @@ const CandidateInfo = () => {
       });
     }
   }
+  const recruitedMode = form.status?.toLowerCase() === "recruited";
 
 
   // steps 
@@ -363,6 +367,7 @@ const CandidateInfo = () => {
     }
 
     setForm({
+      status: recuritmentDataById.status || "",
       firstName: recuritmentDataById.firstName || "",
       surname: recuritmentDataById.lastName || "",
       dob: recuritmentDataById.dob || "",
@@ -531,27 +536,27 @@ const CandidateInfo = () => {
         {
           venueId: parseInt(venueState), // assuming input is numeric ID
           classId: selectedClass.value,
-          date: selectedDate.value, // assuming dateOptions have `value` as YYYY-MM-DD
+          date: selectedDate, // assuming dateOptions have `value` as YYYY-MM-DD
           assignToVenueManagerId: venueManager.value,
         },
       ],
     }));
+    setOpenCandidateStatusModal(false)
     console.log("Payload:", payloadd);
     // send payload to your API here
   };
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     console.log("Submit Payload:", form);
 
     if (comesfrom === "coach") {
-      const payload = {
+      const payloadMain = {
         recruitmentLeadId: id,
         howDidYouHear: form.heardFrom,
         ageGroupExperience: form.ageGroup,
         accessToOwnVehicle: form.vehicle === "Yes",
         whichQualificationYouHave: form.qualification,
         footballExperience: form.experience,
-        availableVenueWork:
-          Array.isArray(form.venues) && form.venues.length > 0 ? "Yes" : "No",
+        availableVenueWork: selectedVenueNames,
         coverNote: form.coverNote,
         qualifyLead: payload.qualifyLead,
         telephoneCallSetupDate: payload.telephoneCallSetupDate,
@@ -562,20 +567,57 @@ const CandidateInfo = () => {
         telePhoneCallDeliveryPassionCoaching: payload.telePhoneCallDeliveryPassionCoaching,
         telePhoneCallDeliveryExperience: payload.telePhoneCallDeliveryExperience,
         telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryExperience,
-
-        "bookPracticalAssessment": [
-          {
-            "venueId": 72,
-            "classId": 94,
-            "date": "2025-12-15",
-            "assignToVenueManagerId": 335
-          }
-        ]
+        bookPracticalAssessment: payload.bookPracticalAssessment,
       };
-
-      console.log("Submit Payload (coach):", payload);
+      await createCoachRecruitmentById(payloadMain);
+      console.log("Submit Payload (coach):", payloadMain);
+    }
+    else if (comesfrom === "venueManager") {
+      const payloadMain = {
+        recruitmentLeadId: id,
+        howDidYouHear: form.heardFrom,
+        ageGroupExperience: form.ageGroup,
+        accessToOwnVehicle: form.vehicle === "Yes",
+        whichQualificationYouHave: form.qualification,
+        footballExperience: form.experience,
+        availableVenueWork: selectedVenueNames,
+        coverNote: form.coverNote,
+        qualifyLead: payload.qualifyLead,
+        telephoneCallSetupDate: payload.telephoneCallSetupDate,
+        telephoneCallSetupTime: payload.telephoneCallSetupTime,
+        // "telephoneCallSetupReminder": 15,
+        telephoneCallSetupEmail: payload.telephoneCallSetupEmail,
+        telePhoneCallDeliveryCommunicationSkill: payload.telePhoneCallDeliveryCommunicationSkill,
+        telePhoneCallDeliveryPassionCoaching: payload.telePhoneCallDeliveryPassionCoaching,
+        telePhoneCallDeliveryExperience: payload.telePhoneCallDeliveryExperience,
+        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryExperience,
+        bookPracticalAssessment: payload.bookPracticalAssessment,
+      };
+      await createVenuManagerRecruitmentById(payloadMain);
+      console.log("Submit Payload (coach):", payloadMain);
     } else {
-      console.log("Submit Payload in else:", form);
+      const payloadMain = {
+        recruitmentLeadId: id,
+        howDidYouHear: form.heardFrom,
+        ageGroupExperience: form.ageGroup,
+        accessToOwnVehicle: form.vehicle === "Yes",
+        whichQualificationYouHave: form.qualification,
+        footballExperience: form.experience,
+        availableVenueWork: selectedVenueNames,
+        coverNote: form.coverNote,
+        qualifyLead: payload.qualifyLead,
+        telephoneCallSetupDate: payload.telephoneCallSetupDate,
+        telephoneCallSetupTime: payload.telephoneCallSetupTime,
+        // "telephoneCallSetupReminder": 15,
+        telephoneCallSetupEmail: payload.telephoneCallSetupEmail,
+        telePhoneCallDeliveryCommunicationSkill: payload.telePhoneCallDeliveryCommunicationSkill,
+        telePhoneCallDeliveryPassionCoaching: payload.telePhoneCallDeliveryPassionCoaching,
+        telePhoneCallDeliveryExperience: payload.telePhoneCallDeliveryExperience,
+        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryExperience,
+        bookPracticalAssessment: payload.bookPracticalAssessment,
+      };
+      await createCoachRecruitmentById(payloadMain);
+      console.log("Submit Payload (coach):", payloadMain);
     }
   };
   console.log('payload', payload)
@@ -594,13 +636,29 @@ const CandidateInfo = () => {
 
     }
   };
+  const getStatusStyles = (status) => {
+    switch (status?.toLowerCase()) {
+      case "recruited":
+        return "text-[#34AE56] bg-[#E5F2EA]";
+      case "pending":
+        return "text-[#B38F00] bg-[#FFF7CC]";   // yellow tone
+      case "rejected":
+        return "text-[#D11A2A] bg-[#FFE5E8]";   // red tone
+      default:
+        return "text-gray-600 bg-gray-200";
+    }
+  };
+
   if (loading) return <Loader />;
 
   return (
     <>
-      <button className="p-3 text-[#34AE56] font-bold bg-[#E5F2EA] px-10 absolute right-0 top-0 rounded-2xl">
-        Recruited
+      <button
+        className={`p-3 capitalize font-bold px-10 absolute right-0 top-0 rounded-2xl ${getStatusStyles(form.status)}`}
+      >
+        {form.status}
       </button>
+
       {/* <button className="p-3 text-white font-bold bg-[#D95858] px-10 absolute right-0 top-0 rounded-2xl">
         Rejected
       </button> */}
@@ -864,12 +922,14 @@ const CandidateInfo = () => {
           </div>
 
           {/* SUBMIT BUTTON */}
-          <button
-            className="bg-blue-600 text-white px-5 py-3 rounded-xl"
-            onClick={handleSubmit}
-          >
-            Submit
-          </button>
+           {form.status !== 'recruited' && (
+            <button
+              onClick={handleSubmit}
+              className='bg-[#237FEA] mt-2 p-3 rounded-xl text-white hover:bg-[#237FEA]'
+            >
+              Submit
+            </button>
+          )}
 
 
           {/* comments */}
@@ -979,7 +1039,12 @@ const CandidateInfo = () => {
               {steps.map(step => (
                 <div
                   key={step.id}
-                  className={`relative ps-[20px]   ${!step.isEnabled ? "opacity-40 cursor-not-allowed pointer-events-none" : ""}`}
+                  className={`relative ps-[20px] ${recruitedMode
+                    ? ""
+                    : !step.isEnabled
+                      ? "opacity-40 cursor-not-allowed pointer-events-none"
+                      : ""
+                    }`}
                 >
                   {/* DOT */}
                   <div className="absolute -left-3 top-1 w-3 h-3 rounded-full bg-black"></div>
@@ -990,6 +1055,7 @@ const CandidateInfo = () => {
 
                     {step.status !== "completed" && (
                       <button
+                        disabled={recruitedMode}
                         className="text-gray-400 text-sm"
                         onClick={() => toggleStep(step.id, "skipped")}
                       >
@@ -998,6 +1064,7 @@ const CandidateInfo = () => {
                     )}
                     {step.status === "skipped" && step.isEnabled && (
                       <button
+                        disabled={recruitedMode}
                         className="text-blue-600 text-sm mt-2"
                         onClick={() => toggleStep(step.id, "pending")}
                       >
@@ -1010,14 +1077,16 @@ const CandidateInfo = () => {
                   {step.actionType === "buttons" && (
                     <div className="flex gap-2 mt-3">
                       <button
-                        className="w-8 h-8 border rounded-lg"
-                        onClick={() => toggleStep(step.id, "skipped")}
+                        className={`w-8 h-8 border rounded-lg ${recruitedMode ? "opacity-50 cursor-not-allowed" : ""}`}
+                        onClick={() => !recruitedMode && toggleStep(step.id, "skipped")}
                       >
                         ✕
                       </button>
                       <button
-                        className="w-8 h-8 bg-blue-600 text-white rounded-lg"
-                        onClick={() => toggleStep(step.id, "completed")}
+
+                        disabled={recruitedMode}
+                        className={`w-8 h-8 bg-blue-600 text-white rounded-lg ${recruitedMode ? "opacity-50 cursor-not-allowed" : ""}`}
+                        onClick={() => !recruitedMode && toggleStep(step.id, "completed")}
                       >
                         ✓
                       </button>
@@ -1025,19 +1094,16 @@ const CandidateInfo = () => {
                   )}
 
                   {/* BUTTON */}
-                  {step.buttonText && step.status !== "skipped" && step.isEnabled && (
+                  {step.buttonText && (
                     <button
-                      className="mt-3 flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-xl"
+                      className={`mt-3 flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-xl `}
                       onClick={() => {
-                        if (step.id === 2) {
-                          toggleOpenStep(step.id);
-                        } else if (step.id === 3) {
-                          setRateOpen(true);
-                        } else if (step.id === 4) {
-                          setOpenCandidateStatusModal(true);
-                        }
-                      }}
 
+                        if (step.id === 2) toggleOpenStep(step.id);
+                        if (step.id === 3) setRateOpen(true);
+                        if (step.id === 4) setOpenCandidateStatusModal(true);
+
+                      }}
                     >
                       {step.buttonText}
                       {step.id === 2 && <IoIosArrowDown />}
@@ -1045,11 +1111,13 @@ const CandidateInfo = () => {
                   )}
 
 
+
                   {/* TELEPHONE CALL FORM */}
                   {step.id === 2 && step.isOpen && step.isEnabled && (
                     <div className="bg-gray-50 rounded-xl p-4 mt-3 space-y-3">
                       <input
                         type="date"
+                        disabled={recruitedMode}
                         value={telephoneCall.date}
                         className="border rounded-xl p-2"
                         onChange={(e) =>
@@ -1058,7 +1126,7 @@ const CandidateInfo = () => {
                       />
 
                       <input
-                        type="time"
+                        type="time" disabled={recruitedMode}
                         value={telephoneCall.time}
                         className="border rounded-xl p-2"
 
@@ -1069,6 +1137,7 @@ const CandidateInfo = () => {
 
                       <input
                         type="email"
+                        disabled={recruitedMode}
                         value={telephoneCall.email}
                         className="border rounded-xl p-2"
                         placeholder="Candidate email"
@@ -1079,6 +1148,7 @@ const CandidateInfo = () => {
                       />
 
                       <button
+                        disabled={recruitedMode}
                         className="w-full bg-blue-600 text-white py-2 rounded-xl"
                         onClick={confirmTelephoneCall}
                       >
@@ -1110,7 +1180,7 @@ const CandidateInfo = () => {
                   animate={{ scale: 1, opacity: 1 }}
                   className="bg-white rounded-2xl w-full max-w-lg p-6"
                 >
-                  <h3 className="text-lg font-semibold mb-4">Caaaall Scorecard</h3>
+                  <h3 className="text-lg font-semibold mb-4">Call Scorecard</h3>
 
                   {["communication", "passion", "experience", "knowledge"].map((key) => (
                     <div key={key} className="mb-4">
@@ -1149,6 +1219,7 @@ const CandidateInfo = () => {
                   <button
                     className="w-full bg-blue-600 text-white py-2 rounded-xl"
                     onClick={() => {
+
                       toggleStep(3, "completed"); // mark step completed
                       setRateOpen(false);
                       console.log("Saved delivery values:", telephoneCallDelivery);
@@ -1358,12 +1429,19 @@ const CandidateInfo = () => {
               <form onSubmit={handleSubmitPracticalAssesment} className="p-6">
                 <div className="mb-3">
                   <label className="text-black font-semibold text-[16px] mb-2 block">Venue</label>
-                  <input
-                    type="number"
+                  <select
+                    className="border border-[#E2E1E5] w-full rounded-2xl p-3"
                     value={venueState}
                     onChange={(e) => setVenueState(e.target.value)}
-                    className="border border-[#E2E1E5] w-full rounded-2xl p-3"
-                  />
+                  >
+                    <option value="">Select Venue</option>
+                    {venues.map((venue) => (
+                      <option key={venue.id} value={venue.id}>
+                        {venue.name}
+                      </option>
+                    ))}
+                  </select>
+
                 </div>
 
                 <div className="mb-3">
@@ -1380,13 +1458,12 @@ const CandidateInfo = () => {
 
                 <div className="mb-3">
                   <label className="text-black font-semibold text-[16px] mb-2 block">Date</label>
-                  <Select
-                    options={dateOptions}
-                    placeholder="Select Date"
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                    value={selectedDate}
-                    onChange={setSelectedDate}
+                  <DatePicker
+                    selected={selectedDate}
+                    onChange={(date) => setSelectedDate(date)}
+                    placeholderText="Select Date"
+                    className="border border-[#E2E1E5] w-full rounded-2xl p-3"
+                    dateFormat="dd/MM/yyyy"
                   />
                 </div>
 

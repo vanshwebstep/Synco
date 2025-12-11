@@ -502,7 +502,8 @@ const Update = () => {
   if (loading) return <Loader />;
   if (!id) return null;
   if (error) return <p className="text-red-500 text-center mt-5">{error}</p>;
-
+console.log('formData',formData)
+console.log('editPersonal',editPersonal)
   // console.log('isImageremove', isImageremove)
   return (
     <div className="md:max-w-[1043px] w-full mx-auto md:p-4 space-y-8">
@@ -570,7 +571,7 @@ const Update = () => {
                 </>
               )}
 
-              {formData.profile && editPersonal && (
+              { editPersonal && (
                 <>
                   <div className="absolute bottom-1 md:right-0 bg-black bg-opacity-30 text-white text-xs px-2 py-0.5 whitespace-nowrap rounded-full">
                     Edit Image

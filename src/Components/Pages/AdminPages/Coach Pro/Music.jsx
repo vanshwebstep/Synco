@@ -258,7 +258,7 @@ export default function MusicPlayer() {
                 <div className="bg-white rounded-2xl overflow-hidden">
                     <table className="w-full text-sm">
                         <thead className="bg-gray-100 text-gray-600">
-                            <tr>
+                               <tr className="bg-[#F5F5F5] border-b border-[#DBDBDB]">
                                 <th className="px-4 py-3 text-left">
                                     <input
                                         type="checkbox"
@@ -276,9 +276,10 @@ export default function MusicPlayer() {
 
                         <tbody>
                             {tracks.map((track) => (
+                              
                                 <tr
                                     key={track.id}
-                                    className={`border-t cursor-pointer ${currentTrack?.id === track.id ? "bg-gray-50" : ""}`}
+                                    className={`border-b bg-white border-[#EFEEF2]  cursor-pointer ${currentTrack?.id === track.id ? "bg-gray-50" : ""}`}
                                     onClick={() => onRowClick(track)}
                                 >
                                     <td className="px-4 py-3">

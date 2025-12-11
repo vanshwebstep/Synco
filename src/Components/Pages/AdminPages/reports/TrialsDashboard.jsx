@@ -380,9 +380,11 @@ const TrialsDashboard = () => {
         month: item.month,
         members: item.members,
     }));
+const year = new Date().getFullYear();
+const month = new Date().getMonth() + 1;
 
     const bookings =
-        membersData?.yealyGrouped?.[2025]?.monthlyGrouped?.[10]?.bookings || [];
+        membersData?.yealyGrouped?.[year]?.monthlyGrouped?.[month]?.bookings || [];
 
     // ✅ Group bookings by paymentPlan title
     const planCounts = {};

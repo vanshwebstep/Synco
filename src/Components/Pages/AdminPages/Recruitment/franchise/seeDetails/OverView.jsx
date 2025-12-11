@@ -60,10 +60,35 @@ const OverView = () => {
       knowledge: null,
     },
   });
-  const { fetchCoachRecruitmentById, recuritmentDataById, sendOfferMail, sendFranchiseMail, rejectFranchise } = useRecruitmentTemplate() || {};
+  console.log('telephoneCall', telephoneCall)
+  const [recruitmentData, setRecruitmentData] = useState({
+    recruitmentLeadId: 13,
+    howDidYouHear: "",
+    coverNote: "",
+    qualifyLead: false,
+
+    telephoneCallSetupDate: "",
+    telephoneCallSetupTime: "",
+    telephoneCallSetupReminder: "",
+    telephoneCallSetupEmail: "",
+
+    telePhoneCallDeliveryCommunicationSkill: "",
+    telePhoneCallDeliveryPassionCoaching: "",
+    telePhoneCallDeliveryExperience: "",
+    telePhoneCallDeliveryKnowledgeOfSSS: "",
+
+    location: "",
+    capitalAvailable: "",
+    discoveryDay: [],
+  });
+
+
+  const { fetchCoachRecruitmentById, recuritmentDataById, sendOfferMail, sendFranchiseMail, rejectFranchise, createFranchiseRecruitmentById } = useRecruitmentTemplate() || {};
   const { fetchVenueNames, venues } = useVenue() || {};
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
+  const comesfrom = searchParams.get("comesfrom");
+
   const [openCandidateStatusModal, setOpenCandidateStatusModal] = useState(false);
   const [openResultModal, setOpenResultModal] = useState(false);
   const [openOfferModal, setOpenOfferModal] = useState(false);
@@ -73,8 +98,26 @@ const OverView = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const commentsPerPage = 5; // Number of comments per page
   const { adminInfo } = useNotification();
+  const discoveryDayRaw = recuritmentDataById?.candidateProfile?.discoveryDay;
+
+  // Convert string → array
+  let discoveryDayArray = [];
+
+  if (typeof discoveryDayRaw === "string") {
+    try {
+      discoveryDayArray = JSON.parse(discoveryDayRaw);
+    } catch (e) {
+      discoveryDayArray = [];
+    }
+  } else if (Array.isArray(discoveryDayRaw)) {
+    discoveryDayArray = discoveryDayRaw;
+  }
+  console.log('discoveryDayArray', recuritmentDataById)
   const [form, setForm] = useState({
     firstName: recuritmentDataById?.firstName || "",
+    status: recuritmentDataById?.status || "",
+    discoveryDayDate: discoveryDayArray?.[0]?.day || "",
+    discoveryDayTime: discoveryDayArray?.[0]?.time || "",
     surname: recuritmentDataById?.lastName || "",
     dob: recuritmentDataById?.dob || "",
     age: recuritmentDataById?.age || "",
@@ -95,7 +138,7 @@ const OverView = () => {
     capitalAvailable: recuritmentDataById?.candidateProfile?.capitalAvailable || "",
     experience: recuritmentDataById?.candidateProfile?.footballExperience || "",
     venues: recuritmentDataById?.venues || [],
-    coverNote: recuritmentDataById?.coverNote || "",
+    coverNote: recuritmentDataById?.candidateProfile?.coverNote || "",
   });
 
 
@@ -235,36 +278,37 @@ const OverView = () => {
         : [...prev.venues, id],
     }));
   };
-
+  console.log('formform', form)
   // steps 
   const [steps, setSteps] = useState([
     {
       id: 1,
       title: "Qualify Lead",
-      actionType: "buttons", // show ✓ × buttons
-      status: "completed", // completed | pending | skipped
+      actionType: "buttons",
+      status: "completed",
+      isEnabled: true,
     },
-
     {
       id: 2,
       title: "Google Meet Call",
       buttonText: "Schedule a call",
       isOpen: false,
       status: "pending",
+      isEnabled: true, // because step 1 is already completed
     },
-
-
     {
       id: 3,
       title: "Delivery Google Meet",
       buttonText: "Scorecard",
       status: "pending",
+      isEnabled: false,
     },
     {
       id: 4,
       title: "Discovery day",
       date: "23 April, 2023",
       status: "pending",
+      isEnabled: false,
     },
     {
       id: 5,
@@ -272,9 +316,21 @@ const OverView = () => {
       resultPercent: "87%",
       resultStatus: "Passed",
       status: "pending",
+      isEnabled: false,
     },
   ]);
-
+  const [telephoneCallDelivery, setTelephoneCallDelivery] = useState({
+    telePhoneCallDeliveryCommunicationSkill: null,
+    telePhoneCallDeliveryPassionCoaching: null,
+    telePhoneCallDeliveryExperience: null,
+    telePhoneCallDeliveryKnowledgeOfSSS: null,
+  });
+  const scoreKeyMap = {
+    "Communication skill": "telePhoneCallDeliveryCommunicationSkill",
+    "Passion for coaching": "telePhoneCallDeliveryPassionCoaching",
+    "Experience": "telePhoneCallDeliveryExperience",
+    "Knowledge of SSS": "telePhoneCallDeliveryKnowledgeOfSSS",
+  };
   useEffect(() => {
     const init = async () => {
       setLoading(true);
@@ -284,8 +340,23 @@ const OverView = () => {
       setLoading(false);
     };
 
+
     if (id) init();
   }, [id, fetchCoachRecruitmentById, fetchComments, fetchVenueNames]);
+  const [payload, setPayload] = useState({
+    qualifyLead: null,
+
+    telephoneCallSetupDate: null,
+    telephoneCallSetupTime: null,
+    telephoneCallSetupReminder: null,
+    telephoneCallSetupEmail: null,
+
+    telePhoneCallDeliveryCommunicationSkill: null,
+    telePhoneCallDeliveryPassionCoaching: null,
+    telePhoneCallDeliveryExperience: null,
+    telePhoneCallDeliveryKnowledgeOfSSS: null,
+  });
+
   useEffect(() => {
     if (!recuritmentDataById) return;
 
@@ -305,12 +376,16 @@ const OverView = () => {
     }
 
     setForm({
+      status: recuritmentDataById?.status || "",
+
       firstName: recuritmentDataById.firstName || "",
       surname: recuritmentDataById.lastName || "",
       dob: recuritmentDataById.dob || "",
       age: recuritmentDataById.age || "",
       email: recuritmentDataById.email || "",
       phone: recuritmentDataById.phoneNumber || "",
+      discoveryDayDate: discoveryDayArray?.[0]?.day || "",
+      discoveryDayTime: discoveryDayArray?.[0]?.time || "",
       postcode: recuritmentDataById.postcode || "",
       howDidYouHear: recuritmentDataById?.candidateProfile?.howDidYouHear || "Indeed",
       location: recuritmentDataById?.candidateProfile?.location || "",
@@ -327,11 +402,14 @@ const OverView = () => {
       experience:
         recuritmentDataById?.candidateProfile?.footballExperience || "",
       venues: parsedVenues,   // ✅ FIX HERE
-      coverNote: recuritmentDataById?.coverNote || "",
+      coverNote: recuritmentDataById?.candidateProfile?.coverNote || "",
     });
   }, [recuritmentDataById]);
+
   useEffect(() => {
+    console.log('hey')
     if (!recuritmentDataById?.candidateProfile) return;
+    console.log('hey2')
 
     const p = recuritmentDataById.candidateProfile;
 
@@ -341,13 +419,22 @@ const OverView = () => {
       reminder: p.telephoneCallSetupReminder || "",
       email: p.telephoneCallSetupEmail || "",
       scores: {
-        communication: p.telePhoneCallDeliveryCommunicationSkill ?? null,
-        passion: p.telePhoneCallDeliveryPassionCoaching ?? null,
-        experience: p.telePhoneCallDeliveryExperience ?? null,
-        knowledge: p.telePhoneCallDeliveryKnowledgeOfSSS ?? null,
+        telePhoneCallDeliveryCommunicationSkill: p.telePhoneCallDeliveryCommunicationSkill ?? null,
+        telePhoneCallDeliveryPassionCoaching: p.telePhoneCallDeliveryPassionCoaching ?? null,
+        telePhoneCallDeliveryExperience: p.telePhoneCallDeliveryExperience ?? null,
+        telePhoneCallDeliveryKnowledgeOfSSS: p.telePhoneCallDeliveryKnowledgeOfSSS ?? null,
       },
     });
+    setTelephoneCallDelivery({
+      telePhoneCallDeliveryCommunicationSkill: p.telePhoneCallDeliveryCommunicationSkill ?? null,
+      telePhoneCallDeliveryPassionCoaching: p.telePhoneCallDeliveryPassionCoaching ?? null,
+      telePhoneCallDeliveryExperience: p.telePhoneCallDeliveryExperience ?? null,
+      telePhoneCallDeliveryKnowledgeOfSSS: p.telePhoneCallDeliveryKnowledgeOfSSS ?? null,
+    })
 
+    toggleStep(2, "completed")
+    toggleStep(3, "completed")
+    toggleStep(4, "completed")
     setSteps(prev =>
       prev.map(step => {
         if (step.id === 1) {
@@ -371,6 +458,7 @@ const OverView = () => {
       })
     );
   }, [recuritmentDataById]);
+
   const handleSendOfferMail = async (id) => {
     await sendOfferMail(id);
     setOpenOfferModal(false);
@@ -405,14 +493,51 @@ const OverView = () => {
 
     }
   };
+  const submitScorecard = () => {
+    setPayload(prev => ({ ...prev, ...telephoneCallDelivery }));
+
+
+    toggleStep(3, "completed");
+    setRateOpen(false);
+  };
+  const updateRecruitment = (key, value) => {
+    setRecruitmentData(prev => ({ ...prev, [key]: value }));
+  };
+
   // Toggle completion on click
   const toggleStep = (id, newStatus) => {
-    setSteps((prev) =>
-      prev.map((step) =>
-        step.id === id ? { ...step, status: newStatus } : step
-      )
-    );
+    setSteps((prev) => {
+      const updated = [...prev];
+      const index = updated.findIndex((s) => s.id === id);
+
+      updated[index].status = newStatus;
+
+      // enable next step only when current is completed
+      if (newStatus === "completed" && updated[index + 1]) {
+        updated[index + 1].isEnabled = true;
+      }
+
+      // if skipped — block next step
+      if (newStatus === "skipped" && updated[index + 1]) {
+        updated[index + 1].isEnabled = false;
+      }
+
+      // if unskip, go back to pending
+      if (newStatus === "pending") {
+        if (index > 0) {
+          updated[index].isEnabled = updated[index - 1].status === "completed";
+        }
+      }
+      if (id === 1) {
+        setPayload(prev => ({
+          ...prev,
+          qualifyLead: newStatus === "completed" ? true : null,
+        }));
+      }
+      return updated;
+    });
   };
+
   //steps
   const toggleOpenStep = (id) => {
     setSteps((prev) =>
@@ -421,7 +546,40 @@ const OverView = () => {
       )
     );
   };
+  const handleSubmit = async () => {
+    console.log("Submit Payload:", form);
 
+    if (comesfrom === "franchise") {
+      const payloadMain = {
+        recruitmentLeadId: id,
+        howDidYouHear: form.howDidYouHear,
+        location: form.location,
+        capitalAvailable: form.capitalAvailable,
+        coverNote: form.coverNote,
+        qualifyLead: payload.qualifyLead,
+
+        telephoneCallSetupDate: recruitmentData.telephoneCallSetupDate,
+        telephoneCallSetupTime: recruitmentData.telephoneCallSetupTime,
+        telephoneCallSetupReminder: recruitmentData.telephoneCallSetupReminder,
+
+        telePhoneCallDeliveryCommunicationSkill: payload.telePhoneCallDeliveryCommunicationSkill,
+        telePhoneCallDeliveryPassionCoaching: payload.telePhoneCallDeliveryPassionCoaching,
+        telePhoneCallDeliveryExperience: payload.telePhoneCallDeliveryExperience,
+        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryExperience,
+
+        discoveryDay: [
+          {
+            day: form.discoveryDayDate,
+            time: form.discoveryDayTime,
+          }
+        ],
+      };
+      await createFranchiseRecruitmentById(payloadMain);
+      console.log("Submit Payload (coach):", payloadMain);
+    } else {
+      console.log("Submit Payload in else:", form);
+    }
+  };
   if (loading) return <Loader />;
 
   return (
@@ -531,7 +689,6 @@ const OverView = () => {
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Location</label>
                 <input type="text"
-                  disabled={!!form.location}
                   value={form.location}
                   onChange={(e) => handleChange("location", e.target.value)}
                   className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="Chelesa" />
@@ -540,7 +697,6 @@ const OverView = () => {
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Capital available</label>
                 <input type="text"
-                  disabled={!!form.capitalAvailable}
                   value={form.capitalAvailable}
                   onChange={(e) => handleChange("capitalAvailable", e.target.value)} className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="£123,123" />
               </div>
@@ -558,10 +714,19 @@ const OverView = () => {
             </label>
 
             <textarea
-              className="input mt-1 border border-[#E2E1E5]   bg-[#FAFAFA] rounded-xl w-full p-3 h-32 resize-none"
+              name="coverNote" value={form.coverNote}
+              onChange={(e) => handleChange("coverNote", e.target.value)} className="input mt-1 border border-[#E2E1E5]   bg-[#FAFAFA] rounded-xl w-full p-3 h-32 resize-none"
               placeholder="Cover Note"
             ></textarea>
           </div>
+          {form.status !== 'recruited' && (
+            <button
+              onClick={handleSubmit}
+              className='bg-[#237FEA] mt-2 p-3 rounded-xl text-white hover:bg-[#237FEA]'
+            >
+              Submit
+            </button>
+          )}
 
 
           {/* comments */}
@@ -676,12 +841,7 @@ const OverView = () => {
                   key={step.id}
                   className={`
       relative ps-[20px]
-      ${step.status === "completed"
-                      ? "opacity-100"
-                      : step.status === "skipped"
-                        ? "opacity-40"
-                        : "opacity-60"
-                    }
+     ${!step.isEnabled ? "opacity-40 cursor-not-allowed pointer-events-none" : ""}
     `}
                 >
 
@@ -735,7 +895,10 @@ const OverView = () => {
 
                       <button
                         className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#237FEA] text-white"
-                        onClick={() => toggleStep(step.id, "completed")}
+                        onClick={() => {
+                          toggleStep(step.id, "completed");
+                          updateRecruitment("qualifyLead", true);
+                        }}
                       >
                         ✓
                       </button>
@@ -777,15 +940,19 @@ const OverView = () => {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div className="border border-[#E2E1E5]  rounded-xl px-3 py-2 flex items-center justify-between text-gray-500">
-                          <input type="date" className="outline-none w-full" />
+                          <input type="date" value={telephoneCall.date} onChange={(e) => updateRecruitment("telephoneCallSetupDate", e.target.value)}
+                            className="outline-none w-full" />
                         </div>
 
                         <div className="border border-[#E2E1E5]  rounded-xl px-3 py-2 flex items-center justify-between text-gray-500">
-                          <input type="time" className="outline-none w-full" />
+                          <input type="time" value={telephoneCall.time} onChange={(e) => updateRecruitment("telephoneCallSetupTime", e.target.value)}
+                            className="outline-none w-full" />
                         </div>
                       </div>
 
-                      <select className="border border-[#E2E1E5]  rounded-xl px-3 py-2.5 w-full text-gray-600">
+                      <select onChange={(e) =>
+                        updateRecruitment("telephoneCallSetupReminder", e.target.value)
+                      } value={telephoneCall.reminder} className="border border-[#E2E1E5]  rounded-xl px-3 py-2.5 w-full text-gray-600">
                         <option>When do you want to be reminded?</option>
                         <option>10 minutes before</option>
                         <option>30 minutes before</option>
@@ -992,18 +1159,25 @@ const OverView = () => {
                   <div>
                     <h3 className="text-lg font-semibold mb-6">Call Scorecard</h3>
 
-                    {[
-                      "Communication skill",
-                      "Passion for coaching",
-                      "Experience",
-                      "Knowledge of SSS",
-                    ].map((label) => (
+                    {["Communication skill", "Passion for coaching", "Experience", "Knowledge of SSS"].map((label) => (
                       <div key={label} className="mb-6">
                         <p className="font-semibold mb-2 text-[#494949]">{label}</p>
                         <div className="flex gap-4 text-[#494949]">
                           {[1, 2, 3, 4, 5].map((num) => (
                             <label key={num} className="flex items-center gap-1 cursor-pointer">
-                              <input type="radio" name={label} value={num} /> {num}
+                              <input
+                                type="radio"
+                                name={label}
+                                value={num}
+                                checked={telephoneCallDelivery[scoreKeyMap[label]] === num}
+                                onChange={() =>
+                                  setTelephoneCallDelivery(prev => ({
+                                    ...prev,
+                                    [scoreKeyMap[label]]: num
+                                  }))
+                                }
+                              />{" "}
+                              {num}
                             </label>
                           ))}
                         </div>
@@ -1011,7 +1185,8 @@ const OverView = () => {
                     ))}
                   </div>
 
-                  <button className="bg-[#237FEA] text-white py-3 rounded-xl w-full font-semibold hover:bg-blue-700 transition-all">
+                  <button disabled={form.status == 'recruited'} onClick={submitScorecard}
+                    className="bg-[#237FEA] text-white py-3 rounded-xl w-full font-semibold hover:bg-blue-700 transition-all">
                     Submit
                   </button>
                 </div>
@@ -1222,39 +1397,64 @@ const OverView = () => {
                   ✕
                 </button>
               </div>
-              <form action="" className='p-6'>
-                <div className="mb-3 relative">
-                  <label className="text-black font-semibold text-[16px] mb-2 block">
-                    Date
-                  </label>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setOpenDiscoverDayModal(false);
+                }}
+                className="p-6"
+              >
+                <fieldset disabled={form.status === "recruited"}>
+                  <div className="mb-3 relative">
+                    <label className="text-black font-semibold text-[16px] mb-2 block">
+                      Date
+                    </label>
 
+                    <input
+                      value={form.discoveryDayDate}
+                      onChange={(e) =>
+                        handleChange("discoveryDayDate", e.target.value)
+                      }
+                      type="text"
+                      placeholder="Search"
+                      className="border border-[#E2E1E5] w-full rounded-2xl p-3"
+                    />
+                  </div>
 
-                  <input
-                    type="text"
-                    placeholder="Search"
-                    className="border border-[#E2E1E5]  w-full rounded-2xl p-3 "
-                  />
-                </div>
+                  <div className="mb-3">
+                    <label className="text-black font-semibold text-[16px] mb-2 block">
+                      Time
+                    </label>
 
-                <div className="mb-3">
-                  <label className="text-black font-semibold text-[16px] mb-2 block">
-                    Time
-                  </label>
+                    <input
+                      value={form.discoveryDayTime}
+                      onChange={(e) =>
+                        handleChange("discoveryDayTime", e.target.value)
+                      }
+                      type="text"
+                      placeholder="Search"
+                      className="border border-[#E2E1E5] w-full rounded-2xl p-3"
+                    />
+                  </div>
 
-                  <Select
-                    options={payRateOptions}
-                    placeholder="Select pay rate"
-                    className="react-select-container"
-                    classNamePrefix="react-select"
-                  />
-                </div>
-
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  <button type='button' onClick={() => setOpenDiscoverDayModal(false)} className='w-full p-3 border border-[#E2E1E5]  text-[#717073] font-semibold rounded-2xl'>Cancel</button>
-                  <button type='submit' className='w-full p-3 border border-[#E2E1E5]  bg-[#237FEA] text-white font-semibold rounded-2xl'>Book</button>
-                </div>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <button
+                      type="button"
+                      onClick={() => setOpenDiscoverDayModal(false)}
+                      className="w-full p-3 border border-[#E2E1E5] text-[#717073] font-semibold rounded-2xl"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="w-full p-3 border border-[#E2E1E5] bg-[#237FEA] text-white font-semibold rounded-2xl"
+                    >
+                      Book
+                    </button>
+                  </div>
+                </fieldset>
               </form>
+
 
 
             </motion.div>
