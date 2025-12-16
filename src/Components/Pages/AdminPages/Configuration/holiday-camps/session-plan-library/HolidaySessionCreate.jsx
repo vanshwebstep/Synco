@@ -22,6 +22,7 @@ const HolidaySessionCreate = () => {
     const [editIndex, setEditIndex] = useState(null); // null = not editing
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const token = localStorage.getItem("adminToken");
+    const [removedImages, setRemovedImages] = useState([]); // Separate state for removed URLs
 
     useEffect(() => {
         setMounted(true);
@@ -50,7 +51,7 @@ const HolidaySessionCreate = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const visibleTabs = level ? tabs.filter((tab) => tab.toLowerCase() == level.toLowerCase()) : tabs;
- 
+
     const [recording, setRecording] = useState(null); // stores Blob
     const [audioURL, setAudioURL] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -146,7 +147,7 @@ const HolidaySessionCreate = () => {
 
     });
 
- 
+
     const [openForm, setOpenForm] = useState(false);
     const navigate = useNavigate();
     // useEffect(() => {
@@ -218,26 +219,29 @@ const HolidaySessionCreate = () => {
 
 
     const handleRemoveImage = (index) => {
-        // 1️⃣ Remove preview
+        console.log('handleRemoveImage', index)
         setPhotoPreview((prev) => {
-            // revoke old URL to avoid memory leak
-            URL.revokeObjectURL(prev[index]);
-            return prev.filter((_, i) => i !== index);
-        });
+            const urlToRemove = prev[index];
 
-        // 2️⃣ Remove corresponding file from images array (only files, not URLs)
-        setFormData((prev) => {
-            const existingFiles = Array.isArray(prev.images) ? prev.images : [];
-            return {
-                ...prev,
-                images: existingFiles.filter((_, i) => i !== index),
-            };
-        });
+            // Revoke the object URL to avoid memory leaks
+            URL.revokeObjectURL(urlToRemove);
 
-        // 3️⃣ Optionally, handle removal of existing uploaded images
-        // If you also want to remove an image that was already saved in `imageUrl`, 
-        // maintain a separate array like `removedImages` and push the removed URL there
-        // e.g., removedImages: [...prev.removedImages, prev.imageUrl[index]]
+            // Remove the URL from preview array
+            const newPreview = prev.filter((_, i) => i !== index);
+
+            // Update removedImages state outside formData
+            setRemovedImages((prevRemoved) => [...prevRemoved, urlToRemove]);
+
+            // Remove corresponding file from images in formData
+            setFormData((prevForm) => ({
+                ...prevForm,
+                images: Array.isArray(prevForm.images)
+                    ? prevForm.images.filter((_, i) => i !== index)
+                    : [],
+            }));
+
+            return newPreview;
+        });
     };
 
     const handleCreateSession = (finalSubmit = false) => {
@@ -254,7 +258,7 @@ const HolidaySessionCreate = () => {
 
         setIsProcessing(true);
 
-     
+
         const currentLevel = {
             level: activeTab,
             player,
@@ -419,6 +423,8 @@ const HolidaySessionCreate = () => {
             setActiveTab(tabFromUrl);
         }
     }, [level]);
+
+       
 
     useEffect(() => {
         const loadData = async () => {
@@ -719,7 +725,9 @@ const HolidaySessionCreate = () => {
                     existingImages: planToEdit.imageUrl || [], // keep previously saved images
                     newImages: formData.images || [], // new uploaded files
                 };
-
+                if (removedImages) {
+                    payload.removedImages = removedImages;
+                }
                 const res = await updateSessionExercise(exerciseId, payload);
                 const updatedExercise = res?.data?.data || res?.data;
                 if (!updatedExercise) throw new Error("Invalid API response");
@@ -762,7 +770,11 @@ const HolidaySessionCreate = () => {
                         }
                         : plan
                 );
+                console.log('Removed images:', removedImages);
 
+                if (Array.isArray(removedImages) && removedImages.length > 0) {
+                    updatedPlans.removedImages = removedImages;
+                }
                 setSelectedPlans(updatedPlans);
 
                 if (isEditMode) fetchGroupById();
@@ -812,6 +824,7 @@ const HolidaySessionCreate = () => {
                 title: "Error",
             });
         } finally {
+            setRemovedImages([])
             setPlanLoading(false);
             fetchExercises()
         }
@@ -865,7 +878,7 @@ const HolidaySessionCreate = () => {
             }
         });
     };
-
+ console.log('removedImages', removedImages)
     if (loading) {
         return (
             <>
@@ -1213,7 +1226,7 @@ const HolidaySessionCreate = () => {
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         setEditIndex(idx);
-
+                                                                        setRemovedImages([]);
                                                                         // Safely normalize backend images
                                                                         let existingImages = [];
 

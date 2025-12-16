@@ -547,7 +547,7 @@ const BookACamp = () => {
         const tokenLocal = localStorage.getItem("adminToken");
         if (!tokenLocal) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/list`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/comment/list`, {
                 method: "GET",
                 headers: { Authorization: `Bearer ${tokenLocal}` },
             });
@@ -566,7 +566,7 @@ const BookACamp = () => {
         if (!tokenLocal) return;
         try {
             Swal.fire({ title: "Creating ", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/create`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/comment/create`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${tokenLocal}` },
                 body: JSON.stringify({ comment }),
@@ -705,7 +705,8 @@ const BookACamp = () => {
             label: "Gender",
             options: [
                 { value: "Male", label: "Male" },
-                { value: "Female", label: "Female" }
+                { value: "Female", label: "Female" },
+                { value: "Other", label: "Other" }
             ]
         },
 
@@ -1215,7 +1216,7 @@ const BookACamp = () => {
                         <button
                             onClick={() => handleOpenPayment()}   // no errors → proceed
 
-                            className="bg-[#237FEA] text-sm px-8 py-2 rounded-md text-white hover:bg-[#1e6fd2] transition"
+                            className="bg-[#237FEA] text-white text-[18px] font-semibold border  px-6 py-3 rounded-lg transition hover:bg-[#1e6fd2] transition"
                         >
                             Make Payment
                         </button>

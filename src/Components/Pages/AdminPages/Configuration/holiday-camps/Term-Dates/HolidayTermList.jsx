@@ -147,7 +147,7 @@ const HolidayTermList = () => {
             <div className="flex flex-col md:flex-row justify-between p-4 gap-4 text-sm">
 
               {/* Camp Name */}
-              <div className="flex-shrink-0 w-full md:w-1/12">
+              <div className="flex-shrink-0 w-full md:w-3/12">
                 <h5 className="font-bold text-[18px]">Camp Name</h5>
                 <p className="font-semibold line-clamp-2 text-[16px]">{item?.holidayCamp?.name}</p>
               </div>
@@ -194,7 +194,7 @@ const HolidayTermList = () => {
                               <span className="font-semibold text-[16px]">
                                 {`Session ${i + 1}: ${session?.sessionPlan?.groupName || 'No Session Found'}`}
                               </span>
-                              <span className="text-[#717073] text-[16px]">{session.sessionDate}</span>
+                              <span className="text-[#717073] text-[16px] pl-10">{session.sessionDate}</span>
                             </div>
                           </li>
                         </ul>

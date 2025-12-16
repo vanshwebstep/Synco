@@ -269,20 +269,21 @@ const HolidayTermsCreate = () => {
 
     const handleMappingChange = (index, field, value) => {
         if (field === "sessionPlanId") {
+            // ignore empty values
+            if (!value) {
+                const updated = [...sessionMappings];
+                updated[index] = { ...updated[index], sessionPlanId: "" };
+                setSessionMappings(updated);
+                return;
+            }
+
             // check duplicate
             const alreadyExists = sessionMappings.some(
                 (item, idx) => idx !== index && item.sessionPlanId === value
             );
 
             if (alreadyExists) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Duplicate Session Plan',
-                    text: 'This session plan is already used in this term. Please select a unique one.',
-                    confirmButtonColor: '#d33'
-                });
-
-                return; // stop update
+                return;
             }
         }
 
@@ -442,6 +443,7 @@ const HolidayTermsCreate = () => {
             setIsLoading(false);
         }
     };
+      
     console.log('myGroupData?.id', myGroupData?.id)
 
 
@@ -667,17 +669,7 @@ const HolidayTermsCreate = () => {
 
                                 </AnimatePresence>
                             </div>
-                            <div className="flex mb-5 flex-wrap flex-col-reverse gap-4 md:flex-row md:items-center md:justify-end md:gap-4">
 
-                                <button
-                                    className={`min-w-40 font-semibold px-6 py-3 rounded-lg text-[14px] w-full md:w-auto 
-        ${!isGroupSaved ? 'bg-gray-400 cursor-not-allowed text-white' : 'bg-[#237FEA] hover:bg-blue-700 text-white'}`}
-                                    onClick={handleSaveCamp}
-                                >
-                                    {'Save'}
-                                </button>
-
-                            </div>
                         </div>
                     )}
                 </div>

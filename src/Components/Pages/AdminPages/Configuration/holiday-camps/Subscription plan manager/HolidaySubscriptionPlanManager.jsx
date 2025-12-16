@@ -27,9 +27,10 @@ const HolidaySubscriptionPlanManager = () => {
   const [studentKeys, setStudentKeys] = useState([]);
   const [groupByStudents, setGroupByStudents] = useState([]);
   const handleShow = async (id) => {
+    console.log('cs')
     const group = await fetchGroupById(id);
-    if (!group || !group.paymentPlans) return;
-    const grouped = group.paymentPlans.reduce((acc, plan) => {
+    if (!group || !group.holidayPaymentPlans) return;
+    const grouped = group.holidayPaymentPlans.reduce((acc, plan) => {
       if (!acc[plan.students]) acc[plan.students] = [];
       acc[plan.students].push(plan);
       return acc;
@@ -344,7 +345,7 @@ const HolidaySubscriptionPlanManager = () => {
                       </div>
 
                       <div className="text-sm text-gray-600 mb-1">
-                        <strong>No. of Plans:</strong> {user.paymentPlans?.length || 'null'}
+                        <strong>No. of Plans:</strong> {user.holidayPaymentPlans?.length || 'null'}
                       </div>
                       <div className="text-sm text-gray-600 mb-2">
                         <strong>Date:</strong> {new Date(user.createdAt).toLocaleDateString("en-GB", {
@@ -357,8 +358,8 @@ const HolidaySubscriptionPlanManager = () => {
                       <div className="flex gap-4 items-center">
                         <button
                           onClick={() => handleShow(user.id)}
-                          disabled={!user.paymentPlans?.length}
-                          className={`group ${!user.paymentPlans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
+                          disabled={!user.holidayPaymentPlans?.length}
+                          className={`group ${!user.holidayPaymentPlans?.length ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
                           <img
                             src="/images/icons/Show.png"

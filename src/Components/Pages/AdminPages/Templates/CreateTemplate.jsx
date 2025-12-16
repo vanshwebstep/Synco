@@ -201,6 +201,9 @@ export default function CreateTemplateSteps() {
 
 
             <div className="w-full  justify-center px-4 py-10">
+                <h2 className="text-[22px] md:text-[24px] font-semibold text-left mb-6">
+                    Templates
+                </h2>
                 <div className="m-auto max-w-fit item-center flex gap-5 justify-center py-2">
                     {step === 2 && (
                         <>

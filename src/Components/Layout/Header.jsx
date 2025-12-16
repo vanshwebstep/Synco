@@ -20,7 +20,10 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
   const weekday = currentDate.toLocaleString("default", { weekday: "long" }); // e.g., Monday
   const year = currentDate.getFullYear(); // e.g., 2024
   const { activeTab, setActiveTab } = useMembers();
-
+const currentPath = location.pathname
+  .replace(/^\/+/, '')
+  .replace(/\/+$/, '')
+  .toLowerCase();
   const storedAdmin = localStorage.getItem("adminInfo");
   // console.log('localStorage',localStorage)
   useEffect(() => {
@@ -139,23 +142,33 @@ const Header = ({ profileOpen, setProfileOpen, toggleMobileMenu, isMobileMenuOpe
     'birthday-party/leads': { title: 'Birthday party  ' },
     'one-to-one/leads/booking-form': { title: 'Booking Form' },
     'birthday-party/leads/booking-form': { title: 'Booking Form' },
-    'configuration/holiday-camp/venues': { title: 'Configuration' },
+    'configuration/holiday-camp': { title: 'Configuration' },
     'holiday-camp/': { title: 'Holiday Camps' },
     'templates/create': { title: 'Communication Templates' },
     'templates/list': { title: 'Text/Email Communications' },
     'templates/settingList': { title: 'Communication Templates' },
-    'administration/file-manager': { title: 'Folders' },
+    'holiday-camp': { title: 'Configuration' },
+    'birthday-party': { title: 'Configuration' },
+    'recruitment': { title: 'Recruitment' },
+    'recruitment/reports': { title: 'Welcome Back', icon: '/images/Welcomeback.png' },
+    'administration/file-manager': { title: 'Folders'},
+    'configuration/holiday-camp/discount': { title: 'Discounts'},
 
   };
   // Extract the part after `/`
   const subPath = location.pathname.split('/')[1] || '';
 
   // Match the longest route
-  let routeInfo =
-    Object.entries(routeTitleMap)
-      .sort((a, b) => b[0].length - a[0].length)
-      .find(([route]) => subPath.startsWith(route))?.[1]
-    || { title: 'Configuration', icon: '/images/Welcomeback.png' };
+const routeInfo =
+  Object.entries(routeTitleMap)
+    .map(([route, info]) => [
+      route.replace(/\/+$/, '').toLowerCase(),
+      info,
+    ])
+    .sort((a, b) => b[0].length - a[0].length) // longest first
+    .find(([route]) => currentPath.includes(route))?.[1]
+  || { title: 'Configuration', icon: '/images/Welcomeback.png' };
+
   // if (historyActiveTab === "History Of Payments") {
   //   routeInfo = {
   //     title: 'Welcome Back', icon: '/images/Welcomeback.png'

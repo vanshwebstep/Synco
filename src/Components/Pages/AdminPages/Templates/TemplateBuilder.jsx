@@ -32,12 +32,12 @@ export default function TemplateBuilder({
       type,
       content:
         type === "text"
-          ? "Edit your text..."
+          ? ""
           : type === "btn"
-            ? "Click me"
+            ? ""
             : "",
       url: "",
-      placeholder: type === "input" ? "Enter value" : "",
+      placeholder: "Enter value" ,
       style:
         type === "btn"
           ? {

@@ -202,7 +202,7 @@ export default function CommunicationsList() {
                                     <p className="text-sm text-gray-700 font-medium">{item.status}</p>
                                 </div></div>
                             <div>
-                                <p className="font-semibold text-gray-900 mb-2">Reciepients</p>
+                                <p className="font-semibold text-gray-900 mb-2">Recepitients</p>
                                 <div className="w-24 text-sm font-medium text-gray-700">{item.recipients}</div>
                             </div>
                             <div>

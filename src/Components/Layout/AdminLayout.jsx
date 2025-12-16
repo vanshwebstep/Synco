@@ -83,14 +83,16 @@ const AdminLayout = ({ children }) => {
     '/configuration/holiday-camp/session-plan': { title: 'Session Plan Library', icon: '/members/Document.png' },
     '/configuration/holiday-camp/subscription-plan-group': { title: 'Payment Plan Manager', icon: '/images/icons/subscriptionplanIcon.png' },
     '/configuration/holiday-camp/discount': { title: 'Discounts', icon: '/images/icons/subscriptionplanIcon.png' },
-    '/holiday-camp/find-a-camp': { title: 'Find a Holiday Camp', icon: '/images/icons/subscriptionplanIcon.png' },
+    '/holiday-camp/find-a-camp': { title: 'Find a Holiday Camp', icon: '/members/FindClass.png' },
     '/holiday-camp/find-a-camp/book-camp': { title: 'Book a Holiday Camp', icon: '/members/bookMembership.png' },
     '/templates/create': { title: 'Communication Templates', icon: "/members/Notification.png" },
     '/templates/list': { title: 'Text/Email Communications', icon: "/members/Notification.png" },
     '/templates/settingList': { title: 'Communication Templates', icon: "/members/Notification.png" },
     '/administration/file-manager': { title: 'Folders/Assets', icon: "/members/Category.png" },
     '/recruitment/lead': { title: 'Recruitment', icon: "/members/recruitment.png" },
-
+    '/administration/to-do-list': { title: 'To-do List', icon: "/members/Category.png" },
+ '/recruitment/franchise-lead': { title: 'Recruitment', icon: "/members/Category.png"  },
+ '/recruitment/reports': { title: 'Recruitment Report', icon: "/members/Category.png"  },
   };
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);

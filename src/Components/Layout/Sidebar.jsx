@@ -454,6 +454,11 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               title: "Referrals",
               link: "/configuration/coach-pro/referrals",
             },
+            {
+              noPaddingx: true,
+              title: "Student Cources",
+              link: "/configuration/coach-pro/student",
+            },
           ],
         },
       ],

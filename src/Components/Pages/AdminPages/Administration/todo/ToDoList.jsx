@@ -305,7 +305,7 @@ export default function TodoList() {
 
 
     return (
-        <div className="p-6 w-full">
+        <div className="p-6 min-h-[100vh] w-full">
 
 
             <div className="flex justify-between items-center mb-6">
@@ -315,7 +315,7 @@ export default function TodoList() {
                         onClick={handleOpenFilter}
                         className="flex items-center gap-2 px-4 py-2 bg-[#237FEA] text-white rounded-lg text-sm"
                     >
-                        <Filter size={16} />
+                        <img src='/DashboardIcons/filtericon.png' className='w-4 h-4 sm:w-5 sm:h-5' alt="" />
                         Filter
                     </button>
 
@@ -503,10 +503,10 @@ function TaskColumn({ column, tasks, onAddTask, onTaskClick }) {
 
 function TaskCard({ task, onClick }) {
     const priorityStyles = {
-  low: "bg-green-100 text-green-700",
-  medium: "bg-yellow-100 text-yellow-700",
-  high: "bg-red-100 text-red-700",
-};
+        low: "bg-green-100 text-green-700",
+        medium: "bg-yellow-100 text-yellow-700",
+        high: "bg-red-100 text-red-700",
+    };
 
     return (
         <div
@@ -515,9 +515,8 @@ function TaskCard({ task, onClick }) {
         >
             <div className="p-4 pb-0">
                 <div className="flex justify-between items-start">
-                    <span  className={`text-xs px-2 py-0.5 rounded-md ${
-    priorityStyles[task.priority] || ""
-  }`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-md ${priorityStyles[task.priority] || ""
+                        }`}>
                         {task.priority}
                     </span>
                     <MoreVertical size={18} />
@@ -563,7 +562,7 @@ function CreateTaskModal({ members, onClose }) {
         fullData: m
     }));
     const [priority, setPriority] = useState("low");
-const [showComment, setShowComment] = useState(false);
+    const [showComment, setShowComment] = useState(false);
 
     const [createdAt] = useState(new Date());
     const [updatedAt, setUpdatedAt] = useState(new Date());
@@ -619,31 +618,31 @@ const [showComment, setShowComment] = useState(false);
 
 
 
-   const handleSubmit = async () => {
-    const data = new FormData();
+    const handleSubmit = async () => {
+        const data = new FormData();
 
-    (uploadedFiles || []).forEach((f) => {
-        // f.file is the real File object
-        data.append("attachments", f.file);   // ✅ THIS sends (binary)
-    });
+        (uploadedFiles || []).forEach((f) => {
+            // f.file is the real File object
+            data.append("attachments", f.file);   // ✅ THIS sends (binary)
+        });
 
-    // other fields
-    data.append("priority", priority);
-    data.append("assignedAdmins", JSON.stringify(
-        selectedMembers.map(m => m.fullData.id)
-    ));
+        // other fields
+        data.append("priority", priority);
+        data.append("assignedAdmins", JSON.stringify(
+            selectedMembers.map(m => m.fullData.id)
+        ));
 
-    // add formData fields
-    Object.keys(formData).forEach(key => {
-        data.append(key, formData[key]);
-    });
+        // add formData fields
+        Object.keys(formData).forEach(key => {
+            data.append(key, formData[key]);
+        });
 
-    // finally send
-    createToDoList(data);
+        // finally send
+        createToDoList(data);
 
-    console.log("FORMDATA SENT:", [...data.entries()]);
-    onClose();
-};
+        console.log("FORMDATA SENT:", [...data.entries()]);
+        onClose();
+    };
 
     const today = new Date().toLocaleDateString("en-GB", {
         day: "2-digit",
@@ -785,11 +784,11 @@ const [showComment, setShowComment] = useState(false);
                                         <Send size={16} />
                                     </button>
                                 </div>
-           
+
                             </div>
-                                                 {showComment && (
-    <p className="text-sm text-gray-500 mt-2">{formData.comment}</p>
-)}
+                            {showComment && (
+                                <p className="text-sm text-gray-500 mt-2">{formData.comment}</p>
+                            )}
                         </div>
 
 
@@ -1070,17 +1069,7 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
 
                             {open === "attachments" && (
                                 <div className="p-4">
-                                    <label
-                                        className="border border-dashed rounded-xl p-6 text-center text-gray-500 cursor-pointer flex flex-col items-center"
-                                        onDrop={handleDrop}
-                                        onDragOver={handleDragOver}
-                                    >
-                                        <img src="/reportsIcons/folder.png" className="w-10 mb-2" />
-                                        <p className="text-sm">Click to upload or drag & drop</p>
-
-                                        <input type="file" multiple className="hidden" onChange={handleFileUpload} />
-                                    </label>
-
+                                   
                                     {/* Preview */}
                                     {uploadedFiles.length > 0 && (
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
@@ -1122,10 +1111,10 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                             </button>
 
                             {open === "comment" && (
-                                
+
                                 <div className="mt-3 space-y-4 p-4">
-                                      <p className="text-[16px] text-[#717073]">{task.comment}</p>
-                               
+                                    <p className="text-[16px] text-[#717073]">{task.comment}</p>
+
                                 </div>
                             )}
                         </div>
@@ -1147,23 +1136,23 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
                             <p className="text-[17px] font-semibold">Assign</p>
                             <div className="flex gap-2 mt-2 items-center flex-wrap">
                                 {task.assigned?.map((m, i) => (
-                                <>    <img key={i} src={m.avatar} className="w-8 h-8 rounded-full" />
-                                <p> {m.name}</p>
-                                </>
+                                    <>    <img key={i} src={m.avatar} className="w-8 h-8 rounded-full" />
+                                        <p> {m.name}</p>
+                                    </>
                                 ))}
-                                
+
                             </div>
                         </div>
 
                         {/* Status */}
                         <div className="border-b border-[#E2E1E5] pb-6 px-6">
                             <p className="text-[17px] font-semibold mb-2">Status</p>
-                          <span className="mt-1 inline-block bg-blue-100 text-[#237FEA] text-xs px-2 py-1 rounded-md">
-  {task.status
-    .split('_')                 // split by underscore
-    .map(word => word[0].toUpperCase() + word.slice(1)) // capitalize each word
-    .join(' ')}                 
-</span>
+                            <span className="mt-1 inline-block bg-blue-100 text-[#237FEA] text-xs px-2 py-1 rounded-md">
+                                {task.status
+                                    .split('_')                 // split by underscore
+                                    .map(word => word[0].toUpperCase() + word.slice(1)) // capitalize each word
+                                    .join(' ')}
+                            </span>
 
                         </div>
 

@@ -38,7 +38,7 @@ const Create = () => {
     const fileInputRef = useRef(null);
     const [page, setPage] = useState(1);
     const [photoPreview, setPhotoPreview] = useState([]);
-    console.log('photoPreview', photoPreview)
+    // console.log('photoPreview', photoPreview)
 
     const [groupName, setGroupName] = useState('');
     const [groupNameSection, setGroupNameSection] = useState('');
@@ -56,7 +56,7 @@ const Create = () => {
     // console.log('visibleTabs', visibleTabs)
     // console.log('tabs', tabs)
 
-    console.log('exercises', exercises)
+    // console.log('exercises', exercises)
     const [recording, setRecording] = useState(null); // stores Blob
     const [audioURL, setAudioURL] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -178,7 +178,7 @@ const Create = () => {
                 [activeTab]: url,
             }));
 
-            console.log(`🎥 Video selected for ${activeTab}:`, file.name);
+            // console.log(`🎥 Video selected for ${activeTab}:`, file.name);
         }
     };
     const handleUploadChange = (e) => {
@@ -196,7 +196,7 @@ const Create = () => {
                 [activeTab]: url,
             }));
 
-            console.log(`🎥 Upload selected for ${activeTab}:`, file.name);
+            // console.log(`🎥 Upload selected for ${activeTab}:`, file.name);
         }
     };
     const handleBannerChange = (e) => {
@@ -228,6 +228,8 @@ const Create = () => {
 
 
     const handleRemoveImage = (index) => {
+        console.log('handleRemoveImage', index)
+        
         setPhotoPreview((prev) => {
             const urlToRemove = prev[index];
 
@@ -252,7 +254,6 @@ const Create = () => {
         });
     };
 
-    console.log('setRemovedImages', removedImages)
     const handleCreateSession = (finalSubmit = false) => {
         if (isProcessing) return;
 
@@ -306,7 +307,7 @@ const Create = () => {
     const handleNextTabOrSubmit = (updatedLevels, forceSubmit = false) => {
         const nextIndex = tabs.findIndex((tab) => tab === activeTab) + 1;
         const isLastTab = nextIndex >= tabs.length;
-        console.log('updatedLevels', updatedLevels)
+        // console.log('updatedLevels', updatedLevels)
 
         // ✅ Only send the activeTab when editing
         const levelsToSend = (isEditMode && id && level)
@@ -361,10 +362,10 @@ const Create = () => {
 
         if ((isEditMode && id && level) || isLastTab || forceSubmit) {
             if (isEditMode && id && level) {
-                console.log('transformed', transformed)
+                // console.log('transformed', transformed)
                 updateDiscount(id, transformed);
             } else {
-                console.log('transformed', transformed)
+                // console.log('transformed', transformed)
                 createSessionGroup(transformed, true);
             }
         } else {
@@ -374,9 +375,9 @@ const Create = () => {
             setPage(1);
 
 
-            console.log('nextTab', nextTab)
+            // console.log('nextTab', nextTab)
             const existingLevel = updatedLevels.find((lvl) => lvl.level === nextTab);
-            console.log('existingLevel', existingLevel)
+            // console.log('existingLevel', existingLevel)
 
             if (existingLevel) {
                 setSkillOfTheDay(existingLevel.skillOfTheDay || "");
@@ -480,7 +481,7 @@ const Create = () => {
             const result = await response.json();
             const data = result.data || {};
 
-            console.log('data-(main)', data);
+            // console.log('data-(main)', data);
 
             // Parse levels safely
             let parsedLevels = data.levels || {};
@@ -619,7 +620,7 @@ const Create = () => {
     }));
 
 
-    console.log('planOptions', planOptions)
+    // console.log('planOptions', planOptions)
     const selectedOptions = selectedPlans.map((plan) => ({
         value: plan?.id,
         label: `${plan?.duration}: ${plan?.title}`,
@@ -628,7 +629,7 @@ const Create = () => {
     }));
 
 
-    console.log('selectedPlans', selectedPlans)
+    // console.log('selectedPlans', selectedPlans)
     useEffect(() => {
         if (containerRef.current) {
             containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -704,7 +705,7 @@ const Create = () => {
     const handleSavePlan = async () => {
         const { title, duration, description, images } = formData;
 
-        console.log('formData---(35)', formData)
+        // console.log('formData---(35)', formData)
 
         const showAlert = ({ type = "info", message = "", title = "" }) => {
             Swal.fire({
@@ -810,7 +811,6 @@ const Create = () => {
             else {
                 const data = new FormData();
 
-                console.log('formDataaaaaaaaa', formData)
                 data.append("title", formData.title);
                 data.append("duration", formData.duration);
                 const cleanedDescription = cleanDescriptionHtml(formData.description);
@@ -901,7 +901,7 @@ const Create = () => {
             }
         });
     };
-
+ console.log('removedImages', removedImages)
     if (loading) {
         return (
             <>
@@ -928,8 +928,8 @@ const Create = () => {
         // 🔥 You were missing this line!
         // Handle per-tab video
         const existingLevel = levels.find((lvl) => lvl.level === tab);
-        console.log('tab', tab)
-        console.log('existingLevel (1)', existingLevel)
+        // console.log('tab', tab)
+        // console.log('existingLevel (1)', existingLevel)
         if (existingLevel?.videoFile) {
             setVideoFiles((prev) => ({
                 ...prev,
@@ -943,7 +943,7 @@ const Create = () => {
             }));
         }
 
-        console.log('existingLevel(1)', existingLevel)
+        // console.log('existingLevel(1)', existingLevel)
 
         if (existingLevel) {
             setSkillOfTheDay(existingLevel.skillOfTheDay || "");
@@ -1238,7 +1238,7 @@ const Create = () => {
                                         >
                                             {selectedPlans.length > 0 ? (
                                                 selectedPlans.map((plan, idx) => {
-                                                    console.log('plan', plan)
+                                                    // console.log('plan', plan)
                                                     return (
                                                         <div
                                                             key={plan.id || idx}
@@ -1261,7 +1261,7 @@ const Create = () => {
 
                                                                         if (!exerciseData) return;
 
-                                                                        console.log("exerciseData", exerciseData);
+                                                                        // console.log("exerciseData", exerciseData);
 
                                                                         const existingImages =
                                                                             typeof exerciseData.imageUrl === "string"

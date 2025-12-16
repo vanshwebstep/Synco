@@ -55,43 +55,44 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange, usedSessionPl
   const [selectedOption, setSelectedOption] = useState(null);
 
   useEffect(() => {
-    const getPackages = async () => {
-      try {
-        const response = await fetchSessionGroup();
-      } catch (error) {
-        console.error("Error fetching packages:", error);
-      }
-    };
-    getPackages();
-  }, [fetchSessionGroup]);
-
-  useEffect(() => {
-    if (sessionGroup?.length > 0) {
-      const transformedWeeks = sessionGroup.map((group) => ({
-        value: group.id,
-        label: group.groupName,
-        isDisabled: usedSessionPlans.includes(group.id), // <-- DISABLE IF USED
-      }));
-
-      setOptions(transformedWeeks);
-    }
-  }, [sessionGroup, usedSessionPlans]);
+     const getPackages = async () => {
+       try {
+         const response = await fetchSessionGroup();
+         console.log("Fetched packages:", response);
+       } catch (error) {
+         console.error("Error fetching packages:", error);
+       }
+     };
+     getPackages();
+   }, [fetchSessionGroup]);
+ 
+   useEffect(() => {
+     if (sessionGroup?.length > 0) {
+       const transformedWeeks = sessionGroup.map((group) => ({
+         value: group.id,
+         label: group.groupName,
+         isDisabled: usedSessionPlans.includes(group.id), // <-- DISABLE IF USED
+       }));
+ 
+       setOptions(transformedWeeks);
+     }
+   }, [sessionGroup, usedSessionPlans]);
 
 
   // Sync selected value when options or value change
-  useEffect(() => {
-    if (options.length > 0 && value) {
-      const matched = options.find((opt) => opt.value === value);
-      setSelectedOption(matched || null);
-    }
-  }, [value, options]);
-
-  const handleChange = (option) => {
-    setSelectedOption(option);
-    if (onChange) {
-      onChange(idx, 'sessionPlanId', option?.value || '');
-    }
-  };
+   useEffect(() => {
+      if (options.length > 0 && value) {
+        const matched = options.find((opt) => opt.value === value);
+        setSelectedOption(matched || null);
+      }
+    }, [value, options]);
+  
+    const handleChange = (option) => {
+      setSelectedOption(option);
+      if (onChange) {
+        onChange(idx, 'sessionPlanId', option?.value || '');
+      }
+    };
 
   return (
     <div className="relative w-full mb-5">
@@ -104,6 +105,7 @@ const SessionPlanSelect = ({ idx = 0, label = '', value, onChange, usedSessionPl
         <Select
           options={options}
           value={selectedOption}
+          isClearable={true}   
           onChange={handleChange}
           placeholder="Search Session Plan Group"
           styles={customStyles}

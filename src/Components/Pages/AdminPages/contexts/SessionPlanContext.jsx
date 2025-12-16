@@ -130,6 +130,7 @@ export const SessionPlanContextProvider = ({ children }) => {
       setLoading(false);
     }
   }, [token]);
+  
   const createSessionExercise = useCallback(async (data) => {
     if (!token) return;
 

@@ -18,7 +18,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
     const newChild = {
       id: crypto.randomUUID(),
       type,
-      content: type === "text" ? "Write here..." : "",
+      content: type === "text" ? "" : "",
       url: "",
       placeholder: type === "input" ? "Enter value" : "",
     };
@@ -63,6 +63,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
         {/* Editable Text */}
         <textarea
           value={block.content}
+          placeholder={"Enter text"}
           onChange={(e) =>
             setBlocks(
               blocks.map((b) =>
@@ -211,6 +212,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
             <label className="text-xs font-medium">Button Text</label>
             <input
               className="w-full border border-gray-200 rounded-md p-3 mt-1 text-sm"
+              placeholder="Enter Button Text here"
               value={block.content}
               onChange={(e) =>
                 setBlocks(
@@ -308,6 +310,7 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
                 {child.type === "text" && (
                   <textarea
                     className="border p-2 rounded-md w-full"
+                    placeholder="Write here"
                     value={child.content}
                     onChange={(e) => updateChild(i, child.id, "content", e.target.value)}
                   />

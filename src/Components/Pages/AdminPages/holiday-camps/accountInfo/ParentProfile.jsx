@@ -148,7 +148,7 @@ const ParentProfile = () => {
     if (!token) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/list`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/comment/list`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -200,7 +200,7 @@ const ParentProfile = () => {
       });
 
 
-      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/comment/create`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/comment/create`, requestOptions);
 
       const result = await response.json();
 
