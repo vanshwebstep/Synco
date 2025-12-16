@@ -301,6 +301,8 @@ const fetchCampDateId = useCallback(async (id) => {
           throw new Error(result?.message || "Failed to update holiday camp date");
         }
 
+        // Save into state
+        setMyGroupData(result?.data || null);
         // Refresh UI data
         await fetchHolidayCampMain();
 

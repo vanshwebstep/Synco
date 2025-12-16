@@ -17,6 +17,8 @@ const trialLists = () => {
     const [toDate, setToDate] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
     const navigate = useNavigate();
+    const [isFilterApplied, setIsFilterApplied] = useState(false);
+
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
     const [selectedStudents, setSelectedStudents] = useState([]);
@@ -83,7 +85,7 @@ const trialLists = () => {
         } else {
             fetchMembershipSalesLoading(); // No filter
         }
-    }, [selectedVenue, fetchMembershipSales,fetchMembershipSalesLoading]);
+    }, [selectedVenue, fetchMembershipSales, fetchMembershipSalesLoading]);
     const month = currentDate.getMonth();
     const year = currentDate.getFullYear();
 
@@ -108,24 +110,20 @@ const trialLists = () => {
     const calendarDays = getDaysArray();
     const goToPreviousMonth = () => {
         setCurrentDate(new Date(year, month - 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
 
     const goToNextMonth = () => {
         setCurrentDate(new Date(year, month + 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
     const formatLabel = (str) => {
-  if (!str) return "-";
+        if (!str) return "-";
 
-  return str
-    .replace(/_/g, " ")                  // snake_case → snake case
-    .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase → camel Case
-    .toLowerCase()                       // everything lowercase first
-    .replace(/\b\w/g, (c) => c.toUpperCase()); // capitalize each word
-};
+        return str
+            .replace(/_/g, " ")                  // snake_case → snake case
+            .replace(/([a-z])([A-Z])/g, "$1 $2") // camelCase → camel Case
+            .toLowerCase()                       // everything lowercase first
+            .replace(/\b\w/g, (c) => c.toUpperCase()); // capitalize each word
+    };
     const isInRange = (date) => {
         if (!fromDate || !toDate || !date) return false;
         return date >= fromDate && date <= toDate;
@@ -166,7 +164,6 @@ const trialLists = () => {
 
     const applyFilter = () => {
         const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
-
         const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
         const hasRange = isValidDate(fromDate) && isValidDate(toDate);
         const range = hasRange ? [fromDate, toDate] : [];
@@ -175,13 +172,13 @@ const trialLists = () => {
         // Else: send range as createdAtFrom/To
         const dateRangeMembership = checkedStatuses.trialDate ? range : [];
         const otherDateRange = checkedStatuses.trialDate ? [] : range;
-
+        setIsFilterApplied(true);
         fetchMembershipSales(
             "",                                  // studentName
             "",                                  // venueName
             checkedStatuses.pending,             // status1
             checkedStatuses.active,              // status2
-            dateRangeMembership,     
+            dateRangeMembership,
             checkedStatuses.tweleveMonths,              // dateBooked range [from,to] OR []
             checkedStatuses.sixMonths,           // month1 -> duration 6
             checkedStatuses.threeMonths,         // month2 -> duration 3
@@ -191,10 +188,14 @@ const trialLists = () => {
         );
     };
 
-     console.log('bookMembership', bookMembership)
+    console.log('bookMembership', bookMembership)
 
 
-
+    useEffect(() => {
+        if (isFilterApplied) {
+            setIsFilterApplied(false)
+        }
+    })
 
     const modalRef = useRef(null);
     const PRef = useRef(null);
@@ -232,7 +233,7 @@ const trialLists = () => {
         }
     ];
 
-const getStatusBadge = (status) => {
+    const getStatusBadge = (status) => {
         const s = status.toLowerCase();
         let styles =
             "bg-red-100 text-red-500"; // default fallback
@@ -292,7 +293,7 @@ const getStatusBadge = (status) => {
                 (agent) => `${agent.id}`
             );
             setSavedAgent(selectedNames); // ✅ saves full names as strings
-             console.log("selectedNames", tempSelectedAgents);
+            console.log("selectedNames", tempSelectedAgents);
         } else {
             setSavedAgent([]); // nothing selected → clear
         }
@@ -309,53 +310,53 @@ const getStatusBadge = (status) => {
         fetchMembershipSales(value);
     };
     // 📌 Utility function
-const formatDate = (dateString) => {
-  if (!dateString) return "-";
-  const date = new Date(dateString);
+    const formatDate = (dateString) => {
+        if (!dateString) return "-";
+        const date = new Date(dateString);
 
-  const day = date.toLocaleDateString("en-US", { weekday: "short" }); // Sat
-  const dayNum = date.getDate(); // 12
-  const month = date.toLocaleDateString("en-US", { month: "short" }); // Sep
-  const year = date.getFullYear().toString().slice(-2); // 25
+        const day = date.toLocaleDateString("en-US", { weekday: "short" }); // Sat
+        const dayNum = date.getDate(); // 12
+        const month = date.toLocaleDateString("en-US", { month: "short" }); // Sep
+        const year = date.getFullYear().toString().slice(-2); // 25
 
-  // Add ordinal suffix (st, nd, rd, th)
-  const suffix =
-    dayNum % 10 === 1 && dayNum !== 11
-      ? "st"
-      : dayNum % 10 === 2 && dayNum !== 12
-      ? "nd"
-      : dayNum % 10 === 3 && dayNum !== 13
-      ? "rd"
-      : "th";
+        // Add ordinal suffix (st, nd, rd, th)
+        const suffix =
+            dayNum % 10 === 1 && dayNum !== 11
+                ? "st"
+                : dayNum % 10 === 2 && dayNum !== 12
+                    ? "nd"
+                    : dayNum % 10 === 3 && dayNum !== 13
+                        ? "rd"
+                        : "th";
 
-  return `${day} ${dayNum}${suffix} ${month} ${year}`;
-};
-const membershipColumns = [
+        return `${day} ${dayNum}${suffix} ${month} ${year}`;
+    };
+    const membershipColumns = [
         { header: "Name", key: "name", selectable: true }, // <-- checkbox + student name
         { header: "Age", key: "age", render: (item, student) => student.age },
         { header: "Venue", render: (item) => item.venue?.name || "-" },
-   {
-  header: "Date of Booking",
-  render: (item) => {
-    const date = new Date(item.startDate);
+        {
+            header: "Date of Booking",
+            render: (item) => {
+                const date = new Date(item.startDate);
 
-    const day = date.getDate();
-    const suffix =
-      day % 10 === 1 && day !== 11
-        ? "st"
-        : day % 10 === 2 && day !== 12
-        ? "nd"
-        : day % 10 === 3 && day !== 13
-        ? "rd"
-        : "th";
+                const day = date.getDate();
+                const suffix =
+                    day % 10 === 1 && day !== 11
+                        ? "st"
+                        : day % 10 === 2 && day !== 12
+                            ? "nd"
+                            : day % 10 === 3 && day !== 13
+                                ? "rd"
+                                : "th";
 
-    const weekday = date.toLocaleDateString("en-GB", { weekday: "short" }); // Sat
-    const month = date.toLocaleDateString("en-GB", { month: "short" });     // Sep
-    const year = date.getFullYear();                                        // 2025
+                const weekday = date.toLocaleDateString("en-GB", { weekday: "short" }); // Sat
+                const month = date.toLocaleDateString("en-GB", { month: "short" });     // Sep
+                const year = date.getFullYear();                                        // 2025
 
-    return `${weekday} ${day}${suffix} ${month} ${year}`;
-  },
-},
+                return `${weekday} ${day}${suffix} ${month} ${year}`;
+            },
+        },
 
         {
             header: "Who Booked?",
@@ -364,18 +365,18 @@ const membershipColumns = [
                 }`,
         },
         { header: "Membership Plan", render: (item) => item?.paymentPlanData?.title },
-       
+
         { header: "Status", render: (item) => getStatusBadge(item.status) },
     ];
     if (loading) return <Loader />;
 
-     console.log('bookMembership', bookMembership)
+    console.log('bookMembership', bookMembership)
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
 
             <div className="md:flex w-full gap-7">
                 <div className="md:w-8/12 transition-all duration-300">
-                   <StatsGrid stats={stats} variant="B" />
+                    <StatsGrid stats={stats} variant="B" />
                     <div className="flex justify-end ">
                         <div className="bg-white min-w-[50px] min-h-[50px] p-2 rounded-full flex items-center justify-center ">
                             <img onClick={() => navigate("/weekly-classes/find-a-class")}
@@ -383,17 +384,18 @@ const membershipColumns = [
                         </div>
                     </div>
                     <DynamicTable
-                                            columns={membershipColumns}
-                                            data={bookMembership}   // 👈 use flattened data
-                                            selectedIds={selectedStudents}
-                                             setSelectedStudents={setSelectedStudents}
-                                              from={'membership'}
-                                            onRowClick={(row) =>
-                                                navigate("/weekly-classes/all-members/account-info", {
-                                                    state: { itemId: row.bookingId, memberInfo: "" },
-                                                })
-                                            }
-                                        />
+                        columns={membershipColumns}
+                        data={bookMembership}   // 👈 use flattened data
+                        selectedIds={selectedStudents}
+                        setSelectedStudents={setSelectedStudents}
+                        from={'membership'}
+                        onRowClick={(row) =>
+                            navigate("/weekly-classes/all-members/account-info", {
+                                state: { itemId: row.bookingId, memberInfo: "" },
+                            })
+                        }
+                        isFilterApplied={isFilterApplied}
+                    />
                     {/* <div className="overflow-auto mt-5 rounded-4xl w-full">
                         <table className="min-w-full rounded-4xl bg-white text-sm border border-[#E2E1E5]">
                             <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
@@ -805,8 +807,8 @@ const membershipColumns = [
             </div>
 
         </div>
-                            
-        
+
+
     )
 }
 

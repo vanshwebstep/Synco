@@ -225,18 +225,13 @@ const Coach = () => {
 
     const calendarDays = getDaysArray();
 
-    const goToPreviousMonth = () => {
-        setCurrentDate(new Date(year, month - 1, 1));
-        setFromDate(null);
-        setToDate(null);
-    };
+const goToPreviousMonth = () => {
+  setCurrentDate(new Date(year, month - 1, 1));
+};
 
-    const goToNextMonth = () => {
-        setCurrentDate(new Date(year, month + 1, 1));
-        setFromDate(null);
-        setToDate(null);
-    };
-
+const goToNextMonth = () => {
+  setCurrentDate(new Date(year, month + 1, 1)); 
+ };
     const isSameDate = (d1, d2) =>
         d1 &&
         d2 &&
@@ -432,7 +427,7 @@ const Coach = () => {
         }),
         indicatorSeparator: () => ({ display: "none" }),
     };
-
+    console.log('filteredRecruitment', filteredRecruitment)
     const inputClass =
         " px-4 py-3 border border-[#E2E1E5] rounded-xl focus:outline-none ";
     if (loading) return <Loader />;
@@ -516,7 +511,7 @@ const Coach = () => {
                                         key={coach.id}
                                         onClick={() => {
                                             if (status == "recruited" || status == "pending" || status == "rejected") {
-                                               navigate(`/recruitment/lead/coach/profile?id=${coach.id}&comesfrom=coach`);
+                                                navigate(`/recruitment/lead/coach/profile?id=${coach.id}&comesfrom=coach`);
                                             }
                                         }}
                                         className="border-b cursor-pointer border-gray-200"

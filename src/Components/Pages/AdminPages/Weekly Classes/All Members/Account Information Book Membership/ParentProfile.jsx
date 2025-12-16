@@ -286,9 +286,9 @@ const ParentProfile = ({ profile }) => {
         ? `${duration} ${interval}`
         : "";
 
-    const dateBooked = profile?.dateBooked;
+    const dateBooked = profile?.startDate;
     const status = profile?.status;
-
+console.log('profile',profile)
     // console.log('Venue Name:', profile.dateBooked);
 
     function formatISODate(isoDateString, toTimezone = null) {
@@ -328,7 +328,7 @@ const ParentProfile = ({ profile }) => {
             minutes = date.getMinutes().toString().padStart(2, "0");
         }
 
-        return `${month} ${day} ${year}, ${hours}:${minutes}`;
+        return `${month} ${day} ${year}`;
     }
 
     console.log('status', status)

@@ -9,8 +9,8 @@ import Swal from "sweetalert2"; // make sure it's installed
 import PlanTabs from '../../../Weekly Classes/Find a class/PlanTabs';
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format, parseISO } from "date-fns";
-import { useTermContext } from '../../../contexts/TermDatesSessionContext';
 import { usePermission } from '../../../Common/permission';
+import { useTermContext } from '../../../contexts/termDatesSessionContext';
 const List = () => {
   const navigate = useNavigate();
   const formRef = useRef(null);
@@ -167,17 +167,13 @@ const List = () => {
 
   const calendarDays = getDaysArray();
 
-  const goToPreviousMonth = () => {
-    setCurrentDate(new Date(year, month - 1, 1));
-    setFromDate(null);
-    setToDate(null);
-  };
+ const goToPreviousMonth = () => {
+  setCurrentDate(new Date(year, month - 1, 1));
+};
 
-  const goToNextMonth = () => {
-    setCurrentDate(new Date(year, month + 1, 1));
-    setFromDate(null);
-    setToDate(null);
-  };
+const goToNextMonth = () => {
+  setCurrentDate(new Date(year, month + 1, 1)); 
+ };
 
   const getDateStatus = (date) => {
     if (!date) return {};

@@ -192,9 +192,9 @@ const HolidayTermsCreate = () => {
 
             let apiResponse;
 
-            if (id) {
+            if (id || myGroupData?.id) {
                 // Update existing camp
-                apiResponse = await updateHolidayCampDate(id, payload);
+                apiResponse = await updateHolidayCampDate((id || myGroupData?.id), payload);
             } else {
                 // Create new camp
                 apiResponse = await createHolidayCamp(payload);
@@ -442,7 +442,7 @@ const HolidayTermsCreate = () => {
             setIsLoading(false);
         }
     };
-
+    console.log('myGroupData?.id', myGroupData?.id)
 
 
 
@@ -478,7 +478,7 @@ const HolidayTermsCreate = () => {
                                 <label className="block text-base font-semibold text-gray-700 mb-2">
                                     Name of Holiday Camp Dates
                                 </label>
-                                {id && (
+                                {(id || myGroupData?.id) && (
                                     <img
                                         src="/images/icons/edit.png"
                                         className="w-[18px] cursor-pointer"
@@ -493,11 +493,11 @@ const HolidayTermsCreate = () => {
                                 value={groupName}
                                 onChange={(e) => setGroupName(e.target.value)}
                                 className={`md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${id && !isEditMode ? 'cursor-not-allowed' : ''}`}
-                                disabled={id && !isEditMode}
+                                disabled={id || myGroupData?.id && !isEditMode}
                             />
 
 
-                            {id && isEditMode && (
+                            {(id || myGroupData?.id) && isEditMode && (
                                 <button
                                     onClick={handleGroupNameSave}
                                     disabled={isLoading}
@@ -509,18 +509,16 @@ const HolidayTermsCreate = () => {
                                 </button>
 
                             )}
-                            {!id && (
+                            {!id && !myGroupData?.id && (
                                 <button
                                     onClick={handleGroupNameSave}
                                     disabled={isLoading}
                                     className="mt-2 ml-6 bg-[#237FEA] text-white text-[14px] font-semibold px-4 py-2 rounded-lg hover:bg-blue-700"
                                 >
-                                    {isLoading
-                                        ? 'Saving...'
-                                        : 'Save'}
+                                    {isLoading ? 'Saving...' : 'Save'}
                                 </button>
-
                             )}
+
 
 
                         </div>

@@ -7,7 +7,6 @@ import PlanTabs from '../PlanTabs';
 import Loader from '../../../../Pages/AdminPages/contexts/Loader';
 import { useVenue } from '../../contexts/VenueContext';
 import { usePayments } from '../../contexts/PaymentPlanContext';
-import { useTermContext } from '../../contexts/TermDatesSessionContext';
 import Swal from "sweetalert2"; // make sure it's installed
 import { format, parseISO } from "date-fns";
 import { motion } from "framer-motion";
@@ -29,6 +28,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import 'react-phone-input-2/lib/style.css';
 import { useBookFreeTrial } from '../../contexts/BookAFreeTrialContext';
 import { useNotification } from '../../contexts/NotificationContext';
+import { useTermContext } from '../../contexts/termDatesSessionContext';
 const HolidayAddtoWaitingList = () => {
   const [expression, setExpression] = useState('');
   const [result, setResult] = useState('');
@@ -259,17 +259,13 @@ const HolidayAddtoWaitingList = () => {
 
   const calendarDays = getDaysArray();
 
-  const goToPreviousMonth = () => {
-    setCurrentDate(new Date(year, month - 1, 1));
-    setFromDate(null);
-    setToDate(null);
-  };
+const goToPreviousMonth = () => {
+  setCurrentDate(new Date(year, month - 1, 1));
+};
 
-  const goToNextMonth = () => {
-    setCurrentDate(new Date(year, month + 1, 1));
-    setFromDate(null);
-    setToDate(null);
-  };
+const goToNextMonth = () => {
+  setCurrentDate(new Date(year, month + 1, 1)); 
+ };
 
   const isSameDate = (d1, d2) => {
     const date1 = typeof d1 === "string" ? new Date(d1) : d1;

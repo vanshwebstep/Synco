@@ -20,6 +20,8 @@ const trialLists = () => {
     const [toDate, setToDate] = useState(null);
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
     const [selectedStudents, setSelectedStudents] = useState([]);
+        const [isFilterApplied, setIsFilterApplied] = useState(false);
+    
     const toggleSelect = (studentId) => {
         setSelectedStudents((prev) =>
             prev.includes(studentId)
@@ -146,14 +148,10 @@ const trialLists = () => {
 
     const goToPreviousMonth = () => {
         setCurrentDate(new Date(year, month - 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
 
     const goToNextMonth = () => {
         setCurrentDate(new Date(year, month + 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
 
     const isInRange = (date) => {
@@ -261,7 +259,7 @@ const trialLists = () => {
         }
 
         const bookedByParams = savedAgent || [];
-
+  setIsFilterApplied(true);
         fetchBookFreeTrials(
             "",
             "",
@@ -331,6 +329,11 @@ const trialLists = () => {
             .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
             .join(" ");           // join with space
     };
+     useEffect(() => {
+            if (isFilterApplied) {
+                setIsFilterApplied(false)
+            }
+        })
     const canServicehistory =
         checkPermission({ module: 'service-history', action: 'view-listing' })
     const freeTrialColumns = [
@@ -405,10 +408,10 @@ const trialLists = () => {
                         : item.status.toLowerCase() === "pending"
                             ? "bg-yellow-100 text-yellow-600"
                             : item.status.toLowerCase() === "active"
-                            ? "bg-green-100 text-green-600"
-                            : item.status.toLowerCase() === "rebooked"
-                                ? "bg-blue-100 text-blue-600"
-                                : "bg-red-100 text-red-500"
+                                ? "bg-green-100 text-green-600"
+                                : item.status.toLowerCase() === "rebooked"
+                                    ? "bg-blue-100 text-blue-600"
+                                    : "bg-red-100 text-red-500"
                         } capitalize`}
 
                 >
@@ -448,6 +451,7 @@ const trialLists = () => {
                                     )
                                 : undefined
                         }
+                        isFilterApplied={isFilterApplied}
                     />
 
 

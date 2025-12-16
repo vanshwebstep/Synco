@@ -13,7 +13,7 @@ export const DiscountContextProvider = ({ children }) => {
   const [selectedDiscount, setSelectedDiscount] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Fetch all discounts
   const fetchDiscounts = useCallback(async () => {
@@ -31,7 +31,21 @@ export const DiscountContextProvider = ({ children }) => {
       setLoading(false);
     }
   }, [token]);
-
+  const fetchHolidayDiscounts = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/booking/discount/holiday-camp`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+      setDiscounts(result.data || []);
+    } catch (err) {
+      console.error("Failed to fetch discounts:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
   // Fetch single discount
   const fetchDiscountById = useCallback(async (id) => {
     if (!token) return;
@@ -50,50 +64,50 @@ export const DiscountContextProvider = ({ children }) => {
   }, [token]);
 
   // Create discount
-const createDiscount = useCallback(async (data) => {
-  if (!token) return;
+  const createDiscount = useCallback(async (data) => {
+    if (!token) return;
 
-  setLoading(true); // Start loading
+    setLoading(true); // Start loading
 
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/admin/discount`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/discount`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (!response.ok || !result.status) {
-      throw new Error(result.message || "Something went wrong");
+      if (!response.ok || !result.status) {
+        throw new Error(result.message || "Something went wrong");
+      }
+
+      await fetchDiscounts();
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: result.message || 'Discount created successfully.',
+        confirmButtonColor: '#237FEA'
+      });
+
+      navigate('/holiday-camps/discounts/list');
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Failed to Create Discount',
+        text: err.message || 'An unexpected error occurred.',
+        confirmButtonColor: '#d33'
+      });
+
+      console.error("Failed to create discount:", err);
+    } finally {
+      setLoading(false); // Stop loading regardless of success or error
     }
-
-    await fetchDiscounts();
-
-    await Swal.fire({
-      icon: 'success',
-      title: 'Success',
-      text: result.message || 'Discount created successfully.',
-      confirmButtonColor: '#237FEA'
-    });
-
-    navigate('/holiday-camps/discounts/list');
-  } catch (err) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Failed to Create Discount',
-      text: err.message || 'An unexpected error occurred.',
-      confirmButtonColor: '#d33'
-    });
-
-    console.error("Failed to create discount:", err);
-  } finally {
-    setLoading(false); // Stop loading regardless of success or error
-  }
-}, [token, fetchDiscounts, navigate]);
+  }, [token, fetchDiscounts, navigate]);
 
 
   // Update discount
@@ -128,7 +142,7 @@ const createDiscount = useCallback(async (data) => {
     }
   }, [token, fetchDiscounts]);
 
-  
+
 
   return (
     <DiscountContext.Provider
@@ -138,7 +152,8 @@ const createDiscount = useCallback(async (data) => {
         setDiscounts,
         loading,
         selectedDiscount,
-        fetchDiscounts,
+        fetchHolidayDiscounts,
+         fetchDiscounts,
         fetchDiscountById,
         createDiscount,
         updateDiscount,

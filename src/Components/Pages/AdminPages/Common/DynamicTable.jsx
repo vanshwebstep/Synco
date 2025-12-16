@@ -9,6 +9,7 @@ const DynamicTable = ({
   selectedIds = [],
   setSelectedStudents,
   onRowClick,
+  isFilterApplied,
 
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -64,6 +65,11 @@ const DynamicTable = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalPages, currentPage]);
 
+  useEffect(() => {
+    if (isFilterApplied) {
+      setCurrentPage(1);
+    }
+  })
   // If rowsPerPage changes, reset to page 1
   useEffect(() => {
     setCurrentPage(1);

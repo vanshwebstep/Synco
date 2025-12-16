@@ -411,11 +411,22 @@ const BirthdayBookingForm = () => {
   };
 
   const formatLocalDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
-    const day = String(date.getDate()).padStart(2, "0");
+    if (!date) return null;
 
-    return `${year}-${month}-${day}`; // e.g., "2025-08-10"
+    return [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0"),
+    ].join("-");
+  };
+  // Time only (local time)
+  const formatLocalTime = (time) => {
+    if (!time) return null;
+
+    const h = String(time.getHours()).padStart(2, "0");
+    const m = String(time.getMinutes()).padStart(2, "0");
+
+    return `${h}:${m}`; // ✅ 14:30
   };
 
   const getDaysArray = () => {
@@ -439,14 +450,10 @@ const BirthdayBookingForm = () => {
 
   const goToPreviousMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
-    setFromDate(null);
-    setToDate(null);
   };
 
   const goToNextMonth = () => {
     setCurrentDate(new Date(year, month + 1, 1));
-    setFromDate(null);
-    setToDate(null);
   };
 
   const isSameDate = (d1, d2) => {
@@ -547,17 +554,27 @@ const BirthdayBookingForm = () => {
 
   // 🔁 Calculate Age Automatically
   const handleDOBChange = (index, date) => {
-    const today = new Date();
-    let ageNow = today.getFullYear() - date.getFullYear();
-    const m = today.getMonth() - date.getMonth();
+    if (!date) return;
 
-    if (m < 0 || (m === 0 && today.getDate() < date.getDate())) {
+    // Normalize date (remove timezone shift)
+    const normalizedDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+
+    const today = new Date();
+    let ageNow = today.getFullYear() - normalizedDate.getFullYear();
+    const m = today.getMonth() - normalizedDate.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < normalizedDate.getDate())) {
       ageNow--;
     }
 
     const updatedStudents = [...students];
-    updatedStudents[index].dateOfBirth = date;
+    updatedStudents[index].dateOfBirth = normalizedDate;
     updatedStudents[index].age = ageNow;
+
     setStudents(updatedStudents);
   };
 
@@ -724,7 +741,8 @@ const BirthdayBookingForm = () => {
     }
 
     // Handle PAN
-    const formattedTime = combineLocalDateTime(selectedDate, time);
+    console.log('selectedDate', selectedDate)
+   
 
     if (transformedPayment.cardNumber) {
       transformedPayment.cardNumber = transformedPayment.cardNumber.replace(/\s+/g, ""); // remove spaces
@@ -732,24 +750,37 @@ const BirthdayBookingForm = () => {
 
     setIsSubmitting(true);
 
+    const formattedDate = formatLocalDate(selectedDate);
+    const formattedTime = formatLocalTime(time);
+
+    // 🔥 CRITICAL FIX
+    const safeStudents = students.map((s) => ({
+      ...s,
+      dateOfBirth: s.dateOfBirth
+        ? formatLocalDate(s.dateOfBirth)
+        : null,
+    }));
+
     const payload = {
-      leadId: leadId,
+      leadId,
       coachId: selectedCoach,
       location: locationValue,
-      address: address,
+      address,
       capacity: numberOfStudents,
-      date: formatLocalDate(selectedDate),
-      time: formattedTime,
-      totalStudents: students.length,
+      date: formattedDate,     // ✅ "YYYY-MM-DD"
+      time: formattedTime,     // ✅ "HH:mm"
+      totalStudents: safeStudents.length,
       areaWorkOn: areasToWorkOn,
       paymentPlanId: selectedPackage,
       discountId: selectedDiscount,
-      students,
+      students: safeStudents, // ✅ FIXED
       parents,
       emergency,
-
-      ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
+      ...(Object.keys(transformedPayment).length > 0 && {
+        payment: transformedPayment,
+      }),
     };
+
     try {
       await createBookBirthday(payload);
 
@@ -1404,6 +1435,7 @@ const BirthdayBookingForm = () => {
                 className="w-full mt-2 text-base"
                 classNamePrefix="react-select"
                 placeholder="Select a Discount code"
+                isClearable
                 // find option by ID
                 value={discountOptions.find((opt) => opt.value === selectedDiscount) || null}
                 onChange={(opt) => setSelectedDiscount(opt?.value || null)}

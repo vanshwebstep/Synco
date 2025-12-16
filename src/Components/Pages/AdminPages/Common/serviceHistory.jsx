@@ -4,32 +4,40 @@ import { useNavigate } from 'react-router-dom';
 
 const formatDate = (dateString, withTime = false) => {
   if (!dateString) return "-";
+
   const date = new Date(dateString);
 
   const options = { month: "short", day: "2-digit", year: "numeric" };
 
-  // Format date as "Oct 31 2025"
-  let formattedDate = date
+  // "Oct 31 2025"
+  const formattedDate = date
     .toLocaleDateString("en-US", options)
-    .replace(/,/g, ""); // remove commas
+    .replace(/,/g, "");
 
-  if (withTime) {
+  // ✅ check if time exists in original string
+  const hasTime =
+    typeof dateString === "string" &&
+    (dateString.includes("T") || dateString.includes(":"));
+
+  if (withTime && hasTime) {
     const formattedTime = date.toLocaleTimeString("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: false,
     });
-    return `${formattedDate}, ${formattedTime}`; // "Oct 31 2025, 16:49"
+
+    return `${formattedDate}, ${formattedTime}`;
   }
 
   return formattedDate;
 };
 
 
+
 const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
   if (!serviceHistory) return null;
   const navigate = useNavigate();
-
+  console.log('dateBooked', serviceHistory)
   const {
     bookingId,
     bookedBy,
@@ -40,6 +48,7 @@ const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
     classSchedule,
     paymentPlan,
     bookedByAdmin,
+    startDate,
     dateBooked,
     title,   // header title
     icon,    // header icon
@@ -203,8 +212,13 @@ const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
                         {labels.dateOfBooking || "Date of Booking"}
                       </div>
                       <div className="text-[16px] font-semibold text-[#384455]">
-                        {dateBooked ? formatDate(dateBooked, true) : createdAt ? formatDate(createdAt, true) : "—"}
-                      </div>
+                        {serviceHistory?.startDate
+                          ? formatDate(serviceHistory.startDate, true)
+                          : dateBooked
+                            ? formatDate(dateBooked, true)
+                            : createdAt
+                              ? formatDate(createdAt, true)
+                              : "—"}                      </div>
                     </div>
                   )}
 

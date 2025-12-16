@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState ,useCallback} from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { FiSearch } from "react-icons/fi";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Select from "react-select";
@@ -12,13 +12,14 @@ import { saveAs } from 'file-saver';
 import StatsGrid from '../../Common/StatsGrid';
 import DynamicTable from '../../Common/DynamicTable';
 import { useBookFreeTrial } from '../../contexts/BookAFreeTrialContext';
-  import debounce from "lodash.debounce";
+import debounce from "lodash.debounce";
 
 const trialLists = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [fromDate, setFromDate] = useState(null);
     const [toDate, setToDate] = useState(null);
     const [selectedDate, setSelectedDate] = useState(null);
+    const [isFilterApplied, setIsFilterApplied] = useState(false);
     const navigate = useNavigate();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
@@ -144,14 +145,10 @@ const trialLists = () => {
 
     const goToPreviousMonth = () => {
         setCurrentDate(new Date(year, month - 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
 
     const goToNextMonth = () => {
         setCurrentDate(new Date(year, month + 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
 
     const isInRange = (date) => {
@@ -203,14 +200,14 @@ const trialLists = () => {
         // Else: send range as createdAtFrom/To
         const dateRangeMembership = checkedStatuses.trialDate ? range : [];
         const otherDateRange = checkedStatuses.trialDate ? [] : range;
-
+        setIsFilterApplied(true);
         fetchBookMemberships(
             "",                                  // studentName
             "",                                  // venueName
             checkedStatuses.pending,             // status1
             checkedStatuses.active,              // status2
-            dateRangeMembership,      
-            checkedStatuses.tweleveMonths,        
+            dateRangeMembership,
+            checkedStatuses.tweleveMonths,
             checkedStatuses.sixMonths,           // month1 -> duration 6
             checkedStatuses.threeMonths,         // month2 -> duration 3
             checkedStatuses.flexiPlan,           // month3 -> duration 1 (flexi)
@@ -310,20 +307,24 @@ const trialLists = () => {
     };
 
 
+    useEffect(() => {
+        if (isFilterApplied) {
+            setIsFilterApplied(false)
+        }
+    })
 
+    const handleSearch = useCallback(
+        debounce((value) => {
+            fetchBookMemberships(value);
+        }, 300), // waits 300ms after last keystroke
+        []
+    );
 
-const handleSearch = useCallback(
-  debounce((value) => {
-    fetchBookMemberships(value);
-  }, 300), // waits 300ms after last keystroke
-  []
-);
-
-const onSearchChange = (e) => {
-  const value = e.target.value;
-  setSearchTerm(value);
-  handleSearch(value);
-};
+    const onSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        handleSearch(value);
+    };
 
     if (loading) return <Loader />;
     console.log('bookMembership', bookMembership)
@@ -335,7 +336,7 @@ const onSearchChange = (e) => {
         {
             header: "Date of Booking",
             render: (item) => {
-                const date = new Date(item.createdAt);
+                const date = new Date(item.startDate);
 
                 const day = date.getDate();
                 const suffix =
@@ -407,6 +408,7 @@ const onSearchChange = (e) => {
                                 state: { itemId: row.id, memberInfo: "allMembers" },
                             })
                         }
+                        isFilterApplied={isFilterApplied}
                     />
 
 
@@ -594,7 +596,7 @@ const onSearchChange = (e) => {
                                                                 src="/members/dummyuser.png"
                                                                 alt="name"
                                                                 className="w-8 h-8 rounded-full object-cover"
-                                                                
+
                                                             />
                                                         )}
 

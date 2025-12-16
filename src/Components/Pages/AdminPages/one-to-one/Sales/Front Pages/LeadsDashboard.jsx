@@ -54,15 +54,23 @@ const LeadsDashboard = () => {
   }
 
   // console.log('fromDate,toDate', fromDate, toDate)
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10; // you can change this
+  const startIndex = (currentPage - 1) * rowsPerPage;
 
-  const indexOfLast = currentPage * itemsPerPage;
-  const indexOfFirst = indexOfLast - itemsPerPage;
 
-  const currentData = leadsData.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(leadsData.length / itemsPerPage);
+  const paginatedData = leadsData.slice(
+    startIndex,
+    startIndex + rowsPerPage
+  );
+  const totalItems = leadsData.length;
 
+  const totalPages = Math.ceil(totalItems / rowsPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rowsPerPage]);
   const fetchLeads = useCallback(
     async (
       studentName = "",
@@ -252,7 +260,7 @@ const LeadsDashboard = () => {
         timer: 2000,
         showConfirmButton: false,
       });
-
+ setCurrentPage(1);
       await fetchLeads(); // refresh roles or data
       setIsOpen(false);   // close modal or form
       setFormData({});    // reset form if needed
@@ -279,7 +287,7 @@ const LeadsDashboard = () => {
       return;
     }
 
-
+ setCurrentPage(1);
 
     fetchLeads(value);
 
@@ -383,23 +391,19 @@ const LeadsDashboard = () => {
 
   const calendarDays = getDaysArray();
 
-  const goToPreviousMonth = () => {
-    setCurrentDate(new Date(year, month - 1, 1));
-    setFromDate(null);
-    setToDate(null);
-  };
+const goToPreviousMonth = () => {
+  setCurrentDate(new Date(year, month - 1, 1));
+};
 
-  const goToNextMonth = () => {
-    setCurrentDate(new Date(year, month + 1, 1));
-    setFromDate(null);
-    setToDate(null);
-  };
+const goToNextMonth = () => {
+  setCurrentDate(new Date(year, month + 1, 1));
+};
+
 
   const isInRange = (date) => {
-    if (!fromDate || !toDate || !date) return false;
-    return date >= fromDate && date <= toDate;
-  };
-
+  if (!fromDate || !toDate || !date) return false;
+  return date >= fromDate && date <= toDate;
+};
   const isSameDate = (d1, d2) => {
     if (!d1 || !d2) return false;
     const date1 = d1 instanceof Date ? d1 : new Date(d1);
@@ -459,7 +463,7 @@ const LeadsDashboard = () => {
     // Else: send range as createdAtFrom/To
     const dateRangeMembership = checkedStatuses.trialDate ? range : [];
     const otherDateRange = checkedStatuses.trialDate ? [] : range;
-
+ setCurrentPage(1);
     fetchLeads(
       "",                  // venueName
       checkedStatuses.paid,   // status1
@@ -564,9 +568,9 @@ const LeadsDashboard = () => {
                     fetchLeads();
                     setFromDate('');
                     setToDate('');
-                                    setCheckedStatuses(
-                  filterOptions.reduce((acc, opt) => ({ ...acc, [opt.key]: false }), {})
-                );
+                    setCheckedStatuses(
+                      filterOptions.reduce((acc, opt) => ({ ...acc, [opt.key]: false }), {})
+                    );
                   }}
                     className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
 
@@ -578,7 +582,7 @@ const LeadsDashboard = () => {
             </div>
 
             {
-              currentData.length > 0 ? (
+              paginatedData.length > 0 ? (
                 <div className="overflow-auto rounded-2xl bg-white shadow-sm">
                   <table className="min-w-full text-sm">
                     <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
@@ -594,7 +598,7 @@ const LeadsDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {currentData.map((lead, i) => {
+                      {paginatedData.map((lead, i) => {
                         const isChecked = selectedUserIds.includes(lead.id);
                         return (
                           <tr
@@ -655,7 +659,118 @@ const LeadsDashboard = () => {
                       })}
                     </tbody>
                   </table>
+ {totalItems > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
 
+                {/* Rows per page */}
+                <div className="flex items-center gap-2 mb-3 sm:mb-0">
+                  <span>Rows per page:</span>
+                  <select
+                    value={rowsPerPage}
+                    onChange={(e) => setRowsPerPage(Number(e.target.value))}
+                    className="border rounded-md px-2 py-1"
+                  >
+                    {[5, 10, 20, 50].map((num) => (
+                      <option key={num} value={num}>
+                        {num}
+                      </option>
+                    ))}
+                  </select>
+
+                  <span className="ml-2">
+                    {Math.min(startIndex + 1, totalItems)} –{" "}
+                    {Math.min(startIndex + rowsPerPage, totalItems)} of {totalItems}
+                  </span>
+                </div>
+
+                {/* Pagination buttons */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                    disabled={currentPage === 1}
+                    className={`px-3 py-1 rounded-md border ${currentPage === 1
+                      ? "text-gray-400 border-gray-200"
+                      : "hover:bg-gray-100 border-gray-300"
+                      }`}
+                  >
+                    Prev
+                  </button>
+
+                  {(() => {
+                    const buttons = [];
+                    const maxVisible = 5;
+                    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+                    let endPage = startPage + maxVisible - 1;
+
+                    if (endPage > totalPages) {
+                      endPage = totalPages;
+                      startPage = Math.max(1, endPage - maxVisible + 1);
+                    }
+
+                    if (startPage > 1) {
+                      buttons.push(
+                        <button
+                          key={1}
+                          onClick={() => setCurrentPage(1)}
+                          className={`px-3 py-1 rounded-md border ${currentPage === 1
+                            ? "bg-blue-500 text-white border-blue-500"
+                            : "hover:bg-gray-100 border-gray-300"
+                            }`}
+                        >
+                          1
+                        </button>
+                      );
+                      if (startPage > 2) buttons.push(<span key="s-ellipsis">...</span>);
+                    }
+
+                    for (let i = startPage; i <= endPage; i++) {
+                      buttons.push(
+                        <button
+                          key={i}
+                          onClick={() => setCurrentPage(i)}
+                          className={`px-3 py-1 rounded-md border ${currentPage === i
+                            ? "bg-blue-500 text-white border-blue-500"
+                            : "hover:bg-gray-100 border-gray-300"
+                            }`}
+                        >
+                          {i}
+                        </button>
+                      );
+                    }
+
+                    if (endPage < totalPages) {
+                      if (endPage < totalPages - 1)
+                        buttons.push(<span key="e-ellipsis">...</span>);
+                      buttons.push(
+                        <button
+                          key={totalPages}
+                          onClick={() => setCurrentPage(totalPages)}
+                          className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+                            ? "bg-blue-500 text-white border-blue-500"
+                            : "hover:bg-gray-100 border-gray-300"
+                            }`}
+                        >
+                          {totalPages}
+                        </button>
+                      );
+                    }
+
+                    return buttons;
+                  })()}
+
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+                      ? "text-gray-400 border-gray-200"
+                      : "hover:bg-gray-100 border-gray-300"
+                      }`}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
                 </div>
 
               ) : (
@@ -665,50 +780,7 @@ const LeadsDashboard = () => {
               )
             }
 
-            {leadsData.length > 0 && (
-              <div className="flex gap-3 justify-end items-center mt-4 px-2">
-
-                {/* Prev Button */}
-                <button
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  className={`px-3 py-2 rounded-lg text-sm border ${currentPage === 1
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-white hover:bg-gray-100"
-                    }`}
-                >
-                  Previous
-                </button>
-
-                {/* Page Numbers */}
-                <div className="flex gap-2">
-                  {Array.from({ length: totalPages }, (_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-2 rounded-lg text-sm border ${currentPage === i + 1
-                        ? "bg-blue-500 text-white border-blue-500"
-                        : "bg-white hover:bg-gray-100"
-                        }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Next Button */}
-                <button
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  className={`px-3 py-2 rounded-lg text-sm border ${currentPage === totalPages
-                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                    : "bg-white hover:bg-gray-100"
-                    }`}
-                >
-                  Next
-                </button>
-              </div>
-            )}
+           
           </div>
         </div>
 

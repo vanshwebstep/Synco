@@ -308,7 +308,7 @@ const StudentProfile = ({ profile }) => {
         ? `${duration} ${interval}`
         : "";
 
-    const dateBooked = profile?.dateBooked;
+    const dateBooked = profile?.startDate;
     const status = profile?.status;
 
     // console.log('Venue Name:', profile.dateBooked);
@@ -350,7 +350,7 @@ const StudentProfile = ({ profile }) => {
             minutes = date.getMinutes().toString().padStart(2, "0");
         }
 
-        return `${month} ${day} ${year}, ${hours}:${minutes}`;
+        return `${month} ${day} ${year}`;
     }
     const handleStudentDataChange = (index, field, value) => {
         const updatedStudents = [...students];

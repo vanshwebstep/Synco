@@ -362,10 +362,11 @@ const BirthdayLeadsDashboard = () => {
       setNoLoaderShow(true);
       // Optionally re-fetch default data when cleared
       fetchLeads("");
+      setCurrentPage(1);
       return;
     }
-
     setNoLoaderShow(false);
+    setCurrentPage(1);
 
     // ✅ Optional debounce for better performance
     clearTimeout(window.searchTimeout);
@@ -470,17 +471,13 @@ const BirthdayLeadsDashboard = () => {
 
   const calendarDays = getDaysArray();
 
-  const goToPreviousMonth = () => {
-    setCurrentDate(new Date(year, month - 1, 1));
-    setFromDate(null);
-    setToDate(null);
-  };
+ const goToPreviousMonth = () => {
+  setCurrentDate(new Date(year, month - 1, 1));
+};
 
-  const goToNextMonth = () => {
-    setCurrentDate(new Date(year, month + 1, 1));
-    setFromDate(null);
-    setToDate(null);
-  };
+const goToNextMonth = () => {
+  setCurrentDate(new Date(year, month + 1, 1)); 
+ };
 
   const isInRange = (date) => {
     if (!fromDate || !toDate || !date) return false;
@@ -553,6 +550,7 @@ const BirthdayLeadsDashboard = () => {
       });
       return; // stop further execution
     }
+            setCurrentPage(1);
 
     const range = hasRange ? [fromDate, toDate] : [];
 
@@ -570,7 +568,6 @@ const BirthdayLeadsDashboard = () => {
       silver: checkedStatuses.silver,
       pending: checkedStatuses.pending,
     };
-
     fetchLeads(
       "", // studentName
       statusFilters, // all statuses object
@@ -610,9 +607,22 @@ const BirthdayLeadsDashboard = () => {
   const [checkedStatuses, setCheckedStatuses] = useState(
     filterOptions.reduce((acc, opt) => ({ ...acc, [opt.key]: false }), {})
   );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const totalItems = leadsData.length;
+  const totalPages = Math.ceil(totalItems / rowsPerPage);
+
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const paginatedData = leadsData.slice(
+    startIndex,
+    startIndex + rowsPerPage
+  );
 
 
-
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [rowsPerPage]);
   // Prepare calendar cells
   const daysArray = [];
   for (let i = 0; i < firstDay; i++) daysArray.push(null);
@@ -680,6 +690,7 @@ const BirthdayLeadsDashboard = () => {
 
             <div className="flex justify-end"> {leadsData.length == 0 && (
               <button onClick={() => {
+
                 fetchLeads();
                 setFromDate('');
                 setToDate('');
@@ -696,7 +707,7 @@ const BirthdayLeadsDashboard = () => {
 
 
             {
-              leadsData.length > 0 ? (
+              paginatedData.length > 0 ? (
 
                 <div className="overflow-auto rounded-2xl bg-white shadow-sm">
                   <table className="min-w-full text-sm">
@@ -712,7 +723,7 @@ const BirthdayLeadsDashboard = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {leadsData.map((lead, i) => {
+                      {paginatedData.map((lead, i) => {
                         const isChecked = selectedUserIds.includes(lead.id);
 
 
@@ -776,9 +787,121 @@ const BirthdayLeadsDashboard = () => {
                           </tr>
                         );
                       })}
+
                     </tbody>
                   </table>
+                  {totalItems > 0 && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
 
+                      {/* Rows per page */}
+                      <div className="flex items-center gap-2 mb-3 sm:mb-0">
+                        <span>Rows per page:</span>
+                        <select
+                          value={rowsPerPage}
+                          onChange={(e) => setRowsPerPage(Number(e.target.value))}
+                          className="border rounded-md px-2 py-1"
+                        >
+                          {[5, 10, 20, 50].map((num) => (
+                            <option key={num} value={num}>
+                              {num}
+                            </option>
+                          ))}
+                        </select>
+
+                        <span className="ml-2">
+                          {Math.min(startIndex + 1, totalItems)} –{" "}
+                          {Math.min(startIndex + rowsPerPage, totalItems)} of {totalItems}
+                        </span>
+                      </div>
+
+                      {/* Pagination buttons */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                          disabled={currentPage === 1}
+                          className={`px-3 py-1 rounded-md border ${currentPage === 1
+                            ? "text-gray-400 border-gray-200"
+                            : "hover:bg-gray-100 border-gray-300"
+                            }`}
+                        >
+                          Prev
+                        </button>
+
+                        {(() => {
+                          const buttons = [];
+                          const maxVisible = 5;
+                          let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+                          let endPage = startPage + maxVisible - 1;
+
+                          if (endPage > totalPages) {
+                            endPage = totalPages;
+                            startPage = Math.max(1, endPage - maxVisible + 1);
+                          }
+
+                          if (startPage > 1) {
+                            buttons.push(
+                              <button
+                                key={1}
+                                onClick={() => setCurrentPage(1)}
+                                className={`px-3 py-1 rounded-md border ${currentPage === 1
+                                  ? "bg-blue-500 text-white border-blue-500"
+                                  : "hover:bg-gray-100 border-gray-300"
+                                  }`}
+                              >
+                                1
+                              </button>
+                            );
+                            if (startPage > 2) buttons.push(<span key="s-ellipsis">...</span>);
+                          }
+
+                          for (let i = startPage; i <= endPage; i++) {
+                            buttons.push(
+                              <button
+                                key={i}
+                                onClick={() => setCurrentPage(i)}
+                                className={`px-3 py-1 rounded-md border ${currentPage === i
+                                  ? "bg-blue-500 text-white border-blue-500"
+                                  : "hover:bg-gray-100 border-gray-300"
+                                  }`}
+                              >
+                                {i}
+                              </button>
+                            );
+                          }
+
+                          if (endPage < totalPages) {
+                            if (endPage < totalPages - 1)
+                              buttons.push(<span key="e-ellipsis">...</span>);
+                            buttons.push(
+                              <button
+                                key={totalPages}
+                                onClick={() => setCurrentPage(totalPages)}
+                                className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+                                  ? "bg-blue-500 text-white border-blue-500"
+                                  : "hover:bg-gray-100 border-gray-300"
+                                  }`}
+                              >
+                                {totalPages}
+                              </button>
+                            );
+                          }
+
+                          return buttons;
+                        })()}
+
+                        <button
+                          onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                          disabled={currentPage === totalPages}
+                          className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+                            ? "text-gray-400 border-gray-200"
+                            : "hover:bg-gray-100 border-gray-300"
+                            }`}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
 

@@ -219,6 +219,8 @@ const List = () => {
             if (Array.isArray(TrialData.students) && TrialData.students.length > 0) {
                 // console.log('stp2')
                 setStudents(TrialData.students);
+                setNumberOfStudents(TrialData?.totalStudents);
+                console.log('comesfromtrialdaata',TrialData)
             }
             // console.log('stp3')
             if (Array.isArray(TrialData.parents) && TrialData.parents.length > 0) {
@@ -337,17 +339,13 @@ const List = () => {
     };
     const calendarDays = getDaysArray();
 
-    const goToPreviousMonth = () => {
-        setCurrentDate(new Date(year, month - 1, 1));
-        setFromDate(null);
-        setToDate(null);
-    };
+ const goToPreviousMonth = () => {
+  setCurrentDate(new Date(year, month - 1, 1));
+};
 
-    const goToNextMonth = () => {
-        setCurrentDate(new Date(year, month + 1, 1));
-        setFromDate(null);
-        setToDate(null);
-    };
+const goToNextMonth = () => {
+  setCurrentDate(new Date(year, month + 1, 1)); 
+ };
 
     const isSameDate = (d1, d2) => {
         const date1 = typeof d1 === "string" ? new Date(d1) : d1;

@@ -21,6 +21,7 @@ const CancellationList = () => {
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
     const [selectedStudents, setSelectedStudents] = useState([]);
     const location = useLocation();
+    const [isFilterApplied, setIsFilterApplied] = useState(false);
 
     const [active, setActive] = useState("request"); // default selected
 
@@ -155,14 +156,10 @@ const CancellationList = () => {
 
     const goToPreviousMonth = () => {
         setCurrentDate(new Date(year, month - 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
 
     const goToNextMonth = () => {
         setCurrentDate(new Date(year, month + 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
 
     const isInRange = (date) => {
@@ -288,6 +285,7 @@ const CancellationList = () => {
                 forOtherDate = [fromDate, toDate];
             }
         }
+        setIsFilterApplied(true);
 
         const bookedByParams = savedAgent || [];
         if (active === "request") {
@@ -575,20 +573,24 @@ const CancellationList = () => {
         },
     ];
 
-
+    useEffect(() => {
+        if (isFilterApplied) {
+            setIsFilterApplied(false)
+        }
+    })
     const currentColumns = useMemo(() => {
         if (active === "request") return requestCancellationTable;
         if (active === "full") return fullCancellationTable;
         if (active === "all") return allCancellationTable;
         return fullCancellationTable; // fallback
     }, [active]);
-    
+
     let cancelType = "";
 
     if (active === "request") cancelType = "request to cancel";
     else if (active === "all") cancelType = "all cancel";
     else if (active === "full") cancelType = "full cancel";
-// console.log('myVenues',myVenues)
+    // console.log('myVenues',myVenues)
 
     return (
         <div className="pt-1 bg-gray-50 min-h-screen">
@@ -642,6 +644,7 @@ const CancellationList = () => {
                                             })
                                         : undefined
                                 }
+                                isFilterApplied={isFilterApplied}
                             />
                         </>
                     )}

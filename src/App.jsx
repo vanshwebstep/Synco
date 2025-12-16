@@ -166,6 +166,8 @@ import ContractList from './Components/Pages/AdminPages/Configuration/coach-pro/
 import PdfEditor from './Components/Pages/AdminPages/Configuration/coach-pro/contracts/PdfEditor.jsx';
 import IssueList from './Components/Pages/AdminPages/Configuration/coach-pro/issues/IssueList.jsx';
 import ReferralsList from './Components/Pages/AdminPages/Configuration/coach-pro/referrals/ReferralsList.jsx';
+import StudentCource from './Components/Pages/AdminPages/Configuration/coach-pro/studentsCources/StudentCource.jsx';
+import StudentCourceAdd from './Components/Pages/AdminPages/Configuration/coach-pro/studentsCources/StudentCourceAdd.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -1060,6 +1062,25 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <ReferralsList />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+
+        <Route path="/configuration/coach-pro/student" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <StudentCource />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/coach-pro/student/create" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <StudentCourceAdd />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

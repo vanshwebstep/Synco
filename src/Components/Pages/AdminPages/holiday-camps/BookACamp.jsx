@@ -71,7 +71,7 @@ const BookACamp = () => {
     const togglePopup = (id) => {
         setActivePopup((prev) => (prev === id ? null : id));
     };
-    const { fetchDiscounts, discounts } = useDiscounts();
+    const { fetchHolidayDiscounts, discounts } = useDiscounts();
     const [loading, setLoading] = useState(false);
     const [selectedKeyInfo, setSelectedKeyInfo] = useState(null);
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -635,7 +635,7 @@ const BookACamp = () => {
     useEffect(() => {
         fetchCamp();
         fetchHolidayCampMain();
-        fetchDiscounts();
+        fetchHolidayDiscounts();
     }, [fetchCamp]);
 
     // Inputs definitions:

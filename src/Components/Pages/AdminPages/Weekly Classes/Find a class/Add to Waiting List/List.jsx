@@ -20,6 +20,7 @@ const WaitingList = () => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     // const [selectedDate, setSelectedDate] = useState(null);
     const { fetchAddtoWaitingList, statsFreeTrial, bookFreeTrials, setSearchTerm, bookedByAdmin, searchTerm, loading, selectedVenue, setStatus, status, setSelectedVenue, myVenues, setMyVenues, sendWaitingListMail, setLoading } = useBookFreeTrial() || {};
+    const [isFilterApplied, setIsFilterApplied] = useState(false);
 
 
 
@@ -173,14 +174,10 @@ const WaitingList = () => {
 
     const goToPreviousMonth = () => {
         setCurrentDate(new Date(year, month - 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
 
     const goToNextMonth = () => {
         setCurrentDate(new Date(year, month + 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
 
     const isInRange = (date) => {
@@ -297,7 +294,7 @@ const WaitingList = () => {
         }
 
         const bookedByParams = savedAgent || [];
-
+        setIsFilterApplied(true);
         fetchAddtoWaitingList(
             "",
             "",
@@ -405,19 +402,19 @@ const WaitingList = () => {
             header: "Days Waiting",
             render: (item) => item.waitingDays || "N/A",
         },
-      {
-  header: "Interest level",
-  render: (item) => {
-    const map = {
-      low: "1 (Low)",
-      medium: "2 (Medium)",
-      high: "3 (High)",
-    };
+        {
+            header: "Interest level",
+            render: (item) => {
+                const map = {
+                    low: "1 (Low)",
+                    medium: "2 (Medium)",
+                    high: "3 (High)",
+                };
 
-    return map[item.interest] || "-";
-  },
-}
-,
+                return map[item.interest] || "-";
+            },
+        }
+        ,
         {
             header: "Status",
             render: (item) => (
@@ -469,6 +466,7 @@ const WaitingList = () => {
                                     )
                                 : undefined
                         }
+                        isFilterApplied={isFilterApplied}
                     />
 
 
@@ -640,18 +638,18 @@ const WaitingList = () => {
                                                             )}
                                                         </span>
                                                         <img
-                                                                src={`${API_BASE_URL}${admin.profile}`}
-                                                                alt={
-                                                                    admin?.firstName || admin?.lastName
-                                                                        ? `${admin?.firstName ?? ""} ${admin?.lastName && admin.lastName !== "null" ? admin.lastName : ""}`.trim()
-                                                                        : "Unknown Admin"
-                                                                }
-                                                                className="w-8 h-8 rounded-full object-cover"
-                                                                onError={(e) => {
-                                                                    e.target.onerror = null;
-                                                                    e.target.src = "/members/dummyuser.png";
-                                                                }}
-                                                            />
+                                                            src={`${API_BASE_URL}${admin.profile}`}
+                                                            alt={
+                                                                admin?.firstName || admin?.lastName
+                                                                    ? `${admin?.firstName ?? ""} ${admin?.lastName && admin.lastName !== "null" ? admin.lastName : ""}`.trim()
+                                                                    : "Unknown Admin"
+                                                            }
+                                                            className="w-8 h-8 rounded-full object-cover"
+                                                            onError={(e) => {
+                                                                e.target.onerror = null;
+                                                                e.target.src = "/members/dummyuser.png";
+                                                            }}
+                                                        />
                                                         <span>
                                                             {admin?.firstName || admin?.lastName
                                                                 ? `${admin?.firstName ?? ""}${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()

@@ -82,18 +82,18 @@ const List = () => {
   const [addressSuggestions, setAddressSuggestions] = useState([]);
 
   // 🔹 Universal function to fetch suggestions from OpenStreetMap
-  const fetchSuggestions = async (query, setList) => {
-    if (!query || query.length < 2) return setList([]);
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
-      );
-      const data = await res.json();
-      setList(data);
-    } catch (err) {
-      console.error("Suggestion fetch failed:", err);
-    }
-  };
+  // const fetchSuggestions = async (query, setList) => {
+  //   if (!query || query.length < 2) return setList([]);
+  //   try {
+  //     const res = await fetch(
+  //       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+  //     );
+  //     const data = await res.json();
+  //     setList(data);
+  //   } catch (err) {
+  //     console.error("Suggestion fetch failed:", err);
+  //   }
+  // };
   const handleCountryChange2 = (countryData) => {
     setCountry2(countryData.countryCode);
     setDialCode2("+" + countryData.dialCode);
@@ -386,12 +386,25 @@ const List = () => {
   };
 
   const formatLocalDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
-    const day = String(date.getDate()).padStart(2, "0");
+    if (!date) return null;
 
-    return `${year}-${month}-${day}`; // e.g., "2025-08-10"
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+
+    return `${y}-${m}-${d}`; // ✅ 2022-12-09
   };
+
+  // Time only (local time)
+  const formatLocalTime = (time) => {
+    if (!time) return null;
+
+    const h = String(time.getHours()).padStart(2, "0");
+    const m = String(time.getMinutes()).padStart(2, "0");
+
+    return `${h}:${m}`; // ✅ 14:30
+  };
+
 
   const getDaysArray = () => {
     const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
@@ -480,18 +493,38 @@ const List = () => {
 
   // 🔁 Calculate Age Automatically
   const handleDOBChange = (index, date) => {
-    const today = new Date();
-    let ageNow = today.getFullYear() - date.getFullYear();
-    const m = today.getMonth() - date.getMonth();
+    if (!date) return;
 
-    if (m < 0 || (m === 0 && today.getDate() < date.getDate())) {
+    // Normalize date (remove timezone shift)
+    const normalizedDate = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    );
+
+    const today = new Date();
+    let ageNow = today.getFullYear() - normalizedDate.getFullYear();
+    const m = today.getMonth() - normalizedDate.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < normalizedDate.getDate())) {
       ageNow--;
     }
 
     const updatedStudents = [...students];
-    updatedStudents[index].dateOfBirth = date;
+    updatedStudents[index].dateOfBirth = normalizedDate;
     updatedStudents[index].age = ageNow;
+
     setStudents(updatedStudents);
+  };
+
+  const formatDateOnlyLocal = (date) => {
+    if (!date) return null;
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   };
 
 
@@ -529,14 +562,14 @@ const List = () => {
     setParents((prev) => prev.filter((p) => p.id !== id));
   };
 
- 
+
   const handleParentChange = (index, field, value) => {
     const updated = [...parents];
     updated[index][field] = value;
     setParents(updated);
   };
 
- 
+
 
 
 
@@ -594,6 +627,7 @@ const List = () => {
   }
 
 
+  // Date only (no timezone)
 
   const handleSubmit = async () => {
     if (!selectedDate) {
@@ -621,32 +655,36 @@ const List = () => {
     }
 
     if (transformedPayment.cardNumber) {
-      transformedPayment.cardNumber = transformedPayment.cardNumber.replace(/\s+/g, "");
+      transformedPayment.cardNumber =
+        transformedPayment.cardNumber.replace(/\s+/g, "");
     }
 
     setIsSubmitting(true);
 
-    // Proper local date
+    // ✅ SAFE LOCAL DATE & TIME
     const formattedDate = formatLocalDate(selectedDate);
-
-    // FIX: Convert your selected time into local time (no UTC conversion!)
-    const formattedTime = combineLocalDateTime(selectedDate, time);
+    const formattedTime = formatLocalTime(time);
 
     const payload = {
-      leadId: leadId,
+      leadId,
       coachId: selectedCoach,
       location: locationValue,
-      address: address,
-      date: formattedDate,
-      time: formattedTime,   // FIXED
+      address,
+      date: formattedDate,   // ✅ YYYY-MM-DD
+      time: formattedTime,   // ✅ HH:mm
       totalStudents: students.length,
       areaWorkOn: areasToWorkOn,
       paymentPlanId: selectedPackage,
       discountId: selectedDiscount,
-      students,
+      students: students.map((s) => ({
+        ...s,
+        dateOfBirth: formatLocalDate(s.dateOfBirth), // ✅ IMPORTANT
+      })),
       parents,
       emergency,
-      ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
+      ...(Object.keys(transformedPayment).length > 0 && {
+        payment: transformedPayment,
+      }),
     };
 
     console.log("payload", payload);
@@ -726,7 +764,7 @@ const List = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [activePopup]);
-  
+
   useEffect(() => {
     if (singleClassSchedulesOnly?.venue?.paymentGroups?.length > 0) {
       const cleanedPlans = singleClassSchedulesOnly.venue.paymentGroups[0].paymentPlans.map(plan => ({
@@ -1163,7 +1201,7 @@ const List = () => {
                     onChange={(e) => {
                       const val = e.target.value;
                       setLocationValue(val);
-                      fetchSuggestions(val, setLocationSuggestions);
+                      // fetchSuggestions(val, setLocationSuggestions);
                     }}
                     className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 pl-9 focus:outline-none"
                   />
@@ -1200,7 +1238,7 @@ const List = () => {
                     onChange={(e) => {
                       const val = e.target.value;
                       setAddress(val);
-                      fetchSuggestions(val, setAddressSuggestions);
+                      // fetchSuggestions(val, setAddressSuggestions);
                     }}
                     className="w-full border border-gray-300 rounded-xl px-3 text-[16px] py-3 pl-9 focus:outline-none"
                   />
@@ -1323,6 +1361,7 @@ const List = () => {
                 classNamePrefix="react-select"
                 placeholder="Select a Discount code"
                 // find option by ID
+                isClearable
                 value={discountOptions.find((opt) => opt.value === selectedDiscount) || null}
                 onChange={(opt) => setSelectedDiscount(opt?.value || null)}
                 options={discountOptions}

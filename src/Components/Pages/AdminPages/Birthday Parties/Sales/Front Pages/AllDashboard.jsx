@@ -301,7 +301,7 @@ const AllDashboard = () => {
                 timer: 2000,
                 showConfirmButton: false,
             });
-
+ setCurrentPage(1);
             await fetchLeads(); // refresh roles or data
             setIsOpen(false);   // close modal or form
             setFormData({});    // reset form if needed
@@ -324,10 +324,11 @@ const AllDashboard = () => {
 
         // If search is cleared, hide loader and optionally reset data
         if (value.length === 0) {
-            setNoLoaderShow(true);
+            setNoLoaderShow(true); setCurrentPage(1);
             fetchLeads(""); // optional: reload default list
             return;
         }
+         setCurrentPage(1);
         fetchLeads(value);
 
     };
@@ -451,16 +452,11 @@ const AllDashboard = () => {
 
     const goToPreviousMonth = () => {
         setCurrentDate(new Date(year, month - 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
 
     const goToNextMonth = () => {
         setCurrentDate(new Date(year, month + 1, 1));
-        setFromDate(null);
-        setToDate(null);
     };
-
     const isInRange = (date) => {
         if (!fromDate || !toDate || !date) return false;
         return date >= fromDate && date <= toDate;
@@ -519,7 +515,7 @@ const AllDashboard = () => {
         const coachByParams = Array.isArray(savedCoach) ? savedCoach : [];
         const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
         const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
-
+        setCurrentPage(1);
         fetchLeads(
             "",
             checkedStatuses.package,
@@ -622,7 +618,7 @@ const AllDashboard = () => {
             : selectedVenue?.value
                 ? selectedVenue.value
                 : "";
-
+        setCurrentPage(1);
         fetchLeads(
             "",
             checkedStatuses.package,
@@ -636,7 +632,22 @@ const AllDashboard = () => {
             selectedVenueParam
         );
     }, [selectedVenue]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
+    const totalItems = leadsData.length;
+    const totalPages = Math.ceil(totalItems / rowsPerPage);
+
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const paginatedData = leadsData.slice(
+        startIndex,
+        startIndex + rowsPerPage
+    );
+
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [rowsPerPage]);
     if (mainLoading || loading) {
         return (
             <>
@@ -686,6 +697,7 @@ const AllDashboard = () => {
 
                         <div className="flex justify-end"> {leadsData.length == 0 && (
                             <button onClick={() => {
+                                 setCurrentPage(1);
                                 fetchLeads();
                                 setFromDate('');
                                 setToDate('');
@@ -701,7 +713,7 @@ const AllDashboard = () => {
                         )}</div>
 
                         {
-                            leadsData.length > 0 ? (
+                            paginatedData.length > 0 ? (
 
                                 <div className="overflow-auto rounded-2xl bg-white shadow-sm">
                                     <table className="min-w-full text-sm">
@@ -719,7 +731,7 @@ const AllDashboard = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {leadsData.map((lead, i) => {
+                                            {paginatedData.map((lead, i) => {
                                                 const isChecked = selectedUserIds.includes(lead.id);
                                                 const hasId = !!lead.booking; // ✅ Check if id exists
 
@@ -799,7 +811,118 @@ const AllDashboard = () => {
                                         </tbody>
 
                                     </table>
+                                    {totalItems > 0 && (
+                                        <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
 
+                                            {/* Rows per page */}
+                                            <div className="flex items-center gap-2 mb-3 sm:mb-0">
+                                                <span>Rows per page:</span>
+                                                <select
+                                                    value={rowsPerPage}
+                                                    onChange={(e) => setRowsPerPage(Number(e.target.value))}
+                                                    className="border rounded-md px-2 py-1"
+                                                >
+                                                    {[5, 10, 20, 50].map((num) => (
+                                                        <option key={num} value={num}>
+                                                            {num}
+                                                        </option>
+                                                    ))}
+                                                </select>
+
+                                                <span className="ml-2">
+                                                    {Math.min(startIndex + 1, totalItems)} –{" "}
+                                                    {Math.min(startIndex + rowsPerPage, totalItems)} of {totalItems}
+                                                </span>
+                                            </div>
+
+                                            {/* Pagination buttons */}
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                                                    disabled={currentPage === 1}
+                                                    className={`px-3 py-1 rounded-md border ${currentPage === 1
+                                                        ? "text-gray-400 border-gray-200"
+                                                        : "hover:bg-gray-100 border-gray-300"
+                                                        }`}
+                                                >
+                                                    Prev
+                                                </button>
+
+                                                {(() => {
+                                                    const buttons = [];
+                                                    const maxVisible = 5;
+                                                    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+                                                    let endPage = startPage + maxVisible - 1;
+
+                                                    if (endPage > totalPages) {
+                                                        endPage = totalPages;
+                                                        startPage = Math.max(1, endPage - maxVisible + 1);
+                                                    }
+
+                                                    if (startPage > 1) {
+                                                        buttons.push(
+                                                            <button
+                                                                key={1}
+                                                                onClick={() => setCurrentPage(1)}
+                                                                className={`px-3 py-1 rounded-md border ${currentPage === 1
+                                                                    ? "bg-blue-500 text-white border-blue-500"
+                                                                    : "hover:bg-gray-100 border-gray-300"
+                                                                    }`}
+                                                            >
+                                                                1
+                                                            </button>
+                                                        );
+                                                        if (startPage > 2) buttons.push(<span key="s-ellipsis">...</span>);
+                                                    }
+
+                                                    for (let i = startPage; i <= endPage; i++) {
+                                                        buttons.push(
+                                                            <button
+                                                                key={i}
+                                                                onClick={() => setCurrentPage(i)}
+                                                                className={`px-3 py-1 rounded-md border ${currentPage === i
+                                                                    ? "bg-blue-500 text-white border-blue-500"
+                                                                    : "hover:bg-gray-100 border-gray-300"
+                                                                    }`}
+                                                            >
+                                                                {i}
+                                                            </button>
+                                                        );
+                                                    }
+
+                                                    if (endPage < totalPages) {
+                                                        if (endPage < totalPages - 1)
+                                                            buttons.push(<span key="e-ellipsis">...</span>);
+                                                        buttons.push(
+                                                            <button
+                                                                key={totalPages}
+                                                                onClick={() => setCurrentPage(totalPages)}
+                                                                className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+                                                                    ? "bg-blue-500 text-white border-blue-500"
+                                                                    : "hover:bg-gray-100 border-gray-300"
+                                                                    }`}
+                                                            >
+                                                                {totalPages}
+                                                            </button>
+                                                        );
+                                                    }
+
+                                                    return buttons;
+                                                })()}
+
+                                                <button
+                                                    onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                                                    disabled={currentPage === totalPages}
+                                                    className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+                                                        ? "text-gray-400 border-gray-200"
+                                                        : "hover:bg-gray-100 border-gray-300"
+                                                        }`}
+                                                >
+                                                    Next
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
 

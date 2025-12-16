@@ -722,7 +722,7 @@ function EmailPopup({ loading, grouped, handleSendEmail, close }) {
               }}>
 
                 <p className="text-[20px] text-black font-bold relative z-10">Account Status</p>
-                <p className="text-sm text-black relative capitalize z-10"> {fetchedData?.leadData?.bookings?.[0]?.status || "N/A"}</p>
+                <p className="text-sm text-black relative capitalize z-10"> {fetchedData?.leadData?.bookings?.[0]?.status || fetchedData?.leadData?.status || "N/A"}</p>
               </div>
               <div className="border-b border-[#495362] pb-3 flex items-center gap-5">
                 <div><img src="/members/user2.png" alt="" /></div>
@@ -779,7 +779,7 @@ function EmailPopup({ loading, grouped, handleSendEmail, close }) {
 
               <div>
                 <p className="text-white text-[18px] font-semibold">Current status</p>
-                <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">{fetchedData?.leadData?.bookings?.[0]?.status}</p>
+                <p className="text-[16px] mt-1 text-[#BDC0C3] font-semibold">{fetchedData?.leadData?.bookings?.[0]?.status || fetchedData?.leadData?.status || 'N/A'}</p>
               </div>
             </div>
 

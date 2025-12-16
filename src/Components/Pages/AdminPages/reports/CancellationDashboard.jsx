@@ -79,7 +79,7 @@ const CancellationDashboard = () => {
   {
     icon: <Users size={18} />,
     iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
-    title: "Total Members",
+    title: "Total RTC",
     value: membersData?.totalRTCs?.thisMonth ?? 0,
     diff: membersData?.totalRTCs?.change ?? "0%",
     sub: "vs. prev period",
