@@ -84,7 +84,7 @@ const dashboardData = {
 
 const dateOptions = [
     { value: "thisMonth", label: "This Month" },
-    { value: "lastMonth", label: "This Month" },
+    { value: "lastMonth", label: "Last Month" },
     { value: "last6Months", label: "last 6 Months" },
     { value: "last3Months", label: "last 3 Months" },
 ];
@@ -586,7 +586,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                                 {activeTabEnrolled === "byAge" &&
                                     enrolledByAge.map((d, i) => (
                                         <div key={i} className="mb-3 flex items-center gap-2">
-                                            <p className="text-sm text-gray-700">{d.label}</p>
+                                            <p className="text-sm text-gray-700 whitespace-nowrap">{d.label}</p>
                                             <div className="w-full bg-gray-100 h-2 rounded-full">
                                                 <div style={{ width: `${d.percent}%` }} className="h-2 rounded-full bg-[#237FEA]"></div>
                                             </div>

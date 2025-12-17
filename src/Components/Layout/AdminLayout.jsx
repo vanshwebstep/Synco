@@ -76,7 +76,7 @@ const AdminLayout = ({ children }) => {
     '/birthday-party/leads/booking-form': { title: 'Book a Birthday Party ', icon: '/members/BirthdayIcon.png' },
     '/birthday-party/sales/account-information': { title: 'Account Information', icon: '/members/Profile.png' },
     '/holiday-camp/reports': { title: 'Holiday Camps Report', icon: '/members/Profile.png' },
-    
+
     '/configuration/holiday-camp/venues': { title: 'Holiday Camp Venues ', icon: '/members/Location.png' },
     '/configuration/holiday-camp/venues/class-schedule': { title: 'Class Schedule', icon: '/members/ClassSchedule.png' },
     '/configuration/holiday-camp/terms': { title: 'Holiday Camp Dates & Session Plan Mapping', icon: '/members/termCondition.png' },
@@ -91,8 +91,11 @@ const AdminLayout = ({ children }) => {
     '/administration/file-manager': { title: 'Folders/Assets', icon: "/members/Category.png" },
     '/recruitment/lead': { title: 'Recruitment', icon: "/members/recruitment.png" },
     '/administration/to-do-list': { title: 'To-do List', icon: "/members/Category.png" },
- '/recruitment/franchise-lead': { title: 'Recruitment', icon: "/members/Category.png"  },
- '/recruitment/reports': { title: 'Recruitment Report', icon: "/members/Category.png"  },
+    '/recruitment/franchise-lead': { title: 'Recruitment', icon: "/members/Category.png" },
+    '/recruitment/reports': { title: 'Recruitment Report', icon: "/members/Category.png" },
+    '/holiday-camp/members': { title: 'Holiday Camp Students', icon: "/members/Category.png" },
+    '/holiday-camp/members/account-information': { title: 'Account Information', icon: "/members/Category.png" },
+
   };
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);

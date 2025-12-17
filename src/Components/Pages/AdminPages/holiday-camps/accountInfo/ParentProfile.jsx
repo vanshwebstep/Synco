@@ -234,11 +234,46 @@ const ParentProfile = () => {
       });
     }
   }
+  const showAlert = (title, text) => {
+    Swal.fire({
+      icon: "warning",
+      title,
+      text,
+      confirmButtonText: "OK",
+    });
+  };
+
+
   const handleAddParent = () => {
+    if (!newParent.parentFirstName && !newParent.parentLastName) {
+      showAlert("Missing Name", "Please enter at least first or last name.");
+      return;
+    }
+
+    // Email validation
+    if (!newParent.parentEmail) {
+      showAlert("Email Missing", "Please enter parent email.");
+      return;
+    }
+
+    // Phone validation
+    if (!newParent.parentPhoneNumber) {
+      showAlert("Phone Number Missing", "Please enter parent phone number.");
+      return;
+    }
+
+    // Relation validation
+    if (!newParent.relationToChild) {
+      showAlert("Relation Missing", "Please select relation to child.");
+      return;
+    }
+    if (!newParent.howDidYouHear) {
+      showAlert("How Did You Hear Missing", "Please select How Did You Hear.");
+      return;
+    }
     setFormData((prev) => [...prev, newParent]);
     const updatedStudents = [...formData, { ...newParent, studentId: students[0]?.id }];
-
-
+    
     setFormData(updatedStudents);
 
     handleUpdateHoliday('parents', updatedStudents);

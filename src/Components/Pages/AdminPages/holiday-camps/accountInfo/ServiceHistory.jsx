@@ -180,7 +180,7 @@ console.log('data',data ,bookingInfo, booking )
               {renderField("Camp", data?.holidayCamp?.name)}
               {renderField("Students", data?.totalStudents)}
               {renderField("Price Paid", `${'£' + data?.payment?.amount + '.00'}`)}
-              {renderField("Stripe Transaction ID", data?.payment?.stripe_payment_intent_id)}
+              {renderField("Stripe Transaction ID", data?.payment?.gatewayResponse.fullResponse.balance_transaction.id)}
               {renderField("Date of Booking", new Date(data?.createdAt).toLocaleString("en-IN", {
                 day: "2-digit",
                 month: "short",

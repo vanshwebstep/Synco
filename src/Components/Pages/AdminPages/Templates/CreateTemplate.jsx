@@ -404,12 +404,14 @@ export default function CreateTemplateSteps() {
 
                                                 {/* Buttons */}
                                                 <div className="flex justify-between mt-4">
+                                                    {form.category.length > 0 && (
                                                     <button
                                                         className="px-4 py-1 rounded-lg border text-gray-500"
                                                         onClick={() => setForm((p) => ({ ...p, category: [], categoryNames: [] }))}
                                                     >
                                                         Clear
                                                     </button>
+                                                    )}
                                                     <button
                                                         className="px-5 py-2 bg-blue-600 text-white rounded-lg"
                                                         onClick={() => {

@@ -27,29 +27,36 @@ const StudentCamp = () => {
     const navigate = useNavigate();
     const [selected, setSelected] = useState(1);
 
-    const categoryOptions = [
-        ...new Map(
-            holidayCampsData.map((camp) => [
-                camp?.holidayCamp?.id,
-                {
-                    label: camp?.holidayCamp?.name || "No Camp Name",
-                    value: camp?.holidayCamp?.id || "",
-                    id: camp?.holidayCamp?.id || ""
-                }
-            ])
-        ).values()
-    ];
+   const categoryOptions = [
+  ...new Map(
+    holidayCampsData.map((camp) => {
+      const id = camp?.holidayCamp?.id;
+      if (!id) return null;
+
+      return [
+        id,
+        {
+          label: camp?.holidayCamp?.name || "No Camp Name",
+          value: id,
+        }
+      ];
+    }).filter(Boolean)
+  ).values()
+];
+
+const [tableData, setTableData] = useState(holidayCampsData);
 
     const [selectedAges, setSelectedAges] = useState([]);
 
     const [searchTerm, setSearchTerm] = useState("");
-    const toggleAge = (ageId) => {
-        setSelectedAges((prev) =>
-            prev.includes(ageId)
-                ? prev.filter((a) => a !== ageId) // unselect
-                : [...prev, ageId]              // select
-        );
-    };
+const toggleAge = (age) => {
+  setSelectedAges(prev =>
+    prev.includes(age)
+      ? prev.filter(a => a !== age)
+      : [...prev, age]
+  );
+};
+
 
 
     const filteredStudents = holidayCampsData.filter((camp) => {
@@ -61,68 +68,90 @@ const StudentCamp = () => {
         // 2) Otherwise match selected ages
         return selectedAges.includes(student?.age);
     });
+    const dateOptions = [
+  ...new Map(
+    holidayCampsData.map((camp) => {
+      const dateObj = camp?.holidayCamp?.holidayCampDates?.[0];
+
+      if (!dateObj?.id) return null;
+
+      return [
+        dateObj.id,
+        {
+          label: `${dateObj.startDate} - ${dateObj.endDate}`,
+          value: dateObj.id,
+        }
+      ];
+    }).filter(Boolean)
+  ).values()
+];
+ const [selectedDate, setSelectedDate] = useState(
+  dateOptions?.[0] ?? null
+);
+
+const [selectedCategory, setSelectedCategory] = useState(
+  categoryOptions?.[0] ?? null
+);
+
     // FILTER LOGIC
-    const filteredData = filteredStudents.filter((camp) => {
-        const student = camp?.students?.[0];
+  const filteredData = filteredStudents.filter((camp) => {
+  const student = camp?.students?.[0];
 
-        const name = `${student?.studentFirstName} ${student?.studentLastName}`.toLowerCase();
-        const age = String(student?.age || "").toLowerCase();
-        const medical = (student?.medicalInformation || "").toLowerCase();
+  // ---------- SEARCH ----------
+  const name = `${student?.studentFirstName || ""} ${student?.studentLastName || ""}`.toLowerCase();
+  const age = String(student?.age || "").toLowerCase();
+  const medical = (student?.medicalInformation || "").toLowerCase();
+  const search = searchTerm.toLowerCase();
 
-        const search = searchTerm.toLowerCase();
+  const matchesSearch =
+    !searchTerm ||
+    name.includes(search) ||
+    age.includes(search) ||
+    medical.includes(search);
 
-        return (
-            name.includes(search) ||
-            age.includes(search) ||
-            medical.includes(search)
-        );
-    });
+  // ---------- CATEGORY ----------
+  const matchesCategory =
+    !selectedCategory ||
+    camp?.holidayCamp?.id === selectedCategory.value;
+
+  // ---------- DATE ----------
+  const matchesDate =
+    !selectedDate ||
+    camp?.holidayCamp?.holidayCampDates?.[0]?.id === selectedDate.value;
+
+  return matchesSearch && matchesCategory && matchesDate;
+});
+
 
 
 
     // FIXED: Unique Age Data
-    const ageData = [
-        ...new Map(
-            holidayCampsData
-                ?.flatMap(item => item.students || [])
-                .map(student => {
-                    const age = student?.age;
+  const ageData = [
+  ...new Map(
+    holidayCampsData
+      ?.flatMap(item => item.students || [])
+      .map(student => {
+        const age = student?.age;
 
-                    const ageLabel = age
-                        ? `${age} - ${age + 1} years`
-                        : "No Age Available";
+        const ageLabel = age !== undefined
+          ? `${age} - ${age + 1} years`
+          : "No Age Available";
 
-                    return [
-                        age, // 🔥 UNIQUE BY AGE
-                        {
-                            label: ageLabel,
-                            age: age,
-                        }
-                    ];
-                })
-        ).values()
-    ];
+        return [
+          age, // unique key
+          {
+            id: age,        // ✅ ADD THIS
+            label: ageLabel,
+            age: age,
+          }
+        ];
+      })
+  ).values()
+];
+
 
 
     // Date Options
-    const dateOptions = [
-        ...new Map(
-            holidayCampsData.map((camp) => {
-                const dateObj = camp?.holidayCamp?.holidayCampDates?.[0];
-
-                return [
-                    dateObj?.id,
-                    {
-                        label: dateObj
-                            ? `${dateObj.startDate || ""} " - "  ${dateObj.endDate || ""}`
-                            : "No Date Available",
-                        value: dateObj?.id || "",
-                        id: dateObj?.id || ""
-                    }
-                ];
-            })
-        ).values()
-    ];
 
 
     const formatDate = (dateString) => {
@@ -163,19 +192,28 @@ const StudentCamp = () => {
     }));
 
 
-    const [selectedDate, setSelectedDate] = useState(
-        dateOptions?.length > 0 ? dateOptions[0] : null
-    );
-
-    const [selectedCategory, setSelectedCategory] = useState(
-        categoryOptions?.length > 0 ? categoryOptions[0] : null
-    );
 
 
-    const applyFiltersVenue = () =>{
-        setSelectedCategory(selectedCategory);
-        setSelectedDate(selectedDate);
-    }
+const applyFiltersVenue = () => {
+  const filtered = holidayCampsData.filter((camp) => {
+    const campCategoryId = camp?.holidayCamp?.id;
+    const campDateId =
+      camp?.holidayCamp?.holidayCampDates?.[0]?.id;
+
+    const matchCategory = selectedCategory
+      ? campCategoryId === selectedCategory.value
+      : true;
+
+    const matchDate = selectedDate
+      ? campDateId === selectedDate.value
+      : true;
+
+    return matchCategory && matchDate;
+  });
+
+  setTableData(filtered);
+  setOpenDateFilter(false);
+};
 
 
     const handleDateChange = (value) => {
@@ -264,8 +302,9 @@ const StudentCamp = () => {
         );
     };
 
-    const [openAgeFilter, setOpenAgeFilter] = useState(null);
-    const [openDateFilter, setOpenDateFilter] = useState(null);
+ const [openAgeFilter, setOpenAgeFilter] = useState(false);
+
+const [openDateFilter, setOpenDateFilter] = useState(false);
 
     const sendEmail = async (ids) => {
         setLoading(true);
@@ -614,7 +653,7 @@ const StudentCamp = () => {
 
                                     <td className="py-3 px-4 whitespace-nowrap">{student.age}</td>
                                     <td className="py-3 px-4 whitespace-nowrap">{student.medicalInformation || "N/A"}</td>
-                                    <td className="py-3 px-4 whitespace-nowrap">{camp.payment?.amount || "N/A"}</td>
+                                    <td className="py-3 px-4 whitespace-nowrap">£{camp.payment?.amount || "N/A"}</td>
 
                                     <td className="py-3 px-4 whitespace-nowrap">
                                         {camp?.bookedByAdmin
@@ -644,7 +683,7 @@ const StudentCamp = () => {
                                 {/* EXPANDED ROW */}
                                 {expandedRow === i && otherStudents.length > 0 && (
                                     <tr className="bg-gray-50 border-b border-[#EFEEF2]">
-                                        <td colSpan="6" className="py-4 px-6">
+                                        <td colSpan="6" className="py-4 ">
                                             <table className="min-w-full text-sm">
                                                 <thead>
                                                     <tr>
@@ -736,7 +775,8 @@ const StudentCamp = () => {
                 </div>
             </div>
             {openDateFilter && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4 z-50">
+                <div   onClick={() => setOpenDateFilter(false)}
+ className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4 z-50">
                     <div
                         onClick={(e) => e.stopPropagation()}
                         className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-xl"
@@ -744,7 +784,7 @@ const StudentCamp = () => {
                         {/* Title */}
                         <div className="flex justify-between items-center">
                             <h2 className="text-[18px] font-semibold">Filter</h2>
-                            <X className="cursor-pointer" onClick={() => setOpenDateFilter(null)} />
+                            <X className="cursor-pointer"  onClick={() => setOpenDateFilter(false)}  />
                         </div>
 
                         {/* Date */}
@@ -820,53 +860,59 @@ const StudentCamp = () => {
                     </div>
                 </div>
             )}
-            {openAgeFilter && (
-                <div
-                    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4 z-50"
-                >
-                    <div
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-xl"
-                    >
-                        <div className="flex justify-end">
-                            <X className="cursor-pointer" onClick={() => setOpenAgeFilter(null)} />
-                        </div>
+           {openAgeFilter && (
+  <div
+    onClick={() => setOpenAgeFilter(false)}
+    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4 z-50"
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-xl"
+    >
+      <div className="flex justify-end">
+        <X
+          className="cursor-pointer"
+          onClick={() => setOpenAgeFilter(false)}
+        />
+      </div>
 
-                        <div className="mb-6">
-                            <p className="text-gray-800 font-semibold mb-3">Search by age</p>
-                            <div className="space-y-3">
-                                <div className="space-y-3">
-                                    {ageData.map((item) => (
-                                        <button
-                                            key={item.id}
-                                            type="button"
-                                            className="flex items-center gap-3"
-                                            onClick={() => toggleAge(item.id)}
-                                        >
-                                            <div
-                                                className={`w-5 h-5 flex items-center justify-center rounded-md border-2
-                    ${selectedAges.includes(item.id) ? "border-blue-600" : "border-gray-300"}`}
-                                            >
-                                                {selectedAges.includes(item.id) && (
-                                                    <Check size={14} strokeWidth={3} className="text-blue-600" />
-                                                )}
-                                            </div>
+      <div className="mb-6">
+        <p className="text-gray-800 font-semibold mb-3">Search by age</p>
 
-                                            <span className="text-sm text-gray-700">{item.label}</span>
-                                        </button>
-                                    ))}
-                                </div>
+        <div className="space-y-3">
+          {ageData.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className="flex items-center gap-3"
+              onClick={() => toggleAge(item.id)}
+            >
+              <div
+                className={`w-5 h-5 flex items-center justify-center rounded-md border-2
+                ${selectedAges.includes(item.id)
+                  ? "border-blue-600"
+                  : "border-gray-300"}`}
+              >
+                {selectedAges.includes(item.id) && (
+                  <Check size={14} strokeWidth={3} className="text-blue-600" />
+                )}
+              </div>
 
+              <span className="text-sm text-gray-700">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
-                            </div>
-                        </div>
-
-                        <button className="w-full py-3 bg-blue-600 text-white text-sm rounded-xl shadow-md active:scale-[.98] transition">
-                            Apply Filter
-                        </button>
-                    </div>
-                </div>
-            )}
+      <button
+        onClick={() => setOpenAgeFilter(false)}
+        className="w-full py-3 bg-blue-600 text-white text-sm rounded-xl shadow-md active:scale-[.98] transition"
+      >
+        Apply Filter
+      </button>
+    </div>
+  </div>
+)}
         </>
     )
 }

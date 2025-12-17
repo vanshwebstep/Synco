@@ -153,6 +153,7 @@ const currentPath = location.pathname
     'recruitment/reports': { title: 'Welcome Back', icon: '/images/Welcomeback.png' },
     'administration/file-manager': { title: 'Folders'},
     'configuration/holiday-camp/discount': { title: 'Discounts'},
+    'holiday-camp/members': { title: 'Holiday Camps'},
 
   };
   // Extract the part after `/`

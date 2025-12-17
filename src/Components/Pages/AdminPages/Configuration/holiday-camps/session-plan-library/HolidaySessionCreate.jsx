@@ -424,7 +424,7 @@ const HolidaySessionCreate = () => {
         }
     }, [level]);
 
-       
+
 
     useEffect(() => {
         const loadData = async () => {
@@ -522,11 +522,20 @@ const HolidaySessionCreate = () => {
             });
 
             setLevels(loadedLevels);
-
-            // Safe access to existing level
-            const existingLevel = loadedLevels.find(
-                (lvl) => lvl.level?.toLowerCase() === activeTab?.toLowerCase()
+            console.log('level', level)
+            console.log('tabs', tabs)
+            const matchedTab = tabs.find(
+                tab => tab.toLowerCase() == level.toLowerCase()
             );
+            // Safe access to existing level
+            const tabFromUrl = level && tabs.includes(level) ? (level) : 'beginner';
+
+            const existingLevel = loadedLevels.find(
+                (lvl) => lvl.level?.toLowerCase() === matchedTab?.toLowerCase()
+            );
+            console.log('existingLevel', existingLevel)
+            console.log('activeTab', activeTab)
+            console.log('matchedTab', matchedTab)
 
             if (!existingLevel) {
                 console.warn("No matching level found for activeTab:", activeTab);
@@ -539,7 +548,7 @@ const HolidaySessionCreate = () => {
             setGroupNameSection(data.groupName || '');
             setPlayer(data.player || '');
 
-            const currentLevelData = loadedLevels.find((item) => item.level === activeTab);
+            const currentLevelData = loadedLevels.find((item) => item.level === matchedTab);
             setSelectedPlans(
                 (currentLevelData?.sessionExercises || []).map((exercise) => ({
                     id: exercise.id,
@@ -878,7 +887,7 @@ const HolidaySessionCreate = () => {
             }
         });
     };
- console.log('removedImages', removedImages)
+    console.log('removedImages', removedImages)
     if (loading) {
         return (
             <>

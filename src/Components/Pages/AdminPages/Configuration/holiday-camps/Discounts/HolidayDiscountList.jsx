@@ -26,6 +26,7 @@ const HolidayDiscountList = () => {
   const navigate = useNavigate();
   const [openForm, setOpenForm] = useState(false);
   const [checked, setChecked] = useState(false);
+   console.log('discounts',discounts)
   if (loading) {
     return (
       <>
@@ -96,7 +97,7 @@ const HolidayDiscountList = () => {
                       </td>
                       <td className="p-4">{user.type}</td>
                       <td className="p-4">{'Amount off products'}</td>
-                      <td className="p-4 text-center">{user.used || 0}</td>
+                      <td className="p-4 text-center">{user.usageCount || 0}</td>
                       <td className="p-4">
                         <div className="flex gap-2 items-center justify-center">
                           <button className={`${user.status == 'active' ? 'text-green-400 bg-green-100 ' : 'text-orange-400 bg-orange-100'}  px-7 rounded-lg py-1 text-[14px]`}>

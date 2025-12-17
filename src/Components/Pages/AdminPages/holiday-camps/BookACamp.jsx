@@ -234,7 +234,7 @@ const BookACamp = () => {
             setLoading(false);
         }
     }, [API_BASE_URL, id]);
-   
+
 
     function htmlToArray(html) {
         const tempDiv = document.createElement("div");
@@ -1009,7 +1009,10 @@ const BookACamp = () => {
                                             ? formData.parent[index]?.[input.name] || ""
                                             : formData[section]?.[input.name] || ""
                                     }
-                                    onChange={(e) => handleChange(section, input.name, e.target.value, index)}
+                                    onChange={(e) => {
+                                        const digitsOnly = e.target.value.replace(/\D/g, "");
+                                        handleChange(section, input.name, digitsOnly, index);
+                                    }}
                                     className="border-none focus:outline-none flex-1"
                                 />
                             </div>
@@ -1031,7 +1034,7 @@ const BookACamp = () => {
     return (
         <div className="md:p-6 min-h-screen">
             <div className="flex justify-between mb-5">
-                <h2 onClick={()=> navigate('/holiday-camp/find-a-camp')} className="flex gap-2 cursor-pointer items-center text-2xl font-bold">
+                <h2 onClick={() => navigate('/holiday-camp/find-a-camp')} className="flex gap-2 cursor-pointer items-center text-2xl font-bold">
                     <img src="/images/icons/arrow-left.png" alt="Back" className="w-5 h-5 md:w-6 md:h-6" />
                     Book a Holiday Camp
                 </h2>

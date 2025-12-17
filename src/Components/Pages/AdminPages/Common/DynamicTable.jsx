@@ -69,7 +69,8 @@ const DynamicTable = ({
     if (isFilterApplied) {
       setCurrentPage(1);
     }
-  })
+  }, [isFilterApplied]);
+
   // If rowsPerPage changes, reset to page 1
   useEffect(() => {
     setCurrentPage(1);
@@ -113,16 +114,26 @@ const DynamicTable = ({
               paginatedData.map((entry, index) => {
                 const { student, studentIndex, parent, ...item } = entry;
 
-                const uniqueId =
-                  from === "freetrial" || from === "waitingList" || from === "membership"
-                    ? item.id
-                    : item.bookingId;
+                const uniqueId = (() => {
+                  if (from === "membership") {
+                    // multiple students under same booking
+                    return `${item.id}-${studentIndex}`;
+                  }
+
+                  if (from === "freetrial" || from === "waitingList") {
+                    // already one row per item
+                    return item.id;
+                  }
+
+                  // default: booking-based tables
+                  return item.bookingId;
+                })();
 
                 const isSelected = selectedIds.includes(uniqueId);
 
                 return (
                   <tr
-                    key={`${uniqueId}-${studentIndex}`}
+                   key={uniqueId}
                     onClick={onRowClick ? () => onRowClick(item, from) : undefined}
                     className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
                   >

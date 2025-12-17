@@ -152,13 +152,13 @@ const HolidayVenueList = () => {
 
   const calendarDays = getDaysArray();
 
- const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1)); 
- };
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
 
   const getDateStatus = (date) => {
     if (!date) return {};
@@ -338,14 +338,12 @@ const goToNextMonth = () => {
       </div>
 
       <div className="md:md:flex gap-6">
-        <div
-          className={`transition-all duration-300 ${openForm ? 'md:w-3/4' : 'w-full'} `}>
+        <div className={`transition-all duration-300 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
           {
             venues.length > 0 ? (
 
-              <div className={`overflow-auto max-h-[600px] bg-white border-[#E2E1E5] border rounded-4xl w-full`}>
-
-                <table className="overflow-hidden rounded-4xl border border-[#E2E1E5] bg-white w-full">
+              <div className="max-h-[600px]">
+                <table className="w-full table-fixed bg-white">
                   <thead className="bg-[#F5F5F5] text-left border-1 border-[#EFEEF2]">
                     <tr className="font-semibold border-[#E2E1E5] border-b ">
                       <th className="p-4 text-[#717073]">
@@ -367,12 +365,12 @@ const goToNextMonth = () => {
                     </tr>
                   </thead>
 
-                  <tbody>
+                  <tbody >
                     {venues.map((user, idx) => {
                       const isChecked = selectedUserIds.includes(user.id);
 
                       return (
-                        <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
+                        <tr key={idx} className="border-t border-[#EFEEF2] font-semibold text-[#282829] hover:bg-gray-50">
                           <td className="p-4 cursor-pointer">
                             <div className="flex items-center gap-3">
                               <button

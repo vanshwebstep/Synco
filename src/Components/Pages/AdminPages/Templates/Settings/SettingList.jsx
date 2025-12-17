@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function SettingList() {
     const { fetchCommunicationTemplate, apiTemplates, deleteCommunicationTemplate } = useCommunicationTemplate();
-const navigate = useNavigate();   // ✅ declare navigate
+    const navigate = useNavigate();   // ✅ declare navigate
 
     const [activeTab, setActiveTab] = useState("Email");
     const [searchText, setSearchText] = useState("");
@@ -53,7 +53,7 @@ const navigate = useNavigate();   // ✅ declare navigate
         }
     };
 
-    const handleEdit = (id ,level) => {
+    const handleEdit = (id, level) => {
         console.log("Edit Clicked, ID:", id);
         navigate(`/templates/create?id=${id}&level=${level}`);
     };
@@ -176,7 +176,7 @@ const navigate = useNavigate();   // ✅ declare navigate
                             );
                         })}
 
-                        {filteredData?.length === 0 && <p className="text-gray-400 text-sm text-center">No templates found.</p>}
+                        {filteredData?.length === 0 && <p className="text-gray-400 text-sm text-center mb-5">No templates found.</p>}
                     </div>
                 </div>
 
@@ -201,7 +201,7 @@ const navigate = useNavigate();   // ✅ declare navigate
                                             src="/images/icons/edit.png"
                                             alt="Edit"
                                             className="w-5 h-5 transition-transform duration-200 hover:scale-110 opacity-90 cursor-pointer"
-                                            onClick={() => selectedTemplate && handleEdit(selectedTemplate.id , selectedTemplate.mode_of_communication)}
+                                            onClick={() => selectedTemplate && handleEdit(selectedTemplate.id, selectedTemplate.mode_of_communication)}
                                         />
                                         <img
                                             src="/images/icons/deleteIcon.png"
@@ -308,8 +308,6 @@ const navigate = useNavigate();   // ✅ declare navigate
                                 ))}
                             </div>
                         )}
-
-
                         {selectedTemplate?.mode_of_communication === "text" && (
                             <div className="bg-white w-full max-w-full overflow-auto p-4 rounded-lg shadow-sm">
                                 {previewData.blocks.map((block, i) => (
@@ -326,7 +324,7 @@ const navigate = useNavigate();   // ✅ declare navigate
                                                     src="/images/icons/edit.png"
                                                     alt="Edit"
                                                     className="w-5 h-5 transition-transform duration-200 hover:scale-110 opacity-90 cursor-pointer"
-                                                    onClick={() => selectedTemplate && handleEdit(selectedTemplate.id , selectedTemplate.mode_of_communication)}
+                                                    onClick={() => selectedTemplate && handleEdit(selectedTemplate.id, selectedTemplate.mode_of_communication)}
                                                 />
                                                 <img
                                                     src="/images/icons/deleteIcon.png"
@@ -360,7 +358,11 @@ const navigate = useNavigate();   // ✅ declare navigate
                                 ))}
                             </div>
                         )}
-
+                        {!["email", "text"].includes(selectedTemplate?.mode_of_communication) && (
+                            <p className="text-gray-400 text-lg">
+                                Select template
+                            </p>
+                        )}
 
 
 

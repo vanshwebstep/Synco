@@ -388,7 +388,7 @@ const trialLists = () => {
                         data={bookMembership}   // 👈 use flattened data
                         selectedIds={selectedStudents}
                         setSelectedStudents={setSelectedStudents}
-                        from={'membership'}
+                        from={'membershipSales'}
                         onRowClick={(row) =>
                             navigate("/weekly-classes/all-members/account-info", {
                                 state: { itemId: row.bookingId, memberInfo: "" },

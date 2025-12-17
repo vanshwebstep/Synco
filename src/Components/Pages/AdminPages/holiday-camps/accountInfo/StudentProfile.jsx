@@ -191,21 +191,66 @@ const StudentProfile = () => {
       });
     }
   }
-const formatLocalDate = (date) => {
-  if (!date) return null;
-  const local = new Date(date);
-  local.setMinutes(local.getMinutes() - local.getTimezoneOffset()); // adjust to local
-  return local.toISOString().split("T")[0]; // yyyy-mm-dd, stays same as selected
-};
+  const formatLocalDate = (date) => {
+    if (!date) return null;
+    const local = new Date(date);
+    local.setMinutes(local.getMinutes() - local.getTimezoneOffset()); // adjust to local
+    return local.toISOString().split("T")[0]; // yyyy-mm-dd, stays same as selected
+  };
 
   // --- Add Student ---
   const handleAddStudent = () => {
     if (!newStudent.studentFirstName && !newStudent.studentLastName) {
-      return alert("Please enter at least first or last name.");
+      Swal.fire({
+        icon: "warning",
+        title: "Missing Name",
+        text: "Please enter at least first or last name.",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+    if (!newStudent.medicalInformation) {
+      Swal.fire({
+        icon: "warning",
+        title: "Medical Information",
+        text: "Please enter Medical Information.",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+    if (!newStudent.dateOfBirth) {
+      Swal.fire({
+        icon: "warning",
+        title: "Date of Birth Missing",
+        text: "Please select date of birth.",
+        confirmButtonText: "OK",
+      });
+      return;
     }
 
+    // Age
+    if (!newStudent.age) {
+      Swal.fire({
+        icon: "warning",
+        title: "Age Missing",
+        text: "Please enter age.",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
+
+    // Gender
+    if (!newStudent.gender) {
+      Swal.fire({
+        icon: "warning",
+        title: "Gender Missing",
+        text: "Please select gender.",
+        confirmButtonText: "OK",
+      });
+      return;
+    }
     // Create the updated students array
-  const updatedStudents = [
+    const updatedStudents = [
       ...students,
       {
         ...newStudent,
