@@ -11,10 +11,13 @@ import { useMembers } from "../../../contexts/MemberContext";
 import { Mail, MessageSquare, AlertTriangle } from "lucide-react";
 import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
 import Swal from "sweetalert2";
+import { useLocation } from "react-router-dom";
 const General = () => {
-    const { oneToOneData } = useAccountsInfo();
+    const { oneToOneData, fetchOneToOneMembers } = useAccountsInfo();
+    const location = useLocation();
 
-    console.log('oneToOneData', oneToOneData)
+    const queryParams = new URLSearchParams(location.search);
+    const id = queryParams.get("id"); // <-- this will be "9"  console.log('id',id)
     const [formData, setFormData] = useState({
         student: {
             firstName: oneToOneData?.booking?.students?.[0]?.studentFirstName || "",
@@ -41,8 +44,6 @@ const General = () => {
             setBookingId(prev => [...prev, oneToOneData.booking.leadId]);
         }
     }, [oneToOneData]);
-
-    console.log('bookingId', bookingId);
 
 
     const [selectedKeyInfo, setSelectedKeyInfo] = useState(null);
@@ -147,6 +148,7 @@ const General = () => {
             };
         });
     };
+
 
     const [paymentData, setPaymentData] = useState({
         firstName: "",
@@ -285,17 +287,7 @@ const General = () => {
 
 
 
-    const calculateAge = (dob) => {
-        if (!dob) return "";
-        const birthDate = new Date(dob);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        return age;
-    };
+
     const studentInputs = [
         { name: "firstName", placeholder: "Enter First Name", type: "text", label: "First Name" },
         { name: "lastName", placeholder: "Enter Last Name", type: "text", label: "Last Name" },
@@ -449,6 +441,145 @@ const General = () => {
             ))}
         </div>
     );
+
+    const handleCancelPackage = () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This package will be cancelled. This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, cancel it",
+            cancelButtonText: "No, keep it",
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            const token = localStorage.getItem("adminToken");
+            if (!token) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Unauthorized",
+                    text: "Admin token not found. Please login again.",
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: "Cancelling package...",
+                text: "Please wait",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", `Bearer ${token}`);
+
+            fetch(`${API_BASE_URL}/api/admin/one-to-one/cancel/${id}`, {
+                method: "PUT",
+                headers: myHeaders,
+                redirect: "follow",
+            })
+                .then(async (response) => {
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data?.message || "Something went wrong");
+                    }
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Cancelled!",
+                        text: data?.message || "Package cancelled successfully.",
+                    });
+
+                    // 👉 Optional: refresh list / update state
+                    fetchOneToOneMembers(id);
+                    // router.refresh();
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: error.message || "Unable to cancel the package.",
+                    });
+                });
+        });
+    };
+    const handleRenewPackage = () => {
+        Swal.fire({
+            title: "Renew this package?",
+            text: "This will renew the selected package for the user.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#16a34a",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, renew it",
+            cancelButtonText: "No, cancel",
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            const token = localStorage.getItem("adminToken");
+            if (!token) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Unauthorized",
+                    text: "Admin token not found. Please login again.",
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: "Renewing package...",
+                text: "Please wait while we renew the package",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", `Bearer ${token}`);
+
+            fetch(`${API_BASE_URL}/api/admin/one-to-one/renew/${id}`, {
+                method: "PUT",
+                headers: myHeaders,
+                redirect: "follow",
+            })
+                .then(async (response) => {
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data?.message || "Something went wrong");
+                    }
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Renewed!",
+                        text: data?.message || "Package renewed successfully.",
+                    });
+
+                    // Optional refresh
+                    fetchOneToOneMembers(id);
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Renewal Failed",
+                        text: error.message || "Unable to renew the package.",
+                    });
+                });
+        });
+    };
+
+
+
+
+
 
     return (
         <>
@@ -685,13 +816,18 @@ const General = () => {
                                 </button>
                             </div>
 
-                            <button className="w-full bg-[#FF6C6C] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-red-600 transition flex items-center justify-center">
-                                Cancel Package
-                            </button>
 
-                            <button className="w-full bg-[#237FEA] text-white text-[18px] py-3 rounded-xl  font-medium hover:bg-blue-700 transition">
-                                Renew Package
-                            </button>
+
+                            {status !== 'active' ? (
+
+                                <button onClick={handleRenewPackage} className="w-full bg-[#237FEA] text-white text-[18px] py-3 rounded-xl  font-medium hover:bg-blue-700 transition">
+                                    Renew Package
+                                </button>
+                            ) : (
+                                <button onClick={handleCancelPackage} className="w-full bg-[#FF6C6C] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-red-600 transition flex items-center justify-center">
+                                    Cancel Package
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -168,6 +168,7 @@ import IssueList from './Components/Pages/AdminPages/Configuration/coach-pro/iss
 import ReferralsList from './Components/Pages/AdminPages/Configuration/coach-pro/referrals/ReferralsList.jsx';
 import StudentCource from './Components/Pages/AdminPages/Configuration/coach-pro/studentsCources/StudentCource.jsx';
 import StudentCourceAdd from './Components/Pages/AdminPages/Configuration/coach-pro/studentsCources/StudentCourceAdd.jsx';
+import CourseUpdate from './Components/Pages/AdminPages/Coach Pro/Course/CourceUpdate.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -1081,6 +1082,15 @@ const AppRoutes = () => {
           <AdminLayout>
             <RoleBasedRoute>
               <StudentCourceAdd />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="/configuration/coach-pro/course/update" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <CourseUpdate />
             </RoleBasedRoute>
           </AdminLayout>
         </ProtectedRoute>

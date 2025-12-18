@@ -115,7 +115,7 @@ const customSelectStyles = {
 
 
 export default function HolidayReports() {
-    const [activeTab, setActiveTab] = useState("revenue");
+const [activeTab, setActiveTab] = useState("revenue");
     const [activeTabEnrolled, setActiveTabEnrolled] = useState("total");
     const [summary, setSummary] = useState({});
     const [monthlyStudents, setMonthlyStudents] = useState([]);
@@ -176,61 +176,61 @@ export default function HolidayReports() {
     }, [API_BASE_URL, token]);
 
 
-  
+
     useEffect(() => {
         fetchReports();
     }, [fetchReports]);
-const handleFilterChange = (selected) => {
-  setFilterType(selected.value);
-  fetchReportsByFilter(selected.value);  // Pass selected value here
-};
-const fetchReportsByFilter = useCallback(async (filter = filterType) => {
-  if (!token) return;
-  setLoading(true);
+    const handleFilterChange = (selected) => {
+        setFilterType(selected.value);
+        fetchReportsByFilter(selected.value);  // Pass selected value here
+    };
+    const fetchReportsByFilter = useCallback(async (filter = filterType) => {
+        if (!token) return;
+        setLoading(true);
 
-  try {
-    let url = `${API_BASE_URL}/api/admin/holiday/booking/reports`;
-    if (filter) {
-      url += `?dateRange=${encodeURIComponent(filter)}`;
-    }
+        try {
+            let url = `${API_BASE_URL}/api/admin/holiday/booking/reports`;
+            if (filter) {
+                url += `?dateRange=${encodeURIComponent(filter)}`;
+            }
 
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+            const response = await fetch(url, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
 
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`HTTP ${response.status}: ${text}`);
-    }
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`HTTP ${response.status}: ${text}`);
+            }
 
-    const result = await response.json();
+            const result = await response.json();
 
-    if (!result.status) {
-      Swal.fire({
-        icon: "error",
-        title: "Fetch Failed",
-        text: result.message || "Failed to fetch report data.",
-      });
-      return;
-    }
+            if (!result.status) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Fetch Failed",
+                    text: result.message || "Failed to fetch report data.",
+                });
+                return;
+            }
 
-    setSummary(result.data.summary || {});
-    setMonthlyStudents(result.data.monthlyStudents || []);
-    setMarketPerformance(result.data.marketChannelPerformance || []);
-    setTopAgents(result.data.topAgents || []);
-    setRegisterationPerCamp(result.data.registeration_perCamp_growth_and_venue || {});
-    setCampsRegistration(result.data.campsRegistration || {});
-    setEnrolledStudents(result.data.enrolledStudents || {});
-  } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Fetch Failed",
-      text: error.message,
-    });
-  } finally {
-    setLoading(false);
-  }
-}, [API_BASE_URL, token]);
+            setSummary(result.data.summary || {});
+            setMonthlyStudents(result.data.monthlyStudents || []);
+            setMarketPerformance(result.data.marketChannelPerformance || []);
+            setTopAgents(result.data.topAgents || []);
+            setRegisterationPerCamp(result.data.registeration_perCamp_growth_and_venue || {});
+            setCampsRegistration(result.data.campsRegistration || {});
+            setEnrolledStudents(result.data.enrolledStudents || {});
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Fetch Failed",
+                text: error.message,
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, [API_BASE_URL, token]);
     // ============================
     // 📌 Dynamic Stats
     // ============================
@@ -408,6 +408,24 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
         // Export the Excel file
         XLSX.writeFile(wb, "holiday-camps-summary.xlsx");
     };
+    const ProgressBar = ({ percent }) => (
+        <div className="w-full bg-gray-100 h-2 rounded-full relative">
+            <div
+                style={{ width: `${percent}%` }}
+                className="h-2 rounded-full bg-[#237FEA] relative group cursor-pointer"
+            >
+                {/* Tooltip */}
+                <div
+                    className="absolute -top-8 right-0 translate-x-1/2
+                   bg-black text-white text-xs px-2 py-1 rounded
+                   opacity-0 group-hover:opacity-100 transition
+                   pointer-events-none whitespace-nowrap"
+                >
+                    {percent}%
+                </div>
+            </div>
+        </div>
+    );
     return (
         <div className="min-h-screen bg-gray-50 p-6 pt-0">
             {/* Header */}
@@ -546,10 +564,8 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                                         </div>
 
                                         <div className="w-full bg-gray-100 h-2 rounded-full">
-                                            <div
-                                                style={{ width: `${d.growthPercent}%` }} // use growthPercent as width
-                                                className="h-2 rounded-full bg-[#237FEA]"
-                                            ></div>
+
+                                            <ProgressBar percent={d.growthPercent} />
                                         </div>
                                         <p className="text-sm text-gray-500">{d.growthPercent}%</p>
                                     </div>
@@ -587,9 +603,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                                     enrolledByAge.map((d, i) => (
                                         <div key={i} className="mb-3 flex items-center gap-2">
                                             <p className="text-sm text-gray-700 whitespace-nowrap">{d.label}</p>
-                                            <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                <div style={{ width: `${d.percent}%` }} className="h-2 rounded-full bg-[#237FEA]"></div>
-                                            </div>
+                                            <ProgressBar percent={d.percent} />
                                             <p className="text-sm text-gray-500">{d.percent}%</p>
                                         </div>
                                     ))}
@@ -600,7 +614,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                                         <div key={i} className="mb-3 flex items-center gap-2">
                                             <p className="text-sm text-gray-700">{d.label}</p>
                                             <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                <div style={{ width: `${d.percent}%` }} className="h-2 rounded-full bg-[#237FEA]"></div>
+                                                <ProgressBar percent={d.percent} />
                                             </div>
                                             <p className="text-sm text-gray-500">{d.percent}%</p>
                                         </div>
@@ -624,7 +638,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                                         <p className="text-sm text-gray-700">{s.name}</p>
                                         <div className="flex items-center gap-3">
                                             <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${s.percentage}%` }}></div>
+                                                <ProgressBar percent={s.percentage} />
                                             </div>
                                             <p className="text-sm text-gray-500">{s.percentage}%</p>
                                         </div>
@@ -647,7 +661,7 @@ const fetchReportsByFilter = useCallback(async (filter = filterType) => {
                                                 </p>
                                                 <div className="flex items-center gap-2">
                                                     <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                        <div className="bg-[#237FEA] h-2 rounded-full" style={{ width: `${item.leadCount}%` }}></div>
+                                                        <ProgressBar percent={item.leadCount} />
                                                     </div>
                                                     <span className="text-xs text-[#344054] font-semibold">{item.leadCount}</span>
                                                 </div>

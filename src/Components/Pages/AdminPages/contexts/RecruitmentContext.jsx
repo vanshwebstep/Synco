@@ -6,6 +6,7 @@ const RecruitmentContext = createContext();
 
 export const RecruitmentProvider = ({ children }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const [allRecruitment, setAllRecruitment] = useState([]); // original
 
     const [recruitment, setRecruitment] = useState([]);
     const [venueRecruitment, setVenueRecruitment] = useState([]);
@@ -148,6 +149,7 @@ export const RecruitmentProvider = ({ children }) => {
                 setMyVenues(Array.isArray(venues) ? venues : []);
                 setStatsRecruitment(totals)
                 setRecruitment(result);
+                setAllRecruitment(result);
             } catch (error) {
                 console.error("Failed to fetch bookFreeTrials:", error);
             } finally {
@@ -636,6 +638,11 @@ export const RecruitmentProvider = ({ children }) => {
                 icon: "success",
                 confirmButtonText: "OK",
             });
+             navigate("recruitment/lead", {
+                state: {
+                    comesfrom: "CoachRecruitment",
+                },
+            });
             return result;
 
         } catch (error) {
@@ -685,6 +692,11 @@ export const RecruitmentProvider = ({ children }) => {
                 icon: "success",
                 confirmButtonText: "OK",
             });
+             navigate("recruitment/lead", {
+                state: {
+                    comesfrom: "VenueRecruitment",
+                },
+            });
             return result;
 
         } catch (error) {
@@ -703,7 +715,7 @@ export const RecruitmentProvider = ({ children }) => {
     };
     const createFranchiseRecruitmentById = async (recruitmentData) => {
         setLoading(true);
-        console.log('recruitmentData', recruitmentData)
+        console.log("recruitmentData", recruitmentData);
 
         const headers = {
             "Content-Type": "application/json",
@@ -712,8 +724,8 @@ export const RecruitmentProvider = ({ children }) => {
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
         }
-        let url = `${API_BASE_URL}/api/admin/franchise/candidate-profile/create`;
 
+        const url = `${API_BASE_URL}/api/admin/franchise/candidate-profile/create`;
 
         try {
             const response = await fetch(url, {
@@ -725,31 +737,36 @@ export const RecruitmentProvider = ({ children }) => {
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.message || result || "Failed to create Coach Recruitment");
+                throw new Error(result?.message || "Failed to create Coach Recruitment");
             }
 
             await Swal.fire({
                 title: "Success!",
-                text: result.message || "Coach Recruitment has been created successfully.",
+                text: result?.message || "Coach Recruitment has been created successfully.",
                 icon: "success",
                 confirmButtonText: "OK",
             });
+
+            navigate("/recruitment/franchise-lead"); // ✅ must be before return
             return result;
 
         } catch (error) {
-            console.error("Error creating class schedule:", error);
+            console.error("Error creating franchise recruitment:", error);
+
             await Swal.fire({
                 title: "Error",
-                text: error.message || "Something went wrong while creating Coach Recruitment.",
+                text: error?.message || "Something went wrong while creating Coach Recruitment.",
                 icon: "error",
                 confirmButtonText: "OK",
             });
+
             throw error;
         } finally {
             await fetchFranchiseRecruitment();
             setLoading(false);
         }
     };
+
     const createFranchiseRecruitment = async (recruitmentData) => {
         setLoading(true);
         console.log('recruitmentData', recruitmentData)
@@ -832,6 +849,7 @@ export const RecruitmentProvider = ({ children }) => {
                 icon: "success",
                 confirmButtonText: "OK",
             });
+           
             return result;
 
         } catch (error) {
@@ -1064,7 +1082,7 @@ export const RecruitmentProvider = ({ children }) => {
                 text: result.message || "Trialsssssss has been created successfully.",
                 icon: "success",
                 confirmButtonText: "OK",
-            }); navigate(`lead`)
+            }); navigate(`recruitment/lead`)
             return result;
 
         } catch (error) {
@@ -4194,7 +4212,7 @@ export const RecruitmentProvider = ({ children }) => {
                 fetchMembershipSalesLoading, createBookLeads, createBookBirthday, addToWaitingList, setaddToWaitingList, showCancelTrial, setshowCancelTrial
 
 
-                , fetchRecruitment, recruitment,
+                , allRecruitment, setAllRecruitment, fetchRecruitment, recruitment, setRecruitment,
                 fetchCommunicationTemplate, fetchCoachRecruitmentById, venueRecruitment, sendOfferMail, sendFranchiseMail, rejectFranchise, rejectCoach, sendCoachMail, sendvenuemanagerMail, fetchFranchiseRecruitment, fetchvenuemanagerRecruitment, fetchAllRecruitment, recuritmentDataById, setRecuritmentDataById, createCoachRecruitment, createCoachRecruitmentById, createVenuManagerRecruitmentById, createFranchiseRecruitmentById, createFranchiseRecruitment, createVenueRecruitment, createCommunicationTemplate, deleteCommunicationTemplate, updateCommunicationTemplate
                 , fetchCoachReport, coachReport, fetchVenueManagerreport, venueManagerreport, fetchFranchiseReport, franchiseReport
             }}>

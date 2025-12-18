@@ -90,7 +90,7 @@ const HolidaySessionPreview = ({ item, sessionData }) => {
       const fieldName = `${tabKey}_upload`;
       const fieldVideoName = `${tabKey}_video`;
       const videoDuration = `${tabKey}_video_duration`;
-    
+
       // check if that recording field exists in selectedGroup
       if (selectedGroup[fieldName]) {
         setRecording(selectedGroup[fieldName]);
@@ -102,14 +102,14 @@ const HolidaySessionPreview = ({ item, sessionData }) => {
       } else {
         setVideoUrl(null); // no match found
       }
-       if (selectedGroup[videoDuration]) {
+      if (selectedGroup[videoDuration]) {
         setVideoDuration(selectedGroup[videoDuration]);
       } else {
         setVideoDuration(null); // no match found
       }
     }
   }, [selectedGroup, activeTab]);
-  
+
   const handlePlayRecording = (url) => {
     if (!audioRef.current) return;
 
@@ -132,7 +132,7 @@ const HolidaySessionPreview = ({ item, sessionData }) => {
       </>
     )
   }
-  
+
   return (
     <div className="md:py-6 bg-gray-50 min-h-screen preview-sec">
       {/* Header */}
@@ -157,23 +157,31 @@ const HolidaySessionPreview = ({ item, sessionData }) => {
         <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
           <div className="flex w-full flex-col lg:flex-row gap-6">
-            <div className="w-full bg-white justify-between lg:w-1/2 flex gap-2 border border-gray-300 p-2 rounded-2xl flex-wrap">
+            <div
+              className={`w-full bg-white justify-between flex gap-2 border border-gray-300 p-2 rounded-2xl flex-wrap
+    ${dynamicTabs.length >= 3 ? 'lg:w-1/2' : 'lg:w-1/3'}
+  `}
+            >
               {dynamicTabs.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => {
+                    setSelectedExercise(null)
                     setActiveTab(tab);
                     setPage(1);
                   }}
-                  className={`px-6 py-2 rounded-xl text-[18px] font-semibold transition ${activeTab === tab
-                    ? 'bg-blue-500 text-white'
-                    : 'text-[#717073] hover:text-blue-500'
-                    }`}
+                  className={`px-6 py-2 rounded-xl text-[18px] font-semibold transition
+        ${activeTab === tab
+                      ? 'bg-blue-500 text-white'
+                      : 'text-[#717073] hover:text-blue-500'
+                    }
+      `}
                 >
                   {tab}
                 </button>
               ))}
             </div>
+
             <div className="w-full pl-6  lg:w-1/2 "></div>
           </div>
           {/* Main Page Content */}
@@ -351,7 +359,7 @@ const HolidaySessionPreview = ({ item, sessionData }) => {
                     <div>
 
                       <div
-                      className="prose prose-sm space-y-6 max-w-none text-gray-700
+                        className="prose prose-sm space-y-6 max-w-none text-gray-700
     prose-p:mb-3 prose-li:mb-2
     prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
     prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5

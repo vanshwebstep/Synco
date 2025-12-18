@@ -4,18 +4,32 @@ import Coach from "./applications/Coach";
 import VenueManager from "./applications/VenueManager";
 import All from "./applications/All";
 import { useRecruitmentTemplate } from "../contexts/RecruitmentContext";
+import { useLocation } from "react-router-dom";
 
 const tabs = [
   { name: "Coach Applicatiion", component: <Coach /> },
   { name: "Venue Manager Application", component: <VenueManager /> },
   { name: "All", component: <All /> },
 ];
+// CoachRecruitment
+// VenueRecruitment
 
 const Recruitment = () => {
- 
-  const [activeTab, setActiveTab] = useState(tabs[0].name);
+  const location = useLocation();
 
-    // if (loading) return <Loader />;
+  const [activeTab, setActiveTab] = useState(tabs[0].name);
+  useEffect(() => {
+    const comesfrom = location.state?.comesfrom;
+
+    if (comesfrom === "CoachRecruitment") {
+      setActiveTab("Coach Applicatiion");
+    }
+
+    if (comesfrom === "VenueRecruitment") {
+      setActiveTab("Venue Manager Application");
+    }
+  }, [location.state]);
+  // if (loading) return <Loader />;
 
   return (
     <div className="mt-8 relative">

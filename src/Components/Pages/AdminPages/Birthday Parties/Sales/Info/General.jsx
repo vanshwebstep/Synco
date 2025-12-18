@@ -10,10 +10,16 @@ import { useNotification } from "../../../contexts/NotificationContext";
 import { useMembers } from "../../../contexts/MemberContext";
 import { Mail, MessageSquare, AlertTriangle } from "lucide-react";
 import { useAccountsInfo } from "../../../contexts/AccountsInfoContext";
-
+import { useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
 const General = () => {
+
+    const location = useLocation();
+
+    const queryParams = new URLSearchParams(location.search);
+    const id = queryParams.get("id"); // <-- this will be "9"  console.log('id',id)
     const { data } = useAccountsInfo();
-    const { sendBirthdayMail } = useAccountsInfo();
+    const { sendBirthdayMail, fetchBirthdyPartiesMembers } = useAccountsInfo();
     const [bookingId, setBookingId] = useState([]);
 
     useEffect(() => {
@@ -289,25 +295,25 @@ const General = () => {
         { name: "phone", placeholder: "Phone Number", type: "phone", label: "Phone Number" },
         { name: "referral", placeholder: "How did you hear about us?", type: "select", options: ["Friend", "Website", "Other"], label: "How Did You Hear About Us" },
     ];
-const status =
-  data?.status ||
-  data?.booking?.payment?.paymentStatus ||
-  "N/A";
+    const status =
+        data?.status ||
+        data?.booking?.payment?.paymentStatus ||
+        "N/A";
 
-const getBg = () => {
-  switch (status?.toLowerCase()) {
-    case "pending":
-      return "/frames/Pending.png";
-    case "active":
-      return "/frames/Active.png";
-    case "completed":
-      return "/frames/Completed.png";
-    case "cancelled":
-      return "/frames/Cancelled.png";
-    default:
-      return "/frames/Default.png"; // fallback if needed
-  }
-};
+    const getBg = () => {
+        switch (status?.toLowerCase()) {
+            case "pending":
+                return "/frames/Pending.png";
+            case "active":
+                return "/frames/Active.png";
+            case "completed":
+                return "/frames/Completed.png";
+            case "cancelled":
+                return "/frames/Cancelled.png";
+            default:
+                return "/frames/Default.png"; // fallback if needed
+        }
+    };
 
     const renderInputs = (inputs, section, index = null) => (
         <div className={`grid ${section === "general" ? "md:grid-cols-1" : "md:grid-cols-2"} gap-4`}>
@@ -446,6 +452,142 @@ const getBg = () => {
         </div>
     );
 
+
+
+    const handleCancelPackage = () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This package will be cancelled. This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, cancel it",
+            cancelButtonText: "No, keep it",
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            const token = localStorage.getItem("adminToken");
+            if (!token) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Unauthorized",
+                    text: "Admin token not found. Please login again.",
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: "Cancelling package...",
+                text: "Please wait",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", `Bearer ${token}`);
+
+            fetch(`${API_BASE_URL}/api/admin/birthday-party/cancel/${id}`, {
+                method: "PUT",
+                headers: myHeaders,
+                redirect: "follow",
+            })
+                .then(async (response) => {
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data?.message || "Something went wrong");
+                    }
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Cancelled!",
+                        text: data?.message || "Package cancelled successfully.",
+                    });
+
+                    // 👉 Optional: refresh list / update state
+                    fetchBirthdyPartiesMembers(id);
+                    // router.refresh();
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed",
+                        text: error.message || "Unable to cancel the package.",
+                    });
+                });
+        });
+    };
+    const handleRenewPackage = () => {
+        Swal.fire({
+            title: "Renew this package?",
+            text: "This will renew the selected package for the user.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#16a34a",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, renew it",
+            cancelButtonText: "No, cancel",
+        }).then((result) => {
+            if (!result.isConfirmed) return;
+
+            const token = localStorage.getItem("adminToken");
+            if (!token) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Unauthorized",
+                    text: "Admin token not found. Please login again.",
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: "Renewing package...",
+                text: "Please wait while we renew the package",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", `Bearer ${token}`);
+
+            fetch(`${API_BASE_URL}/api/admin/birthday-party/renew/${id}`, {
+                method: "PUT",
+                headers: myHeaders,
+                redirect: "follow",
+            })
+                .then(async (response) => {
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data?.message || "Something went wrong");
+                    }
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Renewed!",
+                        text: data?.message || "Package renewed successfully.",
+                    });
+
+                    // Optional refresh
+                    fetchBirthdyPartiesMembers(id);
+                })
+                .catch((error) => {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Renewal Failed",
+                        text: error.message || "Unable to renew the package.",
+                    });
+                });
+        });
+    };
+
     return (
         <>
             <div className="flex">
@@ -568,7 +710,7 @@ const getBg = () => {
                         <div className="bg-[#363E49] text-white rounded-4xl p-6 space-y-3">
 
                             {/* Status */}
-                              <div
+                            <div
                                 className="text-white rounded-2xl p-4 relative overflow-hidden"
                                 style={{
                                     backgroundImage: `url('${getBg()}')`,
@@ -686,9 +828,16 @@ const getBg = () => {
                                 </button>
                             </div>
 
-                            <button className="w-full bg-[#FF6C6C] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-red-600 transition flex items-center justify-center">
-                                Cancel Package
-                            </button>
+                            {status !== 'active' ? (
+
+                                <button onClick={handleRenewPackage} className="w-full bg-[#237FEA] text-white text-[18px] py-3 rounded-xl  font-medium hover:bg-blue-700 transition">
+                                    Renew Package
+                                </button>
+                            ) : (
+                                <button onClick={handleCancelPackage} className="w-full bg-[#FF6C6C] text-white my-3 text-[18px] py-3 rounded-xl  font-medium hover:bg-red-600 transition flex items-center justify-center">
+                                    Cancel Package
+                                </button>
+                            )}
 
 
                         </div>

@@ -122,7 +122,7 @@ const MembersDashboard = () => {
 
     const stats = [
         {
-            icon: <Users size={18} />,
+            icon: "/reportsIcons/user-group.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Total Members",
             value: totalMembers,
@@ -131,7 +131,7 @@ const MembersDashboard = () => {
             subvalue: lastBookingCount,
         },
         {
-            icon: <PoundSterling size={18} />,
+             icon: "/reportsIcons/pound.png",
             iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
             title: "Monthly Revenue",
             value: `£${revenue}`,
@@ -140,7 +140,7 @@ const MembersDashboard = () => {
             subvalue: `£${lastYearRevenue}`,
         },
         {
-            icon: <Calendar size={18} />,
+              icon: "/reportsIcons/pound2.png",
             iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
             title: "Average Monthly Fee",
             value: `£${avgMonthlyFee}`,
@@ -149,7 +149,7 @@ const MembersDashboard = () => {
             subvalue: "—",
         },
         {
-            icon: <Clock size={18} />,
+              icon: "/reportsIcons/Lifecycle.png",
             iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
             title: "Average Life Cycle",
             value: `${avgLifeCycle} months`,
@@ -158,7 +158,7 @@ const MembersDashboard = () => {
             subvalue: "16.8 months",
         },
         {
-            icon: <UserPlus size={18} />,
+             icon: "/reportsIcons/orangeadduser.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
             title: "New Students",
             value: newStudents,
@@ -167,7 +167,7 @@ const MembersDashboard = () => {
             subvalue: "—",
         },
         {
-            icon: <RotateCcw size={18} />,
+             icon: "/reportsIcons/orangeadduser.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
             title: "Retention",
             value: `${retention}%`,
@@ -514,15 +514,15 @@ const exportMemberStatsExcel = () => {
                 {stats.map((s, i) => (
 
 
-                    <div
+                 <div
                         key={i}
                         className="bg-white rounded-4xl p-4 flex items-center gap-4 hover:shadow-md transition-all duration-200"
                     >
                         <div>
                             <div
-                                className={`p-2 h-[50px] w-[50px] rounded-full flex items-center justify-center ${s.iconStyle}`}
+                                className={`p-2 h-[50px] w-[50px] p-2 rounded-full flex items-center justify-center ${s.iconStyle}`}
                             >
-                                <div className={s.iconStyle}>{s.icon}</div>
+                                <div className={s.iconStyle}><img className="p-1" src={s.icon} alt="" /></div>
                             </div>
                         </div>
                         <div>

@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { IoMdCheckmarkCircle } from "react-icons/io";
 import Select from "react-select";
 import { useSearchParams } from "react-router-dom";
+import PhoneInput from "react-phone-input-2";
 
 import { useRecruitmentTemplate } from '../../../contexts/RecruitmentContext';
 import { useVenue } from '../../../contexts/VenueContext';
@@ -45,6 +46,8 @@ const stats = [
   { label: "Funds", value: 10 },
 ];
 const OverView = () => {
+  const [editMode, setEditMode] = useState(false);
+
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [loading, setLoading] = useState(false);
   const [rateOpen, setRateOpen] = useState(false);
@@ -286,7 +289,7 @@ const OverView = () => {
       title: "Qualify Lead",
       actionType: "buttons",
       status: "completed",
-      isEnabled: true,
+      isEnabled: true, // NEVER false
     },
     {
       id: 2,
@@ -294,7 +297,7 @@ const OverView = () => {
       buttonText: "Schedule a call",
       isOpen: false,
       status: "pending",
-      isEnabled: true, // because step 1 is already completed
+      isEnabled: false,
     },
     {
       id: 3,
@@ -306,7 +309,6 @@ const OverView = () => {
     {
       id: 4,
       title: "Discovery day",
-      date: "23 April, 2023",
       status: "pending",
       isEnabled: false,
     },
@@ -319,6 +321,74 @@ const OverView = () => {
       isEnabled: false,
     },
   ]);
+
+
+
+  const enableNextStep = (id) => {
+    setSteps(prev =>
+      prev.map(step =>
+        step.id === id + 1
+          ? { ...step, isEnabled: true }
+          : step
+      )
+    );
+  };
+
+  const updateStepStatus = (id, status) => {
+    setSteps(prev =>
+      prev.map(step => {
+        if (step.id === id) {
+          return {
+            ...step,
+            status,
+            isEnabled: false,
+            isOpen: false,
+          };
+        }
+        return step;
+      })
+    );
+
+    enableNextStep(id);
+  };
+
+
+  useEffect(() => {
+    setSteps(prev =>
+      prev.map(step => {
+        // 1️⃣ Edit mode OFF → everything disabled
+        if (!editMode) {
+          console.log(`🔒 Step ${step.id} disabled → editMode is OFF`);
+          return { ...step, isEnabled: false };
+        }
+
+        // 2️⃣ Step 1 is always enabled in edit mode
+        if (step.id === 1) {
+          console.log(`✅ Step 1 enabled → base step in editMode`);
+          return { ...step, isEnabled: true };
+        }
+
+        // 3️⃣ Completed or skipped steps remain enabled
+        if (step.status === "completed" || step.status === "skipped") {
+          console.log(
+            `✅ Step ${step.id} enabled → status is ${step.status}`
+          );
+          return { ...step, isEnabled: true };
+        }
+
+        // 4️⃣ All other steps disabled
+        console.log(
+          `⛔ Step ${step.id} disabled → not completed/skipped`,
+          { status: step.status }
+        );
+
+        return { ...step, isEnabled: false };
+      })
+    );
+  }, [editMode]);
+
+
+
   const [telephoneCallDelivery, setTelephoneCallDelivery] = useState({
     telePhoneCallDeliveryCommunicationSkill: null,
     telePhoneCallDeliveryPassionCoaching: null,
@@ -425,38 +495,84 @@ const OverView = () => {
         telePhoneCallDeliveryKnowledgeOfSSS: p.telePhoneCallDeliveryKnowledgeOfSSS ?? null,
       },
     });
+    setRecruitmentData({
+      telephoneCallSetupDate: p.telephoneCallSetupDate || "",
+      telephoneCallSetupTime: p.telephoneCallSetupTime || "",
+      telephoneCallSetupReminder: p.telephoneCallSetupReminder || "",
+      telephoneCallSetupEmail: p.telephoneCallSetupEmail || "",
+    });
     setTelephoneCallDelivery({
       telePhoneCallDeliveryCommunicationSkill: p.telePhoneCallDeliveryCommunicationSkill ?? null,
       telePhoneCallDeliveryPassionCoaching: p.telePhoneCallDeliveryPassionCoaching ?? null,
       telePhoneCallDeliveryExperience: p.telePhoneCallDeliveryExperience ?? null,
       telePhoneCallDeliveryKnowledgeOfSSS: p.telePhoneCallDeliveryKnowledgeOfSSS ?? null,
     })
-
+    updateStepStatus(2, "completed");
     toggleStep(2, "completed")
     toggleStep(3, "completed")
     toggleStep(4, "completed")
     setSteps(prev =>
       prev.map(step => {
+        let updatedStep = step;
+
         if (step.id === 1) {
-          return { ...step, status: p.qualifyLead ? "completed" : "pending" };
-        }
-        if (step.id === 2 && p.telephoneCallSetupDate) {
-          return { ...step, status: "completed" };
-        }
-        if (step.id === 3 && p.telePhoneCallDeliveryCommunicationSkill) {
-          return { ...step, status: "completed" };
-        }
-        if (step.id === 5 && p.result) {
-          return {
+          if (!p.qualifyLead) {
+            console.log("❌ Step 1 NOT completed → qualifyLead is false or missing", {
+              qualifyLead: p.qualifyLead,
+            });
+          }
+
+          updatedStep = {
             ...step,
-            resultPercent: recuritmentDataById.telephoneCallScorePercentage + "%",
-            resultStatus: p.result === "passed" ? "Passed" : "Failed",
-            status: "completed",
+            status: p.qualifyLead ? "completed" : "pending",
           };
         }
-        return step;
+
+        else if (step.id === 2) {
+          if (!p.telephoneCallSetupDate) {
+            console.log("❌ Step 2 NOT completed → telephoneCallSetupDate missing", {
+              telephoneCallSetupDate: p.telephoneCallSetupDate,
+            });
+          } else {
+            updatedStep = { ...step, status: "completed" , isEnabled : true };
+           
+          }
+        }
+
+        else if (step.id === 3) {
+          if (!p.telePhoneCallDeliveryCommunicationSkill) {
+            console.log(
+              "❌ Step 3 NOT completed → telePhoneCallDeliveryCommunicationSkill missing",
+              {
+                telePhoneCallDeliveryCommunicationSkill:
+                  p.telePhoneCallDeliveryCommunicationSkill,
+              }
+            );
+          } else {
+            updatedStep = { ...step, status: "completed" };
+          }
+        }
+
+        else if (step.id === 5) {
+          if (!p.result) {
+            console.log("❌ Step 5 NOT completed → result missing", {
+              result: p.result,
+            });
+          } else {
+            updatedStep = {
+              ...step,
+              resultPercent:
+                recuritmentDataById.telephoneCallScorePercentage + "%",
+              resultStatus: p.result === "passed" ? "Passed" : "Failed",
+              status: "completed",
+            };
+          }
+        }
+
+        return updatedStep;
       })
     );
+
   }, [recuritmentDataById]);
 
   const handleSendOfferMail = async (id) => {
@@ -496,7 +612,7 @@ const OverView = () => {
   const submitScorecard = () => {
     setPayload(prev => ({ ...prev, ...telephoneCallDelivery }));
 
-
+    updateStepStatus(3, "completed");
     toggleStep(3, "completed");
     setRateOpen(false);
   };
@@ -540,12 +656,15 @@ const OverView = () => {
 
   //steps
   const toggleOpenStep = (id) => {
-    setSteps((prev) =>
-      prev.map((s) =>
-        s.id === id ? { ...s, isOpen: !s.isOpen } : s
+    setSteps(prev =>
+      prev.map(step =>
+        step.id === id
+          ? { ...step, isOpen: !step.isOpen }
+          : step
       )
     );
   };
+
   const handleSubmit = async () => {
     console.log("Submit Payload:", form);
 
@@ -565,7 +684,7 @@ const OverView = () => {
         telePhoneCallDeliveryCommunicationSkill: payload.telePhoneCallDeliveryCommunicationSkill,
         telePhoneCallDeliveryPassionCoaching: payload.telePhoneCallDeliveryPassionCoaching,
         telePhoneCallDeliveryExperience: payload.telePhoneCallDeliveryExperience,
-        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryExperience,
+        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryKnowledgeOfSSS,
 
         discoveryDay: [
           {
@@ -580,6 +699,7 @@ const OverView = () => {
       console.log("Submit Payload in else:", form);
     }
   };
+  console.log('stepsstepssteps', steps)
   if (loading) return <Loader />;
 
   return (
@@ -646,11 +766,28 @@ const OverView = () => {
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Phone number</label>
-                <input type="text"
-                  disabled={!!form.phone}
-                  value={form.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="+91" />
+                <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3">
+                  <PhoneInput
+                    country="us"
+                    disableDropdown={true}
+                    disableCountryCode={true}
+                    countryCodeEditable={false}
+                    inputStyle={{
+                      width: "0px",
+                      maxWidth: '20px',
+                      height: "0px",
+                      opacity: 0,
+                      pointerEvents: "none", // ✅ prevents blocking typing
+                      position: "absolute",
+                    }}
+                    buttonClass="!bg-white !border-none !p-0"
+                  />
+                  <input type="text"
+                    disabled={!!form.phone}
+                    value={form.phone}
+                    onChange={(e) => handleChange("phone", e.target.value)}
+                    className="border-none focus:outline-none" placeholder="+91" />
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -696,9 +833,13 @@ const OverView = () => {
 
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Capital available</label>
-                <input type="text"
-                  value={form.capitalAvailable}
-                  onChange={(e) => handleChange("capitalAvailable", e.target.value)} className="input border border-[#E2E1E5]  rounded-xl w-full p-3" placeholder="£123,123" />
+                <input
+                  type="text"
+                  value={form.capitalAvailable ? `£${Number(form.capitalAvailable).toLocaleString()}` : ""}
+                  onChange={(e) => handleChange("capitalAvailable", e.target.value.replace(/[£,]/g, ""))}
+                  className="input border border-[#E2E1E5] rounded-xl w-full p-3"
+                  placeholder="£123,123"
+                />
               </div>
 
             </div>
@@ -840,9 +981,9 @@ const OverView = () => {
                 <div
                   key={step.id}
                   className={`
-      relative ps-[20px]
-     ${!step.isEnabled ? "opacity-40 cursor-not-allowed pointer-events-none" : ""}
-    `}
+                    relative ps-[20px]
+                  ${!step.isEnabled && step.id !== 1 ? "opacity-40 cursor-not-allowed pointer-events-none" : ""}
+                  `}
                 >
 
 
@@ -860,14 +1001,28 @@ const OverView = () => {
                   {/* TITLE + Skip */}
                   <div className="flex justify-between">
                     <p className="font-semibold">{step.title && step.title == "Discovery day" ? (
-                      <span onClick={() => setOpenDiscoverDayModal(true)}>{step.title}</span>
+                      <div className=''>
+                        <span onClick={() => setOpenDiscoverDayModal(true)}>{step.title}</span>
+
+                        <button
+                          className="mt-3 flex items-center gap-2 bg-[#237FEA] text-white px-3 py-2 rounded-xl text-sm"
+                          onClick={() => setOpenDiscoverDayModal(true)}
+                        >
+                          continue
+
+                        </button>
+                      </div>
                     ) : (
                       <span>{step.title}</span>
                     )}</p>
                     {step.status !== "completed" && (
                       <button
                         className="text-gray-400 text-sm"
-                        onClick={() => toggleStep(step.id, "skipped")}
+                        onClick={() => {
+                          updateStepStatus(step.id, "completed");
+                          updateRecruitment("qualifyLead", true);
+                        }}
+
                       >
                         <div className="flex gap-2"> Skip
                           {step.status === "skipped" ? (
@@ -888,7 +1043,7 @@ const OverView = () => {
                     <div className="flex items-center gap-2 mt-3">
                       <button
                         className="w-8 h-8 border rounded-lg flex items-center justify-center"
-                        onClick={() => toggleStep(step.id, "skipped")}
+                        onClick={() => updateStepStatus(step.id, "skipped")}
                       >
                         ✕
                       </button>
@@ -940,19 +1095,19 @@ const OverView = () => {
 
                       <div className="grid grid-cols-2 gap-3">
                         <div className="border border-[#E2E1E5]  rounded-xl px-3 py-2 flex items-center justify-between text-gray-500">
-                          <input type="date" value={telephoneCall.date} onChange={(e) => updateRecruitment("telephoneCallSetupDate", e.target.value)}
+                          <input type="date" value={recruitmentData.telephoneCallSetupDate} onChange={(e) => updateRecruitment("telephoneCallSetupDate", e.target.value)}
                             className="outline-none w-full" />
                         </div>
 
                         <div className="border border-[#E2E1E5]  rounded-xl px-3 py-2 flex items-center justify-between text-gray-500">
-                          <input type="time" value={telephoneCall.time} onChange={(e) => updateRecruitment("telephoneCallSetupTime", e.target.value)}
+                          <input type="time" value={recruitmentData.telephoneCallSetupTime} onChange={(e) => updateRecruitment("telephoneCallSetupTime", e.target.value)}
                             className="outline-none w-full" />
                         </div>
                       </div>
 
                       <select onChange={(e) =>
                         updateRecruitment("telephoneCallSetupReminder", e.target.value)
-                      } value={telephoneCall.reminder} className="border border-[#E2E1E5]  rounded-xl px-3 py-2.5 w-full text-gray-600">
+                      } value={recruitmentData.telephoneCallSetupReminder} className="border border-[#E2E1E5]  rounded-xl px-3 py-2.5 w-full text-gray-600">
                         <option>When do you want to be reminded?</option>
                         <option>10 minutes before</option>
                         <option>30 minutes before</option>
@@ -964,7 +1119,10 @@ const OverView = () => {
 
                       <button
                         className="w-full bg-[#237FEA] text-white py-3 rounded-xl"
-                        onClick={() => toggleStep(step.id, "completed")}
+                        onClick={() => {
+                          updateStepStatus(2, "completed");
+                          updateRecruitment("telephoneCallConfirmed", true);
+                        }}
                       >
                         Confirm call
                       </button>
@@ -1390,6 +1548,7 @@ const OverView = () => {
             >
               <div className="relative mt-6 border-b  border-[#E2E1E5]  pb-5">
                 <h2 className="text-xl font-semibold  text-center">Discovery day</h2>
+
                 <button
                   onClick={() => setOpenDiscoverDayModal(false)}
                   className="absolute top-0 left-4 text-black hover:text-black text-xl"
@@ -1400,6 +1559,7 @@ const OverView = () => {
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
+                  updateStepStatus(4, "completed");
                   setOpenDiscoverDayModal(false);
                 }}
                 className="p-6"

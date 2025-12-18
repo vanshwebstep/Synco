@@ -154,6 +154,9 @@ const currentPath = location.pathname
     'administration/file-manager': { title: 'Folders'},
     'configuration/holiday-camp/discount': { title: 'Discounts'},
     'holiday-camp/members': { title: 'Holiday Camps'},
+    'permission': { title: 'Permissions'},
+    'recruitment/franchise-lead': { title: 'Franchise'},
+    'recruitment/franchise-lead/see-details': { title: 'Account Information'},
 
   };
   // Extract the part after `/`

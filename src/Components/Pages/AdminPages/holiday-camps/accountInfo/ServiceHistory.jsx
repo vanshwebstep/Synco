@@ -31,7 +31,7 @@ const renderField = (label, value) => {
 
 const BookingCard = ({ bookingInfo, booking }) => {
   const { data } = useAccountsInfo();
-console.log('data',data ,bookingInfo, booking )
+  console.log('data', data, bookingInfo, booking)
 
   const navigate = useNavigate();
   const statusColors = {
@@ -48,11 +48,11 @@ console.log('data',data ,bookingInfo, booking )
       <div className="flex justify-between items-center bg-[#3D444F] rounded-2xl p-4">
         <div className="flex items-center gap-3">
           <img
-            src={renderImage(booking?.serviceType)}
-            alt={booking?.serviceType}
+            src={renderImage(bookingInfo?.serviceType)}
+            alt={bookingInfo?.serviceType}
             className="w-8 h-8 rounded-full"
           />
-          <h3 className="text-white font-semibold">Birthday party Booking</h3>
+          <h3 className="text-white font-semibold capitalize">{bookingInfo?.serviceType} Booking</h3>
         </div>
         <div className="flex items-center gap-2">
           <button className="px-3 py-2 flex items-center gap-2 rounded-lg text-sm bg-white">
@@ -179,7 +179,7 @@ console.log('data',data ,bookingInfo, booking )
             <>
               {renderField("Camp", data?.holidayCamp?.name)}
               {renderField("Students", data?.totalStudents)}
-              {renderField("Price Paid", `${'£' + data?.payment?.amount + '.00'}`)}
+              {renderField("Price Paid", `${'£' + data?.payment?.amount + ''}`)}
               {renderField("Stripe Transaction ID", data?.payment?.gatewayResponse.fullResponse.balance_transaction.id)}
               {renderField("Date of Booking", new Date(data?.createdAt).toLocaleString("en-IN", {
                 day: "2-digit",
@@ -189,10 +189,10 @@ console.log('data',data ,bookingInfo, booking )
                 minute: "2-digit",
                 hour12: false,   // 24-hour format; set true for AM/PM format
               }))}
-            
+
               {renderField("Venue", data?.holidayVenue?.name)}
               {renderField("Discount", data?.payment?.discount_amount)}
-              {renderField("Booking Source", data?.bookedByAdmin?.firstName + " " +data?.bookedByAdmin?.lastName)}
+              {renderField("Booking Source", data?.bookedByAdmin?.firstName + " " + data?.bookedByAdmin?.lastName)}
             </>
           )}
 
@@ -324,13 +324,13 @@ const ServiceHistory = () => {
 
   const calendarDays = getDaysArray();
 
- const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1)); 
- };
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
 
   const isSameDate = (d1, d2) =>
     d1 &&

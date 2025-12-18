@@ -95,7 +95,8 @@ const AdminLayout = ({ children }) => {
     '/recruitment/reports': { title: 'Recruitment Report', icon: "/members/Category.png" },
     '/holiday-camp/members': { title: 'Holiday Camp Students', icon: "/members/Category.png" },
     '/holiday-camp/members/account-information': { title: 'Account Information', icon: "/members/Category.png" },
-
+    '/recruitment/franchise-lead': { title: 'Franchise Applications' , icon: "/members/Discovery.png"},
+    '/recruitment/franchise-lead/see-details': { title: 'Franchise' , icon: "/members/Discovery.png"  },
   };
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);

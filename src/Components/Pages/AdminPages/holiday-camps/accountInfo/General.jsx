@@ -283,7 +283,7 @@ const reasonOptions = [
         { name: "dob", placeholder: "Date of Birth", type: "date", label: "Date Of Birth" },
         { name: "age", placeholder: "Automatic Entry", type: "text", label: "Age" },
         { name: "medical", placeholder: "Enter Medical Information", type: "text", label: "Medical Information" },
-        // { name: "ability", placeholder: "", type: "select", options: ["Select Ability Level"], label: "Ability Levels" },
+        { name: "ability", placeholder: "", type: "select", options: ["Select Ability Level"], label: "Ability Levels" },
     ];
 
     const parentInputs = [

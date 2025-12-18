@@ -7,6 +7,7 @@ export const VenueProvider = ({ children }) => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [venues, setVenues] = useState([]);
   const token = localStorage.getItem("adminToken");
+  const [assignedVenues, setAssignedVenues] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [isEditVenue, setIsEditVenue] = useState(false);
@@ -61,6 +62,28 @@ export const VenueProvider = ({ children }) => {
       const resultRaw = await response.json();
       const result = resultRaw.data || [];
       setVenues(result);
+    } catch (error) {
+      console.error("Failed to fetch venues:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+   const fetchAssignedVenueNames = useCallback(async () => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/coach/recruitment/venue-manager`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const resultRaw = await response.json();
+      const result = resultRaw.data || [];
+      setAssignedVenues(result);
     } catch (error) {
       console.error("Failed to fetch venues:", error);
     } finally {
@@ -228,7 +251,7 @@ const deleteVenue = useCallback(async (id) => {
 
   return (
     <VenueContext.Provider
-      value={{ venues, createVenues, updateVenues, deleteVenue,openForm,fetchVenueNames, setOpenForm, formData, setFormData, isEditVenue, setIsEditVenue, setVenues, fetchVenues, loading }}>
+      value={{ venues, createVenues, updateVenues, deleteVenue,openForm,fetchVenueNames, setOpenForm, formData, setFormData, isEditVenue, setIsEditVenue, setVenues, fetchVenues,assignedVenues,fetchAssignedVenueNames, loading }}>
       {children}
     </VenueContext.Provider>
   );

@@ -704,12 +704,12 @@ const handleFilterChange = async (key, value) => {
                                             <div className="w-full bg-gray-100 h-2 rounded-full">
                                                 <div
                                                     className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                                    style={{ width: `${item?.value || 0}%` }}
+                                                    style={{ width: `${item?.saleTrend.percent || 0}%` }}
                                                 ></div>
                                             </div>
 
                                             <span className="text-xs text-[#344054] font-semibold">
-                                                {item?.value || 0}%
+                                                {item?.saleTrend.percent || 0}%
                                             </span>
                                         </div>
                                     </div>

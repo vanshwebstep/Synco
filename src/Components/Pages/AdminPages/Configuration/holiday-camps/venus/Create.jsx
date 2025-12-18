@@ -61,7 +61,7 @@ const Create = ({ groups, termGroup }) => {
     setOpenForm(null);
 
   };
-console.log('formData',formData)
+  console.log('formData', formData)
 
 
   const handleUpdate = (id) => {
@@ -76,24 +76,32 @@ console.log('formData',formData)
       return; // stop here, don't close
     }
 
-    // Normalize holidayCampId
-    let holidayCampId = formData.holidayCampId;
+    // Normalize holidayCampIds
+ let holidayCampId = formData.holidayCampId;
 
-    if (!Array.isArray(holidayCampId)) {
-      try {
-        holidayCampId = JSON.parse(holidayCampId);
-      } catch (e) {
-        console.warn("holidayCampId is not JSON, converting to array:", holidayCampId);
-        holidayCampId = holidayCampId ? [Number(holidayCampId)] : [];
-      }
-    }
+// Step 1: Parse if string
+if (typeof holidayCampId === "string") {
+  try {
+    holidayCampId = JSON.parse(holidayCampId);
+  } catch {
+    holidayCampId = holidayCampId ? [Number(holidayCampId)] : [];
+  }
+}
 
-    // ensure all elements are numbers
-    holidayCampId = holidayCampId;
+// Step 2: Ensure array + flatten
+holidayCampId = Array.isArray(holidayCampId)
+  ? holidayCampId.flat(Infinity).map(Number)
+  : holidayCampId
+  ? [Number(holidayCampId)]
+  : [];
+
+console.log("Final holidayCampId:", holidayCampId);
+
+
 
 
     // Create updated data object
-    const updatedVenueData = { ...formData,  holidayCampId: [holidayCampId], };
+    const updatedVenueData = { ...formData, holidayCampId: holidayCampId, };
 
     // Send normalized data to API
     updateVenues(id, updatedVenueData);
@@ -110,7 +118,7 @@ console.log('formData',formData)
   const handleSaveTerm = () => {
     setFormData((prev) => ({
       ...prev,
-      holidayCampId: isEditVenue? selectedTermIds:[selectedTermIds], // now just an array
+      holidayCampId: isEditVenue ? selectedTermIds : selectedTermIds, // now just an array
     }));
     setShowTermDropdown(false);
   };
@@ -207,29 +215,29 @@ console.log('formData',formData)
 
 
     // Handle term group ID
-  if (formData?.holidayCampId) {
-  try {
-    const parsed = JSON.parse(formData.holidayCampId); // gives array like [46]
-    if (Array.isArray(parsed)) {
-      setSelectedTermIds(parsed[0]); // set the first element as number
-    } else {
-      setSelectedTermIds(parsed);
+    if (formData?.holidayCampId) {
+      try {
+        const parsed = JSON.parse(formData.holidayCampId); // gives array like [46]
+        if (Array.isArray(parsed)) {
+          setSelectedTermIds(parsed[0]); // set the first element as number
+        } else {
+          setSelectedTermIds(parsed);
+        }
+      } catch (e) {
+        // fallback if parsing fails
+        setSelectedTermIds(Number(formData.holidayCampId));
+      }
     }
-  } catch (e) {
-    // fallback if parsing fails
-    setSelectedTermIds(Number(formData.holidayCampId));
-  }
-}
 
   }, [formData]);
 
   // ✅ First one (line ~140):
- const labels = Array.isArray(termOptions) && selectedTermIds != null
-  ? termOptions
+  const labels = Array.isArray(termOptions) && selectedTermIds != null
+    ? termOptions
       .filter(opt => opt && opt.id === selectedTermIds)
       .map(opt => opt.label)
       .filter(Boolean)
-  : [];
+    : [];
 
   const facilityOptions = [
     // { value: "", label: "Facility" },  

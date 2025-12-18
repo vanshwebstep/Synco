@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useMemo  } from "react";
 import { Check } from "lucide-react";
 import { TiUserAdd } from "react-icons/ti";
 import { Plus } from "lucide-react";
@@ -19,6 +19,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import Select from "react-select";
 import Swal from "sweetalert2";
 const All = () => {
+    const [selectedVenue, setSelectedVenue] = useState(null);
 
 
     const [loading, setLoading] = useState(false);
@@ -31,7 +32,7 @@ const All = () => {
         { value: "yes", label: "Yes" },
         { value: "no", label: "No" },
     ];
-    const { recruitment, fetchAllRecruitment, statsRecruitment, createVenueRecruitment ,sendCoachMail} = useRecruitmentTemplate() || {};
+    const { recruitment, fetchAllRecruitment, statsRecruitment, createVenueRecruitment, sendCoachMail } = useRecruitmentTemplate() || {};
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
@@ -77,6 +78,19 @@ const All = () => {
             key: "totalToRecruitment"
         }
     ];
+     const venueOptions = useMemo(() => {
+            const venuesMap = new Map();
+    
+            recruitment.forEach((rec) => {
+                rec.candidateProfile?.availableVenueWork?.venues?.forEach((venue) => {
+                    if (!venuesMap.has(venue.id)) {
+                        venuesMap.set(venue.id, { value: venue.id, label: venue.name });
+                    }
+                });
+            });
+    
+            return Array.from(venuesMap.values());
+        }, [recruitment]);
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     // Add ID to each coach
@@ -191,8 +205,8 @@ const All = () => {
         setStudentName(e.target.value);
     };
 
-    const handleVenueChange = (e) => {
-        setVenueName(e.target.value);
+    const handleVenueChange = (selectedOption) => {
+        setSelectedVenue(selectedOption);
     };
 
     const handleCheckboxChange = (key) => {
@@ -219,13 +233,13 @@ const All = () => {
 
     const calendarDays = getDaysArray();
 
- const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+    const goToPreviousMonth = () => {
+        setCurrentDate(new Date(year, month - 1, 1));
+    };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1)); 
- };
+    const goToNextMonth = () => {
+        setCurrentDate(new Date(year, month + 1, 1));
+    };
     const isSameDate = (d1, d2) =>
         d1 &&
         d2 &&
@@ -289,60 +303,48 @@ const goToNextMonth = () => {
     const applyFilter = () => {
         let temp = Array.isArray(recruitment) ? [...recruitment] : [];
 
-        // 1. Search by name
-        if (studentName?.trim()) {
-            const q = studentName.trim().toLowerCase();
-            temp = temp.filter((c) => {
-                const name = `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase();
-                return name.includes(q);
-            });
-        }
 
-        // 2. Venue
-        if (venueName) {
-            temp = temp.filter((c) => (c.venue ?? "").toString() === venueName);
-        }
+        // 2️⃣ Status / Exp / FA filters
+        const selected = Object.entries(checkedStatuses)
+            .filter(([_, v]) => v)
+            .map(([k]) => k);
 
-        // 3. Status + Exp + FA Level
-        const activeStatuses = Object.entries(checkedStatuses)
-            .filter(([k, v]) => v)
-            .map(([k]) => k.toLowerCase());
-        console.log('activeStatuses', activeStatuses);
-        if (activeStatuses.length > 0) {
+        if (selected.length > 0) {
             temp = temp.filter((c) => {
-                const status = (c.status ?? "").toLowerCase().trim();
+                const status = (c.status ?? "").toLowerCase();
                 const expYears = getExpYears(c.managementExperience);
-                const faLevel1 = c.level == "yes";
-                console.log('ccc', c)
-                return (
-                    activeStatuses.includes(status) ||
+                const faLevel1 = c.level === "yes";
 
-                    // ✅ 0–3 years exp
-                    (
-                        activeStatuses.includes("0-3 years exp") &&
-                        expYears !== null &&
-                        expYears >= 0 &&
-                        expYears <= 3
-                    ) ||
+                let match = true;
 
-                    // ✅ 3+ years exp
-                    (
-                        activeStatuses.includes("3+ years exp") &&
-                        expYears !== null &&
-                        expYears >= 3
-                    ) ||
+                // Status
+                const statusFilters = ["Pending", "Recruited", "Rejected"]
+                    .filter(s => selected.includes(s))
+                    .map(s => s.toLowerCase());
 
-                    // ✅ FA Level 1
-                    (
-                        activeStatuses.includes("fa level 1") &&
-                        faLevel1
-                    )
-                );
+                if (statusFilters.length > 0) {
+                    match = match && statusFilters.includes(status);
+                }
+
+                // Experience
+                if (selected.includes("0-3 Years Exp")) {
+                    match = match && expYears !== null && expYears <= 3;
+                }
+
+                if (selected.includes("3+ Years Exp")) {
+                    match = match && expYears !== null && expYears >= 3;
+                }
+
+                // FA Level
+                if (selected.includes("FA Level 1")) {
+                    match = match && faLevel1;
+                }
+
+                return match;
             });
         }
 
-
-        // 4. Date range
+        // 3️⃣ Date range
         if (fromDate && toDate) {
             const start = new Date(fromDate).setHours(0, 0, 0, 0);
             const end = new Date(toDate).setHours(23, 59, 59, 999);
@@ -355,24 +357,45 @@ const goToNextMonth = () => {
 
         setFilteredRecruitment(temp);
     };
+    const filterByName = (data) => {
+        if (!studentName.trim()) return data;
 
+        const q = studentName.trim().toLowerCase();
+        return data.filter(c =>
+            `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase().includes(q)
+        );
+    };
+    const filterByVenue = (data) => {
+        if (!selectedVenue) return data;
+        return data.filter((c) =>
+            c.candidateProfile?.availableVenueWork?.venues?.some(
+                (v) => v.id === selectedVenue.value
+            )
+        );
+    };
+    useEffect(() => {
+        let temp = Array.isArray(recruitment) ? [...recruitment] : [];
+        temp = filterByName(temp);
+        temp = filterByVenue(temp);
+        setFilteredRecruitment(temp);
+    }, [studentName, selectedVenue, recruitment]);
 
 
     useEffect(() => {
         setFilteredRecruitment(recruitment);
     }, [recruitment]);
 
- const finalSummaryCards = summaryCards.map(card => {
-  const matched = Array.isArray(statsRecruitment)
-    ? statsRecruitment.find(item => item.name === card.key)
-    : null;
+    const finalSummaryCards = summaryCards.map(card => {
+        const matched = Array.isArray(statsRecruitment)
+            ? statsRecruitment.find(item => item.name === card.key)
+            : null;
 
-  return {
-    ...card,
-    value: matched?.count ?? 0,
-    change: matched?.percent ? `(${matched.percent})` : null
-  };
-});
+        return {
+            ...card,
+            value: matched?.count ?? 0,
+            change: matched?.percent ? `(${matched.percent})` : null
+        };
+    });
 
 
     const experienceOptions = [
@@ -410,7 +433,7 @@ const goToNextMonth = () => {
         }),
         indicatorSeparator: () => ({ display: "none" }),
     };
- const handleCoachMail = async (selectedIds) => {
+    const handleCoachMail = async (selectedIds) => {
         const result = await Swal.fire({
             title: 'Are you sure?',
             text: 'Do you want to send the mail?',
@@ -427,6 +450,22 @@ const goToNextMonth = () => {
     };
     const inputClass =
         " px-4 py-3 border border-[#E2E1E5] rounded-xl focus:outline-none ";
+
+        const [currentPage, setCurrentPage] = useState(1);
+            const [rowsPerPage, setRowsPerPage] = useState(10);
+        
+            const totalItems = filteredRecruitment.length;
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+        
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+        
+            const currentData = useMemo(
+                () => filteredRecruitment.slice(startIndex, endIndex),
+                [filteredRecruitment, startIndex, endIndex]
+            );
+        
+        
 
     if (loading) return <Loader />;
     return (
@@ -468,16 +507,7 @@ const goToNextMonth = () => {
                             <Plus size={16} />
                             Add new lead
                         </button> */}
-                        {filteredRecruitment.length == 0 && (
-                            <button onClick={() => {
 
-                            }}
-                                className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
-
-                                Reset Filters
-                            </button>
-
-                        )}
                     </div>
                 </div>
                 <div className="mt-3 overflow-auto rounded-3xl bg-white ">
@@ -497,7 +527,16 @@ const goToNextMonth = () => {
                         </thead>
 
                         <tbody>
-                            {filteredRecruitment.map((coach) => {
+                            {currentData.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan={9}
+                                        className="p-6 text-center text-gray-500 font-medium"
+                                    >
+                                        No data found
+                                    </td>
+                                </tr>
+                            ) : (currentData.map((coach) => {
                                 const isChecked = selectedIds.includes(coach.id);
                                 console.log('coach', coach)
                                 const fullName = `${coach.firstName} ${coach.lastName}`;
@@ -570,11 +609,121 @@ const goToNextMonth = () => {
                                         </td>
                                     </tr>
                                 );
-                            })}
+                            })
+                            )}
                         </tbody>
                     </table>
                 </div>
+{totalItems > 0 && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
+                        <div className="flex items-center gap-2 mb-3 sm:mb-0">
+                            <span>Rows per page:</span>
+                            <select
+                                value={rowsPerPage}
+                                onChange={(e) => {
+                                    setRowsPerPage(Number(e.target.value));
+                                    setCurrentPage(1); // reset page when rows per page changes
+                                }}
+                                className="border rounded-md px-2 py-1"
+                            >
+                                {[5, 10, 20, 50].map((num) => (
+                                    <option key={num} value={num}>
+                                        {num}
+                                    </option>
+                                ))}
+                            </select>
+                            <span className="ml-2">
+                                {Math.min(startIndex + 1, totalItems)} -{" "}
+                                {Math.min(startIndex + rowsPerPage, totalItems)} of {totalItems}
+                            </span>
+                        </div>
 
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                                disabled={currentPage === 1}
+                                className={`px-3 py-1 rounded-md border ${currentPage === 1
+                                    ? "text-gray-400 border-gray-200"
+                                    : "hover:bg-gray-100 border-gray-300"
+                                    }`}
+                            >
+                                Prev
+                            </button>
+
+                            {(() => {
+                                const pageButtons = [];
+                                const maxVisible = 5;
+                                let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+                                let endPage = startPage + maxVisible - 1;
+
+                                if (endPage > totalPages) {
+                                    endPage = totalPages;
+                                    startPage = Math.max(1, endPage - maxVisible + 1);
+                                }
+
+                                if (startPage > 1) {
+                                    pageButtons.push(
+                                        <button
+                                            key={1}
+                                            onClick={() => setCurrentPage(1)}
+                                            className={`px-3 py-1 rounded-md border ${currentPage === 1
+                                                ? "bg-blue-500 text-white border-blue-500"
+                                                : "hover:bg-gray-100 border-gray-300"
+                                                }`}
+                                        >
+                                            1
+                                        </button>
+                                    );
+                                    if (startPage > 2) pageButtons.push(<span key="start-ellipsis" className="px-2">...</span>);
+                                }
+
+                                for (let i = startPage; i <= endPage; i++) {
+                                    pageButtons.push(
+                                        <button
+                                            key={i}
+                                            onClick={() => setCurrentPage(i)}
+                                            className={`px-3 py-1 rounded-md border ${currentPage === i
+                                                ? "bg-blue-500 text-white border-blue-500"
+                                                : "hover:bg-gray-100 border-gray-300"
+                                                }`}
+                                        >
+                                            {i}
+                                        </button>
+                                    );
+                                }
+
+                                if (endPage < totalPages) {
+                                    if (endPage < totalPages - 1) pageButtons.push(<span key="end-ellipsis" className="px-2">...</span>);
+                                    pageButtons.push(
+                                        <button
+                                            key={totalPages}
+                                            onClick={() => setCurrentPage(totalPages)}
+                                            className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+                                                ? "bg-blue-500 text-white border-blue-500"
+                                                : "hover:bg-gray-100 border-gray-300"
+                                                }`}
+                                        >
+                                            {totalPages}
+                                        </button>
+                                    );
+                                }
+
+                                return pageButtons;
+                            })()}
+
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                                disabled={currentPage === totalPages}
+                                className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+                                    ? "text-gray-400 border-gray-200"
+                                    : "hover:bg-gray-100 border-gray-300"
+                                    }`}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="md:w-[30%]  fullwidth20 flex-shrink-0 gap-5 md:ps-3">
@@ -598,15 +747,15 @@ const goToNextMonth = () => {
 
                     <label className="text-[16px] font-semibold mt-2 block">Venue(s)</label>
                     <div className="relative mt-1">
-                        <select
-                            value={venueName}
+                        <Select
+                            options={venueOptions}
+                            value={selectedVenue}
+                            isClearable
                             onChange={handleVenueChange}
-                            className="p-3 py-3 w-full border border-[#E2E1E5] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                        >
-                            <option value="">Choose Venue</option>
-                            <option value="Venue A">Venue A</option>
-                            <option value="Venue B">Venue B</option>
-                        </select>
+                            placeholder="Choose Venue"
+                            className="text-sm"
+                            classNamePrefix="react-select"
+                        />
                     </div>
                 </div>
 
@@ -756,7 +905,7 @@ const goToNextMonth = () => {
 
                 {/* Actions */}
                 <div className="grid blockButton md:grid-cols-3 gap-3 mt-4">
-                    <button  onClick={() => handleCoachMail(selectedIds)} className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
+                    <button onClick={() => handleCoachMail(selectedIds)} className="flex-1 flex items-center justify-center text-[#717073] gap-1 border border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
                         <Mail size={16} className="text-[#717073]" /> Send Email
                     </button>
                     <button className="flex-1 flex items-center justify-center gap-1 border text-[#717073] border-[#717073] rounded-lg py-3 text-sm hover:bg-gray-50">
@@ -804,13 +953,15 @@ const goToNextMonth = () => {
                                         <DatePicker
                                             selected={formData.dob ? new Date(formData.dob) : null}
                                             onChange={(date) => {
-                                                const dob = date?.toISOString().slice(0, 10);
+                                                const dob = date ? date.toLocaleDateString("en-CA") : null;
+
                                                 setFormData({
                                                     ...formData,
                                                     dob,
                                                     age: calculateAge(dob),
                                                 });
                                             }}
+
                                             placeholderText="Date of Birth"
                                             dateFormat="yyyy-MM-dd"
                                             showYearDropdown

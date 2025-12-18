@@ -1,6 +1,9 @@
 import { useState, useCallback, useEffect } from 'react'
 import Swal from "sweetalert2";
 import { useSearchParams } from "react-router-dom";
+import pdfMake from "pdfmake/build/pdfmake";
+import vfsFonts from "pdfmake/build/vfs_fonts";
+
 
 import { useNotification } from '../../../contexts/NotificationContext';
 import { Check, Mail, MessageSquare, Search } from "lucide-react";
@@ -9,6 +12,7 @@ import { motion } from "framer-motion";
 import { IoMdCheckmarkCircle } from "react-icons/io";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
+import PhoneInput from "react-phone-input-2";
 
 import { useRecruitmentTemplate } from '../../../contexts/RecruitmentContext';
 import { useVenue } from '../../../contexts/VenueContext';
@@ -27,20 +31,16 @@ const payRateOptions = [
   { value: "20", label: "₹20 / hr" },
   { value: "30", label: "₹30 / hr" },
 ];
-const venueOptions = [
-  { value: "venue1", label: "Venue 1" },
-  { value: "venue2", label: "Venue 2" },
-];
-
-const classOptions = [
-  { value: "class1", label: "Class 1" },
-  { value: "class2", label: "Class 2" },
-];
 
 
+
+
+pdfMake.vfs = vfsFonts.vfs;
 const CandidateInfo = () => {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [loading, setLoading] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [classOptions, setClassOptions] = useState([]);
   const [telephoneCallDelivery, setTelephoneCallDelivery] = useState({
     telePhoneCallDeliveryCommunicationSkill: null,
     telePhoneCallDeliveryPassionCoaching: null,
@@ -64,6 +64,7 @@ const CandidateInfo = () => {
       knowledge: null,
     },
   });
+  console.log('telephoneCallDelivery', telephoneCallDelivery)
   const [payload, setPayload] = useState({
     qualifyLead: null,
 
@@ -83,17 +84,17 @@ const CandidateInfo = () => {
     "Experience": "telePhoneCallDeliveryExperience",
     "Knowledge of SSS": "telePhoneCallDeliveryKnowledgeOfSSS",
   };
-  console.log('telephoneCall', telephoneCall)
+  // console.log('telephoneCall', telephoneCall)
   const [rateOpen, setRateOpen] = useState(false);
   const [openCandidateStatusModal, setOpenCandidateStatusModal] = useState(false);
   const { fetchCoachRecruitmentById, recuritmentDataById, rejectCoach, sendCoachMail, createCoachRecruitmentById, createVenuManagerRecruitmentById } = useRecruitmentTemplate() || {};
-  const { fetchVenueNames, venues } = useVenue() || {};
+  const { fetchVenueNames, venues ,fetchAssignedVenueNames,assignedVenues} = useVenue() || {};
 
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");   // 👉 this gives "7"
   const comesfrom = searchParams.get("comesfrom");   // 👉 this gives "7"
 
-  console.log("telephoneCallDelivery:", telephoneCallDelivery);
+  // console.log("telephoneCallDelivery:", telephoneCallDelivery);
 
   const [openResultModal, setOpenResultModal] = useState(false);
   const [openOfferModal, setOpenOfferModal] = useState(false);
@@ -105,7 +106,7 @@ const CandidateInfo = () => {
 
   // const [venues, setVenues] = useState([]);
 
-  console.log('recuritmentDataById', recuritmentDataById);
+  // console.log('recuritmentDataById', recuritmentDataById);
   const [form, setForm] = useState({
     status: recuritmentDataById?.status || "",
     firstName: recuritmentDataById?.firstName || "",
@@ -127,7 +128,7 @@ const CandidateInfo = () => {
     qualification: recuritmentDataById?.candidateProfile?.whichQualificationYouHave || "",
     experience: recuritmentDataById?.candidateProfile?.footballExperience || "",
     venues: recuritmentDataById?.venues || [],
-    coverNote: recuritmentDataById?.coverNote || "",
+    coverNote: recuritmentDataById?.candidateProfile?.coverNote || "",
   });
 
   const handleChange = (field, value) => {
@@ -146,7 +147,32 @@ const CandidateInfo = () => {
   };
 
 
+  useEffect(() => {
+    if (!venueState) {
+      setClassOptions([]);
+      setSelectedClass(null);
+      return;
+    }
 
+    // Find the selected venue
+    const selectedVenue = venues.find((v) => v.id === parseInt(venueState));
+
+    // Map classSchedules to react-select options
+    if (selectedVenue && selectedVenue.classSchedules) {
+      const options = selectedVenue.classSchedules.map((cls) => ({
+        value: cls.id,
+        label: cls.className,
+      }));
+      setClassOptions(options);
+      setSelectedClass(null);
+      setSelectedClass(
+        options.find(opt => opt.value === recuritmentDataById?.candidateProfile?.bookPracticalAssessment[0].classId) || null
+      ); // Reset previous selection
+    } else {
+      setClassOptions([]);
+      setSelectedClass(null);
+    }
+  }, [venueState, venues]);
   const venueSlots = [
     "London Bridge / SAT 9 AM - 10 AM",
     "London Bridge / SAT 10 AM - 11 AM",
@@ -336,18 +362,22 @@ const CandidateInfo = () => {
 
   // Toggle completion on click
 
-
+ const venueOptions = assignedVenues.map((v) => ({
+    value: v.id,
+    label: `${v.firstName} ${v.lastName}`.trim() || v.email, // fallback to email if no name
+  }));
   useEffect(() => {
     const init = async () => {
       setLoading(true);
+      await fetchAssignedVenueNames();
+      await fetchVenueNames();
       await fetchComments();
       await fetchCoachRecruitmentById(id);
-      await fetchVenueNames();
       setLoading(false);
     };
 
     if (id) init();
-  }, [id, fetchCoachRecruitmentById, fetchComments, fetchVenueNames]);
+  }, [id, fetchCoachRecruitmentById, fetchComments, fetchVenueNames, fetchAssignedVenueNames]);
   useEffect(() => {
     if (!recuritmentDataById) return;
 
@@ -366,6 +396,10 @@ const CandidateInfo = () => {
       parsedVenues = [];
     }
 
+ const venueOptionss = assignedVenues.map((v) => ({
+    value: v.id,
+    label: `${v.firstName} ${v.lastName}`.trim() || v.email, // fallback to email if no name
+  }));
     setForm({
       status: recuritmentDataById.status || "",
       firstName: recuritmentDataById.firstName || "",
@@ -388,9 +422,26 @@ const CandidateInfo = () => {
       experience:
         recuritmentDataById?.candidateProfile?.footballExperience || "",
       venues: parsedVenues,   // ✅ FIX HERE
-      coverNote: recuritmentDataById?.coverNote || "",
+      coverNote: recuritmentDataById?.candidateProfile?.coverNote || "",
     });
+    setTelephoneCallDelivery({
+      telePhoneCallDeliveryCommunicationSkill: recuritmentDataById?.candidateProfile?.telePhoneCallDeliveryCommunicationSkill,
+      telePhoneCallDeliveryPassionCoaching: recuritmentDataById?.candidateProfile?.telePhoneCallDeliveryPassionCoaching,
+      telePhoneCallDeliveryExperience: recuritmentDataById?.candidateProfile?.telePhoneCallDeliveryExperience,
+      telePhoneCallDeliveryKnowledgeOfSSS: recuritmentDataById?.candidateProfile?.telePhoneCallDeliveryKnowledgeOfSSS
+    });
+
+    setVenueState(recuritmentDataById?.candidateProfile?.bookPracticalAssessment[0]?.venueId)
+    setSelectedClass(
+      classOptions.find(opt => opt.value === recuritmentDataById?.candidateProfile?.bookPracticalAssessment[0].classId) || null
+    );
+    setSelectedDate(recuritmentDataById?.candidateProfile?.bookPracticalAssessment[0]?.date)
+
+    setVenueManager(
+      venueOptionss.find(opt => opt.value === recuritmentDataById?.candidateProfile?.bookPracticalAssessment[0]?.assignToVenueManagerId) || null
+    );
   }, [recuritmentDataById]);
+  console.log('steps', steps)
   useEffect(() => {
     if (!recuritmentDataById?.candidateProfile) return;
 
@@ -415,7 +466,7 @@ const CandidateInfo = () => {
           return { ...step, status: p.qualifyLead ? "completed" : "pending" };
         }
         if (step.id === 2 && p.telephoneCallSetupDate) {
-          return { ...step, status: "completed" };
+          return { ...step, status: "completed", isEnabled: true };
         }
         if (step.id === 3 && p.telePhoneCallDeliveryCommunicationSkill) {
           return { ...step, status: "completed" };
@@ -432,7 +483,7 @@ const CandidateInfo = () => {
       })
     );
   }, [recuritmentDataById]);
-
+  console.log('recuritmentDataByIdp', recuritmentDataById)
   const enableNextStep = (id) => {
     setSteps(prev =>
       prev.map(step =>
@@ -542,10 +593,23 @@ const CandidateInfo = () => {
       ],
     }));
     setOpenCandidateStatusModal(false)
-    console.log("Payload:", payloadd);
+    // console.log("Payload:", payloadd);
     // send payload to your API here
   };
   const handleSubmit = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Once you submit this recruitment, you will not be able to edit or fill any fields again. Please carefully review all your entries before submitting. Only submit when everything is confirmed and correct.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, submit",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      confirmButtonColor: "#d33",
+    });
+
+    // If user cancels, stop execution
+    if (!result.isConfirmed) return;
     console.log("Submit Payload:", form);
 
     if (comesfrom === "coach") {
@@ -566,7 +630,7 @@ const CandidateInfo = () => {
         telePhoneCallDeliveryCommunicationSkill: payload.telePhoneCallDeliveryCommunicationSkill,
         telePhoneCallDeliveryPassionCoaching: payload.telePhoneCallDeliveryPassionCoaching,
         telePhoneCallDeliveryExperience: payload.telePhoneCallDeliveryExperience,
-        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryExperience,
+        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryKnowledgeOfSSS,
         bookPracticalAssessment: payload.bookPracticalAssessment,
       };
       await createCoachRecruitmentById(payloadMain);
@@ -590,7 +654,7 @@ const CandidateInfo = () => {
         telePhoneCallDeliveryCommunicationSkill: payload.telePhoneCallDeliveryCommunicationSkill,
         telePhoneCallDeliveryPassionCoaching: payload.telePhoneCallDeliveryPassionCoaching,
         telePhoneCallDeliveryExperience: payload.telePhoneCallDeliveryExperience,
-        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryExperience,
+        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryKnowledgeOfSSS,
         bookPracticalAssessment: payload.bookPracticalAssessment,
       };
       await createVenuManagerRecruitmentById(payloadMain);
@@ -620,7 +684,7 @@ const CandidateInfo = () => {
       console.log("Submit Payload (coach):", payloadMain);
     }
   };
-  console.log('payload', payload)
+  // console.log('payload', payload)
   const handleCoachMail = async (id) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
@@ -646,6 +710,123 @@ const CandidateInfo = () => {
         return "text-[#D11A2A] bg-[#FFE5E8]";   // red tone
       default:
         return "text-gray-600 bg-gray-200";
+    }
+  };
+
+  const safe = (v) => v !== null && v !== undefined && v !== "";
+  const handleDownload = () => {
+    if (pdfLoading) return;
+    setPdfLoading(true);
+
+    try {
+      const d = recuritmentDataById || {};
+      const p = d.candidateProfile || {};
+
+      const personalInfo = [];
+      safe(d.email) && personalInfo.push(["Email", d.email]);
+      safe(d.phoneNumber) && personalInfo.push(["Phone", d.phoneNumber]);
+      safe(d.dob) && personalInfo.push(["DOB", d.dob]);
+      safe(d.age) && personalInfo.push(["Age", String(d.age)]);
+      safe(d.gender) && personalInfo.push(["Gender", d.gender]);
+      safe(d.postcode) && personalInfo.push(["Postcode", d.postcode]);
+
+      const professionalInfo = [];
+      safe(d.managementExperience) &&
+        professionalInfo.push(["Management Experience", d.managementExperience]);
+      safe(p.footballExperience) &&
+        professionalInfo.push(["Football Experience", p.footballExperience]);
+      safe(p.whichQualificationYouHave) &&
+        professionalInfo.push(["Qualification", p.whichQualificationYouHave]);
+      safe(p.accessToOwnVehicle) &&
+        professionalInfo.push([
+          "Access to Own Vehicle",
+          p.accessToOwnVehicle ? "Yes" : "No",
+        ]);
+
+      const assessmentInfo = [];
+      safe(p.result) && assessmentInfo.push(["Result", p.result]);
+      safe(d.telephoneCallScorePercentage) &&
+        assessmentInfo.push([
+          "Telephone Score",
+          `${d.telephoneCallScorePercentage}%`,
+        ]);
+
+      const docDefinition = {
+        pageSize: "A4",
+        pageMargins: [40, 60, 40, 60],
+
+        content: [
+          {
+            text: `${d.firstName || ""} ${d.lastName || ""}`,
+            style: "header",
+          },
+          safe(d.appliedFor)
+            ? { text: `Applied For: ${d.appliedFor}`, style: "subheader" }
+            : {},
+
+          personalInfo.length && {
+            text: "Personal Information",
+            style: "section",
+          },
+          personalInfo.length && {
+            table: {
+              widths: ["30%", "70%"],
+              body: personalInfo,
+            },
+            layout: "lightHorizontalLines",
+          },
+
+          professionalInfo.length && {
+            text: "Professional Details",
+            style: "section",
+            margin: [0, 15, 0, 5],
+          },
+          professionalInfo.length && {
+            table: {
+              widths: ["30%", "70%"],
+              body: professionalInfo,
+            },
+            layout: "lightHorizontalLines",
+          },
+
+          safe(p.coverNote) && {
+            text: "Cover Note",
+            style: "section",
+            margin: [0, 15, 0, 5],
+          },
+          safe(p.coverNote) && {
+            text: p.coverNote,
+            italics: true,
+          },
+
+          assessmentInfo.length && {
+            text: "Assessment Summary",
+            style: "section",
+            margin: [0, 15, 0, 5],
+          },
+          assessmentInfo.length && {
+            table: {
+              widths: ["30%", "70%"],
+              body: assessmentInfo,
+            },
+            layout: "lightHorizontalLines",
+          },
+        ].filter(Boolean),
+
+        styles: {
+          header: { fontSize: 20, bold: true },
+          subheader: { fontSize: 11, margin: [0, 5, 0, 15] },
+          section: { fontSize: 14, bold: true },
+        },
+      };
+
+      pdfMake.createPdf(docDefinition).download(
+        `${d.firstName || "Candidate"}_CV.pdf`
+      );
+    } catch (err) {
+      console.error("CV generation failed", err);
+    } finally {
+      setPdfLoading(false);
     }
   };
 
@@ -733,13 +914,30 @@ const CandidateInfo = () => {
               {/** PHONE */}
               <div className="space-y-1">
                 <label className="text-[16px] font-semibold block">Phone number</label>
-                <input
-                  type="text"
-                  className="input border border-[#E2E1E5] rounded-xl w-full p-3"
-                  value={form.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  placeholder="+91"
-                />
+                <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3">
+                  <PhoneInput
+                    country="us"
+                    disableDropdown={true}
+                    disableCountryCode={true}
+                    countryCodeEditable={false}
+                    inputStyle={{
+                      width: "0px",
+                      maxWidth: '20px',
+                      height: "0px",
+                      opacity: 0,
+                      pointerEvents: "none", // ✅ prevents blocking typing
+                      position: "absolute",
+                    }}
+                    buttonClass="!bg-white !border-none !p-0"
+                  />
+                  <input
+                    type="text"
+                    className="border-none focus:outline-none"
+                    value={form.phone}
+                    onChange={(e) => handleChange("phone", e.target.value)}
+                    placeholder="+91"
+                  />
+                </div>
               </div>
 
               {/** POSTCODE */}
@@ -783,7 +981,7 @@ const CandidateInfo = () => {
               <div>
                 <p className="font-semibold text-[18px] mb-2">Age groups experience</p>
                 <div className="space-y-2">
-                  {["5-7", "7-10", "9-12", "13-16"].map((age) => (
+                  {["4-6", "7-9", "10-12", "13-16"].map((age) => (
                     <label key={age} className="flex items-center gap-3 cursor-pointer select-none">
 
                       <input
@@ -859,7 +1057,7 @@ const CandidateInfo = () => {
               <div>
                 <p className="font-semibold text-[18px] mb-2">How many years football coaching experience?</p>
                 <div className="space-y-2">
-                  {["0-1 year", "2 years", "3 years", "More"].map((ex) => (
+                  {["0-1 year", "2 years", "3 years", "More than 3 years", "None"].map((ex) => (
                     <label key={ex} className="flex items-center gap-3 cursor-pointer select-none">
 
                       <input
@@ -884,8 +1082,8 @@ const CandidateInfo = () => {
               <div className="md:col-span-2">
                 <p className="font-semibold text-[18px] mb-2">Which venues are you available for work?</p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                     {venues.map((venue) => (
                       <label
                         key={venue.id}
@@ -906,11 +1104,16 @@ const CandidateInfo = () => {
           </div>
 
           {/* Further Details */}
-          <div className="bg-white rounded-2xl p-6 space-y-4">
+          <div className="bg-white mt-4 rounded-2xl p-6 space-y-4">
             <h2 className="font-semibold text-[24px]">Further Details</h2>
 
-            <button className="px-4 py-2.5 bg-[#237FEA] text-white rounded-lg text-sm">
-              Download CV
+            <button
+              onClick={handleDownload}
+              disabled={pdfLoading}
+              className={`px-4 py-2.5 rounded-lg text-sm text-white
+        ${pdfLoading ? "bg-gray-400 cursor-not-allowed" : "bg-[#237FEA]"}`}
+            >
+              {pdfLoading ? "Generating CV..." : "Download CV"}
             </button>
 
             <textarea
@@ -922,10 +1125,10 @@ const CandidateInfo = () => {
           </div>
 
           {/* SUBMIT BUTTON */}
-           {form.status !== 'recruited' && (
+          {form.status !== 'recruited' && (!recuritmentDataById.candidateProfile || Object.keys(recuritmentDataById.candidateProfile).length === 0) && (
             <button
               onClick={handleSubmit}
-              className='bg-[#237FEA] mt-2 p-3 rounded-xl text-white hover:bg-[#237FEA]'
+              className='bg-[#237FEA] mt-2 p-3 ml-6 rounded-xl text-white hover:bg-[#237FEA]'
             >
               Submit
             </button>
@@ -1222,7 +1425,7 @@ const CandidateInfo = () => {
 
                       toggleStep(3, "completed"); // mark step completed
                       setRateOpen(false);
-                      console.log("Saved delivery values:", telephoneCallDelivery);
+                      // console.log("Saved delivery values:", telephoneCallDelivery);
                     }}
                   >
                     Submit Scorecard

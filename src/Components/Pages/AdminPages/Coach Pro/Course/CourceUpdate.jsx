@@ -10,7 +10,7 @@ import {
 } from "@hello-pangea/dnd";
 import Select from "react-select";
 import Loader from "../../contexts/Loader";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 const steps = [
     "Title",
     "Modules",
@@ -20,15 +20,18 @@ const steps = [
     "Complete",
 ];
 const uid = () => String(Date.now()) + "-" + Math.floor(Math.random() * 10000);
-export default function CourseCreateForm() {
+export default function CourseUpdate() {
+    const location = useLocation();
+    const [errors, setErrors] = useState({});
 
+    const queryParams = new URLSearchParams(location.search);
+    const id = queryParams.get("id"); // <-- this will be "9"  
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
     const [activeStep, setActiveStep] = useState(0);
     const [coaches, setCoaches] = useState([]);
     const [loading, setLoading] = useState(null);
-    const [errors, setErrors] = useState({});
-    console.log('errors', errors)
+
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -135,7 +138,6 @@ export default function CourseCreateForm() {
     };
 
 
-
     const [selectedCoachIds, setSelectedCoachIds] = useState([]);
     const coachOptions = Array.isArray(coaches)
         ? coaches.map((coach) => ({
@@ -146,13 +148,13 @@ export default function CourseCreateForm() {
 
     const inputClass =
         " px-4 py-3 border border-[#E2E1E5] rounded-xl focus:outline-none ";
+
     const handleNext = () => {
         const isValid = validateStep();
         if (!isValid) return;
 
         setActiveStep((p) => p + 1);
     };
-
 
     const handleBack = () => setActiveStep((p) => p - 1);
     const [collapsedMap, setCollapsedMap] = useState({});
@@ -217,6 +219,7 @@ export default function CourseCreateForm() {
             return;
         }
     };
+
     const fetchData = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
         if (!token) return;
@@ -232,9 +235,9 @@ export default function CourseCreateForm() {
 
             const json = await res.json();
 
-            // ❗ handle API error response
+            // ❗ API error handling
             if (!res.ok) {
-                throw new Error(json?.message || "Failed to fetch coach list");
+                throw new Error(json?.message || "Failed to fetch coaches");
             }
 
             setCoaches(json?.data || []);
@@ -253,7 +256,89 @@ export default function CourseCreateForm() {
     }, [API_BASE_URL]);
 
 
-    const handleSubmit = async () => {
+    const fetchDataById = useCallback(async () => {
+        const token = localStorage.getItem("adminToken");
+        if (!token || !id) return;
+
+        setLoading(true);
+        try {
+            const res = await fetch(
+                `${API_BASE_URL}/api/admin/course/listBy/${id}`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            const json = await res.json();
+
+            // ❗ API error handling
+            if (!res.ok) {
+                throw new Error(json?.message || "Failed to fetch course details");
+            }
+
+            const data = json?.data;
+            if (!data) return;
+
+            setFormData({
+                title: data?.title || "",
+                description: data?.description || "",
+
+                modules: (data?.modules || []).map((m) => ({
+                    id: uid(),
+                    title: m.title || "",
+                    media: (m.uploadFiles || []).map((f) => ({
+                        ...f,
+                        isExisting: true,
+                    })),
+                })),
+
+                assessment: (data?.questions || []).map((q) => ({
+                    id: uid(),
+                    question: q.question || "",
+                    options: q.options.map((opt) => ({
+                        id: uid(),
+                        text: opt,
+                        correct: opt === q.answer,
+                    })),
+                })),
+
+                settings: {
+                    duration: data?.duration || "",
+                    retake: data?.reTakeCourse || "",
+                    passValue: data?.passingConditionValue || "",
+                    compulsory: data?.isCompulsory ?? true,
+                    reminderValue: data?.setReminderEvery || "",
+                    durationType: "Minutes",
+                    reminderType: "Minutes",
+                },
+
+                certificate: {
+                    title: data?.certificateTitle || "",
+                    file: null,
+                    previewUrl: data?.uploadCertificate || "",
+                },
+            });
+
+            setSelectedCoachIds(
+                (data?.notifiedUsers || []).map(String)
+            );
+        } catch (err) {
+            console.error("Fetch failed", err);
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: err.message || "Something went wrong",
+                confirmButtonColor: "#f98f5c",
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, [API_BASE_URL, id]);
+
+
+    const handleUpdate = async () => {
+
         const isValid = validateStep();
         if (!isValid) return;
 
@@ -268,8 +353,9 @@ export default function CourseCreateForm() {
         }
 
         try {
+
             Swal.fire({
-                title: "Creating course...",
+                title: "Updating course...",
                 text: "Please wait",
                 allowOutsideClick: true,
                 allowEscapeKey: true,
@@ -278,16 +364,18 @@ export default function CourseCreateForm() {
 
             const fd = new FormData();
 
-            fd.append("title", formData.title || "");
-            fd.append("description", formData.description || "");
 
-            const modulesPayload = formData.modules.map((mod) => ({
+            fd.append("title", formData?.title || "");
+            fd.append("description", formData?.description || "");
+
+
+            const modulesPayload = formData?.modules.map((mod) => ({
                 title: mod.title || "",
                 uploadFiles: [],
             }));
             fd.append("modules", JSON.stringify(modulesPayload));
 
-            formData.modules.forEach((mod, index) => {
+            formData?.modules.forEach((mod, index) => {
                 mod.media?.forEach((file) => {
                     if (file instanceof File) {
                         fd.append(`uploadFilesModule_${index + 1}`, file);
@@ -295,39 +383,46 @@ export default function CourseCreateForm() {
                 });
             });
 
-            const questionsPayload = formData.assessment.map((q) => ({
+
+            const questionsPayload = formData?.assessment.map((q) => ({
                 question: q.question || "",
                 options: q.options.map((o) => o.text),
                 answer: q.options.find((o) => o.correct)?.text || "",
             }));
             fd.append("questions", JSON.stringify(questionsPayload));
 
+
             fd.append(
                 "duration",
-                `${formData.settings.duration} ${formData.settings.durationType}`
+                `${formData?.settings.duration} ${formData?.settings.durationType}`
             );
-            fd.append("reTakeCourse", formData.settings.retake || "");
-            fd.append("passingConditionValue", formData.settings.passValue || "");
+            fd.append("reTakeCourse", formData?.settings.retake || "");
+            fd.append("passingConditionValue", formData?.settings.passValue || "");
             fd.append(
                 "setReminderEvery",
-                `${formData.settings.reminderValue} ${formData.settings.reminderType}`
+                `${formData?.settings.reminderValue} ${formData?.settings.reminderType}`
             );
             fd.append("isCompulsory", "true");
 
-            fd.append("certificateTitle", formData.certificate.title || "");
-            if (formData.certificate.file instanceof File) {
-                fd.append("uploadCertificate", formData.certificate.file);
+
+            fd.append("certificateTitle", formData?.certificate.title || "");
+            if (formData?.certificate.file instanceof File) {
+                fd.append("uploadCertificate", formData?.certificate.file);
             }
+
 
             fd.append(
                 "notifiedUsers",
-                JSON.stringify(selectedCoachIds.map(Number))
+                JSON.stringify(selectedCoachIds?.map(Number))
             );
 
+
+
+
             const res = await fetch(
-                `${API_BASE_URL}/api/admin/course/create`,
+                `${API_BASE_URL}/api/admin/course/update/${id}`,
                 {
-                    method: "POST",
+                    method: "PUT",
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -337,21 +432,21 @@ export default function CourseCreateForm() {
 
             const result = await res.json();
 
-            // ❗ API error handling
             if (!res.ok) {
                 throw new Error(result?.message || "Course creation failed");
             }
 
+
             Swal.fire({
                 icon: "success",
-                title: "Course Created",
-                text: result?.message || "Your course has been created successfully",
+                title: "Course updated",
+                text: "Your course has been updated successfully",
                 confirmButtonText: "OK",
             });
 
-            navigate("/configuration/coach-pro/courses");
-
+            navigate('/configuration/coach-pro/courses');
         } catch (error) {
+
             Swal.fire({
                 icon: "error",
                 title: "Failed",
@@ -361,9 +456,9 @@ export default function CourseCreateForm() {
             console.error("ERROR:", error);
         }
     };
-
     useEffect(() => {
         fetchData();
+        fetchDataById();
     }, []);
 
 
@@ -379,7 +474,7 @@ export default function CourseCreateForm() {
 
             <button onClick={() => navigate(`/configuration/coach-pro/courses`)} className="flex items-center gap-2 text-gray-700 mb-4">
                 <ArrowLeft size={18} />
-                <span className="font-semibold text-xl">Create a Course</span>
+                <span className="font-semibold text-xl">Update a Course</span>
             </button>
 
             <div className="bg-white min-h-screen pb-5  border overflow-auto border-[#E2E1E5] rounded-4xl overflow-hidden ">
@@ -579,10 +674,7 @@ export default function CourseCreateForm() {
                                         {module.media.length > 0 && (
                                             <div className="mt-4 grid grid-cols-2 gap-4">
                                                 {module.media.map((file, mediaIndex) => (
-                                                    <div
-                                                        key={mediaIndex}
-                                                        className="relative border rounded-lg p-2 bg-white"
-                                                    >
+                                                    <div key={mediaIndex} className="relative border border-gray-200 rounded-lg p-2 bg-white">
 
                                                         <button
                                                             onClick={() => {
@@ -592,21 +684,23 @@ export default function CourseCreateForm() {
                                                                 );
                                                                 setFormData({ ...formData, modules: updated });
                                                             }}
-                                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex justify-center items-center text-sm shadow"
+                                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6"
                                                         >
                                                             ×
                                                         </button>
 
-                                                        {file.type.startsWith("image/") ? (
+                                                        {file.isExisting ? (
+                                                            <img
+                                                                src={file.url}
+                                                                className="w-full h-28 object-cover rounded-md"
+                                                            />
+                                                        ) : file.type?.startsWith("image/") ? (
                                                             <img
                                                                 src={URL.createObjectURL(file)}
                                                                 className="w-full h-28 object-cover rounded-md"
-                                                                alt="preview"
                                                             />
                                                         ) : (
-                                                            <p className="text-sm text-gray-700 truncate">
-                                                                📄 {file.name}
-                                                            </p>
+                                                            <p className="text-sm truncate">📄 {file.name}</p>
                                                         )}
                                                     </div>
                                                 ))}
@@ -818,7 +912,6 @@ export default function CourseCreateForm() {
                                     </div>
                                 </div>
 
-                                {/* Re-take Course */}
                                 <div className="border-b border-[#E2E1E5] py-5">
                                     <div className="flex  gap-10 w-1/2">
                                         <div className="min-w-[320px] max-w-[320px]">
@@ -849,7 +942,6 @@ export default function CourseCreateForm() {
                                     </div>
                                 </div>
 
-                                {/* Passing Condition */}
                                 <div className="border-b border-[#E2E1E5] py-5">
                                     <div className="flex  gap-10 w-1/2">
                                         <div className="min-w-[320px] max-w-[320px]">
@@ -884,7 +976,6 @@ export default function CourseCreateForm() {
                                     </div>
                                 </div>
 
-                                {/* Compulsory Course */}
                                 <div className="border-b border-[#E2E1E5] py-5">
                                     <div className="flex  gap-10 w-1/2">
                                         <div className="min-w-[320px] max-w-[320px]">
@@ -960,7 +1051,7 @@ export default function CourseCreateForm() {
                                                     }
                                                     className={inputClass}
                                                 >
-                                                    <option value='Minutes'>Minutes</option>
+                                                       <option value='Minutes'>Minutes</option>
                                                     <option value='Hours'>Hours</option>
                                                     <option value='Days'>Days</option>
                                                 </select>
@@ -1080,15 +1171,13 @@ export default function CourseCreateForm() {
                                 <div className="border border-[#E2E1E5] bg-[#FAFAFA] overflow-hidden bg-white p-4">
                                     <img
                                         src={
-                                            formData?.certificate?.file &&
-                                                formData.certificate.file.type.startsWith("image/")
+                                            formData.certificate.file
                                                 ? URL.createObjectURL(formData.certificate.file)
-                                                : "/reportsIcons/img-certificate.png"
+                                                : formData.certificate.previewUrl || "/reportsIcons/img-certificate.png"
                                         }
-
                                         className="w-full rounded-lg"
-                                        alt="certificate preview"
                                     />
+
                                 </div>
                             </div>
 
@@ -1116,6 +1205,7 @@ export default function CourseCreateForm() {
                                         value={coachOptions.filter((opt) =>
                                             selectedCoachIds.includes(opt.value)
                                         )}
+
                                         onChange={(selected) => {
                                             const ids = Array.isArray(selected)
                                                 ? selected.map((item) => item.value)
@@ -1172,7 +1262,7 @@ export default function CourseCreateForm() {
                             Next
                         </button>
                     ) : (
-                        <button onClick={handleSubmit} className="px-6 py-3 bg-[#237FEA] text-white rounded-lg ">
+                        <button onClick={handleUpdate} className="px-6 py-3 bg-[#237FEA] text-white rounded-lg ">
                             Finish
                         </button>
                     )}

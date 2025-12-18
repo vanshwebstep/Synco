@@ -311,7 +311,7 @@ const CandidateVenueDetails = () => {
               <div>
                 <p className="font-semibold text-[18px] mb-2">Age groups experience</p>
                 <div className="space-y-2">
-                  {["5-8", "9-12", "13-16"].map((age) => (
+                  {["4-6", "7-9", "10-12", "13-16"].map((age) => (
                     <label key={age} className="flex items-center gap-3 cursor-pointer select-none">
 
                       <input
@@ -406,7 +406,7 @@ const CandidateVenueDetails = () => {
                   How many years football coaching experience do you have?
                 </p>
                 <div className="space-y-2">
-                  {["0-1 year", "2 years", "3 years", "More"].map((yr) => (
+                  {["0-1 year", "2 years", "3 years", "More than 3 years" , "None"].map((yr) => (
                     <label key={yr} className="flex items-center gap-3 cursor-pointer select-none">
 
                       <input

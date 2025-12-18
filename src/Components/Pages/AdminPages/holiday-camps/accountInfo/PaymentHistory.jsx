@@ -3,7 +3,7 @@ import { useAccountsInfo } from '../../contexts/AccountsInfoContext';
 
 const PaymentHistory = () => {
   const { data } = useAccountsInfo();
-
+console.log('data',data)
 
   return (
     <>
@@ -98,16 +98,11 @@ const PaymentHistory = () => {
 
                   <td className="py-3 px-4">
                     {/* {data?.booking?.payment?.stripePaymentIntentId || "N/A"} */}
-                    {data?.booking?.payment?.paymentDate
-                      ? new Date(data.booking.payment.paymentDate).toLocaleDateString(
-                        "en-GB",
-                        { day: "2-digit", month: "short", year: "numeric" }
-                      )
-                      : "N/A"}
+                   {data?.payment?.base_amount}  
                   </td>
 
                   <td className="py-3 px-4">
-                   {data?.payment?.amount}
+                   {data?.payment?.discount_amount}
                   </td>
 
                   <td className="py-3 px-4 font-medium">

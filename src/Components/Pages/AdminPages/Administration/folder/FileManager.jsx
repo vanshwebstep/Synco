@@ -213,6 +213,50 @@ export default function FileManager() {
             }
         });
     };
+    const hasFiles = files.some(
+        (file) => file.uploadFiles && file.uploadFiles.length > 0
+    );
+const handleDownload = async (fileId, fileUrl) => {
+    try {
+        const token = localStorage.getItem("adminToken");
+
+        const response = await fetch(
+            `${API_BASE_URL}/api/admin/folder/download/${fileId}?url=${encodeURIComponent(fileUrl)}`,
+            {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to download file");
+        }
+
+        // Convert response to Blob
+        const blob = await response.blob();
+
+        // Create temporary URL
+        const downloadUrl = window.URL.createObjectURL(blob);
+
+        // Create anchor tag
+        const a = document.createElement("a");
+        a.href = downloadUrl;
+
+        // Optional: set filename
+        a.download = fileUrl.split("/").pop(); 
+
+        document.body.appendChild(a);
+        a.click();
+
+        // Cleanup
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+        console.error("Download failed:", error);
+    }
+};
 
 
     console.log('files', files);
@@ -314,43 +358,96 @@ export default function FileManager() {
                                         </label>
                                     )}
                                 </div>
-                                <div className="flex flex-col gap-3 overflow-auto p-5">
-                                    {files.filter(file => file.uploadFiles && file.uploadFiles.length > 0).map((file, i) => {
-                                        const url = file.uploadFiles?.[0]?.url || null;
-                                        const fileId = file.id || null;
-                                        const fileName = url ? url.split("/").pop() : "No File";
-                                        const createdAt = new Date(file.createdAt).toLocaleString();
+                                <div className="flex flex-col gap-3 overflow-auto p-5 h-full">
+                                    {!hasFiles ? (
+                                        /* EMPTY STATE */
+                                        <div className="flex flex-col items-center justify-start h-full text-center">
+                                            <div className="bg-[#E5F1FE] p-8 rounded-3xl w-full max-w-md border-2 border-dashed border-[#237FEA]">
+                                                <img
+                                                    src="/reportsIcons/folder-open.png"
+                                                    className="w-16 mx-auto mb-4"
+                                                    alt=""
+                                                />
 
-                                        return (
-                                            <div key={i} className="flex items-center justify-between p-3 transition cursor-pointer">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="bg-[#E5F1FE] rounded-lg h-12 w-12 flex justify-center items-center">
-                                                        <img src="/reportsIcons/folder-open.png" className="w-6" alt="" />
-                                                    </div>
+                                                <h3 className="text-xl font-semibold mb-2">No files yet</h3>
+                                                <p className="text-gray-500 mb-6">
+                                                    Upload your first file to get started
+                                                </p>
 
-                                                    <div>
-                                                        <p className="font-semibold mb-1">{fileName}</p>
-                                                        <p className="text-sm text-gray-500">{createdAt}</p>
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex items-center gap-2">
-                                                    {url && (
-                                                        <a href={url} target="_blank" rel="noreferrer">
-                                                            <Download className="cursor-pointer hover:text-[#237FEA]" size={18} />
-                                                        </a>
-                                                    )}
-
-                                                    <Trash2
-                                                        onClick={() => deleteFile(fileId, url)}
-                                                        className="cursor-pointer hover:text-red-500"
-                                                        size={18}
-                                                    />
-                                                </div>
+                                                {selectedFolder && (
+                                                    <label className="inline-flex items-center gap-3 bg-[#237FEA] hover:bg-blue-600 text-white px-8 py-4 rounded-2xl cursor-pointer text-lg font-semibold transition">
+                                                        <Upload size={22} />
+                                                        {uploading ? "Uploading..." : "Upload Files"}
+                                                        <input
+                                                            type="file"
+                                                            multiple
+                                                            disabled={uploading}
+                                                            className="hidden"
+                                                            onChange={uploadFiles}
+                                                        />
+                                                    </label>
+                                                )}
                                             </div>
-                                        );
-                                    })}
+                                        </div>
+                                    ) : (
+                                        /* FILE LIST */
+                                        <div className="flex flex-col gap-3">
+                                            {files.map((file) =>
+                                                file.uploadFiles?.map((uploaded, index) => {
+                                                    const url = uploaded.url;
+                                                    const fileName = url
+                                                        ? url.split("/").pop()
+                                                        : "No File";
+                                                    const createdAt = new Date(
+                                                        file.createdAt
+                                                    ).toLocaleString();
 
+                                                    return (
+                                                        <div
+                                                            key={`${file.id}-${index}`}
+                                                            className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition"
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="bg-[#E5F1FE] rounded-lg h-12 w-12 flex justify-center items-center">
+                                                                    <img
+                                                                        src="/reportsIcons/folder-open.png"
+                                                                        className="w-6"
+                                                                        alt=""
+                                                                    />
+                                                                </div>
+
+                                                                <div>
+                                                                    <p className="font-semibold mb-1">
+                                                                        {fileName}
+                                                                    </p>
+                                                                    <p className="text-sm text-gray-500">
+                                                                        {createdAt}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex items-center gap-3">
+                                                                <Download
+                                                                    size={18}
+                                                                    onClick={() => handleDownload(file.id, url)}
+                                                                    className="hover:text-[#237FEA] cursor-pointer"
+                                                                />
+
+
+                                                                <Trash2
+                                                                    size={18}
+                                                                    onClick={() =>
+                                                                        deleteFile(file.id, url)
+                                                                    }
+                                                                    className="hover:text-red-500 cursor-pointer"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </>
                         )}

@@ -58,7 +58,7 @@ const TrialsDashboard = () => {
     const yearData = membersData?.yealyGrouped?.[currentYear] || {};
     const fb = yearData?.facebookPerformance;
     const currentMonth = (new Date().getMonth() + 1).toString();
-
+    console.log('currentMonth', currentMonth)
     const metrics = [
         {
             icon: <Users className="text-teal-500" size={24} />,
@@ -380,8 +380,8 @@ const TrialsDashboard = () => {
         month: item.month,
         members: item.members,
     }));
-const year = new Date().getFullYear();
-const month = new Date().getMonth() + 1;
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth() + 1;
 
     const bookings =
         membersData?.yealyGrouped?.[year]?.monthlyGrouped?.[month]?.bookings || [];
@@ -439,7 +439,24 @@ const month = new Date().getMonth() + 1;
         }),
     };
 
-
+  const ProgressBar = ({ percent }) => (
+        <div className="w-full bg-gray-100 h-2 rounded-full relative">
+            <div
+                style={{ width: `${percent}%` }}
+                className="h-2 rounded-full bg-[#237FEA] relative group cursor-pointer"
+            >
+                {/* Tooltip */}
+                <div
+                    className="absolute -top-8 right-0 translate-x-1/2
+                   bg-black text-white text-xs px-2 py-1 rounded
+                   opacity-0 group-hover:opacity-100 transition
+                   pointer-events-none whitespace-nowrap"
+                >
+                    {percent}%
+                </div>
+            </div>
+        </div>
+    );
     if (loading) return (<><Loader /></>)
 
     return (
@@ -660,17 +677,18 @@ const month = new Date().getMonth() + 1;
                                                 {item.label}
                                             </p>
                                             <div className="w-full bg-gray-100 h-2 rounded-full relative">
-                                                <div
+                                                {/* <div
                                                     className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
                                                     style={{ width: `${item.value}%` }}
-                                                ></div>
+                                                ></div> */}
 
+                                                <ProgressBar percent={item.value} />
                                                 {/* Example floating label (only for first item) */}
-                                                {i === 0 && (
+                                                {/* {i === 0 && (
                                                     <div className="absolute -top-6 left-[60%] transform -translate-x-1/2 bg-white text-gray-800 text-xs font-semibold px-2 py-1 rounded-full shadow-md">
                                                         {item.count} students
                                                     </div>
-                                                )}
+                                                )} */}
                                             </div>
                                             <span className="text-xs text-gray-500 font-medium">
                                                 {item.value}%
@@ -842,14 +860,12 @@ const month = new Date().getMonth() + 1;
 
                                             <div className="flex items-center gap-2">
                                                 <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                    <div
-                                                        className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                                        style={{ width: `${item?.value || 0}%` }}
-                                                    ></div>
+                                               
+                                                     <ProgressBar percent={item?.freeTrialTrend.percent} />
                                                 </div>
 
                                                 <span className="text-xs text-[#344054] font-semibold">
-                                                    {item?.value || 0}%
+                                                    {item?.freeTrialTrend.percent || 0}%
                                                 </span>
                                             </div>
                                         </div>

@@ -456,7 +456,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             },
             {
               noPaddingx: true,
-              title: "Student Cources",
+              title: "Student Courses",
               link: "/configuration/coach-pro/student",
             },
           ],

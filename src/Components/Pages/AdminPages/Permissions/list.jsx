@@ -169,49 +169,61 @@ const isViewOnly = canView && !(canCreate && canUpdate);
             </tr>
           </thead>
           <tbody>
-            {paginatedPermissions.map((perm) => (
-              <tr
-                key={perm.id}
-                className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
-              >
-                <td className="p-4">
-                  {perm.module} - {perm.action}
+      {paginatedPermissions.length === 0 ? (
+        <tr>
+          <td
+            colSpan={roles.length + 1}
+            className="p-6 text-center text-[#717073] font-medium"
+          >
+            No data available
+          </td>
+        </tr>
+      ) : (
+        paginatedPermissions.map((perm) => (
+          <tr
+            key={perm.id}
+            className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
+          >
+            <td className="p-4">
+              {perm.module} - {perm.action}
+            </td>
+
+            {roles.map((role) => {
+              const isChecked =
+                selectedPermissions[role.value]?.has(perm.id);
+
+              const isSuperAdminLock =
+                role.label === "Super Admin" &&
+                perm.module === "admin-role";
+
+              const isDisabled = isSuperAdminLock || isViewOnly;
+
+              return (
+                <td key={role.value} className="p-4 text-center">
+                  <button
+                    onClick={() =>
+                      !isDisabled && toggleCheckbox(perm.id, role.value)
+                    }
+                    disabled={isDisabled}
+                    className={`w-5 h-5 flex items-center justify-center rounded-md border-2
+                      ${isChecked ? "border-gray-500 bg-blue-600" : "border-gray-300"}
+                      ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    {isChecked && (
+                      <Check
+                        size={16}
+                        strokeWidth={3}
+                        className="text-white"
+                      />
+                    )}
+                  </button>
                 </td>
-                {roles.map((role) => {
-                  const isChecked = selectedPermissions[role.value]?.has(perm.id);
-
-                  // Super Admin lock
-                  const isSuperAdminLock =
-                    role.label === "Super Admin" && perm.module === "admin-role";
-
-                  // Global disable when user has only view
-                  const isDisabled = isSuperAdminLock || isViewOnly;
-
-                  return (
-                    <td key={role.value} className="p-4 text-center">
-                      <button
-                        onClick={() => !isDisabled && toggleCheckbox(perm.id, role.value)}
-                        disabled={isDisabled}
-                        className={`w-5 h-5 flex items-center justify-center rounded-md border-2 
-          ${isChecked ? "border-gray-500 bg-blue-600" : "border-gray-300"} 
-          ${isDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                      >
-                        {isChecked && (
-                          <Check
-                            size={16}
-                            strokeWidth={3}
-                            className="text-white"
-                          />
-                        )}
-                      </button>
-                    </td>
-                  );
-                })}
-
-
-              </tr>
-            ))}
-          </tbody>
+              );
+            })}
+          </tr>
+        ))
+      )}
+    </tbody>
         </table>
       </div>
 

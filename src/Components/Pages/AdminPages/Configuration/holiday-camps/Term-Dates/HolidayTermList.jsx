@@ -44,6 +44,16 @@ const HolidayTermList = () => {
       }
     });
   };
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+
+    return date.toLocaleDateString("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   const handleEdit = (id) => {
     navigate(`/configuration/holiday-camp/terms/create?id=${id}`);
@@ -159,7 +169,7 @@ const HolidayTermList = () => {
                   <img src="/images/icons/spring.png" className="w-8 mt-1" alt="" />
                   <div>
                     <p className="text-[#717073] font-semibold text-[16px] mb-1">Start Date</p>
-                    <p className="text-[16px] text-gray-600">{item.startDate}</p>
+                    <p className="text-[16px] text-gray-600">{formatDate(item.startDate)}</p>
                   </div>
                 </div>
 
@@ -167,7 +177,7 @@ const HolidayTermList = () => {
                   <img src="/images/icons/autumn.png" className="w-8 mt-1" alt="" />
                   <div>
                     <p className="text-[#717073] font-semibold text-[16px] mb-1">End Date</p>
-                    <p className="text-[16px] text-gray-600">{item.endDate}</p>
+                    <p className="text-[16px] text-gray-600">{formatDate(item.endDate)}</p>
                   </div>
                 </div>
 
@@ -184,9 +194,8 @@ const HolidayTermList = () => {
                   {item.sessionsMap.map((session, i) => (
                     <div key={i} className="flex flex-col gap-2">
                       <div
-                        className={`transition-all duration-500 overflow-hidden ${
-                          openSessions[item.id] ? 'max-h-[1000px]' : 'max-h-0'
-                        }`}
+                        className={`transition-all duration-500 overflow-hidden ${openSessions[item.id] ? 'max-h-[1000px]' : 'max-h-0'
+                          }`}
                       >
                         <ul className="space-y-1 text-xs mt-1">
                           <li>
@@ -194,7 +203,9 @@ const HolidayTermList = () => {
                               <span className="font-semibold text-[16px]">
                                 {`Session ${i + 1}: ${session?.sessionPlan?.groupName || 'No Session Found'}`}
                               </span>
-                              <span className="text-[#717073] text-[16px] pl-10">{session.sessionDate}</span>
+                              <span className="text-[#717073] text-[16px] pl-10">
+                                {formatDate(session.sessionDate)}
+                              </span>
                             </div>
                           </li>
                         </ul>

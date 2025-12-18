@@ -18,11 +18,11 @@ import {
 import { useRecruitmentTemplate } from "../../contexts/RecruitmentContext";
 
 const dateOptions = [
-  { value: "", label: "" },
-  { value: "thisMonth", label: "This Month" },
-  { value: "lastMonth ", label: "Last Month" },
-  { value: "last3Months ", label: "Last 3 Month" },
-  { value: "last6Months ", label: "Last 6 Month" },
+    { value: "", label: "Date Range" },
+    { value: "thisMonth", label: "This Month" },
+    { value: "lastMonth ", label: "Last Month" },
+    { value: "last3Months ", label: "Last 3 Month" },
+    { value: "last6Months ", label: "Last 6 Month" },
 ];
 const customSelectStyles = {
     control: (provided, state) => ({
@@ -239,8 +239,26 @@ export default function CoachReport() {
     const topAgents = (topAgentsApi || []).map((a) => ({
         label: `${a.firstName ?? ""} ${a.lastName ?? ""}`.trim() || "Unknown",
         value: a.totalHires ?? a.value ?? 0,
+        profile: a.profile,
     }));
-
+    const ProgressBar = ({ percent }) => (
+        <div className="w-full bg-gray-100 h-2 rounded-full relative">
+            <div
+                style={{ width: `${percent}%` }}
+                className="h-2 rounded-full bg-[#237FEA] relative group cursor-pointer"
+            >
+                {/* Tooltip */}
+                <div
+                    className="absolute -top-8 right-0 translate-x-1/2
+                   bg-black text-white text-xs px-2 py-1 rounded
+                   opacity-0 group-hover:opacity-100 transition
+                   pointer-events-none whitespace-nowrap"
+                >
+                    {percent}%
+                </div>
+            </div>
+        </div>
+    );
     // helper to parse number from percent-like strings for width calculations
     const percentFromString = (s) => parsePercent(s);
 
@@ -260,7 +278,7 @@ export default function CoachReport() {
                         styles={customSelectStyles}
                         className="md:w-40"
                     />
-                    
+
                     <button className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         <Download size={16} /> Export data
                     </button>
@@ -388,10 +406,8 @@ export default function CoachReport() {
                                         </div>
 
                                         <div className="w-full bg-gray-100 h-2 rounded-full">
-                                            <div
-                                                style={{ width: `${d.percent ?? 0}%` }}   // percent bar accuracy fixed
-                                                className="h-2 rounded-full bg-[#237FEA]"
-                                            ></div>
+                                            <ProgressBar percent={d?.percent} />
+
                                         </div>
                                         <p className="text-sm text-gray-500">{d.percent ?? 0}%</p>
 
@@ -422,7 +438,28 @@ export default function CoachReport() {
                                                 </div>
 
                                                 <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                    <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${(q.value / (Math.max(1, Math.max(...qualifications.map(x => x.value))))) * 100}%` }}></div>
+                                                    <div className="w-full h-2 bg-gray-200 rounded-full">
+                                                        <div
+                                                            className="relative h-2 bg-[#237FEA] rounded-full group"
+                                                            style={{
+                                                                width: `${(q.value / Math.max(1, Math.max(...qualifications.map(x => x.value)))) * 100}%`
+                                                            }}
+                                                        >
+                                                            {/* Tooltip */}
+                                                            <div
+                                                                className="
+        absolute -top-8 right-0 translate-x-1/2
+        scale-0 group-hover:scale-100
+        transition-transform duration-200
+        bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap
+      "
+                                                            >
+                                                                {Math.round(
+                                                                    (q.value / Math.max(1, Math.max(...qualifications.map(x => x.value)))) * 100
+                                                                )}%
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -450,7 +487,24 @@ export default function CoachReport() {
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${s.percent ?? s.value ?? 0}%` }}></div>
+                                                <div className="w-full h-2 bg-gray-200 rounded-full">
+                                                    <div
+                                                        className="relative h-2 rounded-full bg-[#237FEA] group"
+                                                        style={{ width: `${s.percent ?? s.value ?? 0}%` }}
+                                                    >
+                                                        {/* Tooltip at bar end */}
+                                                        <div
+                                                            className="
+        absolute -top-8 right-0 translate-x-1/2
+        scale-0 group-hover:scale-100
+        transition-transform duration-200
+        bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap
+      "
+                                                        >
+                                                            {Math.round(s.percent ?? s.value ?? 0)}%
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <p className="text-sm text-gray-500">{s.percent ?? `${s.value}%`}</p>
 
@@ -469,8 +523,24 @@ export default function CoachReport() {
 
 
                                         <div className="w-full bg-gray-100 h-2 rounded-full md:w-9/12">
-                                            <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${v.percent ?? 10}%` }}></div>
+                                            <div
+                                                className="relative h-2 rounded-full bg-[#237FEA] group"
+                                                style={{ width: `${v.percent ?? 10}%` }}
+                                            >
+                                                {/* Tooltip */}
+                                                <div
+                                                    className="
+        absolute -top-8 right-0 translate-x-1/2
+        scale-0 group-hover:scale-100
+        transition-transform duration-200
+        bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap
+      "
+                                                >
+                                                    {Math.round(v.percent ?? 10)}%
+                                                </div>
+                                            </div>
                                         </div>
+
                                         <p className="text-sm text-gray-500 md:w-1/12">{v.percent ?? '0%'}%</p>
                                     </div>
                                 ))}
@@ -541,7 +611,24 @@ export default function CoachReport() {
                                 <div key={i}>
                                     <p className="text-sm text-gray-700 mb-3">{r.label}</p>
                                     <div className="flex items-center gap-3"><div className="w-full bg-gray-100 h-2 rounded-full">
-                                        <div className="h-2 rounded-full bg-[#237FEA]" style={{ width: `${parsePercent(r.value)}%` }}></div>
+                                        <div className="w-full h-2 bg-gray-200 rounded-full">
+                                            <div
+                                                className="relative h-2 rounded-full bg-[#237FEA] group"
+                                                style={{ width: `${parsePercent(r.value)}%` }}
+                                            >
+                                                {/* Tooltip at bar end */}
+                                                <div
+                                                    className="
+        absolute -top-8 right-0 translate-x-1/2
+        scale-0 group-hover:scale-100
+        transition-transform duration-200
+        bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap
+      "
+                                                >
+                                                    {Math.round(parsePercent(r.value))}%
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                         <div className="text-sm text-gray-700">{r.value}</div></div>
                                 </div>
@@ -560,7 +647,11 @@ export default function CoachReport() {
                                     <div className="flex gap-5 justify-between">
 
                                         <div className="w-10 h-10">
-                                            <img src="/reportsIcons/agent.png" alt="" />
+                                            <img src={
+                                                item?.profile
+                                                    ? `${item.profile}`
+                                                    : '/members/dummyuser.png'
+                                            } alt="" />
                                         </div>
                                         <div className="w-full">  <div className="flex justify-between items-center mb-1">
                                             <p className="text-sm text-[#344054] font-semibold">{item.label}</p>
@@ -569,10 +660,9 @@ export default function CoachReport() {
                                             <div className="flex items-center gap-2">
 
                                                 <div className="w-full bg-gray-100 h-2 rounded-full">
-                                                    <div
-                                                        className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                                        style={{ width: `${item.value}%` }}
-                                                    ></div>
+
+                                                    <ProgressBar percent={item?.value} />
+
                                                 </div>
                                                 <span className="text-xs text-[#344054] font-semibold">{item.value}</span>
 

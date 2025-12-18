@@ -471,6 +471,11 @@ function TaskColumn({ column, tasks, onAddTask, onTaskClick }) {
 
                     {/* TASKS WITH DRAGGABLE */}
                     <div className="space-y-4 relative">
+                        {tasks.length === 0 && !snapshot.isDraggingOver && (
+                            <div className="flex items-center justify-center h-24 text-sm text-gray-400 italic">
+                                No data available
+                            </div>
+                        )}
                         {tasks.map((t, index) => (
                             <Draggable key={t.id} draggableId={t.id.toString()} index={index}>
                                 {(provided, snapshot) => (
@@ -817,12 +822,17 @@ function CreateTaskModal({ members, onClose }) {
                             <p className="text-[17px] font-semibold">Assign</p>
 
                             {/* Selected avatars */}
-                            <div className="flex gap-1 mt-3">
-                                <div className="flex gap-3">
+                            <div className="flex flex-wrap gap-1 mt-3">
+                                <div className="flex flex-wrap gap-3">
                                     {selectedMembers.map((m) => (
                                         <img
+                                            src={
+                                                m?.profile
+                                                    ? `${m.profile}`
+                                                    : '/members/dummyuser.png'
+                                            }
                                             key={m.value}
-                                            src={m.profile}
+
                                             alt={m.label}
                                             className="w-8 h-8 rounded-full object-cover"
                                         />
@@ -1069,7 +1079,7 @@ function ViewTaskModal({ task, open, setOpen, onClose }) {
 
                             {open === "attachments" && (
                                 <div className="p-4">
-                                   
+
                                     {/* Preview */}
                                     {uploadedFiles.length > 0 && (
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
