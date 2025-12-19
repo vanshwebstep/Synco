@@ -662,9 +662,19 @@ const [openDateFilter, setOpenDateFilter] = useState(false);
                                     </td>
 
                                     <td className="py-3 px-4 whitespace-nowrap">
-                                        <span className="bg-green-50 text-[#34AE56] capitalize px-7 py-2 rounded-xl text-xs font-medium">
-                                            {camp.status}
-                                        </span>
+                                      <span
+  className={`capitalize px-7 py-2 rounded-xl text-xs font-medium
+    ${
+      camp.status === "cancelled"
+        ? "bg-red-50 text-red-600"
+        : camp.status === "pending"
+        ? "bg-yellow-50 text-yellow-600"
+        : "bg-green-50 text-[#34AE56]"
+    }
+  `}
+>
+  {camp.status}
+</span>
 
                                         {camp.students.length > 1 && (
                                             <button

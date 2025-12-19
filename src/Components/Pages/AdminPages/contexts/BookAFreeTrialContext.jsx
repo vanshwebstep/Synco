@@ -1378,9 +1378,9 @@ export const BookFreeTrialProvider = ({ children }) => {
         confirmButtonText: "OK",
       });
       if (comesfrom === "allMembers") {
-        navigate(`/weekly-classes/all-members/list`);
+        navigate(`/holiday-camp/members/list`);
       } else {
-        navigate(`/weekly-classes/all-members/membership-sales`);
+        navigate(`/holiday-camp/members/list`);
       }
 
       return result;
@@ -2244,7 +2244,7 @@ export const BookFreeTrialProvider = ({ children }) => {
         icon: "success",
         confirmButtonText: "OK",
       });
-      navigate(`/weekly-classes/find-a-class/add-to-waiting-list/list`)
+      navigate(`/holiday-camp/members/list`)
       return result;
 
     } catch (error) {

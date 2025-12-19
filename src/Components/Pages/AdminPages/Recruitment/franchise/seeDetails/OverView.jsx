@@ -47,6 +47,7 @@ const stats = [
 ];
 const OverView = () => {
   const [editMode, setEditMode] = useState(false);
+const [isSubmitting, setIsSubmitting] = useState(false);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [loading, setLoading] = useState(false);
@@ -665,7 +666,12 @@ const OverView = () => {
     );
   };
 
-  const handleSubmit = async () => {
+ const handleSubmit = async () => {
+  if (isSubmitting) return;
+
+  setIsSubmitting(true);
+
+  try {
     console.log("Submit Payload:", form);
 
     if (comesfrom === "franchise") {
@@ -681,24 +687,35 @@ const OverView = () => {
         telephoneCallSetupTime: recruitmentData.telephoneCallSetupTime,
         telephoneCallSetupReminder: recruitmentData.telephoneCallSetupReminder,
 
-        telePhoneCallDeliveryCommunicationSkill: payload.telePhoneCallDeliveryCommunicationSkill,
-        telePhoneCallDeliveryPassionCoaching: payload.telePhoneCallDeliveryPassionCoaching,
-        telePhoneCallDeliveryExperience: payload.telePhoneCallDeliveryExperience,
-        telePhoneCallDeliveryKnowledgeOfSSS: payload.telePhoneCallDeliveryKnowledgeOfSSS,
+        telePhoneCallDeliveryCommunicationSkill:
+          payload.telePhoneCallDeliveryCommunicationSkill,
+        telePhoneCallDeliveryPassionCoaching:
+          payload.telePhoneCallDeliveryPassionCoaching,
+        telePhoneCallDeliveryExperience:
+          payload.telePhoneCallDeliveryExperience,
+        telePhoneCallDeliveryKnowledgeOfSSS:
+          payload.telePhoneCallDeliveryKnowledgeOfSSS,
 
         discoveryDay: [
           {
             day: form.discoveryDayDate,
             time: form.discoveryDayTime,
-          }
+          },
         ],
       };
+
       await createFranchiseRecruitmentById(payloadMain);
       console.log("Submit Payload (coach):", payloadMain);
     } else {
       console.log("Submit Payload in else:", form);
     }
-  };
+  } catch (error) {
+    console.error("Submit failed:", error);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
   console.log('stepsstepssteps', steps)
   if (loading) return <Loader />;
 
@@ -863,9 +880,12 @@ const OverView = () => {
           {form.status !== 'recruited' && (
             <button
               onClick={handleSubmit}
-              className='bg-[#237FEA] mt-2 p-3 rounded-xl text-white hover:bg-[#237FEA]'
+              disabled={isSubmitting}
+              className={`bg-[#237FEA] mt-2 p-3 rounded-xl text-white hover:bg-[#237FEA] ${
+    isSubmitting ? "opacity-60 cursor-not-allowed" : ""
+  }`}
             >
-              Submit
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           )}
 

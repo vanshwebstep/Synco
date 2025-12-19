@@ -440,8 +440,18 @@ const ClassSheduleList = () => {
                                                                                     <p className="font-semibold text-[16px]">
                                                                                         {item?.venue?.holidayCamps[0]?.name || "N/A"}
                                                                                     </p>
-                                                                                    <p className="text-[14px]">{term.createdAt || "N/A"}</p>
-                                                                                </div>
+<p className="text-[14px]">
+  {item?.venue?.holidayCamps[0]?.createdAt
+    ? (() => {
+        const d = new Date(item.venue.holidayCamps[0].createdAt);
+        const weekday = d.toLocaleDateString("en-GB", { weekday: "short" });
+        const day = d.toLocaleDateString("en-GB", { day: "2-digit" });
+        const year = d.toLocaleDateString("en-GB", { year: "2-digit" });
+
+        return `${weekday} ${day}/${year}`;
+      })()
+    : "N/A"}
+</p>                                                                            </div>
                                                                             </div>
                                                                         </div>
 

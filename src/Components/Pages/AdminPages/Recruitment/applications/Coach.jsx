@@ -21,7 +21,8 @@ import Select from "react-select";
 import Swal from "sweetalert2";
 const Coach = () => {
     const [selectedVenue, setSelectedVenue] = useState(null);
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
 
     const { recruitment, fetchRecruitment, statsRecruitment, createCoachRecruitment, sendCoachMail } = useRecruitmentTemplate() || {};
@@ -319,7 +320,7 @@ const Coach = () => {
     };
     const applyFilter = () => {
         let temp = Array.isArray(recruitment) ? [...recruitment] : [];
-
+        setCurrentPage(1);
         // 1️⃣ Status / Exp / FA filters
         const selected = Object.entries(checkedStatuses)
             .filter(([_, v]) => v)
@@ -377,7 +378,7 @@ const Coach = () => {
 
     const filterByName = (data) => {
         if (!studentName.trim()) return data;
-
+        setCurrentPage(1);
         const q = studentName.trim().toLowerCase();
         return data.filter(c =>
             `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase().includes(q)
@@ -385,6 +386,7 @@ const Coach = () => {
     };
     const filterByVenue = (data) => {
         if (!selectedVenue) return data;
+        setCurrentPage(1);
         return data.filter((c) =>
             c.candidateProfile?.availableVenueWork?.venues?.some(
                 (v) => v.id === selectedVenue.value
@@ -456,8 +458,7 @@ const Coach = () => {
         " px-4 py-3 border border-[#E2E1E5] rounded-xl focus:outline-none ";
 
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+
 
     const totalItems = filteredRecruitment.length;
     const totalPages = Math.ceil(totalItems / rowsPerPage);

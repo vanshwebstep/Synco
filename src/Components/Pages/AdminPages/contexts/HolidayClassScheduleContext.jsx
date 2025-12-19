@@ -269,7 +269,7 @@ export const HolidayClassScheduleProvider = ({ children }) => {
     };
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/cancel-session/${classScheduleId}/cancel?mapId=${sessionId}`, requestOptions);
+      const response = await fetch(`${API_BASE_URL}/api/admin/holiday/cancel-session/${classScheduleId}/cancel?mapId=${sessionId}`, requestOptions);
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -297,7 +297,7 @@ export const HolidayClassScheduleProvider = ({ children }) => {
       throw error;
     } finally {
       await fetchClassSchedules();
-      navigate(`/configuration/weekly-classes/venues/class-schedule?id=${venueId}`)
+      navigate(`/configuration/holiday-camp/venues/class-schedule?id=${venueId}`)
       setLoading(false);
     }
   };

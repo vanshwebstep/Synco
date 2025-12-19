@@ -16,6 +16,7 @@ export const HolidayVenueProvider = ({ children }) => {
         address: "",
         facility: "",
         termGroupId: [],
+        holidayCampId:[],
         parking: false,
         congestion: false,
         parkingNote: "",
@@ -57,6 +58,9 @@ export const HolidayVenueProvider = ({ children }) => {
 
   const dataToSend = {
     ...venueData,
+      holidayCampId: Array.isArray(venueData.holidayCampId)
+    ? venueData.holidayCampId
+    : [venueData.holidayCampId],
     // holidayCampId: venueData.holidayCampId, // uncomment if needed
     // or if you want to force a specific value, e.g. holidayCampId: [8],
   };

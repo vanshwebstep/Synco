@@ -690,8 +690,8 @@ const List = () => {
                 ...s,
                 dateOfBirth: toDateOnly(s.dateOfBirth),
             })),
-            parents,
-            emergency,
+            parents: parents.map(({ id, ...rest }) => rest),
+             emergency,
         };
 
 
@@ -881,10 +881,10 @@ const List = () => {
                 <h2 onClick={() => {
                     if (from_lead === "leadDatabase") {
                         navigate("/weekly-classes/central-leads");
-                    }else if (from_lead === "yes") {
+                    } else if (from_lead === "yes") {
                         navigate("/weekly-classes/central-leads");
                     }
-                     else {
+                    else {
                         navigate("/weekly-classes/find-a-class");
                     }
                 }}

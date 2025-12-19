@@ -1,9 +1,16 @@
 import { ArrowLeft } from "lucide-react";
-import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useRef, useCallback, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-export default function StudentCourceAdd() {
+import Loader from "../../../contexts/Loader";
+export default function CourseStudentUpdate() {
     const fileInputRef = useRef(null);
+
+    const location = useLocation();
+    const [loading, setLoading] = useState(false);
+
+    const queryParams = new URLSearchParams(location.search);
+    const id = queryParams.get("id"); // <-- this will be "9" 
     const videoInputRefs = useRef({});
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const navigate = useNavigate();
@@ -144,6 +151,7 @@ export default function StudentCourceAdd() {
 
         const videosJson = formData.videos.map((video) => ({
             name: video.videoName,
+            video: video.videoFilePreview,
             childFeatures: video.childFeatures.filter(Boolean),
         }));
 
@@ -177,9 +185,9 @@ export default function StudentCourceAdd() {
 
         try {
             const res = await fetch(
-                `${API_BASE_URL}/api/admin/student-course/create`,
+                `${API_BASE_URL}/api/admin/student-course/update/${id}`,
                 {
-                    method: "POST",
+                    method: "PUT",
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -197,7 +205,9 @@ export default function StudentCourceAdd() {
                 timer: 1800,
                 showConfirmButton: false,
             });
+
             navigate(`/configuration/coach-pro/student`)
+
 
 
         } catch (err) {
@@ -208,13 +218,76 @@ export default function StudentCourceAdd() {
             });
         }
     };
+    const fetchDataById = useCallback(async () => {
+        const token = localStorage.getItem("adminToken");
+        if (!token || !id) return;
+
+        setLoading(true);
+        try {
+            const res = await fetch(
+                `${API_BASE_URL}/api/admin/student-course/listBy/${id}`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            const json = await res.json();
+
+            // ❗ API error handling
+            if (!res.ok) {
+                throw new Error(json?.message || "Failed to fetch course details");
+            }
+
+            const course = json?.data;
+            if (!course) return;
+
+            setFormData({
+                courseName: course?.courseName ?? "",
+                duration: course?.duration ?? "",
+                durationType: course?.durationType ?? "Minutes",
+                level: course?.level ?? "",
+                coverImage: null, // file will be set only if user uploads new
+                coverImagePreview: course?.coverImage ?? null,
+
+                videos: (course?.videos ?? []).map((video, index) => ({
+                    id: Date.now() + index,
+                    videoName: video?.name ?? "",
+                    videoFile: null, // user upload only
+                    videoFilePreview: video?.videoUrl ?? null,
+                    childFeatures: video?.childFeatures?.length
+                        ? video.childFeatures
+                        : [""],
+                })),
+            });
 
 
+        } catch (err) {
+            console.error("Fetch failed", err);
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: err.message || "Something went wrong",
+                confirmButtonColor: "#f98f5c",
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, [API_BASE_URL, id]);
+
+
+    useEffect(() => {
+        fetchDataById();
+    }, []);
+
+
+
+    if (loading) return <Loader />;
     /* ---------------- JSX (UNCHANGED UI) ---------------- */
 
     return (
         <>
-            <h2 className="text-[28px] font-semibold mb-6 flex items-center gap-2"> <ArrowLeft onClick={() => navigate(`/configuration/coach-pro/student`)} className="cursor-pointer" /> Create a course</h2>
+            <h2 className="text-[28px] font-semibold mb-6 flex items-center gap-2"> <ArrowLeft onClick={() => navigate(`/configuration/coach-pro/student`)} className="cursor-pointer" /> Update course</h2>
 
             <form onSubmit={handleSubmit}>
                 <section className="mb-10 bg-white rounded-4xl py-5">

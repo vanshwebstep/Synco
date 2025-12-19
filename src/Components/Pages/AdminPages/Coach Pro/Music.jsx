@@ -16,11 +16,29 @@ export default function MusicPlayer() {
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState('');
     const [id, setId] = useState('');
-
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+    const [audioFile, setAudioFile] = useState(null);
+    const [coverFile, setCoverFile] = useState(null);
+    console.log('currentTrack', currentTrack)
 
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
     /* ===================== AUDIO INIT ===================== */
+    
+    const handleFileSelect = (e, type) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (type === "audio") {
+            setAudioFile(file);
+        }
+
+        if (type === "cover") {
+            setCoverFile(file);
+        }
+
+        e.target.value = null;
+    };
 
     useEffect(() => {
         const audio = new Audio();
@@ -107,6 +125,7 @@ export default function MusicPlayer() {
                     url: item?.uploadMusic,
                     duration: item?.durationSeconds,
                     durationFormatted: item?.durationFormatted,
+                    musicImage: item?.musicImage,
                     createdAt: new Date(item?.createdAt).toLocaleDateString(),
                 };
             });
@@ -156,9 +175,16 @@ export default function MusicPlayer() {
         setProgress(audio.currentTime);
     };
 
-    const handleUpload = async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+    const handleSaveUpload = async () => {
+        if (!audioFile) {
+            Swal.fire("Error", "Please select an audio file", "error");
+            return;
+        }
+
+        if (!coverFile) {
+            Swal.fire("Error", "Please select a cover photo", "error");
+            return;
+        }
 
         const token = localStorage.getItem("adminToken");
         if (!token) {
@@ -167,17 +193,14 @@ export default function MusicPlayer() {
         }
 
         const formData = new FormData();
-        formData.append("uploadMusic", file);
+        formData.append("uploadMusic", audioFile);   // 🎵 audio
+        formData.append("musicImage", coverFile);    // 🖼 cover photo
 
-        // 🔵 Show loading
         Swal.fire({
-            title: "Uploading music...",
+            title: "Uploading...",
             text: "Please wait",
             allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => {
-                Swal.showLoading();
-            },
+            didOpen: () => Swal.showLoading(),
         });
 
         try {
@@ -195,7 +218,6 @@ export default function MusicPlayer() {
             const data = await res.json();
             if (!res.ok) throw new Error(data?.message || "Upload failed");
 
-            // ✅ Success
             Swal.fire({
                 icon: "success",
                 title: "Uploaded",
@@ -204,17 +226,18 @@ export default function MusicPlayer() {
                 showConfirmButton: false,
             });
 
+            // cleanup
+            setAudioFile(null);
+            setCoverFile(null);
+            setIsUploadModalOpen(false);
+
             fetchData();
+
         } catch (err) {
-            Swal.fire({
-                icon: "error",
-                title: "Upload failed",
-                text: err.message || "Something went wrong",
-            });
-        } finally {
-            e.target.value = null;
+            Swal.fire("Error", err.message || "Upload failed", "error");
         }
     };
+
 
     const handleDelete = async (id) => {
         const token = localStorage.getItem("adminToken");
@@ -362,10 +385,15 @@ export default function MusicPlayer() {
             <div className="flex-1">
                 <div className="flex justify-between mb-4">
                     <h2 className="text-xl font-semibold">Samba Music</h2>
-                    <label className="bg-[#237FEA] text-white px-4 py-2 rounded-lg cursor-pointer flex gap-2">
-                        <Upload size={16} /> Upload
-                        <input hidden type="file" accept="audio/*" onChange={handleUpload} />
-                    </label>
+                    <button
+                        type="button"
+                        onClick={() => setIsUploadModalOpen(true)}
+                        className="bg-[#237FEA] text-white px-4 py-2 rounded-lg cursor-pointer flex gap-2 items-center"
+                    >
+                        <Upload size={16} />
+                        Upload
+                    </button>
+
                 </div>
 
                 <div className="bg-white border border-[#E2E1E5] h-screen  rounded-2xl overflow-hidden">
@@ -451,7 +479,13 @@ export default function MusicPlayer() {
 
             <div className="w-[320px] bg-[#2F3640] h-fit rounded-2xl text-white p-6">
                 <h4 className="text-center mb-4 text-xl">Now Playing</h4>
-                <div className="h-[180px] bg-gray-700 rounded-xl mb-4 flex items-center justify-center">Cover</div>
+                <div className="h-[180px] bg-gray-700 rounded-xl mb-4 flex items-center justify-center">
+                    {currentTrack?.musicImage ? (
+                        <img src={currentTrack?.musicImage} className="w-full p-3 h-full" alt="" />
+                    ) : (
+                        <span>Cover</span>
+                    )}
+                </div>
                 <h3 className="text-center font-semibold">{currentTrack?.title || "No Track"}</h3>
 
                 <input type="range" min="0" max={duration} value={progress} onChange={handleSeek} className="w-full mt-4" />
@@ -506,6 +540,65 @@ export default function MusicPlayer() {
                     </div>
                 </div>
             )}
+
+
+
+            {isUploadModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                    <div className="bg-white rounded-xl p-6 w-full max-w-md">
+
+                        <h2 className="text-lg font-semibold mb-4">Upload Music</h2>
+
+                        {/* Audio */}
+                        <label className="w-full h-30 border-2 border-dashed border-gray-300 rounded-xl flex gap-3 justify-center items-center cursor-pointer text-gray-500 text-sm bg-gray-50"
+                        >
+                            <Upload size={16} />
+                            {audioFile ? audioFile.name : "Choose Audio"}
+                            <input
+                                hidden
+                                type="file"
+                                accept="audio/*"
+                                onChange={(e) => handleFileSelect(e, "audio")}
+                            />
+                        </label>
+
+                        {/* Cover */}
+                        <label className="w-full h-30 my-4 border-2 border-dashed border-gray-300 rounded-xl flex gap-3 justify-center items-center cursor-pointer text-gray-500 text-sm bg-gray-50"
+                        >
+                            <Upload size={16} />
+                            {coverFile ? coverFile.name : "Cover Photo"}
+                            <input
+                                hidden
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleFileSelect(e, "cover")}
+                            />
+                        </label>
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setIsUploadModalOpen(false);
+                                    setAudioFile(null);
+                                    setCoverFile(null);
+                                }}
+                                className="px-4 py-2 rounded-lg border border-gray-200"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                onClick={handleSaveUpload}
+                                className="px-4 py-2 rounded-lg bg-[#237FEA] text-white"
+                            >
+                                Save
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
 
         </div>
     );

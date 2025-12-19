@@ -169,6 +169,7 @@ import ReferralsList from './Components/Pages/AdminPages/Configuration/coach-pro
 import StudentCource from './Components/Pages/AdminPages/Configuration/coach-pro/studentsCources/StudentCource.jsx';
 import StudentCourceAdd from './Components/Pages/AdminPages/Configuration/coach-pro/studentsCources/StudentCourceAdd.jsx';
 import CourseUpdate from './Components/Pages/AdminPages/Coach Pro/Course/CourceUpdate.jsx';
+import CourseStudentUpdate from './Components/Pages/AdminPages/Configuration/coach-pro/studentsCources/CourseStudentUpdate.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -987,41 +988,41 @@ const AppRoutes = () => {
       <Route path="*" element={<Navigate to="/" />} />
       <Route path="/configuration/coach-pro/music" element={
         <ProtectedRoute>
-        <AdminLayout>
-          <RoleBasedRoute>
-            <Music />
-          </RoleBasedRoute>
-        </AdminLayout>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <Music />
+            </RoleBasedRoute>
+          </AdminLayout>
         </ProtectedRoute>
       } />
       <Route path="/configuration/coach-pro/profile" element={
         <ProtectedRoute>
-        <AdminLayout>
-          {/* <RoleBasedRoute> */}
-          <CoachProfile />
-          {/* </RoleBasedRoute> */}
-        </AdminLayout>
+          <AdminLayout>
+            {/* <RoleBasedRoute> */}
+            <CoachProfile />
+            {/* </RoleBasedRoute> */}
+          </AdminLayout>
         </ProtectedRoute>
       } />
       <Route path="/configuration/coach-pro/courses" element={
         <ProtectedRoute>
-        <AdminLayout>
-          <RoleBasedRoute>
-            <CourseList />
-          </RoleBasedRoute>
-        </AdminLayout>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <CourseList />
+            </RoleBasedRoute>
+          </AdminLayout>
         </ProtectedRoute>
       } />
       <Route path="/configuration/coach-pro/course/create" element={
         <ProtectedRoute>
-        <AdminLayout>
-          <RoleBasedRoute>
-            <CourseCreate />
-          </RoleBasedRoute>
-        </AdminLayout>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <CourseCreate />
+            </RoleBasedRoute>
+          </AdminLayout>
         </ProtectedRoute>
       } />
-       <Route path="/configuration/coach-pro/profile/report" element={
+      <Route path="/configuration/coach-pro/profile/report" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -1048,7 +1049,7 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
-    
+
       <Route path="/configuration/coach-pro/issue-list" element={
         <ProtectedRoute>
           <AdminLayout>
@@ -1068,7 +1069,7 @@ const AppRoutes = () => {
         </ProtectedRoute>
       } />
 
-        <Route path="/configuration/coach-pro/student" element={
+      <Route path="/configuration/coach-pro/student" element={
         <ProtectedRoute>
           <AdminLayout>
             <RoleBasedRoute>
@@ -1095,6 +1096,16 @@ const AppRoutes = () => {
           </AdminLayout>
         </ProtectedRoute>
       } />
+      <Route path="/configuration/coach-pro/student/update" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <RoleBasedRoute>
+              <CourseStudentUpdate />
+            </RoleBasedRoute>
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+
     </Routes>
   );
 };

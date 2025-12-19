@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useMemo  } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Check } from "lucide-react";
 import { TiUserAdd } from "react-icons/ti";
 import { Plus } from "lucide-react";
@@ -21,7 +21,8 @@ import Swal from "sweetalert2";
 const All = () => {
     const [selectedVenue, setSelectedVenue] = useState(null);
 
-
+ const [currentPage,  setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
     const dbsOptions = [
         { value: "yes", label: "Yes" },
@@ -78,19 +79,19 @@ const All = () => {
             key: "totalToRecruitment"
         }
     ];
-     const venueOptions = useMemo(() => {
-            const venuesMap = new Map();
-    
-            recruitment.forEach((rec) => {
-                rec.candidateProfile?.availableVenueWork?.venues?.forEach((venue) => {
-                    if (!venuesMap.has(venue.id)) {
-                        venuesMap.set(venue.id, { value: venue.id, label: venue.name });
-                    }
-                });
+    const venueOptions = useMemo(() => {
+        const venuesMap = new Map();
+
+        recruitment.forEach((rec) => {
+            rec.candidateProfile?.availableVenueWork?.venues?.forEach((venue) => {
+                if (!venuesMap.has(venue.id)) {
+                    venuesMap.set(venue.id, { value: venue.id, label: venue.name });
+                }
             });
-    
-            return Array.from(venuesMap.values());
-        }, [recruitment]);
+        });
+
+        return Array.from(venuesMap.values());
+    }, [recruitment]);
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
     // Add ID to each coach
@@ -303,7 +304,7 @@ const All = () => {
     const applyFilter = () => {
         let temp = Array.isArray(recruitment) ? [...recruitment] : [];
 
-
+setCurrentPage(1); 
         // 2️⃣ Status / Exp / FA filters
         const selected = Object.entries(checkedStatuses)
             .filter(([_, v]) => v)
@@ -359,7 +360,7 @@ const All = () => {
     };
     const filterByName = (data) => {
         if (!studentName.trim()) return data;
-
+        setCurrentPage(1);
         const q = studentName.trim().toLowerCase();
         return data.filter(c =>
             `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase().includes(q)
@@ -367,6 +368,7 @@ const All = () => {
     };
     const filterByVenue = (data) => {
         if (!selectedVenue) return data;
+        setCurrentPage(1);
         return data.filter((c) =>
             c.candidateProfile?.availableVenueWork?.venues?.some(
                 (v) => v.id === selectedVenue.value
@@ -451,21 +453,19 @@ const All = () => {
     const inputClass =
         " px-4 py-3 border border-[#E2E1E5] rounded-xl focus:outline-none ";
 
-        const [currentPage, setCurrentPage] = useState(1);
-            const [rowsPerPage, setRowsPerPage] = useState(10);
-        
-            const totalItems = filteredRecruitment.length;
-            const totalPages = Math.ceil(totalItems / rowsPerPage);
-        
-            const startIndex = (currentPage - 1) * rowsPerPage;
-            const endIndex = startIndex + rowsPerPage;
-        
-            const currentData = useMemo(
-                () => filteredRecruitment.slice(startIndex, endIndex),
-                [filteredRecruitment, startIndex, endIndex]
-            );
-        
-        
+
+    const totalItems = filteredRecruitment.length;
+    const totalPages = Math.ceil(totalItems / rowsPerPage);
+
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+
+    const currentData = useMemo(
+        () => filteredRecruitment.slice(startIndex, endIndex),
+        [filteredRecruitment, startIndex, endIndex]
+    );
+
+
 
     if (loading) return <Loader />;
     return (
@@ -614,7 +614,7 @@ const All = () => {
                         </tbody>
                     </table>
                 </div>
-{totalItems > 0 && (
+                {totalItems > 0 && (
                     <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
                         <div className="flex items-center gap-2 mb-3 sm:mb-0">
                             <span>Rows per page:</span>

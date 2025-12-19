@@ -258,13 +258,13 @@ const AddtoWaitingList = () => {
 
   const calendarDays = getDaysArray();
 
- const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1)); 
- };
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
 
   const isSameDate = (d1, d2) => {
     const date1 = typeof d1 === "string" ? new Date(d1) : d1;
@@ -639,7 +639,7 @@ const goToNextMonth = () => {
         ...s,
         dateOfBirth: toDateOnly(s.dateOfBirth),
       })),
-      parents,
+      parents: parents.map(({ id, ...rest }) => rest),
       emergency,
     };
 

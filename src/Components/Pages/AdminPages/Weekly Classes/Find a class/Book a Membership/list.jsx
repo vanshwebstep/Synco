@@ -610,7 +610,7 @@ const goToNextMonth = () => {
                 ...s,
                 dateOfBirth: toDateOnly(s.dateOfBirth),
             })),
-            parents,
+             parents: parents.map(({ id, ...rest }) => rest),
             emergency,
             paymentPlanId: membershipPlan?.value ?? null, // only value
 

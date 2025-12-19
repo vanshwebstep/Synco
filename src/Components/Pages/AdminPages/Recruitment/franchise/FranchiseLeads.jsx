@@ -21,7 +21,8 @@ import Swal from "sweetalert2";
 const FranchiseLeads = () => {
 
     const [loading, setLoading] = useState(false);
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const { recruitment, fetchFranchiseRecruitment, statsRecruitment, createFranchiseRecruitment, sendFranchiseMail } = useRecruitmentTemplate() || {};
     useEffect(() => {
         const loadData = async () => {
@@ -306,6 +307,7 @@ const FranchiseLeads = () => {
     const applyFilter = () => {
         let temp = Array.isArray(recruitment) ? [...recruitment] : [];
 
+setCurrentPage(1); 
         // 1️⃣ Name filter
         if (studentName.trim()) {
             const q = studentName.trim().toLowerCase();
@@ -420,8 +422,7 @@ const FranchiseLeads = () => {
         }),
         indicatorSeparator: () => ({ display: "none" }),
     };
-    const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+
 
     const totalItems = filteredRecruitment.length;
     const totalPages = Math.ceil(totalItems / rowsPerPage);

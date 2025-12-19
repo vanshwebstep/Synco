@@ -19,6 +19,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import Select from "react-select";
 import Swal from "sweetalert2";
 const VenueManager = () => {
+     const [currentPage,  setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [loading, setLoading] = useState(false);
     const dbsOptions = [
         { value: "yes", label: "Yes" },
@@ -297,7 +299,7 @@ const VenueManager = () => {
 
     const applyFilter = () => {
         let temp = Array.isArray(venueRecruitment) ? [...venueRecruitment] : [];
-
+        setCurrentPage(1);
         // 1️⃣ Name filter
         if (studentName.trim()) {
             const q = studentName.trim().toLowerCase();
@@ -362,13 +364,14 @@ const VenueManager = () => {
 
     const filterByName = (data) => {
         if (!studentName.trim()) return data;
-
+        setCurrentPage(1);
         const q = studentName.trim().toLowerCase();
         return data.filter(c =>
             `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase().includes(q)
         );
     };
     const filterByVenue = (data) => {
+        setCurrentPage(1);
         if (!selectedVenue) return data;
         return data.filter((c) =>
             c.candidateProfile?.availableVenueWork?.venues?.some(
@@ -458,8 +461,7 @@ const VenueManager = () => {
 
 
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+   
 
     const totalItems = filteredRecruitment.length;
     const totalPages = Math.ceil(totalItems / rowsPerPage);

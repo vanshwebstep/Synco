@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Check, X } from 'lucide-react';
 import Swal from 'sweetalert2';
 const HolidayCampCompleted = ({ item, sessionData }) => {
-    const tabs = ['Members', 'Trials', 'Coaches'];
+    const tabs = ['Members'];
+    //  'Trials', 'Coaches'
     const [activeTab, setActiveTab] = useState('Members');
     const [page, setPage] = useState(1);
     const [data, setData] = useState(null);
@@ -24,7 +25,7 @@ const HolidayCampCompleted = ({ item, sessionData }) => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/class-schedule/view-class-register/${id}`, {
+            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/class-schedule/view-class-register/${id}`, {
                 method: "GET",
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -77,7 +78,7 @@ const HolidayCampCompleted = ({ item, sessionData }) => {
             };
 
             const response = await fetch(
-                `${API_BASE_URL}/api/admin/class-schedule/attendance/${studentId}`,
+                `${API_BASE_URL}/api/admin/holiday/class-schedule/attendance/${studentId}`,
                 requestOptions
             );
 

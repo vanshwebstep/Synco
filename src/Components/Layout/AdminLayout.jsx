@@ -97,6 +97,8 @@ const AdminLayout = ({ children }) => {
     '/holiday-camp/members/account-information': { title: 'Account Information', icon: "/members/Category.png" },
     '/recruitment/franchise-lead': { title: 'Franchise Applications' , icon: "/members/Discovery.png"},
     '/recruitment/franchise-lead/see-details': { title: 'Franchise' , icon: "/members/Discovery.png"  },
+    '/configuration/coach-pro/music': { title: 'Samba Music' , icon: "/members/Category.png"  },
+
   };
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const toggleMobileMenu = () => setIsMobileMenuOpen((prev) => !prev);
