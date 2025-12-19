@@ -325,54 +325,57 @@ export const CommunicationTemplateProvider = ({ children }) => {
             setLoading(false);
         }
     };
-    const createCommunicationTemplate = async (formData) => {
-    setLoading(true);
+const createCommunicationTemplate = async (data) => {
+  setLoading(true);
 
-    try {
-        const headers = {};
+  try {
+    const headers = {};
 
-        if (token) {
-            headers["Authorization"] = `Bearer ${token}`;
-        }
-
-        let url = `${API_BASE_URL}/api/admin/holiday/custom-template/create`;
-
-        const response = await fetch(url, {
-            method: "POST",
-            headers,            // ❌ Do NOT set Content-Type (browser will set multipart/form-data)
-            body: formData,     // ✔ FormData with binary images + JSON
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.message || "Failed to create Communication Template");
-        }
-
-        await Swal.fire({
-            title: "Success!",
-            text: result.message || "Communication Template has been created successfully.",
-            icon: "success",
-            confirmButtonText: "OK",
-        });
-
-        return result;
-
-    } catch (error) {
-        console.error("Error creating communication template:", error);
-        await Swal.fire({
-            title: "Error",
-            text: error.message || "Something went wrong while creating template.",
-            icon: "error",
-            confirmButtonText: "OK",
-        });
-
-        throw error;
-
-    } finally {
-        await fetchTemplateCategories();
-        setLoading(false);
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
+
+    const isFormData = data instanceof FormData;
+
+    if (!isFormData) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/holiday/custom-template/create`,
+      {
+        method: "POST",
+        headers,
+        body: isFormData ? data : JSON.stringify(data), // ✅ FIX
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Failed to create Communication Template");
+    }
+
+    await Swal.fire({
+      title: "Success!",
+      text: result.message || "Template created successfully",
+      icon: "success",
+    });
+
+    return result;
+
+  } catch (error) {
+    await Swal.fire({
+      title: "Error",
+      text: error.message || "Something went wrong",
+      icon: "error",
+    });
+    throw error;
+
+  } finally {
+    fetchTemplateCategories();
+    setLoading(false);
+  }
 };
 
 

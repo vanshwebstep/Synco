@@ -40,6 +40,7 @@ const BookingCard = ({ bookingInfo, booking }) => {
     cancelled: "bg-red-500 text-white",
     cancel: "bg-red-500 text-white",
     pending: "bg-orange-500 text-white",
+     "waiting list": "bg-gray-200 text-black",
   };
 
   return (

@@ -124,6 +124,7 @@ const BookingCard = ({ booking }) => {
     expired: "bg-red-500 text-white",
     cancelled: "bg-red-500 text-white",
     pending: "bg-yellow-500 text-white",
+     "waiting list": "bg-gray-200 text-black",
   };
 
   return (

@@ -97,12 +97,14 @@ const renderField = (label, value) => {
 };
 
 const BookingCard = ({ booking }) => {
-  const statusColors = {
-    active: "bg-green-500 text-white",
-    cancelled: "bg-red-500 text-white",
-    Hold: "bg-orange-500 text-white",
-    pending: "bg-yellow-500 text-white",
-  };
+const statusColors = {
+  active: "bg-green-500 text-white",
+  cancelled: "bg-red-500 text-white",
+  hold: "bg-orange-500 text-white",
+  pending: "bg-yellow-500 text-white",
+  "waiting list": "bg-gray-200 text-black",
+};
+
 console.log('booking',booking)
 const formatPrettyDate = (dateString) => {
   if (!dateString) return "N/A";

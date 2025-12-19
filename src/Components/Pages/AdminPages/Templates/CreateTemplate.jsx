@@ -167,6 +167,8 @@ export default function CreateTemplateSteps() {
     console.log('form.category', form.category);
 
     const handleSaveTextTemplate = async () => {
+console.log('form')
+
         const Payload = {
             mode_of_communication: communicationMode.value,
             template_category_id: form.category,
@@ -175,7 +177,6 @@ export default function CreateTemplateSteps() {
             sender_name: textform.sender,
             content: textform.message,
         };
-
         await createCommunicationTemplate(Payload)
         console.log("✅ Final JSON to Send API:", Payload);
         navigate('/templates/settingList');

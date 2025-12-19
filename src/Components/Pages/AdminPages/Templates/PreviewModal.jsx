@@ -43,7 +43,6 @@ export default function PreviewModal({ mode_of_communication, title, category, t
     return blocks;
   };
   console.log('editMode', editMode)
-  console.log('templateId', templateId)
 
   // ✅ Save final preview data
  const handleSavePreview = async () => {
@@ -284,3 +283,63 @@ export default function PreviewModal({ mode_of_communication, title, category, t
     </div>
   );
 }
+
+
+
+// const handleSavePreview = async () => {
+//   const formData = new FormData();
+
+//   const finalBlocks = structuredClone(previewData.blocks);
+//   let imageIndex = 1; // start from 1 → images_1
+
+//   const collectImages = async (block) => {
+//     // IMAGE BLOCK
+//     if (block.type === "image" && block.url?.startsWith("blob")) {
+//       const response = await fetch(block.url);
+//       const blob = await response.blob();
+
+//       const fieldName = `images_${imageIndex}`;
+//       const file = new File([blob], `${fieldName}.png`, {
+//         type: blob.type,
+//       });
+
+//       // ✅ Append with unique key
+//       formData.append(fieldName, file);
+
+//       // ✅ Replace url with SAME key
+//       block.url = fieldName;
+
+//       imageIndex++;
+//     }
+
+//     // SECTION GRID (deep images)
+//     if (block.type === "sectionGrid" && Array.isArray(block.columns)) {
+//       for (const col of block.columns) {
+//         for (const child of col) {
+//           await collectImages(child);
+//         }
+//       }
+//     }
+//   };
+
+//   // Extract all images
+//   for (const block of finalBlocks) {
+//     await collectImages(block);
+//   }
+
+//   // JSON payload
+//   const contentJSON = JSON.stringify({
+//     subject: previewData.subject,
+//     blocks: finalBlocks,
+//   });
+
+//   formData.append("mode_of_communication", mode_of_communication.value);
+//   formData.append("title", title);
+//   formData.append("template_category_id", category);
+//   formData.append("tags", JSON.stringify(tags));
+//   formData.append("content", contentJSON);
+
+//   await createCommunicationTemplate(formData);
+//   navigate("/templates/settingList");
+// };
+

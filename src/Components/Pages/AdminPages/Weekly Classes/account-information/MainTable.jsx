@@ -90,6 +90,7 @@ const MainTable = () => {
         request_to_cancel: "bg-red-500 text-white",
         pending: "bg-yellow-500 text-white",
         frozen: "bg-blue-500 text-white",
+         "waiting list": "bg-gray-200 text-black",
     };
 
     useEffect(() => {

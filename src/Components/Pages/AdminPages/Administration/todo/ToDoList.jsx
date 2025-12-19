@@ -175,6 +175,7 @@ export default function TodoList() {
                 },
                 body: JSON.stringify({ id, status }),
             });
+            await fetchToDoList();
         } catch (err) {
             console.error("Failed to update status:", err);
         }
@@ -191,6 +192,7 @@ export default function TodoList() {
                 },
                 body: JSON.stringify({ sortOrder }),
             });
+            await fetchToDoList();
         } catch (err) {
             console.error("Failed to update sort order:", err);
         }

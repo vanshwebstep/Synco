@@ -125,6 +125,7 @@ const BookingCard = ({ booking }) => {
     "not attended": "bg-gray-200 text-black ",
     pending: "bg-orange-500 text-white",
     frozen: "bg-blue-500 text-white",
+     "waiting list": "bg-gray-200 text-black",
   };
   console.log('booking', booking)
   return (
