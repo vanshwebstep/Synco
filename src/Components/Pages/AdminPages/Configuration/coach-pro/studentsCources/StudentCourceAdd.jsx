@@ -151,9 +151,9 @@ export default function StudentCourceAdd() {
 
         /* ---------------- Video files (same key, multiple) ---------------- */
 
-        formData.videos.forEach((video) => {
+        formData.videos.forEach((video,indx) => {
             if (video.videoFile) {
-                fd.append("videos", video.videoFile);
+                fd.append(`video_${indx+1}`, video.videoFile);
             }
         });
 

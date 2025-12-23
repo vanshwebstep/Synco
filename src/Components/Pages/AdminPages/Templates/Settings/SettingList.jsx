@@ -15,12 +15,13 @@ export default function SettingList() {
     const [selectedTemplate, setSelectedTemplate] = useState(null);
     const [previewData, setPreviewData] = useState({ subject: "", blocks: [] });
 
+    console.log('PreviewData', previewData)
     useEffect(() => {
         const load = async () => {
             const res = await fetchCommunicationTemplate();
         };
         load();
-    }, [fetchCommunicationTemplate]);
+    }, []);
 
     // Filter data based on active tab
     const modeData = activeTab === "Email" ? apiTemplates.email : apiTemplates.text;
@@ -49,7 +50,7 @@ export default function SettingList() {
                 setPreviewData({ subject: "", blocks: [] });
             }
         } else {
-            setPreviewData({ subject: "", blocks: [{ type: "text", content: template.content }] });
+            setPreviewData({ subject: "", blocks: [{ type: "text", content: template.content.blocks[0].content }] });
         }
     };
 

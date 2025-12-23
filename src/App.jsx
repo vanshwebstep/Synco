@@ -170,6 +170,7 @@ import StudentCource from './Components/Pages/AdminPages/Configuration/coach-pro
 import StudentCourceAdd from './Components/Pages/AdminPages/Configuration/coach-pro/studentsCources/StudentCourceAdd.jsx';
 import CourseUpdate from './Components/Pages/AdminPages/Coach Pro/Course/CourceUpdate.jsx';
 import CourseStudentUpdate from './Components/Pages/AdminPages/Configuration/coach-pro/studentsCources/CourseStudentUpdate.jsx';
+import { CoachProProvider } from './Components/Pages/AdminPages/contexts/CoachProContext.jsx';
 
 const commonRole = ['Admin', 'user', 'Member', 'Agent', 'Super Admin'];
 
@@ -1141,7 +1142,9 @@ function App() {
                                               <CommunicationTemplateProvider>
                                                 <ToDoListProvider>
                                                   <RecruitmentProvider>
-                                                    <AppRoutes />
+                                                    <CoachProProvider>
+                                                      <AppRoutes />
+                                                    </CoachProProvider>
                                                   </RecruitmentProvider>
                                                 </ToDoListProvider>
                                               </CommunicationTemplateProvider>

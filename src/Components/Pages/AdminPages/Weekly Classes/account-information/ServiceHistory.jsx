@@ -107,15 +107,18 @@ const renderField = (label, value) => {
   return (
     <div>
       <p className="text-gray-500 text-sm">{label}</p>
-      <p className="mt-1 font-semibold">{value}</p>
+      <p className="mt-1 font-semibold truncate">{value}</p>
     </div>
   );
 };
-const formatStatus = (status) => {
+const formatStatus = (status = "") => {
+  if (!status) return "";
+
   return status
-    .replace(/_/g, " ")         // remove underscores
-    .replace(/\b\w/g, c => c.toUpperCase()); // capitalize first letters
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
 };
+
 const BookingCard = ({ booking }) => {
   const statusColors = {
     active: "bg-green-500 text-white",
@@ -125,20 +128,23 @@ const BookingCard = ({ booking }) => {
     "not attended": "bg-gray-200 text-black ",
     pending: "bg-orange-500 text-white",
     frozen: "bg-blue-500 text-white",
-     "waiting list": "bg-gray-200 text-black",
+    "waiting list": "bg-gray-200 text-black",
   };
   console.log('booking', booking)
+  const serviceType =
+  booking?.serviceType || booking?.booking?.serviceType || "";
+
   return (
     <div className="bg-white rounded-2xl shadow p-3 mb-6">
       {/* Header */}
       <div className="flex justify-between items-center bg-[#3D444F] rounded-2xl p-4">
         <div className="flex items-center gap-3">
           <img
-            src={renderImage(booking.serviceType)}
-            alt={booking.serviceType}
+            src={renderImage(booking.serviceType || booking?.booking?.serviceType)}
+            alt={booking.serviceType || booking?.booking?.serviceType}
             className="w-8 h-8 rounded-full"
           />
-          <h3 className="text-white capitalize font-semibold">{booking.serviceType}</h3>
+          <h3 className="text-white capitalize font-semibold">{booking.serviceType || booking?.booking?.serviceType}</h3>
         </div>
         <div className="flex items-center gap-2">
           <button className="px-3 py-2 flex items-center gap-2 rounded-lg text-sm bg-white">
@@ -160,16 +166,23 @@ const BookingCard = ({ booking }) => {
 
       {/* Details */}
       <div className="bg-[#FCF9F6] rounded-2xl p-4 mt-4">
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4 mb-4`}>
-          {booking.serviceType === "weekly class membership" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-8 gap-4 mb-4">
+
+          {/* WEEKLY CLASS MEMBERSHIP */}
+          {serviceType === "weekly class membership" && (
             <>
               {renderField("Membership Plan", booking?.paymentPlan?.title)}
               {renderField("Students", booking?.totalStudents)}
-              {renderField("Venue", booking?.classSchedule?.venue?.name || booking?.venue?.name || 'N/A')}
+              {renderField(
+                "Venue",
+                booking?.classSchedule?.venue?.name ||
+                booking?.venue?.name ||
+                "N/A"
+              )}
               {renderField("KGo/Cardless ID", booking?.bookingId)}
               {renderField("Monthly Price", `£${booking?.paymentPlan?.priceLesson}`)}
               {renderField("Date Of Booking", booking?.startDate)}
-              {renderField("Progress", '70%')}
+              {renderField("Progress", "70%")}
               {renderField(
                 "Booking Source",
                 booking?.bookedByAdmin
@@ -178,93 +191,136 @@ const BookingCard = ({ booking }) => {
               )}
             </>
           )}
-          {booking.serviceType == "weekly class trial" && (
+
+          {/* WEEKLY CLASS TRIAL */}
+          {serviceType === "weekly class trial" && (
             <>
-              {renderField("Date of trial", booking?.trialDate || booking?.startDate)}
+              {renderField("Date of Trial", booking?.trialDate || booking?.startDate)}
               {renderField("Students", booking?.totalStudents)}
               {renderField("Venue", booking?.classSchedule?.venue?.name)}
-              {/* {renderField("ID", booking?.paymentPlanId)} */}
-              {renderField("Trial Attempt", booking?.attempt || 'N/A')}
+              {renderField("Trial Attempt", booking?.attempt || "N/A")}
               {renderField("Date Of Booking", formatPrettyDate(booking?.createdAt))}
-              {renderField("Booking Source", booking?.bookedByAdmin
-                ? `${booking.bookedByAdmin.firstName || ""} ${booking.bookedByAdmin.lastName || ""}`.trim()
-                : "")}
-            </>
-          )}
-          {booking.serviceType === "Birthday Party Booking" && (
-            <>
-              {renderField("Package", booking.package)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Stripe Transaction ID", booking.stripeID)}
-              {renderField("Date of Booking", booking.bookingDate)}
-              {renderField("Date of Party", booking.partyDate)}
-              {renderField("Coach", booking.coach)}
-              {renderField("Booking Source", booking.source)}
-            </>
-          )}
-
-          {booking.serviceType === "One to One Booking" && (
-            <>
-              {renderField("Package", booking.package)}
-              {renderField("Students", booking.students)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Stripe Transaction ID", booking.stripeID)}
-              {renderField("Date of Booking", booking.bookingDate)}
-              {renderField("Venue", booking.venue)}
-              {renderField("Coach", booking.coach)}
-              {renderField("Booking Source", booking.source)}
-            </>
-          )}
-
-          {booking.serviceType === "Holiday Camp" && (
-            <>
-              {renderField("Camp", booking.camp)}
-              {renderField("Students", booking.students)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Stripe Transaction ID", booking.stripeID)}
-              {renderField("Date of Booking", booking.bookingDate)}
-              {renderField("Venue", booking.venue)}
-              {renderField("Discount", booking.discount)}
-              {renderField("Coach", booking.coach)}
-              {renderField("Booking Source", booking.source)}
-            </>
-          )}
-
-          {booking.serviceType === "Merchandise" && (
-            <>
-              {renderField("Item", booking.item)}
-              {renderField("Quantity", booking.quantity)}
-              {renderField("Price Paid", booking.pricePaid)}
-              {renderField("Transaction ID", booking.transactionID)}
-              {renderField("Date of Booking", booking.bookingDate)}
-              {renderField("Discount", booking.discount)}
-              {renderField("Fulfillment Status", booking.fulfillment)}
-              {renderField("Booking Source", booking.source)}
-            </>
-          )}
-        </div>
-
-        {/* Buttons */}
-        <div className="flex gap-3">
-          <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
-            See details
-          </button>
-          {booking.serviceType !== "Merchandise" && (
-            <>
-              <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
-                See payments
-              </button>
-              {booking.students && (
-                <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
-                  Attendance
-                </button>
+              {renderField(
+                "Booking Source",
+                booking?.bookedByAdmin
+                  ? `${booking.bookedByAdmin.firstName || ""} ${booking.bookedByAdmin.lastName || ""}`.trim()
+                  : ""
               )}
             </>
           )}
-          <button className="ml-auto text-gray-500 hover:text-gray-800">
-            <FaEllipsisV />
-          </button>
+
+          {/* BIRTHDAY PARTY */}
+          {["Birthday Party Booking", "birthday party"].includes(serviceType) && (
+            <>
+              {renderField("Package", booking?.packageInterest)}
+              {renderField("Price Paid", booking?.booking?.payment?.amount)}
+              {renderField(
+                "Stripe Transaction ID",
+                booking?.booking?.payment?.stripePaymentIntentId
+              )}
+              {renderField(
+                "Date of Booking",
+                formatPrettyDate(booking?.booking?.createdAt)
+              )}
+              {renderField(
+                "Date of Party",
+                formatPrettyDate(booking?.partyDate)
+              )}
+              {renderField(
+                "Coach",
+                [booking?.booking?.coach?.firstName, booking?.booking?.coach?.lastName]
+                  .filter(Boolean)
+                  .join(" ")
+              )}
+              {renderField("Booking Source", booking?.source)}
+            </>
+          )}
+
+          {/* ONE TO ONE */}
+          {["One to One Booking", "one to one"].includes(serviceType) && (
+            <>
+              {renderField("Package", booking?.packageInterest)}
+              {renderField("Students", booking?.booking?.totalStudents)}
+              {renderField("Price Paid", booking?.booking?.payment?.amount)}
+              {renderField(
+                "Stripe Transaction ID",
+                booking?.booking?.payment?.stripeChargeDetails?.id
+              )}
+              {renderField("Date of Booking", booking?.booking?.date)}
+              {renderField("Venue", booking?.booking?.address)}
+              {renderField(
+                "Coach",
+                [booking?.booking?.coach?.firstName, booking?.booking?.coach?.lastName]
+                  .filter(Boolean)
+                  .join(" ")
+              )}
+              {renderField("Booking Source", booking?.source)}
+            </>
+          )}
+
+          {/* HOLIDAY CAMP */}
+          {serviceType === "holiday camp" && (
+            <>
+              {renderField("Camp", booking?.holidayCamp?.name)}
+              {renderField("Students", booking?.totalStudents)}
+              {renderField("Price Paid", booking?.payment?.amount)}
+              {renderField(
+                "Stripe Transaction ID",
+                booking?.payment?.gatewayResponse?.id
+              )}
+              {renderField(
+                "Date of Booking",
+                booking?.holidayCamp?.holidayCampDates?.[0]?.startDate
+              )}
+              {renderField("Venue", booking?.holidayVenue?.name)}
+              {renderField("Discount", booking?.discount?.code)}
+              {renderField("Coach", booking?.bookedByAdmin?.firstName)}
+              {renderField("Booking Source", booking?.marketingChannel)}
+            </>
+          )}
+
+          {/* MERCHANDISE */}
+          {serviceType === "Merchandise" && (
+            <>
+              {renderField("Item", booking?.item)}
+              {renderField("Quantity", booking?.quantity)}
+              {renderField("Price Paid", booking?.pricePaid)}
+              {renderField("Transaction ID", booking?.transactionID)}
+              {renderField("Date of Booking", booking?.bookingDate)}
+              {renderField("Discount", booking?.discount)}
+              {renderField("Fulfillment Status", booking?.fulfillment)}
+              {renderField("Booking Source", booking?.source)}
+            </>
+          )}
+
         </div>
+
+
+        {/* Buttons */}
+        <div className="flex gap-3">
+  <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
+    See details
+  </button>
+
+  {serviceType !== "Merchandise" && (
+    <>
+      <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
+        See payments
+      </button>
+
+      {booking?.students && (
+        <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
+          Attendance
+        </button>
+      )}
+    </>
+  )}
+
+  <button className="ml-auto text-gray-500 hover:text-gray-800">
+    <FaEllipsisV />
+  </button>
+</div>
+
       </div>
     </div>
   );
@@ -356,13 +412,13 @@ const ServiceHistory = () => {
 
   const calendarDays = getDaysArray();
 
-const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1)); 
- };
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
   const isSameDate = (d1, d2) =>
     d1 &&
     d2 &&
@@ -460,13 +516,13 @@ const goToNextMonth = () => {
               <div className="whitespace-nowrap font-semibold text-[#717073] text-[16px]">Filters</div>
             </div>
           </div>
-          <button
+          {/* <button
             onClick={handleAddStudent}
             className="bg-[#237FEA] flex items-center gap-2 text-white px-4 py-2 md:py-[10px] rounded-xl hover:bg-blue-700 text-[15px]  font-semibold"
           >
             <img src="/members/add.png" className="w-4 md:w-5" alt="Add" />
             Add booking
-          </button>
+          </button> */}
         </div>
       </div>
 

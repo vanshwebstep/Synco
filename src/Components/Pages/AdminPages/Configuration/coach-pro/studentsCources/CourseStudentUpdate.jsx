@@ -149,22 +149,45 @@ export default function CourseStudentUpdate() {
 
         /* ---------------- Videos JSON (metadata only) ---------------- */
 
-        const videosJson = formData.videos.map((video) => ({
+       const videosPayload = [];
+let uploadIndex = 0;
+
+// build JSON + track file keys
+formData.videos.forEach((video) => {
+    // new upload
+    if (video.videoFile) {
+        const fileKey = `video_${uploadIndex}`;
+
+        videosPayload.push({
             name: video.videoName,
-            video: video.videoFilePreview,
             childFeatures: video.childFeatures.filter(Boolean),
-        }));
-
-        fd.append("videos", JSON.stringify(videosJson));
-
-        /* ---------------- Video files (same key, multiple) ---------------- */
-
-        formData.videos.forEach((video) => {
-            if (video.videoFile) {
-                fd.append("videos", video.videoFile);
-            }
+            videoUrl: video.videoUrl || "",   // keep or empty
+            fileKey: fileKey,                 // 👈 IMPORTANT
         });
 
+        uploadIndex++;
+    }
+    // existing video only
+    else {
+        videosPayload.push({
+            name: video.videoName,
+            childFeatures: video.childFeatures.filter(Boolean),
+            videoUrl: video.videoUrl,          // existing URL
+        });
+    }
+});
+
+// append JSON
+fd.append("videos", JSON.stringify(videosPayload));
+
+// append files (same order)
+let fileIndex = 0;
+formData.videos.forEach((video) => {
+    if (video.videoFile) {
+        fd.append(`video_${fileIndex}`, video.videoFile);
+        fileIndex++;
+    }
+});
         const token = localStorage.getItem("adminToken");
         if (!token) {
             Swal.fire({
@@ -254,6 +277,7 @@ export default function CourseStudentUpdate() {
                     videoName: video?.name ?? "",
                     videoFile: null, // user upload only
                     videoFilePreview: video?.videoUrl ?? null,
+                    videoUrl: video?.videoUrl ?? null,
                     childFeatures: video?.childFeatures?.length
                         ? video.childFeatures
                         : [""],

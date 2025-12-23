@@ -27,35 +27,35 @@ const StudentCamp = () => {
     const navigate = useNavigate();
     const [selected, setSelected] = useState(1);
 
-   const categoryOptions = [
-  ...new Map(
-    holidayCampsData.map((camp) => {
-      const id = camp?.holidayCamp?.id;
-      if (!id) return null;
+    const categoryOptions = [
+        ...new Map(
+            holidayCampsData?.map((camp) => {
+                const id = camp?.holidayCamp?.id;
+                if (!id) return null;
 
-      return [
-        id,
-        {
-          label: camp?.holidayCamp?.name || "No Camp Name",
-          value: id,
-        }
-      ];
-    }).filter(Boolean)
-  ).values()
-];
+                return [
+                    id,
+                    {
+                        label: camp?.holidayCamp?.name || "No Camp Name",
+                        value: id,
+                    }
+                ];
+            }).filter(Boolean)
+        ).values()
+    ];
 
-const [tableData, setTableData] = useState(holidayCampsData);
+    const [tableData, setTableData] = useState(holidayCampsData);
 
     const [selectedAges, setSelectedAges] = useState([]);
 
     const [searchTerm, setSearchTerm] = useState("");
-const toggleAge = (age) => {
-  setSelectedAges(prev =>
-    prev.includes(age)
-      ? prev.filter(a => a !== age)
-      : [...prev, age]
-  );
-};
+    const toggleAge = (age) => {
+        setSelectedAges(prev =>
+            prev.includes(age)
+                ? prev.filter(a => a !== age)
+                : [...prev, age]
+        );
+    };
 
 
 
@@ -69,85 +69,85 @@ const toggleAge = (age) => {
         return selectedAges.includes(student?.age);
     });
     const dateOptions = [
-  ...new Map(
-    holidayCampsData.map((camp) => {
-      const dateObj = camp?.holidayCamp?.holidayCampDates?.[0];
+        ...new Map(
+            holidayCampsData?.map((camp) => {
+                const dateObj = camp?.holidayCamp?.holidayCampDates?.[0];
 
-      if (!dateObj?.id) return null;
+                if (!dateObj?.id) return null;
 
-      return [
-        dateObj.id,
-        {
-          label: `${dateObj.startDate} - ${dateObj.endDate}`,
-          value: dateObj.id,
-        }
-      ];
-    }).filter(Boolean)
-  ).values()
-];
- const [selectedDate, setSelectedDate] = useState(
-  dateOptions?.[0] ?? null
-);
+                return [
+                    dateObj.id,
+                    {
+                        label: `${dateObj.startDate} - ${dateObj.endDate}`,
+                        value: dateObj.id,
+                    }
+                ];
+            }).filter(Boolean)
+        ).values()
+    ];
+    const [selectedDate, setSelectedDate] = useState(
+        dateOptions?.[0] ?? null
+    );
 
-const [selectedCategory, setSelectedCategory] = useState(
-  categoryOptions?.[0] ?? null
-);
+    const [selectedCategory, setSelectedCategory] = useState(
+        categoryOptions?.[0] ?? null
+    );
 
     // FILTER LOGIC
-  const filteredData = filteredStudents.filter((camp) => {
-  const student = camp?.students?.[0];
+    const filteredData = filteredStudents.filter((camp) => {
+        const student = camp?.students?.[0];
 
-  // ---------- SEARCH ----------
-  const name = `${student?.studentFirstName || ""} ${student?.studentLastName || ""}`.toLowerCase();
-  const age = String(student?.age || "").toLowerCase();
-  const medical = (student?.medicalInformation || "").toLowerCase();
-  const search = searchTerm.toLowerCase();
+        // ---------- SEARCH ----------
+        const name = `${student?.studentFirstName || ""} ${student?.studentLastName || ""}`.toLowerCase();
+        const age = String(student?.age || "").toLowerCase();
+        const medical = (student?.medicalInformation || "").toLowerCase();
+        const search = searchTerm.toLowerCase();
 
-  const matchesSearch =
-    !searchTerm ||
-    name.includes(search) ||
-    age.includes(search) ||
-    medical.includes(search);
+        const matchesSearch =
+            !searchTerm ||
+            name.includes(search) ||
+            age.includes(search) ||
+            medical.includes(search);
 
-  // ---------- CATEGORY ----------
-  const matchesCategory =
-    !selectedCategory ||
-    camp?.holidayCamp?.id === selectedCategory.value;
+        // ---------- CATEGORY ----------
+        const matchesCategory =
+            !selectedCategory ||
+            camp?.holidayCamp?.id === selectedCategory.value;
 
-  // ---------- DATE ----------
-  const matchesDate =
-    !selectedDate ||
-    camp?.holidayCamp?.holidayCampDates?.[0]?.id === selectedDate.value;
+        // ---------- DATE ----------
+        const matchesDate =
+            !selectedDate ||
+            camp?.holidayCamp?.holidayCampDates?.[0]?.id === selectedDate.value;
 
-  return matchesSearch && matchesCategory && matchesDate;
-});
+        return matchesSearch && matchesCategory && matchesDate;
+    });
 
 
 
 
     // FIXED: Unique Age Data
-  const ageData = [
-  ...new Map(
-    holidayCampsData
-      ?.flatMap(item => item.students || [])
-      .map(student => {
-        const age = student?.age;
+    const ageData = [
+        ...new Map(
+            holidayCampsData
+                ?.flatMap(item => item.students || [])
+                .map(student => {
+                    const age = student?.age;
 
-        const ageLabel = age !== undefined
-          ? `${age} - ${age + 1} years`
-          : "No Age Available";
+                    const ageLabel = age !== undefined
+                        ? `${age} - ${age + 1} years`
+                        : "No Age Available";
 
-        return [
-          age, // unique key
-          {
-            id: age,        // ✅ ADD THIS
-            label: ageLabel,
-            age: age,
-          }
-        ];
-      })
-  ).values()
-];
+                    return [
+                        age, // unique key
+                        {
+                            id: age,        // ✅ ADD THIS
+                            label: ageLabel,
+                            age: age,
+                        }
+                    ];
+                })
+        ).values()
+    ];
 
 
 
@@ -194,26 +194,26 @@ const [selectedCategory, setSelectedCategory] = useState(
 
 
 
-const applyFiltersVenue = () => {
-  const filtered = holidayCampsData.filter((camp) => {
-    const campCategoryId = camp?.holidayCamp?.id;
-    const campDateId =
-      camp?.holidayCamp?.holidayCampDates?.[0]?.id;
+    const applyFiltersVenue = () => {
+        const filtered = holidayCampsData.filter((camp) => {
+            const campCategoryId = camp?.holidayCamp?.id;
+            const campDateId =
+                camp?.holidayCamp?.holidayCampDates?.[0]?.id;
 
-    const matchCategory = selectedCategory
-      ? campCategoryId === selectedCategory.value
-      : true;
+            const matchCategory = selectedCategory
+                ? campCategoryId === selectedCategory.value
+                : true;
 
-    const matchDate = selectedDate
-      ? campDateId === selectedDate.value
-      : true;
+            const matchDate = selectedDate
+                ? campDateId === selectedDate.value
+                : true;
 
-    return matchCategory && matchDate;
-  });
+            return matchCategory && matchDate;
+        });
 
-  setTableData(filtered);
-  setOpenDateFilter(false);
-};
+        setTableData(filtered);
+        setOpenDateFilter(false);
+    };
 
 
     const handleDateChange = (value) => {
@@ -302,9 +302,9 @@ const applyFiltersVenue = () => {
         );
     };
 
- const [openAgeFilter, setOpenAgeFilter] = useState(false);
+    const [openAgeFilter, setOpenAgeFilter] = useState(false);
 
-const [openDateFilter, setOpenDateFilter] = useState(false);
+    const [openDateFilter, setOpenDateFilter] = useState(false);
 
     const sendEmail = async (ids) => {
         setLoading(true);
@@ -401,7 +401,7 @@ const [openDateFilter, setOpenDateFilter] = useState(false);
         saveAs(data, "LeadsData.xlsx");
     };
 
-        if (loading) return <Loader />;
+    if (loading) return <Loader />;
     return (
         <>
             <div className="flex gap-5">
@@ -597,154 +597,152 @@ const [openDateFilter, setOpenDateFilter] = useState(false);
                         />
                     </div>
                     {
-    filteredData.length > 0 ? (
-        <div className="overflow-auto rounded-2xl bg-white shadow-sm">
-            <table className="min-w-full text-sm">
-                <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
-                    <tr className="font-semibold text-[#717073]">
-                        <th className="py-3 px-4 whitespace-nowrap">Name</th>
-                        <th className="py-3 px-4 whitespace-nowrap">Age</th>
-                        <th className="py-3 px-4 whitespace-nowrap">Medical Information</th>
-                        <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
-                        <th className="py-3 px-4 whitespace-nowrap">Source</th>
-                        <th className="py-3 px-4 whitespace-nowrap">Status</th>
-                    </tr>
-                </thead>
+                        filteredData.length > 0 ? (
+                            <div className="overflow-auto rounded-2xl bg-white shadow-sm">
+                                <table className="min-w-full text-sm">
+                                    <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
+                                        <tr className="font-semibold text-[#717073]">
+                                            <th className="py-3 px-4 whitespace-nowrap">Name</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Age</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Medical Information</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Price Paid</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Source</th>
+                                            <th className="py-3 px-4 whitespace-nowrap">Status</th>
+                                        </tr>
+                                    </thead>
 
-                <tbody>
-                    {filteredData.map((camp, i) => {
-                        const student = camp?.students[0];
-                        const otherStudents = camp.students.slice(1);
+                                    <tbody>
+                                        {filteredData.map((camp, i) => {
+                                            const student = camp?.students[0];
+                                            const otherStudents = camp.students.slice(1);
 
-                        return (
-                            <React.Fragment key={i}>
+                                            return (
+                                                <React.Fragment key={i}>
 
-                                {/* MAIN ROW */}
-                                <tr
-                                    onClick={() =>
-                                        navigate(`/holiday-camp/members/account-information?id=${camp.id}`)
-                                    }
-                                    className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
-                                >
-                                    <td className="py-3 px-4 whitespace-nowrap font-semibold">
-                                        <div className="flex items-center gap-3">
+                                                    {/* MAIN ROW */}
+                                                    <tr
+                                                        onClick={() =>
+                                                            navigate(`/holiday-camp/members/account-information?id=${camp.id}`)
+                                                        }
+                                                        className="border-b border-[#EFEEF2] hover:bg-gray-50 transition cursor-pointer"
+                                                    >
+                                                        <td className="py-3 px-4 whitespace-nowrap font-semibold">
+                                                            <div className="flex items-center gap-3">
 
-                                            {/* Checkbox */}
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    toggleUser(camp.id);
-                                                }}
-                                                className={`mt-1 w-5 h-5 flex items-center justify-center rounded-md border-2 
-                                                    ${
-                                                        selectedUserIds.includes(camp.id)
-                                                            ? "border-none bg-blue-500"
-                                                            : "border-gray-300"
-                                                    }`}
-                                            >
-                                                {selectedUserIds.includes(camp.id) && (
-                                                    <Check size={14} strokeWidth={3} className="text-white" />
-                                                )}
-                                            </button>
+                                                                {/* Checkbox */}
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        toggleUser(camp.id);
+                                                                    }}
+                                                                    className={`mt-1 w-5 h-5 flex items-center justify-center rounded-md border-2 
+                                                    ${selectedUserIds.includes(camp.id)
+                                                                            ? "border-none bg-blue-500"
+                                                                            : "border-gray-300"
+                                                                        }`}
+                                                                >
+                                                                    {selectedUserIds.includes(camp.id) && (
+                                                                        <Check size={14} strokeWidth={3} className="text-white" />
+                                                                    )}
+                                                                </button>
 
-                                            {student.studentFirstName + " " + student.studentLastName}
-                                        </div>
-                                    </td>
+                                                                {student.studentFirstName + " " + student.studentLastName}
+                                                            </div>
+                                                        </td>
 
-                                    <td className="py-3 px-4 whitespace-nowrap">{student.age}</td>
-                                    <td className="py-3 px-4 whitespace-nowrap">{student.medicalInformation || "N/A"}</td>
-                                    <td className="py-3 px-4 whitespace-nowrap">£{camp.payment?.amount || "N/A"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{student.age}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">{student.medicalInformation || "N/A"}</td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">£{camp.payment?.amount || "N/A"}</td>
 
-                                    <td className="py-3 px-4 whitespace-nowrap">
-                                        {camp?.bookedByAdmin
-                                            ? camp.bookedByAdmin.firstName + " " + camp.bookedByAdmin.lastName
-                                            : "N/A"}
-                                    </td>
+                                                        <td className="py-3 px-4 whitespace-nowrap">
+                                                            {camp?.bookedByAdmin
+                                                                ? camp.bookedByAdmin.firstName + " " + camp.bookedByAdmin.lastName
+                                                                : "N/A"}
+                                                        </td>
 
-                                    <td className="py-3 px-4 whitespace-nowrap">
-                                      <span
-  className={`capitalize px-7 py-2 rounded-xl text-xs font-medium
-    ${
-      camp.status === "cancelled"
-        ? "bg-red-50 text-red-600"
-        : camp.status === "pending"
-        ? "bg-yellow-50 text-yellow-600"
-        : "bg-green-50 text-[#34AE56]"
-    }
+                                                        <td className="py-3 px-4 whitespace-nowrap">
+                                                            <span
+                                                                className={`capitalize px-7 py-2 rounded-xl text-xs font-medium
+    ${camp.status === "cancelled"
+                                                                        ? "bg-red-50 text-red-600"
+                                                                        : camp.status === "pending"
+                                                                            ? "bg-yellow-50 text-yellow-600"
+                                                                            : "bg-green-50 text-[#34AE56]"
+                                                                    }
   `}
->
-  {camp.status}
-</span>
+                                                            >
+                                                                {camp.status}
+                                                            </span>
 
-                                        {camp.students.length > 1 && (
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setExpandedRow(expandedRow === i ? null : i);
-                                                }}
-                                                className="ms-2 bg-blue-500 text-white text-xs rounded-2xl px-3 py-1"
-                                            >
-                                                Other Students
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-
-                                {/* EXPANDED ROW */}
-                                {expandedRow === i && otherStudents.length > 0 && (
-                                    <tr className="bg-gray-50 border-b border-[#EFEEF2]">
-                                        <td colSpan="6" className="py-4 ">
-                                            <table className="min-w-full text-sm">
-                                                <thead>
-                                                    <tr>
-                                                        <th className="py-3 px-4 text-start whitespace-nowrap">Name</th>
-                                                        <th className="py-3 px-4 whitespace-nowrap text-start">Age</th>
-                                                        <th className="py-3 px-4 whitespace-nowrap text-start">Medical Information</th>
-                                                        <th className="py-3 px-4 whitespace-nowrap text-start">Price Paid</th>
-                                                        <th className="py-3 px-4 whitespace-nowrap  text-start">Source</th>
+                                                            {camp.students.length > 1 && (
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        setExpandedRow(expandedRow === i ? null : i);
+                                                                    }}
+                                                                    className="ms-2 bg-blue-500 text-white text-xs rounded-2xl px-3 py-1"
+                                                                >
+                                                                    Other Students
+                                                                </button>
+                                                            )}
+                                                        </td>
                                                     </tr>
-                                                </thead>
 
-                                                <tbody>
-                                                    {otherStudents.map((student2, idx) => (
-                                                        <tr key={idx}>
-                                                            <td className="py-3 px-4 whitespace-nowrap font-semibold">
-                                                                {student2.studentFirstName + " " + student2.studentLastName}
-                                                            </td>
+                                                    {/* EXPANDED ROW */}
+                                                    {expandedRow === i && otherStudents.length > 0 && (
+                                                        <tr className="bg-gray-50 border-b border-[#EFEEF2]">
+                                                            <td colSpan="6" className="py-4 ">
+                                                                <table className="min-w-full text-sm">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th className="py-3 px-4 text-start whitespace-nowrap">Name</th>
+                                                                            <th className="py-3 px-4 whitespace-nowrap text-start">Age</th>
+                                                                            <th className="py-3 px-4 whitespace-nowrap text-start">Medical Information</th>
+                                                                            <th className="py-3 px-4 whitespace-nowrap text-start">Price Paid</th>
+                                                                            <th className="py-3 px-4 whitespace-nowrap  text-start">Source</th>
+                                                                        </tr>
+                                                                    </thead>
 
-                                                            <td className="py-3 px-4 whitespace-nowrap">{student2.age}</td>
+                                                                    <tbody>
+                                                                        {otherStudents.map((student2, idx) => (
+                                                                            <tr key={idx}>
+                                                                                <td className="py-3 px-4 whitespace-nowrap font-semibold">
+                                                                                    {student2.studentFirstName + " " + student2.studentLastName}
+                                                                                </td>
 
-                                                            <td className="py-3 px-4 whitespace-nowrap">
-                                                                {student2.medicalInformation || "N/A"}
-                                                            </td>
+                                                                                <td className="py-3 px-4 whitespace-nowrap">{student2.age}</td>
 
-                                                            <td className="py-3 px-4 whitespace-nowrap">
-                                                                {camp.payment?.amount || "N/A"}
-                                                            </td>
+                                                                                <td className="py-3 px-4 whitespace-nowrap">
+                                                                                    {student2.medicalInformation || "N/A"}
+                                                                                </td>
 
-                                                            <td className="py-3 px-4 whitespace-nowrap">
-                                                                {camp?.bookedByAdmin
-                                                                    ? camp.bookedByAdmin.firstName + " " + camp.bookedByAdmin.lastName
-                                                                    : "N/A"}
+                                                                                <td className="py-3 px-4 whitespace-nowrap">
+                                                                                    {camp.payment?.amount || "N/A"}
+                                                                                </td>
+
+                                                                                <td className="py-3 px-4 whitespace-nowrap">
+                                                                                    {camp?.bookedByAdmin
+                                                                                        ? camp.bookedByAdmin.firstName + " " + camp.bookedByAdmin.lastName
+                                                                                        : "N/A"}
+                                                                                </td>
+                                                                            </tr>
+                                                                        ))}
+                                                                    </tbody>
+                                                                </table>
                                                             </td>
                                                         </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                )}
+                                                    )}
 
-                            </React.Fragment>
-                        );
-                    })}
-                </tbody>
-            </table>
-        </div>
-    ) : (
-        <p className="text-center py-3">No Data Found</p>
-    )
-}
+                                                </React.Fragment>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <p className="text-center py-3">No Data Found</p>
+                        )
+                    }
 
 
 
@@ -785,8 +783,8 @@ const [openDateFilter, setOpenDateFilter] = useState(false);
                 </div>
             </div>
             {openDateFilter && (
-                <div   onClick={() => setOpenDateFilter(false)}
- className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4 z-50">
+                <div onClick={() => setOpenDateFilter(false)}
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4 z-50">
                     <div
                         onClick={(e) => e.stopPropagation()}
                         className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-xl"
@@ -794,13 +792,12 @@ const [openDateFilter, setOpenDateFilter] = useState(false);
                         {/* Title */}
                         <div className="flex justify-between items-center">
                             <h2 className="text-[18px] font-semibold">Filter</h2>
-                            <X className="cursor-pointer"  onClick={() => setOpenDateFilter(false)}  />
+                            <X className="cursor-pointer" onClick={() => setOpenDateFilter(false)} />
                         </div>
 
                         {/* Date */}
                         <div className="mb-4 mt-3">
                             <label className="text-gray-800 font-medium text-sm mb-2 block">Date</label>
-
                             <Select
                                 value={selectedDate}
                                 onChange={handleDateChange}
@@ -829,11 +826,9 @@ const [openDateFilter, setOpenDateFilter] = useState(false);
                             />
                         </div>
 
-
                         {/* Category */}
                         <div className="mb-6">
                             <label className="text-gray-800 font-medium text-sm mb-2 block">Category</label>
-
                             <Select
                                 value={selectedCategory}
                                 onChange={handleCategoryChange}
@@ -862,67 +857,83 @@ const [openDateFilter, setOpenDateFilter] = useState(false);
                             />
                         </div>
 
+                        {/* Reset Filter Button */}
+                        <div className="flex gap-2 items-center ">
+                            <button
+                                onClick={() => {
+                                    setSelectedDate(null);
+                                    setSelectedCategory(null);
+                                }}
+                                className="w-full py-3 bg-gray-600 text-white text-sm rounded-xl shadow-md active:scale-[.98] transition"
+                            >
+                                Reset Filter
+                            </button>
 
-                        {/* Apply Filter */}
-                        <button onClick={applyFiltersVenue} className="w-full py-3 bg-blue-600 text-white text-sm rounded-xl shadow-md active:scale-[.98] transition">
+                            {/* Apply Filter Button */}
+                            <button
+                                onClick={applyFiltersVenue}
+                                className="w-full py-3 bg-blue-600 text-white text-sm rounded-xl shadow-md active:scale-[.98] transition"
+                            >
+                                Apply Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            )}
+            {openAgeFilter && (
+                <div
+                    onClick={() => setOpenAgeFilter(false)}
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4 z-50"
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-xl"
+                    >
+                        <div className="flex justify-end">
+                            <X
+                                className="cursor-pointer"
+                                onClick={() => setOpenAgeFilter(false)}
+                            />
+                        </div>
+
+                        <div className="mb-6">
+                            <p className="text-gray-800 font-semibold mb-3">Search by age</p>
+
+                            <div className="space-y-3">
+                                {ageData.map((item) => (
+                                    <button
+                                        key={item.id}
+                                        type="button"
+                                        className="flex items-center gap-3"
+                                        onClick={() => toggleAge(item.id)}
+                                    >
+                                        <div
+                                            className={`w-5 h-5 flex items-center justify-center rounded-md border-2
+                ${selectedAges.includes(item.id)
+                                                    ? "border-blue-600"
+                                                    : "border-gray-300"}`}
+                                        >
+                                            {selectedAges.includes(item.id) && (
+                                                <Check size={14} strokeWidth={3} className="text-blue-600" />
+                                            )}
+                                        </div>
+
+                                        <span className="text-sm text-gray-700">{item.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => setOpenAgeFilter(false)}
+                            className="w-full py-3 bg-blue-600 text-white text-sm rounded-xl shadow-md active:scale-[.98] transition"
+                        >
                             Apply Filter
                         </button>
                     </div>
                 </div>
             )}
-           {openAgeFilter && (
-  <div
-    onClick={() => setOpenAgeFilter(false)}
-    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4 z-50"
-  >
-    <div
-      onClick={(e) => e.stopPropagation()}
-      className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-xl"
-    >
-      <div className="flex justify-end">
-        <X
-          className="cursor-pointer"
-          onClick={() => setOpenAgeFilter(false)}
-        />
-      </div>
-
-      <div className="mb-6">
-        <p className="text-gray-800 font-semibold mb-3">Search by age</p>
-
-        <div className="space-y-3">
-          {ageData.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className="flex items-center gap-3"
-              onClick={() => toggleAge(item.id)}
-            >
-              <div
-                className={`w-5 h-5 flex items-center justify-center rounded-md border-2
-                ${selectedAges.includes(item.id)
-                  ? "border-blue-600"
-                  : "border-gray-300"}`}
-              >
-                {selectedAges.includes(item.id) && (
-                  <Check size={14} strokeWidth={3} className="text-blue-600" />
-                )}
-              </div>
-
-              <span className="text-sm text-gray-700">{item.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <button
-        onClick={() => setOpenAgeFilter(false)}
-        className="w-full py-3 bg-blue-600 text-white text-sm rounded-xl shadow-md active:scale-[.98] transition"
-      >
-        Apply Filter
-      </button>
-    </div>
-  </div>
-)}
         </>
     )
 }

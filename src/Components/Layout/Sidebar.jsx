@@ -120,7 +120,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         { title: 'Cancellation', link: '/weekly-classes/cancellation', needPermissions: [{ module: 'cancellation', action: 'view-listing' }] },
         { title: 'Waiting List', link: '/weekly-classes/find-a-class/add-to-waiting-list/list', needPermissions: [{ module: 'waiting-list', action: 'view-listing' }] },
         { title: 'Capacity', link: '/weekly-classes/capacity', needPermissions: [{ module: 'capacity', action: 'view-listing' }] },
-        { title: 'Account Information', link: '/weekly-classes/members-info', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+        { title: 'Account Information', link: '/weekly-classes/members-info', needPermissions: [{ module: 'account-information', action: 'view-listing' }] },
         {
           title: "Leads Database",
           link: '/weekly-classes/central-leads',
@@ -139,17 +139,13 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       icon: '/SidebarLogos/WeeklyClasses.png',
       iconHover: '/SidebarLogos/WeeklyClassesH.png',
       needPermissions: [
-        { module: 'book-membership', action: 'view-listing' },
-        { module: 'book-free-trial', action: 'view-listing' },
-        { module: 'find-class', action: 'view-listing' },
-        { module: 'cancellation', action: 'view-listing' },
-        { module: 'waiting-list', action: 'view-listing' },
-        { module: 'account-information', action: 'view-listing' }
+        { module: 'holiday-find-class', action: 'view-listing' },
+        { module: 'holiday-booking', action: 'view-listing' }
       ],
       subItems: [
-        { title: 'Find a Camp', link: '/holiday-camp/find-a-camp', needPermissions: [{ module: 'find-class', action: 'view-listing' }] },
-        { title: 'Members', link: '/holiday-camp/members/list', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
-        { title: 'Reports', link: '/holiday-camp/reports', needPermissions: [{ module: 'book-membership', action: 'view-listing' }] },
+        { title: 'Find a Camp', link: '/holiday-camp/find-a-camp', needPermissions: [{ module: 'holiday-find-class', action: 'view-listing' }] },
+        { title: 'Members', link: '/holiday-camp/members/list', needPermissions: [{ module: 'holiday-booking', action: 'view-listing' }] },
+        { title: 'Reports', link: '/holiday-camp/reports', needPermissions: [{ module: 'holiday-find-class', action: 'view-listing' },{ module: 'holiday-booking', action: 'view-listing' }] },
 
       ]
     },
@@ -159,7 +155,9 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       icon: "/reportsIcons/user.png",
       path: '/one-to-one',
       iconHover: "/reportsIcons/userH.png",
-      needPermissions: [{ module: 'session-exercise-one-to-one', action: 'view-listing' }],
+      needPermissions: [{ module: 'one-to-one-lead', action: 'view-listing' },
+      { module: 'session-exercise-one-to-one', action: 'view-listing' },
+      ],
       subItems: [
         {
           title: "Sales",
@@ -173,16 +171,15 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           title: "Session plan Structure",
           link: '/one-to-one/session-plan',
           needPermissions: [
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
+            { module: "session-exercise-one-to-one", action: "view-listing" }
           ],
         },
         {
           title: "Reports",
           link: '/one-to-one/reports',
           needPermissions: [
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
+            { module: 'one-to-one-lead', action: 'view-listing' },
+            { module: 'session-exercise-one-to-one', action: 'view-listing' },
           ],
         }
       ],
@@ -193,30 +190,31 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       icon: "/SidebarLogos/Birthday.png",
       path: '/birthday-party',
       iconHover: "/SidebarLogos/BirthdayH.png",
-      needPermissions: [{ module: 'session-exercise-one-to-one', action: 'view-listing' }],
+      needPermissions: [
+        { module: "birthday-party-lead", action: "view-listing" },
+        { module: "session-plan-birthdayParty", action: "view-listing" },
+      ],
       subItems: [
         {
           title: "Sales",
           link: '/birthday-party/leads',
           needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" }
+            { module: "birthday-party-lead", action: "view-listing" }
           ],
         },
         {
           title: "Session plan Structure",
           link: '/birthday-party/session-plan',
           needPermissions: [
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
+            { module: "session-plan-birthdayParty", action: "view-listing" }
           ],
         },
         {
           title: "Reports",
           link: '/birthday-party/reports',
           needPermissions: [
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
+            { module: "session-plan-birthdayParty", action: "view-listing" },
+            { module: "birthday-party-lead", action: "view-listing" },
           ],
         },
       ],
@@ -228,18 +226,15 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
       iconHover: "/SidebarLogos/BirthdayH.png",
       needPermissions: [
-        { module: 'session-exercise-one-to-one', action: 'view-listing' },
-
+        { module: "recruitment-lead-franchise", action: "member-report" },
+        { module: "recruitment-lead", action: "member-report" },
       ],
       subItems: [
         {
           title: "Leads Database",
           link: '/recruitment/lead',
-
-
           needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" }
+            { module: "recruitment-lead", action: "view-listing" }
           ],
 
 
@@ -249,8 +244,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           link: '/recruitment/franchise-lead',
 
           needPermissions: [
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
+            { module: "recruitment-lead-franchise", action: "view-listing" }
           ],
 
 
@@ -260,8 +254,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           link: '/recruitment/reports',
 
           needPermissions: [
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
+            { module: "recruitment-lead-franchise", action: "view-listing" },
+            { module: "recruitment-lead", action: "view-listing" }
           ],
 
         },
@@ -273,15 +267,22 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       icon: "/reportsIcons/reports.png",
       path: '/reports',
       iconHover: "/reportsIcons/camper.png",
-      needPermissions: [{ module: 'configuration', action: 'view' }],
+      needPermissions: [
+        { module: "reports", action: "member-report" },
+        { module: "reports", action: "trial-conversion-report" },
+        { module: "reports", action: "sales-report" },
+        { module: "reports", action: "capacity-report" },
+        { module: "reports", action: "attendance-report" },
+        { module: "reports", action: "cancellation-report" },
+      ],
       subItems: [
-        { title: "Members", link: "/reports/members" },
-        { title: "Trials and conversions", link: "/reports/trials" },
-        { title: "Sales", link: "/reports/sales" },
-        { title: "Class Capacity", link: "/reports/class-capacity" },
-        { title: "Attendance", link: "/reports/attendance" },
-        { title: "Cancellations", link: "/reports/cancellations" },
-        { title: "Weekly Classes", link: "/reports/weekly-classes" },
+        { title: "Members", link: "/reports/members", needPermissions: [{ module: 'reports', action: 'member-report' }] },
+        { title: "Trials and conversions", link: "/reports/trials", needPermissions: [{ module: 'reports', action: 'trial-conversion-report' }] },
+        { title: "Sales", link: "/reports/sales", needPermissions: [{ module: 'reports', action: 'sales-report' }] },
+        { title: "Class Capacity", link: "/reports/class-capacity", needPermissions: [{ module: 'reports', action: 'capacity-report' }] },
+        { title: "Attendance", link: "/reports/attendance", needPermissions: [{ module: 'reports', action: 'member-report' }] },
+        { title: "Cancellations", link: "/reports/cancellations", needPermissions: [{ module: 'reports', action: 'cancellation-report' }] },
+        { title: "Weekly Classes", link: "/reports/weekly-classes", needPermissions: [{ module: 'reports', action: 'attendance-report' }] },
       ],
     },
     {
@@ -328,11 +329,11 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       path: '/templates',
       icon: '/SidebarLogos/Template.png',
       iconHover: '/SidebarLogos/TemplateH.png',
-      needPermissions: [{ module: 'member', action: 'view-listing' }],
+      needPermissions: [{ module: 'holiday-custom-template', action: 'view-listing' }],
       subItems: [
-        { title: 'Create a Template', link: '/templates/create' },
-        { title: 'List of Templates', link: '/templates/list' },
-        { title: 'OutBound cons', link: '/templates/settingList' }
+        { title: 'Create a Template', link: '/templates/create', needPermissions: [{ module: 'holiday-custom-template', action: 'create' }] },
+        { title: 'List of Templates', link: '/templates/list', needPermissions: [{ module: 'holiday-custom-template', action: 'view-listing' }] },
+        { title: 'OutBound cons', link: '/templates/settingList', needPermissions: [{ module: 'holiday-custom-template', action: 'view-listing' }] }
       ]
     },
     {
@@ -357,21 +358,28 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               noPaddingx: true,
               title: "Venues",
               link: "/configuration/weekly-classes/venues",
+              needPermissions: [{ module: 'venue', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
               title: "Term Dates & Mapping",
               link: "/configuration/weekly-classes/term-dates/list",
+              needPermissions: [{ module: 'term-group', action: 'view-listing' }]
+
             },
             {
               noPaddingx: true,
               title: "Session Plan Library",
               link: "/configuration/weekly-classes/session-plan-list",
+              needPermissions: [{ module: 'session-plan-group', action: 'view-listing' }]
+
             },
             {
               noPaddingx: true,
               title: "Subscription Plan Manager",
               link: "/configuration/weekly-classes/subscription-planManager",
+              needPermissions: [{ module: 'payment-group', action: 'view-listing' }]
+
             },
           ],
         },
@@ -381,36 +389,47 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           title: "Holiday camps",
           link: "#",
           needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
+            { module: "holiday-session-plan-group", action: "view-listing" },
+            { module: "holiday-termGroup-create", action: "create" },
+            { module: "holiday-payment-plan", action: "view-listing" },
+            { module: "holiday-payment-group", action: "view-listing" },
+            { module: "holiday-venue", action: "view-listing" },
+            { module: "discount", action: "view-listing" },
           ],
           subItems: [
             {
               noPaddingx: true,
               title: "Session Plan Library",
               link: '/configuration/holiday-camp/session-plan/list',
+              needPermissions: [{ module: 'holiday-session-plan-group', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
               title: "Term Dates & Session Plan Mapping",
               link: '/configuration/holiday-camp/terms/list',
+              needPermissions: [{ module: 'holiday-termGroup-create', action: 'create' }]
             },
             {
               noPaddingx: true,
               title: "Payment Plan Manager",
               link: "/configuration/holiday-camp/subscription-plan-group",
+              needPermissions: [
+                { module: 'holiday-payment-plan', action: 'view-listing' },
+                { module: 'holiday-payment-group', action: 'view-listing' }
+              ]
+
             },
             {
               noPaddingx: true,
               title: "Venues",
               link: '/configuration/holiday-camp/venues',
+              needPermissions: [{ module: 'holiday-venue', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
               title: "Discounts",
               link: "/configuration/holiday-camp/discount/list",
+              needPermissions: [{ module: 'discount', action: 'view-listing' }]
             },
           ],
         },
@@ -418,46 +437,54 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
           title: "Coach pro",
           link: "#",
           needPermissions: [
-            { module: "venue", action: "view-listing" },
-            { module: "term-group", action: "view-listing" },
-            { module: "session-plan-group", action: "view-listing" },
-            { module: "payment-group", action: "view-listing" },
+            { module: "coach", action: "view-listing" },
+            { module: "contract", action: "view-listing" },
+            { module: "music-player", action: "view-listing" },
+            { module: "course", action: "view-listing" },
+            { module: "student-course", action: "view-listing" },
           ],
           subItems: [
-             {
+            {
               noPaddingx: true,
               title: "Coach profile",
               link: '/configuration/coach-pro/profile',
+              needPermissions: [{ module: 'coach', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
               title: "Contract",
               link: '/configuration/coach-pro/contracts',
+              needPermissions: [{ module: 'contract', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
               title: "Music",
               link: "/configuration/coach-pro/music",
+              needPermissions: [{ module: 'music-player', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
               title: "Courses",
               link: '/configuration/coach-pro/courses',
+              needPermissions: [{ module: 'course', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
               title: "Issues list",
               link: "/configuration/coach-pro/issue-list",
+              // needPermissions: [{ module: 'course', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
               title: "Referrals",
               link: "/configuration/coach-pro/referrals",
+              // needPermissions: [{ module: 'course', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
               title: "Student Courses",
               link: "/configuration/coach-pro/student",
+              needPermissions: [{ module: 'student-course', action: 'view-listing' }]
             },
           ],
         },

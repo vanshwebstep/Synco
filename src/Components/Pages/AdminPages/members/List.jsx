@@ -114,7 +114,7 @@ const List = () => {
                                 src={user.profile ? `${user.profile}` : '/members/dummyuser.png'}
                                 alt={user.firstName || 'Profile Image'}
                                 onClick={() => navigate(`/members/update?id=${user.id}`)}
-                                className="w-10 h-10 rounded-full object-contain"
+                                className="w-10 h-10  rounded-full object-cover"
                                  onError={(e) => {
                       e.currentTarget.onerror = null; // prevent infinite loop
                       e.currentTarget.src = '/members/dummyuser.png';

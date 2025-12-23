@@ -22,8 +22,9 @@ const Facebook = () => {
   const modalRef = useRef(null);
   const PRef = useRef(null);
   const [calendarData, setCalendarData] = useState([]);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
-  const { loading, fetchData, data ,selectedUserIds,setSelectedUserIds,setSelectedBookingIds,selectedBookingIds } = useLeads();
+  const { loading, fetchData, data, selectedUserIds, setSelectedUserIds, setSelectedBookingIds, selectedBookingIds, setCurrentPage, currentPage } = useLeads();
   const [expandedRow, setExpandedRow] = useState(null);
   const navigate = useNavigate()
   const iconContainerRef = useRef(null);
@@ -87,68 +88,68 @@ const Facebook = () => {
     setToDate(null);
   };
 
- const getDateStatus = (date) => {
-  let isStartOrEnd = false;
-  let isInBetween = false;
-  let isExcluded = false;
-  let isSessionDate = false;
+  const getDateStatus = (date) => {
+    let isStartOrEnd = false;
+    let isInBetween = false;
+    let isExcluded = false;
+    let isSessionDate = false;
 
-  if (!date) return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
+    if (!date) return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
 
-  calendarData.forEach((term) => {
-    const start = new Date(term.startDate);
-    const end = new Date(term.endDate);
+    calendarData.forEach((term) => {
+      const start = new Date(term.startDate);
+      const end = new Date(term.endDate);
 
-    // --------------------------
-    // FIX: normalize arrays safely
-    // --------------------------
-    let exclusions = [];
-    let sessions = [];
+      // --------------------------
+      // FIX: normalize arrays safely
+      // --------------------------
+      let exclusions = [];
+      let sessions = [];
 
-    try {
-      exclusions = Array.isArray(term.exclusionDates)
-        ? term.exclusionDates
-        : term.exclusionDates
-        ? JSON.parse(term.exclusionDates)
-        : [];
-    } catch {
-      exclusions = [];
-    }
-
-    try {
-      sessions = Array.isArray(term.sessionsMap)
-        ? term.sessionsMap
-        : term.sessionsMap
-        ? JSON.parse(term.sessionsMap)
-        : [];
-    } catch {
-      sessions = [];
-    }
-
-    // --------------------------
-    // Date logic
-    // --------------------------
-    if (isSameDate(date, start) || isSameDate(date, end)) {
-      isStartOrEnd = true;
-    } else if (date >= start && date <= end) {
-      isInBetween = true;
-    }
-
-    exclusions.forEach((ex) => {
-      if (isSameDate(date, new Date(ex))) {
-        isExcluded = true;
+      try {
+        exclusions = Array.isArray(term.exclusionDates)
+          ? term.exclusionDates
+          : term.exclusionDates
+            ? JSON.parse(term.exclusionDates)
+            : [];
+      } catch {
+        exclusions = [];
       }
+
+      try {
+        sessions = Array.isArray(term.sessionsMap)
+          ? term.sessionsMap
+          : term.sessionsMap
+            ? JSON.parse(term.sessionsMap)
+            : [];
+      } catch {
+        sessions = [];
+      }
+
+      // --------------------------
+      // Date logic
+      // --------------------------
+      if (isSameDate(date, start) || isSameDate(date, end)) {
+        isStartOrEnd = true;
+      } else if (date >= start && date <= end) {
+        isInBetween = true;
+      }
+
+      exclusions.forEach((ex) => {
+        if (isSameDate(date, new Date(ex))) {
+          isExcluded = true;
+        }
+      });
+
+      sessions.forEach((session) => {
+        if (isSameDate(date, new Date(session.sessionDate))) {
+          isSessionDate = true;
+        }
+      });
     });
 
-    sessions.forEach((session) => {
-      if (isSameDate(date, new Date(session.sessionDate))) {
-        isSessionDate = true;
-      }
-    });
-  });
-
-  return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
-};
+    return { isStartOrEnd, isInBetween, isExcluded, isSessionDate };
+  };
 
   const isSameDate = (d1, d2) =>
     d1 && d2 &&
@@ -173,38 +174,38 @@ const Facebook = () => {
   };
 
   const toggleCheckbox = (userId, e) => {
-  e.stopPropagation();
+    e.stopPropagation();
 
-  setSelectedUserIds((prev) => {
-    let updated;
+    setSelectedUserIds((prev) => {
+      let updated;
 
-    if (prev.includes(userId)) {
-      // REMOVE user
-      updated = prev.filter((id) => id !== userId);
-    } else {
-      // ADD user
-      updated = [...prev, userId];
-    }
+      if (prev.includes(userId)) {
+        // REMOVE user
+        updated = prev.filter((id) => id !== userId);
+      } else {
+        // ADD user
+        updated = [...prev, userId];
+      }
 
-    // After updating selected users → update booking IDs
-    updateSelectedBookingIds(updated);
+      // After updating selected users → update booking IDs
+      updateSelectedBookingIds(updated);
 
-    return updated;
-  });
-};
+      return updated;
+    });
+  };
 
-const updateSelectedBookingIds = (selectedIds) => {
-  const allBookings = [];
+  const updateSelectedBookingIds = (selectedIds) => {
+    const allBookings = [];
 
-  selectedIds.forEach((id) => {
-    const lead = data.find((item) => item.id === id);
-    if (lead?.bookingData?.length > 0) {
-      lead.bookingData.forEach((b) => allBookings.push(b.id));
-    }
-  });
+    selectedIds.forEach((id) => {
+      const lead = data.find((item) => item.id === id);
+      if (lead?.bookingData?.length > 0) {
+        lead.bookingData.forEach((b) => allBookings.push(b.id));
+      }
+    });
 
-  setSelectedBookingIds(allBookings);
-};
+    setSelectedBookingIds(allBookings);
+  };
 
   const toggleExpand = (id, e) => {
     e.stopPropagation();
@@ -290,7 +291,7 @@ const updateSelectedBookingIds = (selectedIds) => {
   };
 
 
-console.log('selectedBookingIds',selectedBookingIds)
+  console.log('selectedBookingIds', selectedBookingIds)
 
   useEffect(() => {
     const activeVenueId =
@@ -358,6 +359,19 @@ console.log('selectedBookingIds',selectedBookingIds)
       window.scrollTo({ top: 0, behavior: 'auto' });
     }, 50);
   };
+
+  const totalItems = data.length;
+  const totalPages = Math.ceil(totalItems / rowsPerPage);
+
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+
+  // ✅ data used for rendering table rows
+  const paginatedData = data.slice(startIndex, endIndex);
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [rowsPerPage]);
+
   console.log('selectedUserIds', selectedUserIds)
   if (loading) return <Loader />;
   if (data.length == 0) return <p className="text-center">No Data Found</p>;
@@ -379,7 +393,7 @@ console.log('selectedBookingIds',selectedBookingIds)
           </thead>
 
           <tbody>
-            {data.map((lead, i) => {
+            {paginatedData.map((lead, i) => {
               const isChecked = selectedUserIds.includes(lead.id);
               const isExpanded = expandedRow === lead.id;
 
@@ -588,7 +602,7 @@ console.log('selectedBookingIds',selectedBookingIds)
 
                               {activeCongestionVenueId === venue.id && (
                                 <div
-                                 className="absolute top-16 right-4 z-20">
+                                  className="absolute top-16 right-4 z-20">
 
                                   <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
                                     <div className="flex items-start justify-between">
@@ -610,7 +624,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                               )}
 
                               {activeParkingVenueId === venue.id && (
-                                <div  className="absolute top-16 right-4 z-20">
+                                <div className="absolute top-16 right-4 z-20">
 
                                   <div className="bg-white rounded-2xl shadow-2xl px-6 py-4 min-w-[300px] max-w-[489px]">
                                     <div className="flex items-start justify-between">
@@ -633,7 +647,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                               )}
                               {showteamModal === venue.id && (
                                 <div
-                                  
+
                                   // ref={iconContainerRef}
                                   className="
         absolute bg-opacity-30 top-15 flex items-center justify-center z-50
@@ -644,7 +658,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                                 >
                                   <div className="bg-white rounded-3xl w-full max-w-md sm:max-w-lg p-4 sm:p-6 shadow-2xl">
                                     {/* Header */}
-                                    <div  className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
+                                    <div className="flex justify-between items-center border-b border-[#E2E1E5] pb-4 mb-4">
                                       <h2 className="text-[24px]  font-semibold">Team Dates</h2>
                                       <button onClick={() => setShowteamModal(null)}>
                                         <img src="/images/icons/cross.png" alt="close" className="w-4 h-4" />
@@ -653,44 +667,44 @@ console.log('selectedBookingIds',selectedBookingIds)
 
                                     {/* Term List */}
                                     <div className="space-y-6 max-h-80 overflow-y-scroll text-center text-[13px] sm:text-[14px] text-[#2E2F3E] font-medium">
-                             {calendarData.map((term) => {
+                                      {calendarData.map((term) => {
 
-  let exclusions = [];
+                                        let exclusions = [];
 
-  try {
-    if (Array.isArray(term.exclusionDates)) {
-      exclusions = term.exclusionDates;
-    } else if (typeof term.exclusionDates === "string" && term.exclusionDates.trim() !== "") {
-      exclusions = JSON.parse(term.exclusionDates);
-    }
-  } catch (e) {
-    exclusions = [];
-  }
+                                        try {
+                                          if (Array.isArray(term.exclusionDates)) {
+                                            exclusions = term.exclusionDates;
+                                          } else if (typeof term.exclusionDates === "string" && term.exclusionDates.trim() !== "") {
+                                            exclusions = JSON.parse(term.exclusionDates);
+                                          }
+                                        } catch (e) {
+                                          exclusions = [];
+                                        }
 
-  return (
-    <div key={term.id}>
-      <h3 className="md:text-[20px] font-semibold mb-1">
-        {term.termName} Term {new Date(term.startDate).getFullYear()}
-      </h3>
+                                        return (
+                                          <div key={term.id}>
+                                            <h3 className="md:text-[20px] font-semibold mb-1">
+                                              {term.termName} Term {new Date(term.startDate).getFullYear()}
+                                            </h3>
 
-      <p className="md:text-[18px]">
-        {formatDate(term.startDate)} - {formatDate(term.endDate)}
-      </p>
+                                            <p className="md:text-[18px]">
+                                              {formatDate(term.startDate)} - {formatDate(term.endDate)}
+                                            </p>
 
-      <p className="md:text-[18px]">
-        Half term Exclusion:{" "}
-        {exclusions.length > 0
-          ? exclusions.map((ex, idx) => (
-              <span key={idx}>
-                {formatDate(ex)}
-                {idx < exclusions.length - 1 ? ", " : ""}
-              </span>
-            ))
-          : "None"}
-      </p>
-    </div>
-  );
-})}
+                                            <p className="md:text-[18px]">
+                                              Half term Exclusion:{" "}
+                                              {exclusions.length > 0
+                                                ? exclusions.map((ex, idx) => (
+                                                  <span key={idx}>
+                                                    {formatDate(ex)}
+                                                    {idx < exclusions.length - 1 ? ", " : ""}
+                                                  </span>
+                                                ))
+                                                : "None"}
+                                            </p>
+                                          </div>
+                                        );
+                                      })}
 
                                     </div>
 
@@ -773,7 +787,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                                 <div className=" absolute bg-opacity-30 flex right-2 items-center top-15 justify-center z-50">
                                   <div className="flex items-center justify-center w-full px-2 py-6 sm:px-2 md:py-2">
                                     <div
-                                     className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
+                                      className="bg-white rounded-3xl p-4 sm:p-6 w-full max-w-4xl shadow-2xl">
                                       {/* Header */}
                                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[#E2E1E5] pb-4 mb-4 gap-2">
                                         <h2 className="font-semibold text-[20px] sm:text-[24px]">Payment Plan Preview</h2>
@@ -789,7 +803,7 @@ console.log('selectedBookingIds',selectedBookingIds)
                               {openMapId === venue.id && (
                                 <div>
                                   <div
-                                    
+
                                     className="mt-4 h-[450px] w-full rounded-lg overflow-hidden"
                                   >
                                     {venue.latitude && venue.longitude ? (
@@ -838,6 +852,129 @@ console.log('selectedBookingIds',selectedBookingIds)
             })}
           </tbody>
         </table>
+        {totalItems > 0 && (
+          <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
+
+            {/* Rows per page */}
+            <div className="flex items-center gap-2 mb-3 sm:mb-0">
+              <span>Rows per page:</span>
+              <select
+                value={rowsPerPage}
+                onChange={(e) => setRowsPerPage(Number(e.target.value))}
+                className="border rounded-md px-2 py-1"
+              >
+                {[5, 10, 20, 50].map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </select>
+
+              <span className="ml-2">
+                {Math.min(startIndex + 1, totalItems)} -{" "}
+                {Math.min(startIndex + rowsPerPage, totalItems)} of {totalItems}
+              </span>
+            </div>
+
+            {/* Pagination buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded-md border ${currentPage === 1
+                  ? "text-gray-400 border-gray-200"
+                  : "hover:bg-gray-100 border-gray-300"
+                  }`}
+              >
+                Prev
+              </button>
+
+              {(() => {
+                const pageButtons = [];
+                const maxVisible = 5;
+
+                let startPage = Math.max(
+                  1,
+                  currentPage - Math.floor(maxVisible / 2)
+                );
+                let endPage = startPage + maxVisible - 1;
+
+                if (endPage > totalPages) {
+                  endPage = totalPages;
+                  startPage = Math.max(1, endPage - maxVisible + 1);
+                }
+
+                if (startPage > 1) {
+                  pageButtons.push(
+                    <button
+                      key={1}
+                      onClick={() => setCurrentPage(1)}
+                      className={`px-3 py-1 rounded-md border ${currentPage === 1
+                        ? "bg-blue-500 text-white border-blue-500"
+                        : "hover:bg-gray-100 border-gray-300"
+                        }`}
+                    >
+                      1
+                    </button>
+                  );
+
+                  if (startPage > 2) {
+                    pageButtons.push(<span key="start-ellipsis">...</span>);
+                  }
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                  pageButtons.push(
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i)}
+                      className={`px-3 py-1 rounded-md border ${currentPage === i
+                        ? "bg-blue-500 text-white border-blue-500"
+                        : "hover:bg-gray-100 border-gray-300"
+                        }`}
+                    >
+                      {i}
+                    </button>
+                  );
+                }
+
+                if (endPage < totalPages) {
+                  if (endPage < totalPages - 1) {
+                    pageButtons.push(<span key="end-ellipsis">...</span>);
+                  }
+                  pageButtons.push(
+                    <button
+                      key={totalPages}
+                      onClick={() => setCurrentPage(totalPages)}
+                      className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+                        ? "bg-blue-500 text-white border-blue-500"
+                        : "hover:bg-gray-100 border-gray-300"
+                        }`}
+                    >
+                      {totalPages}
+                    </button>
+                  );
+                }
+
+                return pageButtons;
+              })()}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded-md border ${currentPage === totalPages
+                  ? "text-gray-400 border-gray-200"
+                  : "hover:bg-gray-100 border-gray-300"
+                  }`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
       </div>
 
 

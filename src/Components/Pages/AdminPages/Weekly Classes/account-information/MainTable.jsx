@@ -6,8 +6,19 @@ import Loader from '../../contexts/Loader';
 const MainTable = () => {
     const navigate = useNavigate();
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    const tabs = ["membership", "birthdayParty", "oneToOne", "trials", "holidayCamps"];
 
-    const [members, setMembers] = useState([]);
+    const [members, setMembers] = useState({
+        birthdayParty: [],
+        membership: [],
+        oneToOne: [],
+        trials: [],
+        holidayCamps: [],
+
+    });
+
+    const [activeTab, setActiveTab] = useState("membership");
+
     const [loading, setLoading] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10); // 👈 change this to 20, 50 etc. if needed
@@ -18,51 +29,27 @@ const MainTable = () => {
 
         setLoading(true);
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/account-information`, {
-                method: "GET",
-                headers: { Authorization: `Bearer ${token}` },
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/account-information`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            const result = await response.json();
+            const info = result?.data?.accountInformation || {};
+
+            setMembers({
+                birthdayParty: info?.birthdayParty ?? [],
+                membership: info?.membership ?? [],
+                oneToOne: info?.oneToOne ?? [],
+                trials: info?.trials ?? [],
+                holidayCamps: info?.holidayCamps ?? [],
+
+
             });
-            const resultRaw = await response.json();
-            const data = resultRaw?.data?.accountInformation || {};
-
-            const merged = [
-                ...(data.membership || []),
-                // ...(data.oneToOne || []),
-                // ...(data.birthdayParty || []),
-            ];
-
-            // Normalize ids for select functionality
-            const formatted = merged.map(item => ({
-                ...item,
-                _uid: item.id || item.bookingId, // internal unique ID
-                profile: item.profile || item?.creator?.profile || item?.booking?.coach?.profile,
-                firstName:
-                    item?.students?.[0]?.studentFirstName ||
-                    item?.childName ||
-                    item?.booking?.students?.[0]?.studentFirstName,
-                lastName:
-                    item?.students?.[0]?.studentLastName ||
-                    item?.childName ||
-                    item?.booking?.students?.[0]?.studentLastName,
-                age: item?.students?.[0]?.age || item?.age || "",
-                venueName:
-                    item?.venue?.name ||
-                    item?.classSchedule?.venue?.name ||
-                    item?.booking?.address ||
-                    "N/A",
-                bookedByName:
-                    `${item?.bookedByAdmin?.firstName || ""} ${item?.bookedByAdmin?.lastName || ""}`.trim()
-                    || `${item?.creator?.firstName || ""} ${item?.creator?.lastName || ""}`.trim()
-                    || `${item?.booking?.coach?.firstName || ""} ${item?.booking?.coach?.lastName || ""}`.trim(),
-                bookingDate: item.createdAt || item.partyDate || item?.booking?.date,
-                planTitle: item?.paymentPlan?.title || item?.booking?.paymentPlan?.title || "",
-                planDuration: item?.paymentPlan?.interval || item?.booking?.paymentPlan?.interval || "",
-                status: item?.status || item?.booking?.payment?.paymentStatus || "",
-            }));
-
-            setMembers(formatted);
-        } catch (error) {
-            console.error("Failed to fetch members:", error);
+        } catch (err) {
+            console.error("Failed to fetch members", err);
         } finally {
             setLoading(false);
         }
@@ -77,12 +64,17 @@ const MainTable = () => {
                 : [...prev, userId]
         );
     };
-    const isAllSelected = members.length > 0 && selectedUserIds.length === members.length;
+    const activeMembers = members?.[activeTab] ?? [];
+    const isAllSelected =
+        activeMembers.length > 0 &&
+        selectedUserIds.length === activeMembers.length;
 
     const toggleSelectAll = () => {
         if (isAllSelected) setSelectedUserIds([]);
-        else setSelectedUserIds(members.map((user) => user.id));
+        else setSelectedUserIds(activeMembers.map((user) => user.id));
     };
+
+
 
     const statusColors = {
         active: "bg-green-500 text-white",
@@ -90,7 +82,6 @@ const MainTable = () => {
         request_to_cancel: "bg-red-500 text-white",
         pending: "bg-yellow-500 text-white",
         frozen: "bg-blue-500 text-white",
-         "waiting list": "bg-gray-200 text-black",
     };
 
     useEffect(() => {
@@ -114,10 +105,17 @@ const MainTable = () => {
     if (loading) return <Loader />;
 
     // Pagination logic
-    const totalPages = Math.ceil(members.length / itemsPerPage);
+    const totalPages = Math.ceil(activeMembers.length / itemsPerPage);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentMembers = members.slice(indexOfFirstItem, indexOfLastItem);
+
+    const currentMembers = activeMembers.slice(
+        indexOfFirstItem,
+        indexOfLastItem
+    );
+
+    console.log('activeMembers', activeMembers);
+    console.log('currentMembers', currentMembers);
 
     const goToPage = (page) => {
         if (page < 1 || page > totalPages) return;
@@ -126,8 +124,32 @@ const MainTable = () => {
 
     return (
         <>
+            <div className="flex justify-start mb-6 space-x-3 w-fit bg-[#F9F9FB] p-3 rounded-xl">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab}
+                        className={`px-4 py-2 rounded-lg text-[18px] transition ${activeTab === tab
+                            ? "bg-[#237FEA] text-white"
+                            : "text-[#282829] border border-gray-200 hover:bg-gray-200"
+                            }`}
+                        onClick={() => setActiveTab(tab)}
+                    >
+                        {
+                            tab === "trials"
+                                ? "Weekly Class Trial"
+                                : tab === "birthdayParty"
+                                    ? "Birthday Party"
+                                    : tab === "holidayCamps"
+                                        ? "Holiday Camps"
+                                        : tab === "membership"
+                                            ? "Weekly Class Membership"
+                                            : "One To One"
+                        }
+                    </button>
+                ))}
+            </div>
             <div className="transition-all duration-300 w-full">
-                {members.length > 0 ? (
+                {activeMembers.length > 0 ? (
                     <>
                         <div className="overflow-auto rounded-2xl bg-white shadow-sm">
                             <table className="min-w-full text-sm ss">
@@ -155,14 +177,15 @@ const MainTable = () => {
                                 </thead>
 
                                 <tbody>
-                                    {currentMembers.map((user, idx) => {
-                                        const isChecked = selectedUserIds.includes(user.id);
+                                    {currentMembers.map((main, idx) => {
+                                        const user = main?.booking || main;
+                                        const isChecked = selectedUserIds.includes(main.id);
                                         return (
-                                            <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
+                                            <tr key={idx} onClick={() => navigate(`/weekly-classes/account-information?id=${main.id}&serviceType=${activeTab}`)} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
                                                 <td className="p-4 cursor-pointer">
                                                     <div className="flex items-center gap-3">
                                                         <button
-                                                            onClick={() => toggleCheckbox(user.id)}
+                                                            onClick={() => toggleCheckbox(main?.id)}
                                                             className={`min-w-5 min-h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-500' : 'border-gray-300'}`}
                                                         >
                                                             {isChecked && <Check size={16} strokeWidth={3} className="text-gray-500" />}
@@ -170,14 +193,12 @@ const MainTable = () => {
 
                                                         <img
                                                             src={
-                                                                user?.profile && user.profile.trim() !== ""
-                                                                    ? user.profile
-                                                                    : "/members/dummyuser.png"
+                                                                main?.profile && main.profile.trim() !== ""
+                                                                    ? main.profile
+                                                                    : "/members/dummymain.png"
                                                             }
-                                                            alt={user?.firstName || "User"}
-                                                            onClick={() =>
-                                                                navigate(`/weekly-classes/account-information?id=${user?.id}`)
-                                                            }
+                                                            alt={main?.firstName || "User"}
+
                                                             className="w-10 h-10 rounded-full object-contain"
                                                             onError={(e) => {
                                                                 e.currentTarget.onerror = null;
@@ -186,23 +207,26 @@ const MainTable = () => {
                                                         />
 
 
-                                                        <span onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}>
+                                                        <span >
                                                             {`${safe(user?.students?.[0]?.studentFirstName)} ${safe(user?.students?.[0]?.studentLastName)}`}
                                                         </span>
                                                     </div>
                                                 </td>
 
-                                                <td className="p-4 whitespace-nowrap" onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}>
+                                                <td className="p-4 whitespace-nowrap">
                                                     {safe(user?.students?.[0]?.age)}
                                                 </td>
-                                                <td className="p-4 whitespace-nowrap" onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}>
-                                                    {safe(user?.venue?.name)}
+                                                <td className="p-4 ">
+                                                    <div className='w-[200px]'>
+
+                                                        {safe(user?.venue?.name || user?.address || 'N/A')}
+                                                    </div>
                                                 </td>
-                                                <td className="p-4 whitespace-nowrap" onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}>
-                                                    {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                                                <td className="p-4 whitespace-nowrap">
+                                                    {user?.createdAt || user.date ? new Date(user.createdAt || user.date).toLocaleDateString() : 'N/A'}
                                                 </td>
-                                                <td className="p-4 whitespace-nowrap" onClick={() => navigate(`/weekly-classes/account-information?id=${user.id}`)}>
-                                                    {`${safe(user?.bookedByAdmin?.firstName)} ${safe(user?.bookedByAdmin?.lastName)}`}
+                                                <td className="p-4 whitespace-nowrap">
+                                                    {`${safe(user?.bookedByAdmin?.firstName || main?.creator?.firstName)} ${safe(user?.bookedByAdmin?.lastName || main?.creator?.lastName)}  `}
                                                 </td>
                                                 <td className="p-4 whitespace-nowrap">{safe(user?.paymentPlan?.title)}</td>
                                                 <td className="p-4 whitespace-nowrap">
@@ -211,8 +235,8 @@ const MainTable = () => {
                                                         : ''}
                                                 </td>
                                                 <td className="p-4 whitespace-nowrap">
-                                                    <span className={`px-3 py-1 rounded-xl capitalize font-semibold ${statusColors[user.status] || 'bg-gray-100 text-gray-800'}`}>
-                                                        {safe(user.status)}
+                                                    <span className={`px-3 py-1 rounded-md capitalize font-semibold ${statusColors[main?.status] || 'bg-gray-100 text-gray-800'}`}>
+                                                        {safe(main?.status)}
                                                     </span>
                                                 </td>
                                             </tr>

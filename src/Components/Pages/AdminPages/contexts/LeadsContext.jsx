@@ -15,6 +15,7 @@ export const LeadsContextProvider = ({ children }) => {
   ];
   const [selectedUserIds, setSelectedUserIds] = useState([]);
 const [selectedBookingIds, setSelectedBookingIds] = useState([]);
+const [currentPage, setCurrentPage] = React.useState(1);
 
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   const [data, setData] = useState([]);
@@ -232,6 +233,8 @@ const sendleadsMail = async (bookingIds) => {
         selectedUserIds,
         setSelectedUserIds,
         tabs,
+        currentPage,
+        setCurrentPage,
         sendleadsMail,
         fetchDataById
       }}

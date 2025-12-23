@@ -340,51 +340,103 @@ export const AccountsInfoProvider = ({ children }) => {
       });
     }
   };
+  const mapServiceType = (serviceType) => {
+    if (!serviceType || serviceType === "membership") return null;
 
-  const fetchMembers = useCallback(async (id) => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+    const map = {
+      birthdayParty: "birthday party",
+      oneToOne: "one to one",
+      holidayCamps: "holiday camp",
+      trials: "trials",
+    };
 
+    return map[serviceType] || null;
+  };
 
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/account-information/${id}`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  const fetchMembers = useCallback(
+    async (id, serviceType) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
 
-      const resultRaw = await response.json();
+      setLoading(true);
 
-      // Check API response status
-      if (!resultRaw.status) {
+      try {
+        const mappedServiceType = mapServiceType(serviceType);
+
+        // ✅ build body conditionally
+        const body = mappedServiceType
+          ? JSON.stringify({ serviceType: mappedServiceType })
+          : null;
+
+        const response = await fetch(
+          `${API_BASE_URL}/api/admin/account-information/${id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              ...(mappedServiceType && {
+                "Content-Type": "application/json",
+              }),
+            },
+            body, // ✅ only sent if allowed & mapped
+          }
+        );
+
+        const resultRaw = await response.json();
+
+        if (!resultRaw.status) {
+          Swal.fire({
+            icon: "error",
+            title: "Fetch Failed",
+            text:
+              resultRaw.message ||
+              "Something went wrong while fetching account information.",
+            confirmButtonText: "Ok",
+          });
+          return;
+        }
+        const isBookingBasedService = (serviceType) => {
+          return ["oneToOne", "birthdayParty"].includes(serviceType);
+        };
+        const result = resultRaw || {};
+        const studentsData = isBookingBasedService(serviceType)
+          ? result.data?.booking?.students || []
+          : result.data?.students || [];
+
+        const parentformData = isBookingBasedService(serviceType)
+          ? result.data?.booking?.parents || []
+          : result.data?.parents || [];
+        const emergencyData = isBookingBasedService(serviceType)
+          ? result.data?.booking?.emergency?.[0] || []
+          : result.data?.emergency?.[0] ||
+          result.data?.emergencyContacts?.[0] ||
+          [];
+        const dataData = isBookingBasedService(serviceType)
+          ? result.data || []
+          : result.data || [];
+        setData(dataData);
+        setStudents(studentsData);
+        setFormData(parentformData);
+        setEmergency(emergencyData);
+      } catch (error) {
+        console.error("Failed to fetch members:", error);
+
         Swal.fire({
           icon: "error",
           title: "Fetch Failed",
-          text: resultRaw.message || "Something went wrong while fetching account information.",
+          text:
+            error.message ||
+            "Something went wrong while fetching account information.",
           confirmButtonText: "Ok",
         });
-        return; // Stop further execution
+      } finally {
+        setLoading(false);
       }
+    },
+    [API_BASE_URL]
+  );
 
-      const result = resultRaw.data || [];
 
-      setData(result.accountInformation || []);
-      setStudents(result.accountInformation.students || []);
-      setFormData(result.accountInformation.parents || []);
-      setEmergency(result.accountInformation.emergency[0] || []);
-    } catch (error) {
-      console.error("Failed to fetch members:", error);
-
-      Swal.fire({
-        icon: "error",
-        title: "Fetch Failed",
-        text: error.message || "Something went wrong while fetching account information.",
-        confirmButtonText: "Ok",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [API_BASE_URL]);
 
   const fetchOneToOneMembers = useCallback(async (id) => {
     const token = localStorage.getItem("adminToken");

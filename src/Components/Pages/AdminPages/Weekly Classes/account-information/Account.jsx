@@ -22,22 +22,28 @@ const Account = () => {
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   const navigate = useNavigate();
   const accountsInfo = useAccountsInfo();
- 
+
   const { loading, setMainId, fetchMembers } = accountsInfo;
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("id"); // <-- this will be "9"  console.log('id',id)
+  const serviceType = queryParams.get("serviceType");
 
   useEffect(() => {
-    fetchMembers(id);
+    if (serviceType) {
+      fetchMembers(id, serviceType);
+    } else {
+      fetchMembers(id);
+    }
+
     if (id) {
       setMainId(id);
     }
-  }, [])
+  }, []);
 
   if (loading) return <Loader />;
- if (!accountsInfo) return <div>Loading...</div>; // or throw Error
+  if (!accountsInfo) return <div>Loading...</div>; // or throw Error
   return (
     <div className="mt-8 relative">
 

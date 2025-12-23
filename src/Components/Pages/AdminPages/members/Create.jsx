@@ -8,6 +8,12 @@ import { usePermission } from "../Common/permission";
 
 const Create = () => {
   const { checkPermission } = usePermission();
+  const [coachDocs, setCoachDocs] = useState({
+    fa_level_1: null,
+    futsal_level_1_qualification: null,
+    first_aid: null,
+    futsal_level_1: null,
+  });
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [errors, setErrors] = useState({});
@@ -32,6 +38,9 @@ const Create = () => {
     role: null,
     photo: null,
   });
+  const isCoach =
+    formData?.role?.label === "Coach" ||
+    formData?.role?.value === "Coach";
 
   const token = localStorage.getItem("adminToken");
 
@@ -84,10 +93,10 @@ const Create = () => {
     e.preventDefault();
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-     // console.log("❌ Missing fisselds:", formData);
+    // console.log("❌ Missing fisselds:", formData);
     // Email validation
     if (!formData.email || !emailRegex.test(formData.email)) {
-       // console.log("❌ Missing fields:", formData);
+      // console.log("❌ Missing fields:", formData);
       Swal.fire({
         icon: "error",
         title: "Invalid Email",
@@ -95,10 +104,24 @@ const Create = () => {
       });
       return;
     }
-     // console.log("❌ Misdss:", formData);
+    // console.log("❌ Misdss:", formData);
+    if (isCoach) {
+      const missingDocs = Object.entries(coachDocs)
+        .filter(([_, file]) => !file)
+        .map(([key]) => key.replace(/_/g, " "));
+
+      if (missingDocs.length > 0) {
+        Swal.fire({
+          icon: "warning",
+          title: "Missing Coach Documents",
+          text: `Please upload: ${missingDocs.join(", ")}`,
+        });
+        return;
+      }
+    }
 
     if (validate()) {
-       // console.log("❌ Misdsdsdsss:", formData);
+      // console.log("❌ Misdsdsdsss:", formData);
 
       if (
         !formData.firstName ||
@@ -108,7 +131,7 @@ const Create = () => {
         !formData.password ||
         !formData.role?.value
       ) {
-         // console.log("❌ Missing fields:", formData);
+        // console.log("❌ Missing fields:", formData);
 
         Swal.fire({
           icon: "warning",
@@ -130,7 +153,13 @@ const Create = () => {
       data.append("email", formData.email);
       data.append("password", formData.password);
       data.append("role", formData.role?.value);
-
+      if (isCoach) {
+        Object.entries(coachDocs).forEach(([key, file]) => {
+          if (file) {
+            data.append(key, file);
+          }
+        });
+      }
       if (formData.photo) {
         data.append("profile", formData.photo);
       }
@@ -215,11 +244,19 @@ const Create = () => {
     } else if (!/\d/.test(password)) {
       newErrors.password = "Password must contain at least one number.";
     }
-     // console.log('newErrors', newErrors)
+    // console.log('newErrors', newErrors)
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleCoachDocChange = (e) => {
+    const { name, files } = e.target;
+
+    setCoachDocs((prev) => ({
+      ...prev,
+      [name]: files[0],
+    }));
+  };
 
   const handleRoleCreateModal = (inputValue) => {
     setRoleName(inputValue);
@@ -326,6 +363,51 @@ const Create = () => {
             />
 
           </div>
+          {isCoach && (
+            <div className="space-y-5">
+              <div>
+                <label>FA Level 1</label>
+                <input
+                  type="file"
+                  name="fa_level_1"
+                  className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={handleCoachDocChange}
+                />
+              </div>
+
+              <div>
+                <label>Futsal Level 1 Qualification</label>
+                <input
+                  type="file"
+                  className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  name="futsal_level_1_qualification"
+                  onChange={handleCoachDocChange}
+                />
+              </div>
+
+              <div>
+                <label>First Aid</label>
+                <input
+                  type="file"
+                  className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+                  name="first_aid"
+                  onChange={handleCoachDocChange}
+                />
+              </div>
+
+              <div>
+                <label>Futsal Level 1</label>
+                <input
+                  type="file"
+                  className="w-full border border-[#E2E1E5] rounded-xl px-3 py-2 mt-1 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+
+                  name="futsal_level_1"
+                  onChange={handleCoachDocChange}
+                />
+              </div>
+            </div>
+          )}
           <div className="relative">
             <label className="block text-sm font-semibold text-[#282829]">
               Password

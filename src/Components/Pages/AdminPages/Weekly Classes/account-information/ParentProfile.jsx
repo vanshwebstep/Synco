@@ -306,14 +306,14 @@ const validateNewParent = () => {
       )
     );
   };
-
+console.log('emergency',emergency)
   useEffect(() => {
     if (emergency.sameAsAbove && formData.length > 0) {
-      const firstParent = formData[0];
+      const firstParent = emergency[0];
       setEmergency(prev => ({
         ...prev,
-        emergencyFirstName: firstParent.parentFirstName || "",
-        emergencyLastName: firstParent.parentLastName || "",
+        emergencyFirstName: firstParent.emergencyFirstName || "",
+        emergencyLastName: firstParent.emergencyLastName || "",
         emergencyPhoneNumber: firstParent.parentPhoneNumber || "",
         emergencyRelation: firstParent.relationToChild || "", // or whatever default you want
       }));
@@ -364,7 +364,7 @@ const validateParent = (parent) => {
       <div className="">
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
-          {formData.length < 3 && (
+          {/* {formData.length < 3 && (
             <button
               type="button"
               onClick={() => setShowModal(true)}
@@ -373,7 +373,7 @@ const validateParent = (parent) => {
             >
               Add Parent
             </button>
-          )}
+          )} */}
         </div>
         {/* Render multiple parent sections */}
         {formData.map((parent, index) => (
@@ -382,26 +382,26 @@ const validateParent = (parent) => {
             <div className="flex items-center gap-2">
 
               <h2
-                onClick={() =>
-                  setEditParent((prev) => ({
-                    ...prev,
-                    [index]: !prev[index],
-                  }))
-                }
+                // onClick={() =>
+                //   setEditParent((prev) => ({
+                //     ...prev,
+                //     [index]: !prev[index],
+                //   }))
+                // }
                 className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
               >
                 {editParent?.[index] ? "Editing Parent" : `Parent Information ${index + 1}`}
 
 
               </h2>
-              {editParent?.[index]
+              {/* {editParent?.[index]
                 ? <FaSave  onClick={() => handleUpdateParent(index)} className="cursor-pointer" />
                 : <FaEdit className="cursor-pointer" onClick={() =>
                   setEditParent((prev) => ({
                     ...prev,
                     [index]: !prev[index],
                   }))
-                } />}
+                } />} */}
             </div>
 
             {/* Name Fields */}
@@ -660,7 +660,7 @@ const validateParent = (parent) => {
         {/* Header */}
         <div className="flex gap-3 items-center">
           <h2
-            onClick={() => setEditEmergency((prev) => !prev)}
+            // onClick={() => setEditEmergency((prev) => !prev)}
             className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
           >
             {editEmergency
@@ -668,7 +668,7 @@ const validateParent = (parent) => {
               : "Emergency Contact Details"}
           </h2>
 
-          {editEmergency ? (
+          {/* {editEmergency ? (
             <FaSave
               onClick={handleUpdateEmergency}
               className="cursor-pointer text-[#237FEA]"
@@ -680,7 +680,7 @@ const validateParent = (parent) => {
               title="Edit Emergency Details"
               onClick={() => setEditEmergency(true)}
             />
-          )}
+          )} */}
         </div>
 
         {/* Same as above checkbox */}

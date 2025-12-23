@@ -889,6 +889,7 @@ console.log('editPersonal',editPersonal)
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
               />
             )}
+            
           </div>
 
         </div>

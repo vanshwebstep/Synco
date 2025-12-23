@@ -151,129 +151,146 @@ export const CommunicationTemplateProvider = ({ children }) => {
         []
     );
 
-    const fetchCommunicationTemplate = useCallback(
-        async (
-            studentName = "",
-            venueName = "",
-            status1 = false,
-            status2 = false,
-            otherDateRange = [],
-            dateoftrial = [],
-            forOtherDate = [],
-            BookedBy = []
+   const fetchCommunicationTemplate = useCallback(
+  async (
+    studentName = "",
+    venueName = "",
+    status1 = false,
+    status2 = false,
+    otherDateRange = [],
+    dateoftrial = [],
+    forOtherDate = [],
+    BookedBy = []
+  ) => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) return;
 
-        ) => {
-            const token = localStorage.getItem("adminToken");
-            if (!token) return;
-            // console.log('status1', status1)
-            // console.log('satus2', status2)
-            // console.log('otherDateRange', otherDateRange)
-            // console.log('dateoftrial', dateoftrial)
-            // console.log('forOtherDate', forOtherDate)
+    Swal.fire({
+      title: "Fetching Template...",
+      text: "Please wait",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => Swal.showLoading(),
+      backdrop: `
+        rgba(0,0,0,0.4)
+        backdrop-filter: blur(6px)
+      `,
+    });
 
-            const shouldShowLoader = studentName || venueName || status1 || status2 || otherDateRange || dateoftrial || forOtherDate;
-            // if (shouldShowLoader) setLoading(true);
+    try {
+      const queryParams = new URLSearchParams();
 
-            try {
-                const queryParams = new URLSearchParams();
+      // Student & Venue
+      if (studentName) queryParams.append("studentName", studentName);
+      if (venueName) queryParams.append("venueName", venueName);
 
-                // Student & Venue filters
-                if (studentName) queryParams.append("studentName", studentName);
-                if (venueName) queryParams.append("venueName", venueName);
+      // Status
+      if (status1) queryParams.append("status", "attended");
+      if (status2) queryParams.append("status", "not attend");
 
-                // Status filters
-                if (status1) queryParams.append("status", "attended");
-                if (status2) queryParams.append("status", "not attend");
-                if (BookedBy && Array.isArray(BookedBy) && BookedBy.length > 0) {
-                    BookedBy.forEach(agent => queryParams.append("bookedBy", agent));
-                }
+      // Booked By
+      if (Array.isArray(BookedBy) && BookedBy.length > 0) {
+        BookedBy.forEach(agent =>
+          queryParams.append("bookedBy", agent)
+        );
+      }
 
-                if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
-                    const [from, to] = dateoftrial;
-                    if (from && to) {
-                        queryParams.append("dateTrialFrom", formatLocalDate(from));
-                        queryParams.append("dateTrialTo", formatLocalDate(to));
-                    }
-                }
-
-                // 🔹 Handle general (createdAt range)
-                if (Array.isArray(otherDateRange) && otherDateRange.length === 2) {
-                    const [from, to] = otherDateRange;
-                    if (from && to) {
-                        queryParams.append("fromDate", formatLocalDate(from));
-                        queryParams.append("toDate", formatLocalDate(to));
-                    }
-                }
-
-                if (Array.isArray(forOtherDate) && forOtherDate.length === 2) {
-                    const [from, to] = forOtherDate;
-                    if (from && to) {
-                        queryParams.append("fromDate", formatLocalDate(from));
-                        queryParams.append("toDate", formatLocalDate(to));
-                    }
-                }
-                // Trial dates (support array or single value)
-                // const trialDates = Array.isArray(dateoftrial) ? dateoftrial : [dateoftrial];
-                // trialDates
-                //   .filter(Boolean)
-                //   .map(d => formatLocalDate(d))
-                //   .filter(Boolean)
-                //   .forEach(d => queryParams.append("trialDate", d));
-
-                const url = `${API_BASE_URL}/api/admin/holiday/custom-template/list${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
-                const response = await fetch(url, {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const resultRaw = await response.json();
-                const result = resultRaw.data || [];
-                const venues = resultRaw.data || [];
-                const bookedByAdmin = resultRaw || []
-                setBookedByAdmin(bookedByAdmin);
-                setMyVenues(Array.isArray(venues) ? venues : []);
-                setStatsFreeTrial(resultRaw.data)
-                setApiTemplates(result);
-            } catch (error) {
-                console.error("Failed to fetch bookFreeTrials:", error);
-            } finally {
-                // if (shouldShowLoader) setLoading(false); // only stop loader if it was started
-            }
-        },
-        []
-    );
-    const fetchCommunicationTemplateById = useCallback(async (ID) => {
-        const token = localStorage.getItem("adminToken");
-        if (!token) return null;  // ✅ return null if missing token
-
-        setLoading(true);
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/custom-template/get/${ID}`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
-
-            const resultRaw = await response.json();
-            const template = resultRaw?.data || null;
-
-            if (template) {
-                setApiTemplates(template); // ✅ still store in state
-                return template;          // ✅ RETURN instantly for first prefill
-            }
-
-            return null;
-        } catch (error) {
-            console.error("Failed to fetchCommunicationTemplateById:", error);
-            return null;
-        } finally {
-            setLoading(false);
+      // Trial Date range
+      if (Array.isArray(dateoftrial) && dateoftrial.length === 2) {
+        const [from, to] = dateoftrial;
+        if (from && to) {
+          queryParams.append("dateTrialFrom", formatLocalDate(from));
+          queryParams.append("dateTrialTo", formatLocalDate(to));
         }
-    }, []);
+      }
+
+      // CreatedAt / Other date range (use ONLY ONE)
+      const activeRange =
+        Array.isArray(otherDateRange) && otherDateRange.length === 2
+          ? otherDateRange
+          : Array.isArray(forOtherDate) && forOtherDate.length === 2
+          ? forOtherDate
+          : null;
+
+      if (activeRange) {
+        const [from, to] = activeRange;
+        if (from && to) {
+          queryParams.append("fromDate", formatLocalDate(from));
+          queryParams.append("toDate", formatLocalDate(to));
+        }
+      }
+
+      const url = `${API_BASE_URL}/api/admin/holiday/custom-template/list${
+        queryParams.toString() ? `?${queryParams}` : ""
+      }`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const resultRaw = await response.json();
+      const data = resultRaw?.data || [];
+
+      setBookedByAdmin(resultRaw || []);
+      setMyVenues(Array.isArray(data) ? data : []);
+      setStatsFreeTrial(data);
+      setApiTemplates(data);
+    } catch (error) {
+      console.error("Failed to fetch templates:", error);
+    } finally {
+      Swal.close(); // ✅ ALWAYS close loader
+    }
+  },
+  [API_BASE_URL, formatLocalDate]
+);
+
+  const fetchCommunicationTemplateById = useCallback(async (ID) => {
+  const token = localStorage.getItem("adminToken");
+  if (!token) return null;
+
+  setLoading(true);
+
+  Swal.fire({
+    title: "Fetching Template...",
+    text: "Please wait",
+    allowOutsideClick: false,
+    allowEscapeKey: false,
+    didOpen: () => Swal.showLoading(),
+    backdrop: `
+      rgba(0,0,0,0.4)
+      backdrop-filter: blur(6px)
+    `,
+  });
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/holiday/custom-template/get/${ID}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const resultRaw = await response.json();
+    const template = resultRaw?.data ?? null;
+
+    if (template) {
+      setApiTemplates(template); // store in state
+    }
+
+    return template;
+  } catch (error) {
+    console.error("Failed to fetchCommunicationTemplateById:", error);
+    return null;
+  } finally {
+    Swal.close();      // ✅ always close loader
+    setLoading(false);
+  }
+}, []);
+
 
 
     const createTemplateCategories = async (templateCategoriesData) => {
@@ -325,58 +342,83 @@ export const CommunicationTemplateProvider = ({ children }) => {
             setLoading(false);
         }
     };
-const createCommunicationTemplate = async (data) => {
-  setLoading(true);
+    const createCommunicationTemplate = async (data) => {
+        setLoading(true);
+        console.log("data payload", data);
 
-  try {
-    const headers = {};
+        // 🔹 Show loading swal
+        Swal.fire({
+            title: "Creating Template...",
+            text: "Please wait",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            backdrop: `
+      rgba(0,0,0,0.4)
+      backdrop-filter: blur(6px)
+    `,
+        });
 
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+        try {
+            const headers = {};
 
-    const isFormData = data instanceof FormData;
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
 
-    if (!isFormData) {
-      headers["Content-Type"] = "application/json";
-    }
+            const isFormData = data instanceof FormData;
 
-    const response = await fetch(
-      `${API_BASE_URL}/api/admin/holiday/custom-template/create`,
-      {
-        method: "POST",
-        headers,
-        body: isFormData ? data : JSON.stringify(data), // ✅ FIX
-      }
-    );
+            if (!isFormData) {
+                headers["Content-Type"] = "application/json";
+            }
+            console.log('datasdsdsd', data)
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/holiday/custom-template/create`,
+                {
+                    method: "POST",
+                    headers,
+                    body: isFormData ? data : JSON.stringify(data),
+                }
+            );
 
-    const result = await response.json();
+            const result = await response.json();
 
-    if (!response.ok) {
-      throw new Error(result.message || "Failed to create Communication Template");
-    }
+            if (!response.ok) {
+                throw new Error(
+                    result.message || "Failed to create Communication Template"
+                );
+            }
 
-    await Swal.fire({
-      title: "Success!",
-      text: result.message || "Template created successfully",
-      icon: "success",
-    });
+            // 🔹 Close loading & show success
+            Swal.close();
 
-    return result;
+            await Swal.fire({
+                title: "Success!",
+                text: result.message || "Template created successfully",
+                icon: "success",
+            });
 
-  } catch (error) {
-    await Swal.fire({
-      title: "Error",
-      text: error.message || "Something went wrong",
-      icon: "error",
-    });
-    throw error;
+            return result;
 
-  } finally {
-    fetchTemplateCategories();
-    setLoading(false);
-  }
-};
+        } catch (error) {
+            Swal.close();
+
+            await Swal.fire({
+                title: "Error",
+                text: error.message || "Something went wrong",
+                icon: "error",
+            });
+
+            throw error;
+
+        } finally {
+            fetchTemplateCategories();
+            setLoading(false);
+        }
+    };
+
 
 
     const deleteCommunicationTemplate = useCallback(async (id) => {
@@ -413,54 +455,94 @@ const createCommunicationTemplate = async (data) => {
             });
         }
     }, [token, fetchCommunicationTemplate]);
-    const updateCommunicationTemplate = async (communicationTemplateId, updatedCommunicationTemplate) => {
+    const updateCommunicationTemplate = async (
+        communicationTemplateId,
+        updatedCommunicationTemplate
+    ) => {
         setLoading(true);
+        console.log("update payload", updatedCommunicationTemplate);
 
-        const myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-        if (token) {
-            myHeaders.append("Authorization", `Bearer ${token}`);
-        }
-
-        const requestOptions = {
-            method: "PUT",
-            headers: myHeaders,
-            body: JSON.stringify(updatedCommunicationTemplate),
-            redirect: "follow",
-        };
+        // 🔹 Show loading swal
+        Swal.fire({
+            title: "Updating Template...",
+            text: "Please wait",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            backdrop: `
+      rgba(0,0,0,0.4)
+      backdrop-filter: blur(6px)
+    `,
+        });
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/admin/holiday/custom-template/update/${communicationTemplateId}`, requestOptions);
+            const headers = {};
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Failed to update Communication Template");
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
             }
+
+            const isFormData =
+                updatedCommunicationTemplate instanceof FormData;
+
+            if (!isFormData) {
+                headers["Content-Type"] = "application/json";
+            }
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/holiday/custom-template/update/${communicationTemplateId}`,
+                {
+                    method: "PUT",
+                    headers,
+                    body: isFormData
+                        ? updatedCommunicationTemplate
+                        : JSON.stringify(updatedCommunicationTemplate),
+                }
+            );
 
             const result = await response.json();
 
+            if (!response.ok) {
+                throw new Error(
+                    result.message ||
+                    "Failed to update Communication Template"
+                );
+            }
+
+            // 🔹 Close loading & show success
+            Swal.close();
+
             await Swal.fire({
                 title: "Success!",
-                text: result.message || "Communication Template has been updated successfully.",
+                text:
+                    result.message ||
+                    "Communication Template has been updated successfully.",
                 icon: "success",
-                confirmButtonText: "OK",
             });
 
             return result;
+
         } catch (error) {
-            console.error("Error updating Communication Template:", error);
+            Swal.close();
+
             await Swal.fire({
                 title: "Error",
-                text: error.message || "Something went wrong while updating Communication Template.",
+                text:
+                    error.message ||
+                    "Something went wrong while updating Communication Template.",
                 icon: "error",
-                confirmButtonText: "OK",
             });
+
             throw error;
+
         } finally {
             await fetchCommunicationTemplate();
             setLoading(false);
         }
     };
+
 
 
 

@@ -68,11 +68,33 @@ export default function TemplateBuilder({
     setBlocks((prev) => prev.filter((b) => b.id !== id));
   };
 
-  const duplicateBlock = (id) => {
-    const block = blocks.find((b) => b.id === id);
-    const copy = { ...block, id: crypto.randomUUID() };
-    setBlocks([...blocks, copy]);
+const duplicateBlock = (id) => {
+  const block = blocks.find((b) => b.id === id);
+
+  // ✅ deep clone (break shared references)
+  const clonedBlock = JSON.parse(JSON.stringify(block));
+
+  // ✅ assign brand new IDs
+  const regenerateIds = (blk) => {
+    blk.id = crypto.randomUUID();
+
+    // sectionGrid → regenerate child IDs
+    if (blk.type === "sectionGrid" && Array.isArray(blk.columns)) {
+      blk.columns = blk.columns.map((column) =>
+        column.map((child) => {
+          const clonedChild = { ...child };
+          regenerateIds(clonedChild);
+          return clonedChild;
+        })
+      );
+    }
   };
+
+  regenerateIds(clonedBlock);
+
+  setBlocks((prev) => [...prev, clonedBlock]);
+};
+
 
   const onDragEnd = (result) => {
     if (!result.destination) return;

@@ -151,7 +151,7 @@ const handleDOBChange = (index, date, isModal = false) => {
     <div className="space-y-10  p-6">
       {/* Add Student Button */}
       <div className="flex justify-end mb-6">
-        {students.length < 3 && (
+        {/* {students.length < 3 && (
           <button
             type="button"
             onClick={() => setShowModal(true)}
@@ -159,7 +159,7 @@ const handleDOBChange = (index, date, isModal = false) => {
           >
             Add Student <FaPlus />
           </button>
-        )}
+        )} */}
       </div>
 
       {/* Student List */}
@@ -176,14 +176,14 @@ const handleDOBChange = (index, date, isModal = false) => {
           className="bg-white mb-10 p-6 rounded-3xl shadow-sm space-y-6"
         >
           <h2
-            onClick={() =>
-              setEditStudent((prev) => ({ ...prev, [index]: !prev[index] }))
-            }
+            // onClick={() =>
+            //   setEditStudent((prev) => ({ ...prev, [index]: !prev[index] }))
+            // }
             className="text-xl font-bold text-[#282829] flex gap-2 items-center cursor-pointer"
           >
             {editStudent?.[index] ? "Editing Student" : `Student ${index + 1} Information`}
 
-            {editStudent?.[index] ? (
+            {/* {editStudent?.[index] ? (
               <FaSave
                 className={`cursor-pointer ${!validateStudent(student) ? "opacity-40 cursor-not-allowed" : ""
                   }`}
@@ -193,7 +193,7 @@ const handleDOBChange = (index, date, isModal = false) => {
               />
             ) : (
               <FaEdit />
-            )}
+            )} */}
 
           </h2>
 

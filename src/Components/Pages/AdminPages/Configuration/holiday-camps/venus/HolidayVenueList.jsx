@@ -13,7 +13,7 @@ import { useHolidayTerm } from '../../../contexts/HolidayTermsContext';
 const HolidayVenueList = () => {
   const navigate = useNavigate();
   const formRef = useRef(null);
-
+const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedPlans, setSelectedPlans] = useState([]);
   const [congestionNote, setCongestionNote] = useState(null);
@@ -297,6 +297,16 @@ const HolidayVenueList = () => {
 
 
 
+const filteredVenues = venues.filter((user) => {
+  const keyword = search.toLowerCase();
+
+  return (
+    user.area?.toLowerCase().includes(keyword) ||
+    user.name?.toLowerCase().includes(keyword) ||
+    user.address?.toLowerCase().includes(keyword) ||
+    user.facility?.toLowerCase().includes(keyword)
+  );
+});
 
 
   const { checkPermission } = usePermission();
@@ -324,6 +334,13 @@ const HolidayVenueList = () => {
     <div id="form-backdrop" ref={formRef} className=" pt-1 bg-gray-50 min-h-screen">
       <div className={`flex flex-wrap pe-4 justify-between items-center mb-4 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
         <h2 className="text-[28px] font-semibold">Venues</h2>
+        <input
+  type="text"
+  placeholder="Search venue..."
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  className=" w-full max-w-sm rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+/>
         {canCreate &&
           <button
             onClick={() => setOpenForm(true)}
@@ -340,7 +357,7 @@ const HolidayVenueList = () => {
       <div className="md:md:flex gap-6">
         <div className={`transition-all duration-300 ${openForm ? 'md:w-3/4' : 'w-full'}`}>
           {
-            venues.length > 0 ? (
+            filteredVenues.length > 0 ? (
 
               <div className="max-h-[600px]">
                 <table className="w-full table-fixed bg-white">
@@ -366,7 +383,7 @@ const HolidayVenueList = () => {
                   </thead>
 
                   <tbody >
-                    {venues.map((user, idx) => {
+                    {filteredVenues.map((user, idx) => {
                       const isChecked = selectedUserIds.includes(user.id);
 
                       return (

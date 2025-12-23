@@ -126,57 +126,62 @@ export default function BlockRenderer({ block, blocks, setBlocks }) {
     );
 
   // IMAGE
-  if (block.type === "image")
-    return (
-      <div>
-        {block.url && (
-          <img
-            src={block.url}
-            className="w-full h-48 object-cover rounded-md mb-3"
-          />
-        )}
-        <div className="flex flex-col gap-3">
-          {/* Hidden native input */}
-          <input
-            id="fileUpload"
-            type="file"
-            className="hidden"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) {
-                update("url", URL.createObjectURL(file));
-              }
-            }}
-          />
+if (block.type === "image")
+  return (
+    <div>
+      {block.url && (
+        <img
+          src={block.url}
+          className="w-full h-48 object-cover rounded-md mb-3"
+        />
+      )}
 
-          {/* Custom Upload Button */}
-          <label
-            htmlFor="fileUpload"
-            className="flex items-center justify-center gap-2 cursor-pointer
-               rounded-xl border-2 border-dashed border-gray-300
-               px-6 py-4 text-gray-600
-               hover:border-blue-500 hover:text-blue-600
-               transition-all duration-200"
+      <div className="flex flex-col gap-3">
+        {/* Hidden native input */}
+        <input
+          key={block.id}                         // ✅ force DOM isolation
+          id={`fileUpload-${block.id}`}          // ✅ UNIQUE ID
+          type="file"
+          className="hidden"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              update("url", URL.createObjectURL(file));
+            }
+          }}
+        />
+
+        {/* Custom Upload Button */}
+        <label
+          htmlFor={`fileUpload-${block.id}`}     // ✅ MATCH UNIQUE ID
+          className="flex items-center justify-center gap-2 cursor-pointer
+            rounded-xl border-2 border-dashed border-gray-300
+            px-6 py-4 text-gray-600
+            hover:border-blue-500 hover:text-blue-600
+            transition-all duration-200"
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 12v9m0-9l-3 3m3-3l3 3M12 3v9" />
-            </svg>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 12v9m0-9l-3 3m3-3l3 3M12 3v9"
+            />
+          </svg>
 
-            <span className="text-sm font-medium">
-              Click to upload
-            </span>
-          </label>
-        </div>
-
+          <span className="text-sm font-medium">
+            Click to upload
+          </span>
+        </label>
       </div>
-    );
+    </div>
+  );
 
   // BUTTON
   if (block.type === "btn") {

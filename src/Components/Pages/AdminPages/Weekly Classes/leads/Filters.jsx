@@ -57,7 +57,7 @@ function exportDataToExcel(data) {
 }
 const Filters = () => {
 
-    const { fetchData, activeTabm, setActiveTab, data, selectedUserIds, sendleadsMail } = useLeads()
+    const { fetchData, activeTabm, setActiveTab, data, selectedUserIds, sendleadsMail ,setCurrentPage } = useLeads()
     const [selectedVenue, setSelectedVenue] = useState(null);
     const today = new Date();
     const [noLoaderShow, setNoLoaderShow] = useState(false);
@@ -117,6 +117,7 @@ const Filters = () => {
     };
     const handleChange = (selectedOption) => {
         setSelectedVenue(selectedOption);
+        setCurrentPage(1);
         console.log('selectedOption', selectedOption);
 
         if (selectedOption === null) {
@@ -225,6 +226,7 @@ const goToNextMonth = () => {
     const handleSearch = (e) => {
         const value = e.target.value;
         setSearchTerm(value);
+        setCurrentPage(1);
 
         if (value.length === 0) {
             setNoLoaderShow(true);
@@ -237,6 +239,7 @@ const goToNextMonth = () => {
     };
 
     const applyFilter = () => {
+        setCurrentPage(1);
         const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
         const hasRange = isValidDate(fromDate) && isValidDate(toDate);
 

@@ -167,33 +167,49 @@ export default function CreateTemplateSteps() {
     console.log('form.category', form.category);
 
     const handleSaveTextTemplate = async () => {
-console.log('form')
+        console.log('form');
 
-        const Payload = {
+        const payload = {
             mode_of_communication: communicationMode.value,
-            template_category_id: form.category,
+            template_category_id: [form.category],
             title: form.title,
             tags: form.tags,
             sender_name: textform.sender,
-            content: textform.message,
+            content: {
+                blocks: [
+                    {
+                        type: "text",
+                        content: textform.message
+                    }
+                ]
+            }
         };
-        await createCommunicationTemplate(Payload)
-        console.log("✅ Final JSON to Send API:", Payload);
+
+        console.log("✅ Final JSON to Send API:", payload);
+
+        await createCommunicationTemplate(payload);
         navigate('/templates/settingList');
-        // sending whole preview as one JSON
-
     };
+
     const handleUpdateTemplate = async () => {
-        const Payload = {
+
+        const payload = {
             mode_of_communication: communicationMode.value,
-            template_category_id: form.category,
+            template_category_id: [form.category],
             title: form.title,
             tags: form.tags,
             sender_name: textform.sender,
-            content: textform.message,
+            content: {
+                blocks: [
+                    {
+                        type: "text",
+                        content: textform.message
+                    }
+                ]
+            }
         };
-        await updateCommunicationTemplate(templateId, Payload);
-        console.log("Template Updated ✅", Payload);
+        await updateCommunicationTemplate(templateId, payload);
+        console.log("Template Updated ✅", payload);
         navigate('/templates/settingList');
     };
 
@@ -406,12 +422,12 @@ console.log('form')
                                                 {/* Buttons */}
                                                 <div className="flex justify-between mt-4">
                                                     {form.category.length > 0 && (
-                                                    <button
-                                                        className="px-4 py-1 rounded-lg border text-gray-500"
-                                                        onClick={() => setForm((p) => ({ ...p, category: [], categoryNames: [] }))}
-                                                    >
-                                                        Clear
-                                                    </button>
+                                                        <button
+                                                            className="px-4 py-1 rounded-lg border text-gray-500"
+                                                            onClick={() => setForm((p) => ({ ...p, category: [], categoryNames: [] }))}
+                                                        >
+                                                            Clear
+                                                        </button>
                                                     )}
                                                     <button
                                                         className="px-5 py-2 bg-blue-600 text-white rounded-lg"
@@ -543,8 +559,7 @@ console.log('form')
                                             blocks={builderBlocks}
                                             subject={builderSubject}
                                             onClose={() => setBuilderPreview(false)}
-
-                                            // ✅ only send when edit mode exists
+                                             // ✅ only send when edit mode exists
                                             editMode={isEditMode}
                                             templateId={isEditMode ? templateId : null}
                                         />

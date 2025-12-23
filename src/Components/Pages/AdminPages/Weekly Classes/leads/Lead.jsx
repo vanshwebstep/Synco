@@ -11,13 +11,13 @@ import { useNavigate } from "react-router-dom";
 
 const Lead = () => {
     const leadsData = useLeads();
-    const { activeTab, setActiveTab, tabs, fetchData ,loading } = leadsData;
+    const { activeTab, setActiveTab, tabs, fetchData, loading ,setCurrentPage } = leadsData;
     const navigate = useNavigate();
     useEffect(() => {
         fetchData();
     }, [activeTab]);
-    console.log('acsstiveTab',activeTab)
-    if(!leadsData) return (<>Loading</>)
+    console.log('acsstiveTab', activeTab)
+    if (!leadsData) return (<>Loading</>)
     return (
         <div className="min-h-screen overflow-hidden bg-gray-50 py-6 flex flex-col lg:flex-row ">
 
@@ -33,7 +33,10 @@ const Lead = () => {
                             <button
                                 key={tab.name}
                                 disabled={loading}
-                                onClick={() => setActiveTab(tab.name)}
+                                onClick={() => {
+                                    setCurrentPage(1);
+                                    setActiveTab(tab.name);
+                                }}
                                 className={`relative flex-1 text-[15px] px-3 md:text-base font-semibold py-2 rounded-xl transition-all whitespace-nowrap ${activeTab === tab.name
                                     ? "bg-[#237FEA] shadow text-white"
                                     : "text-[#282829] hover:text-[#282829] border border-[#E2E1E5]"
