@@ -9,6 +9,8 @@ export const AccountsInfoProvider = ({ children }) => {
   const [students, setStudents] = useState([]);
   const [formData, setFormData] = useState([]);
   const [emergency, setEmergency] = useState([]);
+  const [feedbackData, setFeedbackData] = useState([]);
+
   const [loading, setLoading] = useState(null);
   const [mailLoading, setMailLoading] = useState(null);
 
@@ -352,7 +354,6 @@ export const AccountsInfoProvider = ({ children }) => {
 
     return map[serviceType] || null;
   };
-
   const fetchMembers = useCallback(
     async (id, serviceType) => {
       const token = localStorage.getItem("adminToken");
@@ -435,9 +436,6 @@ export const AccountsInfoProvider = ({ children }) => {
     },
     [API_BASE_URL]
   );
-
-
-
   const fetchOneToOneMembers = useCallback(async (id) => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
@@ -543,7 +541,7 @@ export const AccountsInfoProvider = ({ children }) => {
       const resultRaw = await response.json();
 
       // Check API response status
-      if (!resultRaw?.success) {
+      if (!resultRaw?.status) {
         Swal.fire({
           icon: "error",
           title: "Fetch Failed",
@@ -572,7 +570,6 @@ export const AccountsInfoProvider = ({ children }) => {
       setLoading(false);
     }
   }, [API_BASE_URL]);
-
   const sendOnetoOneMail = async (bookingIds) => {
     setLoading(true);
 
@@ -669,7 +666,6 @@ export const AccountsInfoProvider = ({ children }) => {
       setLoading(false);
     }
   };
-
   const sendHolidayMail = async (bookingIds) => {
     setLoading(true);
 
@@ -718,8 +714,45 @@ export const AccountsInfoProvider = ({ children }) => {
       setLoading(false);
     }
   };
+
+const fetchFeedback = useCallback(async () => {
+  const token = localStorage.getItem("adminToken");
+  if (!token) return;
+
+  setLoading(true);
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/admin/feedback/list`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const resultRaw = await response.json();
+
+    if (!resultRaw?.status) {
+      Swal.fire({
+        icon: "error",
+        title: "Fetch Failed",
+        text: resultRaw.message || "Something went wrong while fetching Feedback.",
+      });
+      return;
+    }
+
+    setFeedbackData(resultRaw.data || []);
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Fetch Failed",
+      text: error.message || "Something went wrong while fetching account information.",
+    });
+  } finally {
+    setLoading(false);
+  }
+}, []); // ✅ stable forever
+
+
+
   return (
-    <AccountsInfoContext.Provider value={{ data, sendHolidayMail, handleUpdateHoliday, fetchHolidayCamps, oneToOneData, historyActiveTab, setHistoryActiveTab, handleUpdateAcountInfo, sendOnetoOneMail, sendBirthdayMail, handleUpdateBirthday, fetchBirthdyPartiesMembers, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId }}>
+    <AccountsInfoContext.Provider value={{ data, sendHolidayMail, handleUpdateHoliday, fetchHolidayCamps, oneToOneData, historyActiveTab, setHistoryActiveTab, handleUpdateAcountInfo, sendOnetoOneMail, sendBirthdayMail, handleUpdateBirthday, fetchBirthdyPartiesMembers, fetchMembers, fetchOneToOneMembers, setData, students, setStudents, loading, setLoading, formData, setFormData, emergency, setEmergency, handleUpdate, mainId, setMainId, fetchFeedback, feedbackData, setFeedbackData }}>
       {children}
     </AccountsInfoContext.Provider>
   );

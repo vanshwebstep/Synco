@@ -12,7 +12,7 @@ export const PermissionProvider = ({ children }) => {
     if (!module || !action || !Array.isArray(stored)) {
       return false;
     }
-
+console.log()
     const result = stored.some(
       (perm) =>
         perm.module?.toLowerCase() === module.toLowerCase() &&

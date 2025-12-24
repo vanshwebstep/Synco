@@ -145,7 +145,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
       subItems: [
         { title: 'Find a Camp', link: '/holiday-camp/find-a-camp', needPermissions: [{ module: 'holiday-find-class', action: 'view-listing' }] },
         { title: 'Members', link: '/holiday-camp/members/list', needPermissions: [{ module: 'holiday-booking', action: 'view-listing' }] },
-        { title: 'Reports', link: '/holiday-camp/reports', needPermissions: [{ module: 'holiday-find-class', action: 'view-listing' },{ module: 'holiday-booking', action: 'view-listing' }] },
+        { title: 'Reports', link: '/holiday-camp/reports', needPermissions: [{ module: 'holiday-find-class', action: 'view-listing' }, { module: 'holiday-booking', action: 'view-listing' }] },
 
       ]
     },
@@ -205,9 +205,9 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         {
           title: "Session plan Structure",
           link: '/birthday-party/session-plan',
-          needPermissions: [
-            { module: "session-plan-birthdayParty", action: "view-listing" }
-          ],
+          // needPermissions: [
+          //   { module: "session-plan-birthdayParty", action: "create" }
+          // ],
         },
         {
           title: "Reports",
@@ -226,8 +226,8 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
 
       iconHover: "/SidebarLogos/BirthdayH.png",
       needPermissions: [
-        { module: "recruitment-lead-franchise", action: "member-report" },
-        { module: "recruitment-lead", action: "member-report" },
+        { module: "recruitment-lead-franchise", action: "view-listing" },
+        { module: "recruitment-lead", action: "view-listing" },
       ],
       subItems: [
         {
@@ -397,17 +397,24 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             { module: "discount", action: "view-listing" },
           ],
           subItems: [
+
             {
               noPaddingx: true,
-              title: "Session Plan Library",
-              link: '/configuration/holiday-camp/session-plan/list',
-              needPermissions: [{ module: 'holiday-session-plan-group', action: 'view-listing' }]
+              title: "Add a venue",
+              link: '/configuration/holiday-camp/venues',
+              needPermissions: [{ module: 'holiday-venue', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
-              title: "Term Dates & Session Plan Mapping",
+              title: "Dates",
               link: '/configuration/holiday-camp/terms/list',
               needPermissions: [{ module: 'holiday-termGroup-create', action: 'create' }]
+            },
+            {
+              noPaddingx: true,
+              title: "Session Plans",
+              link: '/configuration/holiday-camp/session-plan/list',
+              needPermissions: [{ module: 'holiday-session-plan-group', action: 'view-listing' }]
             },
             {
               noPaddingx: true,
@@ -419,12 +426,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
               ]
 
             },
-            {
-              noPaddingx: true,
-              title: "Venues",
-              link: '/configuration/holiday-camp/venues',
-              needPermissions: [{ module: 'holiday-venue', action: 'view-listing' }]
-            },
+
             {
               noPaddingx: true,
               title: "Discounts",

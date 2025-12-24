@@ -185,10 +185,16 @@ const MainTable = () => {
                                                 <td className="p-4 cursor-pointer">
                                                     <div className="flex items-center gap-3">
                                                         <button
-                                                            onClick={() => toggleCheckbox(main?.id)}
-                                                            className={`min-w-5 min-h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-500' : 'border-gray-300'}`}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();        // ⛔ prevent row click
+                                                                toggleCheckbox(main?.id);
+                                                            }}
+                                                            className={`min-w-5 min-h-5 flex items-center justify-center rounded-md border-2 ${isChecked ? 'border-gray-500' : 'border-gray-300'
+                                                                }`}
                                                         >
-                                                            {isChecked && <Check size={16} strokeWidth={3} className="text-gray-500" />}
+                                                            {isChecked && (
+                                                                <Check size={16} strokeWidth={3} className="text-gray-500" />
+                                                            )}
                                                         </button>
 
                                                         <img

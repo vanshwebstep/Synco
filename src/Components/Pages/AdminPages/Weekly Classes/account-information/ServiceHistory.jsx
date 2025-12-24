@@ -132,7 +132,7 @@ const BookingCard = ({ booking }) => {
   };
   console.log('booking', booking)
   const serviceType =
-  booking?.serviceType || booking?.booking?.serviceType || "";
+    booking?.serviceType || booking?.booking?.serviceType || "";
 
   return (
     <div className="bg-white rounded-2xl shadow p-3 mb-6">
@@ -298,28 +298,28 @@ const BookingCard = ({ booking }) => {
 
         {/* Buttons */}
         <div className="flex gap-3">
-  <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
-    See details
-  </button>
+          <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
+            See details
+          </button>
 
-  {serviceType !== "Merchandise" && (
-    <>
-      <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
-        See payments
-      </button>
+          {serviceType !== "Merchandise" && (
+            <>
+              <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
+                See payments
+              </button>
 
-      {booking?.students && (
-        <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
-          Attendance
-        </button>
-      )}
-    </>
-  )}
+              {booking?.students && (
+                <button className="px-4 py-2 border border-gray-800 rounded-xl text-sm hover:bg-gray-50">
+                  Attendance
+                </button>
+              )}
+            </>
+          )}
 
-  <button className="ml-auto text-gray-500 hover:text-gray-800">
-    <FaEllipsisV />
-  </button>
-</div>
+          <button className="ml-auto text-gray-500 hover:text-gray-800">
+            <FaEllipsisV />
+          </button>
+        </div>
 
       </div>
     </div>
@@ -335,7 +335,7 @@ const ServiceHistory = () => {
   const [showModal, setShowModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const filterModalRef = useRef(null);
-
+  // console.log('data',data)
   // Close modal when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -469,7 +469,7 @@ const ServiceHistory = () => {
     });
   };
   const [selectedBooking, setSelectedBooking] = useState(null);
-
+  // console.log('selectedBooking',selectedBooking)
   const handleModalChange = (field, value) => {
     setSelectedBooking(value);
   };
@@ -502,7 +502,7 @@ const ServiceHistory = () => {
             />
             <div className="block">
               <div className="whitespace-nowrap font-semibold text-[#717073] text-[14px]">Total Payments</div>
-              <div className="text-[20px] font-semibold text-[#384455]">£0.00</div>
+              <div className="text-[20px] font-semibold text-[#384455]">£{data?.paymentPlan?.price  || data?.payment?.amount || data?.booking?.payment?.amount}</div>
             </div>
           </div>
 

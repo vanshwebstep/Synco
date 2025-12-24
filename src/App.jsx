@@ -193,6 +193,7 @@ const AuthRoutes = () => {
   const isForgot = location.pathname === '/admin-ForgotPassword';
   return (
     <div className='login-container'>
+       
       <div className={`login-container-inner ${isForgot ? 'forgetPass' : ''}`}>
         <Routes>
           <Route path="/admin-login" element={<AdminLogin />} />
