@@ -32,10 +32,10 @@ const List = () => {
     const { keyInfoData, fetchKeyInfo } = useMembers();
     const token = localStorage.getItem("adminToken");
     const { adminInfo, setAdminInfo } = useNotification();
-    const [country, setCountry] = useState("us"); // default country
-    const [country2, setCountry2] = useState("us"); // default country
-    const [dialCode, setDialCode] = useState("+1"); // store selected code silently
-    const [dialCode2, setDialCode2] = useState("+1"); // store selected code silently
+    const [country, setCountry] = useState("uk"); // default country
+    const [country2, setCountry2] = useState("uk"); // default country
+    const [dialCode, setDialCode] = useState("+44"); // store selected code silently
+    const [dialCode2, setDialCode2] = useState("+44"); // store selected code silently
     const handleChange = (value, data) => {
         // When library fires onChange, just update the dial code
         setDialCode("+" + data.dialCode);
@@ -85,17 +85,22 @@ const List = () => {
     const [showPopup, setShowPopup] = useState(false);
     const [directDebitData, setDirectDebitData] = useState([]);
     const [payment, setPayment] = useState({
+        paymentType: "accesspaysuite",
+
         firstName: "",
         lastName: "",
         email: "",
-        billingAddress: "",
-        iban: "",
-        cardHolderName: "",
-        cv2: "",
-        expiryDate: "",
-        pan: "",
-        authorise: false,
+
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        postalCode: "",
+
+        account_number: "",
+        branch_code: "",
+        account_holder_name: "",
     });
+
 
 
     const formatTimeAgo = (timestamp) => {
@@ -220,7 +225,7 @@ const List = () => {
                 // console.log('stp2')
                 setStudents(TrialData.students);
                 setNumberOfStudents(TrialData?.totalStudents);
-                console.log('comesfromtrialdaata',TrialData)
+                console.log('comesfromtrialdaata', TrialData)
             }
             // console.log('stp3')
             if (Array.isArray(TrialData.parents) && TrialData.parents.length > 0) {
@@ -311,7 +316,29 @@ const List = () => {
             }
         });
     };
+    const isCardInvalid =
+        payment.paymentType === "accesspaysuite" &&
+        (
+            !payment.account_holder_name ||
+            !payment.firstName ||
+            !payment.email ||
+            !payment.addressLine1 ||
+            !payment.city ||
+            !payment.postalCode ||
+            !payment.account_number ||
+            !payment.branch_code
+        );
 
+    const isBankInvalid =
+        payment.paymentType === "bank" &&
+        (
+            !payment.account_holder_name ||
+            !payment.firstName ||
+            !payment.account_number ||
+            !payment.branch_code
+        );
+    console.log('isCardInvalid', isCardInvalid)
+    console.log('isBankInvalid', isBankInvalid)
     const formatLocalDate = (date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
@@ -339,13 +366,13 @@ const List = () => {
     };
     const calendarDays = getDaysArray();
 
- const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+    const goToPreviousMonth = () => {
+        setCurrentDate(new Date(year, month - 1, 1));
+    };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1)); 
- };
+    const goToNextMonth = () => {
+        setCurrentDate(new Date(year, month + 1, 1));
+    };
 
     const isSameDate = (d1, d2) => {
         const date1 = typeof d1 === "string" ? new Date(d1) : d1;
@@ -385,6 +412,7 @@ const goToNextMonth = () => {
             setSelectedDate(formattedDate);
         }
     };
+
     const modalRef = useRef(null);
     const PRef = useRef(null);
 
@@ -610,11 +638,11 @@ const goToNextMonth = () => {
                 ...s,
                 dateOfBirth: toDateOnly(s.dateOfBirth),
             })),
-             parents: parents.map(({ id, ...rest }) => rest),
+            parents: parents.map(({ id, ...rest }) => rest),
             emergency,
             paymentPlanId: membershipPlan?.value ?? null, // only value
 
-            ...(Object.keys(transformedPayment).length > 0 && { payment: transformedPayment }),
+            ...(Object.keys(filteredPayment).length > 0 && { payment: filteredPayment }),
         };
         console.log('payload', payload)
 
@@ -915,6 +943,8 @@ const goToNextMonth = () => {
 
         hasInitialized.current = true; // ✅ mark as done
     }, [sessionDatesSet]);
+
+    console.log('payment', payment)
     if (loading) return <Loader />;
 
     return (
@@ -1182,18 +1212,30 @@ const goToNextMonth = () => {
                                                     const isAvailable = sessionDatesSet.has(formattedDate); // check if this date is valid session
                                                     console.log('isAvailable', isAvailable)
                                                     const isSelected = isSameDate(date, selectedDate);
+                                                    const today = new Date();
+                                                    today.setHours(0, 0, 0, 0);
+
+                                                    const current = new Date(date);
+                                                    current.setHours(0, 0, 0, 0);
+                                                    const isPastAvailable = isAvailable && current < today;
 
                                                     return (
                                                         <div
                                                             key={i}
                                                             onClick={() => isAvailable && handleDateClick(date)}
                                                             className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full
-    ${isAvailable ? "cursor-pointer bg-sky-200" : "cursor-not-allowed opacity-40 bg-white"}
+    ${isPastAvailable
+                                                                    ? "bg-red-200 text-red-700 cursor-not-allowed"
+                                                                    : isAvailable
+                                                                        ? "cursor-pointer bg-sky-200"
+                                                                        : "cursor-not-allowed opacity-40 bg-white"
+                                                                }
     ${isSelected ? "selectedDate text-white font-bold" : ""}
   `}
                                                         >
                                                             {date.getDate()}
                                                         </div>
+
 
                                                     );
                                                 })}
@@ -1496,7 +1538,7 @@ const goToNextMonth = () => {
                                             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                                                 {/* Flag Dropdown */}
                                                 <PhoneInput
-                                                    country="us"
+                                                    country="uk"
                                                     value={dialCode2}
                                                     onChange={handleChange2}
                                                     onCountryChange={handleCountryChange2}
@@ -1614,7 +1656,7 @@ const goToNextMonth = () => {
                                     <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                                         {/* Flag Dropdown */}
                                         <PhoneInput
-                                            country="us"
+                                            country="uk"
                                             value={dialCode}
                                             onChange={handleChange}
                                             onCountryChange={handleCountryChange}
@@ -1877,29 +1919,12 @@ const goToNextMonth = () => {
                                         </p>
                                     </div>
                                     <div className="space-y-2 px-6 pb-6">
+
+                                        {/* ================= Personal Details ================= */}
                                         <h3 className="font-semibold text-[20px]">Personal Details</h3>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div>
-                                                <label className="block text-[16px] font-semibold">First name</label>
-                                                <input
-                                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                    type="text"
-                                                    value={payment.firstName}
-                                                    onChange={(e) => setPayment({ ...payment, firstName: e.target.value })}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[16px] font-semibold">Last name </label>
-                                                <input
-                                                    type="text"
-                                                    className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                    value={payment.lastName}
-                                                    onChange={(e) => setPayment({ ...payment, lastName: e.target.value })}
-                                                />
-                                            </div>
-                                        </div>
+
                                         <div>
-                                            <label className="block text-[16px] font-semibold">Email address </label>
+                                            <label className="block text-[16px] font-semibold">Email address</label>
                                             <input
                                                 type="email"
                                                 className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
@@ -1908,7 +1933,7 @@ const goToNextMonth = () => {
                                             />
                                         </div>
 
-
+                                        {/* ================= Payment Type ================= */}
                                         <h3 className="font-semibold text-[20px] pt-2">Bank Details</h3>
 
                                         <div className="flex gap-6 mt-3">
@@ -1922,56 +1947,119 @@ const goToNextMonth = () => {
                                                 />
                                                 <span>Gocardless</span>
                                             </label>
+
                                             <label className="flex items-center gap-2">
                                                 <input
                                                     type="radio"
                                                     name="paymentType"
-                                                    value="card"
-                                                    checked={payment.paymentType === "card"}
+                                                    value="accesspaysuite"
+                                                    checked={payment.paymentType === "accesspaysuite"}
                                                     onChange={(e) => setPayment({ ...payment, paymentType: e.target.value })}
                                                 />
                                                 <span>Access Pay Suite</span>
                                             </label>
                                         </div>
 
-
+                                        {/* ================= BANK (GOCARDLESS) ================= */}
                                         {payment.paymentType === "bank" && (
                                             <div className="mt-4 space-y-4">
 
-                                                {/* First & Last Name */}
-                                                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                {/* Account Holder Name (AUTO SPLIT) */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">Account Holder Name</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Enter full name (e.g. Saroj Singh)"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        value={payment.account_holder_name}
+                                                        onChange={(e) => {
+                                                            const fullName = e.target.value;
+                                                            const parts = fullName.trim().split(" ");
+
+                                                            setPayment({
+                                                                ...payment,
+                                                                account_holder_name: fullName,
+                                                                firstName: parts[0] || "",
+                                                                lastName: parts.slice(1).join(" "),
+                                                            });
+                                                        }}
+                                                    />
+                                                </div>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div>
-                                                        <label className="block text-[16px] font-semibold">First Name</label>
+                                                        <label className="block text-[16px] font-semibold">Account Number</label>
                                                         <input
                                                             type="text"
-                                                            placeholder="Enter First Name"
+                                                            inputMode="numeric"
+                                                            placeholder="Enter account number"
                                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.firstName}
+                                                            value={payment.account_number}
                                                             onChange={(e) =>
-                                                                setPayment({ ...payment, firstName: e.target.value })
+                                                                setPayment({
+                                                                    ...payment,
+                                                                    account_number: e.target.value.replace(/\D/g, ""),
+                                                                })
                                                             }
                                                         />
                                                     </div>
+
                                                     <div>
-                                                        <label className="block text-[16px] font-semibold">Last Name</label>
+                                                        <label className="block text-[16px] font-semibold">Branch Code</label>
                                                         <input
                                                             type="text"
-                                                            placeholder="Enter Last Name"
+                                                            inputMode="numeric"
+                                                            placeholder="Enter branch code"
                                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.lastName}
+                                                            value={payment.branch_code}
                                                             onChange={(e) =>
-                                                                setPayment({ ...payment, lastName: e.target.value })
+                                                                setPayment({
+                                                                    ...payment,
+                                                                    branch_code: e.target.value.replace(/\D/g, ""),
+                                                                })
                                                             }
                                                         />
                                                     </div>
-                                                </div> */}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* ================= CARD (ACCESS PAY SUITE) ================= */}
+                                        {payment.paymentType === "accesspaysuite" && (
+                                            <div className="mt-5 space-y-4">
+
+                                                {/* Account Holder Name (AUTO SPLIT) */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">
+                                                        Account Holder Name
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        placeholder="Enter full name (e.g. Saroj Singh)"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        value={payment.account_holder_name}
+                                                        onChange={(e) => {
+                                                            const fullName = e.target.value;
+                                                            const parts = fullName.trim().split(" ");
+
+                                                            setPayment({
+                                                                ...payment,
+                                                                account_holder_name: fullName,
+                                                                firstName: parts[0] || "",
+                                                                lastName: parts.slice(1).join(" "),
+                                                            });
+                                                        }}
+                                                    />
+                                                </div>
 
                                                 {/* Email */}
                                                 {/* <div>
                                                     <label className="block text-[16px] font-semibold">Email</label>
                                                     <input
                                                         type="email"
-                                                        placeholder="Enter Email"
+                                                        required
+                                                        placeholder="Enter email"
                                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                         value={payment.email}
                                                         onChange={(e) =>
@@ -1980,41 +2068,47 @@ const goToNextMonth = () => {
                                                     />
                                                 </div> */}
 
-                                                {/* Address Line 1 & 2 */}
-                                                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-[16px] font-semibold">Address Line 1</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter Address Line 1"
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.addressLine1}
-                                                            onChange={(e) =>
-                                                                setPayment({ ...payment, addressLine1: e.target.value })
-                                                            }
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[16px] font-semibold">Address Line 2</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter Address Line 2"
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.addressLine2}
-                                                            onChange={(e) =>
-                                                                setPayment({ ...payment, addressLine2: e.target.value })
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div> */}
+                                                {/* Address Line 1 */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">
+                                                        Address Line 1
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        placeholder="Street address"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        value={payment.addressLine1}
+                                                        onChange={(e) =>
+                                                            setPayment({ ...payment, addressLine1: e.target.value })
+                                                        }
+                                                    />
+                                                </div>
+
+                                                {/* Address Line 2 */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">
+                                                        Address Line 2
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Apartment, suite, etc."
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        value={payment.addressLine2}
+                                                        onChange={(e) =>
+                                                            setPayment({ ...payment, addressLine2: e.target.value })
+                                                        }
+                                                    />
+                                                </div>
 
                                                 {/* City & Postal Code */}
-                                                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
+                                                <div className="flex gap-4">
+                                                    <div className="w-full">
                                                         <label className="block text-[16px] font-semibold">City</label>
                                                         <input
                                                             type="text"
-                                                            placeholder="Enter City"
+                                                            required
+                                                            placeholder="City"
                                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                             value={payment.city}
                                                             onChange={(e) =>
@@ -2022,11 +2116,15 @@ const goToNextMonth = () => {
                                                             }
                                                         />
                                                     </div>
-                                                    <div>
-                                                        <label className="block text-[16px] font-semibold">Postal Code</label>
+
+                                                    <div className="w-full">
+                                                        <label className="block text-[16px] font-semibold">
+                                                            Postal Code
+                                                        </label>
                                                         <input
                                                             type="text"
-                                                            placeholder="Enter Postal Code"
+                                                            required
+                                                            placeholder="Postal code"
                                                             className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                             value={payment.postalCode}
                                                             onChange={(e) =>
@@ -2034,228 +2132,59 @@ const goToNextMonth = () => {
                                                             }
                                                         />
                                                     </div>
-                                                </div> */}
-
-                                                {/* Country Code & Region */}
-                                                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-[16px] font-semibold">Country Code</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter Country Code"
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.countryCode}
-                                                            onChange={(e) =>
-                                                                setPayment({ ...payment, countryCode: e.target.value })
-                                                            }
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[16px] font-semibold">Region</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter Region"
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.region}
-                                                            onChange={(e) =>
-                                                                setPayment({ ...payment, region: e.target.value })
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div> */}
-
-                                                {/* Bank Details in 2-column layout */}
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-[16px] font-semibold">Account Holder</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter Account Holder Name"
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.account_holder_name}
-                                                            onChange={(e) =>
-                                                                setPayment({ ...payment, account_holder_name: e.target.value })
-                                                            }
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[16px] font-semibold">Account Number</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter Account Number"
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.account_number}
-                                                            onChange={(e) =>
-                                                                setPayment({ ...payment, account_number: e.target.value })
-                                                            }
-                                                        />
-                                                    </div>
                                                 </div>
+
+                                                {/* Account Number */}
                                                 <div>
-                                                    <label className="block text-[16px] font-semibold">Branch Code</label>
+                                                    <label className="block text-[16px] font-semibold">
+                                                        Account Number
+                                                    </label>
                                                     <input
                                                         type="text"
-                                                        placeholder="Enter Branch Code"
+                                                        required
+                                                        inputMode="numeric"
+                                                        placeholder="Enter account number"
+                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
+                                                        value={payment.account_number}
+                                                        onChange={(e) =>
+                                                            setPayment({
+                                                                ...payment,
+                                                                account_number: e.target.value.replace(/\D/g, ""),
+                                                            })
+                                                        }
+                                                    />
+                                                </div>
+
+                                                {/* Branch Code */}
+                                                <div>
+                                                    <label className="block text-[16px] font-semibold">
+                                                        Branch Code
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        inputMode="numeric"
+                                                        placeholder="Enter branch code"
                                                         className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                         value={payment.branch_code}
                                                         onChange={(e) =>
-                                                            setPayment({ ...payment, branch_code: e.target.value })
-                                                        }
-                                                    />
-                                                </div>
-
-                                                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                  
-                                                    <div>
-                                                        <label className="block text-[16px] font-semibold">Bank Code</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter Bank Code"
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.bank_code}
-                                                            onChange={(e) =>
-                                                                setPayment({ ...payment, bank_code: e.target.value })
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div> */}
-
-                                                {/* Account Type & IBAN */}
-                                                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label className="block text-[16px] font-semibold">Account Type</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter Account Type"
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.account_type}
-                                                            onChange={(e) =>
-                                                                setPayment({ ...payment, account_type: e.target.value })
-                                                            }
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-[16px] font-semibold">IBAN</label>
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter IBAN"
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.iban}
-                                                            onChange={(e) =>
-                                                                setPayment({ ...payment, iban: e.target.value })
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div> */}
-                                            </div>
-                                        )}
-
-                                        {payment.paymentType === "card" && (
-                                            <div className="mt-5 space-y-4">
-                                                {/* Card Holder Name */}
-                                                <div>
-                                                    <label className="block text-[16px] font-semibold">Card Holder Name</label>
-                                                    <input
-                                                        required={payment.paymentType === "card"}
-                                                        type="text"
-                                                        placeholder="Enter card holder name"
-                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                        value={payment.cardHolderName}
-                                                        onChange={(e) =>
                                                             setPayment({
                                                                 ...payment,
-                                                                cardHolderName: e.target.value,
+                                                                branch_code: e.target.value.replace(/\D/g, ""),
                                                             })
                                                         }
                                                     />
                                                 </div>
 
-                                                {/* Expiry Date and CV2 */}
-                                                <div className="flex gap-4">
-                                                    <div className="w-full">
-                                                        <label className="block text-[16px] font-semibold">Expiry Date</label>
-                                                        <input
-                                                            required={payment.paymentType === "card"}
-                                                            type="text"
-                                                            inputMode="numeric"
-                                                            placeholder="MM/YY"
-                                                            maxLength={5}
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.expiryDate}
-                                                            onChange={(e) => {
-                                                                let value = e.target.value.replace(/\D/g, ""); // only digits
-                                                                if (value.length >= 3) {
-                                                                    value = value.slice(0, 2) + "/" + value.slice(2, 4);
-                                                                }
-                                                                setPayment({ ...payment, expiryDate: value });
-                                                            }}
-                                                        />
-                                                    </div>
-
-                                                    <div className="w-full">
-                                                        <label className="block text-[16px] font-semibold">CV2</label>
-                                                        <input
-                                                            required={payment.paymentType === "card"}
-                                                            type="password"
-                                                            inputMode="numeric"
-                                                            placeholder="123"
-                                                            maxLength={4}
-                                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                            value={payment.cv2}
-                                                            onChange={(e) =>
-                                                                setPayment({
-                                                                    ...payment,
-                                                                    cv2: e.target.value.replace(/\D/g, ""), // only digits
-                                                                })
-                                                            }
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                {/* PAN (Card Number) */}
-                                                <div>
-                                                    <label className="block text-[16px] font-semibold">PAN</label>
-                                                    <input
-                                                        type="text"
-                                                        required={payment.paymentType === "card"}
-                                                        inputMode="numeric"
-                                                        placeholder="**** **** **** ****"
-                                                        maxLength={19}
-                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base tracking-widest"
-                                                        value={payment.pan}
-                                                        onChange={(e) => {
-                                                            let value = e.target.value.replace(/\D/g, ""); // only digits
-                                                            value = value.replace(/(.{4})/g, "$1 ").trim(); // format as XXXX XXXX XXXX XXXX
-                                                            setPayment({ ...payment, pan: value });
-                                                        }}
-                                                    />
-                                                </div>
-
-                                                {/* Billing Address */}
-                                                <div>
-                                                    <label className="block text-[16px] font-semibold">Billing Address</label>
-                                                    <input
-                                                        type="text"
-                                                        required={payment.paymentType === "card"}
-                                                        placeholder="Enter billing address"
-                                                        className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                        value={payment.billingAddress}
-                                                        onChange={(e) =>
-                                                            setPayment({
-                                                                ...payment,
-                                                                billingAddress: e.target.value, // allow full text input
-                                                            })
-                                                        }
-                                                    />
-                                                </div>
                                             </div>
                                         )}
 
+
+                                        {/* ================= AUTHORISE ================= */}
                                         <div className="flex items-center space-x-2 pt-2">
-                                            <label className="flex items-center space-x-2 pt-2 cursor-pointer text-[16px] font-semibold">
+                                            <label className="flex items-center space-x-2 cursor-pointer text-[16px] font-semibold">
                                                 <input
                                                     type="checkbox"
-                                                    className="border border-gray-300 rounded-xl px-4 py-3 text-base"
                                                     checked={payment.authorise}
                                                     onChange={(e) =>
                                                         setPayment({ ...payment, authorise: e.target.checked })
@@ -2263,18 +2192,19 @@ const goToNextMonth = () => {
                                                 />
                                                 <span>I can authorise Direct Debits on this account myself</span>
                                             </label>
-
                                         </div>
+
                                     </div>
+
                                     <div className="w-full mx-auto flex justify-center" >
                                         <button
                                             type="button"
                                             disabled={
                                                 isSubmitting || // disable while submitting
                                                 !payment.authorise ||
-                                                (payment.paymentType === "bank" && !payment.account_holder_name && !payment.account_number && !payment.branch_code) ||
-                                                (payment.paymentType === "card" &&
-                                                    (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan || !payment.billingAddress))
+                                                (payment.paymentType === "bank" && isBankInvalid) ||
+                                                (payment.paymentType === "accesspaysuite" &&
+                                                    (isCardInvalid))
                                             }
                                             onClick={async () => {
                                                 setIsSubmitting(true); // start loading
@@ -2286,12 +2216,15 @@ const goToNextMonth = () => {
                                                     setIsSubmitting(false); // stop loading after submit
                                                 }
                                             }}
-                                            className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold ${isSubmitting ||
-                                                !payment.authorise || (payment.paymentType === "card" &&
-                                                    (!payment.cardHolderName || !payment.expiryDate || !payment.cv2 || !payment.pan))
-                                                ? "bg-gray-400 cursor-not-allowed"
-                                                : "bg-[#237FEA] cursor-pointer"
+                                            className={`w-full max-w-[90%] mx-auto my-3 text-white text-[16px] py-3 rounded-lg font-semibold
+${isSubmitting ||
+                                                    !payment.authorise ||
+                                                    isCardInvalid ||
+                                                    isBankInvalid
+                                                    ? "bg-gray-400 cursor-not-allowed"
+                                                    : "bg-[#237FEA] cursor-pointer"
                                                 }`}
+
                                         >
                                             {isSubmitting ? "Submitting..." : "Set up Direct Debit"}
                                         </button>

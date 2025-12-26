@@ -20,8 +20,8 @@ const trialLists = () => {
     const [toDate, setToDate] = useState(null);
     const [tempSelectedAgents, setTempSelectedAgents] = useState([]);
     const [selectedStudents, setSelectedStudents] = useState([]);
-        const [isFilterApplied, setIsFilterApplied] = useState(false);
-    
+    const [isFilterApplied, setIsFilterApplied] = useState(false);
+
     const toggleSelect = (studentId) => {
         setSelectedStudents((prev) =>
             prev.includes(studentId)
@@ -43,7 +43,7 @@ const trialLists = () => {
                     'Date of Booking': new Date(item.createdAt || item.trialDate).toLocaleDateString(),
                     'Date of Trial': new Date(item.trialDate).toLocaleDateString(),
                     Source: item.parents?.[0]?.howDidYouHear || "-",
-                    Attempts: "0",
+                    Attempts: item.attempt || 0,
                     Status: item.status,
                 });
             });
@@ -259,7 +259,8 @@ const trialLists = () => {
         }
 
         const bookedByParams = savedAgent || [];
-  setIsFilterApplied(true);
+        setIsFilterApplied(true);
+        setSelectedVenue(null)
         fetchBookFreeTrials(
             "",
             "",
@@ -329,11 +330,11 @@ const trialLists = () => {
             .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
             .join(" ");           // join with space
     };
-     useEffect(() => {
-            if (isFilterApplied) {
-                setIsFilterApplied(false)
-            }
-        })
+    useEffect(() => {
+        if (isFilterApplied) {
+            setIsFilterApplied(false)
+        }
+    })
     const canServicehistory =
         checkPermission({ module: 'service-history', action: 'view-listing' })
     const freeTrialColumns = [
@@ -397,7 +398,11 @@ const trialLists = () => {
         },
         {
             header: "Attempts",
-            render: () => "0", // replace with real attempts later if needed
+            render: (item) => {
+                const attempt = item?.attempt || "0";
+
+                return attempt;
+            } // replace with real attempts later if needed
         },
         {
             header: "Status",

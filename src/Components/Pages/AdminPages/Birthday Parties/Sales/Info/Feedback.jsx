@@ -1,43 +1,161 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
 import { useMembers } from '../../../contexts/MemberContext';
 import Loader from '../../../contexts/Loader';
 import { usePermission } from '../../../Common/permission';
+import { useSearchParams } from "react-router-dom";
+import Select from "react-select";
+import Swal from "sweetalert2";
 
 const Feedback = () => {
   const { checkPermission } = usePermission();
-  const [openResolve, setOpenResolve] = useState(null);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // 🔒 FIXED SERVICE TYPE
+  const SERVICE_TYPE = "birthdayParty";
+  const DISPLAY_SERVICE_TYPE = "birthday party";
+
+  const bookingId = searchParams.get("id");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const token = localStorage.getItem("adminToken");
+
+  const { fetchMembers, loading } = useMembers();
+  const formatDate = (dateString, withTime = false) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    const options = {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    };
+    if (withTime) {
+      return (
+        date.toLocaleDateString("en-US", options) +
+        ", " +
+        date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+      );
+    }
+    return date.toLocaleDateString("en-US", options);
+  };
+  // ---------------- STATES ----------------
+  const [feedbackData, setFeedbackData] = useState([]);
+  const [agentAndClassesData, setAgentAndClassesData] = useState({});
+  const [createLoading, setCreateLoading] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
   const [resolveData, setResolveData] = useState('');
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const members = [
-    {
-      id: 1,
-      createdAt: '14/03/2023',
-      role: { role: 'Positive' },
-      phoneNumber: '1234567890',
-      email: 'user1@example.com',
-      position: 'Coach'
-    },
-    {
-      id: 2,
-      createdAt: '15/03/2023',
-      role: { role: 'Negative' },
-      phoneNumber: '0987654321',
-      email: 'user2@example.com',
-      position: 'Assistant'
-    },
-    {
-      id: 3,
-      createdAt: '16/03/2023',
-      role: { role: 'Neutral' },
-      phoneNumber: '1122334455',
-      email: 'user3@example.com',
-      position: 'Manager'
-    }
-  ]; const { fetchMembers, loading } = useMembers();
+  const [selectedAgent, setSelectedAgent] = useState({
+    id: resolveData?.assignedAgent?.id || null,
+    name: resolveData?.assignedAgent
+      ? `${resolveData.assignedAgent.firstName} ${resolveData.assignedAgent.lastName}`
+      : "",
+  }); const [showAgentModal, setShowAgentModal] = useState(false);
+  const [openResolve, setOpenResolve] = useState(false);
+
+  const [formData, setFormData] = useState({
+    // classScheduleId: null,
+    agentId: null,
+    feedbackType: "",
+    category: "",
+    notes: "",
+  });
+
   const [selectedUserIds, setSelectedUserIds] = useState([]);
+
+
+
+
+  // ---------------- FETCH FEEDBACK ----------------
+  const fetchFeedback = useCallback(async () => {
+    if (!token) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/feedback/list`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const result = await response.json();
+
+      if (!result?.status) {
+        Swal.fire("Error", result.message, "error");
+        return;
+      }
+
+      // 🎯 ONLY BIRTHDAY PARTY DATA
+      setFeedbackData(result.data?.[DISPLAY_SERVICE_TYPE] || []);
+    } catch (err) {
+      Swal.fire("Error", err.message, "error");
+    }
+  }, []);
+
+  // ---------------- FETCH AGENTS & CLASSES ----------------
+  const fetchAgentAndClasses = useCallback(async () => {
+    if (!token) return;
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/feedback/agent-classes/list`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const result = await response.json();
+
+      if (!result?.status) {
+        Swal.fire("Error", result.message, "error");
+        return;
+      }
+
+      setAgentAndClassesData(result.data || {});
+    } catch (err) {
+      Swal.fire("Error", err.message, "error");
+    }
+  }, []);
+
+  // ---------------- EFFECT ----------------
+  useEffect(() => {
+    const load = async () => {
+      await fetchMembers();
+      await fetchFeedback();
+      await fetchAgentAndClasses();
+    };
+    load();
+  }, [fetchMembers, fetchFeedback, fetchAgentAndClasses]);
+
+  // ---------------- OPTIONS ----------------
+  const classOptions = useMemo(() => {
+    return (agentAndClassesData?.classSchedules || []).map((cls) => ({
+      value: cls.id,
+      label: `${cls.className} (${cls.day} • ${cls.startTime} - ${cls.endTime})`,
+    }));
+  }, [agentAndClassesData]);
+
+  const agentOptions = useMemo(() => {
+    return (agentAndClassesData?.agents || []).map((agent) => ({
+      value: agent.id,
+      label: `${agent.firstName} ${agent.lastName}`,
+    }));
+  }, [agentAndClassesData]);
+  const feedbackTypeOptions = [
+    { value: "Positive", label: "Positive" },
+    { value: "Negative", label: "Negative" },
+  ];
+
+  const categoryOptions = [
+    { value: "Behavior", label: "Behavior" },
+    { value: "Attendance", label: "Attendance" },
+  ];
+  // ---------------- HANDLERS ----------------
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
   const toggleCheckbox = (userId) => {
     setSelectedUserIds((prev) =>
       prev.includes(userId)
@@ -45,23 +163,156 @@ const Feedback = () => {
         : [...prev, userId]
     );
   };
-  const isAllSelected = members.length > 0 && selectedUserIds.length === members.length;
+  const isAllSelected = feedbackData.length > 0 && selectedUserIds.length === feedbackData.length;
 
   const toggleSelectAll = () => {
     if (isAllSelected) {
       setSelectedUserIds([]);
     } else {
-      const allIds = members.map((user) => user.id);
+      const allIds = feedbackData.map((user) => user.id);
       setSelectedUserIds(allIds);
     }
   };
+  // ---------------- CREATE FEEDBACK ----------------
+  const handleSubmit = async () => {
+    const { agentId, feedbackType, category, notes } = formData;
 
+    if (!agentId || !feedbackType || !category || !notes) {
+      return Swal.fire("Error", "All fields are required", "error");
+    }
+    // classScheduleId
+    const payload = {
+      birthdayPartyBookingId: bookingId,
+      // classScheduleId,
+      serviceType: DISPLAY_SERVICE_TYPE,
+      feedbackType,
+      category,
+      notes,
+      agentAssigned: agentId,
+    };
 
-  const navigate = useNavigate();
-  const [openForm, setOpenForm] = useState(false);
+    Swal.fire({
+      title: "Submitting...",
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/admin/feedback/create`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message);
+
+      Swal.fire("Success", result.message, "success");
+      setOpenForm(false);
+      setFormData({
+        // classScheduleId: null,
+        agentId: null,
+        feedbackType: "",
+        category: "",
+        notes: "",
+      });
+
+      fetchFeedback();
+    } catch (err) {
+      Swal.fire("Error", err.message, "error");
+    }
+  };
+  const handleSave = async (id, successCallback) => {
+    if (!token) return Swal.fire("Error", "Token not found. Please login again.", "error");
+    if (!selectedAgent?.id) {
+      return Swal.fire(
+        "Agent Required",
+        "Please select an agent before saving.",
+        "warning"
+      );
+    }
+    const myHeaders = new Headers({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    });
+
+    const payload = {
+      agentAssigned: selectedAgent?.id,
+    };
+
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: JSON.stringify(payload),
+      redirect: "follow",
+    };
+
+    try {
+      // Show loading
+      Swal.fire({
+        title: "Updating...",
+        text: "Please wait while we save changes.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/feedback/resolve/${id}`, requestOptions);
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result?.message || "Something went wrong");
+      }
+
+      // Close loading
+      Swal.close();
+
+      // Show success message from API response
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: result?.message || "Information updated successfully.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      fetchFeedback();
+      setShowAgentModal(false)
+      setOpenResolve(false);
+      setSelectedAgent(null)
+      setResolveData('');
+      // Dynamic callback after success (e.g., refetch data)
+      if (typeof successCallback === "function") {
+        successCallback(result);
+      }
+
+      return result;
+    } catch (error) {
+      Swal.close();
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed!",
+        text: error.message || "Something went wrong while updating.",
+      });
+    }
+  };
+
   useEffect(() => {
-    fetchMembers();
-  }, [fetchMembers]);
+    if (openResolve && resolveData?.assignedAgent) {
+      setSelectedAgent({
+        id: resolveData.assignedAgent.id,
+        name: `${resolveData.assignedAgent.firstName} ${resolveData.assignedAgent.lastName}`,
+      });
+    }
+  }, [openResolve, resolveData]);
+
+
 
   if (loading) {
     return (
@@ -90,7 +341,7 @@ const Feedback = () => {
 
             <div className={`transition-all duration-300 w-full`}>
 
-              {members.length > 0 ? (
+              {feedbackData.length > 0 ? (
                 <div className="overflow-auto rounded-2xl bg-white shadow-sm">
                   <table className="min-w-full text-sm">
                     <thead className="bg-[#F5F5F5] text-left border border-[#EFEEF2]">
@@ -107,7 +358,7 @@ const Feedback = () => {
                           </div>
                         </th>
                         <th className="p-4">Type of Feedback</th>
-                        <th className="p-4">Venue</th>
+                        {/* <th className="p-4">Venue</th> */}
                         <th className="p-4">Category</th>
                         <th className="p-4">Reason</th>
                         <th className="p-4">Agent Assigned</th>
@@ -116,7 +367,7 @@ const Feedback = () => {
                     </thead>
 
                     <tbody>
-                      {members.map((user, idx) => {
+                      {feedbackData.map((user, idx) => {
                         const isChecked = selectedUserIds.includes(user.id);
                         return (
                           <tr key={idx} className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50">
@@ -129,19 +380,26 @@ const Feedback = () => {
                                   {isChecked && <Check size={16} strokeWidth={3} className="text-gray-500" />}
                                 </button>
 
-                                {user.createdAt}
+                                {formatDate(user.createdAt, false)}
                               </div>
                             </td>
-                            <td className="p-4" onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}>{user.role?.role || '-'}</td>
-                            <td className="p-4" onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}>{user.phoneNumber || '-'}</td>
-                            <td className="p-4" onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}>{user.email || '-'}</td>
-                            <td className="p-4" onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}>{user.position || '-'}</td>
-                            <td className="p-4" onClick={() => navigate(`/configuration/members/update?id=${user.id}`)}>{user.position || '-'}</td>
+                            <td className="p-4" >{user?.feedbackType || '-'}</td>
+                            {/* <td className="p-4" >{user?.venue?.name || '-'}</td> */}
+                            <td className="p-4" >{user?.category || '-'}</td>
+                            <td className="p-4" >{user?.notes || '-'}
+                            </td>
+                            <td className="p-4" >{user?.assignedAgent
+                              ? `${user.assignedAgent.firstName} ${user.assignedAgent.lastName}`
+                              : "-"}</td>
                             <td className="p-4">
                               <div className="flex items-center gap-3">
-                                <button className='text-[#EDA600] bg-[#FDF6E5] px-5 rounded-xl p-2 '>
-                                  In Progress
+                                <button className="text-[#EDA600] bg-[#FDF6E5] px-5 rounded-xl p-2">
+                                  {user.status
+                                    ?.replace(/_/g, " ")
+                                    ?.toLowerCase()
+                                    ?.replace(/\b\w/g, (char) => char.toUpperCase())}
                                 </button>
+
                                 <button onClick={() => {
                                   setOpenResolve(true);
                                   setResolveData(user)
@@ -171,7 +429,7 @@ const Feedback = () => {
 
         {openForm && (
           <div className="fixed inset-0 bg-[#00000047] bg-opacity-40 flex items-center justify-center z-50">
-            <div className="bg-white rounded-2xl w-[95%] md:w-[420px] md:h-[700px] overflow-auto shadow-lg relative">
+            <div className="bg-white rounded-2xl w-[95%] md:w-[420px] md:max-h-[90vh] overflow-auto shadow-lg relative">
               <div className="flex relative justify-center items-center border-b border-[#E2E1E5] px-6 py-4">
                 <h2 className="text-lg font-semibold text-gray-800">Add Feedback</h2>
                 <button
@@ -188,65 +446,155 @@ const Feedback = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
                     Please select the classes you wish to add feedback for
                   </label>
-                  <select className="w-full border border-[#E2E1E5] rounded-xl p-3 focus:ring-2 focus:ring-blue-400">
-                    <option value="">Select Class</option>
-                    <option value="Class A">Class A</option>
-                    <option value="Class B">Class B</option>
-                  </select>
+
+                  {/* <Select
+  options={classOptions}
+  placeholder="Select Class"
+  isSearchable
+  isClearable
+  value={
+    classOptions.find(
+      (opt) => opt.value === formData.classScheduleId
+    ) || null
+  }
+  onChange={(selected) => {
+    setFormData((prev) => ({
+      ...prev,
+      classScheduleId: selected?.value || null,
+    }));
+  }}
+  className="w-full"
+  classNamePrefix="react-select"
+/> */}
+
                 </div>
 
                 {/* Feedback Type */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Feedback type</label>
-                  <select className="w-full border border-[#E2E1E5] rounded-xl p-3 focus:ring-2 focus:ring-blue-400">
-                    <option value="">Select Type</option>
-                    <option value="Positive">Positive</option>
-                    <option value="Negative">Negative</option>
-                  </select>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Feedback type
+                  </label>
+                  <Select
+                    name="feedbackType"
+                    options={feedbackTypeOptions}
+                    placeholder="Select Type"
+                    isClearable
+                    isSearchable
+                    value={
+                      feedbackTypeOptions.find(
+                        (opt) => opt.value === formData.feedbackType
+                      ) || null
+                    }
+                    onChange={(selected) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        feedbackType: selected?.value || "",
+                      }))
+                    }
+                    className="w-full"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#282829] mb-1">Category</label>
-                  <select className="w-full border border-[#E2E1E5] rounded-xl p-3 focus:ring-2 focus:ring-blue-400">
-                    <option value="">Select Category</option>
-                    <option value="Behavior">Behavior</option>
-                    <option value="Attendance">Attendance</option>
-                  </select>
+                  <label className="block text-sm font-semibold text-[#282829] mb-1">
+                    Category
+                  </label>
+                  <Select
+                    name="category"
+                    options={categoryOptions}
+                    placeholder="Select Category"
+                    isClearable
+                    isSearchable
+                    value={
+                      categoryOptions.find(
+                        (opt) => opt.value === formData.category
+                      ) || null
+                    }
+                    onChange={(selected) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        category: selected?.value || "",
+                      }))
+                    }
+                    className="w-full"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 {/* Notes */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#282829] mb-1">Notes</label>
+                  <label className="block text-sm font-semibold text-[#282829] mb-1">
+                    Notes
+                  </label>
                   <textarea
-                    className="w-full border border-[#E2E1E5] rounded-xl p-3 h-24 resize-none focus:ring-2 focus:ring-blue-400"
+                    name="notes"
+                    value={formData.notes}
+                    onChange={handleChange}
+                    className="w-full border border-[#E2E1E5] rounded-xl p-3 h-24 resize-none"
                     placeholder="Write your notes here..."
-                  ></textarea>
+                  />
                 </div>
 
                 {/* Assign Agent */}
                 <div>
-                  <label className="block text-sm font-semibold text-[#282829] mb-1">Assign agent</label>
-                  <select className="w-full border border-[#E2E1E5] rounded-xl p-3 focus:ring-2 focus:ring-blue-400">
-                    <option value="">Select Agent</option>
-                    <option value="Agent A">Agent A</option>
-                    <option value="Agent B">Agent B</option>
-                  </select>
+                  <label className="block text-sm font-semibold text-[#282829] mb-1">
+                    Assign agent
+                  </label>
+                  <Select
+                    name="agent"
+                    options={agentOptions}
+                    placeholder="Select Agent"
+                    isClearable
+                    isSearchable
+                    value={
+                      agentOptions.find(
+                        (opt) => opt.value === formData.agentId
+                      ) || null
+                    }
+                    onChange={(selected) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        agentId: selected?.value || null,
+                        agentName: selected?.label || "",
+                      }));
+                    }}
+                    className="w-full"
+                    classNamePrefix="react-select"
+                  />
                 </div>
 
                 {/* Buttons */}
-                <div className="flex justify-end items-center gap-3 pt-4">
+                <div className="flex justify-end gap-3 pt-4">
                   <button
-                    onClick={() => setOpenForm(false)}
-                    className="px-5 py-2 rounded-xl border border-[#E2E1E5] text-gray-700 hover:bg-gray-100"
+                    onClick={() => {
+                      setFormData({
+                        className: "",
+                        agentId: null,
+                        // classScheduleId: null,
+                        feedbackType: "",
+                        category: "",
+                        notes: "",
+                        agent: "",
+                      });
+                      setOpenForm(false);
+                    }}
+                    className="px-5 py-2 rounded-xl border"
                   >
                     Cancel
                   </button>
-                  <button className="px-6 py-2 bg-[#237FEA] text-white font-semibold rounded-xl hover:bg-blue-700">
+
+
+                  <button
+                    onClick={handleSubmit}
+                    className="px-6 py-2 bg-[#237FEA] text-white rounded-xl"
+                  >
                     Submit
                   </button>
                 </div>
               </div>
+
             </div>
           </div>
         )}
@@ -278,32 +626,32 @@ const Feedback = () => {
           <div className="divide-y divide-gray-200">
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Agent</span>
-              <span className="text-gray-800 font-semibold">Nilio Bagga</span>
+              <span className="text-gray-800 font-semibold">{`${resolveData?.assignedAgent?.firstName} ${resolveData?.assignedAgent?.lastName}`}</span>
             </div>
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Date submitted</span>
-              <span className="text-gray-800 font-semibold">14/03/2023, 10:45am</span>
+              <span className="text-gray-800 font-semibold">{formatDate(resolveData?.createdAt, true)}</span>
             </div>
-            <div className="flex justify-between py-3 text-sm md:text-base">
+            {/* <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Venue</span>
-              <span className="text-gray-800 font-semibold">Acton</span>
-            </div>
-            <div className="flex justify-between py-3 text-sm md:text-base">
+              <span className="text-gray-800 font-semibold">{resolveData?.venue?.name}</span>
+            </div> */}
+            {/* <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Class details</span>
-              <span className="text-gray-800 font-semibold">Session 3, 14/06/2023</span>
-            </div>
+              <span className="text-gray-800 font-semibold">{`${resolveData?.classSchedule?.className} (${resolveData?.classSchedule?.day} • ${resolveData?.classSchedule?.startTime} - ${resolveData?.classSchedule?.endTime})`}</span>
+            </div> */}
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Feedback type</span>
-              <span className="text-gray-800 font-semibold">Positive</span>
+              <span className="text-gray-800 font-semibold capitalize">{resolveData?.feedbackType}</span>
             </div>
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Category</span>
-              <span className="text-gray-800 font-semibold">Coaches</span>
+              <span className="text-gray-800 font-semibold capitalize">{resolveData?.category}</span>
             </div>
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Notes</span>
               <span className="text-gray-800 font-semibold max-w-[60%] text-right">
-                Coaches arriving late each week
+                {resolveData?.notes}
               </span>
             </div>
           </div>
@@ -315,21 +663,55 @@ const Feedback = () => {
             <h3 className="text-gray-800 font-semibold mb-3">Assigned to</h3>
             <div className="flex items-center gap-3">
               <img
-                src="https://randomuser.me/api/portraits/men/32.jpg"
+                src={resolveData?.assignedAgent?.profile || '/members/dummyuser.png'}
                 alt="Ethan"
                 className="w-10 h-10 rounded-full"
               />
-              <span className="text-gray-800 font-semibold">Ethan</span>
+              <span className="text-gray-800 font-semibold">{`${resolveData?.assignedAgent?.firstName} ${resolveData?.assignedAgent?.lastName}`}</span>
             </div>
           </div>
-          <button className="text-[#237FEA] font-semibold mt-3 md:mt-0 hover:underline">
+          <button onClick={() => setShowAgentModal(true)} className="text-[#237FEA] font-semibold mt-3 md:mt-0 hover:underline">
             Change
           </button>
         </div>
-
+        {showAgentModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+              <h3 className="text-gray-800 font-semibold mb-4">Assign Agent</h3>
+              <Select
+                options={agentOptions}
+                placeholder="Select Agent"
+                isClearable
+                isSearchable
+                value={agentOptions.find((opt) => opt.value === selectedAgent?.id) || null}
+                onChange={(selected) => {
+                  setSelectedAgent({
+                    id: selected?.value || null,
+                    name: selected?.label || "",
+                  });
+                }}
+                className="w-full"
+                classNamePrefix="react-select"
+              />
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                  onClick={() => setShowAgentModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={() => handleSave(resolveData.id)}                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Resolve Button */}
         <div className="w-full max-w-4xl flex justify-end mt-6">
-          <button className="bg-[#237FEA] hover:bg-blue-700 text-white font-semibold px-8 py-2 rounded-xl">
+          <button onClick={() => handleSave(resolveData.id)} className="bg-[#237FEA] hover:bg-blue-700 text-white font-semibold px-8 py-2 rounded-xl">
             Resolve
           </button>
         </div>

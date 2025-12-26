@@ -67,7 +67,7 @@ const AllDashboard = () => {
         return `${yyyy}-${mm}-${dd}`; // returns "2025-08-24"
     }
 
- const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10; // you can change this
     const startIndex = (currentPage - 1) * rowsPerPage;
@@ -191,7 +191,7 @@ const AllDashboard = () => {
         const loadLeads = async () => {
             try {
                 setMainLoading(true);
-                 setCurrentPage(1);
+                setCurrentPage(1);
                 await fetchLeads();
             } finally {
                 setMainLoading(false);
@@ -319,7 +319,7 @@ const AllDashboard = () => {
                 timer: 2000,
                 showConfirmButton: false,
             });
- setCurrentPage(1);
+            setCurrentPage(1);
             await fetchLeads(); // refresh roles or data
             setIsOpen(false);   // close modal or form
             setFormData({});    // reset form if needed
@@ -341,11 +341,11 @@ const AllDashboard = () => {
         setSearchTerm(value);
 
         if (value.length === 0) {
-             setCurrentPage(1);
+            setCurrentPage(1);
             fetchLeads(""); // optional: reload default list
             return;
         }
-         setCurrentPage(1);
+        setCurrentPage(1);
         fetchLeads(value);
 
     };
@@ -467,13 +467,13 @@ const AllDashboard = () => {
 
     const calendarDays = getDaysArray();
 
-       const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+    const goToPreviousMonth = () => {
+        setCurrentDate(new Date(year, month - 1, 1));
+    };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1));
-};
+    const goToNextMonth = () => {
+        setCurrentDate(new Date(year, month + 1, 1));
+    };
 
     const isInRange = (date) => {
         if (!fromDate || !toDate || !date) return false;
@@ -536,7 +536,8 @@ const goToNextMonth = () => {
 
         const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
         const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
- setCurrentPage(1);
+        setCurrentPage(1);
+        setSelectedVenue(null);
         fetchLeads(
             "",
             checkedStatuses.package,
@@ -639,7 +640,7 @@ const goToNextMonth = () => {
             : selectedVenue?.value
                 ? selectedVenue.value
                 : "";
- setCurrentPage(1);
+        setCurrentPage(1);
         fetchLeads(
             "",
             checkedStatuses.package,
@@ -702,13 +703,13 @@ const goToNextMonth = () => {
 
                         <div className="flex justify-end"> {paginatedData.length == 0 && (
                             <button onClick={() => {
-                                 setCurrentPage(1);
+                                setCurrentPage(1);
                                 fetchLeads();
                                 setFromDate('');
                                 setToDate('');
-                                                setCheckedStatuses(
-                  filterOptions.reduce((acc, opt) => ({ ...acc, [opt.key]: false }), {})
-                );
+                                setCheckedStatuses(
+                                    filterOptions.reduce((acc, opt) => ({ ...acc, [opt.key]: false }), {})
+                                );
                             }}
                                 className="flex items-center gap-2 bg-[#ccc] text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-500 transition">
 
@@ -780,22 +781,21 @@ const goToNextMonth = () => {
                                                             ? `${lead.booking.coach.firstName} ${lead.booking.coach.lastName}`
                                                             : "-"}</td>
                                                         <td className="py-3 px-4 whitespace-nowrap">
-                                                        <button
-  className={`capitalize w-[90px] py-2 rounded-xl text-xs font-medium
-    ${
-      lead.status?.trim() === "active"
-        ? "bg-green-50 text-green-500"
-        : lead.status?.trim() === "pending"
-        ? "bg-yellow-50 text-yellow-600"
-        : lead.status?.trim() === "cancelled"
-        ? "bg-red-50 text-red-500"
-        : lead.status?.trim() === "completed"
-        ? "bg-blue-50 text-blue-500"
-        : "bg-gray-100 text-gray-500"
-    }`}
->
-  {lead.status?.trim() || "-"}
-</button>
+                                                            <button
+                                                                className={`capitalize w-[90px] py-2 rounded-xl text-xs font-medium
+    ${lead.status?.trim() === "active"
+                                                                        ? "bg-green-50 text-green-500"
+                                                                        : lead.status?.trim() === "pending"
+                                                                            ? "bg-yellow-50 text-yellow-600"
+                                                                            : lead.status?.trim() === "cancelled"
+                                                                                ? "bg-red-50 text-red-500"
+                                                                                : lead.status?.trim() === "completed"
+                                                                                    ? "bg-blue-50 text-blue-500"
+                                                                                    : "bg-gray-100 text-gray-500"
+                                                                    }`}
+                                                            >
+                                                                {lead.status?.trim() || "-"}
+                                                            </button>
 
 
                                                         </td>
@@ -805,7 +805,7 @@ const goToNextMonth = () => {
                                         </tbody>
 
                                     </table>
-  {totalItems > 0 && (
+                                    {totalItems > 0 && (
                                         <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 border-t border-gray-200 text-sm text-gray-600">
 
                                             {/* Rows per page */}

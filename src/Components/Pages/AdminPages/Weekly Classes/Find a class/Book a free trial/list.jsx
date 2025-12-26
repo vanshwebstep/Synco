@@ -55,10 +55,10 @@ const List = () => {
     const { keyInfoData, fetchKeyInfo } = useMembers();
     const { adminInfo, setAdminInfo } = useNotification();
 
-    const [country, setCountry] = useState("us"); // default country
-    const [country2, setCountry2] = useState("us"); // default country
-    const [dialCode, setDialCode] = useState("+1"); // store selected code silently
-    const [dialCode2, setDialCode2] = useState("+1"); // store selected code silently
+    const [country, setCountry] = useState("uk"); // default country
+    const [country2, setCountry2] = useState("uk"); // default country
+    const [dialCode, setDialCode] = useState("+44"); // store selected code silently
+    const [dialCode2, setDialCode2] = useState("+44"); // store selected code silently
     const handleChange = (value, data) => {
         // When library fires onChange, just update the dial code
         setDialCode("+" + data.dialCode);
@@ -691,7 +691,7 @@ const List = () => {
                 dateOfBirth: toDateOnly(s.dateOfBirth),
             })),
             parents: parents.map(({ id, ...rest }) => rest),
-             emergency,
+            emergency,
         };
 
 
@@ -1104,13 +1104,23 @@ const List = () => {
                                                     const formattedDate = formatLocalDate(date);
                                                     const isAvailable = sessionDatesSet.has(formattedDate); // check if this date is valid session
                                                     const isSelected = isSameDate(date, selectedDate);
+                                                    const today = new Date();
+                                                    today.setHours(0, 0, 0, 0);
 
+                                                    const current = new Date(date);
+                                                    current.setHours(0, 0, 0, 0);
+                                                    const isPastAvailable = isAvailable && current < today;
                                                     return (
                                                         <div
                                                             key={i}
                                                             onClick={() => isAvailable && handleDateClick(date)}
                                                             className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full
-    ${isAvailable ? "cursor-pointer bg-sky-200" : "cursor-not-allowed opacity-40 bg-white"}
+    ${isPastAvailable
+                                                                    ? "bg-red-200 text-red-700 cursor-not-allowed"
+                                                                    : isAvailable
+                                                                        ? "cursor-pointer bg-sky-200"
+                                                                        : "cursor-not-allowed opacity-40 bg-white"
+                                                                }
     ${isSelected ? "selectedDate text-white font-bold" : ""}
   `}
                                                         >
@@ -1357,7 +1367,7 @@ const List = () => {
                                             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                                                 {/* Flag Dropdown */}
                                                 <PhoneInput
-                                                    country="us"
+                                                    country="uk"
                                                     value={dialCode2}
                                                     onChange={handleChange2}
                                                     disableDropdown={true}       // disables changing the country
@@ -1477,7 +1487,7 @@ const List = () => {
                                     <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                                         {/* Flag Dropdown */}
                                         <PhoneInput
-                                            country="us"
+                                            country="uk"
                                             value={dialCode}
                                             onChange={handleChange}
                                             onCountryChange={handleCountryChange}

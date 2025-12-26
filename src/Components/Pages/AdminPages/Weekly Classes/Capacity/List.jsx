@@ -74,7 +74,7 @@ const Capacity = () => {
     };
     const applyFilter = () => {
         let forOtherDate = "";
-
+setSelectedVenue(null);
         // ✅ Check for partial date input
         if ((fromDate && !toDate) || (!fromDate && toDate)) {
             Swal.fire({

@@ -57,7 +57,7 @@ function exportDataToExcel(data) {
 }
 const Filters = () => {
 
-    const { fetchData, activeTabm, setActiveTab, data, selectedUserIds, sendleadsMail ,setCurrentPage } = useLeads()
+    const { fetchData, activeTabm, setActiveTab, data, selectedUserIds, sendleadsMail, setCurrentPage } = useLeads()
     const [selectedVenue, setSelectedVenue] = useState(null);
     const today = new Date();
     const [noLoaderShow, setNoLoaderShow] = useState(false);
@@ -185,12 +185,12 @@ const Filters = () => {
     const calendarDays = getDaysArray();
 
     const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+        setCurrentDate(new Date(year, month - 1, 1));
+    };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1)); 
- };
+    const goToNextMonth = () => {
+        setCurrentDate(new Date(year, month + 1, 1));
+    };
 
     const isSameDate = (d1, d2) =>
         d1 &&
@@ -242,7 +242,7 @@ const goToNextMonth = () => {
         setCurrentPage(1);
         const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
         const hasRange = isValidDate(fromDate) && isValidDate(toDate);
-
+        setSelectedVenue(null)
         const selectedFilters = Object.keys(checkedStatuses).filter(
             (key) => checkedStatuses[key]
         );

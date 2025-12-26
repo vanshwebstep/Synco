@@ -423,7 +423,7 @@ const reasonOptions = [
                         {input.type === "phone" && (
                             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                                 <PhoneInput
-                                    country={"us"}
+                                    country={"uk"}
                                     value={getValue("dialCode")}
                                     onChange={(val, data) => {
                                         setValue("dialCode", val);

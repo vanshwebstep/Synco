@@ -516,6 +516,7 @@ const AllDashboard = () => {
         const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
         const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
         setCurrentPage(1);
+        setSelectedVenue(null)
         fetchLeads(
             "",
             checkedStatuses.package,

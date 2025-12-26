@@ -4,8 +4,8 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
 const Test = () => {
-  const [country, setCountry] = useState("us"); // default country
-  const [dialCode, setDialCode] = useState("+1"); // store selected code silently
+  const [country, setCountry] = useState("uk"); // default country
+  const [dialCode, setDialCode] = useState("+44"); // store selected code silently
   const [number, setNumber] = useState("");
 
   const handleChange = (value, data) => {

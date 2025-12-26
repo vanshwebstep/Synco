@@ -984,7 +984,7 @@ const BookACamp = () => {
                         <>
                             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                                 <PhoneInput
-                                    country="us"
+                                    country="uk"
                                     value={
                                         section === "parent"
                                             ? formData.parent[index]?.dialCode || ""

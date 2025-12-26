@@ -286,7 +286,7 @@ const CancellationList = () => {
             }
         }
         setIsFilterApplied(true);
-
+        setSelectedVenue(null)
         const bookedByParams = savedAgent || [];
         if (active === "request") {
             fetchRequestToCancellations(

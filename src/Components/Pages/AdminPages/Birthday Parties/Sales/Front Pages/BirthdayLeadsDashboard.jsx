@@ -471,13 +471,13 @@ const BirthdayLeadsDashboard = () => {
 
   const calendarDays = getDaysArray();
 
- const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(year, month - 1, 1));
+  };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1)); 
- };
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(year, month + 1, 1));
+  };
 
   const isInRange = (date) => {
     if (!fromDate || !toDate || !date) return false;
@@ -550,8 +550,8 @@ const goToNextMonth = () => {
       });
       return; // stop further execution
     }
-            setCurrentPage(1);
-
+    setCurrentPage(1);
+    setSelectedVenue(null)
     const range = hasRange ? [fromDate, toDate] : [];
 
     const usePartyDate = checkedStatuses.partyDate;

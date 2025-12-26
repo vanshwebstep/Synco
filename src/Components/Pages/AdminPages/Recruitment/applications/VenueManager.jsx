@@ -300,6 +300,7 @@ const VenueManager = () => {
     const applyFilter = () => {
         let temp = Array.isArray(venueRecruitment) ? [...venueRecruitment] : [];
         setCurrentPage(1);
+        setSelectedVenue(null);
         // 1️⃣ Name filter
         if (studentName.trim()) {
             const q = studentName.trim().toLowerCase();

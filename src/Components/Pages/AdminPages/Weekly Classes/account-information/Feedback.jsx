@@ -44,10 +44,27 @@ const Feedback = () => {
   const SERVICE_TYPE_MAP = {
     membership: "weekly class membership",
     trials: "weekly class trial",
-    OneToOne: "one to one",
-    birthday: "birthday party",
+    oneToOne: "one to one",
+    birthdayParty: "birthday party",
     holidayCamps: "holiday camp",
   };
+  const BOOKING_ID_KEY_MAP = {
+    membership: "bookingId",
+    trials: "bookingId",
+    holidayCamps: "holidayBookingId",
+    oneToOne: "oneToOneBookingId",
+    birthdayParty: "birthdayPartyBookingId",
+  };
+  const CLASSSCHEDULE_ID_KEY_MAP = {
+    membership: "classScheduleId",
+    trials: "classScheduleId",
+    holidayCamps: "holidayClassScheduleId",
+    oneToOne: "classScheduleId",
+    birthdayParty: "classScheduleId",
+  };
+  const serviceParam = searchParams.get("serviceType");
+  const serviceKey = SERVICE_TYPE_MAP[serviceParam];
+
   const fetchFeedback = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
@@ -69,8 +86,7 @@ const Feedback = () => {
         return;
       }
 
-      const serviceParam = searchParams.get("serviceType");
-      const serviceKey = SERVICE_TYPE_MAP[serviceParam];
+
 
       // 👇 set only matched feedback array
       setFeedbackData(
@@ -86,14 +102,23 @@ const Feedback = () => {
     } finally {
     }
   }, []);
+  console.log('serviceKey', serviceParam)
   const fetchAgentAndClasses = useCallback(async () => {
     const token = localStorage.getItem("adminToken");
     if (!token) return;
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/admin/feedback/agent-classes/list`, {
+      // 🔑 API SWITCH BASED ON serviceType
+      const apiUrl =
+        serviceType === "holidayCamps"
+          ? `${API_BASE_URL}/api/admin/feedback/agent-holiday-classes/list`
+          : `${API_BASE_URL}/api/admin/feedback/agent-classes/list`;
+
+      const response = await fetch(apiUrl, {
         method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       const resultRaw = await response.json();
@@ -114,9 +139,9 @@ const Feedback = () => {
         title: "Fetch Failed",
         text: error.message || "Something went wrong while fetching account information.",
       });
-    } finally {
     }
-  }, []); // ✅ stable forever
+  }, [serviceType]);
+  // ✅ stable forever
 
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const toggleCheckbox = (userId) => {
@@ -137,7 +162,6 @@ const Feedback = () => {
     }
   };
 
-  console.log('resolveData', resolveData)
   const displayServiceType = SERVICE_TYPE_MAP[serviceType] || "Unknown";
 
 
@@ -154,12 +178,31 @@ const Feedback = () => {
   }, [fetchMembers, fetchFeedback, fetchAgentAndClasses]);
 
   const classOptions = useMemo(() => {
-    return (agentAndClassesData?.classSchedules || []).map((cls) => ({
-      value: cls.id,              // or cls.className if you prefer
-      label: `${cls.className} (${cls.day} • ${cls.startTime} - ${cls.endTime})`,
-      className: cls.className,
-    }));
-  }, [agentAndClassesData]);
+    const schedules =
+      serviceType === "holidayCamps"
+        ? agentAndClassesData?.holidayClassSchedules
+        : agentAndClassesData?.classSchedules;
+
+    return (schedules || []).map((cls) => {
+      // 🔹 Holiday Camp label
+      if (serviceType === "holidayCamps") {
+        return {
+          value: cls.id,
+          label: `${cls.className} (${cls.startTime} - ${cls.endTime}) • ${cls.holidayVenue?.name}`,
+          className: cls.className,
+        };
+      }
+
+      // 🔹 Weekly / normal class label
+      return {
+        value: cls.id,
+        label: `${cls.className} (${cls.day} • ${cls.startTime} - ${cls.endTime})`,
+        className: cls.className,
+      };
+    });
+  }, [agentAndClassesData, serviceType]);
+
+
   const agentOptions = useMemo(() => {
     return (agentAndClassesData?.agents || []).map((agent) => ({
       value: agent.id,
@@ -201,8 +244,8 @@ const Feedback = () => {
     console.log('displayServiceType', displayServiceType);
 
     const payload = {
-      bookingId: bookingId,
-      classScheduleId: formData.classScheduleId,
+      [BOOKING_ID_KEY_MAP[serviceType]]: bookingId,
+      [CLASSSCHEDULE_ID_KEY_MAP[serviceType]]: formData.classScheduleId,
       serviceType: displayServiceType,
       feedbackType: formData.feedbackType,
       category: formData.category,
@@ -301,75 +344,91 @@ const Feedback = () => {
       Swal.fire("Error", "Something went wrong", "error");
     }
   };
-const handleSave = async (id, successCallback) => {
-  if (!token) return Swal.fire("Error", "Token not found. Please login again.", "error");
+  console.log('feedbackData', feedbackData)
 
-  const myHeaders = new Headers({
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`,
-  });
+  const handleSave = async (id, successCallback) => {
+    if (!token) return Swal.fire("Error", "Token not found. Please login again.", "error");
+    if (!selectedAgent?.id) {
+      return Swal.fire(
+        "Agent Required",
+        "Please select an agent before saving.",
+        "warning"
+      );
+    }
+    const myHeaders = new Headers({
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    });
 
-  const payload = {
-    agentAssigned: selectedAgent?.id,
+    const payload = {
+      agentAssigned: selectedAgent?.id,
+    };
+
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: JSON.stringify(payload),
+      redirect: "follow",
+    };
+
+    try {
+      // Show loading
+      Swal.fire({
+        title: "Updating...",
+        text: "Please wait while we save changes.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/feedback/resolve/${id}`, requestOptions);
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result?.message || "Something went wrong");
+      }
+
+      // Close loading
+      Swal.close();
+
+      // Show success message from API response
+      Swal.fire({
+        icon: "success",
+        title: "Updated!",
+        text: result?.message || "Information updated successfully.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      fetchFeedback();
+      setShowAgentModal(false)
+      setOpenResolve(false);
+      setResolveData('');
+      // Dynamic callback after success (e.g., refetch data)
+      if (typeof successCallback === "function") {
+        successCallback(result);
+      }
+
+      return result;
+    } catch (error) {
+      Swal.close();
+      console.error(error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed!",
+        text: error.message || "Something went wrong while updating.",
+      });
+    }
   };
 
-  const requestOptions = {
-    method: "PUT",
-    headers: myHeaders,
-    body: JSON.stringify(payload),
-    redirect: "follow",
-  };
 
-  try {
-    // Show loading
-    Swal.fire({
-      title: "Updating...",
-      text: "Please wait while we save changes.",
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
-
-    const response = await fetch(`${API_BASE_URL}/api/admin/feedback/resolve/${id}`, requestOptions);
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result?.message || "Something went wrong");
+  useEffect(() => {
+    if (openResolve && resolveData?.assignedAgent) {
+      setSelectedAgent({
+        id: resolveData.assignedAgent.id,
+        name: `${resolveData.assignedAgent.firstName} ${resolveData.assignedAgent.lastName}`,
+      });
     }
-
-    // Close loading
-    Swal.close();
-
-    // Show success message from API response
-    Swal.fire({
-      icon: "success",
-      title: "Updated!",
-      text: result?.message || "Information updated successfully.",
-      timer: 2000,
-      showConfirmButton: false,
-    });
-fetchFeedback();
-setShowAgentModal(false)
- setOpenResolve(false);
-                setResolveData('');
-    // Dynamic callback after success (e.g., refetch data)
-    if (typeof successCallback === "function") {
-      successCallback(result);
-    }
-
-    return result;
-  } catch (error) {
-    Swal.close();
-    console.error(error);
-    Swal.fire({
-      icon: "error",
-      title: "Failed!",
-      text: error.message || "Something went wrong while updating.",
-    });
-  }
-};
-
-
+  }, [openResolve, resolveData]);
   const formatDate = (dateString, withTime = false) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -458,10 +517,12 @@ setShowAgentModal(false)
                                 {formatDate(user.createdAt, false)}
                               </div>
                             </td>
-                            <td className="p-4" >{user.feedbackType || '-'}</td>
-                            <td className="p-4" >{user.venue.name || '-'}</td>
-                            <td className="p-4" >{user.category || '-'}</td>
-                            <td className="p-4" >{user.notes || '-'}
+                            <td className="p-4" >{user?.feedbackType || '-'}</td>
+                            <td className="p-4" > {serviceParam === "holidayCamps"
+                              ? user?.holidayVenue?.name || "-"
+                              : user?.venue?.name || "-"}</td>
+                            <td className="p-4" >{user?.category || '-'}</td>
+                            <td className="p-4" >{user?.notes || '-'}
                             </td>
                             <td className="p-4" >{user?.assignedAgent
                               ? `${user.assignedAgent.firstName} ${user.assignedAgent.lastName}`
@@ -711,11 +772,17 @@ setShowAgentModal(false)
             </div>
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Venue</span>
-              <span className="text-gray-800 font-semibold">{resolveData?.venue?.name}</span>
+              <span className="text-gray-800 font-semibold">{serviceParam === "holidayCamps"
+                ? resolveData?.holidayVenue?.name || "-"
+                : resolveData?.venue?.name || "-"}</span>
             </div>
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Class details</span>
-              <span className="text-gray-800 font-semibold">{`${resolveData?.classSchedule?.className} (${resolveData?.classSchedule?.day} • ${resolveData?.classSchedule?.startTime} - ${resolveData?.classSchedule?.endTime})`}</span>
+              <span className="text-gray-800 font-semibold">
+                {serviceParam === "holidayCamps"
+                  ? `${resolveData?.holidayClassSchedule?.className} (${resolveData?.holidayClassSchedule?.startTime} - ${resolveData?.holidayClassSchedule?.endTime})`
+                  : `${resolveData?.classSchedule?.className} (${resolveData?.classSchedule?.day} • ${resolveData?.classSchedule?.startTime} - ${resolveData?.classSchedule?.endTime})`}
+              </span>
             </div>
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Feedback type</span>
@@ -788,7 +855,7 @@ setShowAgentModal(false)
         )}
         {/* Resolve Button */}
         <div className="w-full max-w-4xl flex justify-end mt-6">
-          <button className="bg-[#237FEA] hover:bg-blue-700 text-white font-semibold px-8 py-2 rounded-xl">
+          <button onClick={() => handleSave(resolveData.id)} className="bg-[#237FEA] hover:bg-blue-700 text-white font-semibold px-8 py-2 rounded-xl">
             Resolve
           </button>
         </div>

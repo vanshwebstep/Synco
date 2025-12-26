@@ -321,6 +321,7 @@ const Coach = () => {
     const applyFilter = () => {
         let temp = Array.isArray(recruitment) ? [...recruitment] : [];
         setCurrentPage(1);
+        setSelectedVenue(null);
         // 1️⃣ Status / Exp / FA filters
         const selected = Object.entries(checkedStatuses)
             .filter(([_, v]) => v)

@@ -278,7 +278,7 @@ const WaitingLists = () => {
         const forAttend = checkedStatuses.interest1Low || "";
         const forNotAttend = checkedStatuses.interest2Medium || "";
         const forHigh = checkedStatuses.interest3High || "";
-
+        setSelectedVenue(null);
         let forDateOkBookingTrial = "";
         let forDateOfTrial = "";
         let forOtherDate = "";
@@ -631,18 +631,18 @@ const WaitingLists = () => {
                                                             )}
                                                         </span>
                                                         <img
-                                                                src={`${API_BASE_URL}${admin.profile}`}
-                                                                alt={
-                                                                    admin?.firstName || admin?.lastName
-                                                                        ? `${admin?.firstName ?? ""} ${admin?.lastName && admin.lastName !== "null" ? admin.lastName : ""}`.trim()
-                                                                        : "Unknown Admin"
-                                                                }
-                                                                className="w-8 h-8 rounded-full object-cover"
-                                                                onError={(e) => {
-                                                                    e.target.onerror = null;
-                                                                    e.target.src = "/members/dummyuser.png";
-                                                                }}
-                                                            />
+                                                            src={`${API_BASE_URL}${admin.profile}`}
+                                                            alt={
+                                                                admin?.firstName || admin?.lastName
+                                                                    ? `${admin?.firstName ?? ""} ${admin?.lastName && admin.lastName !== "null" ? admin.lastName : ""}`.trim()
+                                                                    : "Unknown Admin"
+                                                            }
+                                                            className="w-8 h-8 rounded-full object-cover"
+                                                            onError={(e) => {
+                                                                e.target.onerror = null;
+                                                                e.target.src = "/members/dummyuser.png";
+                                                            }}
+                                                        />
                                                         <span>
                                                             {admin?.firstName || admin?.lastName
                                                                 ? `${admin?.firstName ?? ""}${admin.lastName && admin.lastName !== 'null' ? ` ${admin.lastName}` : ''}`.trim()

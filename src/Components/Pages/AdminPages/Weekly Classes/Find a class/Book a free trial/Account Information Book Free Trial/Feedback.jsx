@@ -1,27 +1,27 @@
-
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from "lucide-react";
-import { useMembers } from '../../contexts/MemberContext';
-import Loader from '../../contexts/Loader';
-import { usePermission } from '../../Common/permission';
+import { useMembers } from '../../../../contexts/MemberContext';
+import Loader from '../../../../contexts/Loader';
+import { usePermission } from '../../../../Common/permission';
 import { useSearchParams } from "react-router-dom";
 import Select from "react-select";
 import Swal from "sweetalert2";
 
-const Feedback = () => {
+const Feedback = ({ profile }) => {
   const { checkPermission } = usePermission();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   // 🔒 FIXED SERVICE TYPE
-  const SERVICE_TYPE = "holidayCamps";
-  const DISPLAY_SERVICE_TYPE = "holiday camp";
+  const SERVICE_TYPE = "birthdayParty";
+  const DISPLAY_SERVICE_TYPE = "weekly class trial";
 
-  const bookingId = searchParams.get("id");
+  // const bookingId = searchParams.get("id");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const token = localStorage.getItem("adminToken");
-
+  const bookingId = profile?.bookingId;
+  // const bookingId = profile?.id;
   const { fetchMembers, loading } = useMembers();
   const formatDate = (dateString, withTime = false) => {
     if (!dateString) return "-";
@@ -56,7 +56,7 @@ const Feedback = () => {
   const [openResolve, setOpenResolve] = useState(false);
 
   const [formData, setFormData] = useState({
-    holidayClassScheduleId: null,
+    classScheduleId: null,
     agentId: null,
     feedbackType: "",
     category: "",
@@ -100,7 +100,7 @@ const Feedback = () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/admin/feedback/agent-holiday-classes/list`,
+        `${API_BASE_URL}/api/admin/feedback/agent-classes/list`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -129,12 +129,11 @@ const Feedback = () => {
     load();
   }, [fetchMembers, fetchFeedback, fetchAgentAndClasses]);
 
-  // ---------------- OPTIONS ----------------serviceParam
+  // ---------------- OPTIONS ----------------
   const classOptions = useMemo(() => {
-    return (agentAndClassesData?.holidayClassSchedules || []).map((cls) => ({
+    return (agentAndClassesData?.classSchedules || []).map((cls) => ({
       value: cls.id,
-      label: `${cls.className} (${cls.startTime} - ${cls.endTime}) • ${cls.holidayVenue?.name}`,
-      className: cls.className,
+      label: `${cls.className} (${cls.day} • ${cls.startTime} - ${cls.endTime})`,
     }));
   }, [agentAndClassesData]);
 
@@ -177,15 +176,15 @@ const Feedback = () => {
   };
   // ---------------- CREATE FEEDBACK ----------------
   const handleSubmit = async () => {
-    const { holidayClassScheduleId, agentId, feedbackType, category, notes } = formData;
+    const { classScheduleId, agentId, feedbackType, category, notes } = formData;
 
-    if (!holidayClassScheduleId || !agentId || !feedbackType || !category || !notes) {
+    if (!classScheduleId || !agentId || !feedbackType || !category || !notes) {
       return Swal.fire("Error", "All fields are required", "error");
     }
-    // holidayClassScheduleId
+    // classScheduleId
     const payload = {
-      holidayBookingId: bookingId,
-      holidayClassScheduleId,
+      bookingId,
+      classScheduleId,
       serviceType: DISPLAY_SERVICE_TYPE,
       feedbackType,
       category,
@@ -218,7 +217,7 @@ const Feedback = () => {
       Swal.fire("Success", result.message, "success");
       setOpenForm(false);
       setFormData({
-        holidayClassScheduleId: null,
+        classScheduleId: null,
         agentId: null,
         feedbackType: "",
         category: "",
@@ -327,16 +326,16 @@ const Feedback = () => {
   return (
     <>
       <div className={`pt-1 bg-gray-50 min-h-screen md:px-4 ${openResolve ? 'hidden' : 'block'}`}>
-        {checkPermission(
-          { module: "member", action: "create" }) && (
-            <button
-              onClick={() => setOpenForm(true)}
-              className="bg-[#237FEA] md:absolute right-0 -top-0 flex items-center gap-2 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-blue-700 text-sm md:text-base font-semibold"
-            >
-              <img src="/members/add.png" className="w-5" alt="" />
-              Add Feedback
-            </button>
-          )}
+        {/* {openResolve && ( */}
+          <button
+            onClick={() => setOpenForm(true)}
+            className="bg-[#237FEA] md:absolute right-0 top-5 flex items-center gap-2 cursor-pointer text-white px-4 py-2 rounded-xl hover:bg-blue-700 text-sm md:text-base font-semibold"
+          >
+            <img src="/members/add.png" className="w-5" alt="" />
+            Add Feedback
+          </button>
+        {/* )} */}
+
 
         {checkPermission({ module: "account-information", action: "view-listing" }) ? (
           <div className="md:flex md:gap-6 md:mt-0 mt-5">
@@ -386,7 +385,7 @@ const Feedback = () => {
                               </div>
                             </td>
                             <td className="p-4" >{user?.feedbackType || '-'}</td>
-                            <td className="p-4" >{user?.holidayVenue?.name || '-'}</td>
+                            <td className="p-4" >{user?.venue?.name || '-'}</td>
                             <td className="p-4" >{user?.category || '-'}</td>
                             <td className="p-4" >{user?.notes || '-'}
                             </td>
@@ -456,13 +455,13 @@ const Feedback = () => {
                     isClearable
                     value={
                       classOptions.find(
-                        (opt) => opt.value === formData.holidayClassScheduleId
+                        (opt) => opt.value === formData.classScheduleId
                       ) || null
                     }
                     onChange={(selected) => {
                       setFormData((prev) => ({
                         ...prev,
-                        holidayClassScheduleId: selected?.value || null,
+                        classScheduleId: selected?.value || null,
                       }));
                     }}
                     className="w-full"
@@ -574,7 +573,7 @@ const Feedback = () => {
                       setFormData({
                         className: "",
                         agentId: null,
-                        holidayClassScheduleId: null,
+                        classScheduleId: null,
                         feedbackType: "",
                         category: "",
                         notes: "",
@@ -636,11 +635,11 @@ const Feedback = () => {
             </div>
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Venue</span>
-              <span className="text-gray-800 font-semibold">{resolveData?.holidayVenue?.name}</span>
+              <span className="text-gray-800 font-semibold">{resolveData?.venue?.name}</span>
             </div>
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Class details</span>
-              <span className="text-gray-800 font-semibold">{`${resolveData?.holidayClassSchedule?.className} (${resolveData?.holidayClassSchedule?.startTime} - ${resolveData?.holidayClassSchedule?.endTime})`}</span>
+              <span className="text-gray-800 font-semibold">{`${resolveData?.classSchedule?.className} (${resolveData?.classSchedule?.day} • ${resolveData?.classSchedule?.startTime} - ${resolveData?.classSchedule?.endTime})`}</span>
             </div>
             <div className="flex justify-between py-3 text-sm md:text-base">
               <span className="text-gray-500">Feedback type</span>

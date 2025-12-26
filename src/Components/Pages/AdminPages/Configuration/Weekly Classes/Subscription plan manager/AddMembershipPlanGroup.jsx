@@ -765,7 +765,7 @@ const AddPaymentPlanGroup = () => {
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             <Editor
-                                                apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
+                                                apiKey="sqe5er2lyngzjf0armhqaw1u7ffh0xgjyzmb7unv5irietwa"
                                                 value={formData.HolidayCampPackage}
                                                 onEditorChange={(content) =>
                                                     setFormData({ ...formData, HolidayCampPackage: content })
@@ -828,7 +828,7 @@ const AddPaymentPlanGroup = () => {
                                         </label>
                                         <div className="rounded-md border border-gray-300 bg-gray-100 p-1">
                                             <Editor
-                                                apiKey="t3z337jur0r5nxarnapw6gfcskco6kb5c36hcv3xtcz5vi3i"
+                                                apiKey="sqe5er2lyngzjf0armhqaw1u7ffh0xgjyzmb7unv5irietwa"
 
                                                 value={formData.termsAndCondition}
                                                 onEditorChange={(content) =>

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState ,useCallback} from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { FiSearch } from "react-icons/fi";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Select from "react-select";
@@ -12,7 +12,7 @@ import { saveAs } from 'file-saver';
 import StatsGrid from '../Common/StatsGrid';
 import DynamicTable from '../Common/DynamicTable';
 import { useBookFreeTrial } from '../contexts/BookAFreeTrialContext';
-  import debounce from "lodash.debounce";
+import debounce from "lodash.debounce";
 
 const MembersList = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -140,13 +140,13 @@ const MembersList = () => {
 
     const calendarDays = getDaysArray();
 
-  const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+    const goToPreviousMonth = () => {
+        setCurrentDate(new Date(year, month - 1, 1));
+    };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1)); 
- };
+    const goToNextMonth = () => {
+        setCurrentDate(new Date(year, month + 1, 1));
+    };
 
     const isInRange = (date) => {
         if (!fromDate || !toDate || !date) return false;
@@ -188,7 +188,7 @@ const goToNextMonth = () => {
 
     const applyFilter = () => {
         const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
-
+        setSelectedVenue(null);
         const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
         const hasRange = isValidDate(fromDate) && isValidDate(toDate);
         const range = hasRange ? [fromDate, toDate] : [];
@@ -305,18 +305,18 @@ const goToNextMonth = () => {
 
 
 
-const handleSearch = useCallback(
-  debounce((value) => {
-    fetchBookMemberships(value);
-  }, 300), // waits 300ms after last keystroke
-  []
-);
+    const handleSearch = useCallback(
+        debounce((value) => {
+            fetchBookMemberships(value);
+        }, 300), // waits 300ms after last keystroke
+        []
+    );
 
-const onSearchChange = (e) => {
-  const value = e.target.value;
-  setSearchTerm(value);
-  handleSearch(value);
-};
+    const onSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        handleSearch(value);
+    };
 
     if (loading) return <Loader />;
     console.log('bookMembership', bookMembership)
@@ -586,7 +586,7 @@ const onSearchChange = (e) => {
                                                                 src="/members/dummyuser.png"
                                                                 alt="name"
                                                                 className="w-8 h-8 rounded-full object-cover"
-                                                                
+
                                                             />
                                                         )}
 

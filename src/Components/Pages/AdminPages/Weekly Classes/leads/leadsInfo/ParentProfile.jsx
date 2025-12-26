@@ -58,7 +58,7 @@ const ParentProfile = (fetchedData) => {
   }, [fetchedData]);
 
   const navigate = useNavigate();
-  const [country, setCountry] = useState("us");
+  const [country, setCountry] = useState("uk");
   const [commentsList, setCommentsList] = useState([]);
   const [comment, setComment] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -550,7 +550,7 @@ function EmailPopup({ loading, grouped, handleSendEmail, close }) {
                 <label className="block text-[16px] font-semibold">Phone</label>
                 <div className="flex items-center border border-gray-300 rounded-xl px-3 py-3 mt-1">
                   <PhoneInput
-                    country="us"
+                    country="uk"
                     onChange={handlePhoneChange}
                     disableDropdown={true}
                     disableCountryCode={true}

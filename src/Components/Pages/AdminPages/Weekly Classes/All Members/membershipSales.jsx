@@ -173,6 +173,7 @@ const trialLists = () => {
         const dateRangeMembership = checkedStatuses.trialDate ? range : [];
         const otherDateRange = checkedStatuses.trialDate ? [] : range;
         setIsFilterApplied(true);
+        setSelectedVenue(null);
         fetchMembershipSales(
             "",                                  // studentName
             "",                                  // venueName

@@ -61,14 +61,14 @@ const ParentProfile = () => {
     howDidYouHear: "",
   });
 
-  const [dialCodes, setDialCodes] = useState(["+1", "+1"]);
-  const [dialCodesEmergency, setDialCodesEmergency] = useState(["+1", "+1"]);
-  const [countries, setCountries] = useState(["us", "us"]);
-  const [countriesEmergency, setCountriesEmergency] = useState(["us", "us"]);
-  const [dialCodeEmergency, setDialCodeEmergency] = useState("+1");
-  const [dialCode, setDialCode] = useState("+1");
-  const [country, setCountry] = useState("us");
-  const [countryEmergency, setCountryEmergency] = useState("us");
+  const [dialCodes, setDialCodes] = useState(["44", "+44"]);
+  const [dialCodesEmergency, setDialCodesEmergency] = useState(["+44", "+44"]);
+  const [countries, setCountries] = useState(["uk", "uk"]);
+  const [countriesEmergency, setCountriesEmergency] = useState(["uk", "uk"]);
+  const [dialCodeEmergency, setDialCodeEmergency] = useState("+44");
+  const [dialCode, setDialCode] = useState("+44");
+  const [country, setCountry] = useState("uk");
+  const [countryEmergency, setCountryEmergency] = useState("uk");
 
   const hearOptions = [
     { value: "Social Media", label: "Social Media" },
@@ -277,8 +277,8 @@ const validateNewParent = () => {
     howDidYouHear: "",
   });
 
-  setDialCode("+1");
-  setCountry("us");
+  setDialCode("+44");
+  setCountry("uk");
 };
 
 
@@ -453,7 +453,7 @@ const validateParent = (parent) => {
                 </label>
                 <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                   <PhoneInput
-                    country="us"
+                    country="uk"
                     value={dialCodes[index]}
                     onChange={(val, data) => handleChangeDial(index, val, data)}
                     onCountryChange={(data) => handleCountryChange(index, data)}
@@ -573,7 +573,7 @@ const validateParent = (parent) => {
 
 
                     <PhoneInput
-                      country="us"
+                      country="uk"
                       value={newParent.parentPhoneNumber || ""}
                       onChange={handlePhoneChangeNew}
                       onCountryChange={handleCountryChange}
@@ -745,7 +745,7 @@ const validateParent = (parent) => {
             </label>
             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
               <PhoneInput
-                country="us"
+                country="uk"
                 value={dialCodeEmergency}
                 onChange={handleChangeEmergency}
                 onCountryChange={handleCountryChangeEmergency}

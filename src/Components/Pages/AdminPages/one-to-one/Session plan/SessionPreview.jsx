@@ -29,6 +29,7 @@ const SessionPreview = ({ item, sessionData }) => {
   const navigate = useNavigate();
 
   const id = searchParams.get("id");
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const fetchSessionGroup = useCallback(async () => {
     if (!token) return;
@@ -261,57 +262,67 @@ const SessionPreview = ({ item, sessionData }) => {
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
                   </h2>
+                  {videoUrl && (
+                    <div className="relative">
+                      <img
+                        src="/images/icons/downloadicon.png"
+                        alt="Download"
+                        className={`cursor-pointer ${isDownloading ? "opacity-50 pointer-events-none" : ""}`}
 
-                  <img
-                    src="/images/icons/downloadicon.png"
-                    alt="Download"
-                    className="cursor-pointer"
-                    onClick={async () => {
-                      try {
-                        const token = localStorage.getItem("adminToken");
-                        const response = await fetch(
-                          `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/${currentContent.id}/download-video?level=${activeTab.toLowerCase()}`,
-                          {
-                            method: "GET",
-                            headers: {
-                              Authorization: `Bearer ${token}`,
-                            },
+                        onClick={async () => {
+                          try {
+                            setIsDownloading(true);
+                            const token = localStorage.getItem("adminToken");
+                            const response = await fetch(
+                              `${API_BASE_URL}/api/admin/one-to-one/session-plan-structure/${currentContent.id}/download-video?level=${activeTab.toLowerCase()}`,
+                              {
+                                method: "GET",
+                                headers: {
+                                  Authorization: `Bearer ${token}`,
+                                },
+                              }
+                            );
+
+                            if (!response.ok) {
+                              throw new Error("Failed to download video");
+                            }
+
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+
+                            // Generate a professional-looking filename
+                            const safeGroup = currentContent?.groupName
+                              ?.toLowerCase()
+                              .replace(/\s+/g, "-")
+                              .replace(/[^a-z0-9\-]/g, "");
+                            const safeLevel = currentContent?.level
+                              ?.toLowerCase()
+                              .replace(/\s+/g, "-")
+                              .replace(/[^a-z0-9\-]/g, "");
+
+                            const filename = `${safeGroup || "session"}-${safeLevel || "video"}.mp4`;
+
+                            const link = document.createElement("a");
+                            link.href = url;
+                            link.download = filename;
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+
+                            window.URL.revokeObjectURL(url);
+                          } catch (err) {
+                            console.error("Download failed:", err);
+                          } finally {
+                            setIsDownloading(false);
                           }
-                        );
-
-                        if (!response.ok) {
-                          throw new Error("Failed to download video");
-                        }
-
-                        const blob = await response.blob();
-                        const url = window.URL.createObjectURL(blob);
-
-                        // Generate a professional-looking filename
-                        const safeGroup = currentContent?.groupName
-                          ?.toLowerCase()
-                          .replace(/\s+/g, "-")
-                          .replace(/[^a-z0-9\-]/g, "");
-                        const safeLevel = currentContent?.level
-                          ?.toLowerCase()
-                          .replace(/\s+/g, "-")
-                          .replace(/[^a-z0-9\-]/g, "");
-
-                        const filename = `${safeGroup || "session"}-${safeLevel || "video"}.mp4`;
-
-                        const link = document.createElement("a");
-                        link.href = url;
-                        link.download = filename;
-                        document.body.appendChild(link);
-                        link.click();
-                        link.remove();
-
-                        window.URL.revokeObjectURL(url);
-                      } catch (err) {
-                        console.error("Download failed:", err);
-                      }
-                    }}
-                  />
-
+                        }}
+                      />
+                      {isDownloading && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                        </div>)}
+                    </div>
+                  )}
 
 
 

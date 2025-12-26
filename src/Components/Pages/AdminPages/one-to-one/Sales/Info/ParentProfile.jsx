@@ -50,12 +50,12 @@ const ParentProfile = () => {
 
   const [dialCodes, setDialCodes] = useState(["", ""]);
   const [dialCodesEmergency, setDialCodesEmergency] = useState(["", ""]);
-  const [countries, setCountries] = useState(["us", "us"]);
-  const [countriesEmergency, setCountriesEmergency] = useState(["us", "us"]);
+  const [countries, setCountries] = useState(["uk", "uk"]);
+  const [countriesEmergency, setCountriesEmergency] = useState(["uk", "uk"]);
   const [dialCodeEmergency, setDialCodeEmergency] = useState("");
   const [dialCode, setDialCode] = useState("");
-  const [country, setCountry] = useState("us");
-  const [countryEmergency, setCountryEmergency] = useState("us");
+  const [country, setCountry] = useState("uk");
+  const [countryEmergency, setCountryEmergency] = useState("uk");
 
   const hearOptions = [
     { value: "Social Media", label: "Social Media" },
@@ -289,7 +289,7 @@ const ParentProfile = () => {
       howDidHear: "",
     });
     setDialCode("");
-    setCountry("us");
+    setCountry("uk");
   };
   const handleCountryChange = (index, countryData) => {
     setCountries((prev) =>
@@ -486,7 +486,7 @@ const ParentProfile = () => {
                 </label>
                 <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                   <PhoneInput
-                    country="us"
+                    country="uk"
                     value={dialCodes[index]}
                     onChange={(val, data) => handleChangeDial(index, val, data)}
                     onCountryChange={(data) => handleCountryChange(index, data)}
@@ -602,7 +602,7 @@ const ParentProfile = () => {
                   <label className="block text-sm font-semibold">Phone</label>
                   <div className="flex items-center border border-gray-300 rounded-xl px-3 py-3 mt-1">
                     <PhoneInput
-                      country="us"
+                      country="uk"
                       value={dialCode}
                       onChange={handleChangeDial}
                       onCountryChange={handleCountryChange}
@@ -776,7 +776,7 @@ const ParentProfile = () => {
             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
               {/* Flag Dropdown */}
               <PhoneInput
-                country="us"
+                country="uk"
                 value={dialCodeEmergency}
 
                 onChange={handleChangeEmergency}

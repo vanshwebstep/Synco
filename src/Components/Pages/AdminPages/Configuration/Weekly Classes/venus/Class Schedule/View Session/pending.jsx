@@ -7,9 +7,9 @@ const ViewSessions = ({ item, sessionData }) => {
   const [activeTab, setActiveTab] = useState('Beginner');
   const [myData, setMyData] = useState({});
   const [page, setPage] = useState(1);
-    const [recording, setRecording] = useState(null);
-    const audioRef = useRef(null);
-  
+  const [recording, setRecording] = useState(null);
+  const audioRef = useRef(null);
+
   const location = useLocation();
   const sessionMap = location.state?.sessionMap;
   const venueId = location.state?.venueId;
@@ -18,9 +18,9 @@ const ViewSessions = ({ item, sessionData }) => {
   const sessionDate = location.state?.sessionDate;
   const className = location.state?.classname;
   const statusIs = location.state?.statusIs;
-  console.log('statusIs',statusIs)
+  console.log('statusIs', statusIs)
   const [videoUrl, setVideoUrl] = useState(null);
-    const [videoDuration, setVideoDuration] = useState(null);
+  const [videoDuration, setVideoDuration] = useState(null);
   const [currentRecording, setCurrentRecording] = useState(null); // url of playing recording
 
 
@@ -45,9 +45,9 @@ const ViewSessions = ({ item, sessionData }) => {
           const video = selectedGroup.video || null;
           const videoUploadedAgo = selectedGroup.videoUploadedAgo || null;
           const id = selectedGroup.id || null;
-console.log('items',items)
+          console.log('items', items)
           content[label] = items.map((entry, index) => ({
-            
+
             title: `${label} – Page ${index + 1}`,
             heading: entry.skillOfTheDay || 'No Skill',
             player: entry.player || 'player',
@@ -80,40 +80,42 @@ console.log('items',items)
   const [selectedExercise, setSelectedExercise] = useState(
     currentContent.sessionExercises?.[0] || null
   );
+    const [isDownloading, setIsDownloading] = useState(false);
+
   useEffect(() => {
     if (currentContent.sessionExercises?.length > 0) {
       setSelectedExercise(currentContent.sessionExercises[0]);
     }
   }, [currentContent]);
-    useEffect(() => {
-      if (selectedGroup && activeTab) {
+  useEffect(() => {
+    if (selectedGroup && activeTab) {
 
-        console.log('activeTab',selectedGroup)
-        const tabKey = activeTab.toLowerCase().replace(/s$/, "");
-        const fieldName = `${tabKey}_upload`;
-        const fieldVideoName = `${tabKey}_video`;
-        const videoDuration = `${tabKey}_video_duration`;
-        // console.log('selectedGroup', selectedGroup)
-        // console.log('fieldName', fieldName)
-  
-        // check if that recording field exists in selectedGroup
-        if (selectedGroup[fieldName]) {
-          setRecording(selectedGroup[fieldName]);
-        } else {
-          setRecording(null); // no match found
-        }
-        if (selectedGroup[fieldVideoName]) {
-          setVideoUrl(selectedGroup[fieldVideoName]);
-        } else {
-          setVideoUrl(null); // no match found
-        }
-         if (selectedGroup[videoDuration]) {
-          setVideoDuration(selectedGroup[videoDuration]);
-        } else {
-          setVideoDuration(null); // no match found
-        }
+      console.log('activeTab', selectedGroup)
+      const tabKey = activeTab.toLowerCase().replace(/s$/, "");
+      const fieldName = `${tabKey}_upload`;
+      const fieldVideoName = `${tabKey}_video`;
+      const videoDuration = `${tabKey}_video_duration`;
+      // console.log('selectedGroup', selectedGroup)
+      // console.log('fieldName', fieldName)
+
+      // check if that recording field exists in selectedGroup
+      if (selectedGroup[fieldName]) {
+        setRecording(selectedGroup[fieldName]);
+      } else {
+        setRecording(null); // no match found
       }
-    }, [selectedGroup, activeTab]);
+      if (selectedGroup[fieldVideoName]) {
+        setVideoUrl(selectedGroup[fieldVideoName]);
+      } else {
+        setVideoUrl(null); // no match found
+      }
+      if (selectedGroup[videoDuration]) {
+        setVideoDuration(selectedGroup[videoDuration]);
+      } else {
+        setVideoDuration(null); // no match found
+      }
+    }
+  }, [selectedGroup, activeTab]);
   const ageGroups = {
     "Beginner": "4–5 Years",
     "Intermediate": "6–7 Years",
@@ -170,8 +172,8 @@ console.log('items',items)
       </div>
       <div className="bg-white  rounded-3xl shadow p-6 flex flex-col md:flex-row gap-6">
         {/* Left Sidebar */}
-<div
-  className={`
+        <div
+          className={`
     w-full md:w-2/12 
     py-6 
     rounded-2xl 
@@ -180,7 +182,7 @@ console.log('items',items)
     ${statusIs === "complete" ? "bg-[#f8f8f8]" : ""}
     ${statusIs !== "cancelled" && statusIs !== "complete" ? "bg-[#f8f8f8] " : ""}
   `}
->          <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
+        >          <div className="w-18 h-18 bg-yellow-400 rounded-full flex items-center justify-center text-white text-2xl font-semibold mx-auto mb-4">
             {statusIs === "cancelled" ? (
               <img src="/images/icons/cancelBig.png" alt="Cancelled" />
             ) : statusIs === "complete" ? (
@@ -227,7 +229,7 @@ console.log('items',items)
           </div>
           {/* Main Page Content */}
           {currentContent && (
-         <div className="flex w-full flex-col border-t border-[#E2E1E5] pt-6 lg:flex-row gap-6">
+            <div className="flex w-full flex-col border-t border-[#E2E1E5] pt-6 lg:flex-row gap-6">
               {/* Left - Video and Info */}
               <div className="w-full lg:w-1/2 space-y-2">
                 {currentContent.bannerUrl && (
@@ -266,57 +268,66 @@ console.log('items',items)
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
                   </h2>
+                  {videoUrl && (
+                    <div className="relative">
+                      <img
+                        src="/images/icons/downloadicon.png"
+                        alt="Download"
+                        className={`cursor-pointer ${isDownloading ? "opacity-50 pointer-events-none" : ""}`}
+                        onClick={async () => {
+                          try {
+                            setIsDownloading(true);
+                            const token = localStorage.getItem("adminToken");
+                            const response = await fetch(
+                              `${API_BASE_URL}/api/admin/session-plan-group/${currentContent.id}/download-video?level=${activeTab.toLowerCase()}`,
+                              {
+                                method: "GET",
+                                headers: {
+                                  Authorization: `Bearer ${token}`,
+                                },
+                              }
+                            );
 
-                  <img
-                    src="/images/icons/downloadicon.png"
-                    alt="Download"
-                    className="cursor-pointer"
-                    onClick={async () => {
-                      try {
-                        const token = localStorage.getItem("adminToken");
-                        const response = await fetch(
-                          `${API_BASE_URL}/api/admin/session-plan-group/${currentContent.id}/download-video?level=${activeTab.toLowerCase()}`,
-                          {
-                            method: "GET",
-                            headers: {
-                              Authorization: `Bearer ${token}`,
-                            },
+                            if (!response.ok) {
+                              throw new Error("Failed to download video");
+                            }
+
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+
+                            // Generate a professional-looking filename
+                            const safeGroup = currentContent?.groupName
+                              ?.toLowerCase()
+                              .replace(/\s+/g, "-")
+                              .replace(/[^a-z0-9\-]/g, "");
+                            const safeLevel = currentContent?.level
+                              ?.toLowerCase()
+                              .replace(/\s+/g, "-")
+                              .replace(/[^a-z0-9\-]/g, "");
+
+                            const filename = `${safeGroup || "session"}-${safeLevel || "video"}.mp4`;
+
+                            const link = document.createElement("a");
+                            link.href = url;
+                            link.download = filename;
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+
+                            window.URL.revokeObjectURL(url);
+                          } catch (err) {
+                            console.error("Download failed:", err);
+                          } finally {
+                            setIsDownloading(false);
                           }
-                        );
-
-                        if (!response.ok) {
-                          throw new Error("Failed to download video");
-                        }
-
-                        const blob = await response.blob();
-                        const url = window.URL.createObjectURL(blob);
-
-                        // Generate a professional-looking filename
-                        const safeGroup = currentContent?.groupName
-                          ?.toLowerCase()
-                          .replace(/\s+/g, "-")
-                          .replace(/[^a-z0-9\-]/g, "");
-                        const safeLevel = currentContent?.level
-                          ?.toLowerCase()
-                          .replace(/\s+/g, "-")
-                          .replace(/[^a-z0-9\-]/g, "");
-
-                        const filename = `${safeGroup || "session"}-${safeLevel || "video"}.mp4`;
-
-                        const link = document.createElement("a");
-                        link.href = url;
-                        link.download = filename;
-                        document.body.appendChild(link);
-                        link.click();
-                        link.remove();
-
-                        window.URL.revokeObjectURL(url);
-                      } catch (err) {
-                        console.error("Download failed:", err);
-                      }
-                    }}
-                  />
-
+                        }}
+                      />
+                      {isDownloading && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                        </div>)}
+                    </div>
+                  )}
 
 
 
@@ -396,11 +407,11 @@ console.log('items',items)
                     Time Duration: {selectedExercise.duration || '—'}
                   </p>
 
-                <div className="text-sm space-y-6">
+                  <div className="text-sm space-y-6">
                     <div>
 
                       <div
-                      className="prose prose-sm space-y-6 max-w-none text-gray-700
+                        className="prose prose-sm space-y-6 max-w-none text-gray-700
     prose-p:mb-3 prose-li:mb-2
     prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
     prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5

@@ -916,7 +916,7 @@ const CandidateInfo = () => {
                 <label className="text-[16px] font-semibold block">Phone number</label>
                 <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3">
                   <PhoneInput
-                    country="us"
+                    country="uk"
                     disableDropdown={true}
                     disableCountryCode={true}
                     countryCodeEditable={false}

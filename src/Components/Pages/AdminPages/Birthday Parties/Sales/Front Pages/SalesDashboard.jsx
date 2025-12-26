@@ -534,7 +534,7 @@ const goToNextMonth = () => {
             silver: checkedStatuses.silver,
             pending: checkedStatuses.pending,
         };
-
+setSelectedVenue(null)
         const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
         const hasFrom = isValidDate(fromDate);
         const hasTo = isValidDate(toDate);

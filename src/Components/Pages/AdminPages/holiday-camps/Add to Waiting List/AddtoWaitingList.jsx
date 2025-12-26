@@ -218,10 +218,10 @@ const HolidayAddtoWaitingList = () => {
     return `${year}-${month}-${day}`; // e.g., "2025-08-10"
   };
 
-  const [country, setCountry] = useState("us"); // default country
-  const [country2, setCountry2] = useState("us"); // default country
-  const [dialCode, setDialCode] = useState("+1"); // store selected code silently
-  const [dialCode2, setDialCode2] = useState("+1"); // store selected code silently
+  const [country, setCountry] = useState("uk"); // default country
+  const [country2, setCountry2] = useState("uk"); // default country
+  const [dialCode, setDialCode] = useState("+44"); // store selected code silently
+  const [dialCode2, setDialCode2] = useState("+44"); // store selected code silently
   const handleChange = (value, data) => {
     // When library fires onChange, just update the dial code
     setDialCode("+" + data.dialCode);
@@ -1191,7 +1191,7 @@ const goToNextMonth = () => {
                       <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                         {/* Flag Dropdown */}
                         <PhoneInput
-                          country="us"
+                          country="uk"
                           value={dialCode2}
                           onChange={handleChange2}
                           onCountryChange={handleCountryChange2}
@@ -1310,7 +1310,7 @@ const goToNextMonth = () => {
                   <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                     {/* Flag Dropdown */}
                     <PhoneInput
-                      country="us"
+                      country="uk"
                       value={dialCode}
                       onChange={handleChange}
                       onCountryChange={handleCountryChange}
