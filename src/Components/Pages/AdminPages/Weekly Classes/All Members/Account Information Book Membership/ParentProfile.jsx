@@ -16,6 +16,7 @@ import { FaEdit, FaSave } from "react-icons/fa";
 import { useNotification } from '../../../contexts/NotificationContext';
 import Swal from "sweetalert2";
 import { useNavigate } from 'react-router-dom';
+import PhoneInput from 'react-phone-input-2';
 
 const ParentProfile = ({ profile }) => {
     const navigate = useNavigate();
@@ -288,7 +289,7 @@ const ParentProfile = ({ profile }) => {
 
     const dateBooked = profile?.startDate;
     const status = profile?.status;
-console.log('profile',profile)
+    console.log('profile', profile)
     // console.log('Venue Name:', profile.dateBooked);
 
     function formatISODate(isoDateString, toTimezone = null) {
@@ -543,14 +544,34 @@ console.log('profile',profile)
                                         </div>
                                         <div className="w-1/2">
                                             <label className="block text-[16px] font-semibold">Phone number</label>
-                                            <input
-                                                className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                                value={parent.parentPhoneNumber}
-                                                readOnly={editingIndex !== index}
-                                                onChange={(e) =>
-                                                    handleDataChange(index, "parentPhoneNumber", e.target.value)
-                                                }
-                                            />
+                                            <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
+
+                                                <PhoneInput
+                                                    country="uk"
+                                                    value="+44"
+                                                    disableDropdown={true}       // disables changing the country
+                                                    disableCountryCode={true}
+                                                    countryCodeEditable={false}
+                                                    inputStyle={{
+                                                        width: "0px",
+                                                        maxWidth: '20px',
+                                                        height: "0px",
+                                                        opacity: 0,
+                                                        pointerEvents: "none",
+                                                        position: "absolute",
+                                                    }}
+                                                    buttonClass="!bg-white !border-none !p-0"
+                                                />
+
+                                                <input
+                                                    className="border-none focus:outline-none"
+                                                    value={parent.parentPhoneNumber}
+                                                    readOnly={editingIndex !== index}
+                                                    onChange={(e) =>
+                                                        handleDataChange(index, "parentPhoneNumber", e.target.value)
+                                                    }
+                                                />
+                                            </div>
                                         </div>
                                     </div>
 
@@ -940,7 +961,7 @@ console.log('profile',profile)
                                 </div>
 
 
-                              {(status === "frozen" || status === "cancelled") &&
+                                {(status === "frozen" || status === "cancelled") &&
                                     classSchedule?.capacity > 0 &&
                                     canRebooking && (
                                         <button

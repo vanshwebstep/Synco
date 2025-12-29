@@ -14,93 +14,94 @@ export const LeadsContextProvider = ({ children }) => {
     { name: "All", component: <Facebook /> },
   ];
   const [selectedUserIds, setSelectedUserIds] = useState([]);
-const [selectedBookingIds, setSelectedBookingIds] = useState([]);
-const [currentPage, setCurrentPage] = React.useState(1);
+  const [selectedBookingIds, setSelectedBookingIds] = useState([]);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
 
+  const [selectedVenue, setSelectedVenue] = useState(null);
   const [activeTab, setActiveTab] = useState(tabs[0].name);
   const [data, setData] = useState([]);
   const [analytics, setAnalytics] = useState([]);
   const [loading, setLoading] = useState(false);
-    const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("adminToken");
 
-const fetchData = useCallback(
-  async (params = {}) => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+  const fetchData = useCallback(
+    async (params = {}) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) return;
 
-    setLoading(true);
+      setLoading(true);
 
-    const {
-      studentName,
-      venueName,
-      filterTypes = [],
-      fromDate,
-      toDate,
-    } = params;
+      const {
+        studentName,
+        venueName,
+        filterTypes = [],
+        fromDate,
+        toDate,
+      } = params;
 
-    const searchParams = new URLSearchParams();
+      const searchParams = new URLSearchParams();
 
-    if (studentName) searchParams.append("studentName", studentName);
-    if (venueName) searchParams.append("venueName", venueName);
+      if (studentName) searchParams.append("studentName", studentName);
+      if (venueName) searchParams.append("venueName", venueName);
 
-    filterTypes.forEach((ft) => searchParams.append("filterType", ft));
+      filterTypes.forEach((ft) => searchParams.append("filterType", ft));
 
-    if (fromDate) searchParams.append("fromDate", fromDate);
-    if (toDate) searchParams.append("toDate", toDate);
+      if (fromDate) searchParams.append("fromDate", fromDate);
+      if (toDate) searchParams.append("toDate", toDate);
 
-    const query = searchParams.toString();
+      const query = searchParams.toString();
 
-    const tabEndpoints = {
-      Facebook: "facebook",
-      Referral: "referall",
-      "All other leads": "allOthers",
-      All: "all",
-    };
+      const tabEndpoints = {
+        Facebook: "facebook",
+        Referral: "referall",
+        "All other leads": "allOthers",
+        All: "all",
+      };
 
-    const activeTabData = tabEndpoints[activeTab] || "all";
+      const activeTabData = tabEndpoints[activeTab] || "all";
 
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/admin/lead/${activeTabData}${
-          query ? `?${query}` : ""
-        }`,
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/admin/lead/${activeTabData}${query ? `?${query}` : ""
+          }`,
+          {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const resultRaw = await response.json();
+
+        if (!response.ok || !resultRaw.status) {
+          Swal.fire({
+            icon: "error",
+            title: "Fetch Failed",
+            text:
+              resultRaw.message ||
+              "Something went wrong while fetching lead data.",
+            confirmButtonText: "OK",
+          });
+          return;
         }
-      );
 
-      const resultRaw = await response.json();
-
-      if (!response.ok || !resultRaw.status) {
+        setData(resultRaw.data || []);
+        setAnalytics(resultRaw.analytics || []);
+      } catch (error) {
+        console.error("Failed to fetch leads:", error);
         Swal.fire({
           icon: "error",
           title: "Fetch Failed",
-          text:
-            resultRaw.message ||
-            "Something went wrong while fetching lead data.",
+          text: error.message || "Something went wrong while fetching data.",
           confirmButtonText: "OK",
         });
-        return;
+      } finally {
+        setLoading(false);
       }
-
-      setData(resultRaw.data || []);
-      setAnalytics(resultRaw.analytics || []);
-    } catch (error) {
-      console.error("Failed to fetch leads:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Fetch Failed",
-        text: error.message || "Something went wrong while fetching data.",
-        confirmButtonText: "OK",
-      });
-    } finally {
-      setLoading(false);
-    }
-  },
-  [API_BASE_URL, activeTab]
-);
-const sendleadsMail = async (bookingIds) => {
+    },
+    [API_BASE_URL, activeTab]
+  );
+  const sendleadsMail = async (bookingIds) => {
     setLoading(true);
 
     const headers = {
@@ -236,6 +237,10 @@ const sendleadsMail = async (bookingIds) => {
         currentPage,
         setCurrentPage,
         sendleadsMail,
+        selectedVenue,
+        setSearchTerm,
+        searchTerm,
+        setSelectedVenue,
         fetchDataById
       }}
     >

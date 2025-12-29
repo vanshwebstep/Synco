@@ -15,6 +15,7 @@ import { addDays } from "date-fns";
 import Swal from "sweetalert2";
 
 import { useNotification } from '../../../contexts/NotificationContext';
+import PhoneInput from 'react-phone-input-2';
 const ParentProfile = ({ ParentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const [selectedDate, setSelectedDate] = useState(null);
@@ -386,11 +387,30 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </div>
                                     <div className="w-1/2">
                                         <label className="block text-[16px] font-semibold">Phone number</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.parentPhoneNumber}
-                                            readOnly
-                                        />
+                                        <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
+
+                                            <PhoneInput
+                                                country="uk"
+                                                value="+44"
+                                                disableDropdown={true}       // disables changing the country
+                                                disableCountryCode={true}
+                                                countryCodeEditable={false}
+                                                inputStyle={{
+                                                    width: "0px",
+                                                    maxWidth: '20px',
+                                                    height: "0px",
+                                                    opacity: 0,
+                                                    pointerEvents: "none",
+                                                    position: "absolute",
+                                                }}
+                                                buttonClass="!bg-white !border-none !p-0"
+                                            />
+                                            <input
+                                                className="border-none focus:outline-none"
+                                                value={parent.parentPhoneNumber}
+                                                readOnly
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 

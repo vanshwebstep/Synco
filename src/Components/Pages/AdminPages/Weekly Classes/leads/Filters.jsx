@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Search,
     Mail,
@@ -57,12 +57,11 @@ function exportDataToExcel(data) {
 }
 const Filters = () => {
 
-    const { fetchData, activeTabm, setActiveTab, data, selectedUserIds, sendleadsMail, setCurrentPage } = useLeads()
-    const [selectedVenue, setSelectedVenue] = useState(null);
+    const { fetchData, activeTabm, setActiveTab, data, setSelectedVenue, selectedVenue, selectedUserIds, sendleadsMail, setCurrentPage, setSearchTerm, searchTerm } = useLeads()
+
     const today = new Date();
     const [noLoaderShow, setNoLoaderShow] = useState(false);
 
-    const [searchTerm, setSearchTerm] = useState("");
 
     // 🔹 States
     const [currentDate, setCurrentDate] = useState(new Date());
@@ -93,6 +92,11 @@ const Filters = () => {
             venuesLabel: venueNames.join(", "),
         };
     });
+    // useEffect(() => {
+    //   if (!selectedVenue) return;
+
+    //   setSelectedVenue(prev => (prev ? null : prev));
+    // }, [selectedVenue]);
 
     const options = myVenues
         .filter(v => v.venuesLabel !== "") // remove empty ones
@@ -242,7 +246,7 @@ const Filters = () => {
         setCurrentPage(1);
         const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
         const hasRange = isValidDate(fromDate) && isValidDate(toDate);
-        setSelectedVenue(null)
+
         const selectedFilters = Object.keys(checkedStatuses).filter(
             (key) => checkedStatuses[key]
         );

@@ -760,7 +760,7 @@ const TrialsDashboard = () => {
 
                             <div className="mt-6 border-t border-gray-100 pt-4">
                                 <h3 className="text-sm font-semibold text-gray-800 mb-3">
-                                    Revenue Split
+                                    Revenue Generated
                                 </h3>
 
                                 <div className="grid md:grid-cols-3 md:justify-between md:max-h-[100px] overflow-auto gap-4 text-sm">

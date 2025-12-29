@@ -38,25 +38,25 @@ const List = () => {
     };
 
     // Scroll to the start time dynamically (instant)
-   const scrollToStartTime = () => {
-    if (!formData?.startTime) return;
+    const scrollToStartTime = () => {
+        if (!formData?.startTime) return;
 
-    requestAnimationFrame(() => {
-        const list = document.querySelector(".react-datepicker__time-list");
-        if (!list) return;
+        requestAnimationFrame(() => {
+            const list = document.querySelector(".react-datepicker__time-list");
+            if (!list) return;
 
-        // Keep AM/PM!
-        const normalizedTime = formData.startTime.trim(); // e.g. "1:00 PM"
+            // Keep AM/PM!
+            const normalizedTime = formData.startTime.trim(); // e.g. "1:00 PM"
 
-        const target = Array.from(list.children).find((el) =>
-            el.textContent?.trim() === normalizedTime
-        );
+            const target = Array.from(list.children).find((el) =>
+                el.textContent?.trim() === normalizedTime
+            );
 
-        if (target) {
-            target.scrollIntoView({ block: "center" });
-        }
-    });
-};
+            if (target) {
+                target.scrollIntoView({ block: "center" });
+            }
+        });
+    };
 
 
 
@@ -193,6 +193,11 @@ const List = () => {
 
 
     const handleChange = (field, value) => {
+        if (field === 'capacity') {
+            const numericValue = Number(value);
+
+            if (numericValue < 0) return; // block negative values
+        }
         setFormData({ ...formData, [field]: value });
     };
     const parseTimeToMinutes = (timeStr) => {
@@ -719,6 +724,7 @@ const List = () => {
                                             <label htmlFor="">Capacity</label>
                                             <input
                                                 type="number"
+                                                min={0}
 
                                                 value={formData.capacity}
                                                 onChange={(e) => handleChange('capacity', e.target.value)}

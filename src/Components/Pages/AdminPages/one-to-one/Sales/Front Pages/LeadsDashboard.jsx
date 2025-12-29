@@ -464,7 +464,7 @@ const goToNextMonth = () => {
     const dateRangeMembership = checkedStatuses.trialDate ? range : [];
     const otherDateRange = checkedStatuses.trialDate ? [] : range;
  setCurrentPage(1);
- setSelectedVenue(null);
+ 
     fetchLeads(
       "",                  // venueName
       checkedStatuses.paid,   // status1

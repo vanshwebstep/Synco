@@ -188,7 +188,7 @@ const MembersList = () => {
 
     const applyFilter = () => {
         const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
-        setSelectedVenue(null);
+
         const isValidDate = (d) => d instanceof Date && !isNaN(d.valueOf());
         const hasRange = isValidDate(fromDate) && isValidDate(toDate);
         const range = hasRange ? [fromDate, toDate] : [];
@@ -200,7 +200,7 @@ const MembersList = () => {
 
         fetchBookMemberships(
             "",                                  // studentName
-            "",                                  // venueName
+            selectedVenue ? selectedVenue.label : "",                                 // venueName
             checkedStatuses.pending,             // status1
             checkedStatuses.active,              // status2
             dateRangeMembership,                 // dateBooked range [from,to] OR []

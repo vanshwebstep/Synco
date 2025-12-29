@@ -301,7 +301,7 @@ const AllDashboard = () => {
                 timer: 2000,
                 showConfirmButton: false,
             });
- setCurrentPage(1);
+            setCurrentPage(1);
             await fetchLeads(); // refresh roles or data
             setIsOpen(false);   // close modal or form
             setFormData({});    // reset form if needed
@@ -328,7 +328,7 @@ const AllDashboard = () => {
             fetchLeads(""); // optional: reload default list
             return;
         }
-         setCurrentPage(1);
+        setCurrentPage(1);
         fetchLeads(value);
 
     };
@@ -510,13 +510,16 @@ const AllDashboard = () => {
             });
             return; // stop further execution
         }
-
+        const selectedVenueParam = Array.isArray(selectedVenue)
+            ? selectedVenue.map((v) => v.value)
+            : selectedVenue?.value
+                ? selectedVenue.value
+                : "";
         const bookedByParams = Array.isArray(savedAgent) ? savedAgent : [];
         const coachByParams = Array.isArray(savedCoach) ? savedCoach : [];
         const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
         const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
         setCurrentPage(1);
-        setSelectedVenue(null)
         fetchLeads(
             "",
             checkedStatuses.package,
@@ -527,9 +530,10 @@ const AllDashboard = () => {
             coachByParams,
             selectedPackages,
             selectedSources,
-            selectedLocation,
+            selectedVenueParam,
             fromDateToSend,
-            toDateToSend
+            toDateToSend,
+
         );
     };
 
@@ -698,7 +702,7 @@ const AllDashboard = () => {
 
                         <div className="flex justify-end"> {leadsData.length == 0 && (
                             <button onClick={() => {
-                                 setCurrentPage(1);
+                                setCurrentPage(1);
                                 fetchLeads();
                                 setFromDate('');
                                 setToDate('');

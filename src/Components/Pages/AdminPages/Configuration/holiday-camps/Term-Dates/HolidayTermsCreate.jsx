@@ -173,7 +173,7 @@ const HolidayTermsCreate = () => {
 
         }
     }, [id, selectedTerm]);
-
+    console.log('selectedTerm', selectedTerm)
     const handleGroupNameSave = async () => {
         if (!groupName.trim()) {
             Swal.fire({
@@ -194,7 +194,7 @@ const HolidayTermsCreate = () => {
 
             if (id || myGroupData?.id) {
                 // Update existing camp
-                apiResponse = await updateHolidayCampDate((id || myGroupData?.id), payload);
+                apiResponse = await updateHolidayCampDate((myGroupData?.id || selectedTerm.holidayCamp?.id), payload);
             } else {
                 // Create new camp
                 apiResponse = await createHolidayCamp(payload);
@@ -443,7 +443,7 @@ const HolidayTermsCreate = () => {
             setIsLoading(false);
         }
     };
-      
+
     console.log('myGroupData?.id', myGroupData?.id)
 
 
@@ -494,8 +494,10 @@ const HolidayTermsCreate = () => {
                                 placeholder="Enter Holiday Camp Name"
                                 value={groupName}
                                 onChange={(e) => setGroupName(e.target.value)}
-                                className={`md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${id && !isEditMode ? 'cursor-not-allowed' : ''}`}
-                                disabled={id || myGroupData?.id && !isEditMode}
+                                className={`md:w-1/2 px-4 font-semibold text-base py-3 border border-gray-200 rounded-lg 
+focus:outline-none focus:ring-2 focus:ring-blue-500 
+${(id || myGroupData?.id) && !isEditMode ? 'cursor-not-allowed' : ''}`}
+                                disabled={(id || myGroupData?.id) && !isEditMode}
                             />
 
 

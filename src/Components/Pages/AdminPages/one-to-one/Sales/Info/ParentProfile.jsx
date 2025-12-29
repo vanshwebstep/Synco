@@ -48,12 +48,12 @@ const ParentProfile = () => {
     howDidHear: "",
   });
 
-  const [dialCodes, setDialCodes] = useState(["", ""]);
-  const [dialCodesEmergency, setDialCodesEmergency] = useState(["", ""]);
+  const [dialCodes, setDialCodes] = useState(["+44", "+44"]);
+  const [dialCodesEmergency, setDialCodesEmergency] = useState(["+44", "+44"]);
   const [countries, setCountries] = useState(["uk", "uk"]);
   const [countriesEmergency, setCountriesEmergency] = useState(["uk", "uk"]);
-  const [dialCodeEmergency, setDialCodeEmergency] = useState("");
-  const [dialCode, setDialCode] = useState("");
+  const [dialCodeEmergency, setDialCodeEmergency] = useState("+44");
+  const [dialCode, setDialCode] = useState("+44");
   const [country, setCountry] = useState("uk");
   const [countryEmergency, setCountryEmergency] = useState("uk");
 

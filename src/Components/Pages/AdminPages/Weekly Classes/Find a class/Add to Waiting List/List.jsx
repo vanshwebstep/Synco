@@ -294,7 +294,7 @@ const WaitingList = () => {
         }
 
         const bookedByParams = savedAgent || [];
-        setSelectedVenue(null)
+
         setIsFilterApplied(true);
         fetchAddtoWaitingList(
             "",

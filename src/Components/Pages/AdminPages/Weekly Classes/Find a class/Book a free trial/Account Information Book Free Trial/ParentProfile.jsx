@@ -16,6 +16,7 @@ import Swal from "sweetalert2"; // make sure it's installed
 import { useNavigate } from 'react-router-dom';
 import { FaEdit, FaSave } from "react-icons/fa";
 import { useNotification } from '../../../../contexts/NotificationContext';
+import PhoneInput from 'react-phone-input-2';
 
 const ParentProfile = ({ ParentProfile }) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -350,25 +351,25 @@ const ParentProfile = ({ ParentProfile }) => {
             .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // capitalize first letter
             .join(" ");           // join with space
     };
-  const handleBookMembership = () => {
-    Swal.fire({
-        title: "Are you sure?",
-        text: "Do you want to book a membership?",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonColor: "#237FEA",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, Book it!",
-        cancelButtonText: "Cancel",
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // Navigate to your component/route
-            navigate("/weekly-classes/find-a-class/book-a-membership", {
-                state: { TrialData: ParentProfile, comesFrom: "trials" },
-            });
-        }
-    });
-};
+    const handleBookMembership = () => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to book a membership?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#237FEA",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Book it!",
+            cancelButtonText: "Cancel",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Navigate to your component/route
+                navigate("/weekly-classes/find-a-class/book-a-membership", {
+                    state: { TrialData: ParentProfile, comesFrom: "trials" },
+                });
+            }
+        });
+    };
 
     if (loading) return <Loader />;
     console.log('parents', parents)
@@ -436,14 +437,33 @@ const ParentProfile = ({ ParentProfile }) => {
                                     </div>
                                     <div className="w-1/2">
                                         <label className="block text-[16px] font-semibold">Phone number</label>
-                                        <input
-                                            className="w-full mt-2 border border-gray-300 rounded-xl px-4 py-3 text-base"
-                                            value={parent.parentPhoneNumber}
-                                            readOnly={editingIndex !== index}
-                                            onChange={(e) =>
-                                                handleDataChange(index, "parentPhoneNumber", e.target.value)
-                                            }
-                                        />
+                                        <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
+
+                                            <PhoneInput
+                                                country="uk"
+                                                value="+44"
+                                                disableDropdown={true}       // disables changing the country
+                                                disableCountryCode={true}
+                                                countryCodeEditable={false}
+                                                inputStyle={{
+                                                    width: "0px",
+                                                    maxWidth: '20px',
+                                                    height: "0px",
+                                                    opacity: 0,
+                                                    pointerEvents: "none",
+                                                    position: "absolute",
+                                                }}
+                                                buttonClass="!bg-white !border-none !p-0"
+                                            />
+                                            <input
+                                                className="border-none focus:outline-none"
+                                                value={parent.parentPhoneNumber}
+                                                readOnly={editingIndex !== index}
+                                                onChange={(e) =>
+                                                    handleDataChange(index, "parentPhoneNumber", e.target.value)
+                                                }
+                                            />
+                                        </div>
                                     </div>
                                 </div>
 
@@ -797,8 +817,8 @@ const ParentProfile = ({ ParentProfile }) => {
 
 
                                 {status?.trim().toLowerCase() == "pending" ||
-                                status?.trim().toLowerCase() == "not attend" ||
-                                status?.trim().toLowerCase() == "not attended" &&
+                                    status?.trim().toLowerCase() == "not attend" ||
+                                    status?.trim().toLowerCase() == "not attended" &&
                                     status?.trim().toLowerCase() !== "attended" &&
                                     status?.trim().toLowerCase() !== "no_membership" &&
                                     status?.trim().toLowerCase() !== "rebooked" &&
@@ -824,7 +844,7 @@ const ParentProfile = ({ ParentProfile }) => {
                                         Cancel Trial
                                     </button>
                                 )}
-                           
+
                                 {status !== 'pending' && status !== 'attended' && (
                                     <button
                                         onClick={handleBookMembership}

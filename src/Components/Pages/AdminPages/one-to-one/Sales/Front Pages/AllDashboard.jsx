@@ -537,7 +537,11 @@ const AllDashboard = () => {
         const fromDateToSend = hasRange ? formatLocalDate(fromDate) : null;
         const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
         setCurrentPage(1);
-        setSelectedVenue(null);
+        const selectedVenueParam = Array.isArray(selectedVenue)
+            ? selectedVenue.map((v) => v.value)
+            : selectedVenue?.value
+                ? selectedVenue.value
+                : "";
         fetchLeads(
             "",
             checkedStatuses.package,
@@ -548,7 +552,7 @@ const AllDashboard = () => {
             coachByParams,
             selectedPackages,
             selectedSources,
-            selectedLocation,
+            selectedVenueParam,
             fromDateToSend,
             toDateToSend
         );

@@ -59,149 +59,149 @@ const BirthdaySessionPlan = () => {
         }
     }, [token, API_BASE_URL]);
     const handleDelete = async (groupId, level) => {
-    const myLevel = level?.toLowerCase();
-    if (!groupId || !myLevel) return;
+        const myLevel = level?.toLowerCase();
+        if (!groupId || !myLevel) return;
 
-    const confirm = await Swal.fire({
-        title: "Delete Session Plan?",
-        html: `
+        const confirm = await Swal.fire({
+            title: "Delete Session Plan?",
+            html: `
             <p class="text-gray-700 text-sm">
                 You’re about to delete the <b>${level}</b> session plan.<br/>
                 This action cannot be undone.
             </p>
         `,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, delete it",
-        cancelButtonText: "Cancel",
-        reverseButtons: true,
-        confirmButtonColor: "#e53935",
-        cancelButtonColor: "#6c757d",
-        customClass: {
-            popup: "rounded-2xl shadow-xl",
-            confirmButton: "px-4 py-2 font-semibold",
-            cancelButton: "px-4 py-2 font-semibold",
-        },
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    try {
-        Swal.fire({
-            title: "Deleting...",
-            html: `<div class="text-gray-600 text-sm mt-2">Please wait while we remove the session plan.</div>`,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => Swal.showLoading(),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it",
+            cancelButtonText: "Cancel",
+            reverseButtons: true,
+            confirmButtonColor: "#e53935",
+            cancelButtonColor: "#6c757d",
+            customClass: {
+                popup: "rounded-2xl shadow-xl",
+                confirmButton: "px-4 py-2 font-semibold",
+                cancelButton: "px-4 py-2 font-semibold",
+            },
         });
 
-        const response = await fetch(
-            `${API_BASE_URL}/api/admin/birthday-party/session-plan-birthdayParty/${groupId}/level/${myLevel}`,
-            {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            }
-        );
+        if (!confirm.isConfirmed) return;
 
-        const data = await response.json();
+        try {
+            Swal.fire({
+                title: "Deleting...",
+                html: `<div class="text-gray-600 text-sm mt-2">Please wait while we remove the session plan.</div>`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => Swal.showLoading(),
+            });
 
-        if (!response.ok) throw new Error(data.message || "Failed to delete session plan");
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/birthday-party/session-plan-birthdayParty/${groupId}/level/${myLevel}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
 
-        Swal.fire({
-            icon: "success",
-            title: "Deleted!",
-            text: `${level} session plan has been successfully removed.`,
-            showConfirmButton: false,
-            timer: 1800,
-            timerProgressBar: true,
-        });
+            const data = await response.json();
 
-        fetchSessionGroup(); // refresh list
-    } catch (error) {
-        console.error("Delete error:", error);
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: error.message || "Something went wrong while deleting.",
-            confirmButtonColor: "#d33",
-        });
-    }
-};
+            if (!response.ok) throw new Error(data.message || "Failed to delete session plan");
 
-const handleDeleteGroup = async (groupId) => {
-    if (!groupId) return;
+            Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                text: `${level} session plan has been successfully removed.`,
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true,
+            });
 
-    const confirm = await Swal.fire({
-        title: "Delete Session Plan Group?",
-        html: `
+            fetchSessionGroup(); // refresh list
+        } catch (error) {
+            console.error("Delete error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.message || "Something went wrong while deleting.",
+                confirmButtonColor: "#d33",
+            });
+        }
+    };
+
+    const handleDeleteGroup = async (groupId) => {
+        if (!groupId) return;
+
+        const confirm = await Swal.fire({
+            title: "Delete Session Plan Group?",
+            html: `
             <p class="text-gray-700 text-sm">
                 You’re about to delete this session plan group.<br/>
                 This action cannot be undone.
             </p>
         `,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, delete it",
-        cancelButtonText: "Cancel",
-        reverseButtons: true,
-        confirmButtonColor: "#e53935",
-        cancelButtonColor: "#6c757d",
-        customClass: {
-            popup: "rounded-2xl shadow-xl",
-            confirmButton: "px-4 py-2 font-semibold",
-            cancelButton: "px-4 py-2 font-semibold",
-        },
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    try {
-        Swal.fire({
-            title: "Deleting...",
-            html: `<div class="text-gray-600 text-sm mt-2">Please wait while we remove the session plan group.</div>`,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => Swal.showLoading(),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it",
+            cancelButtonText: "Cancel",
+            reverseButtons: true,
+            confirmButtonColor: "#e53935",
+            cancelButtonColor: "#6c757d",
+            customClass: {
+                popup: "rounded-2xl shadow-xl",
+                confirmButton: "px-4 py-2 font-semibold",
+                cancelButton: "px-4 py-2 font-semibold",
+            },
         });
 
-        const response = await fetch(
-            `${API_BASE_URL}/api/admin/birthday-party/session-plan-birthdayParty/delete/${groupId}`,
-            {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            }
-        );
+        if (!confirm.isConfirmed) return;
 
-        const data = await response.json();
+        try {
+            Swal.fire({
+                title: "Deleting...",
+                html: `<div class="text-gray-600 text-sm mt-2">Please wait while we remove the session plan group.</div>`,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => Swal.showLoading(),
+            });
 
-        if (!response.ok) throw new Error(data.message || "Failed to delete session plan group");
+            const response = await fetch(
+                `${API_BASE_URL}/api/admin/birthday-party/session-plan-birthdayParty/delete/${groupId}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
 
-        Swal.fire({
-            icon: "success",
-            title: "Deleted!",
-            text: data.message || "Session plan group has been successfully removed.",
-            showConfirmButton: false,
-            timer: 1800,
-            timerProgressBar: true,
-        });
+            const data = await response.json();
 
-        fetchSessionGroup();
-    } catch (error) {
-        console.error("Delete error:", error);
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: error.message || "Something went wrong while deleting.",
-            confirmButtonColor: "#d33",
-        });
-    }
-};
+            if (!response.ok) throw new Error(data.message || "Failed to delete session plan group");
+
+            Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                text: data.message || "Session plan group has been successfully removed.",
+                showConfirmButton: false,
+                timer: 1800,
+                timerProgressBar: true,
+            });
+
+            fetchSessionGroup();
+        } catch (error) {
+            console.error("Delete error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.message || "Something went wrong while deleting.",
+                confirmButtonColor: "#d33",
+            });
+        }
+    };
 
     const handlePinToggle = async (groupId, pinned = false, forceRePin = false) => {
         try {
@@ -428,27 +428,27 @@ const handleDeleteGroup = async (groupId) => {
                                                                                 <img
                                                                                     src="/images/icons/edit.png"
                                                                                     alt="Edit"
+                                                                                    className="min-w-6 max-h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                                                                />
+                                                                            </button>
+                                                                        )}
+                                                                        {canDelete && (
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    if (Object.keys(group.levels || {}).length === 1) {
+                                                                                        handleDeleteGroup(group.id);
+                                                                                    } else {
+                                                                                        handleDelete(group.id, levelKey);
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                <img
+                                                                                    src="/images/icons/deleteIcon.png"
+                                                                                    alt="Delete"
                                                                                     className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                                                                 />
                                                                             </button>
                                                                         )}
-                                                                       {canDelete && (
-    <button
-        onClick={() => {
-            if (Object.keys(group.levels || {}).length === 1) {
-                handleDeleteGroup(group.id);
-            } else {
-                handleDelete(group.id, levelKey);
-            }
-        }}
-    >
-        <img
-            src="/images/icons/deleteIcon.png"
-            alt="Delete"
-            className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
-        />
-    </button>
-)}
 
                                                                     </div>
                                                                 </div>

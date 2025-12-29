@@ -386,13 +386,13 @@ span.tox-tbtn.tox-split-button__chevron {
 }
 
 .prose p {
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.5;
 }
 
 .prose li {
   list-style: auto;
-  margin-left: 15px;
+  margin-left: 18px;
 }
 
 .prose ol li {

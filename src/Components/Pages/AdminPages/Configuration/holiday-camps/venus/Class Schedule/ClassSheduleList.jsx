@@ -148,8 +148,15 @@ const ClassSheduleList = () => {
     console.log('venues', venues)
 
     const handleChange = (field, value) => {
+        if (field === 'capacity') {
+            const numericValue = Number(value);
+
+            if (numericValue < 0) return; // block negative values
+        }
+
         setFormData({ ...formData, [field]: value });
     };
+
     const parseTimeToMinutes = (timeStr) => {
         // timeStr example: "06:00 AM" or "01:15 PM"
         const [time, modifier] = timeStr.split(" ");
@@ -440,18 +447,18 @@ const ClassSheduleList = () => {
                                                                                     <p className="font-semibold text-[16px]">
                                                                                         {item?.venue?.holidayCamps[0]?.name || "N/A"}
                                                                                     </p>
-<p className="text-[14px]">
-  {item?.venue?.holidayCamps[0]?.createdAt
-    ? (() => {
-        const d = new Date(item.venue.holidayCamps[0].createdAt);
-        const weekday = d.toLocaleDateString("en-GB", { weekday: "short" });
-        const day = d.toLocaleDateString("en-GB", { day: "2-digit" });
-        const year = d.toLocaleDateString("en-GB", { year: "2-digit" });
+                                                                                    <p className="text-[14px]">
+                                                                                        {item?.venue?.holidayCamps[0]?.createdAt
+                                                                                            ? (() => {
+                                                                                                const d = new Date(item.venue.holidayCamps[0].createdAt);
+                                                                                                const weekday = d.toLocaleDateString("en-GB", { weekday: "short" });
+                                                                                                const day = d.toLocaleDateString("en-GB", { day: "2-digit" });
+                                                                                                const year = d.toLocaleDateString("en-GB", { year: "2-digit" });
 
-        return `${weekday} ${day}/${year}`;
-      })()
-    : "N/A"}
-</p>                                                                            </div>
+                                                                                                return `${weekday} ${day}/${year}`;
+                                                                                            })()
+                                                                                            : "N/A"}
+                                                                                    </p>                                                                            </div>
                                                                             </div>
                                                                         </div>
 
@@ -667,11 +674,12 @@ const ClassSheduleList = () => {
                                             <label htmlFor="">Capacity</label>
                                             <input
                                                 type="number"
-
+                                                min={0}
                                                 value={formData.capacity}
                                                 onChange={(e) => handleChange('capacity', e.target.value)}
                                                 className="w-full border border-[#E2E1E5] rounded-xl p-3 text-sm"
                                             />
+
                                         </div>
                                     </div>
                                     <div className="flex gap-4">

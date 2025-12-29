@@ -398,7 +398,7 @@ const SessionPreview = ({ item, sessionData }) => {
                       <p>No images available</p>
                     )}
                   </div>
-                  <p className="text-blue-500 text-[14px] mt-7 font-semibold mb-5">
+                  <p className="text-blue-500 text-[18px] mt-7 font-semibold mb-5">
                     Time Duration: {selectedExercise.duration || '—'}
                   </p>
 

@@ -57,16 +57,16 @@ const CancellationDashboard = () => {
         { value: "london", label: "London" },
         { value: "manchester", label: "Manchester" },
     ];
-   const data = membersData?.cancellationReasons?.reasons?.map(r => ({
-  label: r.reason,
-  value: r.percentage
-})) || [];
+    const data = membersData?.cancellationReasons?.reasons?.map(r => ({
+        label: r.reason,
+        value: r.percentage
+    })) || [];
 
     const ageOptions = [
         { value: "all", label: "All ages" },
         { value: "under18", label: "Under 18" },
         { value: "18-25", label: "18–25" },
-        { value: "35plus", label: "35+"}
+        { value: "35plus", label: "35+" }
     ];
 
     const dateOptions = [
@@ -75,108 +75,109 @@ const CancellationDashboard = () => {
         { value: "year", label: "This Year" },
     ];
 
-   const stats = [
-  {
-    icon: <Users size={18} />,
-    iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
-    title: "Total RTC",
-    value: membersData?.totalRTCs?.thisMonth ?? 0,
-    diff: membersData?.totalRTCs?.change ?? "0%",
-    sub: "vs. prev period",
-    subvalue: membersData?.totalRTCs?.lastMonth ?? 0
-  },
-  {
-    icon: <PoundSterling size={18} />,
-    iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
-    title: "Monthly Revenue Lost",
-    value: `£${membersData?.monthlyRevenueLost?.thisMonth ?? 0}`,
-    diff: membersData?.monthlyRevenueLost?.change ?? "0%",
-    sub: "vs. prev period",
-    subvalue: `£${membersData?.monthlyRevenueLost?.lastMonth ?? 0}`
-  },
-  {
-    icon: <Calendar size={18} />,
-    iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
-    title: "Avg Membership Tenure",
-    value: `${membersData?.avgMembershipTenure?.thisMonth ?? 0} months`,
-    diff: membersData?.avgMembershipTenure?.change ?? "0%",
-    sub: "vs. prev period",
-    subvalue: `${membersData?.avgMembershipTenure?.lastMonth ?? 0} months`
-  },
-  {
-    icon: <Clock size={18} />,
-    iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
-    title: "Reactivated Membership",
-    value: membersData?.reactivatedMembership?.thisMonth ?? 0,
-    diff: membersData?.reactivatedMembership?.change ?? "0%",
-    sub: "vs. prev period",
-    subvalue: membersData?.reactivatedMembership?.lastMonth ?? 0
-  },
-  {
-    icon: <UserPlus size={18} />,
-    iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
-    title: "New Students",
-    value: membersData?.totalNewStudents?.thisMonth ?? 0,
-    diff: membersData?.totalNewStudents?.change ?? "0%",
-    sub: "vs. prev period",
-    subvalue: membersData?.totalNewStudents?.lastMonth ?? 0
-  },
-  {
-    icon: <RotateCcw size={18} />,
-    iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
-    title: "Total Cancelled",
-    value: membersData?.totalCancelled?.thisMonth ?? 0,
-    diff: membersData?.totalCancelled?.change ?? "0%",
-    sub: "vs. prev period",
-    subvalue: membersData?.totalCancelled?.lastMonth ?? 0
-  }
-];
-const exportToExcel = () => {
-  // Prepare export rows
-  const exportData = stats.map((item) => ({
-    Title: item.title,
-    Value: typeof item.value === "string" ? item.value : String(item.value),
-    Change: item.diff,
-    "Last Period": item.subvalue,
-  }));
+    const stats = [
+        {
+            icon: "/reportsIcons/Rct.png",
+            iconStyle: "text-[#3DAFDB] bg-[#FFF19E]",
+            title: "Total RTC",
+            value: membersData?.totalRTCs?.thisMonth ?? 0,
+            diff: membersData?.totalRTCs?.change ?? "0%",
+            sub: "vs. prev period",
+            subvalue: membersData?.totalRTCs?.lastMonth ?? 0
+        },
+        {
+            icon: "/reportsIcons/cancelled.png",
+            iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
+            title: "Total Cancelled",
+            value: membersData?.totalCancelled?.thisMonth ?? 0,
+            diff: membersData?.totalCancelled?.change ?? "0%",
+            sub: "vs. prev period",
+            subvalue: membersData?.totalCancelled?.lastMonth ?? 0
+        },
+        {
 
-  // Create worksheet + workbook
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Stats Report");
-
-  // Convert to excel
-  const excelBuffer = XLSX.write(workbook, {
-    bookType: "xlsx",
-    type: "array",
-  });
-
-  // Download
-  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-  saveAs(data, "stats-report.xlsx");
-};
-
-useEffect(() => {
-    if (!membersData?.getByAgeandByGender) return;
-
-    const { byAge, byGender } = membersData.getByAgeandByGender;
-
-    if (activeTab === "age") {
-        const formatted = byAge.map(item => ({
-            label: `${item.age} Years`,
-            value: item.percentage,   // already in API
-            count: item.count
+            icon: "/reportsIcons/RevenueLost.png",
+            iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
+            title: "Monthly Revenue Lost",
+            value: `£${membersData?.monthlyRevenueLost?.thisMonth ?? 0}`,
+            diff: membersData?.monthlyRevenueLost?.change ?? "0%",
+            sub: "vs. prev period",
+            subvalue: `£${membersData?.monthlyRevenueLost?.lastMonth ?? 0}`
+        },
+        {
+            icon: "/reportsIcons/avgLifecycle.png",
+            iconStyle: "text-[#F38B4D] bg-[#F6F6FE]",
+            title: "Avg Membership Tenure",
+            value: `${membersData?.avgMembershipTenure?.thisMonth ?? 0} months`,
+            diff: membersData?.avgMembershipTenure?.change ?? "0%",
+            sub: "vs. prev period",
+            subvalue: `${membersData?.avgMembershipTenure?.lastMonth ?? 0} months`
+        },
+        {
+            icon: "/reportsIcons/Userremove.png",
+            iconStyle: "text-[#6F65F1] bg-[#F0F9F9]",
+            title: "Reactivated Membership",
+            value: membersData?.reactivatedMembership?.thisMonth ?? 0,
+            diff: membersData?.reactivatedMembership?.change ?? "0%",
+            sub: "vs. prev period",
+            subvalue: membersData?.reactivatedMembership?.lastMonth ?? 0
+        },
+        {
+            icon: "/reportsIcons/user-group.png",
+            iconStyle: "text-[#FF5353] bg-[#F3FAFD]",
+            title: "Total New Students",
+            value: membersData?.totalNewStudents?.thisMonth ?? 0,
+            diff: membersData?.totalNewStudents?.change ?? "0%",
+            sub: "vs. prev period",
+            subvalue: membersData?.totalNewStudents?.lastMonth ?? 0
+        }
+    ];
+    const exportToExcel = () => {
+        // Prepare export rows
+        const exportData = stats.map((item) => ({
+            Title: item.title,
+            Value: typeof item.value === "string" ? item.value : String(item.value),
+            Change: item.diff,
+            "Last Period": item.subvalue,
         }));
-        setMainData(formatted);
-    } else {
-        const formatted = byGender.map(item => ({
-            label: item.gender.charAt(0).toUpperCase() + item.gender.slice(1),
-            value: item.percentage,
-            count: item.count
-        }));
-        setMainData(formatted);
-    }
-}, [activeTab, membersData]);
+
+        // Create worksheet + workbook
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Stats Report");
+
+        // Convert to excel
+        const excelBuffer = XLSX.write(workbook, {
+            bookType: "xlsx",
+            type: "array",
+        });
+
+        // Download
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "stats-report.xlsx");
+    };
+
+    useEffect(() => {
+        if (!membersData?.getByAgeandByGender) return;
+
+        const { byAge, byGender } = membersData.getByAgeandByGender;
+
+        if (activeTab === "age") {
+            const formatted = byAge.map(item => ({
+                label: `${item.age} Years`,
+                value: item.percentage,   // already in API
+                count: item.count
+            }));
+            setMainData(formatted);
+        } else {
+            const formatted = byGender.map(item => ({
+                label: item.gender.charAt(0).toUpperCase() + item.gender.slice(1),
+                value: item.percentage,
+                count: item.count
+            }));
+            setMainData(formatted);
+        }
+    }, [activeTab, membersData]);
 
 
     const fetchData = useCallback(async () => {
@@ -233,11 +234,11 @@ useEffect(() => {
         fetchData();
     }, []);
 
-  const lineData = membersData?.chart?.monthly?.map((item) => ({
-    month: item.month,
-    current: item.cancelled || 0,     // this year's actual data
-    previous: 0                       // no previous-year data available
-})) || [];
+    const lineData = membersData?.chart?.monthly?.map((item) => ({
+        month: item.month,
+        current: item.cancelled || 0,     // this year's actual data
+        previous: 0                       // no previous-year data available
+    })) || [];
 
 
     const bookings =
@@ -255,11 +256,11 @@ useEffect(() => {
     const colors = ["#8B5CF6", "#FACC15", "#22C55E", "#3B82F6", "#EF4444"]; // add more if needed
 
     const pieData = membersData?.cancellationReasons?.reasons?.map((item, i) => ({
-    name: item.reason,
-    value: item.percentage,
-    count: item.count,
-    color: ["#237FEA", "#F38B4D", "#6F65F1", "#E769BD", "#3DAFDB"][i % 5]
-})) || [];
+        name: item.reason,
+        value: item.percentage,
+        count: item.count,
+        color: ["#237FEA", "#F38B4D", "#6F65F1", "#E769BD", "#3DAFDB"][i % 5]
+    })) || [];
 
     const customSelectStyles = {
         control: (provided, state) => ({
@@ -311,6 +312,20 @@ useEffect(() => {
         (latestYear && latestMonth && yearlyGrouped[latestYear]?.monthlyGrouped?.[latestMonth]?.durationOfMembership) ||
         {};
 
+    const { thisMonth = 0, lastMonth = 0 } =
+        membersData?.reactivatedMembership || {};
+
+    // Calculate percentage safely
+    const percentage =
+        lastMonth > 0 ? Math.round((thisMonth / lastMonth) * 100) : 0;
+
+    // Cap percentage at 100 for UI
+    const progress = Math.min(percentage, 100);
+
+    // SVG math
+    const radius = 90;
+    const circumference = Math.PI * radius;
+    const offset = circumference - (progress / 100) * circumference;
     if (loading) return (<><Loader /></>)
 
     return (
@@ -353,7 +368,7 @@ useEffect(() => {
                         onChange={(selected) => handleFilterChange("period", selected.value)}
                         className="md:w-40"
                     />
-                    <button   onClick={exportToExcel} className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                    <button onClick={exportToExcel} className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         <Download size={16} /> Export data
                     </button>
                 </div>
@@ -371,7 +386,7 @@ useEffect(() => {
                             <div
                                 className={`p-2 h-[50px] w-[50px] rounded-full flex items-center justify-center ${s.iconStyle}`}
                             >
-                                <div className={s.iconStyle}>{s.icon}</div>
+                                <div className={s.iconStyle}><img className="p-1" src={s.icon} alt="" /></div>
                             </div>
                         </div>
                         <div>
@@ -391,7 +406,7 @@ useEffect(() => {
 
                     <div className="bg-white rounded-2xl p-4">
                         <h2 className="text-gray-800 font-semibold text-[20px] mb-4">
-                          Cancellations
+                            Cancellations
                         </h2>
 
                         <div className="w-full h-[320px]">
@@ -438,7 +453,7 @@ useEffect(() => {
                                     </defs>
 
 
-                                        
+
 
                                     <Line
                                         type="monotone"
@@ -463,7 +478,7 @@ useEffect(() => {
                         <div className="bg-white rounded-2xl p-4 md:max-h-[500px] overflow-auto">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-gray-800 font-semibold text-[24px]">
-                                   Cancelled Students
+                                    Cancelled Students
                                 </h2>
                                 <EllipsisVertical className="text-gray-500" />
                             </div>
@@ -581,7 +596,7 @@ useEffect(() => {
 
                             <div className="mt-6 border-t border-gray-100 pt-4">
                                 <h3 className="text-sm font-semibold text-gray-800 mb-3">
-                                    Revenue Split
+                                    Revenue Lost
                                 </h3>
 
                                 <div className="grid md:grid-cols-3 md:justify-between md:max-h-[100px] overflow-auto gap-4 text-sm">
@@ -605,10 +620,10 @@ useEffect(() => {
 
                 <div className="md:w-[25%]">
 
-               
+
                     <div className="bg-white rounded-2xl p-4 mt-5">
                         <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                         Reasons for Cancellation <EllipsisVertical />
+                            Reasons for Cancellation <EllipsisVertical />
                         </h2>
 
                         {data.map((item, i) => (
@@ -631,7 +646,59 @@ useEffect(() => {
                             </div>
                         ))}
                     </div>
+                    <div className="bg-white rounded-3xl p-5 h-fit mt-6">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
+                                Reactivated memberships
+                            </h3>
+                            <EllipsisVertical />
+                        </div>
 
+                        {/* Progress */}
+                        <div className="relative flex justify-center">
+                            <svg width="220" height="120" viewBox="0 0 220 120">
+                                {/* Background arc */}
+                                <path
+                                    d="M20,110 A90,90 0 0 1 200,110"
+                                    fill="none"
+                                    stroke="#E5E7EB"
+                                    strokeWidth="16"
+                                    strokeLinecap="round"
+                                />
+
+                                {/* Active arc */}
+                                <path
+                                    d="M20,110 A90,90 0 0 1 200,110"
+                                    fill="none"
+                                    stroke="#2F80ED"
+                                    strokeWidth="16"
+                                    strokeLinecap="round"
+                                    strokeDasharray={circumference}
+                                    strokeDashoffset={offset}
+                                />
+                            </svg>
+
+                            {/* Center Text */}
+                            <div className="absolute top-[45%] text-center">
+                                <div className="text-[48px] font-bold text-gray-900">{thisMonth}</div>
+                                <p className="text-[16px] text-gray-500 mt-1">
+                                    Cancelled membership <br /> back to active
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="mt-18  text-center text-gray-500">
+                            <p className="font-semibold text-[16px] text-gray-700 mb-1">
+                                Cancelled membership back to active
+                            </p>
+                            <p className="text-[14px]">
+                                We have <span className="font-semibold">{progress}%</span> of the cancelled
+                                membership back to active. Main reason: available time
+                            </p>
+                        </div>
+                    </div>
 
                 </div>
             </div>

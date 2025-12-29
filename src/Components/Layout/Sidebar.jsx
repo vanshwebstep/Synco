@@ -133,24 +133,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         }
       ]
     },
-    {
-      title: 'Holiday Camps',
-      path: '/holiday-camps',
-      icon: '/SidebarLogos/WeeklyClasses.png',
-      iconHover: '/SidebarLogos/WeeklyClassesH.png',
-      needPermissions: [
-        { module: 'holiday-find-class', action: 'view-listing' },
-        { module: 'holiday-booking', action: 'view-listing' }
-      ],
-      subItems: [
-        { title: 'Find a Camp', link: '/holiday-camp/find-a-camp', needPermissions: [{ module: 'holiday-find-class', action: 'view-listing' }] },
-        { title: 'Members', link: '/holiday-camp/members/list', needPermissions: [{ module: 'holiday-booking', action: 'view-listing' }] },
-        { title: 'Reports', link: '/holiday-camp/reports', needPermissions: [{ module: 'holiday-find-class', action: 'view-listing' }, { module: 'holiday-booking', action: 'view-listing' }] },
-
-      ]
-    },
-
-    {
+     {
       title: "One To One",
       icon: "/reportsIcons/user.png",
       path: '/one-to-one',
@@ -184,6 +167,24 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
         }
       ],
     },
+    {
+      title: 'Holiday Camps',
+      path: '/holiday-camps',
+      icon: '/SidebarLogos/WeeklyClasses.png',
+      iconHover: '/SidebarLogos/WeeklyClassesH.png',
+      needPermissions: [
+        { module: 'holiday-find-class', action: 'view-listing' },
+        { module: 'holiday-booking', action: 'view-listing' }
+      ],
+      subItems: [
+        { title: 'Find a Camp', link: '/holiday-camp/find-a-camp', needPermissions: [{ module: 'holiday-find-class', action: 'view-listing' }] },
+        { title: 'Members', link: '/holiday-camp/members/list', needPermissions: [{ module: 'holiday-booking', action: 'view-listing' }] },
+        { title: 'Reports', link: '/holiday-camp/reports', needPermissions: [{ module: 'holiday-find-class', action: 'view-listing' }, { module: 'holiday-booking', action: 'view-listing' }] },
+
+      ]
+    },
+
+   
 
     {
       title: "Birthday parties",

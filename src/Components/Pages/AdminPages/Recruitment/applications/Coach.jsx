@@ -318,64 +318,65 @@ const Coach = () => {
 
         }
     };
-    const applyFilter = () => {
-        let temp = Array.isArray(recruitment) ? [...recruitment] : [];
-        setCurrentPage(1);
-        setSelectedVenue(null);
-        // 1️⃣ Status / Exp / FA filters
-        const selected = Object.entries(checkedStatuses)
-            .filter(([_, v]) => v)
-            .map(([k]) => k);
+ const applyFilter = () => {
+    let temp = Array.isArray(recruitment) ? [...recruitment] : [];
 
-        if (selected.length > 0) {
-            temp = temp.filter((c) => {
-                const status = (c.status ?? "").toLowerCase();
-                const expYears = getExpYears(c.managementExperience);
-                const faLevel1 = c.level === "yes";
+    setCurrentPage(1);
 
-                let match = true;
+    // 🔹 Apply name & venue filters first
+    temp = filterByName(temp);
+    temp = filterByVenue(temp);
 
-                const statusFilters = ["Pending", "Recruited", "Rejected"]
-                    .filter(s => selected.includes(s))
-                    .map(s => s.toLowerCase());
+    // 🔹 Status / Exp / FA filters
+    const selected = Object.entries(checkedStatuses)
+        .filter(([_, v]) => v)
+        .map(([k]) => k);
 
-                if (statusFilters.length > 0) {
-                    match = match && statusFilters.includes(status);
-                }
+    if (selected.length > 0) {
+        temp = temp.filter((c) => {
+            const status = (c.status ?? "").toLowerCase();
+            const expYears = getExpYears(c.managementExperience);
+            const faLevel1 = c.level === "yes";
 
-                if (selected.includes("0-3 Years Exp")) {
-                    match = match && expYears !== null && expYears <= 3;
-                }
+            let match = true;
 
-                if (selected.includes("3+ Years Exp")) {
-                    match = match && expYears !== null && expYears >= 3;
-                }
+            const statusFilters = ["Pending", "Recruited", "Rejected"]
+                .filter(s => selected.includes(s))
+                .map(s => s.toLowerCase());
 
-                if (selected.includes("FA Level 1")) {
-                    match = match && faLevel1;
-                }
+            if (statusFilters.length > 0) {
+                match = match && statusFilters.includes(status);
+            }
 
-                return match;
-            });
-        }
+            if (selected.includes("0-3 Years Exp")) {
+                match = match && expYears !== null && expYears <= 3;
+            }
 
-        // 2️⃣ Date range
-        if (fromDate && toDate) {
-            const start = new Date(fromDate).setHours(0, 0, 0, 0);
-            const end = new Date(toDate).setHours(23, 59, 59, 999);
+            if (selected.includes("3+ Years Exp")) {
+                match = match && expYears !== null && expYears >= 3;
+            }
 
-            temp = temp.filter((c) => {
-                const created = c.createdAt ? new Date(c.createdAt).getTime() : null;
-                return created && created >= start && created <= end;
-            });
-        }
+            if (selected.includes("FA Level 1")) {
+                match = match && faLevel1;
+            }
 
-        // 3️⃣ Apply name filter LAST (important)
-        temp = filterByName(temp);
+            return match;
+        });
+    }
 
-        setFilteredRecruitment(temp);
-    };
+    // 🔹 Date range filter
+    if (fromDate && toDate) {
+        const start = new Date(fromDate).setHours(0, 0, 0, 0);
+        const end = new Date(toDate).setHours(23, 59, 59, 999);
 
+        temp = temp.filter((c) => {
+            const created = c.createdAt ? new Date(c.createdAt).getTime() : null;
+            return created && created >= start && created <= end;
+        });
+    }
+
+    setFilteredRecruitment(temp);
+};
 
     const filterByName = (data) => {
         if (!studentName.trim()) return data;
@@ -394,17 +395,12 @@ const Coach = () => {
             )
         );
     };
-    useEffect(() => {
-        let temp = Array.isArray(recruitment) ? [...recruitment] : [];
-        temp = filterByName(temp);
-        temp = filterByVenue(temp);
-        setFilteredRecruitment(temp);
-    }, [studentName, selectedVenue, recruitment]);
 
-
-    useEffect(() => {
+useEffect(() => {
+    if (Array.isArray(recruitment)) {
         setFilteredRecruitment(recruitment);
-    }, [recruitment]);
+    }
+}, [recruitment?.length]);
 
     const finalSummaryCards = summaryCards.map(card => {
         const matched = Array.isArray(statsRecruitment)

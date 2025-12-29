@@ -201,20 +201,20 @@ const trialLists = () => {
         const dateRangeMembership = checkedStatuses.trialDate ? range : [];
         const otherDateRange = checkedStatuses.trialDate ? [] : range;
         setIsFilterApplied(true);
-        setSelectedVenue(null)
         fetchBookMemberships(
             "",                                  // studentName
-            "",                                  // venueName
+            selectedVenue ? selectedVenue.label : "", // venueName
             checkedStatuses.pending,             // status1
             checkedStatuses.active,              // status2
             dateRangeMembership,
             checkedStatuses.tweleveMonths,
-            checkedStatuses.sixMonths,           // month1 -> duration 6
-            checkedStatuses.threeMonths,         // month2 -> duration 3
-            checkedStatuses.flexiPlan,           // month3 -> duration 1 (flexi)
-            otherDateRange,                      // createdAt range [from,to] OR []
+            checkedStatuses.sixMonths,           // duration 6
+            checkedStatuses.threeMonths,         // duration 3
+            checkedStatuses.flexiPlan,           // duration 1 (flexi)
+            otherDateRange,                      // createdAt range
             bookedByParams                       // bookedBy ids
         );
+
     };
 
 

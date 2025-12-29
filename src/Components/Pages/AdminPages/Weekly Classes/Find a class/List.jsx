@@ -698,9 +698,9 @@ const goToNextMonth = () => {
                           className="w-full bg-white rounded-3xl relative p-2 border border-[#D9D9D9] shadow-sm" // ✅ min height
                         >
                           <div className="bg-[#2E2F3E] text-white p-4 rounded-2xl mb-2 flex flex-wrap justify-between md:items-center text-sm gap-4">
-                            <div className="flex items-center gap-2 min-w-[250px]">
+                            <div className="flex items-center gap-2 min-w-[250px] truncate  max-w-[80%]">
                               <img src="/images/icons/Location.png" alt="" />
-                              <div className="flex">
+                              <div className="flex  ">
                                 <span className="font-medium text-[16px] xl:text-[15px] 2xl:text-[16px]">
                                   {venue.address}
                                   {venue.postal_code && !venue.address.includes(venue.postal_code) && (

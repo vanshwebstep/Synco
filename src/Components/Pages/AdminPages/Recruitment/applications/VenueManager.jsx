@@ -297,71 +297,66 @@ const VenueManager = () => {
     };
 
 
-    const applyFilter = () => {
-        let temp = Array.isArray(venueRecruitment) ? [...venueRecruitment] : [];
-        setCurrentPage(1);
-        setSelectedVenue(null);
-        // 1️⃣ Name filter
-        if (studentName.trim()) {
-            const q = studentName.trim().toLowerCase();
-            temp = temp.filter(c =>
-                `${c.firstName ?? ""} ${c.lastName ?? ""}`.toLowerCase().includes(q)
-            );
-        }
+ const applyFilter = () => {
+    let temp = Array.isArray(recruitment) ? [...recruitment] : [];
 
-        // 2️⃣ Status / Exp / FA filters
-        const selected = Object.entries(checkedStatuses)
-            .filter(([_, v]) => v)
-            .map(([k]) => k);
+    setCurrentPage(1);
 
-        if (selected.length > 0) {
-            temp = temp.filter((c) => {
-                const status = (c.status ?? "").toLowerCase();
-                const expYears = getExpYears(c.managementExperience);
-                const faLevel1 = c.level === "yes";
+    // 🔹 Apply name & venue filters first
+    temp = filterByName(temp);
+    temp = filterByVenue(temp);
 
-                let match = true;
+    // 🔹 Status / Exp / FA filters
+    const selected = Object.entries(checkedStatuses)
+        .filter(([_, v]) => v)
+        .map(([k]) => k);
 
-                // Status
-                const statusFilters = ["Pending", "Recruited", "Rejected"]
-                    .filter(s => selected.includes(s))
-                    .map(s => s.toLowerCase());
+    if (selected.length > 0) {
+        temp = temp.filter((c) => {
+            const status = (c.status ?? "").toLowerCase();
+            const expYears = getExpYears(c.managementExperience);
+            const faLevel1 = c.level === "yes";
 
-                if (statusFilters.length > 0) {
-                    match = match && statusFilters.includes(status);
-                }
+            let match = true;
 
-                // Experience
-                if (selected.includes("0-3 Years Exp")) {
-                    match = match && expYears !== null && expYears <= 3;
-                }
+            const statusFilters = ["Pending", "Recruited", "Rejected"]
+                .filter(s => selected.includes(s))
+                .map(s => s.toLowerCase());
 
-                if (selected.includes("3+ Years Exp")) {
-                    match = match && expYears !== null && expYears >= 3;
-                }
+            if (statusFilters.length > 0) {
+                match = match && statusFilters.includes(status);
+            }
 
-                // FA Level
-                if (selected.includes("FA Level 1")) {
-                    match = match && faLevel1;
-                }
+            if (selected.includes("0-3 Years Exp")) {
+                match = match && expYears !== null && expYears <= 3;
+            }
 
-                return match;
-            });
-        }
+            if (selected.includes("3+ Years Exp")) {
+                match = match && expYears !== null && expYears >= 3;
+            }
 
-        // 3️⃣ Date range
-        if (fromDate && toDate) {
-            const start = new Date(fromDate).setHours(0, 0, 0, 0);
-            const end = new Date(toDate).setHours(23, 59, 59, 999);
+            if (selected.includes("FA Level 1")) {
+                match = match && faLevel1;
+            }
 
-            temp = temp.filter((c) => {
-                const created = c.createdAt ? new Date(c.createdAt).getTime() : null;
-                return created && created >= start && created <= end;
-            });
-        }
+            return match;
+        });
+    }
 
-        setFilteredRecruitment(temp);
-    };
+    // 🔹 Date range filter
+    if (fromDate && toDate) {
+        const start = new Date(fromDate).setHours(0, 0, 0, 0);
+        const end = new Date(toDate).setHours(23, 59, 59, 999);
+
+        temp = temp.filter((c) => {
+            const created = c.createdAt ? new Date(c.createdAt).getTime() : null;
+            return created && created >= start && created <= end;
+        });
+    }
+
+    setFilteredRecruitment(temp);
+};
+
 
     const filterByName = (data) => {
         if (!studentName.trim()) return data;
@@ -380,18 +375,11 @@ const VenueManager = () => {
             )
         );
     };
-    useEffect(() => {
-        let temp = Array.isArray(venueRecruitment) ? [...venueRecruitment] : [];
-        temp = filterByName(temp);
-        temp = filterByVenue(temp);
-        setFilteredRecruitment(temp);
-    }, [studentName, selectedVenue, venueRecruitment]);
-
-
-
-    useEffect(() => {
-        setFilteredRecruitment(venueRecruitment);
-    }, [venueRecruitment]);
+useEffect(() => {
+    if (Array.isArray(recruitment)) {
+        setFilteredRecruitment(recruitment);
+    }
+}, [recruitment?.length]);
 
     const finalSummaryCards = summaryCards.map(card => {
         const matched = Array.isArray(statsRecruitment)

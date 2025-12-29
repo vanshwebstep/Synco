@@ -20,7 +20,7 @@ const DynamicTable = ({
       prev.includes(studentId) ? prev.filter((id) => id !== studentId) : [...prev, studentId]
     );
   };
-
+  console.log('data in from', from)
   // Flatten the data into entries of { ...parentItemFields, student, studentIndex }
   const flattenedData = useMemo(() => {
     if (!Array.isArray(data)) return [];
@@ -113,34 +113,45 @@ const DynamicTable = ({
             {paginatedData?.length > 0 ? (
               paginatedData.map((entry, index) => {
                 const { student, studentIndex, parent, ...item } = entry;
-
+                console.log('entry', paginatedData)
                 const uniqueId = (() => {
+                  // Membership: multiple students under same booking
                   if (from === "membership") {
-                    // multiple students under same booking
                     return `${item.id}-${studentIndex}`;
                   }
 
+                  // Single-row sources
                   if (from === "freetrial" || from === "waitingList") {
-                    // already one row per item
                     return item.id;
                   }
 
-                  // default: booking-based tables
+                  // Cancellation flows
+                  if (
+                    from === "requestToCancel" ||
+                    from === "fullCancel" ||
+                    from === "allCancel"
+                  ) {
+                    // bookingId comes from parent object
+                    return parent?.bookingId || parent?.cancellationId;
+                  }
+
+                  // Default: booking-based tables
                   return item.bookingId;
                 })();
 
-                const isSelected = selectedIds.includes(uniqueId);
 
+                const isSelected = selectedIds.includes(uniqueId);
+console.log('uniqueId', uniqueId, 'isSelected', isSelected)
                 return (
                   <tr
-                   key={uniqueId}
+                    key={uniqueId}
                     onClick={onRowClick ? () => onRowClick(item, from) : undefined}
                     className="border-t font-semibold text-[#282829] border-[#EFEEF2] hover:bg-gray-50"
                   >
                     {columns.map((col, cIdx) => {
                       if (col.selectable) {
                         return (
-                          <td key={cIdx} className="p-4 cursor-pointer whitespace-nowrap">
+                          <td key={cIdx} className="p-4 cursor-pointer capitalize whitespace-nowrap">
                             <div className="flex items-center gap-3">
                               <button
                                 onClick={(e) => {
@@ -169,14 +180,14 @@ const DynamicTable = ({
 
                       if (col.render) {
                         return (
-                          <td key={cIdx} className="p-4 whitespace-nowrap">
+                          <td key={cIdx} className="p-4 whitespace-nowrap capitalize ">
                             {col.render(item, student)}
                           </td>
                         );
                       }
 
                       return (
-                        <td key={cIdx} className="p-4 whitespace-nowrap">
+                        <td key={cIdx} className="p-4 whitespace-nowrap capitalize">
                           {item[col.key] ?? student?.[col.key] ?? "-"}
                         </td>
                       );

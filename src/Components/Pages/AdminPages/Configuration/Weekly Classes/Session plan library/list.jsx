@@ -436,7 +436,7 @@ const List = () => {
                                   <img
                                     src="/images/icons/edit2.png"
                                     alt="Edit"
-                                    className="w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
+                                    className="min-w-6 h-6 transition-transform duration-200 transform hover:scale-110 hover:opacity-100 opacity-90 cursor-pointer"
                                   />
                                 </button>
                                 <button

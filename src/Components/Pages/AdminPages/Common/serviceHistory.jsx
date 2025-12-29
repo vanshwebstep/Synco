@@ -47,6 +47,7 @@ const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
     students,
     classSchedule,
     paymentPlan,
+    attempt,
     bookedByAdmin,
     startDate,
     dateBooked,
@@ -183,7 +184,7 @@ const ServiceHistory = ({ serviceHistory, itemId, labels = {}, comesFrom }) => {
                         {labels.trialAttempt || "Trial Attempt"}
                       </div>
                       <div className="text-[16px] font-semibold text-[#384455]">
-                        {'-' || "-"}
+                        {attempt || "-"}
                       </div>
                     </div>
                   )}

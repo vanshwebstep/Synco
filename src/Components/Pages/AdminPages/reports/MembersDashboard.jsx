@@ -122,7 +122,7 @@ const MembersDashboard = () => {
 
     const stats = [
         {
-            icon: "/reportsIcons/user-group.png",
+            icon: "/reportsIcons/greenuser.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Total Members",
             value: totalMembers,

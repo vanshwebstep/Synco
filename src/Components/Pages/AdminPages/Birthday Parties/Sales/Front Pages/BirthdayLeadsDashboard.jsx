@@ -551,7 +551,6 @@ const BirthdayLeadsDashboard = () => {
       return; // stop further execution
     }
     setCurrentPage(1);
-    setSelectedVenue(null)
     const range = hasRange ? [fromDate, toDate] : [];
 
     const usePartyDate = checkedStatuses.partyDate;

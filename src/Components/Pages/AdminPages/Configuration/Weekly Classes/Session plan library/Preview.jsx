@@ -369,7 +369,7 @@ const Preview = ({ item, sessionData }) => {
                       <p>No images available</p>
                     )}
                   </div>
-                  <p className="text-blue-500 text-[14px] mt-7 font-semibold mb-5">
+                  <p className="text-blue-500 text-[18px] mt-7 font-semibold mb-5">
                     Time Duration: {selectedExercise.duration || '—'}
                   </p>
 
@@ -379,7 +379,7 @@ const Preview = ({ item, sessionData }) => {
                       <div
                         className="prose prose-sm space-y-6 max-w-none text-gray-700
     prose-p:mb-3 prose-li:mb-2
-    prose-strong:block prose-strong:text-[16px] prose-strong:text-gray-900 prose-strong:mt-4
+    prose-strong:block prose-strong:text-[16px] text-[18px] prose-strong:text-gray-900 prose-strong:mt-4
     prose-ul:list-disc prose-ol:list-decimal prose-ul:pl-5 prose-ol:pl-5
     marker:text-gray-700"
                         dangerouslySetInnerHTML={{

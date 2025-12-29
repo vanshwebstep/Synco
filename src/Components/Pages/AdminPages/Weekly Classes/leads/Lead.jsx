@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 const Lead = () => {
     const leadsData = useLeads();
-    const { activeTab, setActiveTab, tabs, fetchData, loading ,setCurrentPage } = leadsData;
+    const { activeTab, setActiveTab, setSearchTerm, tabs, fetchData, setSelectedVenue, loading, setCurrentPage } = leadsData;
     const navigate = useNavigate();
     useEffect(() => {
         fetchData();
@@ -34,6 +34,7 @@ const Lead = () => {
                                 key={tab.name}
                                 disabled={loading}
                                 onClick={() => {
+                                    setSelectedVenue(null);setSearchTerm("");
                                     setCurrentPage(1);
                                     setActiveTab(tab.name);
                                 }}

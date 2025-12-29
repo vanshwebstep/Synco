@@ -1385,13 +1385,13 @@ const List = () => {
                                                 />
 
                                                 <input
-                                                    type="tel"
+                                                    type="number"
                                                     value={parent.parentPhoneNumber}
                                                     onChange={(e) =>
                                                         handleParentChange(index, "parentPhoneNumber", e.target.value)
                                                     }
                                                     placeholder="Enter phone number"
-                                                    className='border-none focus:outline-none'
+                                                    className='border-none w-full focus:outline-none'
                                                 />
                                             </div>
 

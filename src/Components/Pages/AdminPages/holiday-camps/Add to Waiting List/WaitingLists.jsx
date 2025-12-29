@@ -278,7 +278,7 @@ const WaitingLists = () => {
         const forAttend = checkedStatuses.interest1Low || "";
         const forNotAttend = checkedStatuses.interest2Medium || "";
         const forHigh = checkedStatuses.interest3High || "";
-        setSelectedVenue(null);
+
         let forDateOkBookingTrial = "";
         let forDateOfTrial = "";
         let forOtherDate = "";
@@ -300,7 +300,7 @@ const WaitingLists = () => {
 
         fetchAddtoWaitingList(
             "",
-            "",
+            selectedVenue ? selectedVenue.label : "",
             forAttend,
             forNotAttend,
             forHigh,

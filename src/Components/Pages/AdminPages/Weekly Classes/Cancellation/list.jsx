@@ -49,9 +49,9 @@ const CancellationList = () => {
     };
     const exportFreeTrials = () => {
         const dataToExport = [];
-
+console.log('bookFreeTrials', bookFreeTrials)
         bookFreeTrials?.forEach((item) => {
-            if (selectedStudents.length > 0 && !selectedStudents.includes(item.id)) return;
+            if (selectedStudents.length > 0 && !selectedStudents.includes(item.bookingId)) return;
 
             item.students.forEach((student) => {
                 dataToExport.push({
@@ -286,7 +286,6 @@ const CancellationList = () => {
             }
         }
         setIsFilterApplied(true);
-        setSelectedVenue(null)
         const bookedByParams = savedAgent || [];
         if (active === "request") {
             fetchRequestToCancellations(

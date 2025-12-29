@@ -1341,13 +1341,13 @@ const AddtoWaitingList = () => {
                           buttonClass="!bg-white !border-none !p-0"
                         />
                         <input
-                          type="tel"
+                          type="number"
                           value={parent.parentPhoneNumber}
                           onChange={(e) =>
                             handleParentChange(index, "parentPhoneNumber", e.target.value)
                           }
                           placeholder="Enter phone number"
-                          className='border-none focus:outline-none'
+                          className='border-none w-full focus:outline-none'
                         />
                       </div>
 

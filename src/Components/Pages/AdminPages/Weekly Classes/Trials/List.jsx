@@ -260,7 +260,6 @@ const trialLists = () => {
 
         const bookedByParams = savedAgent || [];
         setIsFilterApplied(true);
-        setSelectedVenue(null)
         fetchBookFreeTrials(
             "",
             "",
@@ -388,6 +387,12 @@ const trialLists = () => {
         {
             header: "Source",
             render: (item) => {
+                // 1️⃣ If source exists, show it
+                if (item.source) {
+                    return item.source;
+                }
+
+                // 2️⃣ Otherwise fallback to bookedByAdmin
                 const firstName = item.bookedByAdmin?.firstName || "";
                 const lastName = item.bookedByAdmin?.lastName || "";
 

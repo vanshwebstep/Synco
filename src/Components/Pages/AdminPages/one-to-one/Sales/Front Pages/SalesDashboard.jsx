@@ -548,7 +548,7 @@ const goToNextMonth = () => {
 
         // console.log("fromDateToSend", fromDateToSend, toDateToSend);
  setCurrentPage(1);
- setSelectedVenue(null);
+
         fetchLeads(
             "",
             checkedStatuses.package,
