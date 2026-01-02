@@ -22,6 +22,40 @@ const ContractList = () => {
         tags: [],
     });
 
+    const fetchData = useCallback(async () => {
+        const token = localStorage.getItem("adminToken");
+        if (!token) return;
+
+        setLoading(true);
+        try {
+            const res = await fetch(
+                `${API_BASE_URL}/api/admin/contract/list`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            );
+
+            const json = await res.json();
+
+            // ❗ API-level error
+            if (!res.ok) {
+                throw new Error(json?.message || "Something went wrong");
+            }
+
+            setData(json?.data || []);
+        } catch (err) {
+            console.error("Fetch failed", err);
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: err.message || "Failed to fetch contracts",
+                confirmButtonColor: "#f98f5c",
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, [API_BASE_URL]);
     const handleSubmit = async () => {
         const newErrors = {};
 
@@ -79,6 +113,7 @@ const ContractList = () => {
             });
 
             setOpenModal(false);
+            
             setFormData({
                 pdfFile: null,
                 title: "",
@@ -86,6 +121,7 @@ const ContractList = () => {
                 contractType: "",
                 tags: [],
             });
+            fetchData();
         } catch (err) {
             Swal.fire({
                 icon: "error",
@@ -96,45 +132,6 @@ const ContractList = () => {
             setLoading(false);
         }
     };
-
-
-
-
-    const fetchData = useCallback(async () => {
-        const token = localStorage.getItem("adminToken");
-        if (!token) return;
-
-        setLoading(true);
-        try {
-            const res = await fetch(
-                `${API_BASE_URL}/api/admin/contract/list`,
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
-            );
-
-            const json = await res.json();
-
-            // ❗ API-level error
-            if (!res.ok) {
-                throw new Error(json?.message || "Something went wrong");
-            }
-
-            setData(json?.data || []);
-        } catch (err) {
-            console.error("Fetch failed", err);
-
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: err.message || "Failed to fetch contracts",
-                confirmButtonColor: "#f98f5c",
-            });
-        } finally {
-            setLoading(false);
-        }
-    }, [API_BASE_URL]);
-
 
     const handleDownloadPdf = useCallback(async (id, pdf) => {
         const token = localStorage.getItem("adminToken");

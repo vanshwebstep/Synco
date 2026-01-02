@@ -12,6 +12,7 @@ import Select from "react-select";
 import { useNavigate } from "react-router-dom";
 import Loader from "../contexts/Loader";
 import React from "react";
+import * as XLSX from "xlsx";
 
 
 
@@ -358,48 +359,48 @@ const StudentCamp = () => {
 
 
     const summaryCards = [
-        { icon: PiUsersThreeBold, iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Students", value: summary?.totalStudents || 'N/A' },
-        { icon: CirclePoundSterling, iconStyle: "text-[#6F65F1] bg-[#F6F6FE]", title: "Revenue", value: `£ ${summary?.revenue}` },
-        { icon: CirclePoundSterling, iconStyle: "text-[#6F65F1] bg-[#F6F6FE]", title: "Average Price", value: `£ ${summary?.averagePrice}` },
-        { icon: GiMagnet, iconStyle: "text-[#099699] bg-[#F0F9F9]", title: "Top Source", value: `${summary?.topSource}`, },
+        { icon:  "/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Students", value: summary?.totalStudents || 'N/A' },
+        { icon:  "/reportsIcons/dollar-circle.png", iconStyle: "text-[#6F65F1] bg-[#F6F6FE]", title: "Revenue", value: `£ ${summary?.revenue}` },
+        { icon:  "/reportsIcons/dollar-circle.png", iconStyle: "text-[#6F65F1] bg-[#F6F6FE]", title: "Average Price", value: `£ ${summary?.averagePrice}` },
+        { icon: "/reportsIcons/magnet-purple.png", iconStyle: "text-[#099699] bg-[#F0F9F9]", title: "Top Source", value: `${summary?.topSource}`, },
     ];
 
 
-    const exportToExcel = () => {
-        if (!filteredData || !filteredData.length) {
-            alert("No leads data available to export.");
-            return;
-        }
+const exportToExcel = () => {
+    if (!filteredData || filteredData.length === 0) return;
 
-        // Prepare data
-        const dataToExport = filteredData
-            .filter((lead) => selectedUserIds.length === 0 || selectedUserIds.includes(lead.id))
-            .map((lead) => ({
-                "Parent Name": lead.parentName || "-",
-                "Child Name": lead.childName || "-",
-                Age: lead.age || "-",
-                Postcode: lead.postCode || "-",
-                "Package Interest": lead.packageInterest || "-",
-                Availability: lead.availability || "-",
-                Source: lead.source || "-",
-                Status: lead.status || "-",
-            }));
+    // Flatten data (include all students)
+    const rows = [];
 
-        if (!dataToExport.length) {
-            alert("No data selected to export.");
-            return;
-        }
+    filteredData.forEach((camp) => {
+        camp.students.forEach((student, index) => {
+            rows.push({
+                Name: `${student.studentFirstName} ${student.studentLastName}`,
+                Age: student.age,
+                "Medical Information": student.medicalInformation || "N/A",
+                "Price Paid": camp.payment?.amount
+                    ? `£${camp.payment.amount}`
+                    : "N/A",
+                Source: camp?.bookedByAdmin
+                    ? `${camp.bookedByAdmin.firstName} ${camp.bookedByAdmin.lastName}`
+                    : "N/A",
+                Status: camp.status,
+                "Primary Student": index === 0 ? "Yes" : "No",
+            });
+        });
+    });
 
-        // Convert to worksheet
-        const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "filteredData");
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(rows);
 
-        // Export to file
-        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-        saveAs(data, "LeadsData.xlsx");
-    };
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Holiday Camp Members");
+
+    // Export file
+    XLSX.writeFile(workbook, "holiday_camp_student_info.xlsx");
+};
+
 
     if (loading) return <Loader />;
     return (
@@ -419,9 +420,6 @@ const StudentCamp = () => {
                             />
 
                         </div>
-
-
-
                         <div className="flex border border-[#E2E1E5] p-1 rounded-xl w-full md:w-11/12 m-auto">
 
                             {/* Camp Tab */}
@@ -556,7 +554,7 @@ const StudentCamp = () => {
                                         <div
                                             className={`p-2 h-[50px] w-[50px] rounded-full ${card.iconStyle} bg-opacity-10 flex items-center justify-center`}
                                         >
-                                            <Icon size={24} className={card.iconStyle} />
+                                          <div className={card.iconStyle}><img className="p-1" src={card.icon} alt="" /></div>
                                         </div>
                                     </div>
                                     <div className="mt-3">

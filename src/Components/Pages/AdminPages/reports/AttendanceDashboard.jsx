@@ -153,7 +153,7 @@ const AttendanceDashboard = () => {
         }
 
     };
-
+    console.log('analytics', analytics)
     // Top small cards data (dynamic)
     const topCards = [
         {
@@ -161,39 +161,47 @@ const AttendanceDashboard = () => {
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Rate of attendance",
             value:
-                analytics?.rateOfAttendance?.thisMonth != null
-                    ? String(analytics.rateOfAttendance.thisMonth) + (String(analytics.rateOfAttendance.thisMonth).includes("%") ? "" : "%")
+                analytics?.rateOfAttendance?.thisYear != null
+                    ? String(analytics.rateOfAttendance.thisYear) + (String(analytics.rateOfAttendance.thisYear).includes("%") ? "" : "%")
                     : "-",
             change: analytics?.rateOfAttendance?.change || "-",
+            sub: "vs. prev period",
+            subvalue: analytics?.rateOfAttendance?.lastYear || "-",
         },
         {
             icon: "/reportsIcons/venue.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Worst venue attendance",
             value:
-                analytics?.worstVenueAttendance?.thisMonth != null
-                    ? String(analytics.worstVenueAttendance.thisMonth) + (String(analytics.worstVenueAttendance.thisMonth).includes("%") ? "" : "%")
+                analytics?.worstVenueAttendance?.thisYear != null
+                    ? String(analytics.worstVenueAttendance.thisYear) + (String(analytics.worstVenueAttendance.thisYear).includes("%") ? "" : "%")
                     : "-",
             change: analytics?.worstVenueAttendance?.change || "-",
+            sub: "vs. prev period",
+            subvalue: analytics?.worstVenueAttendance?.lastYear || "-",
         },
         {
             icon: "/reportsIcons/Calendar.png",
             title: "High venue attendance",
             value:
-                analytics?.highVenueAttendance?.thisMonth != null
-                    ? String(analytics.highVenueAttendance.thisMonth) + (String(analytics.highVenueAttendance.thisMonth).includes("%") ? "" : "%")
+                analytics?.highVenueAttendance?.thisYear != null
+                    ? String(analytics.highVenueAttendance.thisYear) + (String(analytics.highVenueAttendance.thisYear).includes("%") ? "" : "%")
                     : "-",
             change: analytics?.highVenueAttendance?.change || "-",
+            sub: "vs. prev period",
+            subvalue: analytics?.highVenueAttendance?.lastYear || "-",
         },
 
         {
-               icon: "/reportsIcons/atgroup.png",
+            icon: "/reportsIcons/atgroup.png",
             title: "Attendance growth",
             value:
-                analytics?.attendanceGrowth?.thisMonth != null
-                    ? String(analytics.attendanceGrowth.thisMonth) + (String(analytics.attendanceGrowth.thisMonth).includes("%") ? "" : "%")
+                analytics?.attendanceGrowth?.thisYear != null
+                    ? String(analytics.attendanceGrowth.thisYear) + (String(analytics.attendanceGrowth.thisYear).includes("%") ? "" : "%")
                     : "-",
             change: analytics?.attendanceGrowth?.change || "-",
+            sub: "vs. prev period",
+            subvalue: analytics?.attendanceGrowth?.lastYear || "-",
         },
         // {
         //   icon: <BarChart3 className="text-orange-400" size={22} />,
@@ -225,33 +233,46 @@ const AttendanceDashboard = () => {
         const data = new Blob([excelBuffer], { type: "application/octet-stream" });
         saveAs(data, "attendance-top-cards.xlsx");
     };
-    // Line chart data (monthly attendance rates)
-    const lineData =
-        analytics?.charts?.monthlyAttendance?.map((m) => ({
-            month: m.month,
-            attended: Number(m.attended ?? 0),
-            total: Number(m.total ?? 0),
-            rate: Number(m.rate ?? 0),
-        })) || [];
+const getMonthlyAttendanceComparisonByAttended = (charts) => {
+  if (!charts) return [];
 
-    // For the main area/line we will use 'rate' per month
-    const lineChartData =
-        lineData.length > 0
-            ? lineData.map((d) => ({ month: d.month, rate: d.rate }))
-            : [
-                { month: "Jan", rate: 0 },
-                { month: "Feb", rate: 0 },
-                { month: "Mar", rate: 0 },
-                { month: "Apr", rate: 0 },
-                { month: "May", rate: 0 },
-                { month: "Jun", rate: 0 },
-                { month: "Jul", rate: 0 },
-                { month: "Aug", rate: 0 },
-                { month: "Sep", rate: 0 },
-                { month: "Oct", rate: 0 },
-                { month: "Nov", rate: 0 },
-                { month: "Dec", rate: 0 },
-            ];
+  const curr = charts.monthlyAttendanceCurr ?? [];
+  const prev = charts.monthlyAttendancePrev ?? [];
+
+  const MONTHS = [
+    "Jan","Feb","Mar","Apr","May","Jun",
+    "Jul","Aug","Sep","Oct","Nov","Dec"
+  ];
+
+  // Find last non-zero ATTENDED index in current year
+  const lastNonZeroIndex = curr
+    .map((m, i) => (m?.attended > 0 ? i : -1))
+    .filter(i => i !== -1)
+    .pop();
+
+  return MONTHS.map((month, index) => {
+    const currMonth = curr.find(m => m.month === month);
+    const prevMonth = prev.find(m => m.month === month);
+
+    return {
+      month,
+      CurrentYear:
+        lastNonZeroIndex !== undefined && index > lastNonZeroIndex
+          ? null
+          : Number(currMonth?.attended ?? 0),
+      PreviousYear: Number(prevMonth?.attended ?? 0),
+    };
+  });
+};
+
+
+
+const lineChartData = getMonthlyAttendanceComparisonByAttended(
+  analytics?.charts
+);
+
+const currentYearKey = "CurrentYear";
+const previousYearKey = "PreviousYear";
 
     // Pie data: age and gender
     const agePieData =
@@ -271,7 +292,7 @@ const AttendanceDashboard = () => {
     const worstVenues = analytics?.charts?.worstVenues || [];
 
     // Best month
-    const bestMonth = analytics?.charts?.bestMonth || null;
+    const bestMonth = analytics?.charts?.bestMonthCurr || null;
 
     // colors for pies
     const pieColors = ["#8B5CF6", "#FACC15", "#22C55E", "#3B82F6", "#EF4444", "#06B6D4"];
@@ -349,6 +370,9 @@ const AttendanceDashboard = () => {
                                 {card.value}{" "}
                                 <small className="text-green-500 font-normal text-xs">{card.change}</small>
                             </h3>
+                            <p className="text-xs font-semibold text-[#717073]">
+                                {card.sub} <span className="text-red-500">{card.subvalue}</span>
+                            </p>
                             {/* If you want a subtext you can place it here */}
                         </div>
                     </div>
@@ -361,77 +385,92 @@ const AttendanceDashboard = () => {
                     {/* Line chart card */}
                     <div className="bg-white rounded-2xl p-4">
                         <h2 className="text-gray-800 font-semibold text-[20px] mb-4">Attendance</h2>
-
                         <div className="w-full h-[320px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <LineChart
-                                    data={lineChartData}
-                                    margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
-                                >
-                                    {/* Soft grid for modern look */}
-                                    <CartesianGrid
-                                        vertical={false}
-                                        strokeDasharray="3 3"
-                                        stroke="#E5E7EB"
-                                    />
+  <ResponsiveContainer width="100%" height={300}>
+    <LineChart
+      data={lineChartData}
+      margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+    >
+      {/* Grid */}
+      <CartesianGrid
+        strokeDasharray="3 3"
+        stroke="#EEF2F7"
+        vertical={false}
+      />
 
-                                    {/* Clean axes */}
-                                    <XAxis
-                                        dataKey="month"
-                                        tick={{ fill: "#6b7280", fontSize: 12 }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
-                                    <YAxis
-                                        tick={{ fill: "#6b7280", fontSize: 12 }}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
+      {/* X Axis */}
+      <XAxis
+        dataKey="month"
+        tick={{ fill: "#6B7280", fontSize: 12 }}
+        axisLine={false}
+        tickLine={false}
+      />
 
-                                    {/* Tooltip clean + matches your % format */}
-                                    <Tooltip
-                                        cursor={{ stroke: "#E5E7EB", strokeWidth: 1 }}
-                                        formatter={(value) =>
-                                            value != null ? `${value}%` : value
-                                        }
-                                        contentStyle={{
-                                            backgroundColor: "rgba(255,255,255,0.95)",
-                                            border: "1px solid #E5E7EB",
-                                            borderRadius: "8px",
-                                            fontSize: "12px",
-                                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                                        }}
-                                    />
+      {/* Y Axis */}
+      <YAxis
+        tick={{ fill: "#9CA3AF", fontSize: 12 }}
+        axisLine={false}
+        tickLine={false}
+      />
 
-                                    {/* Soft gradient under line */}
-                                    <defs>
-                                        <linearGradient id="colorRate" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
-                                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.03} />
-                                        </linearGradient>
-                                    </defs>
+      {/* Tooltip */}
+      <Tooltip
+        formatter={(v) => `${v}`}
+        cursor={false}
+        contentStyle={{
+          background: "#FFFFFF",
+          borderRadius: 12,
+          border: "none",
+          boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+        }}
+        labelStyle={{ fontWeight: 600 }}
+      />
 
-                                    {/* Smooth shaded area */}
-                                    <Area
-                                        type="monotone"
-                                        dataKey="rate"
-                                        stroke="none"
-                                        fill="url(#colorRate)"
-                                    />
+      {/* Gradient */}
+      <defs>
+        <linearGradient id="colorAttendance" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#60A5FA" stopOpacity={0.35} />
+          <stop offset="70%" stopColor="#60A5FA" stopOpacity={0.15} />
+          <stop offset="100%" stopColor="#60A5FA" stopOpacity={0} />
+        </linearGradient>
+      </defs>
 
-                                    {/* Main line */}
-                                    <Line
-                                        type="monotone"
-                                        dataKey="rate"
-                                        stroke="#3B82F6"
-                                        strokeWidth={3}
-                                        dot={false}
-                                        activeDot={{ r: 4 }}
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
+      {/* Previous year (Pink, under) */}
+      <Line
+        type="monotone"
+        dataKey={previousYearKey}
+        stroke="#F472B6"
+        strokeWidth={2}
+        dot={false}
+        connectNulls
+        isAnimationActive={false}
+      />
 
-                        </div>
+      {/* Area fill (Current year) */}
+      <Area
+        type="monotone"
+        dataKey={currentYearKey}
+        stroke="none"
+        fill="url(#colorAttendance)"
+        connectNulls
+        tooltipType="none"
+      />
+
+      {/* Current year (Blue, top) */}
+      <Line
+        type="monotone"
+        dataKey={currentYearKey}
+        stroke="#3B5BFF"
+        strokeWidth={2.5}
+        dot={false}
+        activeDot={{ r: 5 }}
+        connectNulls
+      />
+    </LineChart>
+  </ResponsiveContainer>
+</div>
+
+
                     </div>
 
                     {/* two columns below line chart */}
@@ -585,16 +624,13 @@ const AttendanceDashboard = () => {
                                 <p className="font-semibold text-[16px] text-[#717073]">
                                     {bestMonth?.month || "—"}
                                 </p>
-                                <p className="text-sm text-gray-500">
-                                    {bestMonth ? `${Number(bestMonth.rate ?? 0)}% (${bestMonth.attended}/${bestMonth.total})` : ""}
-                                </p>
+
                             </div>
 
                             <div className="mt-1">
                                 <h2 className="text-[28px] font-semibold">
-                                    {analytics?.charts?.bestMonth?.rate != null ? `${analytics.charts.bestMonth.rate}%` : "—"}
+                                    {bestMonth ? `${Number(bestMonth.rate ?? 0)}%` : "—"}
                                 </h2>
-                                <p className="text-xs text-gray-500">Best monthly rate</p>
                             </div>
                         </div>
 

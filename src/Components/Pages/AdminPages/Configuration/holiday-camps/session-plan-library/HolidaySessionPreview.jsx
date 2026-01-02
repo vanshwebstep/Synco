@@ -158,9 +158,9 @@ const HolidaySessionPreview = ({ item, sessionData }) => {
         <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
           <div className="flex w-full flex-col lg:flex-row gap-6">
+            
             <div
-              className={`w-full bg-white justify-between flex gap-2 border border-gray-300 p-2 rounded-2xl flex-wrap
-    ${dynamicTabs.length >= 3 ? 'lg:w-1/2' : 'lg:w-1/3'}
+              className={`w-full lg:w-1/2 bg-white border border-gray-300 rounded-2xl p-2 flex flex-wrap gap-2}
   `}
             >
               {dynamicTabs.map((tab) => (

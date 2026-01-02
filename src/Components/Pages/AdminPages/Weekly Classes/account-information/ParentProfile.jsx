@@ -466,13 +466,13 @@ const validateParent = (parent) => {
                     buttonClass="!bg-white !border-none !p-0"
                   />
                   <input
-                    type="tel"
+                    type="number"
                     name="parentPhoneNumber"
                     value={parent.parentPhoneNumber || ""}
                     onChange={(e) => handlePhoneChange(index, e)}
                     readOnly={!editParent?.[index]}
                     placeholder="Enter phone number"
-                    className="border-none focus:outline-none flex-1"
+                    className="border-none w-full focus:outline-none flex-1"
                   />
                 </div>
               </div>
@@ -590,12 +590,12 @@ const validateParent = (parent) => {
                       buttonClass="!bg-white !border-none !p-0"
                     />
                     <input
-                      type="tel"
+                      type="number"
                       name="parentPhoneNumber"
                       value={newParent.parentPhoneNumber || ""}
                       onChange={handleModalChange}
                       placeholder="Enter number"
-                      className="border-none focus:outline-none flex-1"
+                      className="border-none w-full focus:outline-none flex-1"
                     />
                   </div>
                 </div>
@@ -763,7 +763,7 @@ const validateParent = (parent) => {
                 buttonClass="!bg-white !border-none !p-0"
               />
               <input
-                type="tel"
+                type="number"
                 readOnly={!editEmergency}
                 value={emergency?.emergencyPhoneNumber || ""}
                 onChange={(e) =>
@@ -772,7 +772,7 @@ const validateParent = (parent) => {
                     emergencyPhoneNumber: e.target.value,
                   }))
                 }
-                className="border-none focus:outline-none w-full"
+                className="border-none w-full focus:outline-none"
                 placeholder="Enter phone number"
               />
             </div>

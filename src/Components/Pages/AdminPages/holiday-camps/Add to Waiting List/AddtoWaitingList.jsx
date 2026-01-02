@@ -1209,13 +1209,13 @@ const goToNextMonth = () => {
                           buttonClass="!bg-white !border-none !p-0"
                         />
                         <input
-                          type="tel"
+                          type="number"
                           value={parent.parentPhoneNumber}
                           onChange={(e) =>
                             handleParentChange(index, "parentPhoneNumber", e.target.value)
                           }
                           placeholder="Enter phone number"
-                          className='border-none focus:outline-none'
+                          className='border-none w-full focus:outline-none'
                         />
                       </div>
 
@@ -1328,7 +1328,7 @@ const goToNextMonth = () => {
                       buttonClass="!bg-white !border-none !p-0"
                     />
                     <input
-                      type="tel"
+                      type="number"
                       value={emergency.emergencyPhoneNumber}
                       onChange={(e) =>
                         setEmergency((prev) => ({
@@ -1336,7 +1336,7 @@ const goToNextMonth = () => {
                           emergencyPhoneNumber: e.target.value,
                         }))
                       }
-                      className='border-none focus:outline-none' placeholder="Enter phone number"
+                      className='border-none w-full focus:outline-none' placeholder="Enter phone number"
                     />
 
                   </div>

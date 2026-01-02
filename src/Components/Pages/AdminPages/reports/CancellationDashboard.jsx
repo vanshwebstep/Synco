@@ -74,62 +74,62 @@ const CancellationDashboard = () => {
         { value: "quarter", label: "This Quarter" },
         { value: "year", label: "This Year" },
     ];
-
+    console.log('membersData', membersData)
     const stats = [
         {
             icon: "/reportsIcons/Rct.png",
             iconStyle: "text-[#3DAFDB] bg-[#FFF19E]",
             title: "Total RTC",
-            value: membersData?.totalRTCs?.thisMonth ?? 0,
+            value: membersData?.totalRTCs?.thisYear ?? 0,
             diff: membersData?.totalRTCs?.change ?? "0%",
             sub: "vs. prev period",
-            subvalue: membersData?.totalRTCs?.lastMonth ?? 0
+            subvalue: membersData?.totalRTCs?.lastYear ?? 0
         },
         {
             icon: "/reportsIcons/cancelled.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
             title: "Total Cancelled",
-            value: membersData?.totalCancelled?.thisMonth ?? 0,
+            value: membersData?.totalCancelled?.thisYear ?? 0,
             diff: membersData?.totalCancelled?.change ?? "0%",
             sub: "vs. prev period",
-            subvalue: membersData?.totalCancelled?.lastMonth ?? 0
+            subvalue: membersData?.totalCancelled?.lastYear ?? 0
         },
         {
 
             icon: "/reportsIcons/RevenueLost.png",
             iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
             title: "Monthly Revenue Lost",
-            value: `£${membersData?.monthlyRevenueLost?.thisMonth ?? 0}`,
-            diff: membersData?.monthlyRevenueLost?.change ?? "0%",
+            value: `£${membersData?.monthlyRevenueLost?.monthlyRevenueLost?.thisMonth.totalLost ?? 0}`,
+            diff: membersData?.monthlyRevenueLost?.monthlyRevenueLost?.change ?? "0%",
             sub: "vs. prev period",
-            subvalue: `£${membersData?.monthlyRevenueLost?.lastMonth ?? 0}`
+            subvalue: `£${membersData?.monthlyRevenueLost?.monthlyRevenueLost?.lastMonth.totalLost ?? 0}`
         },
         {
             icon: "/reportsIcons/avgLifecycle.png",
             iconStyle: "text-[#F38B4D] bg-[#F6F6FE]",
             title: "Avg Membership Tenure",
-            value: `${membersData?.avgMembershipTenure?.thisMonth ?? 0} months`,
+            value: `${membersData?.avgMembershipTenure?.thisYear ?? 0} months`,
             diff: membersData?.avgMembershipTenure?.change ?? "0%",
             sub: "vs. prev period",
-            subvalue: `${membersData?.avgMembershipTenure?.lastMonth ?? 0} months`
+            subvalue: `${membersData?.avgMembershipTenure?.lastYear ?? 0} months`
         },
         {
             icon: "/reportsIcons/Userremove.png",
             iconStyle: "text-[#6F65F1] bg-[#F0F9F9]",
             title: "Reactivated Membership",
-            value: membersData?.reactivatedMembership?.thisMonth ?? 0,
+            value: membersData?.reactivatedMembership?.thisYear ?? 0,
             diff: membersData?.reactivatedMembership?.change ?? "0%",
             sub: "vs. prev period",
-            subvalue: membersData?.reactivatedMembership?.lastMonth ?? 0
+            subvalue: membersData?.reactivatedMembership?.lastYear ?? 0
         },
         {
             icon: "/reportsIcons/user-group.png",
             iconStyle: "text-[#FF5353] bg-[#F3FAFD]",
             title: "Total New Students",
-            value: membersData?.totalNewStudents?.thisMonth ?? 0,
+            value: membersData?.totalNewStudents?.thisYear ?? 0,
             diff: membersData?.totalNewStudents?.change ?? "0%",
             sub: "vs. prev period",
-            subvalue: membersData?.totalNewStudents?.lastMonth ?? 0
+            subvalue: membersData?.totalNewStudents?.lastYear ?? 0
         }
     ];
     const exportToExcel = () => {
@@ -239,7 +239,35 @@ const CancellationDashboard = () => {
         current: item.cancelled || 0,     // this year's actual data
         previous: 0                       // no previous-year data available
     })) || [];
+    const getMembersAddedMonthly = (chart) => {
+        if (!chart) return [];
 
+        const years = Object.keys(chart); // ["2025", "2026"]
+        if (years.length === 0) return [];
+
+        const currentYear = years[years.length - 1]; // latest year
+        const previousYear = years[years.length - 2]; // previous year
+
+        const currentData = chart[currentYear] || [];
+        const previousData = chart[previousYear] || [];
+
+        return currentData.map((item, index) => ({
+            month: item.month,
+            current: item.cancelled ?? 0,
+            previous: previousData[index]?.cancelled ?? 0,
+        }));
+    };
+
+
+    const series = membersData?.graph?.chart?.series;
+
+    const currentYearKey = series?.[0]?.name.replace(/\s+/g, "");
+    const previousYearKey = series?.[1]?.name.replace(/\s+/g, "");
+
+    const lineChartData = getMembersAddedMonthly(
+        membersData?.graph?.chart
+    );
+    // -
 
     const bookings =
         membersData?.yealyGrouped?.[2025]?.monthlyGrouped?.[10]?.bookings || [];
@@ -312,15 +340,21 @@ const CancellationDashboard = () => {
         (latestYear && latestMonth && yearlyGrouped[latestYear]?.monthlyGrouped?.[latestMonth]?.durationOfMembership) ||
         {};
 
-    const { thisMonth = 0, lastMonth = 0 } =
+    const { thisYear = 0, lastYear = 0 } =
         membersData?.reactivatedMembership || {};
 
     // Calculate percentage safely
     const percentage =
-        lastMonth > 0 ? Math.round((thisMonth / lastMonth) * 100) : 0;
+        lastYear > 0 ? Math.round((thisYear / lastYear) * 100) : 0;
 
     // Cap percentage at 100 for UI
-    const progress = Math.min(percentage, 100);
+    const progress =
+        lastYear > 0
+            ? Math.min(Math.round((thisYear / lastYear) * 100), 100)
+            : 0;
+
+    // keep a tiny arc so UI doesn't look broken
+    const visualProgress = progress === 0 && thisYear > 0 ? 3 : progress;
 
     // SVG math
     const radius = 90;
@@ -412,7 +446,7 @@ const CancellationDashboard = () => {
                         <div className="w-full h-[320px]">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart
-                                    data={lineData}
+                                    data={lineChartData}
                                     margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
                                 >
 
@@ -544,49 +578,46 @@ const CancellationDashboard = () => {
 
                             <div className="flex flex-col md:flex-row justify-between md:items-center">
 
-                                <div className="md:w-4/12 w-[180px] h-[180px] mx-auto md:mx-0">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={pieData}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={2}
-                                                dataKey="value"
-                                            >
-                                                {pieData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                <div className="w-full lg:w-1/3 flex justify-center">
+                                    <div className="w-[160px] h-[160px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie
+                                                    data={pieData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={55}
+                                                    outerRadius={75}
+                                                    paddingAngle={2}
+                                                    dataKey="value"
+                                                >
+                                                    {pieData.map((entry, index) => (
+                                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                                    ))}
+                                                </Pie>
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </div>
                                 </div>
 
 
-                                <div className="md:w-8/12 mt-6 md:mt-0 md:ml-6 md:max-h-[100px] overflow-auto">
+                                <div className="w-full lg:w-2/3 space-y-3">
                                     {pieData.map((item, i) => (
                                         <div
                                             key={i}
-                                            className="grid md:grid-cols-2 justify-between gap-3 lg:gap-7 items-center mb-2 text-sm text-gray-600"
+                                            className="flex justify-between items-center text-sm"
                                         >
                                             <div className="flex items-center gap-2">
                                                 <span
-                                                    className="w-2 h-2 rounded-full"
+                                                    className="w-2.5 h-2.5 rounded-full"
                                                     style={{ backgroundColor: item.color }}
-                                                ></span>
-                                                <span className="font-medium">{item.name}</span>
-                                            </div>
-                                            <div className="flex items-center gap-6 text-gray-800 font-semibold">
-                                                <span> £{(item.count * 200).toLocaleString()}</span>
-                                                <span>
-                                                    {i === 0
-                                                        ? "10,234"
-                                                        : i === 1
-                                                            ? "1,234"
-                                                            : "934"}
-                                                </span>
+                                                />
+                                                <span className="font-medium text-gray-700">
+                                                    {item.name}
+                                                </span>                                            </div>
+                                              <div className="flex gap-6 font-semibold text-gray-800">
+                                                <span>{item.value}%</span>
+                                                <span>{item.count}</span>
                                             </div>
                                         </div>
                                     ))}
@@ -675,13 +706,15 @@ const CancellationDashboard = () => {
                                     strokeWidth="16"
                                     strokeLinecap="round"
                                     strokeDasharray={circumference}
-                                    strokeDashoffset={offset}
+                                    strokeDashoffset={
+                                        circumference - (visualProgress / 100) * circumference
+                                    }
                                 />
                             </svg>
 
                             {/* Center Text */}
                             <div className="absolute top-[45%] text-center">
-                                <div className="text-[48px] font-bold text-gray-900">{thisMonth}</div>
+                                <div className="text-[48px] font-bold text-gray-900">{thisYear}</div>
                                 <p className="text-[16px] text-gray-500 mt-1">
                                     Cancelled membership <br /> back to active
                                 </p>
@@ -694,7 +727,12 @@ const CancellationDashboard = () => {
                                 Cancelled membership back to active
                             </p>
                             <p className="text-[14px]">
-                                We have <span className="font-semibold">{progress}%</span> of the cancelled
+                                We have <span className="font-semibold"><span
+                                    className={`font-semibold ml-1 ${percentage < 0 ? "text-red-500" : "text-green-500"
+                                        }`}
+                                >
+                                    {membersData?.reactivatedMembership?.change}
+                                </span></span> of the cancelled
                                 membership back to active. Main reason: available time
                             </p>
                         </div>

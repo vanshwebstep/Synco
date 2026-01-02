@@ -406,7 +406,8 @@ const ParentProfile = ({ ParentProfile }) => {
                                                 buttonClass="!bg-white !border-none !p-0"
                                             />
                                             <input
-                                                className="border-none focus:outline-none"
+                                            type='number'
+                                                className="border-none w-full focus:outline-none"
                                                 value={parent.parentPhoneNumber}
                                                 readOnly
                                             />

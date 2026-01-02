@@ -425,7 +425,7 @@ const General = () => {
                                 buttonClass="!bg-white !border-none !p-0"
                             />
                             <input
-                                type="tel"
+                                type="number"
                                 placeholder="Enter phone number"
                                 value={
                                     section === "parent"
@@ -433,7 +433,7 @@ const General = () => {
                                         : formData[section]?.[input.name] || ""
                                 }
                                 onChange={(e) => handleChange(section, input.name, e.target.value, index)}
-                                className="border-none focus:outline-none flex-1"
+                                className="border-none w-full focus:outline-none flex-1"
                             />
                         </div>
                     )}

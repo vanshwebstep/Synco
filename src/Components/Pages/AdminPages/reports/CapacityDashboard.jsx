@@ -59,17 +59,7 @@ const CapacityDashboard = () => {
         { label: "Acton", value: 45 },
         { label: "Other", value: 10 },
     ];
-    const ageOptions = [
-        { value: "all", label: "All ages" },
-        { value: "under18", label: "Under 18" },
-        { value: "18-25", label: "18–25" },
-    ];
-
-    const dateOptions = [
-        { value: "month", label: "This Month" },
-        { value: "quarter", label: "This Quarter" },
-        { value: "year", label: "This Year" },
-    ];
+   
 
     const stats = [
         {
@@ -118,27 +108,37 @@ const CapacityDashboard = () => {
             subvalue: membersData?.summary?.untappedRevenue?.vsPrev ?? "—",
         },
     ];
+    const dateOptions = [
+        { value: "thisMonth", label: "This Month" },
+        { value: "thisQuarter", label: "This Quarter" },
+        { value: "thisYear", label: "This Year" },
+    ];
 
-const exportCapacityStatsExcel = () => {
-  const exportData = stats.map((item) => ({
-    Title: item.title,
-    Value: String(item.value ?? "—"),
-    Change: String(item.diff ?? "—"),
-    "Prev Period": String(item.subvalue ?? "—"),
-  }));
+    const ageOptions = [
+        { value: "all", label: "All ages" },
+        { value: "under18", label: "Under 18" },
+        { value: "18-25", label: "18–25" },
+    ];
+    const exportCapacityStatsExcel = () => {
+        const exportData = stats.map((item) => ({
+            Title: item.title,
+            Value: String(item.value ?? "—"),
+            Change: String(item.diff ?? "—"),
+            "Prev Period": String(item.subvalue ?? "—"),
+        }));
 
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Capacity Summary");
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Capacity Summary");
 
-  const excelBuffer = XLSX.write(workbook, {
-    bookType: "xlsx",
-    type: "array",
-  });
+        const excelBuffer = XLSX.write(workbook, {
+            bookType: "xlsx",
+            type: "array",
+        });
 
-  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-  saveAs(data, "capacity-summary.xlsx");
-};
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "capacity-summary.xlsx");
+    };
     const fetchData = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
         if (!token) return;
@@ -245,7 +245,7 @@ const exportCapacityStatsExcel = () => {
     }
 
 
-    const COLORS = ["#1D4ED8", "#93C5FD", "#60A5FA", "#2563EB", "#3B82F6"];
+    const COLORS = ["#043bd3ff", "#7bb9ffff", "#0cb823e3", "#eb6e25ff", "#f3f63bff", "#ff0000ff"];
 
     // Ensure we always have an array
     const capacityData = Array.isArray(membersData?.capacityByClass)
@@ -264,31 +264,58 @@ const exportCapacityStatsExcel = () => {
                 <h1 className="text-3xl font-semibold text-gray-800 lg:mb-0 mb-4">Class Capacity</h1>
                 <div className="flex flex-wrap gap-3 items-center">
                     <Select
-                        options={venueOptions}
-                        defaultValue={venueOptions[0]}
+                        options={
+                            membersData?.allVenues
+                                ? [
+                                    { value: "", label: "All venues" },
+                                    ...membersData.allVenues.map((v) => ({
+                                        value: v.id,
+                                        label: v.name,
+                                    })),
+                                ]
+                                : venueOptions
+                        }
+                        defaultValue={
+                            membersData?.allVenues
+                                ? { value: "", label: "All venues" }
+                                : venueOptions?.[0]
+                        }
                         styles={customSelectStyles}
+                        isClearable
                         components={{ IndicatorSeparator: () => null }}
-
-                        className="md:w-40"
+                        className="md:w-50"
+                        onChange={(selected) =>
+                            handleFilterChange("venueId", selected?.value || "")
+                        }
                     />
+
+                    {/* Age */}
                     <Select
                         options={ageOptions}
-                        defaultValue={ageOptions[0]}
+                        defaultValue={ageOptions?.[0]}
                         styles={customSelectStyles}
+                        isClearable
                         components={{ IndicatorSeparator: () => null }}
-
-                        className="md:w-40"
+                        className="md:w-50"
+                        onChange={(selected) =>
+                            handleFilterChange("age", selected?.value || "")
+                        }
                     />
+
+                    {/* Date */}
                     <Select
-                        components={{ IndicatorSeparator: () => null }}
-
                         options={dateOptions}
-                        defaultValue={dateOptions[0]}
+                        defaultValue={dateOptions?.[0]}
                         styles={customSelectStyles}
-                        className="md:w-40"
+                        isClearable
+                        components={{ IndicatorSeparator: () => null }}
+                        className="md:w-50"
+                        onChange={(selected) =>
+                            handleFilterChange("period", selected?.value || "")
+                        }
                     />
-                    <button   onClick={exportCapacityStatsExcel}
- className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+                    <button onClick={exportCapacityStatsExcel}
+                        className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
                         <Download size={16} /> Export data
                     </button>
                 </div>
@@ -330,91 +357,91 @@ const exportCapacityStatsExcel = () => {
                         </h2>
 
                         <div className="w-full h-[320px]">
-                       <ResponsiveContainer width="100%" height="100%">
-    <LineChart
-        data={membersData?.charts?.monthWise}
-        margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
-    >
-        {/* Soft grid */}
-        <CartesianGrid
-            vertical={false}
-            strokeDasharray="3 3"
-            stroke="#E5E7EB"
-        />
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart
+                                    data={membersData?.charts?.monthWise}
+                                    margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
+                                >
+                                    {/* Soft grid */}
+                                    <CartesianGrid
+                                        vertical={false}
+                                        strokeDasharray="3 3"
+                                        stroke="#E5E7EB"
+                                    />
 
-        {/* Clean axes */}
-        <XAxis
-            dataKey="month"
-            tick={{ fill: "#6b7280", fontSize: 12 }}
-            axisLine={false}
-            tickLine={false}
-        />
-        <YAxis
-            tick={{ fill: "#6b7280", fontSize: 12 }}
-            axisLine={false}
-            tickLine={false}
-        />
+                                    {/* Clean axes */}
+                                    <XAxis
+                                        dataKey="month"
+                                        tick={{ fill: "#6b7280", fontSize: 12 }}
+                                        axisLine={false}
+                                        tickLine={false}
+                                    />
+                                    <YAxis
+                                        tick={{ fill: "#6b7280", fontSize: 12 }}
+                                        axisLine={false}
+                                        tickLine={false}
+                                    />
 
-        {/* Smooth tooltip */}
-        <Tooltip
-            cursor={{ stroke: "#E5E7EB", strokeWidth: 1 }}
-            contentStyle={{
-                backgroundColor: "rgba(255,255,255,0.95)",
-                border: "1px solid #E5E7EB",
-                borderRadius: "8px",
-                fontSize: "12px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-            }}
-        />
+                                    {/* Smooth tooltip */}
+                                    <Tooltip
+                                        cursor={{ stroke: "#E5E7EB", strokeWidth: 1 }}
+                                        contentStyle={{
+                                            backgroundColor: "rgba(255,255,255,0.95)",
+                                            border: "1px solid #E5E7EB",
+                                            borderRadius: "8px",
+                                            fontSize: "12px",
+                                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                                        }}
+                                    />
 
-        {/* Gradient Areas */}
-        <defs>
-            <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.03} />
-            </linearGradient>
+                                    {/* Gradient Areas */}
+                                    <defs>
+                                        <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
+                                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.03} />
+                                        </linearGradient>
 
-            <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#EC4899" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#EC4899" stopOpacity={0.03} />
-            </linearGradient>
-        </defs>
+                                        <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#EC4899" stopOpacity={0.25} />
+                                            <stop offset="95%" stopColor="#EC4899" stopOpacity={0.03} />
+                                        </linearGradient>
+                                    </defs>
 
-        {/* Shaded Areas under lines */}
-        <Area
-            type="monotone"
-            dataKey="currentYearCount"
-            stroke="none"
-            fill="url(#colorCurrent)"
-        />
-        <Area
-            type="monotone"
-            dataKey="prevYearCount"
-            stroke="none"
-            fill="url(#colorPrevious)"
-        />
+                                    {/* Shaded Areas under lines */}
+                                    <Area
+                                        type="monotone"
+                                        dataKey="currentYearCount"
+                                        stroke="none"
+                                        fill="url(#colorCurrent)"
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="prevYearCount"
+                                        stroke="none"
+                                        fill="url(#colorPrevious)"
+                                    />
 
-        {/* Current (Blue) Line */}
-        <Line
-            type="monotone"
-            dataKey="currentYearCount"
-            stroke="#3B82F6"
-            strokeWidth={3}
-            dot={false}
-            activeDot={{ r: 4 }}
-        />
+                                    {/* Current (Blue) Line */}
+                                    <Line
+                                        type="monotone"
+                                        dataKey="currentYearCount"
+                                        stroke="#3B82F6"
+                                        strokeWidth={3}
+                                        dot={false}
+                                        activeDot={{ r: 4 }}
+                                    />
 
-        {/* Previous (Pink) Line */}
-        <Line
-            type="monotone"
-            dataKey="prevYearCount"
-            stroke="#EC4899"
-            strokeWidth={2.5}
-            dot={false}
-            activeDot={{ r: 4 }}
-        />
-    </LineChart>
-</ResponsiveContainer>
+                                    {/* Previous (Pink) Line */}
+                                    <Line
+                                        type="monotone"
+                                        dataKey="prevYearCount"
+                                        stroke="#EC4899"
+                                        strokeWidth={2.5}
+                                        dot={false}
+                                        activeDot={{ r: 4 }}
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
 
                         </div>
                     </div>
@@ -542,10 +569,10 @@ const exportCapacityStatsExcel = () => {
                                     <div className="w-full bg-gray-100 h-2 rounded-full">
                                         <div
                                             className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                            style={{ width: `${item?.count}%` }}
+                                            style={{ width: `${item?.count}` }}
                                         ></div>
                                     </div>
-                                    <span className="text-xs text-[#344054] font-semibold">{item?.percentage}%</span>
+                                    <span className="text-xs text-[#344054] font-semibold">{item?.percentage}</span>
 
                                 </div>
                             </div>

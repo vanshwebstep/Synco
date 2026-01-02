@@ -120,28 +120,42 @@ export default function Reports() {
   };
 
   const existingData = {};
-  (charts?.monthlyStudents || []).forEach(item => {
+  (charts?.currentYear?.monthlyStudents || []).forEach(item => {
     const short = fullToShort[item.month] || item.month;
     existingData[short] = item.students;
   });
+  const currentYearData = {};
+  (charts?.currentYear?.monthlyStudents || []).forEach(item => {
+    const m = fullToShort[item.month] || item.month;
+    currentYearData[m] = item.students;
+  });
+
+  const lastYearData = {};
+  (charts?.lastYear?.monthlyStudents || []).forEach(item => {
+    const m = fullToShort[item.month] || item.month;
+    lastYearData[m] = item.students;
+  });
   // Step 2: Add current month if missing
-  if (charts?.thisMonth && !existingData[currentMonthName]) {
-    existingData[currentMonthName] = charts.thisMonth.students;
+  if (charts?.currentYear?.thisMonth && !existingData[currentMonthName]) {
+    existingData[currentMonthName] = charts.currentYear.thisMonth.students;
   }
 
   // Step 3: Build final data (past + current + future)
-  const lineData = allMonths.map((month, index) => {
-    return {
-      month,
-      students:
-        index <= currentMonthIndex
-          ? existingData[month] ?? 0  // past months with 0 if no data
-          : null                     // future months unknown = null
-    };
-  });
+  const lineData = allMonths.map((month, index) => ({
+    month,
+
+    // current year stops at current month
+    currentStudents:
+      index <= currentMonthIndex
+        ? currentYearData[month] ?? 0
+        : null,
+
+    // last year always full
+    previousStudents: lastYearData[month] ?? 0,
+  }));
 
   const marketingData =
-    charts?.marketChannelPerformance?.map((m) => ({
+    charts?.currentYear?.marketChannelPerformance?.map((m) => ({
       name: m.name,
       percentage: m.percentage?.toFixed(1) ?? 0,
       percentText: `${m.percentage?.toFixed(1) ?? 0}%`,
@@ -149,16 +163,16 @@ export default function Reports() {
     })) || [];
 
   const topAgents =
-    charts?.topAgents?.map((a) => ({
+    charts?.currentYear?.topAgents?.map((a) => ({
       name: `${a.creator.firstName} ${a.creator.lastName}`,
       value: a.leadCount,
       avatar: a.creator.profile,
     })) || [];
   console.log('topAgents', topAgents)
-  const pieData = charts?.packageBreakdown || [];
-  const renewalData = charts?.renewalBreakdown || [];
-  const revenueByPackage = charts?.revenueByPackage || [];
-
+  const pieData = charts?.currentYear?.packageBreakdown || [];
+  const renewalData = charts?.currentYear?.renewalBreakdown || [];
+  const revenueByPackage = charts?.currentYear?.revenueByPackage || [];
+  console.log('pieData', pieData)
   const COLORS = ["#7C3AED", "#FBBF24", "#60A5FA", "#10B981"];
 
   const customStyles = {
@@ -224,8 +238,11 @@ export default function Reports() {
       });
     }
   };
-  const goldData = revenueByPackage.find(pkg => pkg.name === "Gold");
-  const silverData = revenueByPackage.find(pkg => pkg.name === "Silver");
+
+  const parsePercent = (value) =>
+    typeof value === "string"
+      ? parseFloat(value.replace("%", "")) || 0
+      : Number(value) || 0;
 
   const statCards = [
     {
@@ -233,46 +250,73 @@ export default function Reports() {
       iconStyle: "bg-[#D9F1FB]",
       title: "Total Leads",
       value: summary?.totalLeads?.thisMonth ?? 0,
-      sub: `Last month: ${summary?.totalLeads?.previousMonth ?? 0}`,
+      sub1: `vs. previous period `,
+      sub2: `${summary?.totalLeads?.previousMonth ?? 0}`,
+      color: Number(summary?.totalLeads?.thisMonth) <= Number(summary?.totalLeads?.previousMonth)
+        ? "text-green-600"
+        : "text-red-600",
+
     },
     {
       icon: '/reportsIcons/Coins.png',
       iconStyle: "bg-[#E3E1FB]",
       title: "Number of Sales",
       value: summary?.numberOfSales?.thisMonth ?? 0,
-      sub: `Last month: ${summary?.numberOfSales?.previousMonth ?? 0}`,
+      sub1: `vs. previous period `,
+      sub2: `${summary?.numberOfSales?.previousMonth ?? 0}`,
+      color: Number(summary?.numberOfSales?.thisMonth) <= Number(summary?.numberOfSales?.previousMonth)
+        ? "text-green-600"
+        : "text-red-600",
     },
     {
       icon: '/reportsIcons/Percent.png',
       iconStyle: "bg-[#DDF5E6]",
       title: "Conversion Rate",
       value: summary?.conversionRate?.thisMonth ?? "0%",
-      sub: `Last month: ${summary?.conversionRate?.previousMonth ?? "0%"}`,
+        sub1: `vs. previous period `,
+      sub2: `${summary?.conversionRate?.previousMonth ?? "0%"}`,
+      color: parsePercent(summary?.conversionRate?.thisMonth) <= parsePercent(summary?.conversionRate?.previousMonth)
+        ? "text-green-600"
+        : "text-red-600",
     },
     {
       icon: '/reportsIcons/pound.png',
       iconStyle: "bg-[#FBE3F2]",
       title: "Revenue Generated",
       value: summary?.revenueGenerated?.thisMonth ?? "£0",
-      sub: `Last month: ${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
+      sub1: `vs. previous period `,
+      sub2: `${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
+      color:
+        Number(summary?.revenueGenerated?.thisMonth ?? 0) <=
+          Number(summary?.revenueGenerated?.previousMonth ?? 0)
+          ? "text-green-600"
+          : "text-red-600",
     },
     {
       icon: '/reportsIcons/Package.png',
       iconStyle: "bg-[#D4F3F3]",
       title: "Revenue Gold Package",
-      value: `£${goldData?.currentRevenue?.toLocaleString() ?? 0}`,
-      sub: `vs. previous £${goldData?.lastRevenue?.toLocaleString() ?? 0}`,
+      value: `£${summary?.revenueGoldPackage?.thisMonth?.toLocaleString() ?? 0}`,
+       sub1: `vs. previous period `,
+      sub2: `£${summary?.revenueGoldPackage?.previousMonth}`,
+      color: Number(summary?.revenueGoldPackage?.thisMonth) <= Number(summary?.revenueGoldPackage?.previousMonth)
+        ? "text-green-600"
+        : "text-red-600",
     },
     {
       icon: '/reportsIcons/silver-package.png',
       iconStyle: "bg-[#FDE6D7]",
       title: "Revenue Silver Package",
-      value: `£${silverData?.currentRevenue?.toLocaleString() ?? 0}`,
-      sub: `vs. previous £${silverData?.lastRevenue?.toLocaleString() ?? 0}`,
+      value: `£${summary?.revenueSilverPackage?.thisMonth?.toLocaleString() ?? 0}`,
+      sub1: `vs. previous period `,
+      sub2: `£${summary?.revenueSilverPackage?.previousMonth}`,
+      color: Number(summary?.revenueSilverPackage?.thisMonth) <= Number(summary?.revenueSilverPackage?.previousMonth)
+        ? "text-green-600"
+        : "text-red-600",
     },
   ];
 
-
+  console.log('revenueByPackage', revenueByPackage)
   /** =====================
    * ✅ UI Layout
    * ===================== */
@@ -322,7 +366,7 @@ export default function Reports() {
                 <div>
                   <div className="text-[14px] text-[#717073] font-semibold">{s.title}</div>
                   <div className="text-[20px] text-black font-semibold">{s.value}</div>
-                  <div className="text-[12px] text-[#717073] font-semibold">{s.sub}</div>
+                  <div className={`text-[12px] text-[#717073] font-semibold`}>{s.sub1} <span className={` ${s.color}`}>{s.sub2}</span></div>
                 </div>
               </div>
             );
@@ -340,76 +384,90 @@ export default function Reports() {
                 <h2 className="font-semibold text-[24px] ">One to One Students</h2><EllipsisVertical />
               </div>
               <div className="h-72">
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart
-                    data={lineData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 5 }}
-                  >
+                <ResponsiveContainer width="100%" height={260}>
+                  <LineChart data={lineData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+
+                    {/* Gradient */}
                     <defs>
-                      <linearGradient id="colorStudents" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="10%" stopColor="#2563EB" stopOpacity={0.25} />
-                        <stop offset="90%" stopColor="#2563EB" stopOpacity={0} />
+                      <linearGradient id="currentGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#60A5FA" stopOpacity={0.35} />
+                        <stop offset="70%" stopColor="#60A5FA" stopOpacity={0.15} />
+                        <stop offset="100%" stopColor="#60A5FA" stopOpacity={0} />
                       </linearGradient>
                     </defs>
 
+
+                    {/* Grid */}
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="#f1f5f9"
-                      horizontal={true}
-                      vertical={false}   // ❗ hide vertical lines
+                      stroke="#EEF2F7"
+                      vertical={false}
                     />
 
+                    {/* X Axis */}
                     <XAxis
                       dataKey="month"
                       axisLine={false}
                       tickLine={false}
-                      scale="band"
-                      domain={['dataMin', 'dataMax']}
-                      interval={0}
-                      tick={{ fontSize: 12, fill: "#64748B" }}
-                      padding={{ left: 10, right: 10 }}
-                      allowDuplicatedCategory={false}
+                      tick={{ fill: "#94A3B8", fontSize: 12 }}
                     />
 
+                    {/* Y Axis */}
                     <YAxis
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 12, fill: "#94A3B8" }}
-                      padding={{ bottom: 30 }}   // 👈 add extra space here
-
+                      tick={{ fill: "#94A3B8", fontSize: 12 }}
                     />
 
+                    {/* Tooltip */}
                     <Tooltip
                       cursor={false}
                       contentStyle={{
-                        borderRadius: "10px",
+                        background: "#fff",
+                        borderRadius: 12,
                         border: "none",
-
-                        boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
                       }}
-
                       labelStyle={{ fontWeight: 600 }}
                     />
 
+                    {/* Area (Current Year Only) */}
                     <Area
                       type="monotone"
-                      dataKey="students"
-                      stroke="transparent"
-                      fill="url(#colorStudents)"
+                      dataKey="currentStudents"
+                      stroke="none"
+                      fill="url(#currentGradient)"
                       fillOpacity={1}
+                      tooltipType="none"
+
                     />
 
+
+                    {/* Current Year Line */}
                     <Line
                       type="monotone"
-                      dataKey="students"
-                      stroke="#2563EB"
-                      strokeWidth={3}
-                      dot={{ r: 0 }}
+                      dataKey="currentStudents"
+                      stroke="#3B82F6"   // slightly deeper blue
+                      strokeWidth={2.5}
+                      dot={false}
                       activeDot={{ r: 4 }}
-                      connectNulls={true}
+                      connectNulls
                     />
+
+
+                    {/* Previous Year Line */}
+                    <Line
+                      type="monotone"
+                      dataKey="previousStudents"
+                      stroke="#F472B6"
+                      strokeWidth={2}
+                      dot={false}
+                    />
+
+
                   </LineChart>
                 </ResponsiveContainer>
+
 
 
               </div>
@@ -520,10 +578,10 @@ export default function Reports() {
                       dataKey="value"
                       startAngle={90}
                       endAngle={-270}
-                      labelLine={false}   // <-- removes lines
-                      label={({ cx, cy, midAngle, outerRadius, percent }) => {
+                      labelLine={false}
+                      label={({ cx, cy, midAngle, outerRadius, index }) => {
                         const RADIAN = Math.PI / 180;
-                        const radius = outerRadius + 20; // distance of % label from ring
+                        const radius = outerRadius + 20;
                         const x = cx + radius * Math.cos(-midAngle * RADIAN);
                         const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
@@ -536,7 +594,7 @@ export default function Reports() {
                             dominantBaseline="central"
                             className="text-sm font-semibold"
                           >
-                            {(percent * 100).toFixed(0)}%
+                            {pieData[index]?.percentage}%
                           </text>
                         );
                       }}
@@ -545,6 +603,7 @@ export default function Reports() {
                         <Cell key={`cell-${idx}`} fill={COLORS[idx % COLORS.length]} />
                       ))}
                     </Pie>
+
 
                   </PieChart>
                 </ResponsiveContainer>
@@ -617,7 +676,7 @@ export default function Reports() {
                             className={`text-xs font-semibold ${pkg.revenueGrowth < 0 ? "text-red-500" : "text-[#717073]"
                               }`}
                           >
-                            vs last month {pkg.lastRevenue} %
+                            vs last month {pkg.lastRevenueGrowth}%
                           </div>
                         </div>
                       </div>

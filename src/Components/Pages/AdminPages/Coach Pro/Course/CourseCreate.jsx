@@ -312,7 +312,7 @@ export default function CourseCreateForm() {
                 "setReminderEvery",
                 `${formData.settings.reminderValue} ${formData.settings.reminderType}`
             );
-            fd.append("isCompulsory", "true");
+            fd.append("isCompulsory", formData.settings.compulsory);
 
             fd.append("certificateTitle", formData.certificate.title || "");
             if (formData.certificate.file instanceof File) {
@@ -647,8 +647,8 @@ export default function CourseCreateForm() {
                                                         >
                                                             {/* Compact header (always visible) */}
                                                             <div className="flex items-center justify-between p-4 pb-0  rounded-t-2xl">
-                                                                <div className="block items-center gap-3 w-full mx-auto relative">
-                                                                    <span {...provided.dragHandleProps} className="absolute top-2  text-gray-400 flex justify-center w-full mx-auto cursor-grab">
+                                                                <div className="block items-center gap-3 w-full  m-auto relative">
+                                                                    <span {...provided.dragHandleProps} className="absolute w-full max-w-fit top-2 right-0 left-0  text-gray-400 flex justify-center  mx-auto cursor-grab">
                                                                         <GripVertical size={18} className="rotate-90" />
                                                                     </span>
                                                                     {collapsedMap[q.id] && (<div className="flex flex-col min-w-0">
@@ -794,7 +794,7 @@ export default function CourseCreateForm() {
 
 
                                                 <select
-                                                    value={formData.settings.durationType || "Minutes"}
+                                                    value={formData.settings.durationType}
                                                     onChange={(e) =>
                                                         setFormData({
                                                             ...formData,
@@ -803,6 +803,7 @@ export default function CourseCreateForm() {
                                                     }
                                                     className={`${inputClass} `}
                                                 >
+                                                    <option value=''>Select Duration</option>
                                                     <option value='Minutes'>Minutes</option>
                                                     <option value='Hours'>Hours</option>
                                                     <option value='Days'>Days</option>
@@ -951,7 +952,7 @@ export default function CourseCreateForm() {
                                                 />
 
                                                 <select
-                                                    value={formData.settings.reminderType || "Minutes"}
+                                                    value={formData.settings.reminderType }
                                                     onChange={(e) =>
                                                         setFormData({
                                                             ...formData,
@@ -960,6 +961,7 @@ export default function CourseCreateForm() {
                                                     }
                                                     className={inputClass}
                                                 >
+                                                    <option value=''>Select Duration</option>
                                                     <option value='Minutes'>Minutes</option>
                                                     <option value='Hours'>Hours</option>
                                                     <option value='Days'>Days</option>

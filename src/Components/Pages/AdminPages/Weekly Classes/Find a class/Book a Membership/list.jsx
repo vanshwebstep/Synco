@@ -279,7 +279,7 @@ const List = () => {
     const [toDate, setToDate] = useState(null);
 
     const month = currentDate.getMonth();
-    const [year, setYear] = useState(new Date().getFullYear());
+    const year = currentDate.getFullYear();
     const hasInitialized = useRef(false);
 
 
@@ -348,16 +348,13 @@ const List = () => {
     };
 
     const getDaysArray = () => {
-        const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
+        const startDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const days = [];
 
         const offset = startDay === 0 ? 6 : startDay - 1;
 
-        for (let i = 0; i < offset; i++) {
-            days.push(null);
-        }
-
+        for (let i = 0; i < offset; i++) days.push(null);
         for (let i = 1; i <= daysInMonth; i++) {
             days.push(new Date(year, month, i));
         }
@@ -927,22 +924,27 @@ const List = () => {
 
 
     const sessionDatesSet = new Set(sessionDates);
+useEffect(() => {
+  // Run only once, and only if there are session dates
+  if (hasInitialized.current || !sessionDatesSet || sessionDatesSet.size === 0) return;
 
-    useEffect(() => {
-        // Run only once, and only if there are session dates
-        if (hasInitialized.current || !sessionDatesSet || sessionDatesSet.size === 0) return;
+  const allDates = Array.from(sessionDatesSet)
+    .map(dateStr => new Date(dateStr))
+    .sort((a, b) => a - b);
 
-        const allDates = Array.from(sessionDatesSet)
-            .map(dateStr => new Date(dateStr))
-            .sort((a, b) => a - b);
+  const earliestDate = allDates[0];
 
-        const earliestDate = allDates[0];
+  setCurrentDate(
+    new Date(
+      earliestDate.getFullYear(),
+      earliestDate.getMonth(),
+      1
+    )
+  );
 
-        setCurrentDate(new Date(earliestDate.getFullYear(), earliestDate.getMonth(), 1));
-        setYear(earliestDate.getFullYear());
+  hasInitialized.current = true; // ✅ mark as done
+}, [sessionDatesSet]);
 
-        hasInitialized.current = true; // ✅ mark as done
-    }, [sessionDatesSet]);
 
     console.log('payment', payment)
     if (loading) return <Loader />;
@@ -1556,6 +1558,7 @@ const List = () => {
                                                     buttonClass="!bg-white !border-none !p-0"
                                                 />
                                                 <input
+                                                
                                                     type="number"
                                                     value={parent.parentPhoneNumber}
                                                     onChange={(e) =>
@@ -1674,7 +1677,7 @@ const List = () => {
                                             buttonClass="!bg-white !border-none !p-0"
                                         />
                                         <input
-                                            type="tel"
+                                            type="number"
                                             value={emergency.emergencyPhoneNumber}
                                             onChange={(e) =>
                                                 setEmergency((prev) => ({
@@ -1682,7 +1685,7 @@ const List = () => {
                                                     emergencyPhoneNumber: e.target.value,
                                                 }))
                                             }
-                                            className='border-none focus:outline-none' placeholder="Enter phone number"
+                                            className='border-none w-full focus:outline-none' placeholder="Enter phone number"
                                         />
 
                                     </div>

@@ -931,8 +931,8 @@ const CandidateInfo = () => {
                     buttonClass="!bg-white !border-none !p-0"
                   />
                   <input
-                    type="text"
-                    className="border-none focus:outline-none"
+                    type="number"
+                    className="border-none w-full focus:outline-none"
                     value={form.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
                     placeholder="+91"

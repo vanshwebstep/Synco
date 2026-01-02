@@ -98,11 +98,11 @@ const BirthdayLeadsDashboard = () => {
           const hasGold = activeStatuses.includes("gold");
           const hasSilver = activeStatuses.includes("silver");
 
-          if (hasGold || hasSilver) {
-            const packageInterestValues = [];
-            if (hasGold) packageInterestValues.push("gold");
-            if (hasSilver) packageInterestValues.push("silver");
-            queryParams.append("packageInterest", packageInterestValues.join(","));
+          if (hasGold) {
+            queryParams.append("packageInterest", "gold");
+          }
+          if (hasSilver) {
+            queryParams.append("packageInterest", "silver");
           }
 
           // Add other statuses (excluding gold/silver)
@@ -195,9 +195,9 @@ const BirthdayLeadsDashboard = () => {
 
   // then your summaryCards
   const summaryCards = [
-    { icon: "/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads, change: "0" },
-    { icon: "/reportsIcons/greenuser.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary?.newLeads, change: "0" },
-    { icon: "/reportsIcons/login-icon-orange.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary?.leadsWithBookings, change: "0" },
+    { icon: "/reportsIcons/user-group.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Leads", value: summary?.totalLeads?.count, change: summary?.totalLeads?.average},
+    { icon: "/reportsIcons/greenuser.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "New Leads", value: summary?.newLeads?.count, change: summary?.newLeads?.average },
+    { icon: "/reportsIcons/login-icon-orange.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Leads to Bookings", value: summary?.leadsWithBookings?.count, change: summary?.leadsWithBookings?.average },
     { icon: "/reportsIcons/magnet-purple.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Source of Leads", value: finalSource },
   ];
   const [formData, setFormData] = useState({

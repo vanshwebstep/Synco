@@ -200,23 +200,26 @@ const SessionPreview = ({ item, sessionData }) => {
         <div className="w-full md:w-10/12 space-y-6">
           {/* Tabs */}
           <div className="flex w-full flex-col lg:flex-row gap-6">
-            <div className="w-full bg-white j lg:w-1/2 grid md:grid-cols-4 gap-2 border border-gray-300 p-2 rounded-2xl flex-wrap">
-              {dynamicTabs.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => {
-                    setActiveTab(tab);
-                    setPage(1);
-                  }}
-                  className={`px-6 py-2 rounded-xl text-[18px] font-semibold transition ${activeTab === tab
-                    ? 'bg-blue-500 text-white'
-                    : 'text-[#717073] hover:text-blue-500'
-                    }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
+           
+            <div className="w-full lg:w-1/2 bg-white border border-gray-300 rounded-2xl p-2 flex flex-wrap gap-2">
+  {dynamicTabs.map((tab) => (
+    <button
+      key={tab}
+      onClick={() => {
+        setActiveTab(tab);
+        setPage(1);
+      }}
+      className={`px-6 py-2 rounded-xl text-[18px] font-semibold transition ${
+        activeTab === tab
+          ? 'bg-blue-500 text-white'
+          : 'text-[#717073] hover:text-blue-500'
+      }`}
+    >
+      {tab}
+    </button>
+  ))}
+</div>
+
             <div className="w-full pl-6  lg:w-1/2 "></div>
           </div>
           {/* Main Page Content */}
@@ -237,14 +240,15 @@ const SessionPreview = ({ item, sessionData }) => {
                 </h2>
                 <p className="text-[20px] flex items-center gap-2 font-semibold my-3">
                   {/* {currentContent?.player} */}
-                  {currentContent.heading} <img
+                  {currentContent.heading} 
+                  {/* <img
                     src="/images/icons/Volumeblue.png"
                     alt="Play Recording"
                     className={`w-6 h-6 cursor-pointer ${currentRecording === recording ? "opacity-100" : "opacity-40"
                       }`}
                     onClick={() => handlePlayRecording(recording)}
                   />
-                  <audio ref={audioRef} onEnded={() => setCurrentRecording(null)} />
+                  <audio ref={audioRef} onEnded={() => setCurrentRecording(null)} /> */}
                 </p>
                 <p className="text-[16px] text-[#717073] font-semibold border-b border-gray-300 pb-4 ">
                   {currentContent.description}
@@ -262,7 +266,7 @@ const SessionPreview = ({ item, sessionData }) => {
                   <h2 className="font-semibold text-[24px] mb-0">
                     Session Plan
                   </h2>
-                  {videoUrl && (
+                 {videoUrl && videoUrl.trim() !== "" && (
                     <div className="relative">
                       <img
                         src="/images/icons/downloadicon.png"

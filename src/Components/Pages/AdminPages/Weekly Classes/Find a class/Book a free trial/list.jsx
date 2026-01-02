@@ -269,7 +269,7 @@ const List = () => {
 
     const today = new Date();
     const [currentDate, setCurrentDate] = useState(new Date());
-    const [year, setYear] = useState(new Date().getFullYear());
+    const year = currentDate.getFullYear();
     const hasInitialized = useRef(false); // ✅ Prevent re-running effect    const [fromDate, setFromDate] = useState(new Date(currentDate.getFullYear(), currentDate.getMonth(), 11));
     const [toDate, setToDate] = useState(null);
 
@@ -283,22 +283,20 @@ const List = () => {
     };
 
     const getDaysArray = () => {
-        const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
+        const startDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const days = [];
 
         const offset = startDay === 0 ? 6 : startDay - 1;
 
-        for (let i = 0; i < offset; i++) {
-            days.push(null);
-        }
-
+        for (let i = 0; i < offset; i++) days.push(null);
         for (let i = 1; i <= daysInMonth; i++) {
             days.push(new Date(year, month, i));
         }
 
         return days;
     };
+
 
     const calendarDays = getDaysArray();
 
@@ -837,7 +835,6 @@ const List = () => {
         keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
         "Key Information";
     const sessionDatesSet = new Set(sessionDates);
-
     useEffect(() => {
         // Run only once, and only if there are session dates
         if (hasInitialized.current || !sessionDatesSet || sessionDatesSet.size === 0) return;
@@ -848,8 +845,13 @@ const List = () => {
 
         const earliestDate = allDates[0];
 
-        setCurrentDate(new Date(earliestDate.getFullYear(), earliestDate.getMonth(), 1));
-        setYear(earliestDate.getFullYear());
+        setCurrentDate(
+            new Date(
+                earliestDate.getFullYear(),
+                earliestDate.getMonth(),
+                1
+            )
+        );
 
         hasInitialized.current = true; // ✅ mark as done
     }, [sessionDatesSet]);
@@ -1505,7 +1507,7 @@ const List = () => {
                                             buttonClass="!bg-white !border-none !p-0"
                                         />
                                         <input
-                                            type="tel"
+                                            type="number"
                                             value={emergency.emergencyPhoneNumber}
                                             onChange={(e) =>
                                                 setEmergency((prev) => ({
@@ -1513,7 +1515,7 @@ const List = () => {
                                                     emergencyPhoneNumber: e.target.value,
                                                 }))
                                             }
-                                            className='border-none focus:outline-none' placeholder="Enter phone number"
+                                            className='border-none w-full focus:outline-none' placeholder="Enter phone number"
                                         />
 
                                     </div>

@@ -208,9 +208,9 @@ const AddtoWaitingList = () => {
   const [toDate, setToDate] = useState(null);
 
   const month = currentDate.getMonth();
-  const [year, setYear] = useState(new Date().getFullYear());
+const year = currentDate.getFullYear();
   const hasInitialized = useRef(false); const formatLocalDate = (date) => {
-    const year = date.getFullYear();
+    const year = currentDate.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0"); // months are 0-indexed
     const day = String(date.getDate()).padStart(2, "0");
 
@@ -239,16 +239,13 @@ const AddtoWaitingList = () => {
     setDialCode2("+" + countryData.dialCode);
   };
   const getDaysArray = () => {
-    const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
+    const startDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const days = [];
 
     const offset = startDay === 0 ? 6 : startDay - 1;
 
-    for (let i = 0; i < offset; i++) {
-      days.push(null);
-    }
-
+    for (let i = 0; i < offset; i++) days.push(null);
     for (let i = 1; i <= daysInMonth; i++) {
       days.push(new Date(year, month, i));
     }
@@ -776,6 +773,7 @@ const AddtoWaitingList = () => {
   const selectedLabel =
     keyInfoOptions.find((opt) => opt.value === selectedKeyInfo)?.label ||
     "Key Information";
+
   useEffect(() => {
     // Run only once, and only if there are session dates
     if (hasInitialized.current || !sessionDatesSet || sessionDatesSet.size === 0) return;
@@ -786,8 +784,13 @@ const AddtoWaitingList = () => {
 
     const earliestDate = allDates[0];
 
-    setCurrentDate(new Date(earliestDate.getFullYear(), earliestDate.getMonth(), 1));
-    setYear(earliestDate.getFullYear());
+    setCurrentDate(
+      new Date(
+        earliestDate.getFullYear(),
+        earliestDate.getMonth(),
+        1
+      )
+    );
 
     hasInitialized.current = true; // ✅ mark as done
   }, [sessionDatesSet]);
@@ -1068,16 +1071,29 @@ const AddtoWaitingList = () => {
                             return <div key={i} />;
                           }
 
+
                           const formattedDate = formatLocalDate(date);
                           const isAvailable = sessionDatesSet.has(formattedDate); // check if this date is valid session
+                          console.log('isAvailable', isAvailable)
                           const isSelected = isSameDate(date, selectedDate);
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+
+                          const current = new Date(date);
+                          current.setHours(0, 0, 0, 0);
+                          const isPastAvailable = isAvailable && current < today;
 
                           return (
                             <div
                               key={i}
                               onClick={() => isAvailable && handleDateClick(date)}
                               className={`w-8 h-8 flex text-[18px] items-center justify-center mx-auto text-base rounded-full
-    ${isAvailable ? "cursor-pointer bg-sky-200" : "cursor-not-allowed opacity-40 bg-white"}
+    ${isPastAvailable
+                                  ? "bg-red-200 text-red-700 cursor-not-allowed"
+                                  : isAvailable
+                                    ? "cursor-pointer bg-sky-200"
+                                    : "cursor-not-allowed opacity-40 bg-white"
+                                }
     ${isSelected ? "selectedDate text-white font-bold" : ""}
   `}
                             >
@@ -1460,7 +1476,7 @@ const AddtoWaitingList = () => {
                       buttonClass="!bg-white !border-none !p-0"
                     />
                     <input
-                      type="tel"
+                      type="number"
                       value={emergency.emergencyPhoneNumber}
                       onChange={(e) =>
                         setEmergency((prev) => ({
@@ -1468,7 +1484,7 @@ const AddtoWaitingList = () => {
                           emergencyPhoneNumber: e.target.value,
                         }))
                       }
-                      className='border-none focus:outline-none' placeholder="Enter phone number"
+                      className='border-none w-full focus:outline-none' placeholder="Enter phone number"
                     />
 
                   </div>

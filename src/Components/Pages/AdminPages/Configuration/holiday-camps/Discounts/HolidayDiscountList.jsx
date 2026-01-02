@@ -24,6 +24,8 @@ const HolidayDiscountList = () => {
     getPackages();
   }, [fetchDiscounts]);
   const navigate = useNavigate();
+  const [checkedRows, setCheckedRows] = useState({});
+
   const [openForm, setOpenForm] = useState(false);
   const [checked, setChecked] = useState(false);
    console.log('discounts',discounts)
@@ -75,17 +77,19 @@ const HolidayDiscountList = () => {
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <button
-                            onClick={() => setChecked(!checked)}
-                            className={`w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-500 transition-colors focus:outline-none`}
-                          >
-                            {checked && (
-                              <Check
-                                size={16}
-                                strokeWidth={3}
-                                className="text-gray-500"
-                              />
-                            )}
-                          </button>
+  onClick={() =>
+    setCheckedRows(prev => ({
+      ...prev,
+      [user.id]: !prev[user.id], // or user.code
+    }))
+  }
+  className="w-5 h-5 me-2 flex items-center justify-center rounded-md border-2 border-gray-500"
+>
+  {checkedRows[user.id] && (
+    <Check size={16} strokeWidth={3} className="text-gray-500" />
+  )}
+</button>
+
                           <div>
                             <span>{user.code}</span>
                             <br />

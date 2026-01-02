@@ -21,9 +21,9 @@ const BirthdaySessionPlan = () => {
     const { checkPermission } = usePermission();
     const [loadingPinId, setLoadingPinId] = useState(null); // Track which group is being pinned
 
-    const canDelete = checkPermission({ module: 'session-plan-structure', action: 'delete' });
-    const canEdit = checkPermission({ module: 'session-plan-structure', action: 'update' });
-
+    const canDelete = checkPermission({ module: 'session-plan-birthdayParty', action: 'delete' });
+    const canEdit = checkPermission({ module: 'session-plan-birthdayParty', action: 'update' });
+console.log('canDelete', canDelete)
     const navigate = useNavigate();
 
     const fetchSessionGroup = useCallback(async () => {
@@ -370,16 +370,16 @@ const BirthdaySessionPlan = () => {
                                                             >
                                                                 <Eye size={25} />
                                                             </button>
-                                                            {/* {canDelete && (
-                              <button
-                                onClick={() =>
-                                  handleDeleteGroup(group.id, group.groupName)
-                                }
-                                className="hover:scale-110 transition"
-                              >
-                                <Trash2 size={20} />
-                              </button>
-                            )} */}
+                                                            {canDelete && (
+                                                                <button
+                                                                    onClick={() =>
+                                                                        handleDeleteGroup(group.id, group.groupName)
+                                                                    }
+                                                                    className="hover:scale-110 transition"
+                                                                >
+                                                                    <Trash2 size={20} />
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </div>
 

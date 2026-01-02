@@ -278,12 +278,12 @@ const CreateLead = () => {
                                 buttonClass="!bg-white !border-none !p-0"
                             />
                             <input
-                                type="tel"
+                                type="number"
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleInputChange}
                                 placeholder="Enter number"
-                                className="border-none focus:outline-none flex-1"
+                                className="border-none w-full focus:outline-none flex-1"
                             />
                         </div>
                     </div>

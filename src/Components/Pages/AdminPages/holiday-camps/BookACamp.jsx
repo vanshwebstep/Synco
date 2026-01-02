@@ -595,6 +595,12 @@ const BookACamp = () => {
             parent: [...prev.parent, { parentFirstName: "", parentLastName: "", parentEmail: "", parentPhoneNumber: "", relationToChild: "Other", howDidYouHear: '' }],
         }));
     };
+const handleRemoveParent = (indexToRemove) => {
+    setFormData((prev) => ({
+        ...prev,
+        parent: prev.parent.filter((_, index) => index !== indexToRemove),
+    }));
+};
 
     const handleSameAsAbove = () => {
         setSameAsAbove((prev) => {
@@ -985,11 +991,7 @@ const BookACamp = () => {
                             <div className="flex items-center border border-gray-300 rounded-xl px-4 py-3 mt-2">
                                 <PhoneInput
                                     country="uk"
-                                    value={
-                                        section === "parent"
-                                            ? formData.parent[index]?.dialCode || ""
-                                            : formData[section]?.dialCode || ""
-                                    }
+                                    value="+44"
                                     onChange={(val, data) => {
                                         handleChange(section, "dialCode", val, index);
                                         handleChange(section, "country", data?.countryCode, index);
@@ -1001,7 +1003,7 @@ const BookACamp = () => {
                                     buttonClass="!bg-white !border-none !p-0"
                                 />
                                 <input
-                                    type="tel"
+                                    type="number"
                                     required
                                     placeholder="Enter phone number"
                                     value={
@@ -1013,7 +1015,7 @@ const BookACamp = () => {
                                         const digitsOnly = e.target.value.replace(/\D/g, "");
                                         handleChange(section, input.name, digitsOnly, index);
                                     }}
-                                    className="border-none focus:outline-none flex-1"
+                                    className="border-none w-full focus:outline-none flex-1"
                                 />
                             </div>
 
@@ -1191,11 +1193,27 @@ const BookACamp = () => {
                         </div>
 
                         {formData.parent.map((_, index) => (
-                            <div key={index} className="border border-gray-200 rounded-xl p-4 mb-4 ">
-                                <h4 className="font-semibold text-gray-700 mb-3">Parent {index + 1}</h4>
-                                {renderInputs(parentInputs, "parent", index)}
-                            </div>
-                        ))}
+    <div key={index} className="border border-gray-200 rounded-xl p-4 mb-4">
+        <div className="flex justify-between items-center">
+            <h4 className="font-semibold text-gray-700 mb-3">
+                Parent {index + 1}
+            </h4>
+
+            {index > 0 && (
+                <button
+                    type="button"
+                    onClick={() => handleRemoveParent(index)}
+                    className="text-gray-500 hover:text-red-600"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+            )}
+        </div>
+
+        {renderInputs(parentInputs, "parent", index)}
+    </div>
+))}
+
                     </section>
 
                     <section className="bg-white rounded-2xl p-4">

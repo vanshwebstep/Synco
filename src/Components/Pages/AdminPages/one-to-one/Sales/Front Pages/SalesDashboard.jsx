@@ -93,7 +93,7 @@ const SalesDashboard = () => {
             fetchLeads(""); // optional: reload default list
             return;
         }
-         setCurrentPage(1);
+        setCurrentPage(1);
         fetchLeads(value);
 
     };
@@ -240,10 +240,10 @@ const SalesDashboard = () => {
 
     // then your summaryCards
     const summaryCards = [
-        { icon: '/reportsIcons/money-receive-circle.png', iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: 0 },
-        { icon: '/reportsIcons/pound.png', iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: 0 },
-        { icon: '/reportsIcons/orange-user-group.png', iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: 0 },
-        { icon: '/reportsIcons/purple-user-multiple.png', iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
+        { icon: '/reportsIcons/money-receive-circle.png', iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalRevenue?.amount, change: summary?.totalRevenue?.percentage },
+        { icon: '/reportsIcons/pound.png', iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: summary?.goldPackageRevenue?.amount, change: summary?.goldPackageRevenue?.percentage },
+        { icon: '/reportsIcons/orange-user-group.png', iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: summary?.silverPackageRevenue?.amount, change: summary?.silverPackageRevenue?.percentage },
+        { icon: '/reportsIcons/purple-user-multiple.png', iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.name || ""}`, change: summary?.silverPackageRevenue?.totalLeads },
     ]
     const [formData, setFormData] = useState({
         parentName: "",
@@ -476,12 +476,12 @@ const SalesDashboard = () => {
     const calendarDays = getDaysArray();
 
     const goToPreviousMonth = () => {
-  setCurrentDate(new Date(year, month - 1, 1));
-};
+        setCurrentDate(new Date(year, month - 1, 1));
+    };
 
-const goToNextMonth = () => {
-  setCurrentDate(new Date(year, month + 1, 1));
-};
+    const goToNextMonth = () => {
+        setCurrentDate(new Date(year, month + 1, 1));
+    };
 
 
     const isInRange = (date) => {
@@ -547,7 +547,7 @@ const goToNextMonth = () => {
         const toDateToSend = hasRange ? formatLocalDate(toDate) : null;
 
         // console.log("fromDateToSend", fromDateToSend, toDateToSend);
- setCurrentPage(1);
+        setCurrentPage(1);
 
         fetchLeads(
             "",
@@ -651,7 +651,7 @@ const goToNextMonth = () => {
             : selectedVenue?.value
                 ? selectedVenue.value
                 : "";
- setCurrentPage(1);
+        setCurrentPage(1);
         fetchLeads(
             "",
             checkedStatuses.package,

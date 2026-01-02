@@ -181,9 +181,19 @@ const [activeTab, setActiveTab] = useState("revenue");
         fetchReports();
     }, [fetchReports]);
     const handleFilterChange = (selected) => {
-        setFilterType(selected.value);
-        fetchReportsByFilter(selected.value);  // Pass selected value here
-    };
+    if (!selected) {
+        setFilterType(null);
+
+        // optional: fetch default / all data
+        fetchReportsByFilter(null);
+        return;
+    }
+
+    setFilterType(selected.value);
+    fetchReportsByFilter(selected.value);
+};
+
+    
     const fetchReportsByFilter = useCallback(async (filter = filterType) => {
         if (!token) return;
         setLoading(true);
@@ -433,15 +443,16 @@ const [activeTab, setActiveTab] = useState("revenue");
                 <h1 className="text-3xl font-semibold text-gray-800">Holiday Camps</h1>
                 <div className="flex flex-wrap gap-3 items-center">
 
-                    <Select
-                        components={{ IndicatorSeparator: () => null }}
-                        placeholder="Date Range"
-                        options={dateOptions}
-                        value={dateOptions.find(opt => opt.value === filterType)}
-                        onChange={handleFilterChange}
-                        styles={customSelectStyles}
-                        className="md:w-40"
-                    />
+                <Select
+    components={{ IndicatorSeparator: () => null }}
+    placeholder="Date Range"
+    options={dateOptions}
+    isClearable
+    value={dateOptions.find(opt => opt.value === filterType) || null}
+    onChange={handleFilterChange}
+    styles={customSelectStyles}
+    className="md:w-50"
+/>
 
                     <button onClick={handleExportExcel}
                         className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">

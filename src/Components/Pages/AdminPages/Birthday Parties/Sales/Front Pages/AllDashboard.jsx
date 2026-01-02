@@ -202,10 +202,10 @@ const AllDashboard = () => {
 
     // then your summaryCards
     const summaryCards = [
-        { icon: "/reportsIcons/money-receive-circle.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalLeads, change: "0" },
-        { icon: "/reportsIcons/pound.png", iconStyle: "text-[#099699] bg-[#E0F7F7]", title: "Revenue Gold Package", value: 0, change: "0" },
-        { icon: "/reportsIcons/orange-user-group.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: 0, change: "0" },
-        { icon: "/reportsIcons/purple-user-multiple.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.firstName || ""} ${summary?.topSalesAgent?.lastName || ""}`, },
+        { icon: "/reportsIcons/money-receive-circle.png", iconStyle: "text-[#3DAFDB] bg-[#E6F7FB]", title: "Total Revenue", value: summary?.totalRevenue?.amount, change: summary?.totalRevenue?.percentage },
+        { icon: "/reportsIcons/pound.png", iconStyle: "text-[#099699] bg-[#FEF6FB]", title: "Revenue Gold Package", value: summary?.goldPackageRevenue?.amount, change: summary?.goldPackageRevenue?.percentage },
+        { icon: "/reportsIcons/orange-user-group.png", iconStyle: "text-[#F38B4D] bg-[#FFF2E8]", title: "Revenue Silver Package", value: summary?.silverPackageRevenue?.amount, change: summary?.silverPackageRevenue?.percentage },
+        { icon: "/reportsIcons/purple-user-multiple.png", iconStyle: "text-[#6F65F1] bg-[#E9E8FF]", title: "Top Sales Agent", value: `${summary?.topSalesAgent?.name || ""}`,change: summary?.topSalesAgent?.totalLeads  },
     ]
     const [formData, setFormData] = useState({
         parentName: "",

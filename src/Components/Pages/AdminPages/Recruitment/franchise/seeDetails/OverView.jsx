@@ -799,11 +799,11 @@ const [isSubmitting, setIsSubmitting] = useState(false);
                     }}
                     buttonClass="!bg-white !border-none !p-0"
                   />
-                  <input type="text"
+                  <input type="number"
                     disabled={!!form.phone}
                     value={form.phone}
                     onChange={(e) => handleChange("phone", e.target.value)}
-                    className="border-none focus:outline-none" placeholder="+91" />
+                    className="border-none w-full focus:outline-none" placeholder="+91" />
                 </div>
               </div>
 

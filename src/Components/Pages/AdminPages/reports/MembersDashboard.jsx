@@ -41,11 +41,7 @@ const MembersDashboard = () => {
         { value: "manchester", label: "Manchester" },
     ];
 
-    const data = [
-        { label: "Facebook", value: 60 },
-        { label: "Website", value: 45 },
-        { label: "Other", value: 10 },
-    ];
+
 
     const dateOptions = [
         { value: "thisMonth", label: "This Month" },
@@ -55,7 +51,7 @@ const MembersDashboard = () => {
 
     const currentYear = new Date().getFullYear().toString();
     const yearData = membersData?.yealyGrouped?.[currentYear] || {};
-    const monthlyData = yearData?.monthlyGrouped || {};
+    const monthlyData = membersData || {};
 
     const currentMonth = (new Date().getMonth() + 1).toString();
     const monthData = yearData?.monthlyGrouped?.[currentMonth] || {};
@@ -85,7 +81,6 @@ const MembersDashboard = () => {
     };
 
     const monthlyMembers = getMonthlyMembers(membersData);
-    console.log('monthlyMembers', monthlyMembers)
     const totalMembers = Object.values(monthlyMembers || {}).reduce(
         (sum, value) => sum + value,
         0
@@ -99,16 +94,11 @@ const MembersDashboard = () => {
     const lastBookingCount = yearData?.salesTrend?.lastYearStats?.bookingCount || 0;
 
     const avgMonthlyFee = totalMembers ? (revenue / totalMembers).toFixed(2) : "0";
-
     // ------------------ AGE RANGE LOGIC ------------------
-    let allAges = [];
-
-    Object.values(monthlyData).forEach(month => {
-        const byAge = month?.enrolledStudents?.byAge;
-        if (byAge) {
-            allAges = [...allAges, ...Object.keys(byAge).map(a => Number(a))];
-        }
-    });
+    const allAges =
+        membersData?.enrolledStudents?.byAge?.map(item =>
+            Number(item.label.replace(/\D/g, ""))
+        ) || [];
 
     const avgLifeCycle = bookingCount
         ? (totalMembers / bookingCount).toFixed(1)
@@ -116,131 +106,124 @@ const MembersDashboard = () => {
 
     const newStudents = monthData?.bookings?.length || 0;
 
-    const retention = totalMembers
-        ? (((totalMembers - newStudents) / totalMembers) * 100).toFixed(1)
-        : "0";
+    const summary = membersData?.summary || 0;
 
     const stats = [
         {
-            icon: "/reportsIcons/greenuser.png",
+            icon: "/reportsIcons/user-group.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Total Members",
-            value: totalMembers,
-            diff: "+12%",
+            value: summary?.totalMembers?.current,
+            diff: `+${summary?.totalMembers?.average}%`,
             sub: "vs. prev period",
-            subvalue: lastBookingCount,
+            subvalue: summary?.totalMembers?.previous,
         },
         {
-             icon: "/reportsIcons/pound.png",
+            icon: "/reportsIcons/pound.png",
             iconStyle: "text-[#E769BD] bg-[#FEF6FB]",
             title: "Monthly Revenue",
-            value: `£${revenue}`,
-            diff: "+8%",
+            value: `£${summary?.monthlyRevenue?.current}`,
+            diff: `+${summary?.monthlyRevenue?.average}%`,
             sub: "vs. prev period",
-            subvalue: `£${lastYearRevenue}`,
+            subvalue: `£${summary?.monthlyRevenue?.previous}`,
         },
         {
-              icon: "/reportsIcons/pound2.png",
+            icon: "/reportsIcons/pound2.png",
             iconStyle: "text-[#F38B4D] bg-[#FEF8F4]",
             title: "Average Monthly Fee",
-            value: `£${avgMonthlyFee}`,
-            diff: "+6%",
+            value: `£${summary?.averageMonthlyFee?.current}`,
+            diff: `+${summary?.averageMonthlyFee?.average}%`,
             sub: "vs. prev period",
-            subvalue: "—",
+            subvalue: `£${summary?.averageMonthlyFee?.previous}`,
         },
         {
-              icon: "/reportsIcons/Lifecycle.png",
+            icon: "/reportsIcons/Lifecycle.png",
             iconStyle: "text-[#6F65F1] bg-[#F6F6FE]",
             title: "Average Life Cycle",
-            value: `${avgLifeCycle} months`,
-            diff: "+6%",
+            value: `${summary?.averageLifeCycle?.current}`,
+            diff: `+${summary?.averageLifeCycle?.average}%`,
             sub: "vs. prev period",
-            subvalue: "16.8 months",
+            subvalue: `${summary?.averageLifeCycle?.previous}`,
         },
         {
-             icon: "/reportsIcons/orangeadduser.png",
+            icon: "/reportsIcons/orangeadduser.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
             title: "New Students",
-            value: newStudents,
-            diff: "+3%",
+            value: summary?.newStudents?.current,
+            diff: `+${summary?.newStudents?.average}%`,
             sub: "vs. prev period",
-            subvalue: "—",
+            subvalue: summary?.newStudents?.previous,
         },
         {
-             icon: "/reportsIcons/orangeadduser.png",
+            icon: "/reportsIcons/orangeadduser.png",
             iconStyle: "text-[#FF5353] bg-[#FFF5F5]",
             title: "Retention",
-            value: `${retention}%`,
-            diff: "+3%",
+            value: `${summary?.retention?.current}%`,
+            diff: `+${summary?.retention?.average}%`,
             sub: "vs. prev period",
-            subvalue: "—",
+            subvalue: `${summary?.retention?.previous}%`,
         },
     ];
-const exportMemberStatsExcel = () => {
-  const exportData = stats.map((item) => ({
-    Title: item.title,
-    Value: String(item.value ?? "—"),
-    Change: String(item.diff ?? "—"),
-    "Prev Period": String(item.subvalue ?? "—"),
-  }));
+    const exportMemberStatsExcel = () => {
+        const exportData = stats.map((item) => ({
+            Title: item.title,
+            Value: String(item.value ?? "—"),
+            Change: String(item.diff ?? "—"),
+            "Prev Period": String(item.subvalue ?? "—"),
+        }));
 
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Member Stats");
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Member Stats");
 
-  const excelBuffer = XLSX.write(workbook, {
-    bookType: "xlsx",
-    type: "array",
-  });
+        const excelBuffer = XLSX.write(workbook, {
+            bookType: "xlsx",
+            type: "array",
+        });
 
-  const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-  saveAs(data, "member-stats.xlsx");
-};
+        const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+        saveAs(data, "member-stats.xlsx");
+    };
     const ageOptions = (() => {
-        if (!allAges.length) return [{ value: "allAges", label: "All ages" }];
+        if (!allAges?.length) {
+            return [{ value: "all", label: "All ages" }];
+        }
 
-        const ranges = [
-            { value: "under18", label: "Under 18", filter: age => age < 18 },
-            { value: "18-25", label: "18–25", filter: age => age >= 18 && age <= 25 },
-            { value: "25-35", label: "25–35", filter: age => age > 25 && age <= 35 },
-            { value: "35plus", label: "35+", filter: age => age > 35 },
-        ];
-
-        const dynamic = ranges.filter(range =>
-            allAges.some(age => range.filter(age))
-        );
+        const uniqueSortedAges = [...new Set(allAges)].sort((a, b) => a - b);
 
         return [
             { value: "all", label: "All ages" },
-            ...dynamic
+            ...uniqueSortedAges.map((age) => ({
+                value: age,
+                label: `${age} Years`,
+            })),
         ];
     })();
+
 
     // ------------------ TAB CHANGE: AGE vs GENDER ------------------
     useEffect(() => {
         const enrolledData =
-            membersData?.yealyGrouped?.[currentYear]?.monthlyGrouped?.[currentMonth]
-                ?.enrolledStudents || {};
+            membersData?.enrolledStudents || {};
 
         if (activeTab === "age") {
             const byAge = enrolledData.byAge || {};
             const total = Object.values(byAge).reduce((a, b) => a + b, 0);
 
             const formatted = Object.entries(byAge).map(([age, count]) => ({
-                label: `${age} Years`,
-                value: ((count / total) * 100).toFixed(2),
-                count,
+                label: `${count.label}`,
+                value: `${count.percentage}`,
+                count: count.count,
             }));
-
             setMainData(formatted);
         } else {
             const byGender = enrolledData.byGender || {};
             const total = Object.values(byGender).reduce((a, b) => a + b, 0);
 
             const formatted = Object.entries(byGender).map(([gender, count]) => ({
-                label: gender.charAt(0).toUpperCase() + gender.slice(1),
-                value: ((count / total) * 100).toFixed(2),
-                count,
+                label: count.label,
+                value: `${count.percentage}`,
+                count: count.count,
             }));
 
             setMainData(formatted);
@@ -310,64 +293,66 @@ const exportMemberStatsExcel = () => {
         7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"
     };
 
-    const getMembersAddedMonthly = (data) => {
-        if (!data?.yealyGrouped) return [];
+    const getMembersAddedMonthly = (membersComparison) => {
+        if (!membersComparison) return [];
 
-        const years = Object.keys(data.yealyGrouped);
-        const yearData = data.yealyGrouped[years[0]];
-        const monthly = yearData?.monthlyGrouped || {};
+        const { labels = [], series = [] } = membersComparison;
 
-        let result = [];
+        const currentYearSeries = series[0];
+        if (!currentYearSeries) return [];
 
-        for (let i = 1; i <= 12; i++) {
-            const key = String(i);
-            const monthName = monthsMap[i];
+        // Find last non-zero index in current year
+        const lastNonZeroIndex = currentYearSeries.data
+            .map((v, i) => (v > 0 ? i : -1))
+            .filter(i => i !== -1)
+            .pop();
 
-            if (!monthly[key]) {
-                result.push({ month: monthName, members: 0 });
-                continue;
-            }
+        return labels.map((month, index) => {
+            const row = { month };
 
-            const bookings = monthly[key].bookings || [];
+            series.forEach((s, sIndex) => {
+                const key = s.name.replace(/\s+/g, "");
 
-            let memberCount = 0;
-            bookings.forEach((b) => {
-                if (b.students?.length > 0) {
-                    memberCount += b.students.length;
+                // Trim ONLY current year after last non-zero
+                if (
+                    sIndex === 0 &&
+                    lastNonZeroIndex !== undefined &&
+                    index > lastNonZeroIndex
+                ) {
+                    row[key] = null;
+                } else {
+                    row[key] = s.data?.[index] ?? 0;
                 }
             });
 
-            result.push({ month: monthName, members: memberCount });
-        }
-
-        return result;
+            return row;
+        });
     };
 
-    const lineChartData = getMembersAddedMonthly(membersData).map((item) => ({
-        month: item.month,
-        members: item.members,
-    }));
 
+    const series = membersData?.graph?.membersComparison?.series;
+
+    const currentYearKey = series?.[0]?.name.replace(/\s+/g, "");
+    const previousYearKey = series?.[1]?.name.replace(/\s+/g, "");
+
+    const lineChartData = getMembersAddedMonthly(
+        membersData?.graph?.membersComparison
+    );
     // ------------------ PIE CHART: PAYMENT PLANS ------------------
-    const bookings =
-        membersData?.yealyGrouped?.[2025]?.monthlyGrouped?.[10]?.bookings || [];
-
-    const planCounts = {};
-    bookings.forEach((b) => {
-        const planName = b?.paymentPlan?.title || "Unknown Plan";
-        planCounts[planName] = (planCounts[planName] || 0) + 1;
-    });
-
-    const total = Object.values(planCounts).reduce((a, b) => a + b, 0);
-
+    const plansOverview = membersData?.plansOverview || [];
+    const durationData = membersData?.durationOfMemberships || [];
+    console.log('plansOverview', durationData);
     const colors = ["#8B5CF6", "#FACC15", "#22C55E", "#3B82F6", "#EF4444"];
 
-    const pieData = Object.keys(planCounts).map((name, index) => ({
-        name,
-        value: Math.round((planCounts[name] / total) * 100),
+
+    const pieData = plansOverview.map((plan, index) => ({
+        name: plan.title,
+        value: Math.round(plan.members.percentage), // for pie %
+        membersCount: plan.members.count,
+        revenueAmount: plan.revenue.amount,
+        revenuePercentage: plan.revenue.percentage,
         color: colors[index % colors.length],
     }));
-
     const customSelectStyles = {
         control: (provided, state) => ({
             ...provided,
@@ -413,9 +398,6 @@ const exportMemberStatsExcel = () => {
 
     const latestMonth = monthKeys.length ? monthKeys.sort().pop() : null;
 
-    const durationData =
-        (latestYear && latestMonth && yearlyGrouped[latestYear]?.monthlyGrouped?.[latestMonth]?.durationOfMembership) ||
-        {};
 
     // ------------------ PERCENTAGE DIFFERENCE FIX ------------------
     const getTotalMembers = (data, year, month) => {
@@ -448,7 +430,8 @@ const exportMemberStatsExcel = () => {
     const prevMembers = prevExists
         ? getTotalMembers(membersData, prevYear, prevMonth)
         : 0;
-
+    const data = membersData?.membershipSource || [];
+    const membershipSource = membersData?.membershipSource || {};
     // -------- FIXED VERSION (COMPLETE & SAFE) --------
     let diffPercent =
         prevMembers > 0
@@ -468,53 +451,75 @@ const exportMemberStatsExcel = () => {
             <div className="flex flex-wrap justify-between items-center mb-6">
                 <h1 className="text-3xl font-semibold text-gray-800">Members</h1>
                 <div className="flex flex-wrap gap-3 items-center">
+                    {/* Venue */}
                     <Select
                         options={
                             membersData?.allVenues
-                                ? [{ value: "", label: "All venues" }].concat(
-                                    membersData.allVenues.map((v) => ({ value: v.id, label: v.name }))
-                                )
+                                ? [
+                                    { value: "", label: "All venues" },
+                                    ...membersData.allVenues.map((v) => ({
+                                        value: v.id,
+                                        label: v.name,
+                                    })),
+                                ]
                                 : venueOptions
                         }
                         defaultValue={
                             membersData?.allVenues
                                 ? { value: "", label: "All venues" }
-                                : venueOptions[0]
+                                : venueOptions?.[0]
                         }
                         styles={customSelectStyles}
+                        isClearable
                         components={{ IndicatorSeparator: () => null }}
-                        className="md:w-40"
-                        onChange={(selected) => handleFilterChange("venueId", selected.value)}
+                        className="md:w-50"
+                        onChange={(selected) =>
+                            handleFilterChange("venueId", selected?.value || "")
+                        }
                     />
+
+                    {/* Age */}
                     <Select
                         options={ageOptions}
-                        defaultValue={ageOptions[0]}
+                        defaultValue={ageOptions?.[0]}
                         styles={customSelectStyles}
+                        isClearable
                         components={{ IndicatorSeparator: () => null }}
-                        onChange={(selected) => handleFilterChange("age", selected.value)}
-                        className="md:w-40"
+                        className="md:w-50"
+                        onChange={(selected) =>
+                            handleFilterChange("age", selected?.value || "")
+                        }
                     />
-                    <Select
-                        components={{ IndicatorSeparator: () => null }}
 
+                    {/* Date */}
+                    <Select
                         options={dateOptions}
-                        defaultValue={dateOptions[0]}
+                        defaultValue={dateOptions?.[0]}
                         styles={customSelectStyles}
-                        onChange={(selected) => handleFilterChange("period", selected.value)}
-                        className="md:w-40"
+                        isClearable
+                        components={{ IndicatorSeparator: () => null }}
+                        className="md:w-50"
+                        onChange={(selected) =>
+                            handleFilterChange("period", selected?.value || "")
+                        }
                     />
-                    <button   onClick={exportMemberStatsExcel}
- className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
+
+                    {/* Export */}
+                    <button
+                        onClick={exportMemberStatsExcel}
+                        className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition"
+                    >
                         <Download size={16} /> Export data
                     </button>
                 </div>
+
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-8">
                 {stats.map((s, i) => (
 
 
-                 <div
+                    <div
                         key={i}
                         className="bg-white rounded-4xl p-4 flex items-center gap-4 hover:shadow-md transition-all duration-200"
                     >
@@ -546,71 +551,93 @@ const exportMemberStatsExcel = () => {
                         </h2>
 
                         <div className="w-full h-[320px]">
-                      <ResponsiveContainer width="100%" height={300}>
-  <LineChart
-    data={lineChartData}
-    margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
-  >
-    {/* Light grid like screenshot */}
-    <CartesianGrid
-      vertical={false}
-      strokeDasharray="3 3"
-      stroke="#E5E7EB"
-    />
+                            <ResponsiveContainer width="100%" height={300}>
+                                <LineChart
+                                    data={lineChartData}
+                                    margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+                                >
+                                    {/* Grid */}
+                                    <CartesianGrid
+                                        strokeDasharray="3 3"
+                                        stroke="#EEF2F7"
+                                        vertical={false}
+                                    />
 
-    {/* Clean axis styling */}
-    <XAxis
-      dataKey="month"
-      tick={{ fill: "#6B7280", fontSize: 12 }}
-      axisLine={false}
-      tickLine={false}
-    />
+                                    {/* X Axis */}
+                                    <XAxis
+                                        dataKey="month"
+                                        tick={{ fill: "#6B7280", fontSize: 12 }}
+                                        axisLine={false}
+                                        tickLine={false}
+                                    />
 
-    <YAxis
-      tick={{ fill: "#9CA3AF", fontSize: 12 }}
-      axisLine={false}
-      tickLine={false}
-    />
+                                    {/* Y Axis */}
+                                    <YAxis
+                                        tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                                        axisLine={false}
+                                        tickLine={false}
+                                    />
 
-    {/* Minimal tooltip */}
-    <Tooltip
-      contentStyle={{
-        borderRadius: 8,
-        border: "1px solid #e5e7eb",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-      }}
-      cursor={{ stroke: "#E5E7EB", strokeWidth: 1 }}
-    />
+                                    {/* Tooltip */}
+                                    <Tooltip
+                                        cursor={false}
+                                        contentStyle={{
+                                            background: "#FFFFFF",
+                                            borderRadius: 12,
+                                            border: "none",
+                                            boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+                                        }}
+                                        labelStyle={{ fontWeight: 600 }}
+                                    />
 
-    {/* The blue main line (smooth + thick) */}
-    <Line
-      type="monotone"
-      dataKey="members"
-      stroke="#3B82F6"
-      strokeWidth={3}
-      dot={false}
-      activeDot={{ r: 4 }}
-    />
+                                    {/* Gradient definition */}
+                                    <defs>
+                                        <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#60A5FA" stopOpacity={0.35} />
+                                            <stop offset="70%" stopColor="#60A5FA" stopOpacity={0.15} />
+                                            <stop offset="100%" stopColor="#60A5FA" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
 
-    {/* Light filled area under line like screenshot */}
-    <defs>
-      <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.15} />
-        <stop offset="100%" stopColor="#3B82F6" stopOpacity={0} />
-      </linearGradient>
-    </defs>
+                                    {/* Previous year line (draw FIRST → stays below) */}
+                                    {previousYearKey && (
+                                        <Line
+                                            type="monotone"
+                                            dataKey={previousYearKey}
+                                            stroke="#F472B6"
+                                            strokeWidth={2}
+                                            dot={false}
+                                            connectNulls
+                                            isAnimationActive={false}
+                                        />
+                                    )}
 
-    <Area
-      type="monotone"
-      dataKey="members"
-      stroke="none"
-      fill="url(#colorMembers)"
-    />
-  </LineChart>
-</ResponsiveContainer>
+                                    {/* Area fill for current year (under line) */}
+                                    <Area
+                                        type="monotone"
+                                        dataKey={currentYearKey}
+                                        stroke="none"
+                                        fill="url(#colorMembers)"
+                                        fillOpacity={1}
+                                        connectNulls
+                                        tooltipType="none"
 
+                                    />
 
+                                    {/* Current year line (draw LAST → stays on top) */}
+                                    <Line
+                                        type="monotone"
+                                        dataKey={currentYearKey}
+                                        stroke="#3B5BFF"
+                                        strokeWidth={2.5}
+                                        dot={false}
+                                        activeDot={{ r: 5 }}
+                                        connectNulls
+                                    />
+                                </LineChart>
+                            </ResponsiveContainer>
                         </div>
+
                     </div>
 
                     <div className="grid lg:grid-cols-2 gap-5 mt-7">
@@ -674,119 +701,130 @@ const exportMemberStatsExcel = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-6">
+                        <div className="bg-white rounded-2xl p-5">
 
-                            <div className="flex justify-between items-center mb-4">
+                            {/* Header */}
+                            <div className="flex justify-between items-center mb-5">
                                 <h2 className="text-gray-800 font-semibold text-[24px]">Members</h2>
                                 <EllipsisVertical className="text-gray-500" />
                             </div>
 
-                            <div className="flex flex-col md:flex-row justify-between md:items-center">
+                            {/* Chart + Breakdown */}
+                            <div className="flex flex-col lg:flex-row lg:items-center gap-6">
 
-                                <div className="md:w-4/12 w-[180px] h-[180px] mx-auto md:mx-0">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={pieData}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={2}
-                                                dataKey="value"
-                                            >
-                                                {pieData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                {/* Pie */}
+                                <div className="w-full lg:w-1/3 flex justify-center">
+                                    <div className="w-[160px] h-[160px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie
+                                                    data={pieData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={55}
+                                                    outerRadius={75}
+                                                    paddingAngle={2}
+                                                    dataKey="value"
+                                                >
+                                                    {pieData.map((entry, index) => (
+                                                        <Cell key={index} fill={entry.color} />
+                                                    ))}
+                                                </Pie>
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </div>
                                 </div>
 
-
-                                <div className="md:w-8/12 mt-6 md:mt-0 md:ml-6 md:max-h-[100px] overflow-auto">
+                                {/* Members list */}
+                                <div className="w-full lg:w-2/3 space-y-3">
                                     {pieData.map((item, i) => (
                                         <div
                                             key={i}
-                                            className="grid md:grid-cols-2 justify-between gap-3 lg:gap-7 items-center mb-2 text-sm text-gray-600"
+                                            className="flex justify-between items-center text-sm"
                                         >
                                             <div className="flex items-center gap-2">
                                                 <span
-                                                    className="w-2 h-2 rounded-full"
+                                                    className="w-2.5 h-2.5 rounded-full"
                                                     style={{ backgroundColor: item.color }}
-                                                ></span>
-                                                <span className="font-medium">{item.name}</span>
-                                            </div>
-                                            <div className="flex items-center gap-6 text-gray-800 font-semibold">
-                                                <span>{item.value}%</span>
-                                                <span>
-                                                    {i === 0
-                                                        ? "10,234"
-                                                        : i === 1
-                                                            ? "1,234"
-                                                            : "934"}
+                                                />
+                                                <span className="font-medium text-gray-700">
+                                                    {item.name}
                                                 </span>
+                                            </div>
+
+                                            <div className="flex gap-6 font-semibold text-gray-800">
+                                                <span>{item.value}%</span>
+                                                <span>{item.membersCount}</span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-
-                            <div className="mt-6 border-t border-gray-100 pt-4">
-                                <h3 className="text-sm font-semibold text-gray-800 mb-3">
+                            {/* Divider */}
+                            <div className="mt-6">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-3">
                                     Revenue Split
                                 </h3>
 
-                                <div className="grid md:grid-cols-3 md:justify-between md:max-h-[100px] overflow-auto gap-4 text-sm">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                     {pieData.map((item, i) => (
-                                        <div key={i} className="flex items-center gap-2">
-                                            <span
-                                                className="w-2 h-2 rounded-full"
-                                                style={{ backgroundColor: item.color }}
-                                            ></span>
-                                            <span className="font-medium text-gray-700">
-                                                {item.name}
-                                                <span className="font-semibold text-gray-900 block">£20,000</span>
-                                            </span>
+                                        <div
+                                            key={i}
+                                            className=" rounded-xl px-4 py-3"
+                                        >
+                                            {/* Plan name */}
+                                            <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
+                                                <span
+                                                    className="min-w-2 min-h-2 rounded-full"
+                                                    style={{ backgroundColor: item.color }}
+                                                />
+                                                <span className="font-medium">{item.name}</span>
+                                            </div>
+
+                                            {/* Amount */}
+                                            <div className="text-sm font-semibold text-gray-900">
+                                                £{item.revenueAmount}
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
+
                         </div>
+
                     </div>
                 </div>
 
                 <div className="md:w-[25%]">
 
-                    <div className="bg-white rounded-2xl p-4 ">
+                    <div className="bg-white rounded-2xl p-4">
                         <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
-                            Duration of memberships 
+                            Duration of memberships <EllipsisVertical />
                         </h2>
 
-                        {Object.entries(durationData).map(([duration, values], i) => {
-                            const totalStudents = Object.values(durationData).reduce(
-                                (sum, d) => sum + d.students,
-                                0
-                            );
-                            const percent = ((values.students / totalStudents) * 100).toFixed(1);
+                        {durationData.map((item, i) => (
+                            <div key={i} className="mb-4">
+                                <p className="text-xs text-[#344054] font-semibold mb-1">
+                                    {item.label}
+                                </p>
 
-                            return (
-                                <div key={i} className="mb-4">
-                                    <p className="text-xs text-[#344054] font-semibold mb-1">{duration}</p>
-                                    <div className="flex gap-2 items-center">
-                                        <div className="w-full bg-gray-100 h-2 rounded-full">
-                                            <div
-                                                className="bg-[#237FEA] h-2 rounded-full"
-                                                style={{ width: `${percent}%` }}
-                                            ></div>
-                                        </div>
-                                        <span className="text-xs text-[#344054] font-semibold">{percent}%</span>
+                                <div className="flex gap-2 items-center">
+                                    <div className="w-full bg-gray-100 h-2 rounded-full">
+                                        <div
+                                            className="bg-[#237FEA] h-2 rounded-full transition-all"
+                                            style={{ width: `${item.percentage}%` }}
+                                        />
                                     </div>
+
+                                    <span className="text-xs text-[#344054] font-semibold">
+                                        {item.percentage}%
+                                    </span>
                                 </div>
-                            );
-                        })}
+                            </div>
+                        ))}
                     </div>
+
 
                     <div className="bg-white rounded-2xl p-4 mt-5">
                         <h2 className="text-gray-800 font-semibold mb-3 text-[24px] flex justify-between items-center">
@@ -804,10 +842,10 @@ const exportMemberStatsExcel = () => {
                                     <div className="w-full bg-gray-100 h-2 rounded-full">
                                         <div
                                             className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                            style={{ width: `${item.value}%` }}
+                                            style={{ width: `${item.percentage}%` }}
                                         ></div>
                                     </div>
-                                    <span className="text-xs text-[#344054] font-semibold">{item.value}%</span>
+                                    <span className="text-xs text-[#344054] font-semibold">{item.percentage}%</span>
 
                                 </div>
                             </div>

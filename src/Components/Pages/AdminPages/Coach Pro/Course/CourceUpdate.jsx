@@ -118,11 +118,7 @@ export default function CourseUpdate() {
             if (!formData.certificate?.title?.trim()) {
                 newErrors.certificateTitle = "Certificate title is required";
             }
-            if (!formData.certificate?.disabled) {
-                if (!formData.certificate?.file) {
-                    newErrors.certificateFile = "Certificate file is required";
-                }
-            }
+
 
         }
 
@@ -254,7 +250,47 @@ export default function CourseUpdate() {
             setLoading(false);
         }
     }, [API_BASE_URL]);
+    const splitNumberAndText = (value = "") => {
+        if (!value) return { number: "", text: "" };
 
+        const match = value.match(/(\d+)\s*(.*)/);
+
+        return {
+            number: match?.[1] || "",
+            text: match?.[2] || "",
+        };
+    };
+    const normalizeModules = (modules) => {
+        if (!modules) return [];
+
+        let normalized = modules;
+
+        // Case: modules = ["[{...}]"]
+        if (
+            Array.isArray(modules) &&
+            modules.length &&
+            typeof modules[0] === "string"
+        ) {
+            try {
+                normalized = JSON.parse(modules[0]);
+            } catch (e) {
+                console.error("Failed to parse modules:", e);
+                return [];
+            }
+        }
+
+        // Case: modules = "{...}" (just in case)
+        if (typeof normalized === "string") {
+            try {
+                normalized = JSON.parse(normalized);
+            } catch (e) {
+                console.error("Failed to parse modules string:", e);
+                return [];
+            }
+        }
+
+        return Array.isArray(normalized) ? normalized : [];
+    };
 
     const fetchDataById = useCallback(async () => {
         const token = localStorage.getItem("adminToken");
@@ -278,15 +314,17 @@ export default function CourseUpdate() {
 
             const data = json?.data;
             if (!data) return;
-
+            const durationData = splitNumberAndText(data?.duration);
+            const reminderData = splitNumberAndText(data?.setReminderEvery);
+            const parsedModules = normalizeModules(data?.modules);
             setFormData({
                 title: data?.title || "",
                 description: data?.description || "",
 
-                modules: (data?.modules || []).map((m) => ({
+                modules: parsedModules.map((m) => ({
                     id: uid(),
                     title: m.title || "",
-                    media: (m.uploadFiles || []).map((f) => ({
+                    media: (m.media || m.uploadFiles || []).map((f) => ({
                         ...f,
                         isExisting: true,
                     })),
@@ -302,14 +340,15 @@ export default function CourseUpdate() {
                     })),
                 })),
 
+
                 settings: {
-                    duration: data?.duration || "",
+                    duration: durationData.number,
+                    durationType: durationData.text,
                     retake: data?.reTakeCourse || "",
                     passValue: data?.passingConditionValue || "",
                     compulsory: data?.isCompulsory ?? true,
-                    reminderValue: data?.setReminderEvery || "",
-                    durationType: "Minutes",
-                    reminderType: "Minutes",
+                    reminderValue: reminderData.number,      // "15"
+                    reminderType: reminderData.text,
                 },
 
                 certificate: {
@@ -336,126 +375,142 @@ export default function CourseUpdate() {
         }
     }, [API_BASE_URL, id]);
 
+    console.log('formData', formData)
+const handleUpdate = async () => {
+    const isValid = validateStep();
+    if (!isValid) return;
 
-    const handleUpdate = async () => {
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+        Swal.fire({
+            icon: "error",
+            title: "Unauthorized",
+            text: "Admin token missing",
+        });
+        return;
+    }
 
-        const isValid = validateStep();
-        if (!isValid) return;
+    try {
+        Swal.fire({
+            title: "Updating course...",
+            text: "Please wait",
+            allowOutsideClick: true,
+            allowEscapeKey: true,
+            didOpen: () => Swal.showLoading(),
+        });
 
-        const token = localStorage.getItem("adminToken");
-        if (!token) {
-            Swal.fire({
-                icon: "error",
-                title: "Unauthorized",
-                text: "Admin token missing",
-            });
-            return;
-        }
+        const fd = new FormData();
 
-        try {
+        // =========================
+        // BASIC DETAILS
+        // =========================
+        fd.append("title", formData?.title || "");
+        fd.append("description", formData?.description || "");
 
-            Swal.fire({
-                title: "Updating course...",
-                text: "Please wait",
-                allowOutsideClick: true,
-                allowEscapeKey: true,
-                didOpen: () => Swal.showLoading(),
-            });
+        // =========================
+        // MODULES (EXISTING MEDIA ONLY)
+        // =========================
+        const modulesPayload = formData.modules.map((mod) => ({
+            id: mod.id,
+            title: mod.title || "",
+            uploadFiles: mod.media?.filter((f) => !(f instanceof File)) || [],
+        }));
 
-            const fd = new FormData();
+        fd.append("modules", JSON.stringify(modulesPayload));
 
-
-            fd.append("title", formData?.title || "");
-            fd.append("description", formData?.description || "");
-
-
-            const modulesPayload = formData?.modules.map((mod) => ({
-                title: mod.title || "",
-                uploadFiles: [],
-            }));
-            fd.append("modules", JSON.stringify(modulesPayload));
-
-            formData?.modules.forEach((mod, index) => {
-                mod.media?.forEach((file) => {
-                    if (file instanceof File) {
-                        fd.append(`uploadFilesModule_${index + 1}`, file);
-                    }
-                });
-            });
-
-
-            const questionsPayload = formData?.assessment.map((q) => ({
-                question: q.question || "",
-                options: q.options.map((o) => o.text),
-                answer: q.options.find((o) => o.correct)?.text || "",
-            }));
-            fd.append("questions", JSON.stringify(questionsPayload));
-
-
-            fd.append(
-                "duration",
-                `${formData?.settings.duration} ${formData?.settings.durationType}`
-            );
-            fd.append("reTakeCourse", formData?.settings.retake || "");
-            fd.append("passingConditionValue", formData?.settings.passValue || "");
-            fd.append(
-                "setReminderEvery",
-                `${formData?.settings.reminderValue} ${formData?.settings.reminderType}`
-            );
-            fd.append("isCompulsory", "true");
-
-
-            fd.append("certificateTitle", formData?.certificate.title || "");
-            if (formData?.certificate.file instanceof File) {
-                fd.append("uploadCertificate", formData?.certificate.file);
-            }
-
-
-            fd.append(
-                "notifiedUsers",
-                JSON.stringify(selectedCoachIds?.map(Number))
-            );
-
-
-
-
-            const res = await fetch(
-                `${API_BASE_URL}/api/admin/course/update/${id}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: fd,
+        // =========================
+        // MODULE FILE UPLOADS (NEW FILES)
+        // =========================
+        formData.modules.forEach((mod, index) => {
+            mod.media?.forEach((file) => {
+                if (file instanceof File) {
+                    fd.append(`uploadFilesModule_${index + 1}`, file);
                 }
-            );
-
-            const result = await res.json();
-
-            if (!res.ok) {
-                throw new Error(result?.message || "Course creation failed");
-            }
-
-
-            Swal.fire({
-                icon: "success",
-                title: "Course updated",
-                text: "Your course has been updated successfully",
-                confirmButtonText: "OK",
             });
+        });
 
-            navigate('/configuration/coach-pro/courses');
-        } catch (error) {
+        // =========================
+        // ASSESSMENT
+        // =========================
+        const questionsPayload = formData.assessment.map((q) => ({
+            question: q.question || "",
+            options: q.options.map((o) => o.text),
+            answer: q.options.find((o) => o.correct)?.text || "",
+        }));
 
-            Swal.fire({
-                icon: "error",
-                title: "Failed",
-                text: error.message || "Something went wrong",
-            });
+        fd.append("questions", JSON.stringify(questionsPayload));
 
-            console.error("ERROR:", error);
+        // =========================
+        // SETTINGS
+        // =========================
+        fd.append(
+            "duration",
+            `${formData.settings.duration} ${formData.settings.durationType}`
+        );
+        fd.append("reTakeCourse", formData.settings.retake || "");
+        fd.append("passingConditionValue", formData.settings.passValue || "");
+        fd.append(
+            "setReminderEvery",
+            `${formData.settings.reminderValue} ${formData.settings.reminderType}`
+        );
+        fd.append("isCompulsory", "true");
+
+        // =========================
+        // CERTIFICATE
+        // =========================
+        fd.append("certificateTitle", formData.certificate.title || "");
+
+        if (formData.certificate.file instanceof File) {
+            fd.append("uploadCertificate", formData.certificate.file);
         }
-    };
+
+        // =========================
+        // NOTIFIED USERS
+        // =========================
+        fd.append(
+            "notifiedUsers",
+            JSON.stringify(selectedCoachIds.map(Number))
+        );
+
+        // =========================
+        // API CALL
+        // =========================
+        const res = await fetch(
+            `${API_BASE_URL}/api/admin/course/update/${id}`,
+            {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: fd,
+            }
+        );
+
+        const result = await res.json();
+
+        if (!res.ok) {
+            throw new Error(result?.message || "Course update failed");
+        }
+
+        Swal.fire({
+            icon: "success",
+            title: "Course updated",
+            text: "Your course has been updated successfully",
+            confirmButtonText: "OK",
+        });
+
+        navigate("/configuration/coach-pro/courses");
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Failed",
+            text: error.message || "Something went wrong",
+        });
+
+        console.error("ERROR:", error);
+    }
+};
+
     useEffect(() => {
         fetchData();
         fetchDataById();
@@ -741,7 +796,7 @@ export default function CourseUpdate() {
                                                         >
                                                             {/* Compact header (always visible) */}
                                                             <div className="flex items-center justify-between p-4 pb-0  rounded-t-2xl">
-                                                                <div className="block items-center gap-3 w-full mx-auto relative">
+                                                                <div className="block items-center gap-3 w-fit mx-auto relative">
                                                                     <span {...provided.dragHandleProps} className="absolute top-2  text-gray-400 flex justify-center w-full mx-auto cursor-grab">
                                                                         <GripVertical size={18} className="rotate-90" />
                                                                     </span>
@@ -888,7 +943,7 @@ export default function CourseUpdate() {
 
 
                                                 <select
-                                                    value={formData.settings.durationType || "Minutes"}
+                                                    value={formData.settings.durationType}
                                                     onChange={(e) =>
                                                         setFormData({
                                                             ...formData,
@@ -897,6 +952,7 @@ export default function CourseUpdate() {
                                                     }
                                                     className={`${inputClass} `}
                                                 >
+                                                    <option value=''>Select Duration</option>
                                                     <option value='Minutes'>Minutes</option>
                                                     <option value='Hours'>Hours</option>
                                                     <option value='Days'>Days</option>
@@ -920,7 +976,7 @@ export default function CourseUpdate() {
                                         <div>
                                             <input
                                                 type="number"
-                                                value={formData.settings.retake || ""}
+                                                value={formData.settings.retake}
                                                 onChange={(e) =>
                                                     setFormData({
                                                         ...formData,
@@ -1042,7 +1098,7 @@ export default function CourseUpdate() {
                                                 />
 
                                                 <select
-                                                    value={formData.settings.reminderType || "Minutes"}
+                                                    value={formData.settings.reminderType}
                                                     onChange={(e) =>
                                                         setFormData({
                                                             ...formData,
@@ -1051,7 +1107,8 @@ export default function CourseUpdate() {
                                                     }
                                                     className={inputClass}
                                                 >
-                                                       <option value='Minutes'>Minutes</option>
+                                                    <option value=''>Select Duration</option>
+                                                    <option value='Minutes'>Minutes</option>
                                                     <option value='Hours'>Hours</option>
                                                     <option value='Days'>Days</option>
                                                 </select>

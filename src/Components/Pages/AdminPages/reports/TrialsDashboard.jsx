@@ -56,70 +56,79 @@ const TrialsDashboard = () => {
     ];
     const currentYear = new Date().getFullYear().toString();
     const yearData = membersData?.yealyGrouped?.[currentYear] || {};
-    const fb = yearData?.facebookPerformance;
     const currentMonth = (new Date().getMonth() + 1).toString();
+    const fb = membersData?.facebookPerformance || {};
+    const getPercentChange = (currentVal = 0, prevVal = 0) => {
+        if (!prevVal) return "0%";
+        return `${(((currentVal - prevVal) / prevVal) * 100).toFixed(1)}%`;
+    };
+
+    const current = fb.currentYear || {};
+    const previous = fb.previousYear || {};
+    const average = fb.average || {};
     console.log('currentMonth', currentMonth)
     const metrics = [
         {
             icon: <Users className="text-teal-500" size={24} />,
             title: "Leads generated",
-            value: fb?.currentYearStats?.leadsGenerated ?? 0,
-            change: fb?.percent ? `${fb.percent}%` : "0%",
-            prev: fb?.prevLeads ?? 0,   // If you have prev values, else remove
+            value: current.leadsGenerated ?? 0,
+            change: getPercentChange(
+                current.leadsGenerated,
+                previous.leadsGenerated
+            ),
+            prev: previous.leadsGenerated ?? 0,
         },
         {
             icon: <CalendarDays className="text-purple-500" size={24} />,
             title: "Trials Booked",
-            value: fb?.currentYearStats?.trialsBooked ?? 0,
-            change: fb?.percent ? `${fb.percent}%` : "0%",
-            prev: fb?.prevTrials ?? 0,
-            conversion:
-                fb?.currentYearStats?.leadsGenerated
-                    ? `${(
-                        (fb.currentYearStats.trialsBooked /
-                            fb.currentYearStats.leadsGenerated) *
-                        100
-                    ).toFixed(1)}%`
-                    : "0%",
+            value: current.trialsBooked ?? 0,
+            change: getPercentChange(
+                current.trialsBooked,
+                previous.trialsBooked
+            ),
+            prev: previous.trialsBooked ?? 0,
+            conversion: average.trialsBookedConversion
+                ? `${average.trialsBookedConversion}%`
+                : "0%",
         },
         {
             icon: <CalendarCheck className="text-sky-500" size={24} />,
             title: "Trials Attended",
-            value: fb?.currentYearStats?.trialsAttended ?? 0,
-            change: fb?.percent ? `${fb.percent}%` : "0%",
-            prev: fb?.prevAttended ?? 0,
-            conversion:
-                fb?.currentYearStats?.trialsBooked
-                    ? `${(
-                        (fb.currentYearStats.trialsAttended /
-                            fb.currentYearStats.trialsBooked) *
-                        100
-                    ).toFixed(1)}%`
-                    : "0%",
+            value: current.trialsAttended ?? 0,
+            change: getPercentChange(
+                current.trialsAttended,
+                previous.trialsAttended
+            ),
+            prev: previous.trialsAttended ?? 0,
+            conversion: average.trialsAttendedConversion
+                ? `${average.trialsAttendedConversion}%`
+                : "0%",
         },
         {
             icon: <UserCheck className="text-pink-400" size={24} />,
             title: "Memberships Sold",
-            value: fb?.currentYearStats?.membershipsSold ?? 0,
-            change: fb?.percent ? `${fb.percent}%` : "0%",
-            prev: fb?.prevMemberships ?? 0,
-            conversion:
-                fb?.currentYearStats?.trialsAttended
-                    ? `${(
-                        (fb.currentYearStats.membershipsSold /
-                            fb.currentYearStats.trialsAttended) *
-                        100
-                    ).toFixed(1)}%`
-                    : "0%",
+            value: current.membershipsSold ?? 0,
+            change: getPercentChange(
+                current.membershipsSold,
+                previous.membershipsSold
+            ),
+            prev: previous.membershipsSold ?? 0,
+            conversion: average.membershipsSoldConversion
+                ? `${average.membershipsSoldConversion}%`
+                : "0%",
         },
         {
             icon: <BarChart3 className="text-orange-400" size={24} />,
             title: "Conversion Rate lead to Sale",
-            value: `${fb?.currentYearStats?.conversionRate ?? 0}%`,
-            change: fb?.percent ? `${fb.percent}%` : "0%",
-            prev: fb?.prevConversion ?? 0,
+            value: `${current.conversionRate ?? 0}%`,
+            change: getPercentChange(
+                current.conversionRate,
+                previous.conversionRate
+            ),
+            prev: `${previous.conversionRate ?? 0}%`,
         },
     ];
+
     const exportFbMetricsExcel = () => {
         const exportData = metrics.map((item) => ({
             Title: item.title,
@@ -142,135 +151,123 @@ const TrialsDashboard = () => {
         saveAs(data, "facebook-metrics.xlsx");
     };
     const monthlyData = yearData?.monthlyGrouped || {};     // ------------------ AGE RANGE LOGIC ------------------
-    let allAges = [];
-
-    Object.values(monthlyData).forEach(month => {
-        const byAge = month?.enrolledStudents?.byAge;
-        if (byAge) {
-            allAges = [...allAges, ...Object.keys(byAge).map(a => Number(a))];
-        }
-    })
+      const allAges =
+        membersData?.enrolledData?.byAge?.map(item =>
+            Number(item.label.replace(/\D/g, ""))
+        ) || [];
     const ageOptions = (() => {
-        if (!allAges.length) return [{ value: "allAges", label: "All ages" }];
+        if (!allAges?.length) {
+            return [{ value: "all", label: "All ages" }];
+        }
 
-        const ranges = [
-            { value: "under18", label: "Under 18", filter: age => age < 18 },
-            { value: "18-25", label: "18–25", filter: age => age >= 18 && age <= 25 },
-            { value: "25-35", label: "25–35", filter: age => age > 25 && age <= 35 },
-            { value: "35plus", label: "35+", filter: age => age > 35 },
-        ];
-
-        const dynamic = ranges.filter(range =>
-            allAges.some(age => range.filter(age))
-        );
+        const uniqueSortedAges = [...new Set(allAges)].sort((a, b) => a - b);
 
         return [
             { value: "all", label: "All ages" },
-            ...dynamic
+            ...uniqueSortedAges.map((age) => ({
+                value: age,
+                label: `${age} Years`,
+            })),
         ];
     })();
 
-    const dateOptions = [
-        { value: "month", label: "This Month" },
-        { value: "quarter", label: "This Quarter" },
-        { value: "year", label: "This Year" },
+   const dateOptions = [
+        { value: "thisMonth", label: "This Month" },
+        { value: "thisQuarter", label: "This Quarter" },
+        { value: "thisYear", label: "This Year" },
     ];
-
+    console.log('membersData', membersData)
     const stats = [
         {
             icon: "/reportsIcons/user-group.png",
             iconStyle: "text-[#3DAFDB] bg-[#F3FAFD]",
             title: "Free Trials Booked",
-            value: ` ${membersData?.overallTrends?.freeTrialsCount}`,
-            diff: "+12%",
+            value: `${membersData?.summary?.totalTrials?.currentYear}`,
+            diff: `${membersData?.summary?.totalTrials?.average}%`,
             sub: "vs. prev period ",
-            subvalue: `${membersData?.overallTrends?.freeTrialsCount}`,
+            subvalue: `${membersData?.summary?.totalTrials?.previousYear}`,
         },
         {
             icon: "/reportsIcons/attendent.png",
             iconStyle: "text-[#E769BD] bg-[#F3FAFD]",
             title: "How many attended",
-            value: ` ${membersData?.overallTrends?.attendedCount}`,
-            diff: "+8%",
+            value: ` ${membersData?.summary?.attendedTrials?.currentYear}`,
+            diff: `${membersData?.summary?.attendedTrials?.average}%`,
             sub: "vs. prev period",
-            subvalue: '£57,000'
+            subvalue: `${membersData?.summary?.attendedTrials?.previousYear}`
         },
         {
             icon: "/reportsIcons/Percent.png",
             iconStyle: "text-[#F38B4D] bg-[#F3FAFD]",
             title: "Attendance Rate",
-            value: ` ${membersData?.overallTrends?.attendanceRate}`,
-            diff: "+6%",
+            value: ` ${membersData?.summary?.attendanceRate?.currentYear}`,
+            diff: `${membersData?.summary?.attendanceRate?.average}%`,
             sub: "vs. prev period ",
-            subvalue: '£57,000'
+            subvalue: `${membersData?.summary?.attendanceRate?.previousYear}`
         },
         {
             icon: "/reportsIcons/user-group2.png",
             iconStyle: "text-[#6F65F1] bg-[#F3FAFD]",
             title: "Trials to Members",
-            value: ` ${membersData?.overallTrends?.trialToMemberCount}`,
-            diff: "+6%",
+            value: ` ${membersData?.summary?.convertedTrialsToMembers?.currentYear}`,
+            diff: `${membersData?.summary?.convertedTrialsToMembers?.average}%`,
             sub: "vs. prev period ",
-            subvalue: '16.8 months'
+            subvalue: `${membersData?.summary?.convertedTrialsToMembers?.previousYear}`
         },
         {
             icon: "/reportsIcons/Chart.png",
             iconStyle: "text-[#FF5353] bg-[#FEF8F4]",
             title: "Conversion Rate",
-            value: ` ${membersData?.overallTrends?.conversionRate}`,
-            diff: "+3%",
+            value: ` ${membersData?.summary?.conversionRate?.currentYear}`,
+            diff: `${membersData?.summary?.conversionRate?.average}%`,
             sub: "vs. prev period ",
-            subvalue: '16.8 months'
+            subvalue: `${membersData?.summary?.conversionRate?.previousYear}`
         },
         {
             icon: "/reportsIcons/calender.png",
             iconStyle: "text-[#FF5353] bg-[#FEF8F4]",
             title: "No. of Rebooks",
-            value: ` ${membersData?.overallTrends?.rebookCount}`,
-            diff: "+3%",
+            value: ` ${membersData?.summary?.rebooks?.currentYear}`,
+            diff: `${membersData?.summary?.rebooks?.average}%`,
             sub: "vs. prev period ",
-            subvalue: '16.8 months'
+            subvalue: `${membersData?.summary?.rebooks?.previousYear}`
         },
     ];
 
     useEffect(() => {
-        const enrolledData =
-            membersData?.yealyGrouped?.[currentYear]?.monthlyGrouped?.[currentMonth]
-                ?.enrolledStudents || {};
+        const enrolledData = membersData?.enrolledData;
+
+        if (!enrolledData) {
+            setMainData([]);
+            return;
+        }
 
         if (activeTab === "age") {
-            const byAge = enrolledData.byAge || {};
-            const total = Object.values(byAge).reduce((a, b) => a + b, 0);
-            const formatted = Object.entries(byAge).map(([age, count]) => ({
-                label: `${age} `,
-                value: ((count / total) * 100).toFixed(2), // percentage
-                count,
+            const formatted = (enrolledData.byAge || []).map(item => ({
+                label: item.label,
+                value: item.percentage, // already percentage
+                count: item.count,
             }));
             setMainData(formatted);
         }
         else if (activeTab === "venue") {
-            const venues = enrolledData.byVenue || {};
-            const totalStudents = venues.reduce((sum, v) => sum + v.studentsCount, 0);
-
-            const formatted = venues.map(v => ({
-                label: v.name,
-                value: ((v.studentsCount / totalStudents) * 100).toFixed(2), // percentage
-                count: v.studentsCount
+            const formatted = (enrolledData.byVenue || []).map(item => ({
+                label: item.label,
+                value: item.percentage,
+                count: item.count,
             }));
-
             setMainData(formatted);
         }
         else {
-            const byGender = enrolledData.byGender || {};
-            const total = Object.values(byGender).reduce((a, b) => a + b, 0);
-            const formatted = Object.entries(byGender).map(([gender, count]) => ({
-                label: gender.charAt(0).toUpperCase() + gender.slice(1),
-                value: ((count / total) * 100).toFixed(2),
-                count,
+            const formatted = (enrolledData.byGender || []).map(item => ({
+                label: item.label,
+                value: item.percentage,
+                count: item.count,
             }));
             setMainData(formatted);
         }
     }, [activeTab, membersData]);
+
 
 
     const fetchData = useCallback(async () => {
@@ -332,76 +329,63 @@ const TrialsDashboard = () => {
         7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"
     };
 
-    const getMembersAddedMonthly = (data) => {
-        if (!data?.yealyGrouped) return [];
+    const getMembersAddedMonthly = (trialsComparison) => {
+        if (!trialsComparison) return [];
 
-        const years = Object.keys(data.yealyGrouped);
-        const yearData = data.yealyGrouped[years[0]];
-        const monthly = yearData?.monthlyGrouped || {};
+        const { labels = [], series = [] } = trialsComparison;
 
-        let result = [];
+        const currentYearSeries = series[0];
+        if (!currentYearSeries) return [];
 
-        for (let i = 1; i <= 12; i++) {
-            const key = String(i);
-            const monthName = monthsMap[i];
+        // Find last non-zero month in current year
+        const lastNonZeroIndex = currentYearSeries.data
+            .map((v, i) => (v > 0 ? i : -1))
+            .filter(i => i !== -1)
+            .pop();
 
-            if (!monthly[key]) {
-                result.push({ month: monthName, members: 0 });
-                continue;
-            }
+        return labels.map((month, index) => {
+            const row = { month };
 
-            const bookings = monthly[key].bookings || [];
+            series.forEach((s, sIndex) => {
+                const key = s.name.replace(/\s+/g, "");
 
-            // 🚫 Ignore cancelled
-            const activeBookings = bookings.filter(
-                (b) => b.status !== "cancelled"
-            );
-
-            // Count FREE bookings only
-            const freeActiveBookings = activeBookings.filter(
-                (b) => b.bookingType === "free"
-            );
-
-            // Count students for free bookings
-            let freeCount = 0;
-            freeActiveBookings.forEach((b) => {
-                if (b.students?.length > 0) {
-                    freeCount += b.students.length;
+                // ✅ Trim ONLY current year AFTER last non-zero
+                if (sIndex === 0 && lastNonZeroIndex !== undefined && index > lastNonZeroIndex) {
+                    row[key] = null; // important
+                } else {
+                    row[key] = s.data?.[index] ?? 0;
                 }
             });
 
-            result.push({ month: monthName, members: freeCount });
-        }
-
-        return result;
+            return row;
+        });
     };
 
-    const lineChartData = getMembersAddedMonthly(membersData).map((item) => ({
-        month: item.month,
-        members: item.members,
-    }));
+    const series = membersData?.graph?.trialsComparison?.series;
+
+    const currentYearKey = series?.[0]?.name.replace(/\s+/g, "");
+    const previousYearKey = series?.[1]?.name.replace(/\s+/g, "");
+
+    const lineChartData = getMembersAddedMonthly(
+        membersData?.graph?.trialsComparison
+    );
+    // -
+
     const year = new Date().getFullYear();
     const month = new Date().getMonth() + 1;
 
-    const bookings =
-        membersData?.yealyGrouped?.[year]?.monthlyGrouped?.[month]?.bookings || [];
+    const plans = membersData?.membershipPlansAacquiredPostTrial || [];
 
-    // ✅ Group bookings by paymentPlan title
-    const planCounts = {};
-    bookings.forEach((b) => {
-        const planName = b?.paymentPlan?.title || "Unknown Plan";
-        planCounts[planName] = (planCounts[planName] || 0) + 1;
-    });
+    const colors = ["#8B5CF6", "#FACC15", "#22C55E", "#3B82F6", "#EF4444"];
 
-    // ✅ Convert to chart format
-    const total = Object.values(planCounts).reduce((a, b) => a + b, 0);
-    const colors = ["#8B5CF6", "#FACC15", "#22C55E", "#3B82F6", "#EF4444"]; // add more if needed
-
-    const pieData = Object.keys(planCounts).map((name, index) => ({
-        name,
-        value: Math.round((planCounts[name] / total) * 100), // percentage
+    const pieData = plans.map((plan, index) => ({
+        name: plan.title,
+        value: plan.members?.percentage ?? 0,   // percentage for chart
+        count: plan.members?.count ?? 0,         // members count
+        revenue: plan.revenue?.amount ?? 0,      // revenue amount
         color: colors[index % colors.length],
     }));
+
     const customSelectStyles = {
         control: (provided, state) => ({
             ...provided,
@@ -438,8 +422,10 @@ const TrialsDashboard = () => {
             paddingRight: "0.5rem",
         }),
     };
+    const topAgents = membersData?.topAgents || [];
+    const maxBookings = Math.max(...topAgents.map(a => a.totalBookings || 0), 1);
 
-  const ProgressBar = ({ percent }) => (
+    const ProgressBar = ({ percent }) => (
         <div className="w-full bg-gray-100 h-2 rounded-full relative">
             <div
                 style={{ width: `${percent}%` }}
@@ -468,37 +454,53 @@ const TrialsDashboard = () => {
                     <Select
                         options={
                             membersData?.allVenues
-                                ? [{ value: "", label: "All venues" }].concat(
-                                    membersData.allVenues.map((v) => ({ value: v.id, label: v.name }))
-                                )
+                                ? [
+                                    { value: "", label: "All venues" },
+                                    ...membersData.allVenues.map((v) => ({
+                                        value: v.id,
+                                        label: v.name,
+                                    })),
+                                ]
                                 : venueOptions
                         }
                         defaultValue={
                             membersData?.allVenues
                                 ? { value: "", label: "All venues" }
-                                : venueOptions[0]
+                                : venueOptions?.[0]
                         }
                         styles={customSelectStyles}
+                        isClearable
                         components={{ IndicatorSeparator: () => null }}
-                        className="md:w-40"
-                        onChange={(selected) => handleFilterChange("venueId", selected.value)}
+                        className="md:w-50"
+                        onChange={(selected) =>
+                            handleFilterChange("venueId", selected?.value || "")
+                        }
                     />
+
+                    {/* Age */}
                     <Select
                         options={ageOptions}
-                        defaultValue={ageOptions[0]}
+                        defaultValue={ageOptions?.[0]}
                         styles={customSelectStyles}
+                        isClearable
                         components={{ IndicatorSeparator: () => null }}
-                        onChange={(selected) => handleFilterChange("age", selected.value)}
-                        className="md:w-40"
+                        className="md:w-50"
+                        onChange={(selected) =>
+                            handleFilterChange("age", selected?.value || "")
+                        }
                     />
-                    <Select
-                        components={{ IndicatorSeparator: () => null }}
 
+                    {/* Date */}
+                    <Select
                         options={dateOptions}
-                        defaultValue={dateOptions[0]}
+                        defaultValue={dateOptions?.[0]}
                         styles={customSelectStyles}
-                        onChange={(selected) => handleFilterChange("period", selected.value)}
-                        className="md:w-40"
+                        isClearable
+                        components={{ IndicatorSeparator: () => null }}
+                        className="md:w-50"
+                        onChange={(selected) =>
+                            handleFilterChange("period", selected?.value || "")
+                        }
                     />
                     <button onClick={exportFbMetricsExcel}
                         className="flex items-center gap-2 bg-[#237FEA] text-white text-sm px-4 py-2 rounded-xl hover:bg-blue-700 transition">
@@ -546,85 +548,91 @@ const TrialsDashboard = () => {
                             <ResponsiveContainer width="100%" height={300}>
                                 <LineChart
                                     data={lineChartData}
-                                    margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+                                    margin={{ top: 20, right: 30, left: 20, bottom: 0 }}
+
                                 >
-                                    {/* Soft grid like screenshot */}
+                                    {/* Grid */}
                                     <CartesianGrid
-                                        vertical={false}
                                         strokeDasharray="3 3"
-                                        stroke="#E5E7EB"
+                                        stroke="#EEF2F7"
+                                        vertical={false}
                                     />
 
-                                    {/* Clean axis */}
+                                    {/* X Axis */}
                                     <XAxis
                                         dataKey="month"
+                                        padding={{ left: 30, right: 30 }}
                                         tick={{ fill: "#6B7280", fontSize: 12 }}
                                         axisLine={false}
                                         tickLine={false}
                                     />
+
+
+                                    {/* Y Axis */}
                                     <YAxis
                                         tick={{ fill: "#9CA3AF", fontSize: 12 }}
                                         axisLine={false}
                                         tickLine={false}
                                     />
 
-                                    {/* Minimal tooltip */}
+                                    {/* Tooltip */}
                                     <Tooltip
+                                        cursor={false}
                                         contentStyle={{
-                                            borderRadius: 8,
-                                            border: "1px solid #e5e7eb",
-                                            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                                            background: "#FFFFFF",
+                                            borderRadius: 12,
+                                            border: "none",
+                                            boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
                                         }}
-                                        cursor={{ stroke: "#E5E7EB", strokeWidth: 1 }}
+                                        labelStyle={{ fontWeight: 600 }}
                                     />
 
-                                    {/* Gradient Areas */}
+                                    {/* Gradient definition */}
                                     <defs>
-                                        <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.25} />
-                                            <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.03} />
-                                        </linearGradient>
-
-                                        <linearGradient id="colorPrevious" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#EC4899" stopOpacity={0.25} />
-                                            <stop offset="95%" stopColor="#EC4899" stopOpacity={0.03} />
+                                        <linearGradient id="colorMembers" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="#60A5FA" stopOpacity={0.35} />
+                                            <stop offset="70%" stopColor="#60A5FA" stopOpacity={0.15} />
+                                            <stop offset="100%" stopColor="#60A5FA" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
 
-                                    {/* Current Members Line (Blue) */}
+                                    {/* Previous year line (draw FIRST → stays below) */}
+                                    {previousYearKey && (
+                                        <Line
+                                            type="monotone"
+                                            dataKey={previousYearKey}
+                                            stroke="#F472B6"
+                                            strokeWidth={2}
+                                            dot={false}
+                                            connectNulls
+                                            isAnimationActive={false}
+                                        />
+                                    )}
+
+                                    {/* Area fill for current year (under line) */}
                                     <Area
                                         type="monotone"
-                                        dataKey="members"
+                                        dataKey={currentYearKey}
                                         stroke="none"
-                                        fill="url(#colorCurrent)"
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="members"
-                                        stroke="#3B82F6"
-                                        strokeWidth={3}
-                                        dot={false}
-                                        activeDot={{ r: 4 }}
+                                        fill="url(#colorMembers)"
+                                        fillOpacity={1}
+                                        connectNulls
+                                        tooltipType="none"
+
                                     />
 
-                                    {/* Previous Members Line (Pink) */}
-                                    <Area
-                                        type="monotone"
-                                        dataKey="previous"
-                                        stroke="none"
-                                        fill="url(#colorPrevious)"
-                                    />
+                                    {/* Current year line (draw LAST → stays on top) */}
                                     <Line
                                         type="monotone"
-                                        dataKey="previous"
-                                        stroke="#EC4899"
+                                        dataKey={currentYearKey}
+                                        stroke="#3B5BFF"
                                         strokeWidth={2.5}
                                         dot={false}
-                                        activeDot={{ r: 4 }}
+                                        activeDot={{ r: 5 }}
+                                        connectNulls
                                     />
                                 </LineChart>
                             </ResponsiveContainer>
-
                         </div>
                     </div>
 
@@ -708,53 +716,53 @@ const TrialsDashboard = () => {
 
                             <div className="flex flex-col md:flex-row justify-between md:items-center">
 
-                                <div className="md:w-4/12 w-[180px] h-[180px] mx-auto md:mx-0">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={pieData}
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={2}
-                                                dataKey="value"
-                                            >
-                                                {pieData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                        </PieChart>
-                                    </ResponsiveContainer>
+                                <div className="w-full lg:w-1/3 flex justify-center">
+                                    <div className="w-[160px] h-[160px]">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <PieChart>
+                                                <Pie
+                                                    data={pieData}
+                                                    cx="50%"
+                                                    cy="50%"
+                                                    innerRadius={55}
+                                                    outerRadius={75}
+                                                    paddingAngle={2}
+                                                    dataKey="value"
+                                                >
+                                                    {pieData.map((entry, index) => (
+                                                        <Cell key={index} fill={entry.color} />
+                                                    ))}
+                                                </Pie>
+                                            </PieChart>
+                                        </ResponsiveContainer>
+                                    </div>
                                 </div>
 
 
-                                <div className="md:w-8/12 mt-6 md:mt-0 md:ml-6 md:max-h-[100px] overflow-auto">
+                                <div className="w-full lg:w-2/3 space-y-3">
                                     {pieData.map((item, i) => (
                                         <div
                                             key={i}
-                                            className="grid md:grid-cols-2 justify-between gap-3 lg:gap-7 items-center mb-2 text-sm text-gray-600"
+                                            className="flex justify-between items-center text-sm"
                                         >
                                             <div className="flex items-center gap-2">
                                                 <span
-                                                    className="w-2 h-2 rounded-full"
+                                                    className="w-2.5 h-2.5 rounded-full"
                                                     style={{ backgroundColor: item.color }}
-                                                ></span>
-                                                <span className="font-medium">{item.name}</span>
-                                            </div>
-                                            <div className="flex items-center gap-6 text-gray-800 font-semibold">
-                                                <span>{item.value}%</span>
-                                                <span>
-                                                    {i === 0
-                                                        ? "10,234"
-                                                        : i === 1
-                                                            ? "1,234"
-                                                            : "934"}
+                                                />
+                                                <span className="font-medium text-gray-700">
+                                                    {item.name}
                                                 </span>
+                                            </div>
+
+                                            <div className="flex gap-6 font-semibold text-gray-800">
+                                                <span>{item.value}%</span>
+                                                <span>{item.count}</span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
+
                             </div>
 
 
@@ -785,13 +793,13 @@ const TrialsDashboard = () => {
                             </h2>
 
                             {(() => {
-                                const perfObj = yearData?.monthlyGrouped?.[currentMonth]?.marketingChannelPerformance;
+                                const perfObj = membersData?.marketingChannelPerformance;
 
                                 // Convert object → array of { label, value }
                                 const list = perfObj
                                     ? Object.entries(perfObj).map(([label, value]) => ({
-                                        label,
-                                        value
+                                        label: value.label || label,
+                                        percentage: value.percentage ?? 0,
                                     }))
                                     : [];
 
@@ -815,12 +823,12 @@ const TrialsDashboard = () => {
                                             <div className="w-full bg-gray-100 h-2 rounded-full">
                                                 <div
                                                     className="bg-[#237FEA] h-2 rounded-full transition-all duration-500"
-                                                    style={{ width: `${item.value}%` }}
+                                                    style={{ width: `${item.percentage}%` }}
                                                 ></div>
                                             </div>
 
                                             <span className="text-xs text-[#344054] font-semibold">
-                                                {item.value}%
+                                                {item.percentage}%
                                             </span>
                                         </div>
                                     </div>
@@ -834,44 +842,51 @@ const TrialsDashboard = () => {
                                 Top Agents <EllipsisVertical />
                             </h2>
 
-                            {yearData?.monthlyGrouped?.[currentMonth]?.agentSummary?.map((item, i) => (
-                                <div key={item.id || i} className="mb-4">
-                                    <div className="flex gap-5 justify-between">
-                                        <div className="profileimg w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
-                                            <img
-                                                className="object-cover w-full h-full"
-                                                onError={(e) => {
-                                                    e.currentTarget.onerror = null; // prevent infinite loop
-                                                    e.currentTarget.src = '/members/dummyuser.png';
-                                                }}
-                                                src={
-                                                    item?.profile
-                                                        ? `${item.profile}`
-                                                        : '/members/dummyuser.png'
-                                                } alt="" />
-                                        </div>
+                            {topAgents.map((item, index) => {
+                                const percent = Math.round(
+                                    ((item.totalBookings || 0) / maxBookings) * 100
+                                );
 
-                                        <div className="w-full">
-                                            <div className="flex justify-between items-center mb-1">
-                                                <p className="text-xs text-[#344054] font-semibold">
-                                                    {item?.name || "Unknown"}
-                                                </p>
+                                return (
+                                    <div key={item.agentId || index} className="mb-4">
+                                        <div className="flex gap-5 justify-between">
+                                            <div className="profileimg w-10 h-10 bg-gray-300 rounded-full overflow-hidden">
+                                                <img
+                                                    className="object-cover w-full h-full"
+                                                    onError={(e) => {
+                                                        e.currentTarget.onerror = null;
+                                                        e.currentTarget.src = "/members/dummyuser.png";
+                                                    }}
+                                                    src={item.profile || "/members/dummyuser.png"}
+                                                    alt={item.name}
+                                                />
                                             </div>
 
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-full bg-gray-100 h-2 rounded-full">
-                                               
-                                                     <ProgressBar percent={item?.freeTrialTrend.percent} />
+                                            <div className="w-full">
+                                                <div className="flex justify-between items-center mb-1">
+                                                    <p className="text-xs text-[#344054] font-semibold">
+                                                        {item.name || "Unknown"}
+                                                    </p>
+                                                    {/* <span className="text-xs text-[#344054] font-semibold">
+                                                        {item.totalBookings || 0}
+                                                    </span> */}
                                                 </div>
 
-                                                <span className="text-xs text-[#344054] font-semibold">
-                                                    {item?.freeTrialTrend.percent || 0}%
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-full bg-gray-100 h-2 rounded-full">
+                                                        <ProgressBar percent={percent} />
+                                                    </div>
+
+                                                    <span className="text-xs text-[#344054] font-semibold">
+                                                        {percent}%
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
+
 
                         </div>
                     </div>
@@ -889,7 +904,7 @@ const TrialsDashboard = () => {
                             <EllipsisVertical />
                         </div>
 
-                        <h1 className="text-[48px] font-semibold">£{yearData?.monthlyGrouped?.[currentMonth]?.revenue}</h1>
+                        <h1 className="text-[48px] font-semibold">£{membersData?.revenueFromMemberships}</h1>
                         <p className="font-semibold text-[16px] text-[#717073]">Revenue generated from memberships acquired through free trials.</p>
                     </div>
                     <div className="bg-white rounded-2xl p-4 mt-3">

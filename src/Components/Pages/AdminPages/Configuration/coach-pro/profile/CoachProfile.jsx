@@ -123,25 +123,25 @@ export default function CoachProfile() {
     }
   }, [coachProData]);
   useEffect(() => {
-  if (!coachProData.length) return;
+    if (!coachProData.length) return;
 
-  // 🟢 First page load only
-  if (!selectedCoachId) {
-    const firstCoach = coachProData[0];
-    setSelectedCoachId(firstCoach.id);
-    setSelectedCoach(firstCoach);
-    return;
-  }
+    // 🟢 First page load only
+    if (!selectedCoachId) {
+      const firstCoach = coachProData[0];
+      setSelectedCoachId(firstCoach.id);
+      setSelectedCoach(firstCoach);
+      return;
+    }
 
-  // 🟢 After create / update / delete → preserve selection
-  const sameCoach = coachProData.find(
-    (coach) => coach.id === selectedCoachId
-  );
+    // 🟢 After create / update / delete → preserve selection
+    const sameCoach = coachProData.find(
+      (coach) => coach.id === selectedCoachId
+    );
 
-  if (sameCoach) {
-    setSelectedCoach(sameCoach);
-  }
-}, [coachProData, selectedCoachId]);
+    if (sameCoach) {
+      setSelectedCoach(sameCoach);
+    }
+  }, [coachProData, selectedCoachId]);
 
   const handleCoachSelect = (coach) => {
     setSelectedCoachId(coach.id);
@@ -228,34 +228,34 @@ export default function CoachProfile() {
   });
 
   const handleSave = async () => {
-  try {
-    if (modalMode === "add") {
-      const payload = {
-        venueId: formData.location,
-        rate: formData.rate,
-        coachId: selectedCoach.id,
-      };
+    try {
+      if (modalMode === "add") {
+        const payload = {
+          venueId: formData.location,
+          rate: formData.rate,
+          coachId: selectedCoach.id,
+        };
 
-      await createCoachPro(payload); // 🔥 fetchCoachPro already runs
-    } else {
-      const payload = {
-        venueId: formData.location,
-        rate: formData.rate,
-      };
+        await createCoachPro(payload); // 🔥 fetchCoachPro already runs
+      } else {
+        const payload = {
+          venueId: formData.location,
+          rate: formData.rate,
+        };
 
-      await updateCoachPro(formData.id, payload); // 🔥 fetchCoachPro already runs
+        await updateCoachPro(formData.id, payload); // 🔥 fetchCoachPro already runs
+      }
+
+      // UI reset only
+      setIsModalOpen(false);
+      setEditingIndex(null);
+      setModalMode("add");
+      setFormData({ location: "", rate: "", id: "" });
+
+    } catch (error) {
+      console.error("Venue save failed", error);
     }
-
-    // UI reset only
-    setIsModalOpen(false);
-    setEditingIndex(null);
-    setModalMode("add");
-    setFormData({ location: "", rate: "", id: "" });
-
-  } catch (error) {
-    console.error("Venue save failed", error);
-  }
-};
+  };
 
 
   const handleDownload = async (fileId, fileUrl) => {
@@ -331,11 +331,11 @@ export default function CoachProfile() {
       });
     }
   };
-useEffect(() => {
-  if (selectedCoach) {
-    setVenuesData(selectedCoach.coachAllocations || []);
-  }
-}, [selectedCoach]);
+  useEffect(() => {
+    if (selectedCoach) {
+      setVenuesData(selectedCoach.coachAllocations || []);
+    }
+  }, [selectedCoach]);
 
 
 
@@ -394,9 +394,13 @@ useEffect(() => {
 
           </div>
         </div>
-
+ {!selectedCoach ? (
+            <div className="w-full flex items-center justify-center text-gray-500 text-lg py-10">
+              No coach found
+            </div>
+          ) : ( 
         <div className="md:w-[80%] bg-white p-4 rounded-2xl flex gap-4">
-
+                 
           <div className="bg-[#FAFAFA] border border-[#E2E1E5] min-w-60 rounded-3xl py-6">
             <div className="flex flex-col items-center border-b border-[#E2E1E5] pb-5 px-6">
               <div className="w-24 h-24 rounded-full mb-3">
@@ -436,6 +440,8 @@ useEffect(() => {
               <OnboardingProgress />
             </div>
           </div>
+            
+
 
           <div className="flex-1 bg-white rounded-xl p-4">
 
@@ -942,7 +948,9 @@ useEffect(() => {
               </>
             )}
           </div>
+
         </div>
+        )}
         {showModal && (
           <QcConfiguration setShowModal={setShowModal} />
         )}

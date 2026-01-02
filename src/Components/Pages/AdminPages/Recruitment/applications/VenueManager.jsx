@@ -298,7 +298,7 @@ const VenueManager = () => {
 
 
  const applyFilter = () => {
-    let temp = Array.isArray(recruitment) ? [...recruitment] : [];
+    let temp = Array.isArray(venueRecruitment) ? [...venueRecruitment] : [];
 
     setCurrentPage(1);
 
@@ -376,10 +376,10 @@ const VenueManager = () => {
         );
     };
 useEffect(() => {
-    if (Array.isArray(recruitment)) {
-        setFilteredRecruitment(recruitment);
+    if (Array.isArray(venueRecruitment)) {
+        setFilteredRecruitment(venueRecruitment);
     }
-}, [recruitment?.length]);
+}, [venueRecruitment?.length]);
 
     const finalSummaryCards = summaryCards.map(card => {
         const matched = Array.isArray(statsRecruitment)

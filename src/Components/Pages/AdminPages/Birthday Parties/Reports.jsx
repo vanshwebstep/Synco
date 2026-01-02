@@ -39,13 +39,13 @@ import {
   Box,
   Plus,
 } from "lucide-react";
+import { color } from "framer-motion";
 
 export default function BirthdayReports() {
   const [data, setData] = useState([]);
   const [summary, setSummary] = useState({});
   const [charts, setCharts] = useState({});
   const [loading, setLoading] = useState(false);
-console.log('charts',charts)
   const token = localStorage.getItem("adminToken");
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const [selectedFilter, setSelectedFilter] = useState(null);
@@ -112,47 +112,46 @@ console.log('charts',charts)
   /** =====================
    * ✅ Stat Cards
    * ===================== */
-useEffect(() => {
-  const enrolledData = charts?.packageBackground || [];
-  let formatted = [];
-
-  const findDataByKey = (key) => {
-    const item = enrolledData.find(obj => obj[key]);
-    return item ? item[key] : [];
-  };
-
-  if (packageActiveTab === "revenue") {
-    const totals = findDataByKey("revenue");
-    formatted = totals.map(v => ({
-      label: v.name,
-      value: v.percentage,
-      count: v.count,
-    }));
-  } 
-  else if (packageActiveTab === "growth") {
-    const totals = findDataByKey("growth");
-    formatted = totals.map(v => ({
-      label: v.name,
-      value: v.percentage,
-      count: v.count,
-    }));
-  }
-  else if (packageActiveTab === "other") {
-    const totals = findDataByKey("other");
-    formatted = totals.map(v => ({
-      label: v.name,
-      value: v.percentage,
-      count: v.count,
-    }));
-  }
-
-  setPackageData(formatted);
-}, [packageActiveTab, charts]);
-
-
-console.log('setPackageData',charts)
   useEffect(() => {
-    const enrolledData = charts?.partyBooking?.[0] || {};
+    const enrolledData = charts?.currentYear?.packageBackground || [];
+    let formatted = [];
+
+    const findDataByKey = (key) => {
+      const item = enrolledData.find(obj => obj[key]);
+      return item ? item[key] : [];
+    };
+
+    if (packageActiveTab === "revenue") {
+      const totals = findDataByKey("revenue");
+      formatted = totals.map(v => ({
+        label: v.name,
+        value: v.percentage,
+        count: v.count,
+      }));
+    }
+    else if (packageActiveTab === "growth") {
+      const totals = findDataByKey("growth");
+      formatted = totals.map(v => ({
+        label: v.name,
+        value: v.percentage,
+        count: v.count,
+      }));
+    }
+    else if (packageActiveTab === "other") {
+      const totals = findDataByKey("other");
+      formatted = totals.map(v => ({
+        label: v.name,
+        value: v.percentage,
+        count: v.count,
+      }));
+    }
+
+    setPackageData(formatted);
+  }, [packageActiveTab, charts]);
+
+
+  useEffect(() => {
+    const enrolledData = charts?.currentYear?.partyBooking?.[0] || {};
 
     let formatted = [];
 
@@ -200,21 +199,32 @@ console.log('setPackageData',charts)
   const currentMonthIndex = currentDate.getMonth();
   const currentMonthName = currentDate.toLocaleString("default", { month: "long" });
 
- const allMonths = [
+  const allMonths = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
- const fullToShort = {
+  const fullToShort = {
     January: "Jan", February: "Feb", March: "Mar", April: "Apr",
     May: "May", June: "Jun", July: "Jul", August: "Aug",
     September: "Sep", October: "Oct", November: "Nov", December: "Dec",
   };
 
   // Step 1: Convert API data to dictionary for easy merge
-   const existingData = {};
-  (charts?.monthlyStudents || []).forEach(item => {
+  const existingData = {};
+  (charts?.currentYear?.monthlyStudents || []).forEach(item => {
     const short = fullToShort[item.month] || item.month;
     existingData[short] = item.students;
+  });
+  const currentYearData = {};
+  (charts?.currentYear?.monthlyStudents || []).forEach(item => {
+    const m = fullToShort[item.month] || item.month;
+    currentYearData[m] = item.students;
+  });
+
+  const lastYearData = {};
+  (charts?.lastYear?.monthlyStudents || []).forEach(item => {
+    const m = fullToShort[item.month] || item.month;
+    lastYearData[m] = item.students;
   });
   // Step 2: Add current month if missing
   if (charts?.thisMonth && !existingData[currentMonthName]) {
@@ -222,18 +232,21 @@ console.log('setPackageData',charts)
   }
 
   // Step 3: Build final data (past + current + future)
-  const lineData = allMonths.map((month, index) => {
-    return {
-      month,
-      students:
-        index <= currentMonthIndex
-          ? existingData[month] ?? 0  // past months with 0 if no data
-          : null                     // future months unknown = null
-    };
-  });
+  const lineData = allMonths.map((month, index) => ({
+    month,
+
+    // current year stops at current month
+    currentStudents:
+      index <= currentMonthIndex
+        ? currentYearData[month] ?? 0
+        : null,
+
+    // last year always full
+    previousStudents: lastYearData[month] ?? 0,
+  }));
 
   const marketingData =
-    charts?.marketChannelPerformance?.map((m) => ({
+    charts?.currentYear?.marketChannelPerformance?.map((m) => ({
       name: m.name,
       percentage: m.percentage?.toFixed(1) ?? 0,
       percentText: `${m.percentage?.toFixed(1) ?? 0}%`,
@@ -241,15 +254,16 @@ console.log('setPackageData',charts)
     })) || [];
 
   const topAgents =
-    charts?.topAgents?.map((a) => ({
+    charts?.currentYear?.topAgents?.map((a) => ({
       name: `${a.creator.firstName} ${a.creator.lastName}`,
       value: a.leadCount,
-      avatar: a.creator.firstName[0],
+      avatar: a.creator.profile || a.creator.profile[0],
     })) || [];
 
-  const pieData = charts?.packageBreakdown || [];
-  const renewalData = charts?.renewalBreakdown || [];
-  const revenueByPackage = charts?.revenueByPackage || [];
+  const pieData = charts?.currentYear?.packageBreakdown || [];
+  const renewalData = charts?.currentYear?.renewalBreakdown || [];
+  const revenueByPackage = charts?.currentYear?.revenueByPackage || [];
+  const averageBirthdayChild = charts?.currentYear?.averageBirthdayChild || {};
 
   const COLORS = ["#7C3AED", "#FBBF24", "#60A5FA", "#10B981"];
 
@@ -260,6 +274,10 @@ console.log('setPackageData',charts)
       borderColor: "#ddd",
     }),
   };
+  const parsePercent = (value) =>
+    typeof value === "string"
+      ? parseFloat(value.replace("%", "")) || 0
+      : Number(value) || 0;
 
   /** =====================
    * ✅ Data Export
@@ -273,42 +291,71 @@ console.log('setPackageData',charts)
       iconStyle: "bg-[#E8F7FC] text-[#3DAFDB]",  // light cyan
       title: "Total Leads",
       value: summary?.totalLeads?.thisMonth ?? 0,
-      sub: `Last month: ${summary?.totalLeads?.previousMonth ?? 0}`,
+      sub1: `vs. previous period `,
+      sub2: `${summary?.totalLeads?.previousMonth ?? 0}`,
+      color: Number(summary?.totalLeads?.thisMonth) <= Number(summary?.totalLeads?.previousMonth)
+        ? "text-green-600"
+        : "text-red-600",
+
     },
     {
       icon: '/reportsIcons/Coins.png',
       iconStyle: "bg-[#EAE8FF] text-[#6F65F1]", // light violet
       title: "Number of Sales",
       value: summary?.numberOfSales?.thisMonth ?? 0,
-      sub: `Last month: ${summary?.numberOfSales?.previousMonth ?? 0}`,
+      sub1: `vs. previous period `,
+      sub2: `${summary?.numberOfSales?.previousMonth ?? 0}`,
+      color: Number(summary?.numberOfSales?.thisMonth) <= Number(summary?.numberOfSales?.previousMonth)
+        ? "text-green-600"
+        : "text-red-600",
     },
     {
       icon: '/reportsIcons/Percent.png',
       iconStyle: "bg-[#E9F7EE] text-[#34AE56]", // light green
       title: "Conversion Rate",
       value: summary?.conversionRate?.thisMonth ?? "0%",
-      sub: `Last month: ${summary?.conversionRate?.previousMonth ?? "0%"}`,
+      sub1: `vs. previous period `,
+      sub2: `${summary?.conversionRate?.previousMonth ?? "0%"}`,
+      color: parsePercent(summary?.conversionRate?.thisMonth) <= parsePercent(summary?.conversionRate?.previousMonth)
+        ? "text-green-600"
+        : "text-red-600",
     },
     {
       icon: '/reportsIcons/pound.png',
       iconStyle: "bg-[#FCE9F3] text-[#E769BD]", // light pink
       title: "Revenue Generated",
       value: summary?.revenueGenerated?.thisMonth ?? "£0",
-      sub: `Last month: ${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
+      sub1: `vs. previous period `,
+      sub2: `${summary?.revenueGenerated?.previousMonth ?? "£0"}`,
+      color:
+        Number(summary?.revenueGenerated?.thisMonth ?? 0) <=
+          Number(summary?.revenueGenerated?.previousMonth ?? 0)
+          ? "text-green-600"
+          : "text-red-600",
+
     },
     {
       icon: '/reportsIcons/Package.png',
       iconStyle: "bg-[#E5F7F7] text-[#099699]", // light teal
       title: "Revenue Gold Package",
-      value: `£${goldData?.currentRevenue?.toLocaleString() ?? 0}`,
-      sub: `vs. previous £${goldData?.lastRevenue?.toLocaleString() ?? 0}`,
+      value: `£${summary?.revenueGoldPackage?.thisMonth}`,
+      sub1: `vs. previous period `,
+      sub2: `£${summary?.revenueGoldPackage?.previousMonth}`,
+      color: Number(summary?.revenueGoldPackage?.thisMonth) <= Number(summary?.revenueGoldPackage?.previousMonth)
+        ? "text-green-600"
+        : "text-red-600",
+
     },
     {
       icon: '/reportsIcons/silver-package.png',
       iconStyle: "bg-[#FFF1E9] text-[#F38B4D]", // light orange
       title: "Revenue Silver Package",
-      value: `£${silverData?.currentRevenue?.toLocaleString() ?? 0}`,
-      sub: `vs. previous £${silverData?.lastRevenue?.toLocaleString() ?? 0}`,
+      value: `£${summary?.revenueSilverPackage?.thisMonth}`,
+      sub1: `vs. previous period `,
+      sub2: `£${summary?.revenueSilverPackage?.previousMonth}`,
+      color: Number(summary?.revenueSilverPackage?.thisMonth) <= Number(summary?.revenueSilverPackage?.previousMonth)
+        ? "text-green-600"
+        : "text-red-600",
     },
   ];
 
@@ -364,6 +411,7 @@ console.log('setPackageData',charts)
     }
   };
 
+  console.log('revenueByPackage', revenueByPackage);
   /** =====================
    * ✅ UI Layout
    * ===================== */
@@ -413,7 +461,7 @@ console.log('setPackageData',charts)
                 <div>
                   <div className="text-[14px] text-[#717073] font-semibold">{s.title}</div>
                   <div className="text-[20px] text-black font-semibold">{s.value}</div>
-                  <div className="text-[12px] text-[#717073] font-semibold">{s.sub}</div>
+                  <div className={`text-[12px] text-[#717073] font-semibold`}>{s.sub1} <span className={` ${s.color}`}>{s.sub2}</span></div>
                 </div>
               </div>
             );
@@ -432,73 +480,87 @@ console.log('setPackageData',charts)
                 <EllipsisVertical className="text-gray-500" />
               </div>
               <div className="h-72">
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart
-                    data={lineData}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 5 }}
-                  >
-                    <defs>
-                      <linearGradient id="colorStudents" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="10%" stopColor="#2563EB" stopOpacity={0.25} />
-                        <stop offset="90%" stopColor="#2563EB" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
+                <ResponsiveContainer width="100%" height={260}>
+                  <LineChart data={lineData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
 
+                    {/* Gradient */}
+                   <defs>
+  <linearGradient id="currentGradient" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stopColor="#60A5FA" stopOpacity={0.35} />
+    <stop offset="70%" stopColor="#60A5FA" stopOpacity={0.15} />
+    <stop offset="100%" stopColor="#60A5FA" stopOpacity={0} />
+  </linearGradient>
+</defs>
+
+
+                    {/* Grid */}
                     <CartesianGrid
                       strokeDasharray="3 3"
-                      stroke="#f1f5f9"
-                      horizontal={true}
-                      vertical={false}   // ❗ hide vertical lines
+                      stroke="#EEF2F7"
+                      vertical={false}
                     />
 
+                    {/* X Axis */}
                     <XAxis
                       dataKey="month"
                       axisLine={false}
                       tickLine={false}
-                      scale="band"
-                      domain={['dataMin', 'dataMax']}
-                      interval={0}
-                      tick={{ fontSize: 12, fill: "#64748B" }}
-                      padding={{ left: 10, right: 10 }}
-                      allowDuplicatedCategory={false}
+                      tick={{ fill: "#94A3B8", fontSize: 12 }}
+                    />
+   {/* Current Year Line */}
+                    <Line
+                      type="monotone"
+                      dataKey="currentStudents"
+                      stroke="#3B5BFF"
+                      strokeWidth={2.5}
+                      dot={false}
+                      activeDot={{ r: 4 }}
+                      connectNulls
                     />
 
+                    {/* Previous Year Line */}
+                    <Line
+                      type="monotone"
+                      dataKey="previousStudents"
+                      stroke="#F472B6"     // soft pink
+                      strokeWidth={2}
+                      dot={false}
+                      connectNulls
+                    />
+                    {/* Y Axis */}
                     <YAxis
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fontSize: 12, fill: "#94A3B8" }}
-                      padding={{ bottom: 30 }}
+                      tick={{ fill: "#94A3B8", fontSize: 12 }}
                     />
 
+                    {/* Tooltip */}
                     <Tooltip
                       cursor={false}
                       contentStyle={{
-                        borderRadius: "10px",
+                        background: "#fff",
+                        borderRadius: 12,
                         border: "none",
-                        boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+                        boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
                       }}
                       labelStyle={{ fontWeight: 600 }}
                     />
 
+                    {/* Area (Current Year Only) */}
                     <Area
                       type="monotone"
-                      dataKey="students"
-                      stroke="transparent"
-                      fill="url(#colorStudents)"
+                      dataKey="currentStudents"
+                      stroke="none"
+                      fill="url(#currentGradient)"
                       fillOpacity={1}
+                      tooltipType="none"
                     />
 
-                    <Line
-                      type="monotone"
-                      dataKey="students"
-                      stroke="#2563EB"
-                      strokeWidth={3}
-                      dot={{ r: 0 }}
-                      activeDot={{ r: 4 }}
-                      connectNulls={true}
-                    />
+                 
+
                   </LineChart>
                 </ResponsiveContainer>
+
 
 
               </div>
@@ -705,7 +767,14 @@ console.log('setPackageData',charts)
                     {topAgents.map((a, idx) => (
                       <div key={idx} className="flex items-center space-x-3">
                         <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center font-medium text-indigo-700">
-                          {a.avatar}
+                          {a.avatar ? (
+                            <img
+                              src={a.avatar}
+                              alt="Avatar"
+                              className="h-10 w-10 rounded-full object-cover"
+                            />
+                          ) : null}
+
                         </div>
                         <div className="flex-1 items-center">
                           <div className="flex justify-between">
@@ -759,7 +828,7 @@ console.log('setPackageData',charts)
                             className={`text-xs font-semibold ${pkg.revenueGrowth < 0 ? "text-red-500" : "text-[#717073]"
                               }`}
                           >
-                            vs last month {pkg.lastRevenue} %
+                            vs last month {pkg.lastRevenueGrowth}%
                           </div>
                         </div>
                       </div>
@@ -769,7 +838,7 @@ console.log('setPackageData',charts)
               </div>
             </div>
             <div className="bg-white rounded-2xl p-5 shadow-sm">
-             
+
 
               <div className="flex items-center gap-4">
                 <div className=" ">
@@ -780,7 +849,7 @@ console.log('setPackageData',charts)
                   <div
                     className={`text-[20px] font-semibold`}
                   >
-                   4 Years
+                    {averageBirthdayChild.label}
                   </div>
                 </div>
               </div>

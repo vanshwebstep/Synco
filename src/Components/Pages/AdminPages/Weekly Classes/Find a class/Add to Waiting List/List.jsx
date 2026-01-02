@@ -153,16 +153,13 @@ const WaitingList = () => {
     const year = currentDate.getFullYear();
 
     const getDaysArray = () => {
-        const startDay = new Date(year, month, 1).getDay(); // Sunday = 0
+        const startDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const days = [];
 
         const offset = startDay === 0 ? 6 : startDay - 1;
 
-        for (let i = 0; i < offset; i++) {
-            days.push(null);
-        }
-
+        for (let i = 0; i < offset; i++) days.push(null);
         for (let i = 1; i <= daysInMonth; i++) {
             days.push(new Date(year, month, i));
         }

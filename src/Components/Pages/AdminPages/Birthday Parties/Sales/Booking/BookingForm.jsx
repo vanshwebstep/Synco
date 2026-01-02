@@ -1728,13 +1728,13 @@ const BirthdayBookingForm = () => {
                           buttonClass="!bg-white !border-none !p-0"
                         />
                         <input
-                          type="tel"
+                          type="number"
                           value={parent.phoneNumber}
                           onChange={(e) =>
                             handleParentChange(index, "phoneNumber", e.target.value)
                           }
                           placeholder="Enter phone number"
-                          className='border-none focus:outline-none'
+                          className='border-none w-full focus:outline-none'
                         />
                       </div>
                     </div>
@@ -1846,7 +1846,7 @@ const BirthdayBookingForm = () => {
                       buttonClass="!bg-white !border-none !p-0"
                     />
                     <input
-                      type="tel"
+                      type="number"
                       value={emergency.emergencyPhoneNumber}
                       onChange={(e) =>
                         setEmergency((prev) => ({
@@ -1854,7 +1854,7 @@ const BirthdayBookingForm = () => {
                           emergencyPhoneNumber: e.target.value,
                         }))
                       }
-                      className='border-none focus:outline-none' placeholder="Enter phone number"
+                      className='border-none w-full focus:outline-none' placeholder="Enter phone number"
                     />
 
                   </div>

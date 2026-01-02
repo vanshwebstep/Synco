@@ -564,7 +564,8 @@ const ParentProfile = ({ profile }) => {
                                                 />
 
                                                 <input
-                                                    className="border-none focus:outline-none"
+                                                type='number'
+                                                    className="border-none w-full focus:outline-none"
                                                     value={parent.parentPhoneNumber}
                                                     readOnly={editingIndex !== index}
                                                     onChange={(e) =>
